@@ -17,9 +17,15 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("keep entries with the most recent start date per participant",
  "Keep entries with the most recent start date per participant",
  "Conserver les entrées avec la date de départ la plus récente par participant"),
-("keep entries oldest start date per participant",
- "Keep entries oldest start date per participant",
- "Conserver les entrées avec la date de départ la plus ancienne par participant"); 
+("keep entries with the oldest start date per participant",
+ "Keep entries with the oldest start date per participant",
+ "Conserver les entrées avec la date de départ la plus ancienne par participant"),
+("keep entries with the most recent date per participant",
+ "Keep entries with the most recent date per participant",
+ "Conserver les entrées avec la date la plus récente par participant"),
+("keep entries with the oldest date per participant",
+ "Keep entries with the oldest date per participant",
+ "Conserver les entrées avec la  date la plus ancienne par participant");
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -618,16 +624,27 @@ UPDATE datamart_browsing_controls SET use_field=SUBSTR(use_field, LOCATE('.', us
 
 UPDATE datamart_structures SET index_link='/ClinicalAnnotation/participants/profile/%%MiscIdentifier.participant_id%%' WHERE model='MiscIdentifier';
 
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tx_filter", "", "", "InventoryManagement.TreatmentMaster::getBrowsingFilter");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tx_filter", "", "", "ClinicalAnnotation.TreatmentMaster::getBrowsingFilter");
 INSERT INTO structures(`alias`) VALUES ('tx_adv_search');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'TreatmentMaster', '', 'browsing_filter', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tx_filter') , '0', '', '', '', 'filter', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='tx_adv_search'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='' AND `field`='browsing_filter' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_filter')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='filter' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 UPDATE datamart_structures SET adv_search_structure_alias='tx_adv_search' WHERE model='TreatmentMaster'; 
-UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tx_filter') ,  `setting`='noCtrl=' WHERE model='TreatmentMaster' AND tablename='' AND field='browsing_filter' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tx_filter');
+UPDATE structure_fields SET `setting`='noCtrl=' WHERE model='TreatmentMaster' AND tablename='' AND field='browsing_filter' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tx_filter');
 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("dx_filter", "", "", "ClinicalAnnotation.DiagnosisMaster::getBrowsingFilter");
+INSERT INTO structures(`alias`) VALUES ('dx_adv_search');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', '', 'browsing_filter', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='dx_filter') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_adv_search'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='' AND `field`='browsing_filter' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_filter')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE datamart_structures SET adv_search_structure_alias='dx_adv_search' WHERE model='DiagnosisMaster';
+UPDATE structure_fields SET `language_label`='filter', `setting`='noCtrl=' WHERE model='DiagnosisMaster' AND tablename='' AND field='browsing_filter' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='dx_filter');
 
-
-
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("collection_filter", "", "", "InventoryManagement.Collection::getBrowsingFilter");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'browsing_filter', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='collection_filter') , '0', 'noCtrl=', '', '', 'filter', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_adv_search'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='browsing_filter' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_filter')  AND `flag_confidential`='0' AND `setting`='noCtrl=' AND `default`='' AND `language_help`='' AND `language_label`='filter' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 

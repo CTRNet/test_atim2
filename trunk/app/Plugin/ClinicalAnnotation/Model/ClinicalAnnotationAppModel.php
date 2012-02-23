@@ -23,12 +23,14 @@ class ClinicalAnnotationAppModel extends AppModel {
 		if($this->name != 'Participant'){
 			//manages Participant.last_modification and Participant.last_modification_ds_id
 			$participant_id = null;
+			$name = $this->name;
 			if(isset($this->data[$this->name]['participant_id'])){
 				$participant_id = $this->data[$this->name]['participant_id'];
 			}else if($this->name == 'TreatmentExtend'){
 				$treatment_master = AppModel::getInstance('ClinicalAnnotation', 'TreatmentMaster', true);
 				$tx_data = $treatment_master->find('first', array('conditions' => array('TreatmentMaster.id' => $this->data['TreatmentExtend']['treatment_master_id']), 'fields' => array('TreatmentMaster.participant_id')));
 				$participant_id = $tx_data['TreatmentMaster']['participant_id'];
+				$name = 'TreatmentMaster';
 			}else{
 				$prev_data = $this->data;
 				$curr_data = $this->findById($this->id);
@@ -36,7 +38,7 @@ class ClinicalAnnotationAppModel extends AppModel {
 				$participant_id = $curr_data[$this->name]['participant_id'];
 			}
 			$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
-			$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('DatamartStructure.model' => $this->name)));
+			$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('DatamartStructure.model' => $name)));
 			if(!$datamart_structure){
 				AppController::getInstance()->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 			}

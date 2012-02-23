@@ -266,9 +266,9 @@ class BrowserController extends DatamartAppController {
 						'browsing'		=> $browsing,
 						'browsing_model'=> $this->ModelToSearch
 					));
-					
-					if(isset($this->data[$this->ModelToSearch->name]['browsing_filter'])){
-						$browsing_filter = $this->ModelToSearch->browsing_filter[$this->data[$this->ModelToSearch->name]['browsing_filter'][0]];
+					if(isset($this->data[$this->ModelToSearch->name]['browsing_filter']) && !empty($this->data[$this->ModelToSearch->name]['browsing_filter'])){
+						$browsing_filter = $this->ModelToSearch->getBrowsingFilterArray();
+						$browsing_filter = $browsing_filter[$this->data[$this->ModelToSearch->name]['browsing_filter']];
 					}
 				}
 				$save_ids = $this->ModelToSearch->find('all', array(
@@ -281,25 +281,67 @@ class BrowserController extends DatamartAppController {
 				
 				if($browsing_filter && $save_ids){
 					$temporary_table = 'browsing_tmp_table';
+					$select_field = null;
+					if($this->ModelToSearch->schema($browsing_filter['field'].'_accuracy')){
+						//construct a field function based on accuracy
+						//we have to use \n and \t for accuracy when searching for max 
+						//because they're the rare entries that go before a space
+						$select_field = sprintf(
+							AppModel::ACCURACY_REPLACE_STR, 
+							$browsing_filter['field'], 
+							$browsing_filter['field'].'_accuracy', 
+							$browsing_filter['attribute'] == 'MAX' ? '"\n"' : '"8"',//non year
+							$browsing_filter['attribute'] == 'MAX' ? '"\t"' : '"9"',//year
+							$browsing_filter['attribute']
+						);
+					}else{
+						$select_field = $browsing_filter['attribute'].'('.$browsing_filter['field'].')'; 
+					}
 					$save_ids = array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
-					$query = sprintf('CREATE TEMPORARY TABLE %1$s (SELECT %2$s, %3$s(%4$s) AS %4$s FROM %5$s WHERE %6$s GROUP BY %2$s)',
+					$this->ModelToSearch->query('DROP TEMPORARY TABLE IF EXISTS '.$temporary_table);
+					$query = sprintf('CREATE TEMPORARY TABLE %1$s (SELECT %2$s, %3$s AS order_field, " " AS accuracy FROM %4$s WHERE %5$s GROUP BY %2$s)',
 							$temporary_table,
 							$browsing_filter['group by'],
-							$browsing_filter['attribute'],
-							$browsing_filter['field'],
+							$select_field,
 							$this->ModelToSearch->table,
 							$this->ModelToSearch->primaryKey.' IN('.implode(', ', $save_ids).')'
 					);
 					$this->ModelToSearch->query($query);
+					
+					if($this->ModelToSearch->schema($browsing_filter['field'].'_accuracy')){
+						//update the table to restore values regarding accuracy
+						$org_field_info = $this->ModelToSearch->schema($browsing_filter['field']);
+						$query = 'UPDATE '.$temporary_table.' SET order_field=CONCAT(SUBSTR(order_field, 1, %1$d), "%2$s"), accuracy="%3$s" WHERE LENGTH(order_field)=%4$d';
+						if($org_field_info['atim_type'] == 'date'){
+							//TODO: group update in a single query
+							$this->ModelToSearch->query(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
+							$this->ModelToSearch->query(sprintf($query, 4, '-01-01', 'm', 5));
+							$this->ModelToSearch->query(sprintf($query, 7, '-01', 'd', 8));
+						}else{
+							//datetime
+							//TODO: group update in a single query
+							$this->ModelToSearch->query(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
+							$this->ModelToSearch->query(sprintf($query, 4, '-01-01 00:00:00', 'm', 5));
+							$this->ModelToSearch->query(sprintf($query, 7, '-01 00:00:00', 'd', 8));
+							$this->ModelToSearch->query(sprintf($query, 10, ' 00:00:00', 'h', 11));
+							$this->ModelToSearch->query(sprintf($query, 13, '00:00', 'i', 14));
+						}
+						$this->ModelToSearch->query('UPDATE '.$temporary_table.' SET accuracy="c" WHERE accuracy=" "');
+					}
+					
 					$joins = array(array(
 						'table'	=> $temporary_table,
-							'alias'	=> 'TmpTable',
-							'type'	=> 'INNER',
-							'conditions' => array(
-									sprintf('TmpTable.%1$s = %2$s.%1$s', $browsing_filter['group by'], $this->ModelToSearch->name),
-									sprintf('TmpTable.%1$s = %2$s.%1$s', $browsing_filter['field'], $this->ModelToSearch->name)
-								)	
+						'alias'	=> 'TmpTable',
+						'type'	=> 'INNER',
+						'conditions' => array(
+							sprintf('TmpTable.order_field = %1$s.%2$s', $this->ModelToSearch->name, $browsing_filter['field']),
+							sprintf('TmpTable.%2$s = %1$s.%2$s', $this->ModelToSearch->name, $browsing_filter['group by'])
+						)	
 					));
+					if($this->ModelToSearch->schema($browsing_filter['field'].'_accuracy')){
+						$joins[0]['conditions'][] = sprintf('TmpTable.accuracy = %1$s.%2$s', $this->ModelToSearch->name, $browsing_filter['field'].'_accuracy');
+					}
+					
 					$save_ids = $this->ModelToSearch->find('all', array(
 							'conditions'	=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey => $save_ids),
 							'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
@@ -309,7 +351,7 @@ class BrowserController extends DatamartAppController {
 					));
 					$this->ModelToSearch->query('DROP TEMPORARY TABLE '.$temporary_table);
 				}
-				
+
 				$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 				$save = array('BrowsingResult' => array(
 					"user_id" => $_SESSION['Auth']['User']['id'],
