@@ -137,14 +137,13 @@ while($line = next($cells)){
 			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
 			'dx_nature'					=> $line[SardoToAtim::$columns['Diagnostic']],
 			'icd10_code'				=> str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]),
-			'qc_nd_sardo_morpho_code'	=> $line[SardoToAtim::$columns['Code morphologique']],
+			'morphology'				=> str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]),
 			'clinical_stage_summary'	=> $line[SardoToAtim::$columns['TNM clinique']],
 			'path_tstage'				=> $line[SardoToAtim::$columns['TNM pT']],
 			'path_nstage'				=> $line[SardoToAtim::$columns['TNM pN']],
 			'path_mstage'				=> $line[SardoToAtim::$columns['TNM pM']],
 			'path_stage_summary'		=> $line[SardoToAtim::$columns['TNM pathologique']],
 			'survival_time_months'		=> $line[SardoToAtim::$columns['Survie (mois)']],
-			'qc_nd_sardo_family_history'=> $line[SardoToAtim::$columns['Antécédents familiaux ce cancer']],
 		), 'detail' => array(
 			'laterality'				=> $line[SardoToAtim::$columns['Latéralité']],
 			'tnm_g'						=> $line[SardoToAtim::$columns['TNM G']]
@@ -159,6 +158,13 @@ while($line = next($cells)){
 		}
 	}else if($line[SardoToAtim::$columns['Code morphologique']]){
 		SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] = $morpho_value; 
+	}
+	
+	if($line[SardoToAtim::$columns['Antécédents familiaux ce cancer']] == 'Oui'){
+		$fam_hist_data = array(
+			'sardo_diagnosis_id'	=>	$line[SardoToAtim::$columns['No DX SARDO']]
+		);
+		SardoToAtim::update(Models::FAMILY_HISTORY, $fam_hist_data, $line_number, 'participant_id');
 	}
 	
 	if($line[SardoToAtim::$columns['BIOP+ 1 Tx00 - date']]){
