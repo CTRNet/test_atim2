@@ -74,7 +74,7 @@ SardoToAtim::$columns = array(
 	"Poids prostate - num",
 	"Prostatite",
 	"Prostatite - blocs",
-	"Vés. Séminales atteintes",
+	"Vés. séminales atteintes",
 	"APS préCHIR Tx00 - date",
 	"APS préCHIR Tx00",
 	"Dernier APS - date",
@@ -229,7 +229,7 @@ $tx_mapping = array(
 	"Destruction de tumeur de la vessie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
 	"Dissection des ganglions régionaux de la tête et du cou"=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
 	"Protocole Cisplatin + radiothérapie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 34),
-	"Radiothérapie de la tête et du cou"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2),
+	"Radiothérapie de la tête et du cou"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 46),
 	"Etude RTOG 0534 BRAS 1"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 35),
 	"Protocole mFOLFOX 6"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 36),
 	"Destruction de tumeur de la vessie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
@@ -238,15 +238,16 @@ $tx_mapping = array(
 
 $tx_detail_precision = array(
 	4	=> 'qc_nd_precision',
-	5	=> 'type'
+	5	=> 'type',
+	6	=> 'type'
 );
 
 
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-// $xls_reader->read('/Volumes/data/new/2012-01-17 Prostate SARDO recherche.XLS');
-$xls_reader->read('/Volumes/data/new/2012-01-12 Prostate CHUM.XLS');
+// $xls_reader->read('/Volumes/data/prostate_crchum.xls');
+$xls_reader->read('/Volumes/data/prostate_chum.xls');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
@@ -254,6 +255,8 @@ SardoToAtim::basicChecks($cells);
 reset($cells);
 while($line = next($cells)){
 	$line_number = key($cells);
+	$icd10 = str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]);
+	$morpho = str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]);
 	$dx_data = array(
 		'master' => array(
 			'participant_id'			=> $line['participant_id'],
@@ -263,8 +266,8 @@ while($line = next($cells)){
 			'parent_id'					=> null,
 			'dx_date'					=> $line[SardoToAtim::$columns['Date du diagnostic']],
 			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
-			'icd10_code'				=> str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]),
-			'morphology'				=> str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]),
+			'icd10_code'				=> isset(SardoToAtim::$icd10_ca_equiv[$icd10]) ? SardoToAtim::$icd10_ca_equiv[$icd10] : $icd10,
+			'morphology'				=> isset(SardoToAtim::$icd10_ca_equiv[$morpho]) ? SardoToAtim::$icd10_ca_equiv[$morpho] : $morpho,
 			'clinical_tstage'			=> $line[SardoToAtim::$columns['TNM T']],
 			'clinical_nstage'			=> $line[SardoToAtim::$columns['TNM N']],
 			'clinical_mstage'			=> $line[SardoToAtim::$columns['TNM M']],
@@ -337,7 +340,7 @@ while($line = next($cells)){
 				if($tx_map['ctrl_id'] == 32){
 					//observation
 					$event['detail']['end_date'] = $line[SardoToAtim::$columns[$key_name.' - fin']];
-					$event['detail']['end_date_accuracy'] = $line[SardoToAtim::$columns[$key_name.' - fin_accuracy']];
+					$event['detail']['end_date_accuracy'] = $line[$key_name.' - fin_accuracy'];
 				}else if($line[SardoToAtim::$columns[$key_name.' - fin']] && $line[SardoToAtim::$columns[$key_name.' - fin']] != $line[SardoToAtim::$columns[$key_name.' - début']]){
 					printf("WARNING: DB Event has no end date for event [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
 				}
@@ -363,7 +366,7 @@ while($line = next($cells)){
 					$tx['master']['protocol_master_id'] = $tx_map['protocol'];
 				}else{
 					SardoToAtim::$commit = false;
-					printf('ERROR: Treatment [%s] without protocol or type at line [%d]', $line[SardoToATim::$columns[$key_name]], key($cells));
+					printf("ERROR: Treatment [%s] without protocol or type at line [%d]\n", $line[SardoToATim::$columns[$key_name]], key($cells));
 				}
 				SardoToAtim::update(Models::TREATMENT_MASTER, $tx, $line_number);
 				
@@ -409,7 +412,7 @@ while($line = next($cells)){
 				'poids_prostate_num'			=> $line[SardoToAtim::$columns['Poids prostate - num']],
 				'prostatite'					=> $line[SardoToAtim::$columns['Prostatite']],
 				'prostatite_blocs'				=> $line[SardoToAtim::$columns['Prostatite - blocs']],
-				'ves_seminales_atteintes'		=> $line[SardoToAtim::$columns['Vés. Séminales atteintes']],
+				'ves_seminales_atteintes'		=> $line[SardoToAtim::$columns['Vés. séminales atteintes']],
 			)
 		);
 		SardoToAtim::update(Models::EVENT_MASTER, $patho, $line_number);

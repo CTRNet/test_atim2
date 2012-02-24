@@ -118,14 +118,16 @@ $patho_fields = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-$xls_reader->read('/Volumes/data/new/2012-01-12 Sein CHUM.XLS');
-// $xls_reader->read('/Volumes/data/new/2012-01-17 Sein SARDO recherche.XLS');
+$xls_reader->read('/Volumes/data/sein_crchum.xls');
+// $xls_reader->read('/Volumes/data/sein_chum.xls');
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
 reset($cells);
 while($line = next($cells)){
 	$line_number = key($cells);
+	$icd10 = str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]);
+	$morpho = str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]);
 	$dx_data = array(
 		'master' => array(
 			'participant_id'			=> $line['participant_id'],
@@ -136,8 +138,8 @@ while($line = next($cells)){
 			'dx_date'					=> $line[SardoToAtim::$columns['Date du diagnostic']],
 			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
 			'dx_nature'					=> $line[SardoToAtim::$columns['Diagnostic']],
-			'icd10_code'				=> str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]),
-			'morphology'				=> str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]),
+			'icd10_code'				=> isset(SardoToAtim::$icd10_ca_equiv[$icd10]) ? SardoToAtim::$icd10_ca_equiv[$icd10] : $icd10,
+			'morphology'				=> isset(SardoToAtim::$icdo3_morpho_equiv[$morpho]) ? SardoToAtim::$icdo3_morpho_equiv[$morpho] : $morpho,
 			'clinical_stage_summary'	=> $line[SardoToAtim::$columns['TNM clinique']],
 			'path_tstage'				=> $line[SardoToAtim::$columns['TNM pT']],
 			'path_nstage'				=> $line[SardoToAtim::$columns['TNM pN']],
@@ -150,15 +152,6 @@ while($line = next($cells)){
 		)
 	);
 	$dx_id = SardoToAtim::update(Models::DIAGNOSIS_MASTER, $dx_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_id')));
-	$morpho_value = $line[SardoToAtim::$columns['Code morphologique']].' - '.$line[SardoToAtim::$columns['Morphologie']];
-	if(array_key_exists($line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes)){
-		if(SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] != $morpho_value){
-			SardoToAtim::$commit = false;
-			printf("ERROR: Different definitions found for morpho code [%s] [%s] [%s]\n", $line[SardoToAtim::$columns['Code morphologique']], SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]], $morpho_value);
-		}
-	}else if($line[SardoToAtim::$columns['Code morphologique']]){
-		SardoToAtim::$morpho_codes[$line[SardoToAtim::$columns['Code morphologique']]] = $morpho_value; 
-	}
 	
 	if($line[SardoToAtim::$columns['Antécédents familiaux ce cancer']] == 'Oui'){
 		$fam_hist_data = array(
