@@ -1,15 +1,172 @@
 <?php
+
+
+				// --- START OF CLL CALC FIELDS
+				// NOV 29 2010 MARY NATIVIDAD
+				
+				if ($this->data['EventMaster']['event_type']=='control followup' && $this->data['EventMaster']['disease_site']=='cll'){
+
+				
+				 // GET PARTICIPANT DATA  
+            	 $this->Participant->id = $participant_id;
+            	 $participant_data = $this->Participant->read();
+
+				 
+				 // AGE AT STUDY
+				 $end_date=   $this->data['EventMaster']['event_date'];  
+	     		 echo $end_date;
+
+	     		 $start_date= $participant_data['Participant']['date_of_birth'];
+				 echo $start_date;
+
+                 $start_year = substr($start_date,0,4);
+                 echo $start_year;
+
+                 $end_year = $end_date['year'];
+				 echo $end_year;
+
+
+                 $diff_in_yrs = ($end_year - $start_year);
+				 echo $diff_in_yrs;
+
+				 if ($diff_in_yrs > 0){
+				 $this->data['EventDetail']['cll_age_at_study']=$diff_in_yrs;
+				 }
+				 // end diff in years >0
+
+				} 
+
+                // END OF CLL CONTROL FU
+
+				if (($this->data['EventMaster']['event_type']=='followup' || $this->data['EventMaster']['event_type']=='presentation') && $this->data['EventMaster']['disease_site']=='cll'){
+				
+                 // GET PARTICIPANT DATA  
+            	 $this->Participant->id = $participant_id;
+            	 $participant_data = $this->Participant->read();
+
+				 
+				 // AGE AT STUDY
+				 $end_date=   $this->data['EventMaster']['event_date'];  
+	     		 echo $end_date;
+
+	     		 $start_date= $participant_data['Participant']['date_of_birth'];
+				 echo $start_date;
+
+                 $start_year = substr($start_date,0,4);
+                 echo $start_year;
+
+                 $end_year = $end_date['year'];
+				 echo $end_year;
+
+                 $diff_in_yrs = ($end_year - $start_year);
+				 echo $diff_in_yrs;
+
+				 if ($diff_in_yrs > 0){
+				 $this->data['EventDetail']['cll_age_at_study']=$diff_in_yrs;
+				 }
+				 // end diff in years >0
+
+				 // BMI
+				 $cll_height=$this->data['EventDetail']['cll_height_at_sample'];
+				 echo $cll_height;
+				 
+				 $cll_weight=$this->data['EventDetail']['cll_weight_at_sample'];
+				 echo $cll_weight;
+				 
+				 $cll_height_m= $cll_height * 0.01;
+				 echo $cll_height_m;
+
+				 $bmi_calc=	$cll_weight/ ($cll_height_m*$cll_height_m);
+				 echo$bmi_calc;
+
+				 $this->data['EventDetail']['cll_bmi']=$bmi_calc;
+				
+				}
+				// --- !!! END OF CLL CALC FIELDS
+
+
+				// --- !!! START OF MMY CALC FIELDS
+
+				if (($this->data['EventMaster']['event_type']=='followup' || $this->data['EventMaster']['event_type']=='presentation') && $this->data['EventMaster']['disease_site']=='mmy'){
+				
+                 // GET PARTICIPANT DATA  
+            	 $this->Participant->id = $participant_id;
+            	 $participant_data = $this->Participant->read();
+
+				 
+				 // AGE AT DONATION
+				 $end_date=   $this->data['EventMaster']['event_date'];  
+	     		 echo $end_date;
+
+	     		 $start_date= $participant_data['Participant']['date_of_birth'];
+				 echo $start_date;
+
+                 $start_year = substr($start_date,0,4);
+                 echo $start_year;
+
+                 $end_year = $end_date['year'];
+				 echo $end_year;
+
+                 $diff_in_yrs = ($end_year - $start_year);
+				 echo $diff_in_yrs;
+
+				 if ($diff_in_yrs > 0){
+				 $this->data['EventDetail']['age_at_donation']=$diff_in_yrs;
+				 }
+				 // end diff in years >0
+
+
+				 // BMI
+				 $mmy_height=$this->data['EventDetail']['height'];
+				 echo $mmy_height;
+				 
+				 $mmy_weight=$this->data['EventDetail']['weight'];
+				 echo $mmy_weight;
+				 
+				 $mmy_height_m= $mmy_height * 0.01;
+				 echo $mmy_height_m;
+
+				 $bmi_calc=	$mmy_weight/ ($mmy_height_m*$mmy_height_m);
+				 echo $bmi_calc;
+
+				 $this->data['EventDetail']['bmi']=$bmi_calc;
+
+				
+				}
+				// --- !!! END OF MMY CALC FIELDS
+
+
+
 				// ----------------- !!! AUTOMATIC UPDATING 
 				// CUSTOM CODE ADDED MAY20 2009 - BY MARY NATIVIDAD
 				// CUSTOM CODE revised feb 24 2010 - BY MARY NATIVIDAD
 
 				 if ($this->data['EventMaster']['event_type']=='followup' && $this->data['EventMaster']['disease_site']=='breast'){
 
-                    // UPDATE STATUS TIME  !!! check date functions in php  THIS DOES NOT WORK
-                   echo $this->data['EventMaster']['event_date'];  
-                   echo $diagnosis_data['DiagnosisMaster']['dx_date']; 
-				   echo (DATE_FORMAT($this->data['EventMaster']['event_date'], '%Y%m')) - (DATE_FORMAT($diagnosis_data['DiagnosisMaster']['dx_date'], '%y%m'));
-                    // $this->data['EventDetail']['status_time']= (DATE_FORMAT($this->data['EventMaster']['event_date'], '%Y%m')) - (DATE_FORMAT($diagnosis_data['DiagnosisMaster']['dx_date'], '%y%m'));
+                    // UPDATE FU STATUS TIME
+					$end_date=   $this->data['EventMaster']['event_date'];  
+					$dx_id_selected=$this->data['EventMaster']['diagnosis_master_id'];
+
+					if ($dx_id_selected>0){
+            	    $this->DiagnosisMaster->id = $dx_id_selected;
+            	    $dx_selected = $this->DiagnosisMaster->read();
+
+
+	     			$start_date= $dx_selected['DiagnosisMaster']['dx_date']; 
+
+                    $start_year = substr($start_date,0,4);
+                    
+                    $start_month = substr($start_date,5,2);
+
+                    $end_year = $end_date['year'];
+
+                    $end_month = $end_date['month'];
+
+                    $diff_in_months = ($end_year - $start_year) * 12 - $start_month + $end_month;
+
+					$this->data['EventDetail']['status_time']=$diff_in_months;
+                    }
+                    // END STATUS TIME    
 
                     // GET PARTICIPANT DATA  
             	    $this->Participant->id = $participant_id;
@@ -34,7 +191,29 @@
                          {
 						      
 						     $this->data['Participant']['vital_status'] ='dead';
-                              
+                          
+                             // calc age at death 
+
+							   $end_date=   $participant_data['Participant']['date_of_death'];  
+	     		               echo $end_date;
+
+	     		               $start_date= $participant_data['Participant']['date_of_birth'];
+				               echo $start_date;
+
+                               $start_year = substr($start_date,0,4);
+                               echo $start_year;
+
+                               $end_year = substr($end_date,0,4);
+				               echo $end_year;
+
+                               $diff_in_yrs = ($end_year - $start_year);
+				               echo $diff_in_yrs;
+
+				               if ($diff_in_yrs > 0){
+				               $this->data['Participant']['time_to_death'] =$diff_in_yrs;
+				               }
+
+
 
 						 }
                      
@@ -76,6 +255,28 @@
                              {
                                 $this->data['Participant']['date_of_death'] = $this->data['EventMaster']['event_date'];
                                 $this->data['Participant']['dod_certainty'] = $this->data['EventMaster']['event_date_certainty'];
+
+                             // calc age at death 
+							   $end_date=   $this->data['Participant']['date_of_death'];  
+	     		               echo $end_date;
+
+	     		               $start_date= $participant_data['Participant']['date_of_birth'];
+				               echo $start_date;
+
+                               $start_year = substr($start_date,0,4);
+                               echo $start_year;
+
+                               $end_year = $end_date['year'];
+				               echo $end_year;
+
+                               $diff_in_yrs = ($end_year - $start_year);
+				               echo $diff_in_yrs;
+
+				               if ($diff_in_yrs > 0){
+				               $this->data['Participant']['time_to_death'] =$diff_in_yrs;
+				               }
+
+
 						     }
 						 
 						 }
