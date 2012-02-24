@@ -80,6 +80,36 @@ class SardoToAtim{
 		'ô' => 'o'
 	);
 	
+	static $icd10_ca_equiv = array(
+		'C199'	=> 'C19',
+		'C209'	=> 'C20',
+		'C239'	=> 'C23',
+		'C341'	=> 'C3410',
+		'C343'	=> 'C3439',
+		'C349'	=> 'C3499',
+		'C501'	=> 'C5019',
+		'C502'	=> 'C5029',
+		'C503'	=> 'C5039',
+		'C504'	=> 'C5049',
+		'C505'	=> 'C5059',
+		'C508'	=> 'C5089',
+		'C509'	=> 'C5099',
+		'C529'	=> 'C52',
+		'C570'	=> 'C5709',
+		'C559'	=> 'C55',
+		'C589'	=> 'C58',
+		'C659'	=> 'C65',
+		'C669'	=> 'C66',
+		'C739'	=> 'C73',
+		'N835'	=> 'N8352',
+		'Z804'	=> 'Z8048'
+	);
+	
+	static $icdo3_morpho_equiv = array(
+		'84723'	=> '84721',
+		'85073'	=> '85072'
+	);
+	
 	static $morpho_codes = array();
 	
 	static private $table_fields_cache = array();//table fields cache
@@ -707,7 +737,7 @@ class SardoToAtim{
 						$row2 = bindRow($stmt);
 						$stmt->bind_param('i', $row['id']);
 						$stmt->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt->error."\n");
-						assert($stmt->fetch()) or die('Failed to fetch _revs for query '.$query."\n");
+						assert($stmt->fetch()) or die('Failed to fetch _revs for id ['.$row['id'].'] and query '.$query."\n");
 						if($row2['modified_by'] == self::$db_user_id){
 							//modif
 							$to_update[$full_field_name] = $value;
@@ -721,7 +751,6 @@ class SardoToAtim{
 					}
 				}
 			}
-			
 			
 			$last_id = $row['id'];
 			
@@ -857,7 +886,6 @@ class SardoToAtim{
 		self::checkValueDomain('qc_nd_dxd_primary_sardo', 'laterality', 'laterality');
 		self::checkValueDomain('qc_nd_ed_biopsy', 'type', 'qc_nd_biopsy_type');
 		self::checkValueDomain('diagnosis_masters', 'dx_nature', 'dx_nature');
-		self::checkValueDomain('diagnosis_masters', 'qc_nd_sardo_family_history', 'qc_nd_sardo_family_history');
 		self::checkValueDomain('reproductive_histories', 'qc_nd_cause', 'qc_nd_menopause_cause');
 		self::checkValueDomain('qc_nd_dxd_primary_sardo', 'figo', 'qc_nd_figo');
 		
