@@ -32,8 +32,6 @@ function postBreastBankNbrRead(Model $m){
 function postBreastBankNbrWrite(Model $m) {
 	global $connection;
 	
-	Config::$participant_ids_from['BrFrsq#'][$m->values['FRSQNbr']] = $m->values['PatienteNbr'];
-	
 	$breast_recruitment_date = customGetFormatedDate($m->values['Date']);
 	if(!empty($breast_recruitment_date)) {
 		$query = "UPDATE participants SET date_of_recruitment_breast = '$breast_recruitment_date' WHERE id = ".$m->values['PatienteNbr'].";";

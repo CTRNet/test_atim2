@@ -32,8 +32,6 @@ function postOvaryBankNbrRead(Model $m){
 function postOvaryBankNbrWrite(Model $m) {
 	global $connection;
 	
-	Config::$participant_ids_from['OvFrsq#'][$m->values['FRSQNbr']] = $m->values['PatienteNbr'];
-	
 	$ovary_recruitment_date = customGetFormatedDate($m->values['Date']);
 	if(!empty($ovary_recruitment_date)) {
 		$query = "UPDATE participants SET date_of_recruitment_ovary = '$ovary_recruitment_date' WHERE id = ".$m->values['PatienteNbr'].";";
