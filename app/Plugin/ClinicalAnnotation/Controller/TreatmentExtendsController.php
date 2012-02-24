@@ -79,7 +79,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id );
+				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
 			}
 		} 
 	}
@@ -163,9 +163,9 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {		
 			if( $this->TreatmentExtend->atimDelete( $tx_extend_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
+				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
+				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			}	
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/TreatmentExtends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
@@ -185,7 +185,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
 			$data = array();
 			if(empty($prot_extend_data)){
-				$this->flash( 'there is no drug defined in the associated protocol', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
+				$this->flash( 'there is no drug defined in the associated protocol', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			}else{
 				foreach($prot_extend_data as $prot_extend){
 					$data[]['TreatmentExtend'] = array(
@@ -194,14 +194,15 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 						'method' => $prot_extend['ProtocolExtend']['method'],
 						'dose' => $prot_extend['ProtocolExtend']['dose']);
 				}
+				$this->TreatmentExtend->check_writable_fields = false;
 				if($this->TreatmentExtend->saveAll($data)){
-					$this->atimFlash( 'drugs from the associated protocol were imported', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash( 'drugs from the associated protocol were imported', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 				}else{
-					$this->flash( 'unknown error', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
+					$this->flash( 'unknown error', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 				}
 			}
 		}else{
-			$this->flash( 'there is no protocol associated with this treatment', '/ClinicalAnnotation/TreatmentExtends/listall/'.$participant_id.'/'.$tx_master_id);
+			$this->flash( 'there is no protocol associated with this treatment', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 		}
 	}
 }
