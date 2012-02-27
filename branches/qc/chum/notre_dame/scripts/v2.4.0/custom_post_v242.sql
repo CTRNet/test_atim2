@@ -1,7 +1,9 @@
 -- NEVER RAN YET!!
 REPLACE INTO i18n(id, en, fr) VALUES
 ('last contact date', 'Last contact date', 'Date du dernier contact'),
-("the bank number matches an old bank number", "The bank number matches an old bank number.", "Le numéro de banque correspond à un ancien numéro de banque.");
+("the bank number matches an old bank number", "The bank number matches an old bank number.", "Le numéro de banque correspond à un ancien numéro de banque."),
+("sardo type", "SARDO type", "Type SARDO"),
+("breast cancer", "Breast cancer", "Cancer du sein");
 
 ALTER TABLE participants
  ADD COLUMN qc_nd_last_contact DATE DEFAULT NULL;
@@ -226,7 +228,7 @@ ALTER TABLE reproductive_histories_revs
  
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
 ('hormonotherapy', 'all', 1, 'qc_nd_txd_hormonotherapies', 'treatmentmasters,qc_nd_txd_hormonotherapies', NULL, NULL, 0, NULL, NULL, 'all|hormonotherapy'),
-('medication', 'all', 1, 'qc_nd_txd_medication', 'treatmentmasters,qc_nd_txd_medications', NULL, NULL, 0, NULL, NULL, 'all|medication');
+('medication', 'all', 1, 'qc_nd_txd_medications', 'treatmentmasters,qc_nd_txd_medications', NULL, NULL, 0, NULL, NULL, 'all|medication');
 
 
 CREATE TABLE qc_nd_txd_hormonotherapies(
@@ -434,7 +436,8 @@ INSERT INTO protocol_masters (protocol_control_id, name, created_by, modified_by
 (4, "Docetaxel", 1, 1),
 (4, "Carboplatine", 1, 1),
 (4, "Paclitaxel", 1, 1),
-(4, "CP-751871", 1, 1);
+(4, "CP-751871", 1, 1),
+(3, "Radiothérapie de la tête et du cou", 1, 1);
 
 
 
@@ -720,9 +723,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 CREATE TABLE qc_nd_sardo_conflicts(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  table_n_field VARCHAR(50) NOT NULL DEFAULT '',
- ref_id INT UNSIGNED NOT NULL
+ ref_id INT UNSIGNED NOT NULL,
  new_value text,
- import_date DATETIME NOT NULL DEFAULT NOW()
+ import_date TIMESTAMP NOT NULL DEFAULT NOW()
 )Engine=InnoDb;
 
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sardo_participant_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -754,6 +757,26 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`=
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_fields SET setting='size=10,url=/codingicd/CodingIcd10s/autocomplete/ca,tool=/codingicd/CodingIcd10s/tool/ca' WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0';
+
+ALTER TABLE family_histories
+ ADD COLUMN qc_nd_sardo_type VARCHAR(20) NOT NULL DEFAULT '' AFTER last_sardo_import_date;
+ALTER TABLE family_histories_revs
+ ADD COLUMN qc_nd_sardo_type VARCHAR(20) NOT NULL DEFAULT '' AFTER last_sardo_import_date;
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_fam_hist_sardo_type", "", "", "");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("breast cancer", "breast cancer");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_fam_hist_sardo_type"), (SELECT id FROM structure_permissible_values WHERE value="breast cancer" AND language_alias="breast cancer"), "0", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'FamilyHistory', 'family_histories', 'qc_nd_sardo_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type') , '0', '', '', '', 'sardo type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_sardo_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sardo type' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='last_sardo_import_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1', `flag_detail`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_sardo_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2', display_order=23 WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_sardo_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
