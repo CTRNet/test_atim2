@@ -240,3 +240,8 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('more than 3000 records are returned by the query - please redefine search criteria',
 'More than 3000 records are returned by the query! Please redefine search criteria!',
 'Plus de 3000 enregistrements sont retournés par la requête! Veuillez redéfinir vos paramêtres de recherche!');
+
+ALTER TABLE consent_masters
+ MODIFY COLUMN consent_version_date VARCHAR(25) NOT NULL DEFAULT '';
+ALTER TABLE consent_masters_revs
+ MODIFY COLUMN consent_version_date VARCHAR(25) NOT NULL DEFAULT '';
