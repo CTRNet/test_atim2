@@ -23,3 +23,8 @@ ALTER TABLE reproductive_histories
 ALTER TABLE reproductive_histories_revs
  MODIFY hrt_years_used FLOAT UNSIGNED DEFAULT NULL,
  MODIFY years_on_hormonal_contraceptives FLOAT UNSIGNED DEFAULT NULL;
+ 
+ALTER TABLE family_histories
+ MODIFY participant_id INT NOT NULL;
+ALTER TABLE family_histories_revs
+ MODIFY participant_id INT NOT NULL;
