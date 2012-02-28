@@ -19,10 +19,11 @@ $model->post_write_function = 'postNoDossierWrite';
 Config::$models['ChusMiscIdentfier'] = $model;
 
 function postNoDossierRead(Model $m){
-	if(empty($m->values['No Dossier CHUS']) || isset(Config::$participant_ids_from['Chus#'][$m->values['No Dossier CHUS']])) return false;
+	if(empty($m->values['No Dossier CHUS'])) die('ERR 89937893 line '.$m->line);
+	if(in_array($m->values['No Dossier CHUS'], Config::$chus_nbr_already_recorded)) return false;
 	return true;
 }
 
 function postNoDossierWrite(Model $m) {
-	Config::$participant_ids_from['Chus#'][$m->values['No Dossier CHUS']] = $m->values['PatienteNbr'];
+	Config::$chus_nbr_already_recorded[] = $m->values['No Dossier CHUS'];
 }

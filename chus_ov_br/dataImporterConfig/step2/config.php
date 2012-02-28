@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/Recrutement_2012.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE_2012_formated.xls";
 
 	static $xls_header_rows = 1;
 	
@@ -46,10 +46,10 @@ class Config{
 	
 	//--------------------------------------
 
-	static $patient_profile_data_from_patient_nbr = array();
-	static $pateint_nbr_from_chus_nbr = array();
-	static $chus_nbr_already_recorded = array();
-	static $bank_nbr_already_recorded = array();
+	static $sample_aliquot_controls = array();
+	
+	static $participant_id_from_frsq_nbr = array();
+	static $frsq_nbrs_from_participant_id = array();
 	
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
@@ -67,13 +67,14 @@ class Config{
 //Config::$value_domains['health_status']= new ValueDomain("health_status", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
-Config::$parent_models[] = "Participant";
+Config::$parent_models[] = "OvaryDiagnosisMaster";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/participants.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step2/tablesMapping/ovary_diagnoses.php'; 
 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/bank_identifiers.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/ovary_bank_identifiers.php'; 
+//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/breast_bank_identifiers.php'; 
 
 function addonFunctionStart(){
 	global $connection;
@@ -81,24 +82,90 @@ function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
-	DATA EXPORT PROCESS Step 1 : OVCARE<br>
+	DATA EXPORT PROCESS Step 2 : OVCARE<br>
 	source_file = $file_path<br>
 	<br>=====================================================================
 	</FONT><br>";		
 	
+	// ** Data check ** 
+	
 	$query = "SELECT COUNT(*) FROM participants;";
-	$results = mysqli_query($connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$row = $results->fetch_assoc();
-	if($row['COUNT(*)'] > 0) {
-		die("Step1: Participant table should be empty");
+	if($row['COUNT(*)'] < 1) {
+		die("Step2: Participant table should be completed");
 	}
 	
-	flush();
+	$query = "SELECT COUNT(*) FROM misc_identifiers;";
+	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$row = $results->fetch_assoc();
+	if($row['COUNT(*)'] < 1) {
+		die("Step2: Identifiers table should be completed");
+	}	
+	
+	$query = "SELECT COUNT(*) FROM diagnosis_masters;";
+	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$row = $results->fetch_assoc();
+	if($row['COUNT(*)'] > 0) {
+		die("Step2: Diagnoses table should be empty");
+	}	
+
+	$query = "SELECT COUNT(*) FROM collections;";
+	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$row = $results->fetch_assoc();
+	if($row['COUNT(*)'] > 0) {
+		die("Step2: Collections table should be empty");
+	}	
+	
+	// ** Set sample aliquot controls **
+	
+	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue','blood', 'ascite', 'peritoneal wash', 'ascite cell', 'ascite supernatant', 'cell culture', 'serum', 'plasma', 'dna', 'rna', 'blood cell')";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
+	}	
+	if(sizeof(Config::$sample_aliquot_controls) != 12) die("get sample controls failed");
+	
+	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
+		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
+		$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
+		}	
+	}	
+		
+	// ** Set participant_id / identifier values links array **
+	
+	$query = "SELECT ctrl.misc_identifier_name, ident.identifier_value, ident.participant_id
+	FROM misc_identifier_controls AS ctrl INNER JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = ctrl.id
+	WHERE ctrl.misc_identifier_name LIKE '%FRSQ%' AND ident.deleted != 1";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		if(isset(Config::$participant_id_from_frsq_nbr[$row['identifier_value']])) {
+			pr($row);
+			die('ERR 99887399.1');
+		}
+		Config::$participant_id_from_frsq_nbr[$row['identifier_value']] = $row['participant_id'];
+		
+		Config::$frsq_nbrs_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
+	}
+
+	
+	pr(Config::$participant_id_from_frsq_nbr);
+	pr(Config::$frsq_nbrs_from_participant_id);
+	exit;
 }
 
 function addonFunctionEnd(){
 	global $connection;
 
+	// EMPTY DATE CLEAN UP
+	
+	$query = "UPDATE participants SET participant_identifier = id;";
+	mysqli_query($connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE participants_revs SET participant_identifier = id;";
+	mysqli_query($connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
 	// WARNING DISPLAY
 	
 	echo "<br><FONT COLOR=\"red\" >
