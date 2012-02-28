@@ -254,7 +254,6 @@ class BrowserController extends DatamartAppController {
 				$browsing_filter = array();
 				
 				if($browsing['DatamartStructure']['adv_search_structure_alias']){
-					//TODO: remove parents with non unique entries (eg.: more than a tx per participant), create drill down and warn
 					$advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
 					$params = array(
 						'adv_struct'	=> $advanced_structure, 
@@ -265,7 +264,13 @@ class BrowserController extends DatamartAppController {
 						'browsing'		=> $browsing,
 						'browsing_model'=> $this->ModelToSearch
 					);
-					$this->Browser->buildAdvancedSearchParameters(&$params);
+					$error_model_display_name = $this->Browser->buildAdvancedSearchParameters(&$params); 
+					if($error_model_display_name != null){
+						//example: If 3 tx are owned by the same participant, this error will be displayed.
+						//we do it to make sure the result set is made with 1:1 relationship, thus clear.
+						$this->flash(__("a special parameter could not be applied because relations between %s and its children node are shared", __($error_model_display_name)), 'javascript:history.back()');
+						return;
+					}
 					$adv_search_conditions = $params['conditions_adv'];
 					if(isset($this->data[$this->ModelToSearch->name]['browsing_filter']) && !empty($this->data[$this->ModelToSearch->name]['browsing_filter'])){
 						$browsing_filter = $this->ModelToSearch->getBrowsingAdvSearchArray('browsing_filter');
@@ -360,7 +365,7 @@ class BrowserController extends DatamartAppController {
 					'browsing_structures_id'		=> $control_id,
 					'browsing_structures_sub_id'	=> $use_sub_model ? $sub_structure_id : 0,
 					'id_csv'						=> $save_ids,
-					'browsing_type'					=> $org_search_conditions || $adv_search_conditions ? 'search' : 'direct access',
+					'browsing_type'					=> $org_search_conditions['search_conditions'] || $adv_search_conditions ? 'search' : 'direct access',
 					'serialized_search_params'		=> serialize($org_search_conditions),
 					'serialized_adv_search_paramas'	=> serialize($adv_search_conditions)
 				));

@@ -1188,6 +1188,7 @@ class Browser extends DatamartAppModel {
 	 * When defining advanced search parameters (parameters based on previous nodes),
 	 * updates the joins and conditions arrays.
 	 * @param array $params
+	 * @return null on success, a model display_name string if a parent node has not a 1:1 relation with it's descendant
 	 */
 	function buildAdvancedSearchParameters(array $params){
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
@@ -1227,7 +1228,17 @@ class Browser extends DatamartAppModel {
 							}else{
 								$control = $browsing_control_model->find('first', array('conditions' => array('BrowsingControl.id2' => $curr_id, 'BrowsingControl.id1' => $parent_browsing['DatamartStructure']['id'])));
 								assert(!empty($control));
-								$conditions = array($parent_browsing_model->name.'.'.$control['BrowsingControl']['use_field'].' = '.$curr_model->name.'.'.$curr_model->primaryKey);
+								
+								//make sure parent relation to current node is 1:1
+								$id_count = substr_count($parent_browsing['BrowsingResult']['id_csv'], ',') + 1;
+								$parent_ref_key = $parent_browsing_model->name.'.'.$control['BrowsingControl']['use_field'];
+								$distinct_count = $parent_browsing_model->find('first', array('conditions' => array($parent_ref_key => explode(',', $parent_browsing['BrowsingResult']['id_csv'])), 'fields' => array('COUNT(DISTINCT '.$parent_ref_key.') AS count')));
+								if($distinct_count[0]['count'] != $id_count){
+									return $parent_browsing['DatamartStructure']['display_name'];
+								}
+								
+								$conditions = array($parent_ref_key.' = '.$curr_model->name.'.'.$curr_model->primaryKey);
+								
 							}
 							
 							$params['joins'][] = array(
@@ -1247,6 +1258,7 @@ class Browser extends DatamartAppModel {
 				$params['conditions_adv'][$field['field']] = $option_key;
 			}
 		}
+		return null;
 	}
 }
 
