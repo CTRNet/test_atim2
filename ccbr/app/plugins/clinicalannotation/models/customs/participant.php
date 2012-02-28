@@ -97,14 +97,15 @@ class ParticipantCustom extends Participant {
 				$new_dx_data['DiagnosisMaster']['age_at_dx'] = $ageInYears;
 				$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_months'] = $ageInMonths;
        			$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_weeks'] = $ageInWeeks;
-       			$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_days'] = $ageInDays;				
-				
+       			$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_days'] = $ageInDays;	
+       			$new_dx_data['DiagnosisMaster']['skip'] = true;			
 			} else {
 				$new_dx_data['DiagnosisMaster']['id'] = $new_dx_id;	
 				$new_dx_data['DiagnosisMaster']['age_at_dx'] = '';
 				$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_months'] = '';
        			$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_weeks'] = '';
-       			$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_days'] = '';		
+       			$new_dx_data['DiagnosisMaster']['ccbr_age_at_dx_days'] = '';
+       			$new_dx_data['DiagnosisMaster']['skip'] = true;		
        		}
        		
        		$diagnosis_master_model->id = null;
