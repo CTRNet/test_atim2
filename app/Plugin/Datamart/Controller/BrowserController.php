@@ -16,7 +16,7 @@ class BrowserController extends DatamartAppController {
 	function index(){
 		$this->Structures->set("datamart_browsing_indexes");
 		$tmp_browsing = $this->BrowsingIndex->find('all', array(
-			'conditions' => array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'], 'BrowsingIndex.temporary' => true),
+			'conditions' => array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => true),
 			'order'	=> array('BrowsingResult.created DESC'))
 		);
 		
@@ -28,14 +28,14 @@ class BrowserController extends DatamartAppController {
 		$this->set('tmp_browsing', $tmp_browsing);
 		
 		$this->request->data = $this->paginate($this->BrowsingIndex, 
-			array("BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'], 'BrowsingIndex.temporary' => false));
+			array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => false));
 	}
 	
 	function edit($index_id){
 		$this->set("index_id", $index_id);
 		$this->Structures->set("datamart_browsing_indexes");
 		if(empty($this->request->data)){
-			$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+			$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 			if($this->request->data['BrowsingIndex']['temporary']){
 				AppController::addWarningMsg(__('adding notes to a temporary browsing automatically moves it towards the saved browsing list'));
 			}
@@ -49,7 +49,7 @@ class BrowserController extends DatamartAppController {
 	}
 	
 	function delete($index_id){
-		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 		if(!empty($this->request->data)){
 			$this->BrowsingIndex->atimDelete($index_id);
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
@@ -137,19 +137,19 @@ class BrowserController extends DatamartAppController {
 				$ids = array_unique($ids);
 				sort($ids);
 				$id_csv = implode(",",  $ids);
-				if(!$parent['BrowsingResult']['raw']){
+				if($parent['BrowsingResult']['browsing_type'] == 'drilldown'){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_id'])));
 					$node_id = $parent['BrowsingResult']['id'];
 				}
 
 				$save = array('BrowsingResult' => array(
-					"user_id" => $_SESSION['Auth']['User']['id'],
-					"parent_id" => $node_id,
-					"browsing_structures_id" => $parent['BrowsingResult']['browsing_structures_id'],
-					"browsing_structures_sub_id" => $parent['BrowsingResult']['browsing_structures_sub_id'],
-					"id_csv" => $id_csv,
-					"raw" => false
+					"user_id"						=> $this->Session->read('Auth.User.id'),
+					"parent_id"						=> $node_id,
+					"browsing_structures_id"		=> $parent['BrowsingResult']['browsing_structures_id'],
+					"browsing_structures_sub_id"	=> $parent['BrowsingResult']['browsing_structures_sub_id'],
+					"id_csv"						=> $id_csv,
+					"browsing_type"					=> 'drilldown'
 				));
 
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
@@ -229,6 +229,7 @@ class BrowserController extends DatamartAppController {
 				
 				$org_search_conditions['search_conditions'] = $search_conditions;
 				$org_search_conditions['exact_search'] = isset($this->request->data['exact_search']);
+				$adv_search_conditions = array();
 				$joins = array();
 
 				if($node_id != 0){
@@ -254,10 +255,8 @@ class BrowserController extends DatamartAppController {
 				
 				if($browsing['DatamartStructure']['adv_search_structure_alias']){
 					//TODO: remove parents with non unique entries (eg.: more than a tx per participant), create drill down and warn
-					//TODO: date accuracy
-					//TODO: refactore search bubbles
 					$advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
-					$this->Browser->buildAdvancedSearchParameters(array(
+					$params = array(
 						'adv_struct'	=> $advanced_structure, 
 						'data'			=> $this->request->data, 
 						'joins'			=> &$joins,
@@ -265,9 +264,11 @@ class BrowserController extends DatamartAppController {
 						'node_id'		=> $node_id,
 						'browsing'		=> $browsing,
 						'browsing_model'=> $this->ModelToSearch
-					));
+					);
+					$this->Browser->buildAdvancedSearchParameters(&$params);
+					$adv_search_conditions = $params['conditions_adv'];
 					if(isset($this->data[$this->ModelToSearch->name]['browsing_filter']) && !empty($this->data[$this->ModelToSearch->name]['browsing_filter'])){
-						$browsing_filter = $this->ModelToSearch->getBrowsingFilterArray();
+						$browsing_filter = $this->ModelToSearch->getBrowsingAdvSearchArray('browsing_filter');
 						$browsing_filter = $browsing_filter[$this->data[$this->ModelToSearch->name]['browsing_filter']];
 					}
 				}
@@ -290,8 +291,8 @@ class BrowserController extends DatamartAppController {
 							AppModel::ACCURACY_REPLACE_STR, 
 							$browsing_filter['field'], 
 							$browsing_filter['field'].'_accuracy', 
-							$browsing_filter['attribute'] == 'MAX' ? '"\n"' : '"8"',//non year
-							$browsing_filter['attribute'] == 'MAX' ? '"\t"' : '"9"',//year
+							$browsing_filter['attribute'] == 'MAX' ? '"\n"' : '"A"',//non year
+							$browsing_filter['attribute'] == 'MAX' ? '"\t"' : '"B"',//year
 							$browsing_filter['attribute']
 						);
 					}else{
@@ -313,13 +314,11 @@ class BrowserController extends DatamartAppController {
 						$org_field_info = $this->ModelToSearch->schema($browsing_filter['field']);
 						$query = 'UPDATE '.$temporary_table.' SET order_field=CONCAT(SUBSTR(order_field, 1, %1$d), "%2$s"), accuracy="%3$s" WHERE LENGTH(order_field)=%4$d';
 						if($org_field_info['atim_type'] == 'date'){
-							//TODO: group update in a single query
 							$this->ModelToSearch->query(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
 							$this->ModelToSearch->query(sprintf($query, 4, '-01-01', 'm', 5));
 							$this->ModelToSearch->query(sprintf($query, 7, '-01', 'd', 8));
 						}else{
 							//datetime
-							//TODO: group update in a single query
 							$this->ModelToSearch->query(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
 							$this->ModelToSearch->query(sprintf($query, 4, '-01-01 00:00:00', 'm', 5));
 							$this->ModelToSearch->query(sprintf($query, 7, '-01 00:00:00', 'd', 8));
@@ -350,17 +349,20 @@ class BrowserController extends DatamartAppController {
 							'order'			=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey)
 					));
 					$this->ModelToSearch->query('DROP TEMPORARY TABLE '.$temporary_table);
+					
+					$adv_search_conditions['browsing_filter'] = $browsing_filter['lang'];
 				}
 
 				$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 				$save = array('BrowsingResult' => array(
-					"user_id" => $_SESSION['Auth']['User']['id'],
-					"parent_id" => $node_id,
-					"browsing_structures_id" => $control_id,
-					"browsing_structures_sub_id" => $use_sub_model ? $sub_structure_id : 0,
-					"id_csv" => $save_ids,
-					"raw" => true,
-					"serialized_search_params" => serialize($org_search_conditions),
+					'user_id'						=> $this->Session->read('Auth.User.id'),
+					'parent_id'						=> $node_id,
+					'browsing_structures_id'		=> $control_id,
+					'browsing_structures_sub_id'	=> $use_sub_model ? $sub_structure_id : 0,
+					'id_csv'						=> $save_ids,
+					'browsing_type'					=> $org_search_conditions || $adv_search_conditions ? 'search' : 'direct access',
+					'serialized_search_params'		=> serialize($org_search_conditions),
+					'serialized_adv_search_paramas'	=> serialize($adv_search_conditions)
 				));
 				
 				if(strlen($save_ids) == 0){
@@ -476,7 +478,7 @@ class BrowserController extends DatamartAppController {
 				$this->request->data = $browsing['BrowsingResult']['id_csv'];
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
-			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['raw']);
+			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['browsing_type'] != 'drilldown');
 
 		}else if($browsing != null){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
@@ -506,8 +508,8 @@ class BrowserController extends DatamartAppController {
 			$this->set('top', "/Datamart/Browser/browse/".$node_id."/".$last_control_id."/");
 			$this->set('node_id', $node_id);
 			if($browsing['DatamartStructure']['adv_search_structure_alias']){
+				Browser::$cache['current_node_id'] = $node_id;
 				$advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
-				$this->Browser->populateAdvancedStructure($advanced_structure, $browsing, $node_id);
 				$this->set('advanced_structure', $advanced_structure);
 			}
 			$render = 'browse_search';
@@ -582,12 +584,12 @@ class BrowserController extends DatamartAppController {
 		sort($ids);
 		
 		$save = array('BrowsingResult' => array(
-			"user_id" => $_SESSION['Auth']['User']['id'],
-			"parent_id" => 0,
-			"browsing_structures_id" => $dm_structure['DatamartStructure']['id'],
-			"browsing_structures_sub_id" => 0,
-			"id_csv" => implode(",", $ids),
-			"raw" => true
+			"user_id"						=> $this->Session->read('Auth.User.id'),
+			"parent_id"						=> 0,
+			"browsing_structures_id"		=> $dm_structure['DatamartStructure']['id'],
+			"browsing_structures_sub_id"	=> 0,
+			"id_csv"						=> implode(",", $ids),
+			"browsing_type"					=> 'search'
 		));
 		
 		$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
@@ -605,7 +607,7 @@ class BrowserController extends DatamartAppController {
 	}
 	
 	function save($index_id){
-		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $_SESSION['Auth']['User']['id'])));
+		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 		if(empty($this->request->data)){
 			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
 		}else{
@@ -668,18 +670,18 @@ class BrowserController extends DatamartAppController {
 		//build the save array
 		$parent_id = null;
 		$browsing_result = $this->BrowsingResult->findById($child_data['BrowsingResult']['parent_id']);
-		if($browsing_result['BrowsingResult']['raw']){
+		if($browsing_result['BrowsingResult']['browsing_type'] != 'drilldown'){
 			$parent_id = $child_data['BrowsingResult']['parent_id'];
 		}else{
 			$parent_id = $browsing_result['BrowsingResult']['parent_id'];
 		}
 		$save = array('BrowsingResult' => array(
-			"user_id" => $_SESSION['Auth']['User']['id'],
-			"parent_id" => $parent_id,
-			"browsing_structures_id" => $parent_data['DatamartStructure']['id'],
-			"browsing_structures_sub_id" => $parent_data['BrowsingResult']['browsing_structures_sub_id'],
-			"id_csv" => $id_csv,
-			"raw" => false
+			"user_id"						=> $this->Session->read('Auth.User.id'),
+			"parent_id"						=> $parent_id,
+			"browsing_structures_id"		=> $parent_data['DatamartStructure']['id'],
+			"browsing_structures_sub_id"	=> $parent_data['BrowsingResult']['browsing_structures_sub_id'],
+			"id_csv"						=> $id_csv,
+			"browsing_type"					=> 'drilldown'
 		));
 
 		$return_id = null;

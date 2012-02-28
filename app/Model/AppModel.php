@@ -962,28 +962,74 @@ class AppModel extends Model {
 		$this->updateWritableField($field, $tablename, false);
 	}
 	
+	/**
+	 * Called by structure builder to get the browsing filter dropdowns
+	 * @return array (array formated for dropdown)
+	 */
 	function getBrowsingFilter(){
 		$result = array();
-		if(isset($this->browsing_filter)){
-			foreach($this->browsing_filter as $key => $details){
+		if(isset($this->browsing_search_dropdown_info['browsing_filter'])){
+			foreach($this->browsing_search_dropdown_info['browsing_filter'] as $key => $details){
 				$result[$key] = __($details['lang']);
 			}
 		}
 		return $result;
 	}
 	
-	function getBrowsingFilterArray(){
-		if(isset($this->browsing_filter)){
-			return $this->browsing_filter;
+	/**
+	 * Gets the model browsing_search_dropdown_info[field_name]. Searches into 
+	 * base model when called from a view.
+	 * @param string $field_name
+	 * @return array if the field config is found, null otherwise
+	 */
+	function getBrowsingAdvSearchArray($field_name){
+		if(isset($this->browsing_search_dropdown_info[$field_name])){
+			return $this->browsing_search_dropdown_info[$field_name];
 		}
 		if(isset($this->base_model)){
 			$base_model = AppModel::getInstance($this->base_plugin, $this->base_model, true);
-			if(isset($base_model->browsing_filter)){
-				return $base_model->browsing_filter;
-			}
+			return $base_model->getBrowsingAdvSearchArray($field_name);
 		}
 		return null;
 	}
+	
+	/**
+	 * Called by structure builder to get the browsing advanced search fields.
+	 * @param array $field_name
+	 * @return array An array formated for dropdown use
+	 */
+	function getBrowsingAdvSearch($field_name){
+		$field_name = $field_name[0];
+		$result = array();
+		if(isset($this->browsing_search_dropdown_info[$field_name])){
+			$browser_model = AppModel::getInstance('Datamart', 'Browser', 'true');
+			
+			$datamart_structure = AppModel::getInstance('Datamart', 'DatamartStructure', true);
+			$sfs_model = AppModel::getInstance('', 'Sfs', true);
+			$dm_structures = $datamart_structure->find('all');
+			$dm_structures = AppController::defineArrayKey($dm_structures, 'DatamartStructure', 'model', true);
+			
+			if(!isset(Browser::$cache['path'])){
+				$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$path = $browsing_result_model->getPath(Browser::$cache['current_node_id'], null, 0);
+				Browser::$cache['allowed_models'] = array();
+				while($current = array_pop($path)){
+					if($current['BrowsingResult']['browsing_type'] != 'drilldown'){
+						if(array_key_exists($current['DatamartStructure']['model'], Browser::$cache['allowed_models'])){
+							break;
+						}
+						Browser::$cache['allowed_models'][$current['DatamartStructure']['model']] = null;
+					}
+				}
+			}
+			foreach($this->browsing_search_dropdown_info[$field_name] as $key => $option){
+				if(array_key_exists($option['model'], Browser::$cache['allowed_models'])){
+					$sfs = $sfs_model->find('first', array('fields' => array('language_label'), 'conditions' => array('Sfs.field' => $option['field'], 'Sfs.model' => $option['model']), 'recursive' => -1));
+					$result[$key] = $option['relation'].' '.__($dm_structures[$option['model']]['DatamartStructure']['display_name']).' '.__($sfs['Sfs']['language_label']);
+				}
+			}
+		}
+		
+		return $result;
+	}
 }
-
-?>

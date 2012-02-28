@@ -15,9 +15,11 @@ class DiagnosisMaster extends ClinicalAnnotationAppModel {
 	
 	static public $join_diagnosis_control_on_dup = array('table' => 'diagnosis_controls', 'alias' => 'DiagnosisControl', 'type' => 'LEFT', 'conditions' => array('diagnosis_masters_dup.diagnosis_control_id = DiagnosisControl.id'));
 	
-	var $browsing_filter = array(
-		1	=> array('lang' => 'keep entries with the most recent date per participant', 'group by' => 'participant_id', 'field' => 'dx_date', 'attribute' => 'MAX'),
-		2	=> array('lang' => 'keep entries with the oldest date per participant', 'group by' => 'participant_id', 'field' => 'dx_date', 'attribute' => 'MIN')
+	var $browsing_search_dropdown_info = array(
+		'browsing_filter' => array(
+			1	=> array('lang' => 'keep entries with the most recent date per participant', 'group by' => 'participant_id', 'field' => 'dx_date', 'attribute' => 'MAX'),
+			2	=> array('lang' => 'keep entries with the oldest date per participant', 'group by' => 'participant_id', 'field' => 'dx_date', 'attribute' => 'MIN')
+		)
 	);
 	
 	function primarySummary($variables=array()) {

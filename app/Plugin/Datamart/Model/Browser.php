@@ -29,8 +29,8 @@ class Browser extends DatamartAppModel {
 	const ANCESTOR_IS_CHILD = 4;
 	const JOIN_FIELD = 5;
 	
-	const ADV_SEARCH_REG_EXP = '/([>=<]+) ([\w]+)\.([\w]+)/';
-
+	public static $cache = array();
+	
 	/**
 	 * The action dropdown under browse will be hierarchical or not
 	 * @var boolean
@@ -273,7 +273,7 @@ class Browser extends DatamartAppModel {
 			}
 			
 			//going down the tree
-			$drilldown_allow_merge = !$tree_node['BrowsingResult']['raw'] && in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down); 
+			$drilldown_allow_merge = $tree_node['BrowsingResult']['browsing_type'] == 'drilldown' && in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_down); 
 			if($drilldown_allow_merge){
 				//drilldown, remove the last entry to allow the current one to be flag as mergeable 
 				array_pop($linked_types_down);
@@ -295,9 +295,9 @@ class Browser extends DatamartAppModel {
 				$tree_node['active'] = $child_node['active'] || $tree_node['active'];
 				if(!isset($tree_node['merge']) && (($child_node['merge'] && $node_id != $active_node) || $child_node['BrowsingResult']['id'] == $active_node)){
 					array_push($linked_types_up, $child_node['BrowsingResult']['browsing_structures_id']);
-					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up) || !$child_node['BrowsingResult']['raw']){
+					if(!in_array($tree_node['BrowsingResult']['browsing_structures_id'], $linked_types_up) || $child_node['BrowsingResult']['browsing_type'] == 'drilldown'){
 						$tree_node['merge'] = true;//for parent
-						if(!$child_node['BrowsingResult']['raw'] && $child_node['BrowsingResult']['id'] == $active_node){
+						if($child_node['BrowsingResult']['browsing_type'] == 'drilldown' && $child_node['BrowsingResult']['id'] == $active_node){
 							$tree_node['hide_merge_icon'] = true;
 						}
 					}
@@ -357,7 +357,7 @@ class Browser extends DatamartAppModel {
 				}
 				$active_x = null;
 				$active_y = null;
-				if(!$child['BrowsingResult']['raw'] || !$tree_node['BrowsingResult']['raw']){
+				if($child['BrowsingResult']['browsing_type'] == 'drilldown' || $tree_node['BrowsingResult']['browsing_type'] == 'drilldown'){
 					Browser::buildTree($child, $tree, $x + 2, $y);
 				}else{
 					$tree[$y][$x + 2] = "h-line".$merge;
@@ -494,11 +494,11 @@ class Browser extends DatamartAppModel {
 					}
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
 					$title = __($cell['DatamartStructure']['display_name']);
-					$info = "";
-					$search_datetime = AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
-					if($cell['BrowsingResult']['raw']){
+					$info = __($cell['BrowsingResult']['browsing_type']).' - '.AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
+					if($cell['BrowsingResult']['browsing_type'] != 'drilldown'){
 						$search = unserialize($cell['BrowsingResult']['serialized_search_params']);
-						if(count($search['search_conditions'])){
+						$adv_search = unserialize($cell['BrowsingResult']['serialized_adv_search_paramas']);
+						if(count($search['search_conditions']) || $adv_search){
 							$structure = null;
 							if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 								//alternate structure required
@@ -514,18 +514,20 @@ class Browser extends DatamartAppModel {
 							}else{
 								$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
 							}
-							if(count($search['search_conditions'])){//count might be zero if the only condition was the sub type
-								$info .= __("search")." - ".$search_datetime."<br/><br/>".Browser::formatSearchToPrint($search, $structure);
-							}else{
-								$info .= __("direct access")." - ".$search_datetime;
+							if(count($search['search_conditions']) || $adv_search){//count might be zero if the only condition was the sub type
+								$adv_structure = null;
+								if($cell['DatamartStructure']['adv_search_structure_alias']){
+									$adv_structure = StructuresComponent::$singleton->get('form', $cell['DatamartStructure']['adv_search_structure_alias']);
+								}
+								$info .= "<br/><br/>".Browser::formatSearchToPrint(array(
+									'search'		=> $search, 
+									'adv_search'	=> $adv_search, 
+									'structure'		=> $structure, 
+									'adv_structure'	=> $adv_structure,
+									'model'			=> $cell_model
+								));
 							}
-						}else if($cell['BrowsingResult']['parent_id'] == 0 && empty($cell['BrowsingResult']['serialized_search_params'])){
-							$info .= __("from batchset")." - ".$search_datetime;
-						}else{
-							$info .= __("direct access")." - ".$search_datetime;
 						}
-					}else{
-						$info .= __("drilldown")." - ".$search_datetime;
 					}
 					$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
 					$controls = "<div class='controls'>%s</div>";
@@ -558,23 +560,22 @@ class Browser extends DatamartAppModel {
 	
 	/**
 	 * Formats the search params array and returns it into a table
-	 * @param array $search_params The search params array
-	 * @param Int $structure_id The structure id to base the search params on
+	 * @param array $params Both search parameters with both structures
 	 * @return An html string of a table containing the search formated params
 	 */
-	static function formatSearchToPrint(array $search_params, array $structure){
-		$params = $search_params['search_conditions'];
+	static function formatSearchToPrint(array $params){
+		$search_conditions = $params['search']['search_conditions'];
 		
 		//preprocess to clean datetime accuracy
-		foreach($params as $key => $value){
+		foreach($search_conditions as $key => $value){
 			if(is_array($value) && isset($value['OR'][0])){
 				$tmp = current($value['OR'][0]);
-				$params[key($value['OR'][0])] = $tmp;
-				unset($params[$key]);
+				$search_conditions[key($value['OR'][0])] = $tmp;
+				unset($search_conditions[$key]);
 			}
 		}
 
-		$keys = array_keys($params);
+		$keys = array_keys($search_conditions);
 		App::Uses('StructureFormat', 'Model');
 		$StructureFormat = new StructureFormat();
 		$conditions = array();
@@ -582,7 +583,7 @@ class Browser extends DatamartAppModel {
 		foreach($keys as $key){
 			if(is_numeric($key)){
 				//it's a textual field (model.field LIKE %foo1% OR model.field LIKE %foo2% ...) or an "OR"
-				list($model_field) = explode(" ", $params[$key]);
+				list($model_field) = explode(" ", $search_conditions[$key]);
 				$model_field = substr($model_field, 1);
 				list($model, $field) = explode(".", $model_field);
 			}else{
@@ -595,7 +596,7 @@ class Browser extends DatamartAppModel {
 		}
 		$result = "<table align='center' width='100%' class='browserBubble'>";
 		//value_element can be a string or an array
-		foreach($params as $key => $value_element){
+		foreach($search_conditions as $key => $value_element){
 			$values = array();
 			$name = "";
 			$name_suffix = "";
@@ -629,7 +630,7 @@ class Browser extends DatamartAppModel {
 			}
 			$structure_value_domain_model = null;
 			$last_label = '';
-			foreach($structure['Sfs'] as &$sf_unit){
+			foreach($params['structure']['Sfs'] as &$sf_unit){
 				if($sf_unit['language_label']){
 					$last_label = $sf_unit['language_label'];
 				}
@@ -682,7 +683,32 @@ class Browser extends DatamartAppModel {
 			}
 			$result .= "</td>\n";
 		}
-		$result .= "<tr><th>".__("exact search")."</th><td>".($search_params['exact_search'] ? __("yes") : __('no'))."</td>\n";
+		
+		$result .= "<tr><th>".__("exact search")."</th><td>".($params['search']['exact_search'] ? __("yes") : __('no'))."</td>\n";
+
+		//advanced search fields
+		$sfs_model = AppModel::getInstance('', 'Sfs', true);
+		foreach($params['adv_search'] as $key => $value){
+			if($key === 'browsing_filter'){
+				continue;
+			}
+			foreach($params['adv_structure']['Sfs'] as $sfs){
+				if($sfs['field'] == $key){
+					$option = $params['model']->getBrowsingAdvSearchArray($key);
+					$option = $option[$value];
+					$dm_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
+					$dm_structure = $dm_structure_model->find('first', array('conditions' => array('DatamartStructure.model' => $option['model']))); 
+					$sfs2 = $sfs_model->find('first', array('conditions' => array('model' => $option['model'], 'field' => $option['field']), 'recursive' => -1));
+					$result .= sprintf("<tr><th>%s %s</th><td>%s %s</td>\n", __($sfs['language_label']), $option['relation'], __($dm_structure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
+				}
+			}
+		}
+		
+		//filter
+		if(isset($params['adv_search']['browsing_filter'])){
+			$result .= "<tr><th>".__("filter")."</th><td>".__($params['adv_search']['browsing_filter'])."</td>\n";
+		}
+		
 		$result .= "</table>";
 		return $result;
 	}
@@ -858,7 +884,7 @@ class Browser extends DatamartAppModel {
 			$nodes_to_fetch = array_reverse($nodes_to_fetch);
 			//clear drilldowns
 			foreach($nodes_to_fetch as $index => $node_to_fetch){
-				if($this->browsing_cache[$node_to_fetch]['BrowsingResult']['raw'] == 0){
+				if($this->browsing_cache[$node_to_fetch]['BrowsingResult']['browsing_type'] == 'drilldown'){
 					unset($nodes_to_fetch[$index]);
 				}
 			}
@@ -1027,7 +1053,7 @@ class Browser extends DatamartAppModel {
 					'conditions' => array($control_model->name.".id" => $control_id))
 				);
 				
-				$header_sub_type = " > ".Browser::getTranslatedDatabrowserLabel($control_model_data[$control_model->name]['databrowser_label'])." ";
+				$header_sub_type = "/".Browser::getTranslatedDatabrowserLabel($control_model_data[$control_model->name]['databrowser_label'])." ";
 				
 				//init base model
 				AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_master_model'], true);
@@ -1159,76 +1185,6 @@ class Browser extends DatamartAppModel {
 	}
 	
 	/**
-	 * Relabels (display_value) the advanced search parameters dropdown based on their value
-	 * @param array $sfs
-	 * @param array $browsing
-	 * @param int $node_id
-	 */
-	public function populateAdvancedStructure(array &$sfs, array $browsing, $node_id){
-		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
-		$parents = $browsing_result_model->getPath($node_id, null, 0);
-		$stop_structure_id = $browsing['DatamartStructure']['id'];
-		$encoutered_models = array();
-		
-		//fetch the current parents and stop if we encouter a node with the same model as the current one
-		if($parents){
-			while($parent = array_pop($parents)){
-				if($parent['DatamartStructure']['id'] == $stop_structure_id){
-					break;
-				}
-				$encoutered_models[$parent['DatamartStructure']['model']] = null;
-			}
-		}
-		
-		
-		ClassRegistry::removeObject('StructureValueDomain');//apparently, a bad object is stored there
-		$structure_value_domain_model = AppModel::getInstance('', 'StructureValueDomain', true);
-		$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
-		$datamart_structures = $datamart_structure_model->find('all', array('fields' => array('DatamartStructure.model', 'DatamartStructure.display_name', 'DatamartStructure.structure_id')));
-		$datamart_structures = AppController::defineArrayKey($datamart_structures, 'DatamartStructure', 'model', true);
-		$sfs_model = AppModel::getInstance('', 'Sfs', true);
-		$sid_model_field_lang = array();
-		//foreach field of the advanced structure
-		foreach($sfs['Sfs'] as &$row){
-			if($row['field'] == 'browsing_filter'){
-				continue;
-			}
-			//fetch the value domain
-			$dropdown_results = array('defined' => array("" => ""), 'previously_defined' => array());
-			$structure_value_domain_model->updateDropdownResult($row['StructureValueDomain'], $dropdown_results);
-			$dropdown_results = $dropdown_results['defined'];
-			//foreach value domain value
-			foreach($dropdown_results as $key => &$displayed_val){
-				if($key){
-					$matches = array();
-					//we expect a value formated as the next reg exp. Ex.: <= treatment.start_date
-					preg_match(self::ADV_SEARCH_REG_EXP, $key, $matches);
-					if(array_key_exists($matches[2], $encoutered_models)){
-						//if the model is found in the encoutered models
-						$curr_ds = $datamart_structures[$matches[2]]['DatamartStructure'];
-						$language_label = null;
-						if(isset($sid_model_field_lang[$curr_ds['structure_id']][$curr_ds['model']][$matches[3]])){
-							//if model.field was in our cache use it
-							$language_label = $sid_model_field_lang[$curr_ds['structure_id']][$curr_ds['model']][$matches[3]];
-						}else{
-							//model.field not in cache, find them
-							$field = $sfs_model->find('first', array('conditions' => array('Sfs.model' => $curr_ds['model'], 'Sfs.field' => $matches[3]), 'fields' => array('Sfs.language_label'), 'recursive' => -1));
-							$language_label = __($field['Sfs']['language_label']);
-							$sid_model_field_lang[$curr_ds['structure_id']][$curr_ds['model']][$matches[3]] = $language_label;
-						}
-						//update the language_alias
-						$displayed_val = $matches[1]." ".__($curr_ds['display_name']).' - '.__($language_label);
-					}else{
-						//otherwise flush that value from the dropdown
-						unset($dropdown_results[$key]);
-					}
-				}
-			}
-			$row['filtered_options'] = $dropdown_results;
-		}
-	}
-
-	/**
 	 * When defining advanced search parameters (parameters based on previous nodes),
 	 * updates the joins and conditions arrays.
 	 * @param array $params
@@ -1237,6 +1193,7 @@ class Browser extends DatamartAppModel {
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
 		$browsing_control_model = AppModel::getInstance('Datamart', 'BrowsingControl', true);
 		$joined_models = array();
+		$params['conditions_adv'] = array();
 		foreach($params['joins'] as $join){
 			$joined_models[$join['alias']] = null;
 		}
@@ -1245,17 +1202,25 @@ class Browser extends DatamartAppModel {
 				&& isset($params['data'][$field['model']][$field['field']]) 
 				&& $params['data'][$field['model']][$field['field']]
 			){
-				$matches = array();
-				preg_match(self::ADV_SEARCH_REG_EXP, $params['data'][$field['model']][$field['field']], $matches);
-				if(!array_key_exists($matches[2], $joined_models)){
+				$curr_model = $params['browsing_model'];
+				$adv_field = $curr_model->getBrowsingAdvSearchArray($field['field']);
+				$option_key = $params['data'][$curr_model->name][$field['field']];
+				if($adv_field && isset($adv_field[$params['data'][$curr_model->name][$field['field']]])){
 					//the needed model is not already joined, join it
 					$path = $browsing_result_model->getPath($params['node_id'], null, 0);
 					$curr_id = $params['browsing']['DatamartStructure']['id'];
-					$curr_model = $params['browsing_model'];
+					$adv_field = $adv_field[$option_key];
 					while($parent_browsing = array_pop($path)){
 						if(!array_key_exists($parent_browsing['DatamartStructure']['model'], $joined_models)){
 							$control = $browsing_control_model->find('first', array('conditions' => array('BrowsingControl.id1' => $curr_id, 'BrowsingControl.id2' => $parent_browsing['DatamartStructure']['id'])));
 							$parent_browsing_model = AppModel::getInstance($parent_browsing['DatamartStructure']['plugin'], $parent_browsing['DatamartStructure']['control_master_model'] ?: $parent_browsing['DatamartStructure']['model'], true);
+							
+							if($parent_browsing_model->name == $adv_field['model'] && !$parent_browsing_model->schema($adv_field['field'])){
+								//error, the field doesn't exist
+								AppController::getInstance()->redirect( '/Pages/err_internal?p[]=model+field+not+found', NULL, TRUE );
+							}
+							
+							
 							$conditions = array();
 							if($control){
 								$conditions = array($curr_model->name.'.'.$control['BrowsingControl']['use_field'].' = '.$parent_browsing_model->name.'.'.$parent_browsing_model->primaryKey);
@@ -1264,6 +1229,7 @@ class Browser extends DatamartAppModel {
 								assert(!empty($control));
 								$conditions = array($parent_browsing_model->name.'.'.$control['BrowsingControl']['use_field'].' = '.$curr_model->name.'.'.$curr_model->primaryKey);
 							}
+							
 							$params['joins'][] = array(
 									'table'		=> $parent_browsing_model->table,
 									'alias'		=> $parent_browsing_model->name,
@@ -1276,7 +1242,9 @@ class Browser extends DatamartAppModel {
 						}
 					}
 				}
-				$params['conditions'][] = $params['browsing_model']->name.'.'.$field['field'].' '.$params['data'][$field['model']][$field['field']];
+				$cond = sprintf('%s.%s %s %s.%s', $params['browsing_model']->name, $field['field'], $adv_field['relation'], $adv_field['model'], $adv_field['field']);
+				$params['conditions'][] = $cond;
+				$params['conditions_adv'][$field['field']] = $option_key;
 			}
 		}
 	}
