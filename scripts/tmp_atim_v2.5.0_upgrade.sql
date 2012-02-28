@@ -25,7 +25,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Conserver les entrées avec la date la plus récente par participant"),
 ("keep entries with the oldest date per participant",
  "Keep entries with the oldest date per participant",
- "Conserver les entrées avec la  date la plus ancienne par participant");
+ "Conserver les entrées avec la  date la plus ancienne par participant"),
+("a special parameter could not be applied because relations between %s and its children node are shared"
+ "A special paremeter could not be applied because relations between %s and its children node are shared.",
+ "Un paramètre spécial n'a pas pu être appliqué car les relations entre %s et son noeud enfant sont partagées.");
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
