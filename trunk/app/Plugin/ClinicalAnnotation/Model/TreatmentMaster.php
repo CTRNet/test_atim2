@@ -9,9 +9,11 @@ class TreatmentMaster extends ClinicalAnnotationAppModel {
 		)    
 	); 
     
-    var $browsing_filter = array(
-    	1	=> array('lang' => 'keep entries with the most recent start date per participant', 'group by' => 'participant_id', 'field' => 'start_date', 'attribute' => 'MAX'),
-    	2	=> array('lang' => 'keep entries with the oldest start date per participant', 'group by' => 'participant_id', 'field' => 'start_date', 'attribute' => 'MIN')
+    var $browsing_search_dropdown_info = array(
+    	'browsing_filter' => array(
+	    	1	=> array('lang' => 'keep entries with the most recent start date per participant', 'group by' => 'participant_id', 'field' => 'start_date', 'attribute' => 'MAX'),
+	    	2	=> array('lang' => 'keep entries with the oldest start date per participant', 'group by' => 'participant_id', 'field' => 'start_date', 'attribute' => 'MIN')
+    	)
     );
 	
 	function summary( $variables=array() ) {

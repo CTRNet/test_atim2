@@ -29,20 +29,12 @@
 		$settings['actions'] = true;
 		unset($settings['header']);
 		$settings['language_heading'] = __('special parameters');
-		$dropdown_options = array();
-		
-		foreach($advanced_structure['Sfs'] as $sfs){
-			if(isset($sfs['filtered_options'])){
-				$dropdown_options[$sfs['model'].'.'.$sfs['field']] = $sfs['filtered_options'];
-			}
-		}
 		
 		$this->Structures->build($advanced_structure, array(
 				'type' => 'search',
 				'links' => $links,
 				'data' => array(),
 				'settings' => $settings,
-				'extras' => $extras,
-				'dropdown_options' => $dropdown_options
+				'extras' => $extras
 		));
 	}

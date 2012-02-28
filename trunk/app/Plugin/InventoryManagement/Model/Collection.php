@@ -20,9 +20,18 @@ class Collection extends InventoryManagementAppModel {
 		)
 	);
 	
-	var $browsing_filter = array(
-		1	=> array('lang' => 'keep entries with the most recent date per participant', 'group by' => 'participant_id', 'field' => 'collection_datetime', 'attribute' => 'MAX'),
-		2	=> array('lang' => 'keep entries with the oldest date per participant', 'group by' => 'participant_id', 'field' => 'collection_datetime', 'attribute' => 'MIN')
+	var $browsing_search_dropdown_info = array(
+		'browsing_filter'	=> array(
+			1	=> array('lang' => 'keep entries with the most recent date per participant', 'group by' => 'participant_id', 'field' => 'collection_datetime', 'attribute' => 'MAX'),
+			2	=> array('lang' => 'keep entries with the oldest date per participant', 'group by' => 'participant_id', 'field' => 'collection_datetime', 'attribute' => 'MIN')
+		), 'collection_datetime' => array(
+			1	=> array('model' => 'TreatmentMaster', 'field' => 'start_date', 'relation' => '>='),		
+			2	=> array('model' => 'TreatmentMaster', 'field' => 'start_date', 'relation' => '<='),		
+			3	=> array('model' => 'TreatmentMaster', 'field' => 'finish_date', 'relation' => '>='),		
+			4	=> array('model' => 'TreatmentMaster', 'field' => 'finish_date', 'relation' => '<='),		
+			5	=> array('model' => 'EventMaster', 'field' => 'event_date', 'relation' => '>='),		
+			6	=> array('model' => 'EventMaster', 'field' => 'event_date', 'relation' => '<=')		
+		)
 	);
 	
 	function summary($variables=array()) {
