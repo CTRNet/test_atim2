@@ -245,3 +245,8 @@ ALTER TABLE consent_masters
  MODIFY COLUMN consent_version_date VARCHAR(25) NOT NULL DEFAULT '';
 ALTER TABLE consent_masters_revs
  MODIFY COLUMN consent_version_date VARCHAR(25) NOT NULL DEFAULT '';
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_icm_frsq') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='research_other_disease' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ 
+ 
