@@ -1001,7 +1001,7 @@ class AppModel extends Model {
 	function getBrowsingAdvSearch($field_name){
 		$field_name = $field_name[0];
 		$result = array();
-		if(isset($this->browsing_search_dropdown_info[$field_name])){
+		if(isset($this->browsing_search_dropdown_info[$field_name]) && Browser::$cache['current_node_id'] != 0){
 			$browser_model = AppModel::getInstance('Datamart', 'Browser', 'true');
 			
 			$datamart_structure = AppModel::getInstance('Datamart', 'DatamartStructure', true);
@@ -1014,7 +1014,7 @@ class AppModel extends Model {
 				$path = $browsing_result_model->getPath(Browser::$cache['current_node_id'], null, 0);
 				Browser::$cache['allowed_models'] = array();
 				while($current = array_pop($path)){
-					if($current['BrowsingResult']['browsing_type'] != 'drilldown'){
+					if($current['BrowsingResult']['raw']){
 						if(array_key_exists($current['DatamartStructure']['model'], Browser::$cache['allowed_models'])){
 							break;
 						}

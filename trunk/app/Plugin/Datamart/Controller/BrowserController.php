@@ -137,7 +137,7 @@ class BrowserController extends DatamartAppController {
 				$ids = array_unique($ids);
 				sort($ids);
 				$id_csv = implode(",",  $ids);
-				if($parent['BrowsingResult']['browsing_type'] == 'drilldown'){
+				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_id'])));
 					$node_id = $parent['BrowsingResult']['id'];
@@ -149,6 +149,7 @@ class BrowserController extends DatamartAppController {
 					"browsing_structures_id"		=> $parent['BrowsingResult']['browsing_structures_id'],
 					"browsing_structures_sub_id"	=> $parent['BrowsingResult']['browsing_structures_sub_id'],
 					"id_csv"						=> $id_csv,
+					'raw'							=> 0,
 					"browsing_type"					=> 'drilldown'
 				));
 
@@ -170,245 +171,48 @@ class BrowserController extends DatamartAppController {
 				//going to a search screen, remove the last direct_id to avoid saving it as direct access
 				array_pop($direct_id_arr);
 			}
-			$result_structure = null;
-			$browsing = null;
-			$use_sub_model = null;
-			$first_iteration = true;
+			
+			$created_node = null;
 			
 			//save nodes (direct and indirect)
 			foreach($direct_id_arr as $control_id){
-				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $control_id)));
-				if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
-					echo $browsing['DatamartStructure']['index_link'];
-					$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
-					return;
-				}
-				
-				$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
-				
-				if(isset($sub_structure_id)//there is a sub id 
-					&& ($ctrl_model = $this->ModelToSearch->getControlName())//a sub model exists
+				$sub_struct_ctrl_id = null;
+				if(isset($sub_structure_id)//there is a sub id
 					&& $direct_id_arr[count($direct_id_arr) - 1] == $control_id//this is the last element
 					&& $check_list//this is a checklist
 				){
-					//sub structure
-					$this->ModelToSearch = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['control_master_model'], true);
-					$alternate_info = Browser::getAlternateStructureInfo($browsing['DatamartStructure']['plugin'], $ctrl_model, $sub_structure_id);
-					$alternate_alias = $alternate_info['form_alias'];
-					$result_structure = $this->Structures->get('form', $alternate_alias);
-					$model_to_import = $browsing['DatamartStructure']['control_master_model'];
-					$use_sub_model = true;
-					
-					//add detail tablename to result_structure (use to parse search parameters) where needed
-					$detail_model_name = str_replace('Master', 'Detail', $model_to_import);
-					if($detail_model_name == $model_to_import){
-						AppController::addWarningMsg('The replacement to get the detail model name failed');
-					}else{
-						$this->id = null;//removes a bogus warning on Config::read
-						foreach($result_structure['Sfs'] as &$field){
-							if($field['model'] == $detail_model_name && $field['tablename'] != $alternate_info['detail_tablename']){
-								if(Config::read('debug') > 0 && !empty($field['tablename']) && $field['tablename'] != $alternate_info['detail_tablename']){
-									AppController::addWarningMsg('A loaded detail field has a different tablename ['.$field['tablename'].'] than what the control table states ['.$alternate_info['detail_tablename'].']');
-								}
-								$field['tablename'] = $alternate_info['detail_tablename'];
-							}
-						}
-					}
-				}else{
-					$result_structure = $this->Structures->getFormById($browsing['DatamartStructure']['structure_id']);
-					$use_sub_model = false;
+					$sub_struct_ctrl_id = $sub_structure_id;
+				}
+				//TODO: AFTER EACH ITERATION, this should be updated.
+				
+				$params = array(
+					'struct_ctrl_id'		=> $control_id,
+					'sub_struct_ctrl_id'	=> $sub_struct_ctrl_id,
+					'node_id'				=> $node_id,
+					'last'					=> $last_control_id == $control_id
+				);
+				if(!$created_node = $this->Browser->createNode($params)){
+					//something went wrong. A flash screen has been called.
+					return;
 				}
 				
-				
-				$search_conditions = $this->Structures->parseSearchConditions($result_structure);
-				$select_key = $this->ModelToSearch->name.".".$this->ModelToSearch->primaryKey;
-				if($use_sub_model){
-					//adding filtering search condition
-					$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$this->ModelToSearch->getControlForeign()] = $sub_structure_id;
-				}
-				
-				$org_search_conditions['search_conditions'] = $search_conditions;
-				$org_search_conditions['exact_search'] = isset($this->request->data['exact_search']);
-				$adv_search_conditions = array();
-				$joins = array();
-
-				if($node_id != 0){
-					//this is not the first node, search based on parents
-					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
-					$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
-					$this->ParentModel = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['control_master_model'] ?: $parent['DatamartStructure']['model'], true);
-					if(!empty($control_data)){
-						$joins[] = array(
-							'table'		=> $this->ParentModel->table,
-							'alias'		=> $this->ParentModel->name,
-							'type'		=> 'INNER',
-							'conditions'=> array($this->ParentModel->name.'.'.$control_data['BrowsingControl']['use_field'].' = '.$select_key, $this->ParentModel->name.'.'.$this->ParentModel->primaryKey => explode(',', $parent['BrowsingResult']['id_csv']))
-						);
-					}else{
-						//ids are already contained in the child
-						$control_data = $this->BrowsingControl->find('first', array('conditions' => array('BrowsingControl.id1' => $browsing['DatamartStructure']['id'], 'BrowsingControl.id2' => $parent['DatamartStructure']['id'])));
-						$search_conditions[$this->ModelToSearch->name.'.'.$control_data['BrowsingControl']['use_field']] = explode(',', $parent['BrowsingResult']['id_csv']);
-					}
-				}
-				
-				$browsing_filter = array();
-				
-				if($browsing['DatamartStructure']['adv_search_structure_alias']){
-					$advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
-					$params = array(
-						'adv_struct'	=> $advanced_structure, 
-						'data'			=> $this->request->data, 
-						'joins'			=> &$joins,
-						'conditions'	=> &$search_conditions, 
-						'node_id'		=> $node_id,
-						'browsing'		=> $browsing,
-						'browsing_model'=> $this->ModelToSearch
-					);
-					$error_model_display_name = $this->Browser->buildAdvancedSearchParameters(&$params); 
-					if($error_model_display_name != null){
-						//example: If 3 tx are owned by the same participant, this error will be displayed.
-						//we do it to make sure the result set is made with 1:1 relationship, thus clear.
-						$this->flash(__("a special parameter could not be applied because relations between %s and its children node are shared", __($error_model_display_name)), 'javascript:history.back()');
-						return;
-					}
-					$adv_search_conditions = $params['conditions_adv'];
-					if(isset($this->data[$this->ModelToSearch->name]['browsing_filter']) && !empty($this->data[$this->ModelToSearch->name]['browsing_filter'])){
-						$browsing_filter = $this->ModelToSearch->getBrowsingAdvSearchArray('browsing_filter');
-						$browsing_filter = $browsing_filter[$this->data[$this->ModelToSearch->name]['browsing_filter']];
-					}
-				}
-				$save_ids = $this->ModelToSearch->find('all', array(
-					'conditions'	=> $search_conditions, 
-					'fields'		=> array("CONCAT('', ".$select_key.") AS ids"), 
-					'recursive'		=> 0, 
-					'joins'			=> $joins,
-					'order'			=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey)
-				));
-				
-				if($browsing_filter && $save_ids){
-					$temporary_table = 'browsing_tmp_table';
-					$select_field = null;
-					if($this->ModelToSearch->schema($browsing_filter['field'].'_accuracy')){
-						//construct a field function based on accuracy
-						//we have to use \n and \t for accuracy when searching for max 
-						//because they're the rare entries that go before a space
-						$select_field = sprintf(
-							AppModel::ACCURACY_REPLACE_STR, 
-							$browsing_filter['field'], 
-							$browsing_filter['field'].'_accuracy', 
-							$browsing_filter['attribute'] == 'MAX' ? '"\n"' : '"A"',//non year
-							$browsing_filter['attribute'] == 'MAX' ? '"\t"' : '"B"',//year
-							$browsing_filter['attribute']
-						);
-					}else{
-						$select_field = $browsing_filter['attribute'].'('.$browsing_filter['field'].')'; 
-					}
-					$save_ids = array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
-					$this->ModelToSearch->query('DROP TEMPORARY TABLE IF EXISTS '.$temporary_table);
-					$query = sprintf('CREATE TEMPORARY TABLE %1$s (SELECT %2$s, %3$s AS order_field, " " AS accuracy FROM %4$s WHERE %5$s GROUP BY %2$s)',
-							$temporary_table,
-							$browsing_filter['group by'],
-							$select_field,
-							$this->ModelToSearch->table,
-							$this->ModelToSearch->primaryKey.' IN('.implode(', ', $save_ids).')'
-					);
-					$this->ModelToSearch->query($query);
-					
-					if($this->ModelToSearch->schema($browsing_filter['field'].'_accuracy')){
-						//update the table to restore values regarding accuracy
-						$org_field_info = $this->ModelToSearch->schema($browsing_filter['field']);
-						$query = 'UPDATE '.$temporary_table.' SET order_field=CONCAT(SUBSTR(order_field, 1, %1$d), "%2$s"), accuracy="%3$s" WHERE LENGTH(order_field)=%4$d';
-						if($org_field_info['atim_type'] == 'date'){
-							$this->ModelToSearch->query(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
-							$this->ModelToSearch->query(sprintf($query, 4, '-01-01', 'm', 5));
-							$this->ModelToSearch->query(sprintf($query, 7, '-01', 'd', 8));
-						}else{
-							//datetime
-							$this->ModelToSearch->query(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
-							$this->ModelToSearch->query(sprintf($query, 4, '-01-01 00:00:00', 'm', 5));
-							$this->ModelToSearch->query(sprintf($query, 7, '-01 00:00:00', 'd', 8));
-							$this->ModelToSearch->query(sprintf($query, 10, ' 00:00:00', 'h', 11));
-							$this->ModelToSearch->query(sprintf($query, 13, '00:00', 'i', 14));
-						}
-						$this->ModelToSearch->query('UPDATE '.$temporary_table.' SET accuracy="c" WHERE accuracy=" "');
-					}
-					
-					$joins = array(array(
-						'table'	=> $temporary_table,
-						'alias'	=> 'TmpTable',
-						'type'	=> 'INNER',
-						'conditions' => array(
-							sprintf('TmpTable.order_field = %1$s.%2$s', $this->ModelToSearch->name, $browsing_filter['field']),
-							sprintf('TmpTable.%2$s = %1$s.%2$s', $this->ModelToSearch->name, $browsing_filter['group by'])
-						)	
-					));
-					if($this->ModelToSearch->schema($browsing_filter['field'].'_accuracy')){
-						$joins[0]['conditions'][] = sprintf('TmpTable.accuracy = %1$s.%2$s', $this->ModelToSearch->name, $browsing_filter['field'].'_accuracy');
-					}
-					
-					$save_ids = $this->ModelToSearch->find('all', array(
-							'conditions'	=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey => $save_ids),
-							'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
-							'recursive'		=> 0,
-							'joins'			=> $joins,
-							'order'			=> array($this->ModelToSearch->name.'.'.$this->ModelToSearch->primaryKey)
-					));
-					$this->ModelToSearch->query('DROP TEMPORARY TABLE '.$temporary_table);
-					
-					$adv_search_conditions['browsing_filter'] = $browsing_filter['lang'];
-				}
-
-				$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
-				$save = array('BrowsingResult' => array(
-					'user_id'						=> $this->Session->read('Auth.User.id'),
-					'parent_id'						=> $node_id,
-					'browsing_structures_id'		=> $control_id,
-					'browsing_structures_sub_id'	=> $use_sub_model ? $sub_structure_id : 0,
-					'id_csv'						=> $save_ids,
-					'browsing_type'					=> $org_search_conditions['search_conditions'] || $adv_search_conditions ? 'search' : 'direct access',
-					'serialized_search_params'		=> serialize($org_search_conditions),
-					'serialized_adv_search_paramas'	=> serialize($adv_search_conditions)
-				));
-				
-				if(strlen($save_ids) == 0){
-					//we have an empty set, bail out! (don't save empty result)
-					if($control_id == $last_control_id){
-						//go back 1 page
-						$this->flash(__("no data matches your search parameters"), "javascript:history.back();", 5);
-					}else{
-						//go to the last node
-						$this->flash(__("you cannot browse to the requested entities because there is no [%s] matching your request", $browsing['DatamartStructure']['display_name']), "/Datamart/Browser/browse/".$node_id."/", 5);
-					}
-					return ;	
-				}
-				
-				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
-				if(empty($tmp)){
-					//save fullset
-					$save = $this->BrowsingResult->save($save);
-					$save['BrowsingResult']['id'] = $this->BrowsingResult->id;
-					if($node_id == 0){
-						//save into index as well
-						$this->BrowsingIndex->save(array("BrowsingIndex" => array("root_node_id" => $save['BrowsingResult']['id'])));	
-					}
-					$node_id = $this->BrowsingResult->id;
-					$this->BrowsingResult->id = null;
-				}else{
-					$save = $tmp;
-				}
-				$this->BrowsingIndex->id = null;
-				$node_id = $save['BrowsingResult']['id'];
-				$first_iteration = false;
+				$node_id = $created_node['browsing']['BrowsingResult']['id'];
+			}
+			
+			if($created_node){
+				$result_structure = $created_node['result_struct'];
+				$browsing = $created_node['browsing'];
+				unset($created_node);
 			}
 			
 			//all nodes saved, now load the proper form
 			if($check_list){
-				$node_id = $save['BrowsingResult']['id'];
-				$browsing['BrowsingResult'] = $save['BrowsingResult'];
+				$node_id = $browsing['BrowsingResult']['id'];
 			}else{
 				//search screen
 				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $last_control_id)));
 			}
+			 
 		}
 		
 		//handle display data
@@ -483,7 +287,7 @@ class BrowserController extends DatamartAppController {
 				$this->request->data = $browsing['BrowsingResult']['id_csv'];
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
-			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['browsing_type'] != 'drilldown');
+			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['raw']);
 
 		}else if($browsing != null){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
@@ -594,6 +398,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_structures_id"		=> $dm_structure['DatamartStructure']['id'],
 			"browsing_structures_sub_id"	=> 0,
 			"id_csv"						=> implode(",", $ids),
+			'raw'							=> 1,
 			"browsing_type"					=> 'search'
 		));
 		
@@ -675,7 +480,7 @@ class BrowserController extends DatamartAppController {
 		//build the save array
 		$parent_id = null;
 		$browsing_result = $this->BrowsingResult->findById($child_data['BrowsingResult']['parent_id']);
-		if($browsing_result['BrowsingResult']['browsing_type'] != 'drilldown'){
+		if($browsing_result['BrowsingResult']['raw']){
 			$parent_id = $child_data['BrowsingResult']['parent_id'];
 		}else{
 			$parent_id = $browsing_result['BrowsingResult']['parent_id'];
@@ -686,6 +491,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_structures_id"		=> $parent_data['DatamartStructure']['id'],
 			"browsing_structures_sub_id"	=> $parent_data['BrowsingResult']['browsing_structures_sub_id'],
 			"id_csv"						=> $id_csv,
+			'raw'							=> 0,
 			"browsing_type"					=> 'drilldown'
 		));
 
