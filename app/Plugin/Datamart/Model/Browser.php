@@ -471,6 +471,7 @@ class Browser extends DatamartAppModel {
 		$result .= "<table class='structure'><tr><td style='padding-left: 10px;'>".__("browsing")
 			."<table class='databrowser'>\n";
 		ksort($tree);
+		$lang = AppController::getInstance()->Session->read('Auth.User.lang'); 
 		
 		foreach($tree as $y => $line){
 			$result .= '<tr><td></td>';//print a first empty column, css will print an highlighted h-line in the top left cell
@@ -495,41 +496,45 @@ class Browser extends DatamartAppModel {
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
 					$title = __($cell['DatamartStructure']['display_name']);
 					$info = __($cell['BrowsingResult']['browsing_type']).' - '.AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
-					if($cell['BrowsingResult']['raw']){
-						$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
-						$adv_search = $cell['BrowsingResult']['serialized_adv_search_params'] ? unserialize($cell['BrowsingResult']['serialized_adv_search_params']) : array();
-						if(count($search['search_conditions']) || $adv_search){
-							$structure = null;
-							if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
-								//alternate structure required
-								$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
-								$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $tmp_model->getControlName(), $cell['BrowsingResult']['browsing_structures_sub_id']);
-								$alternate_alias = $alternate_alias['form_alias'];
-								$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
-							 	//unset the serialization on the sub model since it's already in the title
-							 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$tmp_model->getControlForeign()]);
-							 	$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
-							 	$tmp_data = $tmp_model->find('first', array('conditions' => array($tmp_model->getControlName().".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
-							 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$tmp_model->getControlName()]['databrowser_label']);
-							}else{
-								$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
-							}
-							if(count($search['search_conditions']) || $adv_search){//count might be zero if the only condition was the sub type
-								$adv_structure = array();
-								if($cell['DatamartStructure']['adv_search_structure_alias']){
-									$adv_structure = StructuresComponent::$singleton->get('form', $cell['DatamartStructure']['adv_search_structure_alias']);
+					$cache_key = 'browsingNodeContent'.$lang.$cell['BrowsingResult']['id'];
+					if(!$content = Cache::read($cache_key)){
+						if($cell['BrowsingResult']['raw']){
+							$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
+							$adv_search = $cell['BrowsingResult']['serialized_adv_search_params'] ? unserialize($cell['BrowsingResult']['serialized_adv_search_params']) : array();
+							if(count($search['search_conditions']) || $adv_search){
+								$structure = null;
+								if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
+									//alternate structure required
+									$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['model'], true);
+									$alternate_alias = self::getAlternateStructureInfo($cell['DatamartStructure']['plugin'], $tmp_model->getControlName(), $cell['BrowsingResult']['browsing_structures_sub_id']);
+									$alternate_alias = $alternate_alias['form_alias'];
+									$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
+								 	//unset the serialization on the sub model since it's already in the title
+								 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$tmp_model->getControlForeign()]);
+								 	$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
+								 	$tmp_data = $tmp_model->find('first', array('conditions' => array($tmp_model->getControlName().".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
+								 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$tmp_model->getControlName()]['databrowser_label']);
+								}else{
+									$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
 								}
-								$info .= "<br/><br/>".Browser::formatSearchToPrint(array(
-									'search'		=> $search, 
-									'adv_search'	=> $adv_search, 
-									'structure'		=> $structure, 
-									'adv_structure'	=> $adv_structure,
-									'model'			=> $cell_model
-								));
+								if(count($search['search_conditions']) || $adv_search){//count might be zero if the only condition was the sub type
+									$adv_structure = array();
+									if($cell['DatamartStructure']['adv_search_structure_alias']){
+										$adv_structure = StructuresComponent::$singleton->get('form', $cell['DatamartStructure']['adv_search_structure_alias']);
+									}
+									$info .= "<br/><br/>".Browser::formatSearchToPrint(array(
+										'search'		=> $search, 
+										'adv_search'	=> $adv_search, 
+										'structure'		=> $structure, 
+										'adv_structure'	=> $adv_structure,
+										'model'			=> $cell_model
+									));
+								}
 							}
 						}
+						$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
+						Cache::Write($cache_key, $content);
 					}
-					$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
 					$controls = "<div class='controls'>%s</div>";
 					$link = $webroot_url."Datamart/Browser/browse/";
 					if(isset($cell['merge']) && $cell['merge'] && !isset($cell['hide_merge_icon'])){
@@ -554,6 +559,7 @@ class Browser extends DatamartAppModel {
 			$result .= "</tr>\n";
 		}
 		$result .= '</table></td></tr></table>';
+
 		return $result;
 	}
 	
