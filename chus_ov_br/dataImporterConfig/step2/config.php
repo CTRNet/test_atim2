@@ -23,7 +23,7 @@ class Config{
 
 	static $xls_header_rows = 1;
 	
-	static $print_queries	= false;//wheter to output the dataImporter generated queries
+	static $print_queries	= true;//wheter to output the dataImporter generated queries
 	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
 
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
@@ -47,9 +47,10 @@ class Config{
 	//--------------------------------------
 
 	static $sample_aliquot_controls = array();
+	static $diagnosis_controls = array();
 	
 	static $participant_id_from_frsq_nbr = array();
-	static $frsq_nbrs_from_participant_id = array();
+	static $data_for_import_from_participant_id = array();
 	
 	static $summary_msg = array(
 		'@@ERROR@@' => array(),  
@@ -82,11 +83,13 @@ function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
-	DATA EXPORT PROCESS Step 2 : OVCARE<br>
+	DATA EXPORT PROCESS Step 2 : CHUS OVBR<br>
+	Ovary Data Import<br>
 	source_file = $file_path<br>
 	<br>=====================================================================
 	</FONT><br>";		
 	
+	echo "ALL Consent will be defined as obtained!<br>";
 	// ** Data check ** 
 	
 	$query = "SELECT COUNT(*) FROM participants;";
@@ -133,6 +136,15 @@ function addonFunctionStart(){
 			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
 		}	
 	}	
+	
+	
+	// ** Set diagnosis controls **
+	
+	$query = "select id,category,controls_type,detail_tablename from diagnosis_controls where flag_active = '1' AND category IN ('primary','secondary');";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$diagnosis_controls[$row['category']][$row['controls_type']] = array('diagnosis_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
 		
 	// ** Set participant_id / identifier values links array **
 	
@@ -147,25 +159,27 @@ function addonFunctionStart(){
 		}
 		Config::$participant_id_from_frsq_nbr[$row['identifier_value']] = $row['participant_id'];
 		
-		Config::$frsq_nbrs_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
+		if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_ov_file' => false, 'data_imported_from_br_file' => false);
+		Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
 	}
 
-	
-	pr(Config::$participant_id_from_frsq_nbr);
-	pr(Config::$frsq_nbrs_from_participant_id);
-	exit;
 }
 
 function addonFunctionEnd(){
 	global $connection;
 
-	// EMPTY DATE CLEAN UP
+	// DIAGNOSIS UPDATE
 	
-	$query = "UPDATE participants SET participant_identifier = id;";
-	mysqli_query($connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE participants_revs SET participant_identifier = id;";
-	mysqli_query($connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE parent_id IS NULL;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
+	$query = "UPDATE diagnosis_masters parent, diagnosis_masters child SET child.primary_id = parent.primary_id WHERE child.primary_id IS NULL AND child.parent_id IS NOT NULL AND child.parent_id = parent.id;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+
 	// WARNING DISPLAY
 	
 	echo "<br><FONT COLOR=\"red\" >
@@ -197,6 +211,9 @@ function addonFunctionEnd(){
 			foreach($msgs as $msg) echo "$msg<br>";
 		}
 	}
+
+		pr('addonFunctionEnd TODO');
+	//exit;
 	
 	echo "<br>";
 		
@@ -240,7 +257,10 @@ function customGetFormatedDate($date_strg) {
 		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
 		$xls_offset = 36526;//2000-01-01
 		$date = date("Y-m-d", $php_offset + (($date_strg - $xls_offset) * 86400));
+		
+		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches)) die('ERR Wrong date format: '.$date);
 	}
+
 	return $date;
 }
 

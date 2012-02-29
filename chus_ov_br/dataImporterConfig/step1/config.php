@@ -81,7 +81,8 @@ function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
-	DATA EXPORT PROCESS Step 1 : OVCARE<br>
+	DATA EXPORT PROCESS Step 1 : CHUS OVBR<br>
+	Patient Identifier Import<br>
 	source_file = $file_path<br>
 	<br>=====================================================================
 	</FONT><br>";		
@@ -142,39 +143,6 @@ function addonFunctionEnd(){
 function pr($arr) {
 	echo "<pre>";
 	print_r($arr);
-}
-
-function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false) {
-	global $connection;
-	$created = $is_detail_table? array() : array(
-		"created"		=> "NOW()", 
-		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
-		"modified_by"	=> Config::$db_created_id
-	);
-	
-	$insert_arr = array_merge($data_arr, $created);
-	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$record_id = mysqli_insert_id($connection);
-	
-	$rev_insert_arr = array_merge($data_arr, array('id' => "$record_id", 'version_created' => "NOW()"));
-	$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	return $record_id;	
-}
-
-function customGetFormatedDate($date_strg) {
-	$date = null;
-	if(!empty($date_strg)) {
-		//format excel date integer representation
-		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
-		$xls_offset = 36526;//2000-01-01
-		$date = date("Y-m-d", $php_offset + (($date_strg - $xls_offset) * 86400));
-	}
-	return $date;
 }
 
 ?>

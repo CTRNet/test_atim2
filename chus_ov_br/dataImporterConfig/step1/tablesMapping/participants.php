@@ -24,7 +24,7 @@ $model->custom_data = array();
 Config::$models['Participant'] = $model;
 
 function postParticipantRead(Model $m){
-	if(preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $m->values['PatienteNbr'], $matches)) die('ERR 9983933');
+	if(!preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $m->values['PatienteNbr'], $matches)) die('ERR 9983933');
 	
 	// Check no CHUS not assigned to 2 different patients
 	

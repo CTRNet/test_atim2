@@ -20,7 +20,7 @@ Config::$models['BankMiscIdentfier'] = $model;
 
 
 function postBankNbrRead(Model $m){
-	$m->values['FRSQNbr'] = utf8_encode($m->values['FRSQNbr']);
+	$m->values['FRSQNbr'] =  str_replace(' ', '', utf8_encode($m->values['FRSQNbr']));
 	if(preg_match('/(sein)/i', $m->values['Ov / Sein'], $matches)) {
 		$m->values['misc_identifier_control_id'] = '1';
 	} else if(preg_match('/(ovaire)/i', $m->values['Ov / Sein'], $matches)){	
