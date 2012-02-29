@@ -366,3 +366,54 @@ UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='left_ovary_tumour_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_custom_tumour_grade') AND `flag_confidential`='0');
 
 INSERT INTO i18n (id,en,fr) VALUES ('insufficient accuracy of the dates','Insufficient accuracy of the dates!','Précision des dates insuffisantes!');
+
+ALTER TABLE dxd_primaries
+	ADD COLUMN uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE chus_dxd_ovaries
+	ADD COLUMN uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE chus_dxd_breasts
+	ADD COLUMN uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE dxd_primaries_revs
+	ADD COLUMN uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE chus_dxd_ovaries_revs
+	ADD COLUMN uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE chus_dxd_breasts_revs
+	ADD COLUMN uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', '', 'uncertain_dx', 'yes_no',  NULL , '0', '', '', '', 'uncertain dx', ''), 
+('Clinicalannotation', 'DiagnosisDetail', '', 'uncertain_dx_description', 'input',  NULL , '0', 'size=30', '', '', 'uncertain dx description', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='uncertain dx' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='uncertain dx description' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='uncertain dx description' WHERE model='DiagnosisDetail' AND tablename='' AND field='uncertain_dx_description' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('uncertain dx','Uncertain Dx','Diag. incertain'),('uncertain dx description','Details','Détails');
+
+ALTER TABLE chus_dxd_ovaries
+	ADD COLUMN right_ovary_fallopian_tube_lesion char(1) DEFAULT '' AFTER right_ovary_atrophic;
+ALTER TABLE chus_dxd_ovaries_revs
+	ADD COLUMN right_ovary_fallopian_tube_lesion char(1) DEFAULT '' AFTER right_ovary_atrophic;
+ALTER TABLE chus_dxd_ovaries
+	ADD COLUMN left_ovary_fallopian_tube_lesion char(1) DEFAULT '' AFTER left_ovary_atrophic;
+ALTER TABLE chus_dxd_ovaries_revs
+	ADD COLUMN left_ovary_fallopian_tube_lesion char(1) DEFAULT '' AFTER left_ovary_atrophic;
+	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'right_ovary_fallopian_tube_lesion', 'yes_no',  NULL , '0', '', '', '', 'fallopian tube lession (rov)', ''),
+('Clinicalannotation', 'DiagnosisDetail', 'chus_dxd_ovaries', 'left_ovary_fallopian_tube_lesion', 'yes_no',  NULL , '0', '', '', '', 'fallopian tube lession (lov)', '');
+	
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `tablename`='chus_dxd_ovaries' AND `field`='right_ovary_fallopian_tube_lesion'), '3', '220', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `tablename`='chus_dxd_ovaries' AND `field`='left_ovary_fallopian_tube_lesion'), '1', '120', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
+
+INSERT INTO i18n (id,en,fr) VALUES ('fallopian tube lession (rov)', 'Fallopian Tube Lession (rov)', 'Lésion trompes de fallope (ovd)'),('fallopian tube lession (lov)', 'Fallopian Tube Lession (lov)', 'Lésion trompes de fallope (ovg)');
