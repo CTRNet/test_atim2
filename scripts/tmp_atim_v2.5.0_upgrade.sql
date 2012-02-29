@@ -26,7 +26,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("keep entries with the oldest date per participant",
  "Keep entries with the oldest date per participant",
  "Conserver les entrées avec la  date la plus ancienne par participant"),
-("a special parameter could not be applied because relations between %s and its children node are shared"
+("a special parameter could not be applied because relations between %s and its children node are shared",
  "A special paremeter could not be applied because relations between %s and its children node are shared.",
  "Un paramètre spécial n'a pas pu être appliqué car les relations entre %s et son noeud enfant sont partagées.");
 
@@ -598,13 +598,13 @@ ALTER TABLE datamart_browsing_results
  CHANGE parent_node_id parent_id INT UNSIGNED DEFAULT NULL,
  ADD lft INT UNSIGNED DEFAULT NULL AFTER parent_id,
  ADD rght INT UNSIGNED DEFAULT NULL AFTER lft,
- CHANGE COLUMN raw browsing_type VARCHAR(20) NOT NULL DEFAULT '',
- ADD COLUMN serialized_adv_search_paramas text AFTER serialized_search_params;
+ ADD COLUMN browsing_type VARCHAR(20) NOT NULL DEFAULT '' AFTER raw,
+ ADD COLUMN serialized_adv_search_params text AFTER serialized_search_params;
 
-UPDATE datamart_browsing_results SET browsing_type='drilldown' WHERE browsing_type='0';
-UPDATE datamart_browsing_results SET browsing_type='direct access' WHERE browsing_type='1' AND LENGTH(serialized_search_params) < 66;
-UPDATE datamart_browsing_results SET browsing_type='from batchset' WHERE browsing_type='1' AND parent_id IS NULL AND serialized_search_params IS NULL;
-UPDATE datamart_browsing_results SET browsing_type='search' WHERE browsing_type='1';
+UPDATE datamart_browsing_results SET browsing_type='drilldown' WHERE raw='0';
+UPDATE datamart_browsing_results SET browsing_type='direct access' WHERE raw='1' AND LENGTH(serialized_search_params) < 66;
+UPDATE datamart_browsing_results SET browsing_type='from batchset' WHERE raw='1' AND parent_id IS NULL AND serialized_search_params IS NULL;
+UPDATE datamart_browsing_results SET browsing_type='search' WHERE raw='1';
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("adv_coll_datetime", "", "", "");
 
