@@ -5,6 +5,9 @@
 	//use add as type to avoid advanced search usage
 	$settings = array();
 	$links['bottom']['new'] = '/Datamart/Browser/browse/';
+	if(isset($is_root) && !$is_root){
+		$links['bottom']['save browsing steps'] = array('link' => AppController::checkLinkPermission('/Datamart/Browser/saveBrowsingSteps/') ? 'javascript:openSaveBrowsingStepsPopup("Datamart/Browser/saveBrowsingSteps/'.$node_id.'");' : '/underdev/', 'icon' => 'disk');
+	}
 	if($type == "checklist"){
 		$links['top'] = $top;
 		if(is_array($this->request->data)){

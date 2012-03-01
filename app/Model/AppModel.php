@@ -578,7 +578,7 @@ class AppModel extends Model {
 		return count($this->validationErrors) == 0;
 	}
 	
-	static function getInstance($plugin_name, $class_name, $error_view_on_null){
+	static function getInstance($plugin_name, $class_name, $error_view_on_null = true){
 		$instance = ClassRegistry::getObject($class_name);
 		if($instance !== false && $instance instanceof $class_name){
 			return $instance;
@@ -1031,5 +1031,14 @@ class AppModel extends Model {
 		}
 		
 		return $result;
+	}
+	
+	function getOwnershipConditions(){
+		return array('OR' => array(
+			array($this->name.'.sharing_status' => 'user', $this->name.'.user_id' => AppController::getInstance()->Session->read('Auth.User.id')),
+			array($this->name.'.sharing_status' => 'group', $this->name.'.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')),
+			array($this->name.'.sharing_status' => 'all')
+		));
+				
 	}
 }
