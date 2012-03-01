@@ -23,7 +23,7 @@ class Config{
 
 	static $xls_header_rows = 1;
 	
-	static $print_queries	= true;//wheter to output the dataImporter generated queries
+	static $print_queries	= false;//wheter to output the dataImporter generated queries
 	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
 
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
@@ -213,7 +213,7 @@ function addonFunctionEnd(){
 	}
 
 		pr('addonFunctionEnd TODO');
-	//exit;
+exit;
 	
 	echo "<br>";
 		

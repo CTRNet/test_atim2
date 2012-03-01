@@ -8,7 +8,12 @@ $master_fields = array(
 	"participant_id" => "#participant_id",
 //	"primary_id" => "#primary_id",
 //	"parent_id" => "#parent_id",
-	"age_at_dx" => "Age au Dx",
+//	"age_at_dx" => "Age au Dx",
+
+	"path_stage_summary" => "STADE (1-4)",
+	"path_tstage" => "T",
+	"path_nstage" => "N",
+	"path_mstage" => "M",
 
 	"notes" => "#notes"
 );
@@ -28,31 +33,31 @@ $detail_fields = array(
 		"1, 3"=>"3",
 		"LMP"=>"LMP",
 		"ND"=>"ND")),
-	"left_ovary_serous" => array("Morphologie Ov GAUCHE::Séreux" => array(""=>"","x"=>"y")),
-	"left_ovary_papillary" => array("Morphologie Ov GAUCHE::Papillaire" => array(""=>"","x"=>"y")),
-	"left_ovary_mucinous" => array("Morphologie Ov GAUCHE::Mucineux" => array(""=>"","x"=>"y")),
-	"left_ovary_endometrioid_endometriotic_endometriosis" => array("Morphologie Ov GAUCHE::Endométrioide/endométriotique/endométriosique" => array(""=>"","x"=>"y")),
-	"left_ovary_squamous" => array("Morphologie Ov GAUCHE::Malpighien" => array(""=>"","x"=>"y")),
-	"left_ovary_Krukenberg" => array("Morphologie Ov GAUCHE::Krukenberg" => array(""=>"","x"=>"y")),
-	"left_ovary_mullerian" => array("Morphologie Ov GAUCHE::Mullerien" => array(""=>"","x"=>"y")),
-	"left_ovary_granulosa" => array("Morphologie Ov GAUCHE::Granulosa" => array(""=>"","x"=>"y")),
-	"left_ovary_squamous_dermoid" => array("Morphologie Ov GAUCHE::Épidermoide" => array(""=>"","x"=>"y")),
-	"left_ovary_mature_teratoma" => array("Morphologie Ov GAUCHE::Tératome Mature" => array(""=>"","x"=>"y")),
-	"left_ovary_immature_teratoma" => array("Morphologie Ov GAUCHE::Tératome Immature" => array(""=>"","x"=>"y")),
-	"left_ovary_brenner" => array("Morphologie Ov GAUCHE::Brenner" => array(""=>"","x"=>"y")),
-	"left_ovary_neuroendocrine" => array("Morphologie Ov GAUCHE::Neuroendocrine" => array(""=>"","x"=>"y")),
-	"left_ovary_sarcoma" => array("Morphologie Ov GAUCHE::Sarcome" => array(""=>"","x"=>"y")),
-	"left_ovary_clear_cell" => array("Morphologie Ov GAUCHE::Clear Cell" => array(""=>"","x"=>"y")),
-	"left_ovary_small_cell" => array("Morphologie Ov GAUCHE::Small Cell" => array(""=>"","x"=>"y")),
-	"left_ovary_sex_cord" => array("Morphologie Ov GAUCHE::Sex cord" => array(""=>"","x"=>"y")),
-	"left_ovary_cells_in_cat_rings" => array("Morphologie Ov GAUCHE::Cellules en bague de chaton" => array(""=>"","x"=>"y")),
-	"left_ovary_struma_ovarii" => array("Morphologie Ov GAUCHE::Struma Ovarii" => array(""=>"","x"=>"y")),
-	"left_ovary_fibroma" => array("Morphologie Ov GAUCHE::Firbome" => array(""=>"","x"=>"y")),
-	"left_ovary_atrophic" => array("Morphologie Ov GAUCHE::Atrophique" => array(""=>"","x"=>"y")),
-	"left_ovary_fallopian_tube_lesion" => array("Morphologie Ov GAUCHE::Lésion trompe" => array(""=>"","x"=>"y")),
-	"left_ovary_fibrothecoma" => array("Morphologie Ov GAUCHE::Fibrothécale" => array(""=>"","x"=>"y")),
-	"left_ovary_polycystic" => array("Morphologie Ov GAUCHE::Polykystique" => array(""=>"","x"=>"y")),
-	"left_ovary_inclusion_cyst" => array("Morphologie Ov GAUCHE::Kyste d'inclusion" => array(""=>"","x"=>"y")),
+	"left_ovary_serous" => array(utf8_decode("Morphologie Ov GAUCHE::Séreux") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_papillary" => array("Morphologie Ov GAUCHE::Papillaire" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_mucinous" => array("Morphologie Ov GAUCHE::Mucineux" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_endometrioid_endometriotic_endometriosis" => array(utf8_decode("Morphologie Ov GAUCHE::Endométrioide/endométriotique/endométriosique") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_squamous" => array("Morphologie Ov GAUCHE::Malpighien" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_Krukenberg" => array("Morphologie Ov GAUCHE::Krukenberg" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_mullerian" => array("Morphologie Ov GAUCHE::Mullerien" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_granulosa" => array("Morphologie Ov GAUCHE::Granulosa" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_squamous_dermoid" => array(utf8_decode("Morphologie Ov GAUCHE::Épidermoide") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_mature_teratoma" => array(utf8_decode("Morphologie Ov GAUCHE::Tératome Mature") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_immature_teratoma" => array(utf8_decode("Morphologie Ov GAUCHE::Tératome Immature") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_brenner" => array("Morphologie Ov GAUCHE::Brenner" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_neuroendocrine" => array("Morphologie Ov GAUCHE::Neuroendocrine" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_sarcoma" => array("Morphologie Ov GAUCHE::Sarcome" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_clear_cell" => array("Morphologie Ov GAUCHE::Clear Cell" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_small_cell" => array("Morphologie Ov GAUCHE::Small Cell" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_sex_cord" => array("Morphologie Ov GAUCHE::Sex cord" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_cells_in_cat_rings" => array("Morphologie Ov GAUCHE::Cellules en bague de chaton" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_struma_ovarii" => array("Morphologie Ov GAUCHE::Struma Ovarii" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_fibroma" => array("Morphologie Ov GAUCHE::Firbome" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_atrophic" => array("Morphologie Ov GAUCHE::Atrophique" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_fallopian_tube_lesion" => array(utf8_decode("Morphologie Ov GAUCHE::Lésion trompe") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_fibrothecoma" => array(utf8_decode("Morphologie Ov GAUCHE::Fibrothécale") => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_polycystic" => array("Morphologie Ov GAUCHE::Polykystique" => array(""=>""," "=>"","x"=>"y")),
+	"left_ovary_inclusion_cyst" => array("Morphologie Ov GAUCHE::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y")),
 	
 	"right_ovary_dx_nature" => "#right_ovary_dx_nature",
 	"right_ovary_tumour_grade" => array("GRADE OV D" => array(
@@ -65,47 +70,38 @@ $detail_fields = array(
 		"1, 3"=>"3",
 		"LMP"=>"LMP",
 		"ND"=>"ND")),
-	"right_ovary_serous" => array("Morphologie Ov DROIT::Séreux" => array(""=>"","x"=>"y")),
-	"right_ovary_papillary" => array("Morphologie Ov DROIT::Papillaire" => array(""=>"","x"=>"y")),
-	"right_ovary_mucinous" => array("Morphologie Ov DROIT::Mucineux" => array(""=>"","x"=>"y")),
-	"right_ovary_endometrioid_endometriotic_endometriosis" => array("Morphologie Ov DROIT::Endométrioide/endométriotique/endométriosique" => array(""=>"","x"=>"y")),
-	"right_ovary_squamous" => array("Morphologie Ov DROIT::Malpighien" => array(""=>"","x"=>"y")),
-	"right_ovary_Krukenberg" => array("Morphologie Ov DROIT::Krukenberg" => array(""=>"","x"=>"y")),
-	"right_ovary_mullerian" => array("Morphologie Ov DROIT::Mullerien" => array(""=>"","x"=>"y")),
-	"right_ovary_granulosa" => array("Morphologie Ov DROIT::Granulosa" => array(""=>"","x"=>"y")),
-	"right_ovary_squamous_dermoid" => array("Morphologie Ov DROIT::Épidermoide/Dermoide" => array(""=>"","x"=>"y")),
-	"right_ovary_mature_teratoma" => array("Morphologie Ov DROIT::Tératome Mature" => array(""=>"","x"=>"y")),
-	"right_ovary_immature_teratoma" => array("Morphologie Ov DROIT::Tératome Immature" => array(""=>"","x"=>"y")),
-	"right_ovary_brenner" => array("Morphologie Ov DROIT::Brenner" => array(""=>"","x"=>"y")),
-	"right_ovary_neuroendocrine" => array("Morphologie Ov DROIT::Neuroendocrine" => array(""=>"","x"=>"y")),
-	"right_ovary_sarcoma" => array("Morphologie Ov DROIT::Sarcome" => array(""=>"","x"=>"y")),
-	"right_ovary_clear_cell" => array("Morphologie Ov DROIT::Clear Cell" => array(""=>"","x"=>"y")),
-	"right_ovary_small_cell" => array("Morphologie Ov DROIT::Small Cell" => array(""=>"","x"=>"y")),
-	"right_ovary_sex_cord" => array("Morphologie Ov DROIT::Sex cord" => array(""=>"","x"=>"y")),
-	"right_ovary_cells_in_cat_rings" => array("Morphologie Ov DROIT::Cellules en bagues de chaton" => array(""=>"","x"=>"y")),
-	"right_ovary_struma_ovarii" => array("Morphologie Ov DROIT::Struma Ovarii" => array(""=>"","x"=>"y")),
-	"right_ovary_fibroma" => array("Morphologie Ov DROIT::Fibrome" => array(""=>"","x"=>"y")),
-	"right_ovary_atrophic" => array("Morphologie Ov DROIT::Atrophique" => array(""=>"","x"=>"y")),
-	"right_ovary_fallopian_tube_lesion" => array("Morphologie Ov DROIT::Lésion trompe" => array(""=>"","x"=>"y")),
-	"right_ovary_fibrothecoma" => array("Morphologie Ov DROIT::Fibrothécale" => array(""=>"","x"=>"y")),
-	"right_ovary_polycystic" => array("Morphologie Ov DROIT::Polykystique" => array(""=>"","x"=>"y")),
-	"right_ovary_inclusion_cyst" => array("Morphologie Ov DROIT::Kyste d'inclusion" => array(""=>"","x"=>"y")),
-
-	"path_stage_summary" => "STADE (1-4)",
-	"path_tstage" => "T",
-	"path_nstage" => "N",
-	"path_mstage" => "M",
+	"right_ovary_serous" => array(utf8_decode("Morphologie Ov DROIT::Séreux") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_papillary" => array("Morphologie Ov DROIT::Papillaire" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_mucinous" => array("Morphologie Ov DROIT::Mucineux" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_endometrioid_endometriotic_endometriosis" => array(utf8_decode("Morphologie Ov DROIT::Endométrioide/endométriotique/endométriosique") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_squamous" => array("Morphologie Ov DROIT::Malpighien" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_Krukenberg" => array("Morphologie Ov DROIT::Krukenberg" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_mullerian" => array("Morphologie Ov DROIT::Mullerien" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_granulosa" => array("Morphologie Ov DROIT::Granulosa" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_squamous_dermoid" => array(utf8_decode("Morphologie Ov DROIT::Épidermoide/Dermoide") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_mature_teratoma" => array(utf8_decode("Morphologie Ov DROIT::Tératome Mature") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_immature_teratoma" => array(utf8_decode("Morphologie Ov DROIT::Tératome Immature") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_brenner" => array("Morphologie Ov DROIT::Brenner" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_neuroendocrine" => array("Morphologie Ov DROIT::Neuroendocrine" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_sarcoma" => array("Morphologie Ov DROIT::Sarcome" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_clear_cell" => array("Morphologie Ov DROIT::Clear Cell" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_small_cell" => array("Morphologie Ov DROIT::Small Cell" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_sex_cord" => array("Morphologie Ov DROIT::Sex cord" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_cells_in_cat_rings" => array("Morphologie Ov DROIT::Cellules en bagues de chaton" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_struma_ovarii" => array("Morphologie Ov DROIT::Struma Ovarii" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_fibroma" => array("Morphologie Ov DROIT::Fibrome" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_atrophic" => array("Morphologie Ov DROIT::Atrophique" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_fallopian_tube_lesion" => array(utf8_decode("Morphologie Ov DROIT::Lésion trompe") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_fibrothecoma" => array(utf8_decode("Morphologie Ov DROIT::Fibrothécale") => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_polycystic" => array("Morphologie Ov DROIT::Polykystique" => array(""=>""," "=>"","x"=>"y")),
+	"right_ovary_inclusion_cyst" => array("Morphologie Ov DROIT::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y"))
 );
 
-//$detail_fields = array(
-////	"stage" => array("Stage" => array(
-////		""=>"",
-//..
-////		"x"=>"y")),
-////	"substage" => array("Substage" => array(
-
 //see the Model class definition for more info
-$model = new Model(0, $pkey, $child, false, NULL, NULL, 'diagnosis_masters', $master_fields, 'chus_dxd_ovaries', 'diagnosis_master_id', $detail_fields);
+$model = new MasterDetailModel(0, $pkey, $child, false, NULL, NULL, 'diagnosis_masters', $master_fields, 'chus_dxd_ovaries', 'diagnosis_master_id', $detail_fields);
+
+//$model = new MasterDetailModel(0, $pkey, $child, false, "participant_id", $pkey, 'treatment_masters', $master_fields, 'txd_surgeries', 'treatment_master_id', $detail_fields);
+//$model = new Model(0, $pkey, $child, false, NULL, NULL, 'participants', $fields);
 
 //we can then attach post read/write functions
 $model->post_read_function = 'postOvaryDiagnosesRead';
@@ -201,35 +197,193 @@ function postOvaryDiagnosesRead(Model $m){
 		Config::$data_for_import_from_participant_id[$paticipant_id]['date_of_birth'] = $date_of_birth;
 	}
 
+	// 4- SET DX DATA & CONTROL DATA
+	
+	$ov_dx_data_exist = false;
+	
+	// field: 'STADE (1-4)'
+	
+	if(strlen($m->values['STADE (1-4)']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'STADE (1-4)' [".$m->values['STADE (1-4)']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['T']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' [".$m->values['T']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['N']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' [".$m->values['N']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['M']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' [".$m->values['M']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(doesValueExist($m->values['STADE (1-4)']) || doesValueExist($m->values['T']) || doesValueExist($m->values['N']) || doesValueExist($m->values['M'])) $ov_dx_data_exist = true;
+	
+	// field: 'atcd'
+	
+	$m->values['atcd'] = '';
+	$m->values["ATCD Cancer de l'ovaire (oui/non)"] = utf8_encode($m->values["ATCD Cancer de l'ovaire (oui/non)"]);
+	if(!empty($m->values["ATCD Cancer de l'ovaire (oui/non)"])) {
+		$m->values['atcd'] = preg_match('/non/i',$m->values["ATCD Cancer de l'ovaire (oui/non)"], $matches)? 'n': 'y';
+		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^oui$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
+		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^non$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
+	}
+	if(doesValueExist($m->values["atcd"])) $ov_dx_data_exist = true;
+	
+	// fields : 'Morphologie Ov %'
+	
+	foreach($m->values as $field => $value) {
+		if(doesValueExist($value)) $ov_dx_data_exist = true;
+		if(preg_match('/^(Morphologie Ov )(DROIT|GAUCHE)::/',$field,$matches)) {
+			if(preg_match('/^(x )(.+)$/',$value,$matches)) {
+				$m->values[$field] = 'x';		
+				$m->values['notes'] .= str_replace('::',' - ', utf8_encode($field)).' : '.utf8_encode($matches[2]).' // ';
+				Config::$summary_msg['@@MESSAGE@@']['Morphologie Ov #1'][] = "The field '$field' contains additional comments [".$matches[2]."] that will be added to diagnosis notes! [Line: ".$m->line.']';
+			}
+		}
+	}
+	
 	// 4- CONTROL DX DATA & SET DX ID, etc
+	
+	$uncertain_dx = false;
+	$primary_tumors = array();
+	$dx_left_ov = array();
+	$dx_right_ov = array();
+	
+	foreach($m->values as $field => $value) {
 		
+		// a- Site Cancer Primaire
+		
+		if(preg_match('/^(Site cancer primaire::)(.+)$/',$field,$matches)) {	
+			$site_tmp = $matches[2];
+			if(doesValueExist($value)) {
+				$note = preg_match('/^(x {0,1})(.*)$/',$value,$matches)? $matches[2] : $value;
+				if(!empty($note)) $note = utf8_encode(str_replace('::',' - ', $field).' : '.$note);
+				switch(utf8_encode($site_tmp)) {
+					case 'Ovaire':
+						$primary_tumors['ovary'] = $note;
+						break;	
+					case 'Trompe':
+						$primary_tumors['fallopian tube'] = $note;
+						break;	
+					case 'Épiploon':
+						$primary_tumors['omentum'] = $note;
+						break;	
+					case 'Endomètre':
+						$primary_tumors['endometrial'] = $note;
+						break;	
+					case 'Utérus':
+						$primary_tumors['uterus'] = $note;
+						break;		
+					case 'Péritoine':
+						$primary_tumors['peritoneum'] = $note;
+						break;		
+					case 'Colon':
+						$primary_tumors['colon'] = $note;
+						break;		
+					case 'Sein':
+						$primary_tumors['breast'] = $note;
+						break;		
+					case 'Estomac':
+						$primary_tumors['stomach'] = $note;
+						break;		
+					case 'Lymphome Non-Hodgkin':
+						$primary_tumors['non hodgkin lymphoma'] = $note;
+						break;		
+					case 'Lymphome Hodgkin':
+						$primary_tumors['hodgkin lymphoma'] = $note;
+						break;		
+					case 'Rectum':
+						$primary_tumors['rectum'] = $note;
+						break;		
+					case 'Appendice':
+						$primary_tumors['appendix'] = $note;
+						break;		
+					case 'Pancréas':
+						$primary_tumors['pancreas'] = $note;
+						break;		
+					case 'Mélanome':
+						$primary_tumors['melanoma'] = $note;
+						break;		
+					case 'Uretère':
+						$primary_tumors['ureter'] = $note;
+						break;		
+					case 'Rein':
+						$primary_tumors['kidney'] = $note;
+						break;		
+					case 'Incertain':
+						$uncertain_dx = true;
+						if(!empty($note)) die('ERR 89038300983.2 : ['.$note.']');
+						break;	
+					default :
+						die('ERR 89038300983');
+				
+				}
+			}
+		}
+		
+		// b- Diagnostic Ovaire
+		
+		if(preg_match('/^Diagnostique OVAIRE (GAUCHE|DROIT)::(.+)$/',$field,$matches)) {
+			$tumour_laterality_tmp = $matches[1];
+			$tumour_type_tmp = str_replace(array('Normal', 'Bénin', 'Borderline', 'Cancer', 'Métastatique'), array('normal', 'benign', 'borderline', 'cancer', 'metastatic'), utf8_encode($matches[2]));
+			if(!in_array($tumour_type_tmp,  array('normal', 'benign', 'borderline', 'cancer', 'metastatic'))) die('ERR 887478444');
+			
+			if(doesValueExist($value)) {
+				$note = preg_match('/^(x {0,1})(.*)$/',$value,$matches)? $matches[2] : $value;
+				if(!empty($note)) $note = utf8_encode(str_replace('::',' - ', $field).' : '.$note);
+				if($tumour_laterality_tmp == 'GAUCHE') {
+					$dx_left_ov[$tumour_type_tmp] = $note;
+				} else {
+					$dx_right_ov[$tumour_type_tmp] = $note;
+				}
+			}
+		}
+	}
+	
+	if($uncertain_dx && empty($primary_tumors)) Config::$summary_msg['@@WARNING@@']['Site cancer primaire #1'][] = "Dx is defined as uncertain but no dx is defined (fields 'Site cancer primaire')! 'Uncertain' value won't be taken in consideration! [Line: ".$m->line.']';
+	
+//TODO finalize the data migration: DX defintion	
+// Au niveau d'un ovaire: si deux valeurs 	metastatic > cancer > ... prendre le plus grand et mettre l'autre en commentaire.
+//	'normal', 'benign', 'borderline', 'cancer', 'metastatic'
+// Au niveau des 2 ovaires: si deux valeurs 	'normal', 'benign', 'borderline', 'cancer' et l'autre metastatic... mettre cancer
+
+	// Clean up on Diagnosis Ovaire
+	if(sizeof($dx_left_ov) > 1) {
+		$type = '';
+		if(array_key_exists('metastatic', $dx_left_ov)) {
+			$type = 'metastatic';
+		} else if(array_key_exists('cancer', $dx_left_ov)) {
+			$type = 'cancer';			
+		} else if(array_key_exists('borderline', $dx_left_ov)) {
+			$type = 'borderline';			
+		} else if(array_key_exists('benign', $dx_left_ov)) {
+			$type = 'benign';			
+		} else if(!array_key_exists('normal', $dx_left_ov)) {
+			die('ERR 89038300983.8893');
+		}
+		$notes = "Diagnostique OVAIRE GAUCHE : Defined as '$type' ".(empty($dx_left_ov[$type])? '' : '('.$dx_left_ov[$type].') ');
+		unset($dx_left_ov[$type]);
+		foreach($dx_left_ov as $sec_type => $sec_notes) $notes .= " '$sec_type'
+			$notes .= ' // ')
+		}
+		
+		$dx_left_ov = array($type => $notes);
+		
+	}
+	
+	
+	
+	
+	
+		
+		si 2 pas clair
+		
+		
+		
+		pr('$dx_left_ov line '.$m->line);
+		pr($dx_left_ov); 
+	}
+	if(sizeof($dx_right_ov) > 1) { pr('$dx_right_ov line '.$m->line);pr($dx_right_ov);}
+	
 	$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
 //	$m->values['primary_id'] = "@NULL";
 //	$m->values['parent_id'] = NULL;
 	
-	$nature = array();
-	if(!empty($m->values['Diagnostique OVAIRE GAUCHE::Normal'])) {
-		$nature[] = 'normal';
-		if($m->values['Diagnostique OVAIRE GAUCHE::Normal'] != 'x') $m->values['notes'] .= 'Diagnostique OVAIRE GAUCHE note: '.str_replace('x ','', $m->values['Diagnostique OVAIRE GAUCHE::Normal']).'.';
-	}
-	if(!empty($m->values['Diagnostique OVAIRE GAUCHE::Bénin'])) {
-		$nature[] = 'benign';
-		if($m->values['Diagnostique OVAIRE GAUCHE::Bénin'] != 'x') $m->values['notes'] .= 'Diagnostique OVAIRE GAUCHE note: '.str_replace('x ','', $m->values['Diagnostique OVAIRE GAUCHE::Bénin']).'.';
-	}
-	if(!empty($m->values['Diagnostique OVAIRE GAUCHE::Borderline'])) {
-		$nature[] = 'borderline';
-		if($m->values['Diagnostique OVAIRE GAUCHE::Borderline'] != 'x') $m->values['notes'] .= 'Diagnostique OVAIRE GAUCHE note: '.str_replace('x ','', $m->values['Diagnostique OVAIRE GAUCHE::Borderline']).'.';
-	}
-	if(!empty($m->values['Diagnostique OVAIRE GAUCHE::Cancer'])) {
-		$nature[] = 'cancer';
-		if($m->values['Diagnostique OVAIRE GAUCHE::Cancer'] != 'x') $m->values['notes'] .= 'Diagnostique OVAIRE GAUCHE note: '.str_replace('x ','', $m->values['Diagnostique OVAIRE GAUCHE::Cancer']).'.';
-	}
-	if(!empty($m->values['Diagnostique OVAIRE GAUCHE::Métastatique'])) {
-		$nature[] = 'metastatic';
-		if($m->values['Diagnostique OVAIRE GAUCHE::Métastatique'] != 'x') $m->values['notes'] .= 'Diagnostique OVAIRE GAUCHE note: '.str_replace('x ','', $m->values['Diagnostique OVAIRE GAUCHE::Métastatique']).'.';
-	}
 	//TODO
 	$m->values['left_ovary_dx_nature'] = '';
+	$m->values['right_ovary_dx_nature'] = '';
+	
 //	if(sizeof($nature) > 1) die('ERR 99849');
 //	if(sizeof($nature)) {
 //		
@@ -241,55 +395,10 @@ function postOvaryDiagnosesRead(Model $m){
 //TODO definir le diag lié a la collection
 //TODO que faire si deux diag ovaire
 
-//Dx	
-//	
-//Diagnostique OVAIRE GAUCHE::Normal	
-//Diagnostique OVAIRE GAUCHE::Bénin	
-//Diagnostique OVAIRE GAUCHE::Borderline	
-//Diagnostique OVAIRE GAUCHE::Cancer	
-//Diagnostique OVAIRE GAUCHE::Métastatique
-//	
-//	
-//Site cancer primaire::Ovaire	
-//Site cancer primaire::Trompe	
-//Site cancer primaire::Épiploon	
-//Site cancer primaire::Endomètre	
-//Site cancer primaire::Utérus	
-//Site cancer primaire::Péritoine	
-//Site cancer primaire::Colon	
-//Site cancer primaire::Sein	
-//Site cancer primaire::Estomac	
-//Site cancer primaire::Lymphome Non-Hodgkin	
-//Site cancer primaire::Lymphome Hodgkin	
-//Site cancer primaire::Rectum	
-//Site cancer primaire::Appendice	
-//Site cancer primaire::Pancréas	
-//Site cancer primaire::Mélanome	
-//Site cancer primaire::Uretère	
-//Site cancer primaire::Rein	
-//Site cancer primaire::Incertain
 	
+	// 6- NOTES CLEAN UP
 	
-	
-	
-	
-	// 5- SET & CONTROL DX Data
-	
-	if(strlen($m->values['STADE (1-4)']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'STADE (1-4)' [".$m->values['STADE (1-4)']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['T']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' [".$m->values['T']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['N']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' [".$m->values['N']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['M']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' [".$m->values['M']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-			
-	if(!preg_match('/^[0-9]*$/', $m->values['Age au Dx'], $matches)) {
-		Config::$summary_msg['@@WARNING@@']['Age au DX #1'][] = "The 'Age au Dx' [".$m->values['Age au Dx']."] is not a integer value! [Line: ".$m->line.']';
-		$m->values['Age au Dx'] = '';
-	}
-	
-	$m->values['atcd'] = '';
-	$m->values["ATCD Cancer de l'ovaire (oui/non)"] = utf8_encode("ATCD Cancer de l'ovaire (oui/non)");
-	if(!empty($m->values["ATCD Cancer de l'ovaire (oui/non)"])) {
-		$m->values['atcd'] = preg_match('/non/i',$m->values["ATCD Cancer de l'ovaire (oui/non)"], $matches)? 'n': 'y';
-	}
+	$m->values['notes'] = preg_replace('/(\/\/ )$/', '',$m->values['notes']);
 	
 	return true;
 }
@@ -444,5 +553,7 @@ function postDiagnosisWrite(Model $m){
 // ADDITIONAL FUNCTIONS
 //======================================================================================================================
 
-
+function doesValueExist($value) {
+	return strlen(str_replace(' ','',$value))? true : false;
+}
 
