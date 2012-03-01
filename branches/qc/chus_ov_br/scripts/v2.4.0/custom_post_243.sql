@@ -417,3 +417,23 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='chus_dx_ovary'), (SELECT id FROM structure_fields WHERE `tablename`='chus_dxd_ovaries' AND `field`='left_ovary_fallopian_tube_lesion'), '1', '120', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'); 
 
 INSERT INTO i18n (id,en,fr) VALUES ('fallopian tube lession (rov)', 'Fallopian Tube Lession (rov)', 'Lésion trompes de fallope (ovd)'),('fallopian tube lession (lov)', 'Fallopian Tube Lession (lov)', 'Lésion trompes de fallope (ovg)');
+
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_ovary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_ovaries' AND `field`='left_ovary_fallopian_tube_lesion' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cells in cat rings (lov)', '', 'Cells in Cat Rings (lov)', 'Cellules en bagues de chaton (ovg)'),
+('sex cord (lov)', '', 'Sex Cord (lov)', 'Sex cord (ovg)');
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('cells in cat rings (rov)', '', 'Cells in Cat Rings (rov)', 'Cellules en bagues de chaton (ovd)'),
+('sex cord (rov)', '', 'Sex Cord (rov)', 'Sex cord (ovd)');
+
+INSERT INTO `diagnosis_controls` 
+(`category`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('primary', 'ureter', 1, 'diagnosismasters,dx_primary', 'dxd_primaries', 0, 'primary|ureter', 1);
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES ('ureter','Ureter','Uretère');
+
+
+
+
