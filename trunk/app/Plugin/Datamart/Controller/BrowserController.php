@@ -10,7 +10,8 @@ class BrowserController extends DatamartAppController {
 		'Datamart.BrowsingResult',
 		'Datamart.BrowsingControl',
 		'Datamart.BrowsingIndex',
-		'Datamart.BatchSet'
+		'Datamart.BatchSet',
+		'Datamart.SavedBrowsingIndex'
 	);
 		
 	function index(){
@@ -183,7 +184,6 @@ class BrowserController extends DatamartAppController {
 				){
 					$sub_struct_ctrl_id = $sub_structure_id;
 				}
-				//TODO: AFTER EACH ITERATION, this should be updated.
 				
 				$params = array(
 					'struct_ctrl_id'		=> $control_id,
@@ -289,6 +289,9 @@ class BrowserController extends DatamartAppController {
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
 			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['raw']);
+			
+			$saved_browsing_index = $this->SavedBrowsingIndex->find('all', array('conditions' => array_merge($this->SavedBrowsingIndex->getOwnershipConditions(), array('SavedBrowsingIndex.starting_datamart_structure_id' => $browsing['DatamartStructure']['id'])), 'order' => 'SavedBrowsingIndex.name'));
+			$this->set('saved_browsing_index', $saved_browsing_index);
 
 		}else if($browsing != null){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
@@ -518,6 +521,38 @@ class BrowserController extends DatamartAppController {
 			$this->redirect('/Datamart/Browser/browse/'.$node_id);
 		}
 		exit;
+	}
+	
+	function applyBrowsingSteps($starting_node_id, $browsing_step_index_id){
+		$this->BrowsingResult->check_writable_fields = false;
+		$browsing_steps = $this->SavedBrowsingIndex->find('first', array('conditions' => array_merge($this->SavedBrowsingIndex->getOwnershipConditions(), array('SavedBrowsingIndex.id' => $browsing_step_index_id))));
+		if(!$browsing_steps){
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$node_id = $starting_node_id;
+		foreach($browsing_steps['SavedBrowsingStep'] as $step){
+			$search_params = unserialize($step['serialized_search_params']);
+			$params = array(
+					'struct_ctrl_id'		=> $step['datamart_structure_id'],
+					'sub_struct_ctrl_id'	=> $step['datamart_sub_structure_id'],
+					'node_id'				=> $node_id,
+					'last'					=> false,
+					'search_conditions'		=> $search_params['search_conditions'],
+					'exact_search'			=> $search_params['exact_search'],
+					'adv_search_conditions'	=> $search_params['adv_search_conditions']
+			);
+			if(!$created_node = $this->Browser->createNode($params)){
+				//something went wrong. A flash screen has been called.
+				return;
+			}
+			
+			$node_id = $created_node['browsing']['BrowsingResult']['id'];
+		}
+
+		//done, render the proper node.
+		$this->browse($node_id);
+		$this->render('browse_checklist');
 	}
 }
 

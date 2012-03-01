@@ -940,6 +940,7 @@ class AppController extends Controller {
 		AppController::addWarningMsg(__('language files have been rebuilt'));
 			
 		//clear cache
+		Cache::clear(false);
 		Cache::clear(false, 'structures');
 		Cache::clear(false, 'menus');
 		Cache::clear(false, '_cake_core_');

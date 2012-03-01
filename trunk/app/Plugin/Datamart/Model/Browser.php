@@ -500,7 +500,7 @@ class Browser extends DatamartAppModel {
 					if(!$content = Cache::read($cache_key)){
 						if($cell['BrowsingResult']['raw']){
 							$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
-							$adv_search = $cell['BrowsingResult']['serialized_adv_search_params'] ? unserialize($cell['BrowsingResult']['serialized_adv_search_params']) : array();
+							$adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array(); 
 							if(count($search['search_conditions']) || $adv_search){
 								$structure = null;
 								if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
@@ -712,7 +712,8 @@ class Browser extends DatamartAppModel {
 		
 		//filter
 		if(isset($params['adv_search']['browsing_filter'])){
-			$result .= "<tr><th>".__("filter")."</th><td>".__($params['adv_search']['browsing_filter'])."</td>\n";
+			$filter = $params['model']->getBrowsingAdvSearchArray('browsing_filter');
+			$result .= "<tr><th>".__("filter")."</th><td>".__($filter[$params['adv_search']['browsing_filter']]['lang'])."</td>\n";
 		}
 		
 		$result .= "</table>";
@@ -1312,17 +1313,33 @@ class Browser extends DatamartAppModel {
 			$use_sub_model = false;
 		}
 		
-		
-		$search_conditions = $controller->Structures->parseSearchConditions($result_structure);
+		$advanced_data = null;
 		$select_key = $model_to_search->name.".".$model_to_search->primaryKey;
-		if($use_sub_model){
-			//adding filtering search condition
-			$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$model_to_search->getControlForeign()] = $params['sub_struct_ctrl_id'];
-		}
+		$search_conditions = null;
+		if(isset($params['search_conditions'])){
+			$org_search_conditions = array(
+				'search_conditions' => $params['search_conditions'],
+				'exact_search' => $params['exact_search'],
+				'adv_search_conditions' => array()
+			);
+			$advanced_data = array($model_to_search->name => $params['adv_search_conditions']);
+			$search_conditions = $params['search_conditions'];
+		}else{
+			$search_conditions = $controller->Structures->parseSearchConditions($result_structure);
+			
+			if($use_sub_model){
+				//adding filtering search condition
+				$search_conditions[$browsing['DatamartStructure']['control_master_model'].".".$model_to_search->getControlForeign()] = $params['sub_struct_ctrl_id'];
+			}
 		
-		$org_search_conditions['search_conditions'] = $search_conditions;
-		$org_search_conditions['exact_search'] = isset($controller->request->data['exact_search']);
-		$adv_search_conditions = array();
+			$org_search_conditions = array(
+				'search_conditions' => $search_conditions,
+				'exact_search' => isset($controller->request->data['exact_search']),
+				'adv_search_conditions' => array()
+			);
+			$advanced_data = $controller->request->data;
+		}
+
 		$joins = array();
 		
 		if($params['node_id'] != 0){
@@ -1350,7 +1367,7 @@ class Browser extends DatamartAppModel {
 			$advanced_structure = $controller->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
 			$adv_params = array(
 					'adv_struct'	=> $advanced_structure,
-					'data'			=> $controller->request->data,
+					'data'			=> $advanced_data,
 					'joins'			=> &$joins,
 					'conditions'	=> &$search_conditions,
 					'node_id'		=> $node_id,
@@ -1361,13 +1378,13 @@ class Browser extends DatamartAppModel {
 			if($error_model_display_name != null){
 				//example: If 3 tx are owned by the same participant, this error will be displayed.
 				//we do it to make sure the result set is made with 1:1 relationship, thus clear.
-				$contoller->flash(__("a special parameter could not be applied because relations between %s and its children node are shared", __($error_model_display_name)), 'javascript:history.back()');
+				$controller->flash(__("a special parameter could not be applied because relations between %s and its children node are shared", __($error_model_display_name)), 'javascript:history.back()');
 				return false;
 			}
-			$adv_search_conditions = $adv_params['conditions_adv'];
-			if(isset($controller->data[$model_to_search->name]['browsing_filter']) && !empty($controller->data[$model_to_search->name]['browsing_filter'])){
+			$org_search_conditions['adv_search_conditions'] = $adv_params['conditions_adv'];
+			if(isset($advanced_data[$model_to_search->name]['browsing_filter']) && !empty($advanced_data[$model_to_search->name]['browsing_filter'])){
 				$browsing_filter = $model_to_search->getBrowsingAdvSearchArray('browsing_filter');
-				$browsing_filter = $browsing_filter[$controller->data[$model_to_search->name]['browsing_filter']];
+				$browsing_filter = $browsing_filter[$advanced_data[$model_to_search->name]['browsing_filter']];
 			}
 		}
 		
@@ -1449,12 +1466,12 @@ class Browser extends DatamartAppModel {
 			));
 			$model_to_search->query('DROP TEMPORARY TABLE '.$temporary_table);
 				
-			$adv_search_conditions['browsing_filter'] = $browsing_filter['lang'];
+			$org_search_conditions['adv_search_conditions']['browsing_filter'] = $advanced_data[$model_to_search->name]['browsing_filter'];
 		}
 		
 		$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 		$browsing_type = null;
-		if((!$org_search_conditions['search_conditions'] || (count($org_search_conditions['search_conditions']) == 1 && $params['sub_struct_ctrl_id']) && !$adv_search_conditions)){
+		if((!$org_search_conditions['search_conditions'] || (count($org_search_conditions['search_conditions']) == 1 && $params['sub_struct_ctrl_id']) && !$org_search_conditions['adv_search_conditions'])){
 			$browsing_type = 'direct access';
 		}else{
 			$browsing_type = 'search';
@@ -1467,8 +1484,7 @@ class Browser extends DatamartAppModel {
 			'id_csv'						=> $save_ids,
 			'raw'							=> 1,
 			'browsing_type'					=> $browsing_type,
-			'serialized_search_params'		=> serialize($org_search_conditions),
-			'serialized_adv_search_params'	=> serialize($adv_search_conditions)
+			'serialized_search_params'		=> serialize($org_search_conditions)
 		));
 
 		if(strlen($save_ids) == 0){
