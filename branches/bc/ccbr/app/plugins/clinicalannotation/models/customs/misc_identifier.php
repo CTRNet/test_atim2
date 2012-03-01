@@ -27,6 +27,8 @@ class MiscIdentifierCustom extends MiscIdentifier {
 		// Get control ID for current identifier
 		$previousMiscIdData = null;
 		$miscIdentifierControlId = array_key_exists('misc_identifier_control_id', $this->data['MiscIdentifier'])? $this->data['MiscIdentifier']['misc_identifier_control_id'] : null;
+		
+		$previousMiscIdData = null;
 			
 		if(is_null($miscIdentifierControlId)) {
 
@@ -35,9 +37,10 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			$miscIdentifierControlId = $previousMiscIdData['MiscIdentifier']['misc_identifier_control_id'];	
-		}
+		}	
 		
 		// Get control data for current identifier
+		$miscIdentControlData = array();
 		$miscIdentControlModel = AppModel::getInstance("Clinicalannotation", "MiscIdentifierControl", true);
 		$miscIdentControlData = $miscIdentControlModel->find('first', array('conditions' => array ('MiscIdentifierControl.id' => $miscIdentifierControlId)));
 			
@@ -47,9 +50,17 @@ class MiscIdentifierCustom extends MiscIdentifier {
 
 		// Execute appropriate validation depending on identifier name
 		$value_validated = false;
-		$error_message = null;
-		$identifierValue = $this->data['MiscIdentifier']['identifier_value'];
-				
+		$identifierValue = null;
+
+//		$deleted = $this->data['MiscIdentifier']['deleted'];
+		$deleted = array_key_exists('deleted', $this->data['MiscIdentifier'])? $this->data['MiscIdentifier']['deleted'] : null;
+			
+		if ($deleted) {
+			$identifierValue = $previousMiscIdData['MiscIdentifier']['identifier_value'];
+		} else {
+			$identifierValue = $this->data['MiscIdentifier']['identifier_value'];
+		}		
+		
 		switch ($miscIdentControlData['MiscIdentifierControl']['misc_identifier_name']) {
 			case "MRN":
 				// Validate: 7 digits 
@@ -82,13 +93,10 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				break;
 				
 			default:
+				echo "DEFAULT";
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
-		if (!$value_validated) {
-			// Display appropriate validation error message
-		}
-
 		return $value_validated;
 	}
 }
