@@ -598,8 +598,7 @@ ALTER TABLE datamart_browsing_results
  CHANGE parent_node_id parent_id INT UNSIGNED DEFAULT NULL,
  ADD lft INT UNSIGNED DEFAULT NULL AFTER parent_id,
  ADD rght INT UNSIGNED DEFAULT NULL AFTER lft,
- ADD COLUMN browsing_type VARCHAR(20) NOT NULL DEFAULT '' AFTER raw,
- ADD COLUMN serialized_adv_search_params text AFTER serialized_search_params;
+ ADD COLUMN browsing_type VARCHAR(20) NOT NULL DEFAULT '' AFTER raw;
 
 UPDATE datamart_browsing_results SET browsing_type='drilldown' WHERE raw='0';
 UPDATE datamart_browsing_results SET browsing_type='direct access' WHERE raw='1' AND LENGTH(serialized_search_params) < 66;
@@ -672,8 +671,8 @@ CREATE TABLE datamart_saved_browsing_steps(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  datamart_saved_browsing_index_id INT UNSIGNED NOT NULL,
  datamart_structure_id INT UNSIGNED NOT NULL,
+ datamart_sub_structure_id INT UNSIGNED DEFAULT NULL,
  serialized_search_params TEXT,
- serialized_adv_search_params TEXT,
  deleted BOOLEAN NOT NULL DEFAULT false,
  FOREIGN KEY (datamart_saved_browsing_index_id) REFERENCES datamart_saved_browsing_indexes(id),
  FOREIGN KEY (datamart_structure_id) REFERENCES datamart_structures(id)
@@ -708,4 +707,5 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='datamart_saved_browsing'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='datamart_structures' AND `field`='display_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='starting element' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
+UPDATE datamart_structures SET control_master_model='StorageMaster' WHERE model='StorageMaster';
 

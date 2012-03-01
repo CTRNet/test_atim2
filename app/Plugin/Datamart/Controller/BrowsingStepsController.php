@@ -36,12 +36,14 @@ class BrowsingStepsController extends DatamartAppController {
 				$index_id = $this->SavedBrowsingIndex->getInsertID();
 				$browsing_steps = array();
 				foreach($path as $path_node){
-					$browsing_steps[] = array(
-							'datamart_saved_browsing_index_id' => $index_id,
-							'datamart_structure_id' => $path_node['BrowsingResult']['browsing_structures_id'],
-							'serialized_search_params' => $path_node['BrowsingResult']['serialized_search_params'],
-							'serialized_adv_search_params' => $path_node['BrowsingResult']['serialized_adv_search_params']
-					);
+					if($path_node['BrowsingResult']['raw']){
+						$browsing_steps[] = array(
+								'datamart_saved_browsing_index_id' => $index_id,
+								'datamart_structure_id' => $path_node['BrowsingResult']['browsing_structures_id'],
+								'datamart_sub_structure_id' => $path_node['BrowsingResult']['browsing_structures_sub_id'],
+								'serialized_search_params' => $path_node['BrowsingResult']['serialized_search_params']
+						);
+					}
 				}
 				$saved_browsing_step_model->check_writable_fields = false;
 				$saved_browsing_step_model->saveAll($browsing_steps);
