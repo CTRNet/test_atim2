@@ -11,7 +11,7 @@ class BrowserController extends DatamartAppController {
 		'Datamart.BrowsingControl',
 		'Datamart.BrowsingIndex',
 		'Datamart.BatchSet'
-		);
+	);
 		
 	function index(){
 		$this->Structures->set("datamart_browsing_indexes");
@@ -231,6 +231,7 @@ class BrowserController extends DatamartAppController {
 			$this->set('type', "checklist");
 			$this->set('checklist_key', $this->Browser->checklist_model->name.".".$this->Browser->checklist_use_key);
 			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing_model->primaryKey);
+			$this->set('is_root', $browsing['BrowsingResult']['parent_id'] == 0);
 			
 			$dropdown_options = $this->Browser->getDropdownOptions(
 				$browsing['DatamartStructure']['id'], 
@@ -492,7 +493,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_structures_sub_id"	=> $parent_data['BrowsingResult']['browsing_structures_sub_id'],
 			"id_csv"						=> $id_csv,
 			'raw'							=> 0,
-			"browsing_type"					=> 'drilldown'
+			"browsing_type"					=> 'unused parents'
 		));
 
 		$return_id = null;
@@ -519,3 +520,5 @@ class BrowserController extends DatamartAppController {
 		exit;
 	}
 }
+
+

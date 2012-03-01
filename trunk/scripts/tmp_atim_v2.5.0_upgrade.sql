@@ -657,3 +657,55 @@ UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id 
 UPDATE structure_value_domains SET `source`="InventoryManagement.Collection::getBrowsingFilter" WHERE domain_name="collection_filter";
 UPDATE structure_value_domains SET `source`="InventoryManagement.Collection::getBrowsingAdvSearch('collection_datetime')" WHERE domain_name="adv_coll_datetime";
 
+CREATE TABLE datamart_saved_browsing_indexes(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ user_id INT NOT NULL,
+ group_id INT NOT NULL,
+ sharing_status VARCHAR(50) NOT NULL DEFAULT 'user',
+ name VARCHAR(50) NOT NULL DEFAULT '',
+ starting_datamart_structure_id INT UNSIGNED NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY (starting_datamart_structure_id) REFERENCES datamart_structures(id)
+)Engine=InnoDb;
+
+CREATE TABLE datamart_saved_browsing_steps(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ datamart_saved_browsing_index_id INT UNSIGNED NOT NULL,
+ datamart_structure_id INT UNSIGNED NOT NULL,
+ serialized_search_params TEXT,
+ serialized_adv_search_params TEXT,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY (datamart_saved_browsing_index_id) REFERENCES datamart_saved_browsing_indexes(id),
+ FOREIGN KEY (datamart_structure_id) REFERENCES datamart_structures(id)
+)Engine=InnoDb;
+
+INSERT INTO structures(`alias`) VALUES ('datamart_saved_browsing');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', 'SavedBrowsingIndex', 'datamart_saved_browsing_indexes', 'name', 'input',  NULL , '0', '', '', '', 'name', ''), 
+('Datamart', 'SavedBrowsingIndex', 'datamart_saved_browsing_indexes', 'sharing_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='batch_sets_sharing_status') , '0', '', '', '', 'status', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='datamart_saved_browsing'), (SELECT id FROM structure_fields WHERE `model`='SavedBrowsingIndex' AND `tablename`='datamart_saved_browsing_indexes' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='datamart_saved_browsing'), (SELECT id FROM structure_fields WHERE `model`='SavedBrowsingIndex' AND `tablename`='datamart_saved_browsing_indexes' AND `field`='sharing_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='batch_sets_sharing_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='SavedBrowsingIndex' AND `tablename`='datamart_saved_browsing_indexes' AND `field`='sharing_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='batch_sets_sharing_status')), 'notEmpty'),
+((SELECT id FROM structure_fields WHERE `model`='SavedBrowsingIndex' AND `tablename`='datamart_saved_browsing_indexes' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), 'isUnique');
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='batch_sets_sharing_status') ,  `default`='user' WHERE model='SavedBrowsingIndex' AND tablename='datamart_saved_browsing_indexes' AND field='sharing_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='batch_sets_sharing_status');
+
+ALTER TABLE menus
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_summary, flag_active) VALUES
+('qry-CAN-1-1-1', 'qry-CAN-1-1', 0, 1, 'data browser', '', '/Datamart/Browser/index', '', 1),
+('qry-CAN-1-1-2', 'qry-CAN-1-1', 0, 1, 'saved browsing steps', '', '/Datamart/BrowsingSteps/listall', '', 1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', 'DatamartStructure', 'datamart_structures', 'display_name', 'input',  NULL , '0', '', '', '', 'starting element', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='datamart_saved_browsing'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='datamart_structures' AND `field`='display_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='starting element' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+

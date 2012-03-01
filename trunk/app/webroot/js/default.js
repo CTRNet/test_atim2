@@ -1144,3 +1144,27 @@ function initActions(){
 		return false;
 	}
 
+	function openSaveBrowsingStepsPopup(link){
+		$.get(root_url + link, null, function(data){
+			data = $.parseJSON(data);
+			$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
+			$("#default_popup input[type=text]").first().focus();
+			$("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
+		});
+	}
+	
+	function popupSubmit(url){
+		$.post(url, $("#default_popup form").serialize(), function(data){
+			console.log(data);
+			data = $.parseJSON(data);
+			if(data.type == 'form'){
+				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
+				$("#default_popup input[type=text]").first().focus();
+				$("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
+			}else if(data.type == 'message'){
+				$("#message").remove();
+				buildDialog("message", data.message, null, [{icon : 'detail', action : function(){ $("#message").popup('close'); return false; }, label : STR_OK}]);
+				$("#message").popup();
+			}
+		});
+	}
