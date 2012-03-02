@@ -408,10 +408,10 @@ class StorageMastersController extends StoragelayoutAppController {
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $storage_master_id)));
 			if(empty($storage_data)) { $this->redirect('/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); }
-			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '-1'));
-			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '0'));
+			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '0'));
 			$tree_data = array_merge($tree_data, $aliquots);
-			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '-1'));
+			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '0'));
 			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/storagelayout/storage_masters/contentTreeView/%%StorageMaster.id%%');
 		}else{
