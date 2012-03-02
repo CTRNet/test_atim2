@@ -32,7 +32,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	('PHN', 'PHN', ''),
 	('MRN', 'MRN', ''),
 	('COG Registration', 'COG Registration', ''),
-	('ccbr PHN validation error', 'Validation error  - PHN must be 3 sets of 3 digits. Format: 111 222 333', ''),
+	('ccbr PHN validation error', 'Validation error  - PHN must have the format: DDD DDD DDDD', ''),
 	('ccbr MRN validation error', 'Validation error  - MRN must be 7 digits', ''),
 	('ccbr COG validation error', 'Validation error  - COG Registration must be 6 characters', '');
 	
