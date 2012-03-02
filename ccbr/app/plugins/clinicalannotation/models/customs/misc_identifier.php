@@ -52,7 +52,6 @@ class MiscIdentifierCustom extends MiscIdentifier {
 		$value_validated = false;
 		$identifierValue = null;
 
-//		$deleted = $this->data['MiscIdentifier']['deleted'];
 		$deleted = array_key_exists('deleted', $this->data['MiscIdentifier'])? $this->data['MiscIdentifier']['deleted'] : null;
 			
 		if ($deleted) {
@@ -74,7 +73,7 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				
 			case "PHN":
 				// Validate: 3 sets of 3 digits, with spaces between groups of 3 digits e.g. 111 222 333 ^([\d]{3} ){2}[\d]{3}$
-				if (preg_match("^([\d]{3} ){2}[\d]{3}$^", $identifierValue)) {
+				if (preg_match("^([\d]{3} ){2}[\d]{4}$^", $identifierValue)) {
 					$value_validated = true;
 				} else {
 					$this->validationErrors['MiscIdentifier']['identifier_value'] = "ccbr PHN validation error";
