@@ -811,9 +811,19 @@ class RevisionBehavior extends ModelBehavior {
 					}
 				}
 			}
-			$success = $Model->ShadowModel->save();		
-			$Model->version_id = $Model->ShadowModel->id;
-			return $success;	
+
+			//ATiM start--------
+			if(isset($Model->version_id)){
+				$Model->ShadowModel->set('version_id', $Model->version_id);
+			}
+
+			$success = $Model->ShadowModel->save();
+			
+			if(!isset($Model->version_id)){		
+				$Model->version_id = $Model->ShadowModel->id;
+			}
+			//ATiM end---------
+			return $success;
 		}  	
 			
 		$habtm = array();

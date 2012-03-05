@@ -127,7 +127,6 @@ class MasterDetailBehavior extends ModelBehavior {
 	function afterSave (&$model, $created) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
-			
 		if ( $is_master_model || $is_control_model ) {
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id), 'recursive' => 0));
@@ -164,6 +163,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 			
 			$model->data[$detail_class][$master_foreign] = $model->id;
+			$detail_model->version_id = $model->version_id;
 			
 			// save detail DATA
 			if((isset($detail_model->id) && $detail_model->id && !$created) || $created){

@@ -4,7 +4,7 @@ App::uses('Model', 'Model');
 
 class AppModel extends Model {
 	
-	var $actsAs = array('MasterDetail','Revision','SoftDeletable');
+	var $actsAs = array('Revision','SoftDeletable','MasterDetail');//It's important that MasterDetail be after Revision
 	public static $auto_validation = null;//Validation for all models based on the table field length for char/varchar
 	static public $accuracy_config = array();//tablename -> accuracy fields
 	
