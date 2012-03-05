@@ -227,6 +227,9 @@ div.actions {
 		border-radius: 3px; 
 		
 	}
+	div.bottom_button a:focus {
+		text-decoration: underline;
+	}
 	div.bottom_button:not(.not_allowed):hover, 
 	div.bottom_button:not(.not_allowed):focus {
 		border-color: #000;
