@@ -711,7 +711,7 @@ class AppController extends Controller {
 	 * @param string &$structure_alias
 	 */
 	static function buildDetailBinding(&$model, array $criteria, &$structure_alias){
-		if(($view = in_array($model->name, array('ViewAliquot', 'ViewSample'))) || $model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model']){
+		if(($view = isset($model->base_model)) || $model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model']){
 			//determine if the results contain only one control id
 			$base_model = isset($model->base_model) ? $model->base_model : $model->name;
 			$control_field = null;
@@ -735,15 +735,15 @@ class AppController extends Controller {
 				$has_one = array();
 				$master_class_name = null;
 				if($view){
-					$master_class_name = str_replace('View', '', $model->name).'Master';
+					$master_class_name = $model->base_model;
 					$has_one[$master_class_name] = array(
 							'className' => $master_class_name,
 							'foreignKey' => 'id'
 					);
+					AppModel::getInstance($model->base_plugin, $model->base_model);
 				}else{
 					$master_class_name = $model->name;
 				}
-					
 				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
 				$ctrl_model = AppModel::getInstance('', $control_class, true);
 				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));

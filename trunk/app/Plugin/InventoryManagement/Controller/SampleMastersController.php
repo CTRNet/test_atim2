@@ -35,6 +35,10 @@ class SampleMastersController extends InventoryManagementAppController {
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
 		
+		//lazy load
+		$this->SampleControl;
+		$this->AliquotControl;
+		
 		$this->searchHandler($search_id, $this->ViewSample, 'view_sample_joined_to_collection', '/InventoryManagement/SampleMasters/search');
 		
 		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
