@@ -6,9 +6,9 @@ class PasswordsController extends CustomizeAppController {
 	var $uses = array('User');
 	
 	function index() {
-		$this->set( 'atim_structure', $this->Structures->get(NULL,'users') );
+		$this->Structures->set('password');
 			
-		$this->User->id = $_SESSION['Auth']['User']['id'];
+		$this->User->id = $this->Session->read('Auth.User.id');
 		
 		$this->hook();
 		

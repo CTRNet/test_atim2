@@ -28,7 +28,9 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Conserver les entrées avec la  date la plus ancienne par participant"),
 ("a special parameter could not be applied because relations between %s and its children node are shared",
  "A special paremeter could not be applied because relations between %s and its children node are shared.",
- "Un paramètre spécial n'a pas pu être appliqué car les relations entre %s et son noeud enfant sont partagées.");
+ "Un paramètre spécial n'a pas pu être appliqué car les relations entre %s et son noeud enfant sont partagées."),
+("core_newpassword", "New password", "Nouveau mot de passe"),
+("core_confirmpassword", "Confirm new password", "Confirmez les nouveau mot de passe");
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -708,4 +710,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='datamart_saved_browsing'), (SELECT id FROM structure_fields WHERE `model`='DatamartStructure' AND `tablename`='datamart_structures' AND `field`='display_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='starting element' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 UPDATE datamart_structures SET control_master_model='StorageMaster' WHERE model='StorageMaster';
+
+UPDATE structure_fields SET  `type`='password' WHERE model='User' AND tablename='users' AND field='new_password' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='password' WHERE model='User' AND tablename='users' AND field='confirm_password' AND `type`='input' AND structure_value_domain  IS NULL ;
 
