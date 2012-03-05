@@ -961,9 +961,6 @@ function initActions(){
 			}
 		});
 		
-		//focus on first field
-		$("input:visible, select:visible, textarea:visible").first().focus();
-		
 		if(useHighlighting){
 			//field highlighting
 			if($("#table1row0").length == 1){
@@ -973,6 +970,9 @@ function initActions(){
 				$('form').highlight('tr');
 			}
 		}
+		
+		//focus on first field
+		$("input:visible, select:visible, textarea:visible").first().focus();
 		
 		//fly over submit button, always in the screen
 		flyOverSubmit();
