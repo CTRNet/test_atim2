@@ -87,3 +87,7 @@ INSERT INTO coding_icd_o_3_morphology (id, en_description, fr_description, trans
 ("99923", "Refractory thrombocytopenia", "", 0);
 
 UPDATE coding_icd_o_3_morphology SET source='SEER', fr_description=en_description WHERE source='';
+
+UPDATE aliquot_masters am, (SELECT COUNT(*) AS real_use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) uses
+SET am.use_counter = uses.real_use_counter
+WHERE uses.aliquot_master_id = am.id AND am.deleted != 1 AND (am.use_counter != uses.real_use_counter OR am.use_counter IS NULL OR am.use_counter LIKE '');
