@@ -1,5 +1,6 @@
 var toolTarget = null;
 var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
+var submitData = new Object();
 
 function initSummary(){
 	var open = function(){
@@ -910,6 +911,7 @@ function initActions(){
 						handleSearchResultLinks();
 						//stop submit button animation
 						$(submit_button).siblings("a").find("span").removeClass('fetching');
+						console.log("rez");
 					}catch(exception){
 						//simply submit the form then
 						$("form").submit();
@@ -972,7 +974,6 @@ function initActions(){
 		
 		if(useHighlighting){
 			//field highlighting
-			console.log('here');
 			if($("table.structure.addgrid, table.structure.editgrid").length == 1){
 				//gridview
 				$('form').highlight('td');
@@ -1000,11 +1001,16 @@ function initActions(){
 		$(document).delegate("a.submit", 'click', function(){
 			//Search button loading animation
 			if(!$(this).find('span').hasClass('fetching')){
+				//trigger submit form (will go through validations)
 				$(this).siblings("input.submit").click();
+				
 			}
 			return $(this).attr("href").indexOf("javascript:") == 0;
 		}).delegate("form", "submit", function(){
+			//submitting form
 			$(this).find('a.submit span').last().addClass('fetching');
+			submitData.lastRequest = $.cookie('last_request');
+			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
 			return true;
 		}).delegate(".jsApplyPreset", "click", function(){
 			applyPreset($(this).data("json"));
@@ -1177,4 +1183,15 @@ function initActions(){
 				$("#message").popup();
 			}
 		});
+	}
+	
+	/**
+	 * Will see if the last_request time has changed in order to stop the rotating beam. Used by CSV download.
+	 */
+	function fetchingBeamCheck(){
+		if(submitData.lastRequest != $.cookie('last_request')){
+			$(document).find('a.submit span.fetching').removeClass('fetching');
+		}else{
+			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);
+		}
 	}
