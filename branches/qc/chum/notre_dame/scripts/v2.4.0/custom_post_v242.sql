@@ -346,7 +346,9 @@ CREATE VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`al`.`sam
 `parent_samp_control`.`sample_type` AS `parent_sample_type`,`parent_samp`.`sample_control_id` AS `parent_sample_control_id`,
 `samp_control`.`sample_type` AS `sample_type`,`samp`.`sample_control_id` AS `sample_control_id`,`samp`.`sample_label` AS `sample_label`,
 `al`.`barcode` AS `barcode`,`al`.`aliquot_label` AS `aliquot_label`,`al_control`.`aliquot_type` AS `aliquot_type`,
-`al`.`aliquot_control_id` AS `aliquot_control_id`,`al`.`in_stock` AS `in_stock`,`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,
+`al`.`aliquot_control_id` AS `aliquot_control_id`,
+`al`.`in_stock` AS `in_stock`,`al`.`in_stock_detail` AS `in_stock_detail`,
+`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,
 `al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`, al.study_summary_id AS study_summary_id,
 `stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,`al`.`created` AS `created` 
 from ((((((((((((((`aliquot_masters` `al` join `aliquot_controls` `al_control` on((`al`.`aliquot_control_id` = `al_control`.`id`))) join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `sample_controls` `samp_control` on((`samp`.`sample_control_id` = `samp_control`.`id`))) 
@@ -797,5 +799,5 @@ UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=4' WHE
 UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=4' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_nstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=4' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='path_mstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
+SELECT "Comment section tagged as '-- Purified RNA Creation -----' into 'atim_v2.4.3_upgrade.sql' file. Purified RNA creation has already been done." AS TODO;
 

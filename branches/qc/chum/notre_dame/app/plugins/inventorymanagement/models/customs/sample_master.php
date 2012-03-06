@@ -148,6 +148,7 @@ class SampleMasterCustom extends SampleMaster {
 			case 'centrifuged urine':		
     		case 'amplified dna': 			
     		case 'amplified rna':			
+    		case 'purified rna':			
     		case 'tissue lysate':			
     		case 'tissue suspension':
     		case 'peritoneal wash cell':
