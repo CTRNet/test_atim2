@@ -237,8 +237,10 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	$uncertain_dx = false;
 	$primary_tumors = array();
-	$dx_left_ov = array();
-	$dx_right_ov = array();
+	$all_dx_left_ov = array();
+	$all_dx_right_ov = array();
+	
+	// GET VALUES
 	
 	foreach($m->values as $field => $value) {
 		
@@ -323,77 +325,132 @@ function postOvaryDiagnosesRead(Model $m){
 				$note = preg_match('/^(x {0,1})(.*)$/',$value,$matches)? $matches[2] : $value;
 				if(!empty($note)) $note = utf8_encode(str_replace('::',' - ', $field).' : '.$note);
 				if($tumour_laterality_tmp == 'GAUCHE') {
-					$dx_left_ov[$tumour_type_tmp] = $note;
+					$all_dx_left_ov[$tumour_type_tmp] = $note;
 				} else {
-					$dx_right_ov[$tumour_type_tmp] = $note;
+					$all_dx_right_ov[$tumour_type_tmp] = $note;
 				}
 			}
 		}
 	}
 	
-	if($uncertain_dx && empty($primary_tumors)) Config::$summary_msg['@@WARNING@@']['Site cancer primaire #1'][] = "Dx is defined as uncertain but no dx is defined (fields 'Site cancer primaire')! 'Uncertain' value won't be taken in consideration! [Line: ".$m->line.']';
+	// ANALYZE VALUES
 	
-//TODO finalize the data migration: DX defintion	
-// Au niveau d'un ovaire: si deux valeurs 	metastatic > cancer > ... prendre le plus grand et mettre l'autre en commentaire.
-//	'normal', 'benign', 'borderline', 'cancer', 'metastatic'
-// Au niveau des 2 ovaires: si deux valeurs 	'normal', 'benign', 'borderline', 'cancer' et l'autre metastatic... mettre cancer
-
-	// Clean up on Diagnosis Ovaire
-	if(sizeof($dx_left_ov) > 1) {
+	// a- Diagnostic Ovaire
+	
+	if(sizeof($all_dx_left_ov) > 1) {
 		$type = '';
-		if(array_key_exists('metastatic', $dx_left_ov)) {
+		if(array_key_exists('metastatic', $all_dx_left_ov)) {
 			$type = 'metastatic';
-		} else if(array_key_exists('cancer', $dx_left_ov)) {
+		} else if(array_key_exists('cancer', $all_dx_left_ov)) {
 			$type = 'cancer';			
-		} else if(array_key_exists('borderline', $dx_left_ov)) {
+		} else if(array_key_exists('borderline', $all_dx_left_ov)) {
 			$type = 'borderline';			
-		} else if(array_key_exists('benign', $dx_left_ov)) {
+		} else if(array_key_exists('benign', $all_dx_left_ov)) {
 			$type = 'benign';			
-		} else if(!array_key_exists('normal', $dx_left_ov)) {
+		} else if(!array_key_exists('normal', $all_dx_left_ov)) {
 			die('ERR 89038300983.8893');
 		}
-		$notes = "Diagnostique OVAIRE GAUCHE : Defined as '$type' ".(empty($dx_left_ov[$type])? '' : '('.$dx_left_ov[$type].') ');
-		unset($dx_left_ov[$type]);
-		foreach($dx_left_ov as $sec_type => $sec_notes) $notes .= " '$sec_type'
-			$notes .= ' // ')
+		
+		$notes_start = "Diagnostique OVAIRE GAUCHE : Defined as '$type' ";
+		$notes_end = empty($all_dx_left_ov[$type])? '' : $all_dx_left_ov[$type].' ';
+		unset($all_dx_left_ov[$type]);
+		foreach($all_dx_left_ov as $sec_type => $sec_notes) {
+			$notes_start .= "& '$sec_type' ";
+			$notes_end .= empty($sec_notes)? '' :(empty($notes_end)? '' : '// ').$sec_notes.' ';
+		}
+
+		$all_dx_left_ov = array($type => $notes_start.(empty($notes_end)? '' : '// '. $notes_end));
+		
+		Config::$summary_msg['@@WARNING@@']['Multiple OVAIRE GAUCHE Diagnostiques #1'][] = $notes_start." Only type $type will be take in consideration! [Line: ".$m->line.']';
+	}	
+	
+	if(sizeof($all_dx_right_ov) > 1) {
+		$type = '';
+		if(array_key_exists('metastatic', $all_dx_right_ov)) {
+			$type = 'metastatic';
+		} else if(array_key_exists('cancer', $all_dx_right_ov)) {
+			$type = 'cancer';			
+		} else if(array_key_exists('borderline', $all_dx_right_ov)) {
+			$type = 'borderline';			
+		} else if(array_key_exists('benign', $all_dx_right_ov)) {
+			$type = 'benign';			
+		} else if(!array_key_exists('normal', $all_dx_right_ov)) {
+			// Can not be defined as normal and somethign
+			die('ERR 89038300983.8893');
 		}
 		
-		$dx_left_ov = array($type => $notes);
+		$notes = "Diagnostique OVAIRE DROIT : Defined as '$type' ".(empty($all_dx_right_ov[$type])? '' : '('.$all_dx_right_ov[$type].') ');
+		unset($all_dx_right_ov[$type]);
+		foreach($all_dx_right_ov as $sec_type => $sec_notes) $notes .= "& '$sec_type' ".(empty($all_dx_right_ov[$sec_type])? '' : '('.$all_dx_right_ov[$sec_type].') ');
+
+		$all_dx_right_ov = array($type => $notes);
 		
-	}
+		Config::$summary_msg['@@WARNING@@']['Multiple OVAIRE DROIT Diagnostiques #1'][] = $notes." Only type $type will be take in consideration! [Line: ".$m->line.']';
+	}	
 	
+	$dx_left_ov = empty($all_dx_left_ov)? '': key($all_dx_left_ov);
+	$dx_left_ov_note = empty($dx_left_ov)? '': $all_dx_left_ov[$dx_left_ov];
 	
+	$dx_right_ov = empty($all_dx_right_ov)? '': key($all_dx_right_ov);
+	$dx_right_ov_note = empty($dx_right_ov)? '': $all_dx_right_ov[$dx_right_ov];
 	
-	
-	
-		
-		si 2 pas clair
-		
-		
-		
-		pr('$dx_left_ov line '.$m->line);
-		pr($dx_left_ov); 
-	}
-	if(sizeof($dx_right_ov) > 1) { pr('$dx_right_ov line '.$m->line);pr($dx_right_ov);}
-	
-	$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
-//	$m->values['primary_id'] = "@NULL";
-//	$m->values['parent_id'] = NULL;
-	
-	//TODO
-	$m->values['left_ovary_dx_nature'] = '';
-	$m->values['right_ovary_dx_nature'] = '';
-	
-//	if(sizeof($nature) > 1) die('ERR 99849');
-//	if(sizeof($nature)) {
+pr($all_dx_left_ov);	
+pr($all_dx_right_ov);
+
+pr("dx_left_ov [$dx_left_ov] => ".$dx_left_ov_note);
+pr("dx_right_ov [$dx_right_ov] => ".$dx_right_ov_note);	
+
+exit;	
+
+pr($uncertain_dx);
+pr($primary_tumors);
+pr($all_dx_left_ov);
+pr($all_dx_right_ov);
+pr($ov_dx_data_exist);
+exit;
+
+//	
+//	if($uncertain_dx && empty($primary_tumors)) Config::$summary_msg['@@WARNING@@']['Site cancer primaire #1'][] = "Dx is defined as uncertain but no dx is defined (fields 'Site cancer primaire')! 'Uncertain' value won't be taken in consideration! [Line: ".$m->line.']';
+//	
+////TODO finalize the data migration: DX defintion	
+//// Au niveau d'un ovaire: si deux valeurs 	metastatic > cancer > ... prendre le plus grand et mettre l'autre en commentaire.
+////	'normal', 'benign', 'borderline', 'cancer', 'metastatic'
+//// Au niveau des 2 ovaires: si deux valeurs 	'normal', 'benign', 'borderline', 'cancer' et l'autre metastatic... mettre cancer
+//
+
+//	
+//	
+//	
+//	
+//	
+//		
+//		si 2 pas clair
 //		
 //		
 //		
+//		pr('$all_dx_right_ov line '.$m->line);
+//		pr($all_dx_right_ov); 
 //	}
-
-
-//TODO definir le diag lié a la collection
-//TODO que faire si deux diag ovaire
+//	if(sizeof($all_dx_right_ov) > 1) { pr('$all_dx_right_ov line '.$m->line);pr($all_dx_right_ov);}
+//	
+//	$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
+////	$m->values['primary_id'] = "@NULL";
+////	$m->values['parent_id'] = NULL;
+//	
+//	//TODO
+//	$m->values['left_ovary_dx_nature'] = '';
+//	$m->values['right_ovary_dx_nature'] = '';
+//	
+////	if(sizeof($nature) > 1) die('ERR 99849');
+////	if(sizeof($nature)) {
+////		
+////		
+////		
+////	}
+//
+//
+////TODO definir le diag lié a la collection
+////TODO que faire si deux diag ovaire
 
 	
 	// 6- NOTES CLEAN UP
