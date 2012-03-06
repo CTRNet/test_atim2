@@ -314,7 +314,7 @@ class BatchSetsController extends DatamartAppController {
 			$this->request->data['BatchSet']['user_id'] = $this->Session->read('Auth.User.id');
 			$this->request->data['BatchSet']['group_id'] = $this->Session->read('Auth.User.group_id');
 			$this->request->data['BatchSet']['sharing_status'] = 'user';
-			$this->BatchSet->addWritableField(array('user_id', 'group_id', 'sharing_status', 'datamart_structure_id'));
+			$this->BatchSet->addWritableField(array('title', 'user_id', 'group_id', 'sharing_status', 'datamart_structure_id'));
 			$this->BatchSet->save( $this->request->data['BatchSet'] );
 			
 			// get new SET id, and save
@@ -401,6 +401,7 @@ class BatchSetsController extends DatamartAppController {
 			}
 			
 			//saving
+			$this->BatchId->check_writable_fields = false;
 			$this->BatchId->saveAll($save_array);
 	    	
 	    }else{
