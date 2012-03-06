@@ -248,5 +248,116 @@ ALTER TABLE consent_masters_revs
 
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_icm_frsq') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='research_other_disease' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- ---------------------------------------------------------------------------------------------------------------
+-- Following section already executed on server 2012-03-06
+-- ---------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("nonviable cells", "nonviable cells");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="aliquot_in_stock_detail"),  (SELECT id FROM structure_permissible_values WHERE value="nonviable cells" AND language_alias="nonviable cells"), "1", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('nonviable cells', 'Nonviable Cells', 'Cellules non-viables'); 
+
+DROP TABLE IF EXISTS `view_aliquots`;
+DROP VIEW IF EXISTS `view_aliquots`;
+CREATE VIEW `view_aliquots` AS select `al`.`id` AS `aliquot_master_id`,`al`.`sample_master_id` AS `sample_master_id`,`al`.`collection_id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`al`.`storage_master_id` AS `storage_master_id`,`link`.`participant_id` AS `participant_id`,`link`.`diagnosis_master_id` AS `diagnosis_master_id`,`link`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`mic`.`misc_identifier_name` AS `identifier_name`,`ident`.`identifier_value` AS `identifier_value`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`visit_label` AS `visit_label`,`specimen_control`.`sample_type` AS `initial_specimen_sample_type`,`specimen`.`sample_control_id` AS `initial_specimen_sample_control_id`,`parent_samp_control`.`sample_type` AS `parent_sample_type`,`parent_samp`.`sample_control_id` AS `parent_sample_control_id`,`samp_control`.`sample_type` AS `sample_type`,`samp`.`sample_control_id` AS `sample_control_id`,`samp`.`sample_label` AS `sample_label`,`al`.`barcode` AS `barcode`,`al`.`aliquot_label` AS `aliquot_label`,`al_control`.`aliquot_type` AS `aliquot_type`,`al`.`aliquot_control_id` AS `aliquot_control_id`,
+`al`.`in_stock` AS `in_stock`,`al`.`in_stock_detail` AS `in_stock_detail`,
+`stor`.`code` AS `code`,`stor`.`selection_label` AS `selection_label`,`al`.`storage_coord_x` AS `storage_coord_x`,`al`.`storage_coord_y` AS `storage_coord_y`,`al`.`study_summary_id` AS `study_summary_id`,`stor`.`temperature` AS `temperature`,`stor`.`temp_unit` AS `temp_unit`,`al`.`created` AS `created` from ((((((((((((((`aliquot_masters` `al` join `aliquot_controls` `al_control` on((`al`.`aliquot_control_id` = `al_control`.`id`))) join `sample_masters` `samp` on(((`samp`.`id` = `al`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `sample_controls` `samp_control` on((`samp`.`sample_control_id` = `samp_control`.`id`))) left join `sample_masters` `specimen` on(((`samp`.`initial_specimen_sample_id` = `specimen`.`id`) and (`specimen`.`deleted` <> 1)))) left join `sample_controls` `specimen_control` on((`specimen`.`sample_control_id` = `specimen_control`.`id`))) left join `sample_masters` `parent_samp` on(((`samp`.`parent_id` = `parent_samp`.`id`) and (`parent_samp`.`deleted` <> 1)))) left join `sample_controls` `parent_samp_control` on((`parent_samp`.`sample_control_id` = `parent_samp_control`.`id`))) join `collections` `col` on(((`col`.`id` = `samp`.`collection_id`) and (`col`.`deleted` <> 1)))) left join `clinical_collection_links` `link` on(((`col`.`id` = `link`.`collection_id`) and (`link`.`deleted` <> 1)))) left join `participants` `part` on(((`link`.`participant_id` = `part`.`id`) and (`part`.`deleted` <> 1)))) left join `storage_masters` `stor` on(((`stor`.`id` = `al`.`storage_master_id`) and (`stor`.`deleted` <> 1)))) left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))) left join `misc_identifiers` `ident` on(((`ident`.`misc_identifier_control_id` = `banks`.`misc_identifier_control_id`) and (`ident`.`participant_id` = `part`.`id`) and (`ident`.`deleted` <> 1)))) left join `misc_identifier_controls` `mic` on((`ident`.`misc_identifier_control_id` = `mic`.`id`))) where (`al`.`deleted` <> 1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'ViewAliquot', '', 'in_stock_detail', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail') , '0', '', '', '', 'aliquot in stock detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='in_stock_detail' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_in_stock_detail')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot in stock detail' AND `language_tag`=''), '0', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1');
+
+DELETE FROM structure_formats 
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_der_amplified_rnas')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('coll_to_creation_spent_time_msg','notes','is_problematic','sop_master_id','parent_id','sample_category','sample_type','parent_sample_type'));
+
+DELETE FROM structure_formats 
+WHERE structure_id = (SELECT id FROM structures WHERE alias='sd_spe_other_fluids')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('coll_to_rec_spent_time_msg','is_problematic','notes','reception_by','reception_datetime','sample_category','sample_type','sop_master_id','supplier_dept'));
+
+UPDATE structure_formats SET `display_order`='436' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_other_fluids') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='type_code' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_labo_type_code') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='437' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_other_fluids') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='' AND `field`='sequence_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='442' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_other_fluids') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='443' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_other_fluids') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit') AND `flag_confidential`='0');
+
+DELETE FROM structure_formats 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('sd_der_rnas','sd_der_dnas','sd_der_pbmcs','sd_der_blood_cells'))
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('sop_master_id','coll_to_creation_spent_time_msg'));
+
+UPDATE aliquot_masters am, (SELECT COUNT(*) AS real_use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) uses
+SET am.use_counter = uses.real_use_counter
+WHERE uses.aliquot_master_id = am.id AND am.deleted != 1 AND (am.use_counter != uses.real_use_counter OR am.use_counter IS NULL OR am.use_counter LIKE '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sample label' AND `language_tag`=''), '0', '401', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'sd_%') AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label');
+
+UPDATE structure_formats SET `display_order`='50' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Purified RNA Creation 
+
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_category`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'purified rna', 'derivative', 'sample_masters,sd_der_purified_rnas,derivatives', 'sd_der_purified_rnas', 0, 'purified rna');
+SET @purified_rna_ctrl_id = LAST_INSERT_ID();
+
+CREATE TABLE IF NOT EXISTS `sd_der_purified_rnas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
  
+  `purification_method` varchar(100) DEFAULT NULL,  
+  
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_der_purified_rnas_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_purified_rnas_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
  
+  `purification_method` varchar(100) DEFAULT NULL,
+  
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `sd_der_purified_rnas`
+  ADD CONSTRAINT `FK_sd_der_purified_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,	derivative_sample_control_id, flag_active) 
+VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'rna'), @purified_rna_ctrl_id, 1); 
+
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, @purified_rna_ctrl_id, 'tube', '(ul + conc)', 'aliquot_masters,ad_der_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', 1, 'Derivative tube requiring volume in ul and concentration', 0, 'tube');
+SET @purified_rna_alq_ctrl_id = LAST_INSERT_ID();
+
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active) VALUES (@purified_rna_alq_ctrl_id,@purified_rna_alq_ctrl_id,1);
+
+INSERT INTO i18n (id,en,fr) VALUES ('purified rna', 'Purified RNA', 'ARN purifié');
+
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('rna purification method', 1, 100);
+INSERT INTO structure_value_domains(domain_name, override, category, source) VALUES
+('qc_rna_purification_method', 'open', '', "StructurePermissibleValuesCustom::getCustomDropdown('rna purification method')");
+
+INSERT INTO structures(`alias`) VALUES ('sd_der_purified_rnas');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_der_purified_rnas', 'purification_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_rna_purification_method') , '0', '', '', '', 'purification method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_purified_rnas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_purified_rnas' AND `field`='purification_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_rna_purification_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='purification method' AND `language_tag`=''), '1', '440', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1');
+
+INSERT INTO i18n (id,en,fr) VALUES ('purification method', 'Purification Method', 'Méthode de purification');
+
+INSERT INTO `structure_permissible_values_customs` 
+(`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`) 
+VALUES 
+('dnase', 'Dnase', 'Dnase', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'rna purification method'), NOW(), NOW()),
+('rneasy mini', 'Rneasy Mini "Clean Up"', 'Rneasy Mini "Clean Up"', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'rna purification method'), NOW(), NOW());
+
+INSERT INTO `structure_permissible_values_customs_revs` (`use_as_input`, `value`, `en`, `fr`, `control_id`, `modified_by`, `id`, `version_created`) 
+(SELECT `use_as_input`, `value`, `en`, `fr`, `control_id`, `modified_by`, `id`, NOW() FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'rna purification method'));
+
+-- END section 2012-03-06 ----------------------------------------------------------------------
