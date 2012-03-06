@@ -542,6 +542,7 @@ function initActions(){
 				initToolPopup(newLines);
 				initTooltips(document);
 				initCheckboxes(newLines);
+				$('form').highlight('td');
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
@@ -549,6 +550,7 @@ function initActions(){
 					initLabBook(newLines);
 				}
 				initAccuracy(newLines);
+				
 				$(newLines).removeClass("newLine");
 				return false;
 			});
@@ -898,7 +900,7 @@ function initActions(){
 				$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 				$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 				$(".ajax_search_results").parent().show();
-				$.post($("form").attr("action"), $("form").serialize(), function(data){
+				successFct = function(data){
 					try{
 						data = $.parseJSON(data);
 						$(".ajax_search_results").html(data.page);
@@ -912,6 +914,13 @@ function initActions(){
 						//simply submit the form then
 						$("form").submit();
 					}
+				};
+				$.ajax({
+					type	: "POST",
+					url		: $("form").attr("action"),
+					data	: $("form").serialize(),
+					success	: successFct,
+					error	: function(){ $("form").submit(); }
 				});
 				return false;
 			});
@@ -963,7 +972,8 @@ function initActions(){
 		
 		if(useHighlighting){
 			//field highlighting
-			if($("#table1row0").length == 1){
+			console.log('here');
+			if($("table.structure.addgrid, table.structure.editgrid").length == 1){
 				//gridview
 				$('form').highlight('td');
 			}else{
