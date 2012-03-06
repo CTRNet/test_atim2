@@ -711,19 +711,20 @@ class AppController extends Controller {
 	 * @param string &$structure_alias
 	 */
 	static function buildDetailBinding(&$model, array $criteria, &$structure_alias){
-		if(($view = isset($model->base_model)) || $model->Behaviors->MasterDetail->__settings[$model->name]['is_master_model']){
-			//determine if the results contain only one control id
-			$base_model = isset($model->base_model) ? $model->base_model : $model->name;
-			$control_field = null;
-			if($view){
-				if($model->name == 'ViewAliquot'){
-					$control_field = 'aliquot_control_id';
-				}else{
-					$control_field = 'sample_control_id';
+		$controller = AppController::getInstance();
+		$master_class_name = isset($model->base_model) ? $model->base_model : $model->name;
+		if(!isset($model->Behaviors->MasterDetail->__settings[$master_class_name])){
+			$controller->$master_class_name;//try to force lazyload
+			if(!isset($model->Behaviors->MasterDetail->__settings[$master_class_name])){
+				if(Configure::read('debug') != 0){
+					AppController::addWarningMsg("buildDetailBinding requires you to force instanciation of model ".$master_class_name);
 				}
-			}else{
-				$control_field = $model->Behaviors->MasterDetail->__settings[$base_model]['control_foreign'];
+				return;
 			}
+		}
+		if($model->Behaviors->MasterDetail->__settings[$master_class_name]['is_master_model']){
+			//determine if the results contain only one control id
+			$control_field = $model->Behaviors->MasterDetail->__settings[$master_class_name]['control_foreign'];
 			$ctrl_ids = $model->find('all', array(
 					'fields'		=> array($model->name.'.'.$control_field), 
 					'conditions'	=> $criteria,
@@ -733,19 +734,21 @@ class AppController extends Controller {
 			if(count($ctrl_ids) == 1){
 				//only one ctrl, attach detail
 				$has_one = array();
-				$master_class_name = null;
-				if($view){
-					$master_class_name = $model->base_model;
+				if(isset($model->base_model)){
 					$has_one[$master_class_name] = array(
 							'className' => $master_class_name,
 							'foreignKey' => 'id'
 					);
 					AppModel::getInstance($model->base_plugin, $model->base_model);
-				}else{
-					$master_class_name = $model->name;
 				}
 				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
-				$ctrl_model = AppModel::getInstance('', $control_class, true);
+				$ctrl_model = isset($controller->$control_class) ? $controller->$control_class : AppModel::getInstance('', $control_class, false);
+				if(!$ctrl_model){
+					if(Configure::read('debug') != 0){
+						AppController::addWarningMsg('buildDetailBinding requires you to force instanciation of model '.$control_class);
+					}
+					return;
+				}
 				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
 				$ctrl_data = current($ctrl_data);
 				//put a new instance of the detail model in the cache
