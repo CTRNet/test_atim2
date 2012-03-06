@@ -23,5 +23,4 @@
 		);
 	}
 	
-	$this->Structures->build( $atim_structure, array('links'=>$structure_links) );
-?>
+	$this->Structures->build( $atim_structure, array('links'=>$structure_links, 'settings' => array('no_sanitization' => array('Adhoc' => array('title', 'description'))) ));
