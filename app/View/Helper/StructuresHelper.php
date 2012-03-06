@@ -907,9 +907,13 @@ class StructuresHelper extends Helper {
 		$structure_count = 0;
 		$structure_index = array(1 => $table_structure);
 						
-		$stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" '; 
+		$stretch = $options['settings']['stretch'] ? '' : ' style="width: auto;" ';
+		$class = 'structure '.$options['type'];
+		if($options['type'] == 'index'){
+			$class .= ' lineHighlight';
+		} 
 		echo '
-			<table class="structure" cellspacing="0"'.$stretch.'>
+			<table class="'.$class.'" cellspacing="0"'.$stretch.'>
 				<tbody>
 					<tr>
 		';
@@ -1343,14 +1347,15 @@ class StructuresHelper extends Helper {
 							echo '<span class="divider">|</span> ';
 							$first = false;
 						}
-						if(isset($data_val[$table_row_part['model']])){
-							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
-							if(isset($table_row_part['format']) && strlen($table_row_part['format']) > 0){
-								$table_row_part['format'] = preg_replace('/name="data\[/', 'name="data['.$to_prefix, $table_row_part['format']);
-							}else{
-								$table_row_part['name'] = $to_prefix.$table_row_part['name'];
-							}
-						}
+//TODO: Looks useless, remove
+// 						if(isset($data_val[$table_row_part['model']])){
+// 							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
+// 							if(isset($table_row_part['format']) && strlen($table_row_part['format']) > 0){
+// 								$table_row_part['format'] = preg_replace('/name="data\[/', 'name="data['.$to_prefix, $table_row_part['format']);
+// 							}else{
+// 								$table_row_part['name'] = $to_prefix.$table_row_part['name'];
+// 							}
+// 						}
 						echo $this->getPrintableField(
 								$table_row_part, 
 								$options, 
