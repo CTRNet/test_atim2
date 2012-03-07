@@ -160,6 +160,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		$event_control_model = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
 		$this->set('event_controls', $event_control_model->find('all', array('conditions' => array('EventControl.flag_active' => 1))));
+		
+		$tx_control = AppModel::getInstance('ClinicalAnnotation', 'TreatmentControl', true);
+		$this->set('tx_add_links', $tx_control->getAddLinks($participant_id, $diagnosis_master_id));
 	}
 
 	function add( $participant_id, $parent_id, $dx_control_id){

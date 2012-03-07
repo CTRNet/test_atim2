@@ -35,7 +35,7 @@
 	);
 	
 	// Define radio should be checked
-	$radio_checked = $initial_display || empty($this->request->data['TreatmentMaster']['diagnosis_master_id']);
+	$radio_checked = !isset($this->request->data['TreatmentMaster']['diagnosis_master_id']);
 	
 	$structure_links = array(
 		'top'=>'/ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentControl.id'],

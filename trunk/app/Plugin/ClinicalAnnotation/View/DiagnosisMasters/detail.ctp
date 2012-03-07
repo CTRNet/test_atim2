@@ -3,10 +3,11 @@
 		'bottom'=>array(
 			'edit'=>'/ClinicalAnnotation/DiagnosisMasters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'delete'=>'/ClinicalAnnotation/DiagnosisMasters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
+			'list'=>'/ClinicalAnnotation/DiagnosisMasters/listall/%%DiagnosisMaster.participant_id%%/',
 			'add diagnosis' => null,
 			'add event' => null,
 			'redefine unknown primary' => '/underdevelopment/',
-			'list'=>'/ClinicalAnnotation/DiagnosisMasters/listall/%%DiagnosisMaster.participant_id%%/'
+			'add treatment' => $tx_add_links
 		)
 	);
 	

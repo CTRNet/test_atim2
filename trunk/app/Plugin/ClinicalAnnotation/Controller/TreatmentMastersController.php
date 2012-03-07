@@ -13,20 +13,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	
 	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
 
-	function listall($participant_id, $trt_control_id = null) {
-		// set FILTER, used as this->data CONDITIONS
-		if ( !isset($_SESSION['TrtMaster_filter']) || !$trt_control_id ) {
-			$_SESSION['TrtMaster_filter'] = array();
-			$_SESSION['TrtMaster_filter']['TreatmentMaster.participant_id'] = $participant_id;
-			
-			$this->Structures->set('treatmentmasters');
-		} else {
-			$_SESSION['TrtMaster_filter']['TreatmentMaster.treatment_control_id'] = $trt_control_id;
-			
-			$filter_data = $this->TreatmentControl->getOrRedirect($trt_control_id);
-			$this->Structures->set($filter_data['TreatmentControl']['form_alias']);
-		}
-				
+	function listall($participant_id){
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
@@ -36,7 +23,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
 		// find all TXCONTROLS, for ADD form
-		$this->set('treatment_controls', $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => "1"))));
+		$this->set('add_links', $this->TreatmentControl->getAddLinks($participant_id));
 
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -135,7 +122,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function add($participant_id, $tx_control_id) {
+	function add($participant_id, $tx_control_id, $diagnosis_master_id = null) {
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
@@ -153,6 +140,8 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
 		if(isset($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
 			$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $this->request->data['TreatmentMaster']['diagnosis_master_id'], 'TreatmentMaster');
+		}else if($diagnosis_master_id){
+			$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'TreatmentMaster');
 		}
 		
 		$this->set('data_for_checklist', $dx_data);					
@@ -202,6 +191,8 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 				}
 			}
+		 }else{
+		 	$this->request->data['TreatmentMaster']['diagnosis_master_id'] = $diagnosis_master_id;
 		 }
 	}
 
