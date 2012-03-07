@@ -475,7 +475,7 @@ class AppController extends Controller {
 		$bt = debug_backtrace();
 		$result = array();
 		foreach($bt as $unit){
-			$result[] = $unit['file'].", ".$unit['function']." at line ".$unit['line'];
+			$result[] = (isset($unit['file']) ? $unit['file'] : '?').", ".$unit['function']." at line ".(isset($unit['line']) ? $unit['line'] : '?');
 		}
 		return $result;
 	}
