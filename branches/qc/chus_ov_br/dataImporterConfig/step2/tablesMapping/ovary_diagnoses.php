@@ -94,7 +94,9 @@ $detail_fields = array(
 	"right_ovary_fallopian_tube_lesion" => array(utf8_decode("Morphologie Ov DROIT::Lésion trompe") => array(""=>""," "=>"","x"=>"y")),
 	"right_ovary_fibrothecoma" => array(utf8_decode("Morphologie Ov DROIT::Fibrothécale") => array(""=>""," "=>"","x"=>"y")),
 	"right_ovary_polycystic" => array("Morphologie Ov DROIT::Polykystique" => array(""=>""," "=>"","x"=>"y")),
-	"right_ovary_inclusion_cyst" => array("Morphologie Ov DROIT::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y"))
+	"right_ovary_inclusion_cyst" => array("Morphologie Ov DROIT::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y")),
+
+	"uncertain_dx" => "#uncertain_dx"
 );
 
 //see the Model class definition for more info
@@ -153,7 +155,7 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$paticipant_id])) die('ERR 9983933');
 	if(Config::$data_for_import_from_participant_id[$paticipant_id]['data_imported_from_ov_file']) {
-		Config::$summary_msg['@@MESSAGE@@']['Participant & Many Rows #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has data recorded in many rows of the OV file! Please check import more in deep! [Line: ".$m->line.']';
+		Config::$summary_msg['@@MESSAGE@@']['Participant & Many Rows #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has data recorded in many rows of the ovary bank file! Please check import deeply! [Line: ".$m->line.']';
 	}
 	Config::$data_for_import_from_participant_id[$paticipant_id]['data_imported_from_ov_file'] = true;
 	
@@ -165,7 +167,7 @@ function postOvaryDiagnosesRead(Model $m){
 	}
 	if(isset(Config::$data_for_import_from_participant_id[$paticipant_id]['consent_date'])) {
 		if($consent_date != Config::$data_for_import_from_participant_id[$paticipant_id]['consent_date']) {
-			Config::$summary_msg['@@WARNING@@']['Participant & Consent Date #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has different consent dates defined in many rows of the OV file! Only one consent will be created! [Line: ".$m->line.']';
+			Config::$summary_msg['@@WARNING@@']['Participant & Many Consent Dates'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has different consent dates defined in many rows of the OV file! Only one consent will be created! [Line: ".$m->line.']';
 		}
 	} else {
 		$master_fields = array(
@@ -204,9 +206,9 @@ function postOvaryDiagnosesRead(Model $m){
 	// field: 'STADE (1-4)'
 	
 	if(strlen($m->values['STADE (1-4)']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'STADE (1-4)' [".$m->values['STADE (1-4)']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['T']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' [".$m->values['T']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['N']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' [".$m->values['N']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['M']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' [".$m->values['M']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['T']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' value  [".$m->values['T']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['N']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' value  [".$m->values['N']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['M']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' value  [".$m->values['M']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
 	if(doesValueExist($m->values['STADE (1-4)']) || doesValueExist($m->values['T']) || doesValueExist($m->values['N']) || doesValueExist($m->values['M'])) $ov_dx_data_exist = true;
 	
 	// field: 'atcd'
@@ -218,7 +220,7 @@ function postOvaryDiagnosesRead(Model $m){
 		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^oui$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
 		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^non$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
 	}
-	if(doesValueExist($m->values["atcd"])) $ov_dx_data_exist = true;
+	if(($m->values["atcd"] == 'y') || doesValueExist($m->values["ATCD Cancer de l'ovaire (oui/non)"])) $ov_dx_data_exist = true;
 	
 	// fields : 'Morphologie Ov %'
 	
@@ -314,6 +316,9 @@ function postOvaryDiagnosesRead(Model $m){
 			}
 		}
 		
+//		if($uncertain_dx) Config::$summary_msg['@@MESSAGE@@']["Uncertain diagnostics"][] = "All diagnostic of the line will be defined as uncertain! [Line: ".$m->line.']';
+		$m->values['uncertain_dx'] = ($uncertain_dx? 'y':'');
+		
 		// b- Diagnostic Ovaire
 		
 		if(preg_match('/^Diagnostique OVAIRE (GAUCHE|DROIT)::(.+)$/',$field,$matches)) {
@@ -335,275 +340,107 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	// ANALYZE VALUES
 	
-	// a- Diagnostic Ovaire
+	// a- Ovary Diagnostic Clean Up
 	
-	if(sizeof($all_dx_left_ov) > 1) {
-		$type = '';
-		if(array_key_exists('metastatic', $all_dx_left_ov)) {
-			$type = 'metastatic';
-		} else if(array_key_exists('cancer', $all_dx_left_ov)) {
-			$type = 'cancer';			
-		} else if(array_key_exists('borderline', $all_dx_left_ov)) {
-			$type = 'borderline';			
-		} else if(array_key_exists('benign', $all_dx_left_ov)) {
-			$type = 'benign';			
-		} else if(!array_key_exists('normal', $all_dx_left_ov)) {
-			die('ERR 89038300983.8893');
+	$left_ovary_dx_nature_data = getFinalOvaryNatureData($all_dx_left_ov, 'GAUCHE', $m);
+	$right_ovary_dx_nature_data = getFinalOvaryNatureData($all_dx_right_ov, 'DROIT', $m);
+	
+	$left_ovary_dx_nature = $left_ovary_dx_nature_data['nature'];
+	$m->values['left_ovary_dx_nature'] = $left_ovary_dx_nature;
+	$right_ovary_dx_nature = $right_ovary_dx_nature_data['nature'];
+	$m->values['right_ovary_dx_nature'] = $right_ovary_dx_nature;
+	
+	$ovary_dx_nature_notes = $left_ovary_dx_nature_data['notes'].((!empty($left_ovary_dx_nature_data['notes']) && !empty($right_ovary_dx_nature_data['notes']))? ' // ' : ''). $right_ovary_dx_nature_data['notes'];
+	if(!empty($ovary_dx_nature_notes)) $m->values['notes'] .= $ovary_dx_nature_notes.' // ';
+				
+	$ovary_dx_from_natures = 'primary';
+	if(in_array($left_ovary_dx_nature, array('','normal')) && in_array($right_ovary_dx_nature, array('','normal'))) {	
+		$ovary_dx_from_natures = 'normal';
+	} else if($left_ovary_dx_nature == 'metastatic' || $right_ovary_dx_nature == 'metastatic') {
+		if($left_ovary_dx_nature == 'cancer' || $right_ovary_dx_nature == 'cancer') {
+			Config::$summary_msg['@@WARNING@@']["Ovary tumor types conflict #1"][] = "The ovary tumor type is defined both as 'metastatic' and 'primary' (using 'Diagnostiques OVAIRE' columns)! Migration process created primary ovary! [Line: ".$m->line.']';
+		} else {
+			$ovary_dx_from_natures = 'secondary';
+			if($left_ovary_dx_nature != 'metastatic' && $right_ovary_dx_nature != 'metastatic') {
+				Config::$summary_msg['@@WARNING@@']["Ovary Diagnostic Definition From Natures #2"][] = "The ovary natures (left and right) define ovary tumor as both $left_ovary_dx_nature and $right_ovary_dx_nature: Will defined tumor as secondary! [Line: ".$m->line.']';
+			}
 		}
-		
-		$notes_start = "Diagnostique OVAIRE GAUCHE : Defined as '$type' ";
-		$notes_end = empty($all_dx_left_ov[$type])? '' : $all_dx_left_ov[$type].' ';
-		unset($all_dx_left_ov[$type]);
-		foreach($all_dx_left_ov as $sec_type => $sec_notes) {
-			$notes_start .= "& '$sec_type' ";
-			$notes_end .= empty($sec_notes)? '' :(empty($notes_end)? '' : '// ').$sec_notes.' ';
-		}
-
-		$all_dx_left_ov = array($type => $notes_start.(empty($notes_end)? '' : '// '. $notes_end));
-		
-		Config::$summary_msg['@@WARNING@@']['Multiple OVAIRE GAUCHE Diagnostiques #1'][] = $notes_start." Only type $type will be take in consideration! [Line: ".$m->line.']';
-	}	
+	}
 	
-	if(sizeof($all_dx_right_ov) > 1) {
-		$type = '';
-		if(array_key_exists('metastatic', $all_dx_right_ov)) {
-			$type = 'metastatic';
-		} else if(array_key_exists('cancer', $all_dx_right_ov)) {
-			$type = 'cancer';			
-		} else if(array_key_exists('borderline', $all_dx_right_ov)) {
-			$type = 'borderline';			
-		} else if(array_key_exists('benign', $all_dx_right_ov)) {
-			$type = 'benign';			
-		} else if(!array_key_exists('normal', $all_dx_right_ov)) {
-			// Can not be defined as normal and somethign
-			die('ERR 89038300983.8893');
-		}
+	switch($ovary_dx_from_natures) {
+		case 'primary':		
+			$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
+			if(!array_key_exists('ovary', $primary_tumors)) {
+				Config::$summary_msg['@@MESSAGE@@']["Primary ovary not defined In 'Site cancer primaire::Ovaire' column"][] = "... but defined into 'Diagnostiques OVAIRE' columns! [Line: ".$m->line.']';
+			} else {
+				unset($primary_tumors['ovary']);
+			}
+			createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
+			break;
 		
-		$notes = "Diagnostique OVAIRE DROIT : Defined as '$type' ".(empty($all_dx_right_ov[$type])? '' : '('.$all_dx_right_ov[$type].') ');
-		unset($all_dx_right_ov[$type]);
-		foreach($all_dx_right_ov as $sec_type => $sec_notes) $notes .= "& '$sec_type' ".(empty($all_dx_right_ov[$sec_type])? '' : '('.$all_dx_right_ov[$sec_type].') ');
-
-		$all_dx_right_ov = array($type => $notes);
+		case 'secondary':
+			if(array_key_exists('ovary', $primary_tumors)) {
+				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
+				Config::$summary_msg['@@ERROR@@']["Ovary tumor types conflict #2"][] = "The ovary tumor type is defined both as 'metastatic' (using 'Diagnostiques OVAIRE' columns) and 'primary' (using 'Sites cancer primaire' columns)! Migration process created primary ovary! [Line: ".$m->line.']';
+				unset($primary_tumors['ovary']);
+				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
+			
+			} else {
+				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['secondary']['ovary']['diagnosis_control_id'];
+				
+				$parent_id = null;
+				$parent_ids = createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
+				if(sizeof($parent_ids) == 1) {
+					$m->values['parent_id'] = $parent_ids[0];
+					$m->values['primary_id'] = $parent_ids[0];
+				} else {
+					if(sizeof($parent_ids)) {
+						Config::$summary_msg['@@WARNING@@']["Many primaries & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but more than one primary is defined (using 'Sites cancer primaire' columns)! Unable to define the primary of the ovarian secondary so created unknown primary diagnosis! [Line: ".$m->line.']';
+						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
+						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
+						$m->values['parent_id'] = $parent_ids[0];
+						$m->values['primary_id'] = $parent_ids[0];
+												
+					} else {
+						Config::$summary_msg['@@MESSAGE@@']["Unknonw Primary & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but no primary is defined (using 'Sites cancer primaire' columns)! Created unknown primary of the ovarian secondary! [Line: ".$m->line.']';
+						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
+						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
+						$m->values['parent_id'] = $parent_ids[0];
+						$m->values['primary_id'] = $parent_ids[0];
+					}
+				}
+			}
+			break;
 		
-		Config::$summary_msg['@@WARNING@@']['Multiple OVAIRE DROIT Diagnostiques #1'][] = $notes." Only type $type will be take in consideration! [Line: ".$m->line.']';
-	}	
-	
-	$dx_left_ov = empty($all_dx_left_ov)? '': key($all_dx_left_ov);
-	$dx_left_ov_note = empty($dx_left_ov)? '': $all_dx_left_ov[$dx_left_ov];
-	
-	$dx_right_ov = empty($all_dx_right_ov)? '': key($all_dx_right_ov);
-	$dx_right_ov_note = empty($dx_right_ov)? '': $all_dx_right_ov[$dx_right_ov];
-	
-pr($all_dx_left_ov);	
-pr($all_dx_right_ov);
+		case '':	
+		case 'normal':
+			if($ov_dx_data_exist) Config::$summary_msg['@@WARNING@@']['Diagnostic Data exist for normal ovary'][] = "Ovary defined as normal but diagnosis data exists and won't be recorded! Check stade, TNM, ATCD and morpho values. [Line: ".$m->line.']';
+			if(empty($primary_tumors)) {
+				if($uncertain_dx) Config::$summary_msg['@@WARNING@@']['Uncertain fields & No tumor'][] = "The field 'Site cancer primaire::Incertain' is checked but no diagnostic will be created in the system! This information won't be recored! [Line: ".$m->line.']';
+			} else {
+				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
+			}
+			return false;
 
-pr("dx_left_ov [$dx_left_ov] => ".$dx_left_ov_note);
-pr("dx_right_ov [$dx_right_ov] => ".$dx_right_ov_note);	
+		default:
+			die('ERR 99849944 : ['.$ovary_dx_from_natures.']');
+	}
 
-exit;	
-
-pr($uncertain_dx);
-pr($primary_tumors);
-pr($all_dx_left_ov);
-pr($all_dx_right_ov);
-pr($ov_dx_data_exist);
-exit;
-
-//	
-//	if($uncertain_dx && empty($primary_tumors)) Config::$summary_msg['@@WARNING@@']['Site cancer primaire #1'][] = "Dx is defined as uncertain but no dx is defined (fields 'Site cancer primaire')! 'Uncertain' value won't be taken in consideration! [Line: ".$m->line.']';
-//	
-////TODO finalize the data migration: DX defintion	
-//// Au niveau d'un ovaire: si deux valeurs 	metastatic > cancer > ... prendre le plus grand et mettre l'autre en commentaire.
-////	'normal', 'benign', 'borderline', 'cancer', 'metastatic'
-//// Au niveau des 2 ovaires: si deux valeurs 	'normal', 'benign', 'borderline', 'cancer' et l'autre metastatic... mettre cancer
-//
-
-//	
-//	
-//	
-//	
-//	
-//		
-//		si 2 pas clair
-//		
-//		
-//		
-//		pr('$all_dx_right_ov line '.$m->line);
-//		pr($all_dx_right_ov); 
-//	}
-//	if(sizeof($all_dx_right_ov) > 1) { pr('$all_dx_right_ov line '.$m->line);pr($all_dx_right_ov);}
-//	
-//	$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
-////	$m->values['primary_id'] = "@NULL";
-////	$m->values['parent_id'] = NULL;
-//	
-//	//TODO
-//	$m->values['left_ovary_dx_nature'] = '';
-//	$m->values['right_ovary_dx_nature'] = '';
-//	
-////	if(sizeof($nature) > 1) die('ERR 99849');
-////	if(sizeof($nature)) {
-////		
-////		
-////		
-////	}
-//
-//
 ////TODO definir le diag lié a la collection
-////TODO que faire si deux diag ovaire
-
 	
 	// 6- NOTES CLEAN UP
 	
-	$m->values['notes'] = preg_replace('/(\/\/ )$/', '',$m->values['notes']);
+	$m->values['notes'] = str_replace("'", "''", preg_replace('/(\/\/ )$/', '',$m->values['notes']));
 	
 	return true;
 }
 
 function postOvaryDiagnosesWrite(Model $m){
-//	Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] = null;
-//	Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'] = null;	
-//	
-//	$m->values['notes'] = '';
-//	
-//	// Substage
-//	$m->values['Substage'] = strtoupper($m->values['Substage']);
-//	
-//	// Manage WHO Codes
-//	
-//	if(!empty($m->values['Clinical WHO Code'])) {
-//		$tmp_who_code = $m->values['Clinical WHO Code'];
-//		$m->values['Clinical WHO Code'] = '';
-//		
-//		preg_match_all('/([0-9]{4}\/[0-9])/', $tmp_who_code, $matches);
-//		if(!empty($matches[0])) {
-//			$m->values['Clinical WHO Code'] = str_replace('/','',$matches[0][0]);
-//			unset($matches[0][0]);
-//			if(!empty($matches[0])) {
-//				Config::$summary_msg['@@MESSAGE@@']['WHO code #1'][] = 'Many values are defined into cell ['.$tmp_who_code.']. Only first one will be recorded into WHO field, the other one will be added to notes. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
-//				$m->values['notes'] = 'Additional WHO codes : '.implode(", ", $matches[0]);	
-//			}
-//			$tmp_who_code = str_replace(array(' ',',',CHR(10),CHR(13)), array('','','',''), preg_replace('/([0-9]{4}\/[0-9])/', '', $tmp_who_code));
-//			if(!empty($tmp_who_code)) {
-//				Config::$summary_msg['@@WARNING@@']['WHO code #1'][] = 'Both WHO code and text were defined into the source file. Add value ['.$tmp_who_code.'] as WHO comment. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
-//				$m->values['notes'] .= ' Additional WHO code comments : '.$tmp_who_code;	
-//			}
-//			if(!array_key_exists($m->values['Clinical WHO Code'], Config::$dx_who_codes)) {
-//				Config::$summary_msg['@@ERROR@@']['WHO code #1'][] = 'WHO code value ['.$m->values['Clinical WHO Code'].'] not supported into ATiM. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
-//				$m->values['notes'] .= ' WHO code not supported : '.$m->values['Clinical WHO Code'];					
-//				$m->values['Clinical WHO Code'] = '';
-//			}			
-//			
-//		} else {
-//			if(in_array($tmp_who_code, array('NA','Normal','N/A'))) {
-//				Config::$summary_msg['@@MESSAGE@@']['WHO code #2'][] = 'NA or Normal are not migrated. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
-//			
-//			} else {
-//				Config::$summary_msg['@@WARNING@@']['WHO code #2'][] = 'File values does not match the expected format ['.$tmp_who_code.']. Value will be added to the notes. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
-//				$m->values['notes'] = 'Wrong WHO codes migrated from source file: '.$tmp_who_code;
-//			}
-//		}
-//	}
-//	
-//	// Check data are recorded
-//	
-//	if(empty($m->values['morphology']) &&
-//	empty($m->values['notes']) &&
-//	empty($m->values['stage']) &&
-//	empty($m->values['substage']) &&
-//	empty($m->values['Clinical Diagnosis']) &&
-//	empty($m->values['Clinical History']) &&
-//	empty($m->values['Review Diagnosis']) &&
-//	empty($m->values['Review Comment']) &&
-//	empty($m->values['Review Grade'])) {
-//		Config::$summary_msg['@@WARNING@@']['OVCARE Primary Diagnosis #1'][] = 'Created an empty Primary Diagnosis. [VOA#: '.Config::$current_voa_nbr.' / line: '.$m->line.']';
-//	}
-//	
-//	// Primary vs Secondary
-//	
-//	preg_match('/(metastasis|metastatic)/', strtolower($m->values['Review Diagnosis']), $matches);
-//	if($matches) {
-//		
-//		// SECONDARY-OVCARE
-//		
-//		global $connection;
-//		
-//		//1- Unknown Primary: master
-//		
-//		$created = array(
-//			"created"		=> "NOW()", 
-//			"created_by"	=> Config::$db_created_id, 
-//			"modified"		=> "NOW()",
-//			"modified_by"	=> Config::$db_created_id
-//		);
-//		
-//		$insert_arr = array(
-//			"icd10_code" 			=> "'D489'", 
-//			"participant_id"		=> Config::$record_ids_from_voa[Config::$current_voa_nbr]['participant_id'], 
-//			"diagnosis_control_id"	=> "15"
-//		);
-//		$main_insert_arr = array_merge($insert_arr, $created);
-//		$query = "INSERT INTO diagnosis_masters (".implode(", ", array_keys($main_insert_arr)).") VALUES (".implode(", ", array_values($main_insert_arr)).")";
-//		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//		$unknown_primary_id = mysqli_insert_id($connection);
-//		$query = "UPDATE diagnosis_masters SET primary_id = $unknown_primary_id WHERE id = $unknown_primary_id;";
-//		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//		$rev_insert_arr = array_merge($insert_arr, array('id' => "$unknown_primary_id", 'primary_id' => "$unknown_primary_id", 'version_created' => "NOW()"));
-//		$query = "INSERT INTO diagnosis_masters_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-//		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//		
-//		//2- Unknown Primary: detail
-//		
-//		$insert_arr = array(
-//			"diagnosis_master_id"	=> "$unknown_primary_id"
-//		);
-//		$query = "INSERT INTO dxd_primaries (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
-//		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//		$detail_id = mysqli_insert_id($connection);
-//		$rev_insert_arr = array_merge($insert_arr, array('id' => "$detail_id", 'version_created' => "NOW()"));
-//		$query = "INSERT INTO dxd_primaries_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-//		mysqli_query($connection, $query) or die("unknown primary insert [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//		
-//		Config::$summary_msg['@@MESSAGE@@']['Unknown primary #1'][] = "A review defined ovcare diagnosis as secondary (see 'Review Diagnosis'): created an unknown primary. [VOA#: ".Config::$current_voa_nbr.' / line: '.$m->line.']';
-//		
-//		//2- Set data for scondary
-//		
-//		$m->values['diagnosis_control_id'] = "22";
-//		
-//		Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] = $unknown_primary_id;
-//	
-//	} else {
-//		
-//		// PRIMARY-OVCARE
-//		
-//		$m->values['diagnosis_control_id'] = "20";
-//	}
-//	
-//	return true;
+
 }
 
 function postDiagnosisWrite(Model $m){
-//	global $connection;
-//	
-//	$ovcare_diagnosis_id = $m->last_id;
-//	Config::$record_ids_from_voa[Config::$current_voa_nbr]['ovcare_diagnosis_id'] = $ovcare_diagnosis_id;
-//	Config::$record_ids_from_voa[Config::$current_voa_nbr]['collection_diagnosis_id'] = $ovcare_diagnosis_id;
-//	
-//	$update_strg = "";
-//	if(empty(Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'])) {
-//		// OVCARE Diagnosis is a primary
-//		Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'] = $ovcare_diagnosis_id;	
-//	} else {
-//		// OVCARE Diagnosis is a secondary
-//		$update_strg .= 'parent_id = '.Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'].', ';
-//	}
-//	
-//	$update_strg .= "primary_id = ".Config::$record_ids_from_voa[Config::$current_voa_nbr]['primary_diagnosis_id'];
-//	
-//	$query = "UPDATE diagnosis_masters SET $update_strg WHERE id = $ovcare_diagnosis_id;";
-//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//	$query = "UPDATE diagnosis_masters_revs SET $update_strg WHERE id = $ovcare_diagnosis_id;";
-//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+
 }
 
 //======================================================================================================================
@@ -614,3 +451,63 @@ function doesValueExist($value) {
 	return strlen(str_replace(' ','',$value))? true : false;
 }
 
+function getFinalOvaryNatureData($all_dx_ov, $side, Model $m) {
+	
+	if(sizeof($all_dx_ov) > 1) {
+		$type = '';
+		if(array_key_exists('metastatic', $all_dx_ov)) {
+			$type = 'metastatic';
+		} else if(array_key_exists('cancer', $all_dx_ov)) {
+			$type = 'cancer';			
+		} else if(array_key_exists('borderline', $all_dx_ov)) {
+			$type = 'borderline';			
+		} else if(array_key_exists('benign', $all_dx_ov)) {
+			$type = 'benign';			
+		} else if(!array_key_exists('normal', $all_dx_ov)) {
+			die('ERR 89038300983.8893');
+		}
+		
+		$notes_start = "Diagnostique OVAIRE $side : Defined as '$type' ";
+		$notes_end = empty($all_dx_ov[$type])? '' : $all_dx_ov[$type].' ';
+		unset($all_dx_ov[$type]);
+		foreach($all_dx_ov as $sec_type => $sec_notes) {
+			$notes_start .= "& '$sec_type' ";
+			$notes_end .= empty($sec_notes)? '' :(empty($notes_end)? '' : '// ').$sec_notes.' ';
+		}
+
+		$all_dx_ov = array($type => $notes_start.(empty($notes_end)? '' : '// '. $notes_end));
+		
+		Config::$summary_msg['@@WARNING@@']["Many diagnostic types for 'OVAIRE $side'"][] = $notes_start.". The 'OVAIRE $side' will be defined as '$type'! [Line: ".$m->line.']';
+	}
+	
+	$ovary_dx_nature = empty($all_dx_ov)? '': key($all_dx_ov);
+	$ovary_dx_nature_note = empty($ovary_dx_nature)? '': $all_dx_ov[$ovary_dx_nature];
+	
+	return array('nature' => $ovary_dx_nature, 'notes' => $ovary_dx_nature_note);
+}
+
+function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
+	$diagnosis_master_ids = array();
+	
+	foreach($primary_tumors as $tumor_site => $notes) {
+		$notes = str_replace("'", "''", $notes);
+		
+		if(!isset(Config::$diagnosis_controls['primary'][$tumor_site])) die('ERR 937993 3 '.$tumor_site);
+		if($tumor_site == 'breast') Config::$summary_msg['@@MESSAGE@@']["Breast primary created"][] = "A Breast primary has been created during ovary bank data importation (see 'Site cancer primaire::Sein' column)! [Line: ".$m->line.']';
+		
+		$master_fields = array(
+			"diagnosis_control_id" => Config::$diagnosis_controls['primary'][$tumor_site]['diagnosis_control_id'],
+			"participant_id" => $m->values['participant_id'],
+			"notes" => "'$notes'"
+		);
+		if($tumor_site == 'primary diagnosis unknown') $detail_fields["icd10_code"] = "'D489'";
+		$diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
+		$detail_fields = array("diagnosis_master_id" => $diagnosis_master_id);	
+		if($tumor_site != 'primary diagnosis unknown' ) $detail_fields["uncertain_dx"] = ($uncertain_dx? "'y'" : "''");
+		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['primary'][$tumor_site]['detail_tablename'], true);
+		
+		$diagnosis_master_ids[] = $diagnosis_master_id;
+	}
+	
+	return $diagnosis_master_ids;
+}
