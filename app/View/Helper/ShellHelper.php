@@ -166,7 +166,7 @@ class ShellHelper extends Helper {
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
 		
-		if(count($_SESSION['ctrapp_core']['warning_trace_msg'])){
+		if(isset($_SESSION['ctrapp_core']['warning_trace_msg']) && count($_SESSION['ctrapp_core']['warning_trace_msg'])){
 			$confirm_msg_html .= '<ul class="warning">';
 			foreach($_SESSION['ctrapp_core']['warning_trace_msg'] as $trace_msg){
 				$confirm_msg_html .= $this->getValidationLine('warning', $trace_msg['msg'], $trace_msg['trace']);

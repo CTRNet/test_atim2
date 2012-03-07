@@ -957,13 +957,20 @@ span.help {
 			margin: 0 1em 0 0; 
 			text-align: left;
 		}
-			div.wrapper table.structure table.columns th {
-				text-align: left;
+			div.wrapper table.structure table.columns thead th {
 				vertical-align: bottom;
-				padding: 0.25em 1em;
 				font-weight: normal;
-				border-bottom: 2px solid #eaedf2;
 				font-size: 13px;
+			}
+			div.indexLangHeader{
+				margin: 0 4px;
+				text-align: center;
+				padding: 0.4em;
+			}
+			div.wrapper table.structure table.columns thead tr:last-child th {
+				text-align: left;
+				border-bottom: 2px solid #eaedf2;
+				padding: 0.25em 1em;
 			}
 			div.wrapper table.structure table.columns th a { 
 				text-decoration: none; 
@@ -1954,7 +1961,7 @@ span.help.storage{
 	top: -100px;
 }
 
-table.columns.index tbody tr:nth-child(even){
+table.columns.index tbody tr:nth-child(even), div.indexLangHeader{
 	background-color: #f3f3f3;
 }
 
