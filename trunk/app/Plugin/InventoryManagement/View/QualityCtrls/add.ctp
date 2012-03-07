@@ -45,7 +45,8 @@ $options_parent = array(
 		'form_top'		=> false,
 		'actions'		=> false,
 		'form_bottom'	=> false,
-		'stretch'		=> false
+		'stretch'		=> false,
+		'section_start'	=> true
 	)
 );
 
@@ -58,7 +59,8 @@ $options_children = array(
 		'form_bottom'	=> false,
 		"add_fields"	=> true, 
 		"del_fields"	=> true,
-		"language_heading" => __('quality controls')
+		"language_heading" => __('quality controls'),
+		'section_end'	=> true
 	)
 );
 

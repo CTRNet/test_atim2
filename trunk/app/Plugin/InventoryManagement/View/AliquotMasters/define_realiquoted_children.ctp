@@ -10,14 +10,14 @@
 	$options =  array('type'=>'editgrid', 'links' => $structure_links, 'settings' => $structure_settings);
 	$parent_options = array_merge($options, array(
 		"type" 		=> "edit",
-		"settings"	=> array_merge($structure_settings, array("stretch" => false)))
+		"settings"	=> array_merge($structure_settings, array("stretch" => false, 'section_start' => true)))
 	);
 	$parent_options['settings']["language_heading"] = __('parent aliquot (for update)');
 	
 	$children_options = array_merge($options, array(
 		'type'		=> 'addgrid', 
 		'links' 	=> $structure_links, 
-		'settings' 	=> $structure_settings
+		'settings' 	=> array_merge($structure_settings, array('section_end' => true))
 	));
 	$children_options['settings']["language_heading"] = __('selected children aliquot(s)');
 	

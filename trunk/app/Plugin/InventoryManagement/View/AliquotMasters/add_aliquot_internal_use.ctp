@@ -13,7 +13,8 @@ $parent_settings = array(
 		'form_bottom' => false,
 		'header' => __('internal use'),
 		'stretch' => false,
-		"language_heading" => __('used aliquot (for update)')
+		"language_heading" => __('used aliquot (for update)'),
+		'section_start' => true
 	)
 );
 
@@ -26,7 +27,8 @@ $children_settings = array(
 		'form_bottom' => false,
 		"add_fields"	=> true, 
 		"del_fields"	=> true,
-		"language_heading" => __('internal use creation')
+		"language_heading" => __('internal use creation'),
+		'section_end' => true
 	)
 );
 	
