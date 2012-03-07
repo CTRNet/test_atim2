@@ -544,7 +544,7 @@ class StructuresHelper extends Helper {
 				$help = null;//keeps the help if hidden fields are in the way
 				foreach($table_column as $table_row){
 					foreach($table_row as $table_row_part){
-						if($table_row_part['heading']){
+						if(trim($table_row_part['heading'])){
 							if(!$new_line){
 								echo '<td class="content">'.implode('</td><td class="content">', $display)."</td>".$end_of_line."</tr><tr>";
 								$display = array();
@@ -1621,7 +1621,7 @@ class StructuresHelper extends Helper {
 						"model" 			=> $sfs['model'],
 						"tablename"			=> $sfs['tablename'],
 						"field" 			=> $sfs['field'],
-						"heading" 			=> __($sfs['language_heading'], true),
+						"heading" 			=> trim($sfs['language_heading']) ? __($sfs['language_heading'], true) : $sfs['language_heading'],
 						"label" 			=> __($sfs['language_label'], true),
 						"tag" 				=> __($sfs['language_tag'], true),
 						"type" 				=> $sfs['type'],
