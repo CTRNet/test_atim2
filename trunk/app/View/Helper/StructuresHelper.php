@@ -1413,23 +1413,29 @@ class StructuresHelper extends Helper {
 	private function buildDisplayHeader(array $table_structure, array $options){
 		$column_count = 0;
 		$return_string = '<tr>';
+		$language_header = '';
+		$language_header_string = "";
+		$language_header_count = 0;
 		if(count($options['links']['checklist'])){
 			$return_string .= '
 				<th class="checkbox">&nbsp;</th>
 			';
 			$column_count ++;
+			$language_header_count ++;
 		}
 		if(count($options['links']['radiolist'])){
 			$return_string .= '
 					<th class="radiobutton">&nbsp;</th>
 			';
 			$column_count ++;
+			$language_header_count ++;
 		}
 		if(count($options['links']['index'])){
 			$return_string .= '
 					<th class="id">&nbsp;</th>
 			';
 			$column_count ++;
+			$language_header_count ++;
 		}
 		
 		// each column/row in table 
@@ -1481,6 +1487,13 @@ class StructuresHelper extends Helper {
 							$return_string .= '
 								<th>
 							';
+
+							if($table_row_part['heading']){
+								$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>'; 
+								$language_header_count = 0;
+								$language_header_string = $table_row_part['heading']; 
+							}
+							++ $language_header_count;
 							
 							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
 							$default_sorting_direction = strtolower($default_sorting_direction);
@@ -1532,6 +1545,7 @@ class StructuresHelper extends Helper {
 				<th>&nbsp;</th>
 			';
 			$column_count ++;
+			$language_header_count ++;
 		}
 		
 		// end header row...
@@ -1539,7 +1553,11 @@ class StructuresHelper extends Helper {
 				</tr>
 		';
 		
-		return array("header" => $return_string, "count" => $column_count);
+		if($language_header_string){
+			$language_header = '<tr>'.$language_header.'<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th></tr>';
+		}
+		
+		return array("header" => $language_header.$return_string, "count" => $column_count);
 		
 	}
 
