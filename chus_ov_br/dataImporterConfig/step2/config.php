@@ -211,9 +211,6 @@ function addonFunctionEnd(){
 			foreach($msgs as $msg) echo "$msg<br>";
 		}
 	}
-
-		pr('addonFunctionEnd TODO');
-exit;
 	
 	echo "<br>";
 		
