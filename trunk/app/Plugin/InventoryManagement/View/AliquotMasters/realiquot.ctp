@@ -8,11 +8,11 @@
 	
 	$options_parent = array_merge($options, array(
 		"type" => "edit",
-		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false, "language_heading" => __('parent aliquot (for update)'))
+		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false, "language_heading" => __('parent aliquot (for update)'), 'section_start' => true)
 	));
 	$options_children = array_merge($options, array(
 		"type" => "addgrid",
-		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, "language_heading" => __('created children aliquot(s)'))
+		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, "language_heading" => __('created children aliquot(s)'), 'section_end' => true)
 	));
 		
 	// CUSTOM CODE

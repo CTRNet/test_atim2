@@ -45,7 +45,10 @@ class StructuresHelper extends Helper {
 				
 				'csv_header' => true, //in a csv file, if true, will print the header line
 				
-				'no_sanitization'	=> array()//model => fields to avoid sanitizing
+				'no_sanitization'	=> array(),//model => fields to avoid sanitizing
+				
+				'section_start'	=> false,
+				'section_end'	=> false
 			),
 			
 			'links'		=> array(
@@ -301,7 +304,7 @@ class StructuresHelper extends Helper {
 					AppController::addWarningMsg(__("links should be an array", true));
 				}
 			}else{
-				AppController::addWarningMsg(__("settings be an array", true));
+				AppController::addWarningMsg(__("settings must be an array", true));
 			}
 		}
 		
@@ -342,13 +345,18 @@ class StructuresHelper extends Helper {
 					'description'	=> ''
 				);
 			}
+
 			echo '<div class="descriptive_heading">
-					<h4>',$options['settings']['header']['title'],'</h4>
+					<h4>',$options['settings']['header']['title'],($options['settings']['section_start'] ? "<a class='icon16 delete noPrompt sectionCtrl' href='#'></a>" : ""),'</h4>
 					<p>',$options['settings']['header']['description'],'</p>
 				</div>
 			';
 		}
 		
+		if($options['settings']['section_start']){
+			echo '<div class="section">';
+		}	
+			
 		if($options['settings']['language_heading']){
 			echo '<div class="heading_mimic"><h4>'.$options['settings']['language_heading'].'</h4></div>';
 		}
@@ -419,6 +427,10 @@ class StructuresHelper extends Helper {
 			echo('
 				<div class="extra">'.$options['extras']['end'].'</div>
 			');
+		}
+		
+		if($options['settings']['section_end']){
+			echo '</div>';
 		}
 		
 
@@ -1802,7 +1814,7 @@ class StructuresHelper extends Helper {
 			if(Configure::read('debug') > 0){
 				$paste_disabled = array_diff($options['settings']['paste_disabled_fields'], $paste_disabled);
 				if(count($paste_disabled) > 0){
-					AppController::addWarningMsg("DEBUG Paste disabled field(s) not found: ". implode(", ", $paste_disabled));
+					AppController::addWarningMsg("Paste disabled field(s) not found: ". implode(", ", $paste_disabled), true);
 				}
 			}
 		}

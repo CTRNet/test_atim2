@@ -851,6 +851,11 @@ function initActions(){
 		});
 	}
 	
+	function warningMoreInfoClick(event){
+		$(event.srcElement).toggle(function(){$(this).html("[+]");}, function(){$(this).html("[-]");}).siblings("pre.warningMoreInfo").toggle();
+	}
+	
+	
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
@@ -911,7 +916,6 @@ function initActions(){
 						handleSearchResultLinks();
 						//stop submit button animation
 						$(submit_button).siblings("a").find("span").removeClass('fetching');
-						console.log("rez");
 					}catch(exception){
 						//simply submit the form then
 						$("form").submit();
@@ -1016,7 +1020,9 @@ function initActions(){
 			applyPreset($(this).data("json"));
 			return false;
 		}).delegate("a.delete:not(.noPrompt)", "click", openDeleteConfirmPopup
-		).delegate(".reveal.notFetched", "click", treeViewNodeClick);
+		).delegate(".reveal.notFetched", "click", treeViewNodeClick
+		).delegate(".sectionCtrl", "click", sectionCtrl
+		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick);
 		
 		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
@@ -1194,4 +1200,27 @@ function initActions(){
 		}else{
 			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);
 		}
+	}
+	
+	function sectionCtrl(event){
+		if($(event.srcElement).hasClass('delete')){
+			//hide the content in the button data
+			$(event.srcElement).parents(".descriptive_heading:first").nextAll(".section:first").appendTo("body").hide();
+			$(event.srcElement).data("section", $("body .section:last"));
+			$(event.srcElement).parents(".descriptive_heading:first").css("text-decoration", "line-through");
+			$(event.srcElement).removeClass('delete').addClass('redo');
+		}else{
+			$(event.srcElement).parents(".descriptive_heading:first").after($(event.srcElement).data("section").show());
+			$(event.srcElement).parents(".descriptive_heading:first").css("text-decoration", "none");
+			$(event.srcElement).addClass('delete').removeClass('redo');
+		}
+		
+		if($(".descriptive_heading a.sectionCtrl.delete").length == 0){
+			$(".flyOverSubmit").hide();
+		}else{
+			$(".flyOverSubmit").show();
+		}
+		
+		flyOverSubmit();
+		return false;
 	}

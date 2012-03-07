@@ -61,7 +61,6 @@ function initDatamartActions(){
 		$("#popup").popup('close');
 	});
 }
-
 function validateSubmit(){
 	var errors = new Array();
 	if($("#search_for").val() == ""){

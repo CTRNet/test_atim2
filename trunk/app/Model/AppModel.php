@@ -61,7 +61,7 @@ class AppModel extends Model {
 		if($this->pkey_safeguard && ((isset($data[$this->name][$this->primaryKey]) && $this->id != $data[$this->name][$this->primaryKey])
 				|| (isset($data[$this->primaryKey]) && $this->id != $data[$this->primaryKey]))
 		){
-			AppController::addWarningMsg('Pkey safeguard');
+			AppController::addWarningMsg('Pkey safeguard', true);
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			return false;
 		}
@@ -134,18 +134,18 @@ class AppModel extends Model {
 			}
 			$schema_keys = array_keys($this->schema());
 			$writable_fields = array_intersect($writable_fields, $schema_keys);
-			$real_fields = array_intersect(array_keys($this->data[$this->name]), $schema_keys);
+			$real_fields = isset($this->data[$this->name]) ? array_intersect(array_keys($this->data[$this->name]), $schema_keys) : array();
 			$invalid_fields = array_diff($real_fields, $writable_fields);
 			if(!empty($invalid_fields)){
 				foreach($invalid_fields as $invalid_field){
 					unset($this->data[$this->name][$invalid_field]);
 				}
 				if(Configure::read('debug') > 0){
-					AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. ('.implode(',', $invalid_fields).')');
+					AppController::addWarningMsg('Non authorized fields have been removed from the data set prior to saving. ('.implode(',', $invalid_fields).')', true);
 				}
 			}
 		}else if(Configure::read('debug') > 0 && isset($this->data[$this->name]) && !empty($this->data[$this->name])){
-			AppController::addWarningMsg('No Writable fields defined for model '.$this->name.'.');
+			AppController::addWarningMsg('No Writable fields defined for model '.$this->name.'.', true);
 			$this->data[$this->name] = array();
 		}
 	}
@@ -684,7 +684,7 @@ class AppModel extends Model {
 								$rule = array('range', -1, 18446744073709551615);
 							}
 						}else{
-							AppController::addWarningMsg('Unknown integer type in'.__FILE__.' at line '.__LINE__.' for field ['.$model->name.'.'.$field_name);
+							AppController::addWarningMsg('Unknown integer type for field ['.$model->name.'.'.$field_name, true);
 						}
 						if($rule){
 							$auto_validation[$field_name][] = array(

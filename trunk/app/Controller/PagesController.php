@@ -11,7 +11,7 @@ class PagesController extends AppController {
 	}
 
 	function display( $page_id = NULL) {
-		$results = $this->Page->find('first',array('conditions'=>'Page.id="'.$page_id.'"'));
+		$results = $this->Page->getOrRedirect($page_id);
 		
 		if(isset($_GET['err_msg'])){
 			//this message will be displayed in red
@@ -32,7 +32,6 @@ class PagesController extends AppController {
 			}
 			//if it's more than 4 we'll get a warning 
 		}
-		
 		$this->set('data',$results);
 		
 		if ( isset($results) && isset($results['Page']) && isset($results['Page']['use_link']) && $results['Page']['use_link'] ) {

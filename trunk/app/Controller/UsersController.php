@@ -38,7 +38,8 @@ class UsersController extends AppController {
 						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT']
 				);
 				$this->UserLoginAttempt->save($login_data);
-				$_SESSION['ctrapp_core']['warning_msg'] = array();//init
+				$_SESSION['ctrapp_core']['warning_no_trace_msg'] = array();//init
+				$_SESSION['ctrapp_core']['warning_trace_msg'] = array();//init
 				$_SESSION['ctrapp_core']['info_msg'] = array();//init
 				
 				//flush tmp batch sets

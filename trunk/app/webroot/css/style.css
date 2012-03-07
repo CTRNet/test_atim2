@@ -1960,8 +1960,7 @@ span.help.storage{
 }
 
 table.columns.index tbody tr:nth-child(even){
-	/*background-color: #e8edf2; TODO: remove me if you don't like me :(*/
-	background-color: #eee;
+	background-color: #f3f3f3;
 }
 
 table.structure.lineHighlight table.columns.index tbody tr:hover{

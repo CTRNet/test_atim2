@@ -108,7 +108,7 @@ class Structure extends AppModel {
 							$rule = $rule[0];
 						}else if(count($rule) == 0){
 							if(Configure::read('debug') > 0){
-								AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']));
+								AppController::addWarningMsg(__("the validation with id [%d] is invalid. a rule must be defined", $validation['id']), true);
 							}
 							continue;
 						}
@@ -123,7 +123,7 @@ class Structure extends AppModel {
 							if(in_array($validation['on_action'], array('create', 'update'))){
 								$rule_array['on'] = $validation['on_action'];
 							}else if(Configure::read('debug') > 0){
-								AppController::addWarningMsg('Invalid on_action for validation rule with id ['.$validation['id'].']. Current value: ['.$validation['on_action'].']. Expected: [create], [update] or empty.');
+								AppController::addWarningMsg('Invalid on_action for validation rule with id ['.$validation['id'].']. Current value: ['.$validation['on_action'].']. Expected: [create], [update] or empty.', true);
 							}
 						}
 						if($validation['language_message']){

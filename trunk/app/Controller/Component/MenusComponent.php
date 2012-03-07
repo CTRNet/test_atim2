@@ -42,7 +42,7 @@ class MenusComponent extends Component {
 		if($return === null){
 			$return = false;
 			if(Configure::read('debug') == 2){
-				AppController::addWarningMsg('Menu caching issue. (null)');
+				AppController::addWarningMsg('Menu caching issue. (null)', true);
 			}
 		}
 		if(!$return){
