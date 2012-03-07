@@ -149,6 +149,14 @@ class ShellHelper extends Helper {
 		
 	}
 	
+	function getValidationLine($class, $msg, $collapsable = null){
+		$result = '<li><span class="icon16 '.$class.' mr5px"></span>'.$msg;
+		if($collapsable){
+			$result .= ' <a href="#" class="warningMoreInfo">[+]</a><pre class="hidden warningMoreInfo">'.print_r($collapsable, true).'</pre>';
+		}
+		return $result.'</li>';
+	}
+	
 	function validationHtml(){
 		$display_errors_html = $this->validationErrors();
 		
@@ -158,15 +166,25 @@ class ShellHelper extends Helper {
 			unset($_SESSION['ctrapp_core']['confirm_msg']);
 		}
 		
-		foreach(array('confirm', 'warning', 'info') as $type){
+		if(count($_SESSION['ctrapp_core']['warning_trace_msg'])){
+			$confirm_msg_html .= '<ul class="warning">';
+			foreach($_SESSION['ctrapp_core']['warning_trace_msg'] as $trace_msg){
+				$confirm_msg_html .= $this->getValidationLine('warning', $trace_msg['msg'], $trace_msg['trace']);
+			}
+			$confirm_msg_html .= '</ul>';
+			$_SESSION['ctrapp_core']['warning_trace_msg'] = array();
+		}
+		
+		foreach(array('confirm' => 'confirm', 'warning_no_trace' => 'warning', 'info' => 'info') as $type => $class){
 			if(isset($_SESSION['ctrapp_core'][$type.'_msg']) && count($_SESSION['ctrapp_core'][$type.'_msg']) > 0){
-				$confirm_msg_html .= '<ul class="'.$type.'">';
+				$confirm_msg_html .= '<ul class="'.$class.'">';
 				foreach($_SESSION['ctrapp_core'][$type.'_msg'] as $msg => $count){
 					if($count > 1){
 						$msg .= " (".$count.")";
 					}
-					$confirm_msg_html .= "<li><span class='icon16 ".$type." mr5px'></span>".$msg."</li>";
+					$confirm_msg_html .= $this->getValidationLine($class, $msg);
 				}
+				
 				$confirm_msg_html .= '</ul>';
 				$_SESSION['ctrapp_core'][$type.'_msg'] = array();
 			}
@@ -188,7 +206,6 @@ class ShellHelper extends Helper {
 	
 	function validationErrors(){
 		$result = "";
-
 		$display_errors = array();
 		$format_str = '<li><span class="icon16 delete mr5px"></span>%s</li>';
 		foreach ($this->_View->validationErrors as $model ) {

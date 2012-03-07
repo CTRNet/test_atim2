@@ -917,7 +917,11 @@ ALTER TABLE txe_radiations_revs DROP COLUMN id;
 ALTER TABLE txe_surgeries DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE txe_surgeries_revs DROP COLUMN id;
 
-
+ALTER TABLE datamart_batch_sets
+ MODIFY COLUMN user_id INT NOT NULL,
+ MODIFY COLUMN group_id INT NOT NULL,
+ ADD FOREIGN KEY (user_id) REFERENCES users(id),
+ ADD FOREIGN KEY (group_id) REFERENCES groups(id);
 
 
 

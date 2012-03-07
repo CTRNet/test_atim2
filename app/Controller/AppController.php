@@ -16,6 +16,7 @@ class AppController extends Controller {
 	private static $cal_info_long_translated = false;
 	
 	function beforeFilter() {
+		setcookie('last_request', time(), time()+60*60*24, '/');
 		App::uses('Sanitize', 'Utility');
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
@@ -450,11 +451,15 @@ class AppController extends Controller {
 		return $result;
 	}
 	
-	static function addWarningMsg($msg){
-		if(isset($_SESSION['ctrapp_core']['warning_msg'][$msg])){
-			$_SESSION['ctrapp_core']['warning_msg'][$msg] ++;
+	static function addWarningMsg($msg, $with_trace = false){
+		if($with_trace){
+			$_SESSION['ctrapp_core']['warning_trace_msg'][] = array('msg' => $msg, 'trace' => self::getStackTrace());
 		}else{
-			$_SESSION['ctrapp_core']['warning_msg'][$msg] = 1;
+			if(isset($_SESSION['ctrapp_core']['warning_no_trace_msg'][$msg])){
+				$_SESSION['ctrapp_core']['warning_no_trace_msg'][$msg] ++;
+			}else{
+				$_SESSION['ctrapp_core']['warning_no_trace_msg'][$msg] = 1;
+			}
 		}
 	}
 	
@@ -499,10 +504,11 @@ class AppController extends Controller {
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
 	 */
 	static function atimSetCookie(){
-		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
-		if(isset($_COOKIE[Configure::read("Session.cookie")])){
-			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], time() + $session_delay, "/");
-		}
+//TODO: is it gone in cake 2?
+// 		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
+// 		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+// 			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], time() + $session_delay, "/");
+// 		}
 	}
 	
 	/**

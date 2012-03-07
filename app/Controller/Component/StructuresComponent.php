@@ -122,7 +122,7 @@ class StructuresComponent extends Component {
 						$structure['Accuracy'][$field['model']][$field['field']] = $field['field'].'_accuracy';
 					}
 				}else if($field['model'] != 'custom' && Configure::read('debug') > 0){
-					AppController::addWarningMsg('Cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.');
+					AppController::addWarningMsg('Cannot load model for field with id '.$field['structure_field_id'].'. Check field tablename.', true);
 				}
 			}
 		}
@@ -164,7 +164,7 @@ class StructuresComponent extends Component {
 		if($return === null){
 			$return = false;
 			if(Configure::read('debug') == 2){
-				AppController::addWarningMsg('Structure caching issue. (null)');
+				AppController::addWarningMsg('Structure caching issue. (null)', true);
 			}
 		}
 		if(!$return){
@@ -353,7 +353,7 @@ class StructuresComponent extends Component {
 											$format_data_model = new AppModel(array('table' => $form_fields[$form_fields_key]['tablename'], 'name' => $model_name, 'alias' => $model_name));
 											
 										}else if(Configure::read('debug') > 0){
-											AppController::addWarningMsg('There is no tablename for field ['.$form_fields[$form_fields_key]['key'].']');
+											AppController::addWarningMsg('There is no tablename for field ['.$form_fields[$form_fields_key]['key'].']', true);
 										}
 									}
 									

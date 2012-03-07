@@ -1302,7 +1302,7 @@ class Browser extends DatamartAppModel {
 				foreach($result_structure['Sfs'] as &$field){
 					if($field['model'] == $detail_model_name && $field['tablename'] != $alternate_info['detail_tablename']){
 						if(Config::read('debug') > 0 && !empty($field['tablename']) && $field['tablename'] != $alternate_info['detail_tablename']){
-							AppController::addWarningMsg('A loaded detail field has a different tablename ['.$field['tablename'].'] than what the control table states ['.$alternate_info['detail_tablename'].']');
+							AppController::addWarningMsg('A loaded detail field has a different tablename ['.$field['tablename'].'] than what the control table states ['.$alternate_info['detail_tablename'].']', true);
 						}
 						$field['tablename'] = $alternate_info['detail_tablename'];
 					}

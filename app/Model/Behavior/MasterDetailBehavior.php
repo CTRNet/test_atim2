@@ -130,9 +130,12 @@ class MasterDetailBehavior extends ModelBehavior {
 		if ( $is_master_model || $is_control_model ) {
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id), 'recursive' => 0));
-			$detail_model = new AppModel( array('table' => $associated[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class) );
+			$table = $associated[$control_class][$detail_field];
+			$alias = $detail_class.'_'.$table;//we must give a different alias for each table, otherwise saving over multiple controls might fail
+			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $alias, 'primaryKey' => $master_foreign) );
 			$detail_model->writable_fields_mode = $model->writable_fields_mode;
 			$detail_model->check_writable_fields = $model->check_writable_fields;
+			$detail_model->primaryKey = $master_foreign;
 			foreach($detail_model->actsAs as $key => $data){
 				if ( is_array($data) ) {
 					$behavior = $key;
@@ -157,17 +160,13 @@ class MasterDetailBehavior extends ModelBehavior {
 				$detail_model->Behaviors->$behavior->setup($detail_model,$config);
 			}
 			
-			// set ID (for edit, blank for add) and model object NAME/ALIAS for save
-			if(isset($associated[$detail_class]) && count($associated[$detail_class])){
-				$detail_model->id = $associated[$detail_class]['id'];
-			}
-			
+			$detail_model->id = $model->id;
 			$model->data[$detail_class][$master_foreign] = $model->id;
 			$detail_model->version_id = $model->version_id;
 			
 			// save detail DATA
 			if((isset($detail_model->id) && $detail_model->id && !$created) || $created){
-				$result = $detail_model->save($model->data, false);//validation should have already been done
+				$result = $detail_model->save($model->data[$detail_class], false);//validation should have already been done
 			}else{
 				$result = true;
 			}

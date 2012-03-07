@@ -1445,7 +1445,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$initial_display = false;
 		$parent_aliquots_ids = array();
 		if(empty($this->request->data)){ 
-			$this->redirect("/Pages/err_inv_no_data", null, true); 
+			$this->redirect("/Pages/err_no_data", null, true); 
 		} else if(isset($this->request->data[0]) && isset($this->request->data[0]['ids'])){ 
 			if($this->request->data[0]['realiquot_into'] == ''){
 				$this->flash(__("you must select an aliquot type"), "javascript:history.back();", 5);
@@ -1457,7 +1457,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$initial_display = false;
 			$parent_aliquots_ids = $this->request->data['ids'];			
 		} else {
-			$this->redirect("/Pages/err_inv_no_data", null, true); 
+			$this->redirect("/Pages/err_no_data", null, true); 
 		}
 		$this->set('parent_aliquots_ids', $parent_aliquots_ids);
 		
@@ -1647,7 +1647,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 								$errors[$field][$msg][] = $record_counter;
 							}
 						}
-
 						// Reset data to get position data
 						$child = $this->AliquotMaster->data;						
 
@@ -1720,7 +1719,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					
 					$this->AliquotMaster->writable_fields_mode = 'edit';
-					if(!$this->AliquotMaster->save(array('AliquotMaster' => $parent_data['AliquotMaster']), false)){
+
+					//clean data to prevent warnings
+					$to_save = array();
+					foreach(AppModel::$writable_fields['aliquot_masters']['edit'] as $field){
+						$to_save[$field] = $parent_data['AliquotMaster'][$field];
+					}
+					if(!$this->AliquotMaster->save(array('AliquotMaster' => $to_save), false)){
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 
@@ -1732,19 +1737,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 						unset($children['GeneratedParentAliquot']);
 						
 						// B- Save children aliquot data	
-						
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 						$this->AliquotMaster->writable_fields_mode = 'addgrid';
-						if(!$this->AliquotMaster->save($children, false)){ 
+						unset($children['AliquotMaster']['id']);
+						if(!$this->AliquotMaster->save($children, false)){
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
-
+						
 						$child_id = $this->AliquotMaster->getLastInsertId();
 						if(empty($aliquot_id)){
 							$new_aliquot_ids[] = $child_id;
 						}
-							
+													
 						// C- Save realiquoting data	
 						
 		  				$realiquoting_data['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
@@ -1772,8 +1777,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 					$batch_set_data = array('BatchSet' => array(
 						'datamart_structure_id' => $datamart_structure->getIdByModelName('ViewAliquot'),
-						'flag_tmp' => true 
+						'flag_tmp' => true
 					));
+					$batch_set_model->check_writable_fields = false;
 					$batch_set_model->saveWithIds($batch_set_data, $new_aliquot_ids);
 					$this->atimFlash(__('your data has been saved').'<br>'.__('aliquot storage data were deleted (if required)'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
@@ -1787,7 +1793,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->Realiquoting->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
-						$this->AliquotMaster->validationErrors[$field][] = __($msg) .(empty($aliquot_id)? ' - ' . str_replace('%s', implode(",", $lines), __('see # %s')) : '');					
+						//Counter cake2 issue and use AliquotDetail model for validationErrors
+						$this->AliquotDetail->validationErrors[$field][] = __($msg) .(empty($aliquot_id)? ' - ' . str_replace('%s', implode(",", $lines), __('see # %s')) : '');					
 					} 
 				}
 			}
@@ -1798,7 +1805,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$initial_display = false;
 		$parent_aliquots_ids = array();
 		if(empty($this->request->data)){ 
-			$this->redirect("/Pages/err_inv_no_data", null, true); 
+			$this->redirect("/Pages/err_no_data", null, true); 
 		} else if(isset($this->request->data[0]) && isset($this->request->data[0]['ids'])){ 
 			if($this->request->data[0]['realiquot_into'] == ''){
 				$this->flash(__("you must select an aliquot type"), "javascript:history.back();", 5);
@@ -1810,7 +1817,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$initial_display = false;
 			$parent_aliquots_ids = $this->request->data['ids'];			
 		} else {
-			$this->redirect("/Pages/err_inv_no_data", null, true); 
+			$this->redirect("/Pages/err_no_data", null, true); 
 		}
 		$this->set('parent_aliquots_ids', $parent_aliquots_ids);
 
