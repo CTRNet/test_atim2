@@ -1974,3 +1974,6 @@ table.structure.lineHighlight table.columns.index tbody tr:hover{
 .cell{
 	display: table-cell;
 }
+tr.chkLine, table.columns.index tbody tr.chkLine:nth-child(even){
+	background-color: #ff9;
+}
