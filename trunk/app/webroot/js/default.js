@@ -445,10 +445,12 @@ function initActions(){
 			parent = getParentElement(elem, "FORM");
 			$(elem).click(function(){
 				$(parent).find('input[type=checkbox]').prop("checked", true);
+				$(parent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
 				return false;
 			});
 			$(scope).find(".uncheckAll").click(function(){
 				$(parent).find('input[type=checkbox]').prop("checked", false);
+				$(parent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
 				return false;
 			});
 		}
@@ -1229,10 +1231,15 @@ function initActions(){
 	function checkboxIndexFunction(event){
 		if(event.originalEvent.shiftKey){
 			marking = true;
-			checked = $(event.srcElement).attr("checked");
+			checked = $(event.srcElement).attr("checked") == "checked";
 			markingFct = function(){
 				if(marking){
-					$(this).find("td.checkbox input[type=checkbox]").attr("checked", checked == "checked");
+					$(this).find("td.checkbox input[type=checkbox]").attr("checked", checked);
+					if(checked){
+						$(this).addClass("chkLine");
+					}else{
+						$(this).removeClass("chkLine");
+					}
 					if($(this).hasClass("checkboxIndexFunctionMark")){
 						marking = !marking;
 					}
@@ -1246,4 +1253,9 @@ function initActions(){
 		}
 		$(".checkboxIndexFunctionMark").removeClass("checkboxIndexFunctionMark");
 		$(event.srcElement).parents("tr:first").addClass("checkboxIndexFunctionMark");
+		if($(event.srcElement).attr("checked")){
+			$(event.srcElement).parents("tr:first").addClass("chkLine");
+		}else{
+			$(event.srcElement).parents("tr:first").removeClass("chkLine");
+		}
 	}
