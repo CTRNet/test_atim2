@@ -497,7 +497,7 @@ class Browser extends DatamartAppModel {
 					$title = __($cell['DatamartStructure']['display_name']);
 					$info = __($cell['BrowsingResult']['browsing_type']).' - '.AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
 					$cache_key = 'browsingNodeContent'.$lang.$cell['BrowsingResult']['id'];
-					if(!$content = Cache::read($cache_key)){
+					if(!$content = Cache::read($cache_key, 'browser')){
 						if($cell['BrowsingResult']['raw']){
 							$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
 							$adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array(); 
@@ -533,7 +533,7 @@ class Browser extends DatamartAppModel {
 							}
 						}
 						$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
-						Cache::Write($cache_key, $content);
+						Cache::Write($cache_key, $content, 'browser');
 					}
 					$controls = "<div class='controls'>%s</div>";
 					$link = $webroot_url."Datamart/Browser/browse/";

@@ -334,4 +334,5 @@ Cache::config('_cake_model_', array(
 
 	Cache::config('structures', array('engine' => 'File', 'path' => CACHE . "structures", 'duration' => '+1 year'));
 	Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'duration' => '+1 week'));
+	Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => '+1 week'));
 	Cache::config('default', array('engine' => 'File'));
