@@ -1238,11 +1238,6 @@ table.tree ul a {
 	padding-right: 0;
 	margin-right: 0;
 }
-td.id a.default {
-	display: inline-table;
-	width: 20px;
-	height: 20px;
-}
 td.id a.not_allowed {
 	display: inline-table;
 	text-indent: -1000px;

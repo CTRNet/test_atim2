@@ -1,7 +1,7 @@
 <?php
 class BrowserController extends DatamartAppController {
 	
-	static protected $tmp_browsing_limit = 5;
+	static $tmp_browsing_limit = 5;
 	
 	var $uses = array(
 		'Datamart.Adhoc',

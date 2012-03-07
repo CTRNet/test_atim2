@@ -41,10 +41,6 @@ class UsersController extends AppController {
 				$_SESSION['ctrapp_core']['warning_no_trace_msg'] = array();//init
 				$_SESSION['ctrapp_core']['warning_trace_msg'] = array();//init
 				$_SESSION['ctrapp_core']['info_msg'] = array();//init
-				
-				//flush tmp batch sets
-				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-				$batch_set_model->deleteCurrentUserTmp();
 			}
 			if(!$this->Session->read('search_id')){
 				$this->Session->write('search_id', 1);

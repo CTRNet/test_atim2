@@ -2,6 +2,8 @@
 
 class BatchSetsController extends DatamartAppController {
 	
+	static $tmp_batch_set_limit = 5;
+	
 	var $uses = array(
 		'Datamart.Adhoc', 
 		'Datamart.BatchSet', 
@@ -17,6 +19,17 @@ class BatchSetsController extends DatamartAppController {
 	);
 
 	function index($type_of_list='user'){
+		
+		//keep only the necessary tmp
+		$tmp_batch = $this->BatchSet->find('all', array('conditions' => array('BatchSet.user_id' => $_SESSION['Auth']['User']['id'], 'BatchSet.flag_tmp' => true), 'order' => array('BatchSet.created DESC')));
+		while(count($tmp_batch) > self::$tmp_batch_set_limit){
+			$batch = array_pop($tmp_batch);
+			$this->BatchSet->delete($batch['BatchSet']['id']);
+		}
+		$this->BatchSet->completeData($tmp_batch);
+		$this->set('tmp_batch', $tmp_batch);
+		
+		
 		$batch_set_filter = array();
 		$this->set( 'atim_menu_variables',  array("Param.Type_Of_List" => $type_of_list));
 		
@@ -164,9 +177,10 @@ class BatchSetsController extends DatamartAppController {
 					$criteria[$datamart_structure['control_master_model'].".".$this->ModelToSearch->getControlForeign()] = $results[0][$datamart_structure['model']][$this->ModelToSearch->getControlForeign()];
 					
 					$batch_set['BatchSet']['model'] = $datamart_structure['control_master_model'];
+					$prev_pkey = $this->ModelToSearch->primaryKey; 
 					$this->ModelToSearch = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
 					$atim_structure_for_results = $this->Structures->get('form', $alternate_info['form_alias']);
-					$batch_set['BatchSet']['form_links_for_results'] = Browser::updateIndexLink($batch_set['BatchSet']['form_links_for_results'], $datamart_structure['model'], $datamart_structure['control_master_model'], $this->ModelToSearch->primaryKey, "id");
+					$batch_set['BatchSet']['form_links_for_results'] = Browser::updateIndexLink($batch_set['BatchSet']['form_links_for_results'], $datamart_structure['model'], $datamart_structure['control_master_model'], $prev_pkey, $this->ModelToSearch->primaryKey);
 					$batch_set['BatchSet']['form_links_for_results'] = substr($batch_set['BatchSet']['form_links_for_results'], strpos($batch_set['BatchSet']['form_links_for_results'], '/'));
 					$batch_set['BatchSet']['lookup_key_name'] = 'id';
 				}
@@ -422,6 +436,8 @@ class BatchSetsController extends DatamartAppController {
 		if ( !empty($this->request->data) ) {
 			$this->BatchSet->id = $batch_set_id;
 			$this->request->data['BatchSet']['flag_tmp'] = false;
+			$this->BatchSet->addWritableField('flag_tmp');
+			unset($this->request->data['BatchSet']['created_by']);
 			if ( $this->BatchSet->save($this->request->data) ){
 				$this->atimFlash( 'your data has been updated','/Datamart/BatchSets/listall/'.$batch_set_id );
 			}
@@ -439,7 +455,7 @@ class BatchSetsController extends DatamartAppController {
 	}
 	
 	function delete($batch_set_id=0){
-		$batch_set = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
+		$batch_set = $this->BatchSet->getOrRedirect($batch_set_id);
 		if(!$this->BatchSet->isUserAuthorizedToRw($batch_set, true)) {
 			return;
 		}
@@ -563,6 +579,18 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->set($batch_set);
 			$this->BatchSet->save();
 			$this->atimFlash('your data has been updated','/Datamart/BatchSets/listall/'.$batch_set_id);
+		}
+	}
+	
+	function save($batch_id){
+		$batch_set = $this->BatchSet->getOrRedirect($batch_id);
+		if($batch_set['BatchSet']['user_id'] == $this->Session->read('Auth.User.id')){
+			$this->BatchSet->check_writable_fields = false;
+			$this->BatchSet->id = $batch_id;
+			$this->BatchSet->save(array('flag_tmp' => 0));
+			$this->atimFlash('your data has been updated', "/Datamart/BatchSets/index");
+		}else{
+			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
 		}
 	}
 }
