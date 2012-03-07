@@ -1,20 +1,4 @@
 <?php 
-	
-	$add_links = array();
-	$filter_links = array();
-	foreach ( $treatment_controls as $treatment_control ) {
-		$trt_header = __($treatment_control['TreatmentControl']['disease_site']) . ' - ' . __($treatment_control['TreatmentControl']['tx_method']);
-		$add_links[$trt_header] = '/ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
-		$filter_links[$trt_header] = '/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/'.$treatment_control['TreatmentControl']['id'];
-	}
-	if(empty($add_links)){
-		$add_links = '/underdev/';
-	}else{
-		ksort($add_links);
-	}
-	ksort($filter_links);
-	$filter_links['no filter'] = '/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/';
-	
 	$structure_links = array(
 		'index'=>array(
 			'detail'=>'/ClinicalAnnotation/TreatmentMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%TreatmentMaster.id%%/'
@@ -35,4 +19,3 @@
 	}
 	$this->Structures->build( $final_atim_structure, $final_options );
 	
-?>
