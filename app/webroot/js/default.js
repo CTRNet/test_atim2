@@ -1022,7 +1022,8 @@ function initActions(){
 		}).delegate("a.delete:not(.noPrompt)", "click", openDeleteConfirmPopup
 		).delegate(".reveal.notFetched", "click", treeViewNodeClick
 		).delegate(".sectionCtrl", "click", sectionCtrl
-		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick);
+		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick
+		).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction);
 		
 		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
@@ -1223,4 +1224,26 @@ function initActions(){
 		
 		flyOverSubmit();
 		return false;
+	}
+	
+	function checkboxIndexFunction(event){
+		if(event.originalEvent.shiftKey){
+			marking = true;
+			checked = $(event.srcElement).attr("checked");
+			markingFct = function(){
+				if(marking){
+					$(this).find("td.checkbox input[type=checkbox]").attr("checked", checked == "checked");
+					if($(this).hasClass("checkboxIndexFunctionMark")){
+						marking = !marking;
+					}
+				}
+			}; 
+			if($(event.srcElement).parents("tr:first").nextAll(".checkboxIndexFunctionMark").length){
+				$(event.srcElement).parents("tr:first").nextAll().each(markingFct);
+			}else if($(event.srcElement).parents("tr:first").prevAll(".checkboxIndexFunctionMark").length){
+				$(event.srcElement).parents("tr:first").prevAll().each(markingFct);
+			}
+		}
+		$(".checkboxIndexFunctionMark").removeClass("checkboxIndexFunctionMark");
+		$(event.srcElement).parents("tr:first").addClass("checkboxIndexFunctionMark");
 	}
