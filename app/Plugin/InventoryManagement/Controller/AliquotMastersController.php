@@ -101,7 +101,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}		
 		
 		// Manage structure and menus
-		
+		$this->AliquotMaster;//lazy load
 		foreach($init_data['possibilities'] as $possibility){
 			AliquotMaster::$aliquot_type_dropdown[$possibility['AliquotControl']['id']] = __($possibility['AliquotControl']['aliquot_type']);
 		}

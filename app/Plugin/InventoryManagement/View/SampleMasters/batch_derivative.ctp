@@ -41,11 +41,11 @@ $options = array(
 
 $options_parent = array_merge($options, array(
 	"type" => "edit",
-	"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false)));
+	"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false, 'section_start' => true)));
 
 $options_children = array_merge($options, array(
 	"type" => "addgrid",
-	"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, 'language_heading' => __('derivatives')),
+	"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, 'language_heading' => __('derivatives'), 'section_end' => true),
 	"override"	=> $created_sample_override_data,
 	"dropdown_options" => array('DerivativeDetail.lab_book_master_id' => (isset($lab_books_list) && (!empty($lab_books_list)))? $lab_books_list: array('' => ''))));
 

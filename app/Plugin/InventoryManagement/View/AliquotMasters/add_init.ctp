@@ -3,7 +3,7 @@
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type' => 'add', 
-		'settings' => array('header' => __('aliquot creation batch process') . ' - ' . __('aliquot type selection')),
+		'settings' => array('header' => __('aliquot creation batch process') . ' - ' . __('aliquot type selection'), 'stretch' => false),
 		'links' => array(
 			'top' => '/InventoryManagement/AliquotMasters/add/',
 			'bottom' => array('cancel' => $url_to_cancel)),
