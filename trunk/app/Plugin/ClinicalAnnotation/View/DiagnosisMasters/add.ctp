@@ -1,6 +1,6 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/DiagnosisMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['DiagnosisMaster.parent_id'].'/'.$atim_menu_variables['tableId'].'/',
+		'top'=>'/ClinicalAnnotation/DiagnosisMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['tableId'].'/'.$atim_menu_variables['DiagnosisMaster.parent_id'].'/',
 		'bottom'=>array(
 			'cancel'=>'/ClinicalAnnotation/DiagnosisMasters/listall/'.$atim_menu_variables['Participant.id'].'/'
 		)

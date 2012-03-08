@@ -8,7 +8,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		'ClinicalAnnotation.DiagnosisControl',
 		'ClinicalAnnotation.Participant',
 		'ClinicalAnnotation.TreatmentMaster',
+		'ClinicalAnnotation.TreatmentControl',
 		'ClinicalAnnotation.EventMaster',
+		'ClinicalAnnotation.EventControl',
 		'CodingIcd.CodingIcd10Who',
 		'CodingIcd.CodingIcd10Ca',
 		'CodingIcd.CodingIcdo3Topo',//required by model
@@ -64,6 +66,8 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.flag_active' => 1))));
+		$this->set('treatment_controls_list', $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => 1))));
+		$this->set('event_controls_list', $this->EventControl->find('all', array('conditions' => array('EventControl.flag_active' => 1))));
 		$this->set('is_ajax', $is_ajax);
 		$atim_structure['DiagnosisMaster'] = $this->Structures->get('form', 'view_diagnosis'); 
 		$atim_structure['TreatmentMaster'] = $this->Structures->get('form', 'treatmentmasters'); 
@@ -145,6 +149,21 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		AppController::buildBottomMenuOptions($links);
 		$this->set('child_controls_list', $links);
 		
+		$can_have_child = $this->DiagnosisMaster->find('all', array(
+				'fields' => array('DiagnosisMaster.id'),
+				'conditions' => array('DiagnosisControl.category' => array('primary', 'secondary'), 'DiagnosisMaster.participant_id' => $participant_id),
+				'recursive' => 0
+		));
+		$can_have_child = AppController::defineArrayKey($can_have_child, 'DiagnosisMaster', 'id', true);
+		$can_have_child = array_keys($can_have_child);
+		$this->set('can_have_child', $can_have_child);
+		$this->set('diagnosis_controls_list', $this->DiagnosisControl->find('all', array('conditions' => array('DiagnosisControl.flag_active' => 1))));
+		$this->set('treatment_controls_list', $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => 1))));
+		$this->set('event_controls_list', $this->EventControl->find('all', array('conditions' => array('EventControl.flag_active' => 1))));
+		$this->set('is_ajax', $this->request->is('ajax'));
+		$this->set('diagnosis_master_id', $diagnosis_master_id);
+		$this->set('is_secondary', is_numeric($dx_master_data['DiagnosisMaster']['parent_id']));
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
@@ -157,15 +176,9 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 				EventMaster::generateDxCompatWarnings($this->request->data, $event_data);
 			}
 		}
-		
-		$event_control_model = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
-		$this->set('event_controls', $event_control_model->find('all', array('conditions' => array('EventControl.flag_active' => 1))));
-		
-		$tx_control = AppModel::getInstance('ClinicalAnnotation', 'TreatmentControl', true);
-		$this->set('tx_add_links', $tx_control->getAddLinks($participant_id, $diagnosis_master_id));
 	}
 
-	function add( $participant_id, $parent_id, $dx_control_id){
+	function add( $participant_id, $dx_control_id, $parent_id){
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$dx_ctrl = $this->DiagnosisControl->getOrRedirect($dx_control_id);

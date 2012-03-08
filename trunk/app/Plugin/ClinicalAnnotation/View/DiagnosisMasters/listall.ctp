@@ -65,7 +65,7 @@
 		$add_links = array();
 		foreach ($diagnosis_controls_list as $diagnosis_control){
 			if($diagnosis_control['DiagnosisControl']['category'] == 'primary'){
-				$add_links[__($diagnosis_control['DiagnosisControl']['controls_type'])] = '/ClinicalAnnotation/DiagnosisMasters/add/'.$atim_menu_variables['Participant.id'].'/0/'.$diagnosis_control['DiagnosisControl']['id'].'/';
+				$add_links[__($diagnosis_control['DiagnosisControl']['controls_type'])] = '/ClinicalAnnotation/DiagnosisMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$diagnosis_control['DiagnosisControl']['id'].'/0/';
 			}
 		}
 		ksort($add_links);
@@ -100,88 +100,5 @@
 	$this->Structures->build( $final_atim_structure, $final_options );
 	
 	if(!$is_ajax){
-		$options = array();
-		$secondary_ctrl_id = 0;
-		foreach($diagnosis_controls_list as $dx_ctrl){
-			if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
-				$options[$dx_ctrl['DiagnosisControl']['id']] = __($dx_ctrl['DiagnosisControl']['category']) . ' - ' .__($dx_ctrl['DiagnosisControl']['controls_type']);		
-				if($dx_ctrl['DiagnosisControl']['category'] == 'secondary'){
-					$secondary_ctrl_id = $dx_ctrl['DiagnosisControl']['id'];
-				}
-			}
-		}
-		
-		$hook_link = $this->Structures->hook('after_ids_groups');
-		if( $hook_link ) { 
-			require($hook_link); 
-		}
-		
-		?>
-		<div id="popupSelect" class="hidden">
-			<?php
-			echo $this->Form->input("data[DiagnosisControl][id]", array('type' => 'select', 'label' => false, 'options' => array())); 
-			?>
-		</div>
-		
-		
-		<script>
-		var canHaveChild = [<?php echo implode(", ", $can_have_child); ?>];
-		var dropdownOptions = "<?php echo addslashes(json_encode($options)); ?>";
-		var secondaryCtrlId = <?php echo $secondary_ctrl_id; ?>;
-
-		function addPopup(diagnosis_master_id){
-			if($("#addPopup").length == 0){
-				buildDialog("addPopup", "Select a type to add", "<div id='target'></div>", new Array(
-					{"label" : STR_CANCEL, "icon" : "cancel", "action" : function(){ $("#addPopup").popup("close"); }}, 
-					{ "label" : STR_OK, "icon" : "add", "action" : function(){ document.location = root_url + 'ClinicalAnnotation/DiagnosisMasters/add/<?php echo $atim_menu_variables['Participant.id'] ; ?>/' + $("#addPopup").data("dx_id") + '/' + $("#addPopup select").val() + '/' } }));
-				$("#popupSelect").appendTo("#target").show();
-			}
-
-			$("a.form.add").each(function(){
-				if($(this).prop("href").indexOf("javascript:addPopup(") == 0){
-					//remove add button for "unknown" nodes
-					if(parseInt($(this).prop("href").substr(20, $(this).prop("href").length - 22)) == diagnosis_master_id){
-						//found the right one
-						var parentUl = getParentElement(this, "UL");
-						var options = "";
-						if($(parentUl).hasClass("tree_root")){
-							//full options dropdown
-							for(i in dropdownOptions){
-								options += "<option value='" + i + "'>" + dropdownOptions[i] + "</option>";
-							}
-						}else{
-							//options without secondary
-							for(i in dropdownOptions){
-								if(i != secondaryCtrlId){
-									options += "<option value='" + i + "'>" + dropdownOptions[i] + "</option>";
-								}
-							}
-						}
-						$("#data\\[DiagnosisControl\\]\\[id\\]").html(options);
-					}
-				}
-			});
-			
-			$("#addPopup").data("dx_id", diagnosis_master_id).popup();
-		}
-
-		function initTree(section){
-			$("a.form.add").each(function(){
-				if($(this).prop("href").indexOf("javascript:addPopup(") == 0){
-					//remove add button for "unknown" nodes
-					var id = $(this).prop("href").substr(20, $(this).prop("href").length - 22);
-					if($.inArray(parseInt(id), canHaveChild) == -1){
-						$(this).hide();
-					}
-				}
-			});
-		}
-
-		function initPage(){
-			dropdownOptions = $.parseJSON(dropdownOptions);
-			initTree($("body"));
-		}
-		</script>
-		
-		<?php  
+		require('add_popup.php');  
 	}
