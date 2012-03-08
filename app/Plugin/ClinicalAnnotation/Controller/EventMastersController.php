@@ -85,7 +85,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function add( $event_group, $participant_id, $event_control_id) {
+	function add( $event_group, $participant_id, $event_control_id, $diagnosis_master_id = null) {
 		// MANAGE DATA
 
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
@@ -95,6 +95,8 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
 		if(!empty($this->request->data) && isset($this->request->data['EventMaster']['diagnosis_master_id'])){
 			$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $this->request->data['EventMaster']['diagnosis_master_id'], 'EventMaster');
+		}else if($diagnosis_master_id){
+			$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'EventMaster');
 		}
 		$this->set('data_for_checklist', $dx_data);	
 

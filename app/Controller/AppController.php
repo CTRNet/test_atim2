@@ -15,6 +15,8 @@ class AppController extends Controller {
 	private static $cal_info_short_translated = false;
 	private static $cal_info_long_translated = false;
 	
+	static $highlight_missing_translations = true;
+	
 	function beforeFilter() {
 		setcookie('last_request', time(), time()+60*60*24, '/');
 		App::uses('Sanitize', 'Utility');
@@ -103,7 +105,7 @@ class AppController extends Controller {
 	static function missingTranslation(&$word){
 		if(!is_numeric($word) && strpos($word, "<span class='untranslated'>") === false){
 			AppController::$missing_translations[] = $word;
-			if(Configure::read('debug') == 2){
+			if(Configure::read('debug') == 2 && self::$highlight_missing_translations){
 				$word = "<span class='untranslated'>".$word."</span>";
 			}
 		}
@@ -504,11 +506,10 @@ class AppController extends Controller {
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
 	 */
 	static function atimSetCookie(){
-//TODO: is it gone in cake 2?
-// 		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
-// 		if(isset($_COOKIE[Configure::read("Session.cookie")])){
-// 			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], time() + $session_delay, "/");
-// 		}
+		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
+		if(isset($_COOKIE[Configure::read("Session.cookie")])){
+			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], time() + $session_delay, "/");
+		}
 	}
 	
 	/**

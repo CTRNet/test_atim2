@@ -4,10 +4,8 @@
 			'edit'=>'/ClinicalAnnotation/DiagnosisMasters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'delete'=>'/ClinicalAnnotation/DiagnosisMasters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'list'=>'/ClinicalAnnotation/DiagnosisMasters/listall/%%DiagnosisMaster.participant_id%%/',
-			'add diagnosis' => null,
-			'add event' => null,
 			'redefine unknown primary' => '/underdevelopment/',
-			'add treatment' => $tx_add_links
+			'add'	=> 'javascript:addPopup('.$diagnosis_master_id.', '.($is_secondary ? '1' : '0').');'
 		)
 	);
 	
@@ -22,11 +20,11 @@
 		unset($structure_links['bottom']['redefine unknown primary']);
 	}
 	
-	if(isset($child_controls_list) && !empty($child_controls_list)) {
-		$structure_links['bottom']['add diagnosis'] = $child_controls_list;
-	} else {
-		unset($structure_links['bottom']['add diagnosis']);
-	}
+// 	if(isset($child_controls_list) && !empty($child_controls_list)) {
+// 		$structure_links['bottom']['add diagnosis'] = $child_controls_list;
+// 	} else {
+// 		unset($structure_links['bottom']['add diagnosis']);
+// 	}
 	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
@@ -40,4 +38,7 @@
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
-?>
+	
+	if(!$is_ajax){
+		require('add_popup.php');
+	}
