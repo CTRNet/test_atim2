@@ -6,6 +6,7 @@ $child = array();
 $master_fields = array(
 	"diagnosis_control_id" => "#diagnosis_control_id",
 	"participant_id" => "#participant_id",
+
 //	"primary_id" => "#primary_id",
 //	"parent_id" => "#parent_id",
 //	"age_at_dx" => "Age au Dx",
@@ -14,6 +15,9 @@ $master_fields = array(
 	"path_tstage" => "T",
 	"path_nstage" => "N",
 	"path_mstage" => "M",
+
+
+	"chus_uncertain_dx" => "#chus_uncertain_dx",
 
 	"notes" => "#notes"
 );
@@ -95,8 +99,6 @@ $detail_fields = array(
 	"right_ovary_fibrothecoma" => array(utf8_decode("Morphologie Ov DROIT::Fibrothécale") => array(""=>""," "=>"","x"=>"y")),
 	"right_ovary_polycystic" => array("Morphologie Ov DROIT::Polykystique" => array(""=>""," "=>"","x"=>"y")),
 	"right_ovary_inclusion_cyst" => array("Morphologie Ov DROIT::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y")),
-
-	"uncertain_dx" => "#uncertain_dx"
 );
 
 //see the Model class definition for more info
@@ -201,7 +203,7 @@ function postOvaryDiagnosesRead(Model $m){
 
 	// 4- SET DX DATA & CONTROL DATA
 	
-	$ov_dx_data_exist = false;
+	$ov_dx_data_exist = array();
 	
 	// field: 'STADE (1-4)'
 	
@@ -209,7 +211,8 @@ function postOvaryDiagnosesRead(Model $m){
 	if(strlen($m->values['T']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' value  [".$m->values['T']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
 	if(strlen($m->values['N']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' value  [".$m->values['N']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
 	if(strlen($m->values['M']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' value  [".$m->values['M']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(doesValueExist($m->values['STADE (1-4)']) || doesValueExist($m->values['T']) || doesValueExist($m->values['N']) || doesValueExist($m->values['M'])) $ov_dx_data_exist = true;
+	if(doesValueExist($m->values['STADE (1-4)'])) $ov_dx_data_exist['stade'] = 'stade';
+	if(doesValueExist($m->values['T']) || doesValueExist($m->values['N']) || doesValueExist($m->values['M'])) $ov_dx_data_exist['TNM'] = 'TNM';
 	
 	// field: 'atcd'
 	
@@ -220,13 +223,13 @@ function postOvaryDiagnosesRead(Model $m){
 		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^oui$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
 		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^non$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
 	}
-	if(($m->values["atcd"] == 'y') || doesValueExist($m->values["ATCD Cancer de l'ovaire (oui/non)"])) $ov_dx_data_exist = true;
+	if(($m->values["atcd"] == 'y') || doesValueExist($m->values["ATCD Cancer de l'ovaire (oui/non)"])) $ov_dx_data_exist['ATCD'] = 'ATCD';
 	
 	// fields : 'Morphologie Ov %'
 	
 	foreach($m->values as $field => $value) {
-		if(doesValueExist($value)) $ov_dx_data_exist = true;
 		if(preg_match('/^(Morphologie Ov )(DROIT|GAUCHE)::/',$field,$matches)) {
+			if(doesValueExist($value)) $ov_dx_data_exist['Morpho'] = 'Morpho';
 			if(preg_match('/^(x )(.+)$/',$value,$matches)) {
 				$m->values[$field] = 'x';		
 				$m->values['notes'] .= str_replace('::',' - ', utf8_encode($field)).' : '.utf8_encode($matches[2]).' // ';
@@ -317,7 +320,7 @@ function postOvaryDiagnosesRead(Model $m){
 		}
 		
 //		if($uncertain_dx) Config::$summary_msg['@@MESSAGE@@']["Uncertain diagnostics"][] = "All diagnostic of the line will be defined as uncertain! [Line: ".$m->line.']';
-		$m->values['uncertain_dx'] = ($uncertain_dx? 'y':'');
+		$m->values['chus_uncertain_dx'] = ($uncertain_dx? 'y':'');
 		
 		// b- Diagnostic Ovaire
 		
@@ -344,11 +347,12 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	$left_ovary_dx_nature_data = getFinalOvaryNatureData($all_dx_left_ov, 'GAUCHE', $m);
 	$right_ovary_dx_nature_data = getFinalOvaryNatureData($all_dx_right_ov, 'DROIT', $m);
-	
+
 	$left_ovary_dx_nature = $left_ovary_dx_nature_data['nature'];
-	$m->values['left_ovary_dx_nature'] = $left_ovary_dx_nature;
 	$right_ovary_dx_nature = $right_ovary_dx_nature_data['nature'];
-	$m->values['right_ovary_dx_nature'] = $right_ovary_dx_nature;
+
+	$m->values['left_ovary_dx_nature'] = $left_ovary_dx_nature;
+	$m->values['right_ovary_dx_nature'] =  $right_ovary_dx_nature;
 	
 	$ovary_dx_nature_notes = $left_ovary_dx_nature_data['notes'].((!empty($left_ovary_dx_nature_data['notes']) && !empty($right_ovary_dx_nature_data['notes']))? ' // ' : ''). $right_ovary_dx_nature_data['notes'];
 	if(!empty($ovary_dx_nature_notes)) $m->values['notes'] .= $ovary_dx_nature_notes.' // ';
@@ -392,21 +396,18 @@ function postOvaryDiagnosesRead(Model $m){
 				$parent_ids = createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
 				if(sizeof($parent_ids) == 1) {
 					$m->values['parent_id'] = $parent_ids[0];
-					$m->values['primary_id'] = $parent_ids[0];
 				} else {
 					if(sizeof($parent_ids)) {
 						Config::$summary_msg['@@WARNING@@']["Many primaries & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but more than one primary is defined (using 'Sites cancer primaire' columns)! Unable to define the primary of the ovarian secondary so created unknown primary diagnosis! [Line: ".$m->line.']';
 						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
 						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
 						$m->values['parent_id'] = $parent_ids[0];
-						$m->values['primary_id'] = $parent_ids[0];
 												
 					} else {
 						Config::$summary_msg['@@MESSAGE@@']["Unknonw Primary & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but no primary is defined (using 'Sites cancer primaire' columns)! Created unknown primary of the ovarian secondary! [Line: ".$m->line.']';
 						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
 						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
 						$m->values['parent_id'] = $parent_ids[0];
-						$m->values['primary_id'] = $parent_ids[0];
 					}
 				}
 			}
@@ -414,19 +415,30 @@ function postOvaryDiagnosesRead(Model $m){
 		
 		case '':	
 		case 'normal':
-			if($ov_dx_data_exist) Config::$summary_msg['@@WARNING@@']['Diagnostic Data exist for normal ovary'][] = "Ovary defined as normal but diagnosis data exists and won't be recorded! Check stade, TNM, ATCD and morpho values. [Line: ".$m->line.']';
-			if(empty($primary_tumors)) {
-				if($uncertain_dx) Config::$summary_msg['@@WARNING@@']['Uncertain fields & No tumor'][] = "The field 'Site cancer primaire::Incertain' is checked but no diagnostic will be created in the system! This information won't be recored! [Line: ".$m->line.']';
-			} else {
-				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
-			}
-			return false;
+			if(array_key_exists('ovary', $primary_tumors)) {
+				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
+				Config::$summary_msg['@@MESSAGE@@']["Ovary tumor undefined by 'Diagnostique OVAIRE' columns"][] = "The ovary primary tumor is just defined in 'Site cancer primaire::Ovaire' column. Primary ovary will be created (".(empty($ov_dx_data_exist)? 'with no ovary dx data [Stade, TNM, Morpho, ATCD]' : 'includin existing ovary dx data ['. implode(",", $ov_dx_data_exist).']').")! [Line: ".$m->line.']';
+				unset($primary_tumors['ovary']);
+				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);				
 
+			} else {
+				// No Ovary tumor to create
+				Config::$summary_msg['@@MESSAGE@@']['Patient with no Ovary Diagnosis'][] = ".... [Line: ".$m->line.']';						
+				if(!empty($ov_dx_data_exist)) Config::$summary_msg['@@WARNING@@']['Ovary Diagnostic Data & No Ovary Dx'][] = "No Ovary Diagnosis will be created but diagnosis data exists into the file and won't be recorded! Check ". implode(",", $ov_dx_data_exist)." values. [Line: ".$m->line.']';
+				if(empty($primary_tumors)) {
+					if($uncertain_dx) Config::$summary_msg['@@WARNING@@']['Uncertain fields & No tumor'][] = "The field 'Site cancer primaire::Incertain' is checked but no diagnostic will be created in the system! This information won't be recored! [Line: ".$m->line.']';
+				} else {
+					createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
+				}
+				return false;				
+			}
+			break;
+			
 		default:
 			die('ERR 99849944 : ['.$ovary_dx_from_natures.']');
 	}
 
-////TODO definir le diag lié a la collection
+//TODO definir le diag lié a la collection
 	
 	// 6- NOTES CLEAN UP
 	
@@ -436,10 +448,14 @@ function postOvaryDiagnosesRead(Model $m){
 }
 
 function postOvaryDiagnosesWrite(Model $m){
-
-}
-
-function postDiagnosisWrite(Model $m){
+	global $connection;
+	
+	if(isset($m->values['parent_id'])) {
+		$query = "UPDATE diagnosis_masters SET parent_id = ".$m->values['parent_id']." WHERE id = ".$m->last_id.";";
+		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
+		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	}
 
 }
 
@@ -498,12 +514,11 @@ function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
 		$master_fields = array(
 			"diagnosis_control_id" => Config::$diagnosis_controls['primary'][$tumor_site]['diagnosis_control_id'],
 			"participant_id" => $m->values['participant_id'],
+			"chus_uncertain_dx" => ($uncertain_dx? "'y'" : "''"),
+			"icd10_code" => (($tumor_site == 'primary diagnosis unknown')? "'D489'" : "''"),
 			"notes" => "'$notes'"
 		);
-		if($tumor_site == 'primary diagnosis unknown') $detail_fields["icd10_code"] = "'D489'";
 		$diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
-		$detail_fields = array("diagnosis_master_id" => $diagnosis_master_id);	
-		if($tumor_site != 'primary diagnosis unknown' ) $detail_fields["uncertain_dx"] = ($uncertain_dx? "'y'" : "''");
 		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['primary'][$tumor_site]['detail_tablename'], true);
 		
 		$diagnosis_master_ids[] = $diagnosis_master_id;
