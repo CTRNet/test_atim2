@@ -367,35 +367,19 @@ UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id 
 
 INSERT INTO i18n (id,en,fr) VALUES ('insufficient accuracy of the dates','Insufficient accuracy of the dates!','Précision des dates insuffisantes!');
 
-ALTER TABLE dxd_primaries
-	ADD COLUMN uncertain_dx char(1) DEFAULT '',
-	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
-ALTER TABLE chus_dxd_ovaries
-	ADD COLUMN uncertain_dx char(1) DEFAULT '',
-	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
-ALTER TABLE chus_dxd_breasts
-	ADD COLUMN uncertain_dx char(1) DEFAULT '',
-	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
-ALTER TABLE dxd_primaries_revs
-	ADD COLUMN uncertain_dx char(1) DEFAULT '',
-	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
-ALTER TABLE chus_dxd_ovaries_revs
-	ADD COLUMN uncertain_dx char(1) DEFAULT '',
-	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
-ALTER TABLE chus_dxd_breasts_revs
-	ADD COLUMN uncertain_dx char(1) DEFAULT '',
-	ADD COLUMN uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE diagnosis_masters
+	ADD COLUMN chus_uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN chus_uncertain_dx_description varchar(250) DEFAULT '';
+ALTER TABLE diagnosis_masters_revs
+	ADD COLUMN chus_uncertain_dx char(1) DEFAULT '',
+	ADD COLUMN chus_uncertain_dx_description varchar(250) DEFAULT '';
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'DiagnosisDetail', '', 'uncertain_dx', 'yes_no',  NULL , '0', '', '', '', 'uncertain dx', ''), 
-('Clinicalannotation', 'DiagnosisDetail', '', 'uncertain_dx_description', 'input',  NULL , '0', 'size=30', '', '', 'uncertain dx description', '');
+('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'chus_uncertain_dx', 'yes_no',  NULL , '0', '', '', '', 'uncertain dx', ''), 
+('Clinicalannotation', 'DiagnosisMaster', 'diagnosis_masters', 'chus_uncertain_dx_description', 'input',  NULL , '0', 'size=30', '', '', '', 'uncertain dx description');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='uncertain dx' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx_description' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='uncertain dx description' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
-
-UPDATE structure_fields SET  `language_label`='',  `language_tag`='uncertain dx description' WHERE model='DiagnosisDetail' AND tablename='' AND field='uncertain_dx_description' AND `type`='input' AND structure_value_domain  IS NULL ;
-UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='' AND `field`='uncertain_dx_description' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='chus_uncertain_dx'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='chus_uncertain_dx_description'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 INSERT INTO i18n (id,en,fr) VALUES ('uncertain dx','Uncertain Dx','Diag. incertain'),('uncertain dx description','Details','Détails');
 
@@ -434,6 +418,10 @@ INSERT INTO `diagnosis_controls`
 
 INSERT INTO `i18n` (`id`, `en`, `fr`) VALUES ('ureter','Ureter','Uretère');
 
-
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
+(SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
+(SELECT id FROM structure_permissible_values WHERE value="metastatic" AND language_alias="metastatic"), "4", "1");
 
 
