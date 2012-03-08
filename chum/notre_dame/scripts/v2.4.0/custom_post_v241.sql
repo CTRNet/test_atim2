@@ -248,6 +248,14 @@ ALTER TABLE consent_masters_revs
 
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_icm_frsq') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_icm_generics' AND `field`='research_other_disease' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+# executed on 2012-03-02
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='' AND `field`='position_into_run' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='' AND `field`='chip_model' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_chip_model') AND `flag_confidential`='0');
+ 
+UPDATE structure_permissible_values SET language_alias='qiagen rneasy kit' WHERE id=1036;
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("TissueRuptor et Rneasy kit", "tissueruptor et rneasy kit");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_rna_extraction_method"), (SELECT id FROM structure_permissible_values WHERE value="TissueRuptor et Rneasy kit" AND language_alias="tissueruptor et rneasy kit"), "7", "1"); 
+ 
 -- ---------------------------------------------------------------------------------------------------------------
 -- Following section already executed on server 2012-03-06
 -- ---------------------------------------------------------------------------------------------------------------
