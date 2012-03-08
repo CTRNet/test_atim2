@@ -1025,7 +1025,8 @@ function initActions(){
 		).delegate(".reveal.notFetched", "click", treeViewNodeClick
 		).delegate(".sectionCtrl", "click", sectionCtrl
 		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick
-		).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction);
+		).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction
+		).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction);
 		
 		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
@@ -1228,10 +1229,16 @@ function initActions(){
 		return false;
 	}
 	
-	function checkboxIndexFunction(event){
-		if(event.originalEvent.shiftKey){
+	/**
+	 * When a checkbox is checked/unchecked, toggles line coloring. Support of shiftkey to select multiple lines.
+	 * @param event
+	 * @param orgEvent
+	 */
+	function checkboxIndexFunction(event, orgEvent){
+		var shiftKey = orgEvent ? false : event.originalEvent.shiftKey;
+		if(shiftKey){
 			marking = true;
-			checked = $(event.srcElement).attr("checked") == "checked";
+			checked = $(event.currentTarget).prop("checked");
 			markingFct = function(){
 				if(marking){
 					$(this).find("td.checkbox input[type=checkbox]").attr("checked", checked);
@@ -1245,17 +1252,30 @@ function initActions(){
 					}
 				}
 			}; 
-			if($(event.srcElement).parents("tr:first").nextAll(".checkboxIndexFunctionMark").length){
-				$(event.srcElement).parents("tr:first").nextAll().each(markingFct);
-			}else if($(event.srcElement).parents("tr:first").prevAll(".checkboxIndexFunctionMark").length){
-				$(event.srcElement).parents("tr:first").prevAll().each(markingFct);
+			if($(event.currentTarget).parents("tr:first").nextAll(".checkboxIndexFunctionMark").length){
+				$(event.currentTarget).parents("tr:first").nextAll().each(markingFct);
+			}else if($(event.currentTarget).parents("tr:first").prevAll(".checkboxIndexFunctionMark").length){
+				$(event.currentTarget).parents("tr:first").prevAll().each(markingFct);
 			}
 		}
 		$(".checkboxIndexFunctionMark").removeClass("checkboxIndexFunctionMark");
-		$(event.srcElement).parents("tr:first").addClass("checkboxIndexFunctionMark");
-		if($(event.srcElement).attr("checked")){
-			$(event.srcElement).parents("tr:first").addClass("chkLine");
+		$(event.currentTarget).parents("tr:first").addClass("checkboxIndexFunctionMark");
+		if(orgEvent ? !$(event.currentTarget).prop("checked") : $(event.currentTarget).prop("checked")){
+			$(event.currentTarget).parents("tr:first").addClass("chkLine");
 		}else{
-			$(event.srcElement).parents("tr:first").removeClass("chkLine");
+			$(event.currentTarget).parents("tr:first").removeClass("chkLine");
+		}
+		event.stopPropagation();
+	}
+	
+	/**
+	 * Clicking on a line with a checkbox will check/uncheck it. No suport for shiftKey.
+	 * @param event
+	 */
+	function checkboxIndexLineFunction(event){
+		if($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey){
+			//line clicked, toggle it's checkbox (don't support shift click, as it is for text selection
+			$(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [ event ]);
+			event.stopPropagation();
 		}
 	}
