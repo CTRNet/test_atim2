@@ -104,7 +104,7 @@ function addonFunctionEnd(){
 	
 	echo "<br><FONT COLOR=\"red\" >
 	=====================================================================<br>
-	addonFunctionEnd: CCL
+	PROCESS SUMMARY
 	<br>=====================================================================
 	</FONT><br>";
 	
