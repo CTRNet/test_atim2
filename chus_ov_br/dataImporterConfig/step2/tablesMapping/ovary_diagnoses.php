@@ -124,8 +124,8 @@ function postOvaryDiagnosesRead(Model $m){
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
 	
 	$frsq_nbr = str_replace(' ', '', utf8_encode($m->values['#FRSQ']));
-	$paticipant_id = isset(Config::$participant_id_from_frsq_nbr[$frsq_nbr])? Config::$participant_id_from_frsq_nbr[$frsq_nbr] : null;
-	if(!$paticipant_id)  {
+	$participant_id = isset(Config::$participant_id_from_frsq_nbr[$frsq_nbr])? Config::$participant_id_from_frsq_nbr[$frsq_nbr] : null;
+	if(!$participant_id)  {
 		$frsq_nbrs = preg_replace(array('/(\({0,1}voir)/i','/(\))/','/(\()/','/([A-Z]+)([0-9]+),([0-9]+)/'), array('-', '','-','$1$2-$1$3'), $frsq_nbr);
 		$frsq_nbrs = explode('-',$frsq_nbrs);
 		if(sizeof($frsq_nbrs) != 2) die('ERR 989388393 : Unable to match FRSQ#' .$m->values['#FRSQ']);
@@ -135,31 +135,31 @@ function postOvaryDiagnosesRead(Model $m){
 		
 		if($part_id_0) {
 			if($part_id_0 == $part_id_1) {
-				$paticipant_id = $part_id_0;
+				$participant_id = $part_id_0;
 			} else if(!$part_id_1) {
-				$paticipant_id = $part_id_0;
-				Config::$summary_msg['@@WARNING@@']['Participant With Many Ids #1'][] = "The FRSQ# '".$frsq_nbrs[1]."' has not beend recorded by Step1! Will assigned data to the other FRSQ# '".$frsq_nbrs[0]."'! [line: ".$m->line.']';
+				$participant_id = $part_id_0;
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant With Many Ids #1'][] = "The FRSQ# '".$frsq_nbrs[1]."' has not beend recorded by Step1! Will assigned data to the other FRSQ# '".$frsq_nbrs[0]."'! [line: ".$m->line.']';
 			} else {
-				Config::$summary_msg['@@ERROR@@']['Participant With Many Ids #2'][] = "The FRSQ#(s) '".$frsq_nbrs[0]."' & '".$frsq_nbrs[1]."' has beend assigned to the same participant in step2 but match 2 different participants in step 1! [line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['Participant With Many Ids #2'][] = "The FRSQ#(s) '".$frsq_nbrs[0]."' & '".$frsq_nbrs[1]."' has beend assigned to the same participant in step2 but match 2 different participants in step 1! [line: ".$m->line.']';
 				return false;
 			}
 		} else {
 			if($part_id_1) {
-				$paticipant_id = $part_id_1;
-				Config::$summary_msg['@@WARNING@@']['Participant With Many Ids #1'][] = "The FRSQ# '".$frsq_nbrs[0]."' has not beend recorded by Step1! [Will assigned data to the other FRSQ# '".$frsq_nbrs[1]."'! line: ".$m->line.']';
+				$participant_id = $part_id_1;
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant With Many Ids #1'][] = "The FRSQ# '".$frsq_nbrs[0]."' has not beend recorded by Step1! [Will assigned data to the other FRSQ# '".$frsq_nbrs[1]."'! line: ".$m->line.']';
 			} else {
-				Config::$summary_msg['@@ERROR@@']['Participant With Many Ids #3'][] = "The FRSQ#(s) '".$frsq_nbrs[0]."' & '".$frsq_nbrs[1]."' has beend assigned to the same participant in step2 but match no participant in step 1! [line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['Participant With Many Ids #3'][] = "The FRSQ#(s) '".$frsq_nbrs[0]."' & '".$frsq_nbrs[1]."' has beend assigned to the same participant in step2 but match no participant in step 1! [line: ".$m->line.']';
 				return false;
 			}
 		}
 	} 
-	$m->values['participant_id'] = $paticipant_id;
+	$m->values['participant_id'] = $participant_id;
 	
-	if(!isset(Config::$data_for_import_from_participant_id[$paticipant_id])) die('ERR 9983933');
-	if(Config::$data_for_import_from_participant_id[$paticipant_id]['data_imported_from_ov_file']) {
-		Config::$summary_msg['@@MESSAGE@@']['Participant & Many Rows #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has data recorded in many rows of the ovary bank file! Please check import deeply! [Line: ".$m->line.']';
+	if(!isset(Config::$data_for_import_from_participant_id[$participant_id])) die('ERR 9983933');
+	if(Config::$data_for_import_from_participant_id[$participant_id]['data_imported_from_ov_file']) {
+		Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Participant & Many Rows #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'])."] has data recorded in many rows of the ovary bank file! Please check import deeply! [Line: ".$m->line.']';
 	}
-	Config::$data_for_import_from_participant_id[$paticipant_id]['data_imported_from_ov_file'] = true;
+	Config::$data_for_import_from_participant_id[$participant_id]['data_imported_from_ov_file'] = true;
 	
 		// 2- CREATE CONSENT
 	
@@ -167,9 +167,9 @@ function postOvaryDiagnosesRead(Model $m){
 	if(empty($consent_date)) {
 		die('ERR empty consent date line '.$m->line);
 	}
-	if(isset(Config::$data_for_import_from_participant_id[$paticipant_id]['consent_date'])) {
-		if($consent_date != Config::$data_for_import_from_participant_id[$paticipant_id]['consent_date']) {
-			Config::$summary_msg['@@WARNING@@']['Participant & Many Consent Dates'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has different consent dates defined in many rows of the OV file! Only one consent will be created! [Line: ".$m->line.']';
+	if(isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_date'])) {
+		if($consent_date != Config::$data_for_import_from_participant_id[$participant_id]['consent_date']) {
+			Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant & Many Consent Dates'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'])."] has different consent dates defined in many rows of the OV file! Only one consent will be created! [Line: ".$m->line.']';
 		}
 	} else {
 		$master_fields = array(
@@ -177,28 +177,30 @@ function postOvaryDiagnosesRead(Model $m){
 			"participant_id" => $m->values['participant_id'],
 			"consent_status" => "'obtained'",
 			"status_date" => "'$consent_date'",
-			"consent_signed_date" => "'$consent_date'");
+			"status_date_accuracy" => "'c'",
+			"consent_signed_date" => "'$consent_date'",
+			"consent_signed_date_accuracy" => "'c'");
 		$consent_master_id = customInsertChusRecord($master_fields, 'consent_masters');
 		customInsertChusRecord(array('consent_master_id' => $consent_master_id), 'cd_nationals', true);
 		
-		Config::$data_for_import_from_participant_id[$paticipant_id]['consent_date'] = $consent_date;
+		Config::$data_for_import_from_participant_id[$participant_id]['consent_date'] = $consent_date;
 	}
 	
 	// 3- UPDATE PARTICIPANT BIRTH DATE
 	
 	$date_of_birth = customGetFormatedDate($m->values[utf8_decode('Date Naissance JJ-MM-AAAA')]);
 	if($date_of_birth) {
-		if(isset(Config::$data_for_import_from_participant_id[$paticipant_id]['date_of_birth'])) {
-			if($date_of_birth != Config::$data_for_import_from_participant_id[$paticipant_id]['date_of_birth']) {
-				Config::$summary_msg['@@WARNING@@']['Participant & Birth Date #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$paticipant_id]['#FRSQ OV'])."] has different birth dates defined in many rows of the OV file! [Line: ".$m->line.']';
+		if(isset(Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth'])) {
+			if($date_of_birth != Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth']) {
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant & Birth Date #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'])."] has different birth dates defined in many rows of the OV file! [Line: ".$m->line.']';
 			}
 		} else {
-			$query = "UPDATE participants SET date_of_birth = '$date_of_birth' WHERE id = ".$m->values['participant_id'].";";
+			$query = "UPDATE participants SET date_of_birth = '$date_of_birth', date_of_birth_accuracy = 'c'  WHERE id = ".$m->values['participant_id'].";";
 			mysqli_query($connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			$query = str_replace('participants','participants_revs', $query);
 			mysqli_query($connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		}
-		Config::$data_for_import_from_participant_id[$paticipant_id]['date_of_birth'] = $date_of_birth;
+		Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth'] = $date_of_birth;
 	}
 
 	// 4- SET DX DATA & CONTROL DATA
@@ -207,10 +209,10 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	// field: 'STADE (1-4)'
 	
-	if(strlen($m->values['STADE (1-4)']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'STADE (1-4)' [".$m->values['STADE (1-4)']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['T']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' value  [".$m->values['T']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['N']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' value  [".$m->values['N']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['M']) > 5) Config::$summary_msg['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' value  [".$m->values['M']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['STADE (1-4)']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'STADE (1-4)' [".$m->values['STADE (1-4)']."] value is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['T']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' value  [".$m->values['T']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['N']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' value  [".$m->values['N']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($m->values['M']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' value  [".$m->values['M']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
 	if(doesValueExist($m->values['STADE (1-4)'])) $ov_dx_data_exist['stade'] = 'stade';
 	if(doesValueExist($m->values['T']) || doesValueExist($m->values['N']) || doesValueExist($m->values['M'])) $ov_dx_data_exist['TNM'] = 'TNM';
 	
@@ -233,7 +235,7 @@ function postOvaryDiagnosesRead(Model $m){
 			if(preg_match('/^(x )(.+)$/',$value,$matches)) {
 				$m->values[$field] = 'x';		
 				$m->values['notes'] .= str_replace('::',' - ', utf8_encode($field)).' : '.utf8_encode($matches[2]).' // ';
-				Config::$summary_msg['@@MESSAGE@@']['Morphologie Ov #1'][] = "The field '$field' contains additional comments [".$matches[2]."] that will be added to diagnosis notes! [Line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Morphologie Ov #1'][] = "The field '$field' contains additional comments [".$matches[2]."] that will be added to diagnosis notes! [Line: ".$m->line.']';
 			}
 		}
 	}
@@ -319,7 +321,7 @@ function postOvaryDiagnosesRead(Model $m){
 			}
 		}
 		
-//		if($uncertain_dx) Config::$summary_msg['@@MESSAGE@@']["Uncertain diagnostics"][] = "All diagnostic of the line will be defined as uncertain! [Line: ".$m->line.']';
+//		if($uncertain_dx) Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Uncertain diagnostics"][] = "All diagnostic of the line will be defined as uncertain! [Line: ".$m->line.']';
 		$m->values['chus_uncertain_dx'] = ($uncertain_dx? 'y':'');
 		
 		// b- Diagnostic Ovaire
@@ -362,11 +364,11 @@ function postOvaryDiagnosesRead(Model $m){
 		$ovary_dx_from_natures = 'normal';
 	} else if($left_ovary_dx_nature == 'metastatic' || $right_ovary_dx_nature == 'metastatic') {
 		if($left_ovary_dx_nature == 'cancer' || $right_ovary_dx_nature == 'cancer') {
-			Config::$summary_msg['@@WARNING@@']["Ovary tumor types conflict #1"][] = "The ovary tumor type is defined both as 'metastatic' and 'primary' (using 'Diagnostiques OVAIRE' columns)! Migration process created primary ovary! [Line: ".$m->line.']';
+			Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Ovary tumor types conflict #1"][] = "The ovary tumor type is defined both as 'metastatic' and 'primary' (using 'Diagnostiques OVAIRE' columns)! Migration process created primary ovary! [Line: ".$m->line.']';
 		} else {
 			$ovary_dx_from_natures = 'secondary';
 			if($left_ovary_dx_nature != 'metastatic' && $right_ovary_dx_nature != 'metastatic') {
-				Config::$summary_msg['@@WARNING@@']["Ovary Diagnostic Definition From Natures #2"][] = "The ovary natures (left and right) define ovary tumor as both $left_ovary_dx_nature and $right_ovary_dx_nature: Will defined tumor as secondary! [Line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Ovary Diagnostic Definition From Natures #2"][] = "The ovary natures (left and right) define ovary tumor as both $left_ovary_dx_nature and $right_ovary_dx_nature: Will defined tumor as secondary! [Line: ".$m->line.']';
 			}
 		}
 	}
@@ -375,7 +377,7 @@ function postOvaryDiagnosesRead(Model $m){
 		case 'primary':		
 			$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
 			if(!array_key_exists('ovary', $primary_tumors)) {
-				Config::$summary_msg['@@MESSAGE@@']["Primary ovary not defined In 'Site cancer primaire::Ovaire' column"][] = "... but defined into 'Diagnostiques OVAIRE' columns! [Line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Primary ovary not defined In 'Site cancer primaire::Ovaire' column"][] = "... but defined into 'Diagnostiques OVAIRE' columns! [Line: ".$m->line.']';
 			} else {
 				unset($primary_tumors['ovary']);
 			}
@@ -385,7 +387,7 @@ function postOvaryDiagnosesRead(Model $m){
 		case 'secondary':
 			if(array_key_exists('ovary', $primary_tumors)) {
 				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
-				Config::$summary_msg['@@ERROR@@']["Ovary tumor types conflict #2"][] = "The ovary tumor type is defined both as 'metastatic' (using 'Diagnostiques OVAIRE' columns) and 'primary' (using 'Sites cancer primaire' columns)! Migration process created primary ovary! [Line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']["Ovary tumor types conflict #2"][] = "The ovary tumor type is defined both as 'metastatic' (using 'Diagnostiques OVAIRE' columns) and 'primary' (using 'Sites cancer primaire' columns)! Migration process created primary ovary! [Line: ".$m->line.']';
 				unset($primary_tumors['ovary']);
 				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
 			
@@ -398,13 +400,13 @@ function postOvaryDiagnosesRead(Model $m){
 					$m->values['parent_id'] = $parent_ids[0];
 				} else {
 					if(sizeof($parent_ids)) {
-						Config::$summary_msg['@@WARNING@@']["Many primaries & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but more than one primary is defined (using 'Sites cancer primaire' columns)! Unable to define the primary of the ovarian secondary so created unknown primary diagnosis! [Line: ".$m->line.']';
+						Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Many primaries & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but more than one primary is defined (using 'Sites cancer primaire' columns)! Unable to define the primary of the ovarian secondary so created unknown primary diagnosis! [Line: ".$m->line.']';
 						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
 						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
 						$m->values['parent_id'] = $parent_ids[0];
 												
 					} else {
-						Config::$summary_msg['@@MESSAGE@@']["Unknonw Primary & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but no primary is defined (using 'Sites cancer primaire' columns)! Created unknown primary of the ovarian secondary! [Line: ".$m->line.']';
+						Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Unknonw Primary & ovary secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but no primary is defined (using 'Sites cancer primaire' columns)! Created unknown primary of the ovarian secondary! [Line: ".$m->line.']';
 						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
 						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
 						$m->values['parent_id'] = $parent_ids[0];
@@ -417,19 +419,22 @@ function postOvaryDiagnosesRead(Model $m){
 		case 'normal':
 			if(array_key_exists('ovary', $primary_tumors)) {
 				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['ovary']['diagnosis_control_id'];
-				Config::$summary_msg['@@MESSAGE@@']["Ovary tumor undefined by 'Diagnostique OVAIRE' columns"][] = "The ovary primary tumor is just defined in 'Site cancer primaire::Ovaire' column. Primary ovary will be created (".(empty($ov_dx_data_exist)? 'with no ovary dx data [Stade, TNM, Morpho, ATCD]' : 'includin existing ovary dx data ['. implode(",", $ov_dx_data_exist).']').")! [Line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Ovary tumor undefined by 'Diagnostique OVAIRE' columns"][] = "The ovary primary tumor is just defined in 'Site cancer primaire::Ovaire' column. Primary ovary will be created (".(empty($ov_dx_data_exist)? 'with no ovary dx data [Stade, TNM, Morpho, ATCD]' : 'includin existing ovary dx data ['. implode(",", $ov_dx_data_exist).']').")! [Line: ".$m->line.']';
 				unset($primary_tumors['ovary']);
 				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);				
 
 			} else {
 				// No Ovary tumor to create
-				Config::$summary_msg['@@MESSAGE@@']['Patient with no Ovary Diagnosis'][] = ".... [Line: ".$m->line.']';						
-				if(!empty($ov_dx_data_exist)) Config::$summary_msg['@@WARNING@@']['Ovary Diagnostic Data & No Ovary Dx'][] = "No Ovary Diagnosis will be created but diagnosis data exists into the file and won't be recorded! Check ". implode(",", $ov_dx_data_exist)." values. [Line: ".$m->line.']';
+				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Patient with no Ovary Diagnosis'][] = ".... [Line: ".$m->line.']';						
+				if(!empty($ov_dx_data_exist)) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Ovary Diagnostic Data & No Ovary Dx'][] = "No Ovary Diagnosis will be created but diagnosis data exists into the file and won't be recorded! Check ". implode(",", $ov_dx_data_exist)." values. [Line: ".$m->line.']';
 				if(empty($primary_tumors)) {
-					if($uncertain_dx) Config::$summary_msg['@@WARNING@@']['Uncertain fields & No tumor'][] = "The field 'Site cancer primaire::Incertain' is checked but no diagnostic will be created in the system! This information won't be recored! [Line: ".$m->line.']';
+					if($uncertain_dx) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Uncertain fields & No tumor'][] = "The field 'Site cancer primaire::Incertain' is checked but no diagnostic will be created in the system! This information won't be recored! [Line: ".$m->line.']';
 				} else {
 					createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
 				}
+				
+				participantDataCompletion($m, $participant_id);
+				
 				return false;				
 			}
 			break;
@@ -456,7 +461,8 @@ function postOvaryDiagnosesWrite(Model $m){
 		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
 		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 	}
-
+	
+	participantDataCompletion($m, $m->values['participant_id'], $m->last_id);
 }
 
 //======================================================================================================================
@@ -493,7 +499,7 @@ function getFinalOvaryNatureData($all_dx_ov, $side, Model $m) {
 
 		$all_dx_ov = array($type => $notes_start.(empty($notes_end)? '' : '// '. $notes_end));
 		
-		Config::$summary_msg['@@WARNING@@']["Many diagnostic types for 'OVAIRE $side'"][] = $notes_start.". The 'OVAIRE $side' will be defined as '$type'! [Line: ".$m->line.']';
+		Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Many diagnostic types for 'OVAIRE $side'"][] = $notes_start.". The 'OVAIRE $side' will be defined as '$type'! [Line: ".$m->line.']';
 	}
 	
 	$ovary_dx_nature = empty($all_dx_ov)? '': key($all_dx_ov);
@@ -509,7 +515,7 @@ function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
 		$notes = str_replace("'", "''", $notes);
 		
 		if(!isset(Config::$diagnosis_controls['primary'][$tumor_site])) die('ERR 937993 3 '.$tumor_site);
-		if($tumor_site == 'breast') Config::$summary_msg['@@MESSAGE@@']["Breast primary created"][] = "A Breast primary has been created during ovary bank data importation (see 'Site cancer primaire::Sein' column)! [Line: ".$m->line.']';
+		if($tumor_site == 'breast') Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Breast primary created"][] = "A Breast primary has been created during ovary bank data importation (see 'Site cancer primaire::Sein' column)! [Line: ".$m->line.']';
 		
 		$master_fields = array(
 			"diagnosis_control_id" => Config::$diagnosis_controls['primary'][$tumor_site]['diagnosis_control_id'],
@@ -526,3 +532,393 @@ function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
 	
 	return $diagnosis_master_ids;
 }
+
+//======================================================================================================================
+// COMPLETE PATIENT DATA FROM FILES
+//======================================================================================================================
+
+function participantDataCompletion(Model $m, $participant_id, $diagnosis_master_id = null) {
+
+	addSurgery($m, $participant_id, $diagnosis_master_id);
+	
+	addOtherTreatment('Radio::Pré op', 'radiation','pre', $m, $participant_id, $diagnosis_master_id);
+	addOtherTreatment('Radio::Post op', 'radiation','post', $m, $participant_id, $diagnosis_master_id);
+	
+	addOtherTreatment('Chimio::Pré op', 'chemotherapy','pre', $m, $participant_id, $diagnosis_master_id);
+	addOtherTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
+}
+
+function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m, $participant_id, $diagnosis_master_id = null) {
+	if(!array_key_exists(utf8_decode($field), $m->values)) die('ERR 32 32 32 32');
+	$trt_data = $m->values[utf8_decode($field)];
+	
+	if(!isset(Config::$treatment_controls[$treatment_type]['ovary'])) die('ERR 88994849');
+	$treatment_control_id = Config::$treatment_controls[$treatment_type]['ovary']['treatment_control_id'];
+	$detail_tablename = Config::$treatment_controls[$treatment_type]['ovary']['detail_tablename'];
+	
+	$trt_data = utf8_encode($m->values[utf8_decode($field)]);
+	if(empty($trt_data) || ($trt_data == 'non')) {
+		return;
+	}
+	
+	$start_date = null;
+	$finish_date = null;
+	$notes = '';
+	
+	if($trt_data != 'oui') {
+		if(!preg_match('/(19|20)([0-9]{2})/',$trt_data,$matches)) {
+			$notes = $trt_data;
+		
+		} else if(preg_match('/^(19|20)([0-9]{2})$/',$trt_data,$matches)) {
+			//2001
+			$start_date = $matches[1].$matches[2];
+			$notes = $trt_data;
+		
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\)$/',$trt_data,$matches)) {
+			//oui (2005-01)
+			$start_date = $matches[1].$matches[2].'-'.$matches[3];
+			if($matches[1].$matches[2] < $matches[1].$matches[3]) Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Confirm date defintion'][] = "From '$trt_data', the migration process defined start date = '$start_date' (instead to defined start_date = '".$matches[1].$matches[2]."' and finsih_date = '".$matches[1].$matches[3]."'! Please confirm! [Line: ".$m->line.']';		
+			
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([9][0-9])\)$/',$trt_data,$matches)) {
+			//oui (1991-96)
+			$start_date = $matches[1].$matches[2];
+			$finish_date = $matches[1].$matches[3];
+			
+		} else if(preg_match('/^ {0,1}oui {0,1}\((19|20)([0-9]{2})\-([01][0-9]) au (19|20)([0-9]{2})\-([01][0-9]) {0,1}\) {0,1}(.*)$/',$trt_data,$matches)) {
+			//oui (2004-11 au 2005-01) 3x carbotaxol
+			//oui (2001-11 au 2005-11)
+			//  oui (2001-01 au 2002-11)
+			$start_date = $matches[1].$matches[2].'-'.$matches[3];
+			$finish_date = $matches[4].$matches[5].'-'.$matches[6];
+			if(isset($matches[7])) $notes = $matches[7];
+			
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})(\-| a | à )(19|20)([0-9]{2})\) {0,1}(.*)$/',$trt_data,$matches)) {
+			//oui (2003-2004)
+			//oui (2002-2003) 3cycles
+			//oui (2003 a 2006) Carbotaxol
+			//oui (2003 à 2009)
+			$start_date = $matches[1].$matches[2];
+			$finish_date = $matches[4].$matches[5];
+			if(isset($matches[6])) $notes = $matches[6];
+			
+		} else if(preg_match('/^ {0,1}oui {0,1}\((19|20)([0-9]{2})\) {0,1}(.*)$/',$trt_data,$matches)) {
+			//oui (2003)
+			//oui(2007)
+			//oui (2002) 3x carbotaxol
+			// oui (2001)
+			$start_date = $matches[1].$matches[2];	
+			if(isset($matches[3])) $notes = $matches[3];	
+			
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\)$/',$trt_data,$matches)) {
+			//oui (2007-05-09)
+			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
+			
+		} else if(preg_match('/^oui {0,1}\((19|20)([0-9]{2})\-([01][0-9]) au ([01][0-9])\) {0,1}(.*)$/',$trt_data,$matches)) {
+			//oui (2009-10 au 12)
+			//oui (2002-08 au 09) 2x carbotaxol
+			$start_date = $matches[1].$matches[2].'-'.$matches[3];
+			$finish_date = $matches[1].$matches[2].'-'.$matches[4];
+			if(isset($matches[5])) $notes = $matches[5];	
+			
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9]) au (19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\){0,1}$/',$trt_data,$matches)) {
+			//oui (2004-03-11 au 2007-10-11)
+			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
+			$finish_date = $matches[5].$matches[6].'-'.$matches[7].'-'.$matches[8];
+			
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9]) au (19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\) {0,1}(.*)$/',$trt_data,$matches)) {
+			//oui (2010-05-21 au 2010-06-10) 4cycles carbotaxol
+			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
+			$finish_date = $matches[5].$matches[6].'-'.$matches[7].'-'.$matches[8];
+			if(isset($matches[9])) $notes = $matches[9];	
+			
+		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9]) au (19|20)([0-9]{2})\-([01][0-9])\) {0,1}(.*)$/',$trt_data,$matches)) {
+			//oui (2003-06-16 au 2003-08) 3 cycles carbotaxol
+			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
+			$finish_date = $matches[5].$matches[6].'-'.$matches[7];
+			if(isset($matches[8])) $notes = $matches[8];	
+			
+		} else if(preg_match('/^[^0-9]*(19[0-9]{2}|20[0-9]{2})[^0-9]*$/',$trt_data,$matches)) { 
+			$start_date = $matches[1];
+			$tmp = str_replace(array($start_date, 'oui', ' '), array('','',''), $trt_data);
+			if(!empty($tmp)) $notes = $trt_data;
+				
+		} else {				
+			$notes = "Unable to extract date from '$trt_data'!";
+			Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Unable to extract start date from notes'][] = "Unable to extract date from '$trt_data'! [Line: ".$m->line.']';		
+		}
+	}
+ 
+		$example_for_control = array(
+			'oui 1987',
+			'Jul-2007',
+			'oui(2009-09 au 12)',
+			'oui (2010-05-21 au 2010-06-10) 4cycles carbotaxol',
+			'oui (Hodgkin 2008)',
+		
+			'oui(2003-07 au 2008-06)',
+			'oui (2003-08-28 au 2007-04-29',
+			'oui (2003-06-16 au 2003-08) 3 cycles carbotaxol',
+			'oui (1991-96)',
+			'2001',
+			'oui (2003-05 au 2003-08 ) 3x carbotaxol',
+			'oui (2004-03-11 au 2007-10-11)',
+			' oui (2001)',
+			'oui (2002-08 au 09) 2x carbotaxol',
+			'oui (carbotaxol 4 cycles)',
+			'oui (2007-05-09)',
+			'oui (2005-01)',
+			'oui (2004-11 au 2005-01) 3x carbotaxol',
+			'oui (2001-11 au 2005-11)',
+			' oui (2001-01 au 2002-11)',
+			'oui (2009-10 au 12)',
+			'oui (2003-2004)',
+			'oui (2002-2003) 3cycles',
+			'oui (2003 a 2006) Carbotaxol',
+			'oui (2003 à 2009)',
+			'oui (2003)',
+			'oui(2007)',
+			'oui (2002) 3x carbotaxol'
+		);
+		if(in_array($trt_data, $example_for_control)) Config::$summary_msg['TREATMENT']['@@MESSAGE@@']['Date management to confirm'][$trt_data] = "[$trt_data] ====> from <b>$start_date</b> to <b>$finish_date</b> // note : <b>$notes</b> [Line: ".$m->line.']';		
+	
+	// Record Trt
+	$notes = str_replace('oui','', $notes);
+	$notes_tmp = str_replace(' ','', $notes);
+	if(!strlen($notes_tmp)) $notes = '';
+	
+	$master_fields = array(
+		'participant_id' => $participant_id,
+		'treatment_control_id' =>  $treatment_control_id,
+		'notes' => "'".str_replace("'","''",$notes)."'"
+	);
+	if(!empty($start_date)) {
+		$date_tmp = getDateAndAccuracy($start_date);
+		$start_date = $date_tmp['date'];
+		$master_fields['start_date'] = "'".$date_tmp['date']."'";
+		$master_fields['start_date_accuracy'] = "'".$date_tmp['accuracy']."'";
+	}
+	if(!empty($finish_date)) {		
+		$date_tmp = getDateAndAccuracy($finish_date);
+		$finish_date = $date_tmp['date'];		
+		$master_fields['finish_date'] = "'".$date_tmp['date']."'";
+		$master_fields['finish_date_accuracy'] = "'".$date_tmp['accuracy']."'";
+	}
+	if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
+	
+	$treatment_master_id = customInsertChusRecord($master_fields, 'treatment_masters');
+	
+	$detail_fields = array(
+		'treatment_master_id' => $treatment_master_id,
+		'pre_post_surgery' => "'".$pre_post_surgery."'"
+	);			
+	customInsertChusRecord($detail_fields, $detail_tablename, true);
+	
+	if(!empty($start_date) && !empty($finish_date) && (str_replace('-','',$start_date) > str_replace('-','',$finish_date))) {
+		Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Date error'][$trt_data] = "Dates definition error (from $start_date to $finish_date)! [Line: ".$m->line.']';		
+	}
+
+}
+
+function getDateAndAccuracy($date) {
+	if(empty($date)) {
+		return null;
+	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date,$matches)) {
+		return array('date' => $date, 'accuracy' => 'c');
+	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/',$date,$matches)) {
+		return array('date' => $date.'-01', 'accuracy' => 'd');
+	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date,$matches)) {
+		return array('date' => $date.'-01-01', 'accuracy' => 'm');
+	} else {
+		die('ERR 83993272329');
+	}	
+}
+
+function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
+	$record_surgery = false;
+	
+	$start_date = null;
+	$start_date_comment = '';
+	if(preg_match('/^[0-9]{5}$/',$m->values['Date Chirurgie AAAA-MM-JJ'],$matches)) {
+		$start_date = customGetFormatedDate($m->values['Date Chirurgie AAAA-MM-JJ'], false);
+		$record_surgery = true;
+	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])( {0,1})(.*)/',$m->values['Date Chirurgie AAAA-MM-JJ'],$matches)) {
+		$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
+		$start_date_comment = $matches[6];
+		Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Date + Comment'][] = "Surgery date [".$m->values['Date Chirurgie AAAA-MM-JJ']."] has been recorded as surgery date = '$start_date' and note = '$start_date_comment'! [Line: ".$m->line.']';	
+		$record_surgery = true;
+	} else {
+		if(!empty($m->values['Date Chirurgie AAAA-MM-JJ'])) {
+			$start_date_comment = $m->values['Date Chirurgie AAAA-MM-JJ'];
+			if($m->values['Date Chirurgie AAAA-MM-JJ'] != 'ND') Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Uncertain date'][] = "Surgery date [".$m->values['Date Chirurgie AAAA-MM-JJ']."] can not be recorded as date! Will be added to note! [Line: ".$m->line.']';
+		}
+		$start_date = null;
+		$record_surgery = true;
+	}
+	$notes = empty($start_date_comment)? '': 'Date Chirurgie note: '.$start_date_comment;
+	
+	$type_HAT_HVAL_HVT = "''";
+	$field = 'CHIRURGIE::HAT/HVAL/HVT';
+	if(!empty($m->values[$field])) {
+		if($m->values[$field] == 'x') {
+			$type_HAT_HVAL_HVT = "'y'";
+		} else {
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		}
+		$record_surgery = true;
+	}
+	$type_SOG = "''";
+	$field = 'CHIRURGIE::SOG';
+	if(!empty($m->values[$field])) {
+		if($m->values[$field] == 'x') {
+			$type_SOG= "'y'";
+		} else {
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		}
+		$record_surgery = true;
+	}
+	$type_SOD = "''";
+	$field = 'CHIRURGIE::SOD';
+	if(!empty($m->values[$field])) {
+		if($m->values[$field] == 'x') {
+			$type_SOD= "'y'";
+		} else {
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		}
+		$record_surgery = true;
+	}
+	$type_SOB = "''";
+	$field = 'CHIRURGIE::SOB';
+	if(!empty($m->values[$field])) {
+		if($m->values[$field] == 'x') {
+			$type_SOB= "'y'";
+		} else {
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		}
+		$record_surgery = true;
+	}
+	$type_omentectomy = "''";
+	$field = utf8_decode('CHIRURGIE::Épiploectomie');
+	if(!empty($m->values[$field])) {
+		if($m->values[$field] == 'x') {
+			$type_omentectomy= "'y'";
+		} else {
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field 'CHIRURGIE::Épiploectomie' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		}
+		$record_surgery = true;
+	}
+	$type_ganglions = "''";
+	$field = 'CHIRURGIE::Ganglions';
+	if(!empty($m->values[$field])) {
+		if($m->values[$field] == 'x') {
+			$type_ganglions= "'y'";
+		} else {
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		}
+		$record_surgery = true;
+	}
+	
+	$cytoreduction = '';
+	if(!empty($m->values['Cytoreduction'])) {
+		$cytoreduction = str_replace(array(' ','Aucune','aucune','microscopique','Microscopique'),array('','none','none','microscpic','microscpic'),$m->values['Cytoreduction']);
+		if(!in_array($cytoreduction, Config::$cytoreduction_values)) {
+			$cytoreduction = '';
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Cytoreduction'][] = "Unsupported Cytoreduction value [".$m->values['Cytoreduction']."] : added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').'Cytoreduction note: '.$m->values['Cytoreduction'];
+		}
+		$record_surgery = true;
+	}
+	
+	$patho_report_number = $m->values['#Rapport Pathologie'];
+	if(strlen($patho_report_number) > 50) Config::$summary_msg['SURGERY']['@@WARNING@@']['Rapport Pathologie'][] = "Rapport Pathologie value [".$m->values['#Rapport Pathologie']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
+	if(strlen($patho_report_number)) $record_surgery = true;
+	
+	$ovg_size_cm = null;
+	$field = 'Taille (cm) OV G';
+	if(preg_match('/^([0-9]+[\.,]{0,1}[0-9]*)$/',$m->values[$field],$matches)) {
+		$ovg_size_cm = "'".str_replace(',','.',$m->values[$field])."'";
+		$record_surgery = true;
+	} else if(!empty($m->values[$field])) {
+		if($m->values[$field] != 'ND') Config::$summary_msg['SURGERY']['@@MESSAGE@@'][$field][] = "Unsupported value [".$m->values[$field]."] : added to note! [Line: ".$m->line.']';
+		$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		$record_surgery = true;
+	}	
+	
+	$ovd_size_cm = null;
+	$field = 'Taille (cm) OV D';
+	if(preg_match('/^([0-9]+[\.,]{0,1}[0-9]*)$/',$m->values[$field],$matches)) {
+		$ovd_size_cm = "'".str_replace(',','.',$m->values[$field])."'";
+		$record_surgery = true;
+	} else if(!empty($m->values[$field])) {
+		if($m->values[$field] != 'ND') Config::$summary_msg['SURGERY']['@@MESSAGE@@'][$field][] = "Unsupported value [".$m->values[$field]."] : added to note! [Line: ".$m->line.']';
+		$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+		$record_surgery = true;
+	}		
+	
+	// RECORD SURGERY
+	
+	if($record_surgery) {
+		$master_fields = array(
+			'participant_id' => $participant_id,
+			'treatment_control_id' =>  Config::$treatment_controls['surgery']['ovary']['treatment_control_id'],
+			'notes' => "'".utf8_encode(str_replace("'","''",$notes))."'"
+		);
+		if(!empty($start_date)) {
+			$master_fields['start_date'] = "'".$start_date."'";
+			$master_fields['start_date_accuracy'] = "'c'";
+		}
+		if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
+		
+		$treatment_master_id = customInsertChusRecord($master_fields, 'treatment_masters');
+		
+		$detail_fields = array(
+			'treatment_master_id' => $treatment_master_id,
+		
+			'cytoreduction' => "'".$cytoreduction."'",
+			'patho_report_number' => "'".utf8_encode($patho_report_number)."'",
+		
+			'type_HAT_HVAL_HVT' => $type_HAT_HVAL_HVT,
+			'type_SOG' => $type_SOG,	
+			'type_SOD' => $type_SOD,
+			'type_SOB' => $type_SOB,
+			'type_omentectomy' => $type_omentectomy,
+			'type_ganglions' => $type_ganglions
+		);	
+		if(!empty($ovg_size_cm)) $detail_fields['ovg_size_cm'] = $ovg_size_cm;
+		if(!empty($ovd_size_cm)) $detail_fields['ovd_size_cm'] = $ovd_size_cm;
+		
+		customInsertChusRecord($detail_fields, Config::$treatment_controls['surgery']['ovary']['detail_tablename'], true);
+	}
+}	
+	
+
+	
+	
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

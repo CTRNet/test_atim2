@@ -48,14 +48,13 @@ class Config{
 
 	static $sample_aliquot_controls = array();
 	static $diagnosis_controls = array();
+	static $treatment_controls = array();
+	static $cytoreduction_values = array();
 	
 	static $participant_id_from_frsq_nbr = array();
 	static $data_for_import_from_participant_id = array();
 	
-	static $summary_msg = array(
-		'@@ERROR@@' => array(),  
-		'@@WARNING@@' => array(),  
-		'@@MESSAGE@@' => array());	
+	static $summary_msg = array();	
 }
 
 //add you start queries here
@@ -145,7 +144,24 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$diagnosis_controls[$row['category']][$row['controls_type']] = array('diagnosis_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
+	
+	// ** Set treatment controls **
+	
+	$query = "select id,tx_method,disease_site,detail_tablename from treatment_controls where flag_active = '1';";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$treatment_controls[$row['tx_method']][$row['disease_site']] = array('treatment_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
 		
+	
+	// ** Set cytoreduction value **
+	
+	$query = "select value from structure_permissible_values_customs where control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'cytoreductions values');";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$cytoreduction_values[] = $row['value'];
+	}
+
 	// ** Set participant_id / identifier values links array **
 	
 	$query = "SELECT ctrl.misc_identifier_name, ident.identifier_value, ident.participant_id
@@ -182,33 +198,36 @@ function addonFunctionEnd(){
 
 	// WARNING DISPLAY
 	
-	echo "<br><FONT COLOR=\"red\" >
-	=====================================================================<br>
-	addonFunctionEnd: CCL
-	<br>=====================================================================
-	</FONT><br>";
-	
-	if(!empty(Config::$summary_msg['@@ERROR@@'])) {
-		echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> (".sizeof(Config::$summary_msg['@@ERROR@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@ERROR@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"red\" >". $type . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
-		}
-	}	
-	
-	if(!empty(Config::$summary_msg['@@WARNING@@'])) {
-		echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@WARNING@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"orange\" >". $type . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
-		}
-	}	
-	
-	if(!empty(Config::$summary_msg['@@MESSAGE@@'])) {
-		echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> (".sizeof(Config::$summary_msg['@@MESSAGE@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@MESSAGE@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"green\" >". $type . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
+	foreach(Config::$summary_msg as $data_type => $msg_arr) {
+		
+		echo "<br><FONT COLOR=\"red\" >
+		=====================================================================<br>
+		PROCESS SUMMARY: $data_type
+		<br>=====================================================================
+		</FONT><br>";
+			
+		if(!empty($msg_arr['@@ERROR@@'])) {
+			echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> </FONT><br>";
+			foreach($msg_arr['@@ERROR@@'] as $type => $msgs) {
+				echo "<br> --> <FONT COLOR=\"red\" >". $type . "</FONT><br>";
+				foreach($msgs as $msg) echo "$msg<br>";
+			}
+		}	
+		
+		if(!empty($msg_arr['@@WARNING@@'])) {
+			echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> </FONT><br>";
+			foreach($msg_arr['@@WARNING@@'] as $type => $msgs) {
+				echo "<br> --> <FONT COLOR=\"orange\" >". $type . "</FONT><br>";
+				foreach($msgs as $msg) echo "$msg<br>";
+			}
+		}	
+		
+		if(!empty($msg_arr['@@MESSAGE@@'])) {
+			echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> </FONT><br>";
+			foreach($msg_arr['@@MESSAGE@@'] as $type => $msgs) {
+				echo "<br> --> <FONT COLOR=\"green\" >". $type . "</FONT><br>";
+				foreach($msgs as $msg) echo "$msg<br>";
+			}
 		}
 	}
 	
