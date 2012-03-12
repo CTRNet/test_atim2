@@ -54,7 +54,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		
 	}
 	
-	function afterFind(&$model, $results, $primary = false){
+	function afterFind($model, $results, $primary){
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
@@ -102,7 +102,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
-	function beforeFind(&$model, $query){
+	function beforeFind($model, $query){
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
@@ -124,7 +124,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return true;
 	}
 	
-	function afterSave (&$model, $created) {
+	function afterSave ($model, $created) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if ( $is_master_model || $is_control_model ) {
@@ -176,7 +176,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		}
 	}
 	
-	function beforeDelete(&$model){
+	function beforeDelete($model, $cascade = true){
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		

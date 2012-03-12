@@ -36,16 +36,16 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param array $settings Settings to override for model. 
      * @access public 
      */ 
-    function setup(&$Model, $settings = array()) 
+    function setup($model, $config = array()) 
     { 
         $default = array('field' => 'deleted', /*'field_date' => 'deleted_date',*/ 'delete' => true, 'find' => true); 
 
-        if (!isset($this->__settings[$Model->alias])) 
+        if (!isset($this->__settings[$model->alias])) 
         { 
-            $this->__settings[$Model->alias] = $default; 
+            $this->__settings[$model->alias] = $default; 
         } 
 
-        $this->__settings[$Model->alias] = am($this->__settings[$Model->alias], is_array($settings) ? $settings : array()); 
+        $this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array()); 
     } 
 
     /** 
@@ -56,39 +56,39 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean Set to true to continue with delete, false otherwise 
      * @access public 
      */ 
-    function beforeDelete(&$Model, $cascade = true) 
+    function beforeDelete($model, $cascade = true) 
     { 
-        if ($this->__settings[$Model->alias]['delete'] && $Model->hasField($this->__settings[$Model->alias]['field'])) 
+        if ($this->__settings[$model->alias]['delete'] && $model->hasField($this->__settings[$model->alias]['field'])) 
         { 
-            $attributes = $this->__settings[$Model->alias]; 
-            $id = $Model->id; 
+            $attributes = $this->__settings[$model->alias]; 
+            $id = $model->id; 
 
-            $data = array($Model->alias => array( 
+            $data = array($model->alias => array( 
                 $attributes['field'] => 1 
             )); 
 
-            if (isset($attributes['field_date']) && $Model->hasField($attributes['field_date'])) 
+            if (isset($attributes['field_date']) && $model->hasField($attributes['field_date'])) 
             { 
-                $data[$Model->alias][$attributes['field_date']] = date('Y-m-d H:i:s'); 
+                $data[$model->alias][$attributes['field_date']] = date('Y-m-d H:i:s'); 
             } 
 
-            foreach(am(array_keys($data[$Model->alias]), array('field', 'field_date', 'find', 'delete')) as $field) 
+            foreach(am(array_keys($data[$model->alias]), array('field', 'field_date', 'find', 'delete')) as $field) 
             { 
                 unset($attributes[$field]); 
             } 
 
             if (!empty($attributes)) 
             { 
-                $data[$Model->alias] = am($data[$Model->alias], $attributes); 
+                $data[$model->alias] = am($data[$model->alias], $attributes); 
             } 
 
-            $Model->id = $id; 
-            $deleted = $Model->save($data, false, array_keys($data[$Model->alias])); 
+            $model->id = $id; 
+            $deleted = $model->save($data, false, array_keys($data[$model->alias])); 
 
             if ($deleted && $cascade) 
             { 
-                $Model->_deleteDependent($id, $cascade); 
-                $Model->_deleteLinks($id); 
+                $model->_deleteDependent($id, $cascade); 
+                $model->_deleteLinks($id); 
             } 
 
             return false; 
@@ -231,59 +231,59 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return mixed Set to false to abort find operation, or return an array with data used to execute query 
      * @access public 
      */ 
-    function beforeFind(&$Model, $queryData) 
+    function beforeFind($model, $query) 
     {
-        if ($this->__settings[$Model->alias]['find'] && $Model->hasField($this->__settings[$Model->alias]['field'])) 
+        if ($this->__settings[$model->alias]['find'] && $model->hasField($this->__settings[$model->alias]['field'])) 
         { 
-            $Db =& ConnectionManager::getDataSource($Model->useDbConfig); 
+            $Db =& ConnectionManager::getDataSource($model->useDbConfig); 
             $include = false; 
 
-            if (!empty($queryData['conditions']) && is_string($queryData['conditions'])) 
+            if (!empty($query['conditions']) && is_string($query['conditions'])) 
             { 
                 $include = true; 
 
                 $fields = array( 
-                    $Db->name($Model->alias) . '.' . $Db->name($this->__settings[$Model->alias]['field']), 
-                    $Db->name($this->__settings[$Model->alias]['field']), 
-                    $Model->alias . '.' . $this->__settings[$Model->alias]['field'], 
-                    $this->__settings[$Model->alias]['field'] 
+                    $Db->name($model->alias) . '.' . $Db->name($this->__settings[$model->alias]['field']), 
+                    $Db->name($this->__settings[$model->alias]['field']), 
+                    $model->alias . '.' . $this->__settings[$model->alias]['field'], 
+                    $this->__settings[$model->alias]['field'] 
                 ); 
 
                 foreach($fields as $field) 
                 { 
-                    if (preg_match('/^' . preg_quote($field) . '[\s=!]+/i', $queryData['conditions']) || preg_match('/\\x20+' . preg_quote($field) . '[\s=!]+/i', $queryData['conditions'])) 
+                    if (preg_match('/^' . preg_quote($field) . '[\s=!]+/i', $query['conditions']) || preg_match('/\\x20+' . preg_quote($field) . '[\s=!]+/i', $query['conditions'])) 
                     { 
                         $include = false; 
                         break; 
                     } 
                 } 
             } 
-            else if (empty($queryData['conditions']) 
-            	|| (!in_array($this->__settings[$Model->alias]['field'], array_keys($queryData['conditions'])) && !in_array($Model->alias . '.' . $this->__settings[$Model->alias]['field'], array_keys($queryData['conditions'])))
-            	|| isset($queryData['conditions'][0])) 
+            else if (empty($query['conditions']) 
+            	|| (!in_array($this->__settings[$model->alias]['field'], array_keys($query['conditions'])) && !in_array($model->alias . '.' . $this->__settings[$model->alias]['field'], array_keys($query['conditions'])))
+            	|| isset($query['conditions'][0])) 
             { 
                 $include = true; 
             } 
 
             if ($include) 
             { 
-                if (empty($queryData['conditions'])) 
+                if (empty($query['conditions'])) 
                 { 
-                    $queryData['conditions'] = array(); 
+                    $query['conditions'] = array(); 
                 } 
 
-                if (is_string($queryData['conditions'])) 
+                if (is_string($query['conditions'])) 
                 { 
-                    $queryData['conditions'] = $Db->name($Model->alias) . '.' . $Db->name($this->__settings[$Model->alias]['field']) . '!= 1 AND ' . $queryData['conditions']; 
+                    $query['conditions'] = $Db->name($model->alias) . '.' . $Db->name($this->__settings[$model->alias]['field']) . '!= 1 AND ' . $query['conditions']; 
                 } 
                 else 
                 {
-                    array_push($queryData['conditions'], $Model->alias . '.' . $this->__settings[$Model->alias]['field'].' != 1'); 
+                    array_push($query['conditions'], $model->alias . '.' . $this->__settings[$model->alias]['field'].' != 1'); 
                 } 
             } 
             
             //Add the deleted != 1 condition for hasMany relationships
-            foreach($Model->hasMany as $key => &$hasMany){
+            foreach($model->hasMany as $key => &$hasMany){
 	            if(isset($hasMany['conditions']) && $hasMany['conditions'] != ""){
 	            	array_push($hasMany['conditions'], $key.".deleted != 1"); 
 	            }else{
@@ -292,7 +292,7 @@ class SoftDeletableBehavior extends ModelBehavior
             }
         } 
 
-        return $queryData; 
+        return $query; 
     } 
 
     /** 
@@ -302,22 +302,22 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean True if the operation should continue, false if it should abort 
      * @access public 
      */ 
-    function beforeSave(&$Model) 
+    function beforeSave($model) 
     { 
-        if ($this->__settings[$Model->alias]['find']) 
+        if ($this->__settings[$model->alias]['find']) 
         { 
             if (!isset($this->__backAttributes)) 
             { 
-                $this->__backAttributes = array($Model->alias => array()); 
+                $this->__backAttributes = array($model->alias => array()); 
             } 
-            else if (!isset($this->__backAttributes[$Model->alias])) 
+            else if (!isset($this->__backAttributes[$model->alias])) 
             { 
-                $this->__backAttributes[$Model->alias] = array(); 
+                $this->__backAttributes[$model->alias] = array(); 
             } 
 
-            $this->__backAttributes[$Model->alias]['find'] = $this->__settings[$Model->alias]['find']; 
-            $this->__backAttributes[$Model->alias]['delete'] = $this->__settings[$Model->alias]['delete']; 
-            $this->enableSoftDeletable($Model, false); 
+            $this->__backAttributes[$model->alias]['find'] = $this->__settings[$model->alias]['find']; 
+            $this->__backAttributes[$model->alias]['delete'] = $this->__settings[$model->alias]['delete']; 
+            $this->enableSoftDeletable($model, false); 
         } 
 
         return true; 
@@ -330,14 +330,14 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param boolean $created True if this save created a new record 
      * @access public 
      */ 
-    function afterSave(&$Model, $created) 
+    function afterSave($model, $created) 
     { 
-        if (isset($this->__backAttributes[$Model->alias]['find'])) 
+        if (isset($this->__backAttributes[$model->alias]['find'])) 
         { 
-            $this->enableSoftDeletable($Model, 'find', $this->__backAttributes[$Model->alias]['find']); 
-            $this->enableSoftDeletable($Model, 'delete', $this->__backAttributes[$Model->alias]['delete']); 
-            unset($this->__backAttributes[$Model->alias]['find']); 
-            unset($this->__backAttributes[$Model->alias]['delete']); 
+            $this->enableSoftDeletable($model, 'find', $this->__backAttributes[$model->alias]['find']); 
+            $this->enableSoftDeletable($model, 'delete', $this->__backAttributes[$model->alias]['delete']); 
+            unset($this->__backAttributes[$model->alias]['find']); 
+            unset($this->__backAttributes[$model->alias]['delete']); 
         } 
     } 
 } 
