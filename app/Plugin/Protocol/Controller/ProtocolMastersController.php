@@ -11,7 +11,7 @@ class ProtocolMastersController extends ProtocolAppController {
 	function search($search_id = 0) {
 		$this->set('atim_menu', $this->Menus->get("/Protocol/ProtocolMasters/search/"));
 		$this->searchHandler($search_id, $this->ProtocolMaster, 'protocolmasters', '/Protocol/ProtocolMasters/search');
-		$this->set('protocol_controls', $this->ProtocolControl->find('all'));	
+		$this->set('protocol_controls', $this->ProtocolControl->find('all', array('conditions' => array('flag_active' => '1'))));	
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 

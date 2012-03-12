@@ -69,9 +69,7 @@ class StructuresComponent extends Component {
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
 				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
-				if(isset($struct_unit['structure']['Structure']['CodingIcdCheck']) && $struct_unit['structure']['Structure']['CodingIcdCheck']){
-					$structure['Structure']['CodingIcdCheck'] = 1;
-				}
+				$structure['Structure']['CodingIcdCheck'] = $struct_unit['structure']['Structure']['CodingIcdCheck'];
 			}
 		}
 		
@@ -200,6 +198,9 @@ class StructuresComponent extends Component {
 						break;
 					}
 				}
+				if(!isset($return['structure']['Structure']['CodingIcdCheck'])){
+					$return['structure']['Structure']['CodingIcdCheck'] = false;
+				}
 			}
 			$this->updateAccuracyChecks($return['structure']);
 		}
@@ -295,7 +296,18 @@ class StructuresComponent extends Component {
 				}
 				
 				//CocingIcd magic
-				if(isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck']){
+				$icd_check = isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck'];
+				reset($atim_structure['Structure']);
+				if(!$icd_check && is_array(current($atim_structure['Structure']))){
+					//might be a structure with sub structures
+					foreach($atim_structure['Structure'] as $sub_structure){
+						if($sub_structure['CodingIcdCheck']){
+							$icd_check = true;
+							break;
+						}
+					}
+				}
+				if($icd_check){
 					foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $setting_lookup){
 						if(strpos($value['setting'], $setting_lookup) !== false){
 							$form_fields[$form_fields_key]['cast_icd'] = $key;
