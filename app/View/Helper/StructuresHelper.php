@@ -1042,6 +1042,8 @@ class StructuresHelper extends Helper {
 					}
 					echo "</tbody><tfoot>";
 					if($options['settings']['pagination']){
+						echo '<pre>';
+						echo '</pre>';
 						echo '
 								<tr class="pagination">
 									<th colspan="',$header_data['count'],'">
@@ -1054,14 +1056,18 @@ class StructuresHelper extends Helper {
 											',$this->Paginator->prev( __( 'prev',true ), NULL, __( 'prev',true ) ),'
 											',$this->Paginator->numbers(),'
 											',$this->Paginator->next( __( 'next',true ), NULL, __( 'next',true ) ),'
-										</span>
-										
-										',$this->Paginator->link( '5',  array('page' => 1, 'limit' => 5)),' |
-										',$this->Paginator->link( '10', array('page' => 1, 'limit' => 10)),' |
-										',$this->Paginator->link( '20', array('page' => 1, 'limit' => 20)),' |
-										',$this->Paginator->link( '50', array('page' => 1, 'limit' => 50)),'
-										
-									</th>
+										</span>';
+										$limits = array(5, 10, 20, 50);
+										$current_limit = $this->Paginator->params['paging'];
+										$current_limit = current($current_limit);
+										$current_limit = $current_limit['limit']; 
+										while($limit = array_shift($limits)){
+											echo ($current_limit == $limit ? '<span class="current">' : ''), 
+												$this->Paginator->link( $limit,  array('page' => 1, 'limit' => $limit)), 
+												($current_limit == $limit ? '</span>' : ''),
+												(count($limits) ? ' | ' : '');
+										}
+						echo '			</th>
 								</tr>
 						';
 					}
