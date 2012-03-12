@@ -141,14 +141,14 @@ class RevisionBehavior extends ModelBehavior {
      * @param object $Model
      * @param array $config
      */
-	public function setup(&$Model, $config = null) {	
+	public function setup($model, $config = array()) {	
 		if (is_array($config)) {
-			$this->settings[$Model->alias] = array_merge($this->defaults, $config);			
+			$this->settings[$model->alias] = array_merge($this->defaults, $config);			
 		} else {
-			$this->settings[$Model->alias] = $this->defaults;
+			$this->settings[$model->alias] = $this->defaults;
 		}		
-		$this->createShadowModel($Model);	
-		$Model->Behaviors->attach('Containable');
+		$this->createShadowModel($model);	
+		$model->Behaviors->attach('Containable');
 	}
 
 	/**
@@ -770,18 +770,18 @@ class RevisionBehavior extends ModelBehavior {
 	 *
 	 * @param unknown_type $Model
 	 */
-	public function afterDelete(&$Model) {
-		if ($this->settings[$Model->alias]['auto'] === false) {
+	public function afterDelete($model) {
+		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}		
-		if (!$Model->ShadowModel) {
+		if (!$model->ShadowModel) {
             return true;
 		}   
-		if (isset($this->deleteUpdates[$Model->alias]) && !empty($this->deleteUpdates[$Model->alias])) {
-			foreach ($this->deleteUpdates[$Model->alias] as $assocAlias => $assocIds) {
-				$Model->{$assocAlias}->updateRevisions($assocIds);
+		if (isset($this->deleteUpdates[$model->alias]) && !empty($this->deleteUpdates[$model->alias])) {
+			foreach ($this->deleteUpdates[$model->alias] as $assocAlias => $assocIds) {
+				$model->{$assocAlias}->updateRevisions($assocIds);
 			}
-			unset($this->deleteUpdates[$Model->alias]);
+			unset($this->deleteUpdates[$model->alias]);
 		}		
 	}
 			
@@ -793,97 +793,97 @@ class RevisionBehavior extends ModelBehavior {
 	 * @param boolean $created
 	 * @return boolean
 	 */
-	public function afterSave(&$Model, $created) {
-		if ($this->settings[$Model->alias]['auto'] === false) {
+	public function afterSave($model, $created) {
+		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}		
-		if (!$Model->ShadowModel) {
+		if (!$model->ShadowModel) {
             return true;
 		}   
 		if ($created) {
-			$Model->ShadowModel->create($Model->data,true);
-			$Model->ShadowModel->set('id',$Model->id);
-			$Model->ShadowModel->set('version_created',date('Y-m-d H:i:s'));
-			foreach ($Model->data as $alias => $alias_data) {
-				if (isset($Model->ShadowModel->_schema[$alias])) {
+			$model->ShadowModel->create($model->data,true);
+			$model->ShadowModel->set('id',$model->id);
+			$model->ShadowModel->set('version_created',date('Y-m-d H:i:s'));
+			foreach ($model->data as $alias => $alias_data) {
+				if (isset($model->ShadowModel->_schema[$alias])) {
 					if (isset($alias_data[$alias]) && !empty($alias_data[$alias])) {
-						$Model->ShadowModel->set($alias,implode(',',$alias_data[$alias]));
+						$model->ShadowModel->set($alias,implode(',',$alias_data[$alias]));
 					}
 				}
 			}
 
 			//ATiM start--------
-			if(isset($Model->version_id)){
-				$Model->ShadowModel->set('version_id', $Model->version_id);
+			if(isset($model->version_id)){
+				$model->ShadowModel->set('version_id', $model->version_id);
 			}
 
-			$success = $Model->ShadowModel->save();
+			$success = $model->ShadowModel->save();
 			
-			if(!isset($Model->version_id)){		
-				$Model->version_id = $Model->ShadowModel->id;
+			if(!isset($model->version_id)){		
+				$model->version_id = $model->ShadowModel->id;
 			}
 			//ATiM end---------
 			return $success;
 		}  	
 			
 		$habtm = array();
-		foreach ($Model->getAssociated('hasAndBelongsToMany') as $assocAlias) {
-			if (isset($Model->ShadowModel->_schema[$assocAlias])) {					
+		foreach ($model->getAssociated('hasAndBelongsToMany') as $assocAlias) {
+			if (isset($model->ShadowModel->_schema[$assocAlias])) {					
 				$habtm[] = $assocAlias;	
 			} 
 		}				
-		$data = $Model->find('first', array(
+		$data = $model->find('first', array(
 	       		'contain'=> $habtm,
-	       		'conditions'=>array($Model->alias.'.'.$Model->primaryKey => $Model->id)));
+	       		'conditions'=>array($model->alias.'.'.$model->primaryKey => $model->id)));
 
 		$changeDetected = false;
-		foreach ($data[$Model->alias] as $key => $value) {
-   			if ( isset($data[$Model->alias][$Model->primaryKey]) 
-   					&& !empty($this->oldData[$Model->alias]) 
-   					&& isset($this->oldData[$Model->alias][$Model->alias][$key])) {
+		foreach ($data[$model->alias] as $key => $value) {
+   			if ( isset($data[$model->alias][$model->primaryKey]) 
+   					&& !empty($this->oldData[$model->alias]) 
+   					&& isset($this->oldData[$model->alias][$model->alias][$key])) {
    						
-   				$old_value = $this->oldData[$Model->alias][$Model->alias][$key];
+   				$old_value = $this->oldData[$model->alias][$model->alias][$key];
    			} else {
    				$old_value = '';
    			}
-   			if ($value != $old_value && !in_array($key,$this->settings[$Model->alias]['ignore'])) {
+   			if ($value != $old_value && !in_array($key,$this->settings[$model->alias]['ignore'])) {
    				$changeDetected = true;				
    			}
    		}
-   		$Model->ShadowModel->create($data);
+   		$model->ShadowModel->create($data);
    		if (!empty($habtm)) {
 	   		foreach ($habtm as $assocAlias) {
-	   			if (in_array($assocAlias,$this->settings[$Model->alias]['ignore'])) {
+	   			if (in_array($assocAlias,$this->settings[$model->alias]['ignore'])) {
 	   				continue;
 	   			}				
-	   			$oldIds = Set::extract($this->oldData[$Model->alias],$assocAlias.'.{n}.id');
-				if (!isset($Model->data[$assocAlias])) {					
-					$Model->ShadowModel->set($assocAlias, implode(',',$oldIds));
+	   			$oldIds = Set::extract($this->oldData[$model->alias],$assocAlias.'.{n}.id');
+				if (!isset($model->data[$assocAlias])) {					
+					$model->ShadowModel->set($assocAlias, implode(',',$oldIds));
 					continue;
 				}
 				$currentIds = Set::extract($data,$assocAlias.'.{n}.id');
 				$id_changes = array_diff($currentIds,$oldIds);
 				if (!empty($id_changes)) {
-					$Model->ShadowModel->set($assocAlias, implode(',',$currentIds));
+					$model->ShadowModel->set($assocAlias, implode(',',$currentIds));
 					$changeDetected = true;
 				}
 	   		}   			
    		}
-   		unset($this->oldData[$Model->alias]); 		
+   		unset($this->oldData[$model->alias]); 		
    		if (!$changeDetected) {
    			return true;
    		}
-		$Model->ShadowModel->set('version_created', date('Y-m-d H:i:s'));
-		$Model->ShadowModel->save();
-		$Model->version_id = $Model->ShadowModel->id;
-		if (is_numeric($this->settings[$Model->alias]['limit'])) {
-            $conditions = array('conditions'=>array($Model->alias.'.'.$Model->primaryKey => $Model->id));
-			$count = $Model->ShadowModel->find('count', $conditions);
-			if ($count > $this->settings[$Model->alias]['limit']) {
-                $conditions['order'] = $Model->alias.'.version_created ASC, '.$Model->alias.'.version_id ASC';
-				$oldest = $Model->ShadowModel->find('first',$conditions);
-				$Model->ShadowModel->id = null;
-				$Model->ShadowModel->del($oldest[$Model->alias][$Model->ShadowModel->primaryKey]);	
+		$model->ShadowModel->set('version_created', date('Y-m-d H:i:s'));
+		$model->ShadowModel->save();
+		$model->version_id = $model->ShadowModel->id;
+		if (is_numeric($this->settings[$model->alias]['limit'])) {
+            $conditions = array('conditions'=>array($model->alias.'.'.$model->primaryKey => $model->id));
+			$count = $model->ShadowModel->find('count', $conditions);
+			if ($count > $this->settings[$model->alias]['limit']) {
+                $conditions['order'] = $model->alias.'.version_created ASC, '.$model->alias.'.version_id ASC';
+				$oldest = $model->ShadowModel->find('first',$conditions);
+				$model->ShadowModel->id = null;
+				$model->ShadowModel->del($oldest[$model->alias][$model->ShadowModel->primaryKey]);	
 			}			
 		}
 		return true;
@@ -897,22 +897,22 @@ class RevisionBehavior extends ModelBehavior {
 	 * @param object $Model
 	 * @return boolean
 	 */
-	public function beforeDelete(&$Model) {
-		if ($this->settings[$Model->alias]['auto'] === false) {
+	public function beforeDelete($model, $cascade = true) {
+		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}		
-		if (!$Model->ShadowModel) {
+		if (!$model->ShadowModel) {
             return true;
 		}   
-		foreach ($Model->hasAndBelongsToMany as $assocAlias => $a) {
-			if (isset($Model->{$assocAlias}->ShadowModel->_schema[$Model->alias])) {										
-				$joins =  $Model->{$a['with']}->find('all',array(
+		foreach ($model->hasAndBelongsToMany as $assocAlias => $a) {
+			if (isset($model->{$assocAlias}->ShadowModel->_schema[$model->alias])) {										
+				$joins =  $model->{$a['with']}->find('all',array(
 					'recursive' => -1,
 					'conditions' => array(
-						$a['foreignKey'] => $Model->id
+						$a['foreignKey'] => $model->id
 					)
 				));
-				$this->deleteUpdates[$Model->alias][$assocAlias] = Set::extract($joins,'/'.$a['with'].'/'.$a['associationForeignKey']);
+				$this->deleteUpdates[$model->alias][$assocAlias] = Set::extract($joins,'/'.$a['with'].'/'.$a['associationForeignKey']);
 			} 
 		}
 		return true;
@@ -924,27 +924,27 @@ class RevisionBehavior extends ModelBehavior {
 	 * @param object $Model
 	 * @return boolean
 	 */
-	public function beforeSave(&$Model) {
-		if ($this->settings[$Model->alias]['auto'] === false) {
+	public function beforeSave($model) {
+		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}
-		if (!$Model->ShadowModel) {
+		if (!$model->ShadowModel) {
             return true;
 		}   
-		$Model->ShadowModel->create();
-		if (!isset($Model->data[$Model->alias][$Model->primaryKey]) && !$Model->id) {
+		$model->ShadowModel->create();
+		if (!isset($model->data[$model->alias][$model->primaryKey]) && !$model->id) {
 			return true;
 		}
 		
 		$habtm = array();
-		foreach ($Model->getAssociated('hasAndBelongsToMany') as $assocAlias) {
-			if (isset($Model->ShadowModel->_schema[$assocAlias])) {					
+		foreach ($model->getAssociated('hasAndBelongsToMany') as $assocAlias) {
+			if (isset($model->ShadowModel->_schema[$assocAlias])) {					
 				$habtm[] = $assocAlias;	
 			} 
 		}		
-		$this->oldData[$Model->alias] = $Model->find('first', array(
+		$this->oldData[$model->alias] = $model->find('first', array(
 	       		'contain'=> $habtm,
-	       		'conditions'=>array($Model->alias.'.'.$Model->primaryKey => $Model->id)));
+	       		'conditions'=>array($model->alias.'.'.$model->primaryKey => $model->id)));
 		
         return true;
 	}
