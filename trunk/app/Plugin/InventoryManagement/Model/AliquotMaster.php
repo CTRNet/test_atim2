@@ -460,7 +460,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 		// Check aliquot is not linked to realiquoting process	
 		$realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
-		$returned_nbr = $realiquoting_model->find('count', array('conditions' => array("OR" => array('Realiquoting.child_aliquot_master_id' => $aliquot_master_id, 'Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)), 'recursive' => '-1'));
+		$returned_nbr = $realiquoting_model->find('count', array('conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1'));
 		if($returned_nbr > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'realiquoting data exists for the deleted aliquot'); 
 		}
@@ -584,6 +584,25 @@ class AliquotMaster extends InventoryManagementAppModel {
 		}
 		
 		return $queryData;
+	}
+	
+	function atimDelete($model_id, $cascade = true){
+		if(parent::atimDelete($model_id, $cascade)){
+			//delete realiquotings where current id is child
+			$realiquoting_model = AppModel::getInstance('InventoryManagement', 'Realiquoting', true);
+			$realiquotings = $realiquoting_model->find('all', array('conditions' => array('Realiquoting.child_aliquot_master_id' => $model_id)));
+			$parents = array();
+			foreach($realiquotings as $realiquoting){
+				$parents[] = $realiquoting['Realiquoting']['parent_aliquot_master_id'];
+				$realiquoting_model->atimDelete($realiquoting['Realiquoting']['id']);
+			}
+			$parents = array_unique($parents);
+			foreach($parents as $parent){
+				$this->updateAliquotUseAndVolume($parent, true, true, false);
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	static function joinOnAliquotDup($on_field){

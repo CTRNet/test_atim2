@@ -66,7 +66,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 					self::USE_DATETIME_ACCU	=> 'Realiquoting.realiquoting_datetime_accuracy',
 					self::USE_BY			=> 'Realiquoting.realiquoted_by',
 					self::CREATED			=> 'Realiquoting.created',
-					self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/AliquotMasters/listAllRealiquotedParents/",AliquotMasterChildren.collection_id,"/",AliquotMasterChildren.sample_master_id,"/",AliquotMasterChildren.id)',
+					self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/AliquotMasters/detail/",AliquotMasterChildren.collection_id,"/",AliquotMasterChildren.sample_master_id,"/",AliquotMasterChildren.id)',
 					self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 					self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 				), "QualityCtrl" => array(
