@@ -9,7 +9,7 @@ class AtimAro extends Aro {
 	 * @access public
 	 */
 	function node($ref = null) {
-		$db =& ConnectionManager::getDataSource($this->useDbConfig);
+		$db = ConnectionManager::getDataSource($this->useDbConfig);
 		$type = $this->alias;
 		$result = null;
 

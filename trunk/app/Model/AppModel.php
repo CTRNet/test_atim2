@@ -73,7 +73,7 @@ class AppModel extends Model {
 	 * Checks Writable fields, sets trackability, manages floats ("," and ".") 
 	 * and date strings.
 	**/
-	function beforeSave(){
+	function beforeSave($options = array()){
 		if($this->check_writable_fields){
 			$this->checkWritableFields();
 		}

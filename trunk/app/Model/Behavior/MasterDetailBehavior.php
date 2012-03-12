@@ -129,7 +129,8 @@ class MasterDetailBehavior extends ModelBehavior {
 		extract($this->__settings[$model->alias]);
 		if ( $is_master_model || $is_control_model ) {
 			// get DETAIL table name and create DETAIL model object
-			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id), 'recursive' => 0));
+			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id, $master_class.'.deleted' => array('0', '1')), 'recursive' => 0));
+			assert($associated) or die('MasterDetailBehavior afterSave failed to fetch control details');
 			$table = $associated[$control_class][$detail_field];
 			$alias = $detail_class.'_'.$table;//we must give a different alias for each table, otherwise saving over multiple controls might fail
 			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $alias, 'primaryKey' => $master_foreign) );

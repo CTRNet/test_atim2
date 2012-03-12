@@ -11,7 +11,7 @@ class AtimAco extends Aco {
 	 * @access public
 	 */
 	function node($ref = null) {
-		$db =& ConnectionManager::getDataSource($this->useDbConfig);
+		$db = ConnectionManager::getDataSource($this->useDbConfig);
 		$type = $this->alias;
 		$result = null;
 
