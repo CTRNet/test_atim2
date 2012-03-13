@@ -3,6 +3,7 @@
 	$structure_links = array(
 	'index' => array(
 		'detail' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
+		'edit'	=> '/InventoryManagement/AliquotMasters/editRealiquoting/%%Realiquoting.id%%/',
 		'delete' => '/InventoryManagement/AliquotMasters/deleteRealiquotingData/%%AliquotMaster.id%%/%%AliquotMasterChildren.id%%/child/'
 	));
 	
