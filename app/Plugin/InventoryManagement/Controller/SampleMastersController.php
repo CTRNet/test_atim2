@@ -361,7 +361,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Set menu
-		$atim_menu_link = ($is_specimen? '/InventoryManagement/SampleMasters/contentTreeView/%%Collection.id%%' : '/InventoryManagement/SampleMasters/listAllDerivatives/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%');
+		$atim_menu_link = ($is_specimen? '/InventoryManagement/Collections/detail/%%Collection.id%%' : '/InventoryManagement/SampleMasters/listAllDerivatives/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%');
 		$this->set('atim_menu', $this->Menus->get($atim_menu_link));
 		
 		$atim_menu_variables = (empty($parent_sample_data)? array('Collection.id' => $collection_id) : array('Collection.id' => $collection_id, 'SampleMaster.initial_specimen_sample_id' => $parent_sample_data['SampleMaster']['initial_specimen_sample_id']));
