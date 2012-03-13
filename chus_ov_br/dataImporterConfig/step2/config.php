@@ -49,6 +49,8 @@ class Config{
 	static $sample_aliquot_controls = array();
 	static $diagnosis_controls = array();
 	static $treatment_controls = array();
+	static $event_controls = array();
+	
 	static $cytoreduction_values = array();
 	
 	static $participant_id_from_frsq_nbr = array();
@@ -136,7 +138,6 @@ function addonFunctionStart(){
 		}	
 	}	
 	
-	
 	// ** Set diagnosis controls **
 	
 	$query = "select id,category,controls_type,detail_tablename from diagnosis_controls where flag_active = '1' AND category IN ('primary','secondary');";
@@ -152,7 +153,14 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$treatment_controls[$row['tx_method']][$row['disease_site']] = array('treatment_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
-		
+	
+	// ** Set event controls **
+	
+	$query = "select id,disease_site,event_group,event_type,detail_tablename from event_controls where flag_active = '1';";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$event_controls[$row['event_group']][$row['disease_site']][$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
 	
 	// ** Set cytoreduction value **
 	
@@ -232,7 +240,8 @@ function addonFunctionEnd(){
 	}
 	
 	echo "<br>";
-		
+//TODO
+pr('exit before todo');exit;		
 }
 
 //=========================================================================================================
