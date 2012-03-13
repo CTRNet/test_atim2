@@ -213,10 +213,11 @@ class AliquotMaster extends InventoryManagementAppModel {
 			}
 		}
 		
-		if($save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false)){
-			return false;
-		}
-		return true;
+		$prev_check_writable_fields = $this->check_writable_fields;
+		$this->check_writable_fields = false;
+		$result = $save_required && !$this->save(array("AliquotMaster" => $aliquot_data_to_save), false);
+		$this->check_writable_fields = $prev_check_writable_fields;
+		return !$result;
 	}
 	
 	public function getRealiquotDropdown(){

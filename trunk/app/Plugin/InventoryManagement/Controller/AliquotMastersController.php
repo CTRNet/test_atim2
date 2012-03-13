@@ -341,7 +341,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					foreach($created_aliquots['children'] as $new_aliquot) {	
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-						$new_aliquot['AliquotMaster']['id'] = null;
+						unset($new_aliquot['AliquotMaster']['id']);
 						$new_aliquot['AliquotMaster']['collection_id'] = $created_aliquots['parent']['ViewSample']['collection_id'];
 						$new_aliquot['AliquotMaster']['sample_master_id'] = $created_aliquots['parent']['ViewSample']['sample_master_id'];
 						$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control['AliquotControl']['aliquot_type'];
@@ -1512,11 +1512,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $this->request->data['sample_ctrl_id']);
 		
-		$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail');
-		$aliquot_master_edit_writable = AppModel::$writable_fields['aliquot_masters']['edit'];
-		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume');
+		//AliquotMaster is used for parent save and child save. The parent detail might change from parent to parent.
+		//We need to manage writable fields
+		$this->Structures->set('used_aliq_in_stock_details', 'in_stock_detail', array('model_table_assoc' => array('AliquotDetail' => 'tmp_detail_table')));
+		$parent_no_vol_writable_fields = AppModel::$writable_fields;
+		AppModel::$writable_fields = array();
+		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail_volume', array('model_table_assoc' => array('AliquotDetail' => 'tmp_detail_table')));
+		$parent_vol_writable_fields = AppModel::$writable_fields;
+		AppModel::$writable_fields = array();
 		$this->Structures->set($child_aliquot_ctrl['AliquotControl']['form_alias'].(empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? ',realiquot_without_vol': ',realiquot_with_vol'), 'atim_structure', array('model_table_assoc' => array('AliquotDetail' => $child_aliquot_ctrl['AliquotControl']['detail_tablename'])));
-		AppModel::$writable_fields['aliquot_masters']['edit'] = $aliquot_master_edit_writable;
+		$child_writable_fields = AppModel::$writable_fields;
+		AppModel::$writable_fields = array();
 		$this->setUrlToCancel();
 		
 		// set data for initial data to allow bank to override data
@@ -1615,7 +1621,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//B- Validate new aliquot created + realiquoting data
 				
 				$new_aliquot_created = false;
-				
+				$child_got_volume = false;
 				foreach($parent_and_children as $tmp_id => $child) {
 					
 					if(is_numeric($tmp_id)) {
@@ -1628,7 +1634,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 							if(empty($child_aliquot_ctrl['AliquotControl']['volume_unit'])){
 								$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 							}
-							$child['AliquotMaster']['current_volume'] = $child['AliquotMaster']['initial_volume'];				
+							$child['AliquotMaster']['current_volume'] = $child['AliquotMaster']['initial_volume'];
+							$child_got_volume = true;
 						}
 						
 						// Validate and update position data
@@ -1684,14 +1691,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}	
 			}
 
-			//because we use the same table for 2 saves (addgrid and edit), we cannot use $this->AliquotMaster->removeWritableField
-			AppModel::$writable_fields['aliquot_masters']['edit'] = array_diff(AppModel::$writable_fields['aliquot_masters']['edit'], array('collection_id', 'sample_master_id'));
-			AppModel::$writable_fields['aliquot_masters']['addgrid'][] = 'collection_id';
-			AppModel::$writable_fields['aliquot_masters']['addgrid'][] = 'sample_master_id';
-			AppModel::$writable_fields['aliquot_masters']['addgrid'][] = 'aliquot_control_id';
-			$this->AliquotMaster->addWritableField(array('storage_coord_x', 'storage_coord_y', 'storage_master_id'));
+			$child_writable_fields['aliquot_masters']['addgrid'] = array_merge($child_writable_fields['aliquot_masters']['addgrid'], array('collection_id', 'sample_master_id', 'aliquot_control_id', 'storage_coord_x', 'storage_coord_y', 'storage_master_id'));
 			$this->Realiquoting->writable_fields_mode = 'addgrid';
-			$this->Realiquoting->addWritableField(array('parent_aliquot_master_id', 'child_aliquot_master_id', 'lab_book_master_id', 'sync_with_lab_book'));
+			$child_writable_fields['realiquotings']['addgrid'] = array_merge($child_writable_fields['realiquotings']['addgrid'], array('parent_aliquot_master_id', 'child_aliquot_master_id', 'lab_book_master_id', 'sync_with_lab_book'));
+			if($child_got_volume){
+				$child_writable_fields['aliquot_masters']['addgrid'][] = 'current_volume';
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1716,7 +1721,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$parent_data['AliquotMaster']['storage_coord_x'] = '';
 						$parent_data['AliquotMaster']['storage_coord_y'] = '';
 					}
+					
 					$parent_data['AliquotMaster']['id'] = $parent_id;
+					$org_parent_data = $this->AliquotMaster->getOrRedirect($parent_id);
+					AppModel::$writable_fields = $org_parent_data['AliquotControl']['volume_unit'] ? $parent_vol_writable_fields : $parent_no_vol_writable_fields;
+					if(isset(AppModel::$writable_fields['tmp_detail_table'])){
+						AppModel::$writable_fields[$org_parent_data['AliquotControl']['detail_tablename']] = AppModel::$writable_fields['tmp_detail_table'];
+					} 
+					$this->AliquotMaster->data = array();
 					
 					$this->AliquotMaster->writable_fields_mode = 'edit';
 
@@ -1729,6 +1741,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 
+					$this->AliquotMaster->writable_fields_mode = 'addgrid';
+					AppModel::$writable_fields = $child_writable_fields;
 					foreach($parent_and_children['children'] as $children) {
 						
 						$realiquoting_data = array('Realiquoting' => $children['Realiquoting']);
@@ -1739,7 +1753,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						// B- Save children aliquot data	
 						$this->AliquotMaster->id = null;
 						$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-						$this->AliquotMaster->writable_fields_mode = 'addgrid';
+						
 						unset($children['AliquotMaster']['id']);
 						if(!$this->AliquotMaster->save($children, false)){
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
