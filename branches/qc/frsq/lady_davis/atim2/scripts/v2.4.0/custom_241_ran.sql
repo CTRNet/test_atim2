@@ -108,3 +108,10 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(8, 
 
 UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=216;
 UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id, en, fr) VALUES
+("barcode [%s] was created more than once", 
+ "Barcode [%s] was created more than once.",
+ "Le code à barres [%s] a été créé plus d'une fois."); 
+ 
+ 
