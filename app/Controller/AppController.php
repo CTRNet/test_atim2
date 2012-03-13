@@ -80,6 +80,12 @@ class AppController extends Controller {
 		return $hook_file;
 	}
 	
+	function beforeRender(){
+		//Fix an issue where cakephp 2.0 puts the first loaded model with the key model in the registry.
+		//Causes issues on validation messages
+		ClassRegistry::removeObject('model');
+	}
+	
 	function afterFilter(){
 // 		global $start_time;
 // 		echo("Exec time (sec): ".(AppController::microtime_float() - $start_time));

@@ -854,7 +854,12 @@ function initActions(){
 	}
 	
 	function warningMoreInfoClick(event){
-		$(event.srcElement).toggle(function(){$(this).html("[+]");}, function(){$(this).html("[-]");}).siblings("pre.warningMoreInfo").toggle();
+		//only called on the first click of each element, then toggle function handles it
+		$(event.srcElement).toggle(function(){
+			$(this).html("[-]").siblings("pre.warningMoreInfo").show();
+		}, function(){
+			$(this).html("[+]").siblings("pre.warningMoreInfo").hide();
+		}).click();
 	}
 	
 	

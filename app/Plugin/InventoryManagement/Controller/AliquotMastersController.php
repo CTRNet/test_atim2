@@ -2362,6 +2362,27 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->set('cancel_link', AppController::getCancelLink($this->request->data));
 		}
 	}
+	
+	function editRealiquoting($realiquoting_id){
+		$data = $this->Realiquoting->getOrRedirect($realiquoting_id);
+		$this->Structures->set('realiquotedparent');
+		
+		if($this->request->data){
+			$this->Realiquoting->id = $realiquoting_id;
+			$this->Realiquoting->data = array();
+			if($this->Realiquoting->save($this->request->data)){
+				$this->AliquotMaster->updateAliquotUseAndVolume($data['AliquotMaster']['id'], true, false, false);
+				$this->atimFlash('your data has been saved', '/InventoryManagement/AliquotMasters/detail/'.$data['AliquotMasterChildren']['collection_id'].'/'.$data['AliquotMasterChildren']['sample_master_id'].'/'.$data['AliquotMasterChildren']['id']);
+			}
+		}else{
+			$data['AliquotControl'] = $this->AliquotControl->getOrRedirect($data['AliquotMaster']['aliquot_control_id']);
+			$data['AliquotControl'] = $data['AliquotControl']['AliquotControl'];
+			$this->request->data = $data;
+		}
+		
+		$this->SampleMaster->recursive = 0;
+		$sample = $this->SampleMaster->getOrRedirect($data['AliquotMasterChildren']['sample_master_id']);
+		$this->setAliquotMenu(array('AliquotMaster' => $data['AliquotMasterChildren'], 'SampleMaster' => $sample['SampleMaster'], 'SampleControl' => $sample['SampleControl']), false);
+		$this->set('realiquoting_id', $realiquoting_id);
+	}
 }
-
-?>

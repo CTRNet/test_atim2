@@ -53,7 +53,7 @@ class StructuresComponent extends Component {
 						
 						if($tablename){
 							foreach(array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag){
-								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly']){
+								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly'] && $sfs['type'] != 'hidden'){
 									AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'];
 									if($sfs['type'] == 'date' || $sfs['type'] == 'datetime'){
 										AppModel::$writable_fields[$tablename][$flag][] = $sfs['field'].'_accuracy';
