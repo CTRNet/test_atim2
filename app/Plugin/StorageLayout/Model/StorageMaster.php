@@ -958,7 +958,7 @@ class StorageMaster extends StorageLayoutAppModel {
 			}
 			
 			//Is there a condition based on empty_space? 
-			if(isset($query['conditions'])){
+			if(isset($query['conditions']) && is_array($query['conditions'])){
 				$empty_space_condition = false;
 				foreach($query['conditions'] as $key => $val){
 					if(strpos($key, '0.empty_space') === 0){
@@ -988,7 +988,10 @@ class StorageMaster extends StorageLayoutAppModel {
 						array('table' => 'storage_masters', 'alias' => 'StorageMasterChild', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = StorageMasterChild.parent_id', 'StorageMasterChild.deleted = 0'))
 				);
 			
-				$query['fields'] = array('StorageMaster.*', 'StorageControl.*', 'IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(StorageMasterChild.id)) AS empty_spaces');
+				$query['fields'] = array('StorageMaster.*', 'IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(StorageMasterChild.id)) AS empty_spaces');
+				foreach(array_keys($this->belongsTo) as $model_to_fetch){
+					$query['fields'][] = $model_to_fetch.'.*';
+				}
 				$query['group'] = array('StorageMaster.id');
 			}
 		}
