@@ -546,6 +546,145 @@ function participantDataCompletion(Model $m, $participant_id, $diagnosis_master_
 	
 	addOtherTreatment('Chimio::Pré op', 'chemotherapy','pre', $m, $participant_id, $diagnosis_master_id);
 	addOtherTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
+	
+	addEvent(array('CA125 au Dx'), 'lab', 'ovary', 'CA125', $m, $participant_id, $diagnosis_master_id);
+	addEvent(array('CTScan (+ ou -)'), 'clinical', 'all', 'ctscan', $m, $participant_id, $diagnosis_master_id);
+	addEvent(array('Immuno (IHC)::ER','Immuno (IHC)::PR','Immuno (IHC)::P53','Immuno (IHC)::CA125'), 'lab', 'ovary', 'immunohistochemistry', $m, $participant_id, $diagnosis_master_id);
+
+}
+
+function addEvent($fields, $event_group, $disease_site, $event_type, Model $m, $participant_id, $diagnosis_master_id = null) {
+	$empty_data = true;
+ 	foreach($fields as $field) {
+		if(!array_key_exists(utf8_decode($field), $m->values)) die('ERR 43311111');
+		if(strlen($m->values[$field])) $empty_data = false;
+	}
+	if($empty_data) return;
+	
+	if(!isset(Config::$event_controls[$event_group][$disease_site][$event_type])) die('ERR 88998379');
+	$event_control_id = Config::$event_controls[$event_group][$disease_site][$event_type]['event_control_id'];
+	$detail_tablename = Config::$event_controls[$event_group][$disease_site][$event_type]['detail_tablename'];
+	
+	$all_events_data = array(
+		'record_1' => array('date' => null, 'master' => array(), 'detail' => array(), 'note' => ''),
+		'record_2' => array('date' => null, 'master' => array(), 'detail' => array(), 'note' => ''));
+	
+	switch($event_type) {
+		
+		case 'CA125':
+			
+			$value_tmp = utf8_encode($m->values[$fields[0]]);
+		
+			if($value_tmp == 'ND') {
+				Config::$summary_msg['CA125']['@@WARNING@@']['CA125 value = ND'][] = "CA125 was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
+				return;
+			
+			} else if(preg_match('/^[0-9]+([\.,][0-9]+)?$/',$value_tmp,$matches)) {
+				//361,5
+				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $value_tmp)."'";
+				$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
+				unset($all_events_data['record_2']);
+						
+			} else if(preg_match('/^([0-9]+)([\.,][0-9]+)? \((19|20)([0-9]{2})\-([01][0-9])(\-[0-3][0-9]){0,1}\)(.*)$/',$value_tmp,$matches)) {
+				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
+				$all_events_data['record_1']['date'] = $matches[3].$matches[4].'-'.$matches[5].(empty($matches[6])? '' : $matches[6]);
+				
+				if(empty($matches[7])) {
+					$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
+					unset($all_events_data['record_2']);
+					
+				} else {
+					if(preg_match('/^, ([0-9]+)([\.,][0-9]+)? \((19|20)([0-9]{2})\-([01][0-9])(\-[0-3][0-9]){0,1}\)$/',$matches[7],$matches)) {
+						$all_events_data['record_2']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
+						$all_events_data['record_2']['date'] = $matches[3].$matches[4].'-'.$matches[5].(empty($matches[6])? '' : $matches[6]);
+						
+						Config::$summary_msg['CA125']['@@WARNING@@']['Two CA125 values'][] = "CA125 was defined twice [$value_tmp]: unable to define which one is the CA125 at diagnosis! [Line: ".$m->line.']';		
+
+					} else {
+						Config::$summary_msg['CA125']['@@ERROR@@']['CA125 value unsupported'][] = "The CA125 value [$value_tmp] is not supported by the migration process! Record won't be created. Please reformate data! [Line: ".$m->line.']';		
+						return;
+					}
+				} 							
+			} else if(preg_match('/^([0-9]+)([\.,][0-9]+)? \((19|20)([0-9]{2})\-([01][0-9])(\-[0-3][0-9]){0,1} = ([0-9]+)([\.,][0-9]+)?\)$/',$value_tmp,$matches)) {
+				//2858 (2008-08-04 = 36)
+				//448 (2004-05 = 26)
+				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
+				$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
+				
+				$all_events_data['record_2']['detail']['value']=  "'".str_replace(',', '.', $matches[7].(isset($matches[8])?$matches[8] : ''))."'";
+				$all_events_data['record_2']['date'] = $matches[3].$matches[4].'-'.$matches[5].(empty($matches[6])? '' : $matches[6]);
+				
+				Config::$summary_msg['CA125']['@@MESSAGE@@']['Defined CA125 at diagnosis #1'][] = "CA125 was defined twice [$value_tmp]: defined the first one as CA125 at diagnosis! [Line: ".$m->line.']';		
+				
+			} else if(preg_match('/^([0-9]+)([\.,][0-9]+)? \(([0-9]+)([\.,][0-9]+)? le (19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\)$/',$value_tmp,$matches)){
+				//903,5 (141,5 le 2010-04-10)
+				
+				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
+				$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
+				
+				$all_events_data['record_2']['detail']['value']=  "'".str_replace(',', '.', $matches[3].(empty($matches[4])?'': $matches[4]))."'";
+				$all_events_data['record_2']['date'] = $matches[5].$matches[6].'-'.$matches[7].'-'.$matches[8];
+				
+				Config::$summary_msg['CA125']['@@MESSAGE@@']['Defined CA125 at diagnosis #2'][] = "CA125 was defined twice [$value_tmp]: defined the first one as CA125 at diagnosis! [Line: ".$m->line.']';		
+					
+			} else {
+				Config::$summary_msg['CA125']['@@ERROR@@']['CA125 value unsupported'][] = "The CA125 value [$value_tmp] is not supported by the migration process! Record won't be created. Please reformate data! [Line: ".$m->line.']';		
+				return;
+			}		
+					
+			break;
+			
+			
+		case 'ctscan':
+			
+			$value_tmp = utf8_encode($m->values[$fields[0]]);
+			if($value_tmp == 'ND') {
+				Config::$summary_msg['CTSCan']['@@WARNING@@']['CTSCan value = ND'][] = "CTSCan was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
+				return;
+				
+			} else if(in_array($value_tmp, array('Positif','positif'))) { 
+				$all_events_data['record_1']['detail']['result'] =  "'positive'";
+				unset($all_events_data['record_2']);
+				
+			} else if(in_array($value_tmp, array('Négatif','Negatif'))) { 
+				$all_events_data['record_1']['detail']['result'] =  "'negative'";
+				unset($all_events_data['record_2']);
+				
+			} else {
+				Config::$summary_msg['CTSCan']['@@ERROR@@']['CTSCan value unsupported'][] = "The CTSCan value [$value_tmp] is not supported by the migration process! Record won't be created. Please reformate data! [Line: ".$m->line.']';		
+				return;
+			}
+			
+			break;
+			
+		case 'immunohistochemistry':
+			return;
+			break;
+			
+		default:
+			die('38929922');
+	}
+		
+	// RECORD EVENT
+	
+//TODO check why duplicated data OVC51(Voir OVC55)
+
+	foreach($all_events_data as $new_record_data) {
+		$master_fields = array(
+			'participant_id' => $participant_id,
+			'event_control_id' =>  $event_control_id,
+			'event_summary' => "'".str_replace("'","''",$new_record_data['note'])."'"
+		);
+		if(!empty($new_record_data['date'])) {
+			$date_tmp = getDateAndAccuracy($new_record_data['date']);
+			$master_fields['event_date'] = "'".$date_tmp['date']."'";
+			$master_fields['event_date_accuracy'] = "'".$date_tmp['accuracy']."'";
+		}	
+		if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
+		$event_master_id = customInsertChusRecord( array_merge($master_fields,$new_record_data['master']), 'event_masters');	
+		customInsertChusRecord(array_merge(array('event_master_id' => $event_master_id), $new_record_data['detail']), $detail_tablename, true);
+	
+	}
 }
 
 function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m, $participant_id, $diagnosis_master_id = null) {
@@ -559,7 +698,10 @@ function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m,
 	$trt_data = utf8_encode($m->values[utf8_decode($field)]);
 	if(empty($trt_data) || ($trt_data == 'non')) {
 		return;
-	}
+	} else if($trt_data == 'ND') {
+		Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['treatment value = ND'][] = "Treatment was defined as 'ND'! No treatment will be created and information won't be recorded! [Line: ".$m->line.']';		
+		return;
+	}	
 	
 	$start_date = null;
 	$finish_date = null;
@@ -572,12 +714,12 @@ function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m,
 		} else if(preg_match('/^(19|20)([0-9]{2})$/',$trt_data,$matches)) {
 			//2001
 			$start_date = $matches[1].$matches[2];
-			$notes = $trt_data;
+			//$notes = $trt_data;
 		
 		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\)$/',$trt_data,$matches)) {
 			//oui (2005-01)
 			$start_date = $matches[1].$matches[2].'-'.$matches[3];
-			if($matches[1].$matches[2] < $matches[1].$matches[3]) Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Confirm date defintion'][] = "From '$trt_data', the migration process defined start date = '$start_date' (instead to defined start_date = '".$matches[1].$matches[2]."' and finsih_date = '".$matches[1].$matches[3]."'! Please confirm! [Line: ".$m->line.']';		
+			if($matches[1].$matches[2] < $matches[1].$matches[3]) Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Confirm date defintion'][] = "From '$trt_data', the migration process defined start date = '$start_date' and no finsih_date (and not start_date = '".$matches[1].$matches[2]."' and finsih_date = '".$matches[1].$matches[3]."'! Please confirm! [Line: ".$m->line.']';		
 			
 		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([9][0-9])\)$/',$trt_data,$matches)) {
 			//oui (1991-96)
@@ -714,7 +856,7 @@ function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m,
 	customInsertChusRecord($detail_fields, $detail_tablename, true);
 	
 	if(!empty($start_date) && !empty($finish_date) && (str_replace('-','',$start_date) > str_replace('-','',$finish_date))) {
-		Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Date error'][$trt_data] = "Dates definition error (from $start_date to $finish_date)! [Line: ".$m->line.']';		
+		Config::$summary_msg[strtoupper($treatment_type)]['@@ERROR@@']['Date error'][$trt_data] = "Dates definition error (from $start_date to $finish_date)! [Line: ".$m->line.']';		
 	}
 
 }
