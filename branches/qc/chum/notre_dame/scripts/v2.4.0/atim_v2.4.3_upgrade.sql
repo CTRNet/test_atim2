@@ -2,7 +2,7 @@
 
 -- Update version information
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.4.3', NOW(), '4043');
+('2.4.3', NOW(), '4244');
 
 UPDATE structure_fields SET  `type`='integer_positive',  `structure_value_domain`= NULL  WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='hrt_years_used' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='hrt_years_used');
 UPDATE structure_fields SET  `setting`='' WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='age_at_menopause' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
@@ -87,3 +87,128 @@ INSERT INTO coding_icd_o_3_morphology (id, en_description, fr_description, trans
 ("99923", "Refractory thrombocytopenia", "", 0);
 
 UPDATE coding_icd_o_3_morphology SET source='SEER', fr_description=en_description WHERE source='';
+
+UPDATE aliquot_masters am, (SELECT COUNT(*) AS real_use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) uses
+SET am.use_counter = uses.real_use_counter
+WHERE uses.aliquot_master_id = am.id AND am.deleted != 1 AND (am.use_counter != uses.real_use_counter OR am.use_counter IS NULL OR am.use_counter LIKE '');
+
+-- Purified RNA Creation ------------------------------------------------------------------------
+
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_category`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'purified rna', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivatives', 'sd_der_purified_rnas', 0, 'purified rna');
+SET @purified_rna_ctrl_id = LAST_INSERT_ID();
+
+CREATE TABLE IF NOT EXISTS `sd_der_purified_rnas` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_sd_der_purified_rnas_sample_masters` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `sd_der_purified_rnas_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `sd_der_purified_rnas`
+  ADD CONSTRAINT `FK_sd_der_purified_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,	derivative_sample_control_id, flag_active) 
+VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'rna'), @purified_rna_ctrl_id, 1); 
+
+INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(null, @purified_rna_ctrl_id, 'tube', '(ul + conc)', 'aliquot_masters,ad_der_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', 1, 'Derivative tube requiring volume in ul and concentration', 0, 'tube');
+SET @purified_rna_alq_ctrl_id = LAST_INSERT_ID();
+
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active) VALUES (@purified_rna_alq_ctrl_id,@purified_rna_alq_ctrl_id,1);
+
+INSERT INTO i18n (id,en,fr) VALUES ('purified rna', 'Purified RNA', 'ARN purifié');
+
+
+SET @purified_rna_ctrl_id = (SELECT id FROM sample_controls WHERE sample_type = 'purified rna');
+SET @purified_rna_alq_ctrl_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @purified_rna_ctrl_id);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE derivative_sample_control_id = @purified_rna_ctrl_id;
+UPDATE aliquot_controls SET flag_active=false WHERE sample_control_id = @purified_rna_ctrl_id;
+UPDATE realiquoting_controls SET flag_active=false WHERE parent_aliquot_control_id = @purified_rna_alq_ctrl_id;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) VALUEs 
+('inv_creation_datetime_defintion', 
+'Date of the process that allowed to obtain the derivative from a parent sample (DNA extraction, blood centrifugation, protein extraction, RNA amplification, etc).',
+'Date du processus qui a permis d''obtenir l''échantillon dérivé à partir d''un échantillon parent (extraction d''ADN, centrifugation de sang, extraction de protéines, amplification d''ARN, etc).'),
+
+('inv_reception_datetime_defintion', 
+'Date of the specimen reception into the bank/lab (the specimen is physically present into the bank or a lab people just take possession of the sample).',
+'Date de réception du spécimen dans la banque/laboratoire (l''échantillon est physiquement présent dans la banque ou une personne du laboratoire vient de prendre possession de l''échantillon).'),
+
+('inv_collection_datetime_defintion', 
+'Date of the specimen collection (surgery date, biopsy date, urine collection date, etc).', 
+'Date du prélèvement du spécimen (ex: date de la chirurgie, date de la biopsie, date de la collection d''urine, etc).');
+
+UPDATE structure_fields SET language_help = 'inv_coll_to_creation_spent_time_msg_defintion' WHERE field = 'coll_to_creation_spent_time_msg' AND model = 'Generated' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_coll_to_rec_spent_time_msg_defintion' WHERE field = 'coll_to_rec_spent_time_msg' AND model = 'Generated' AND language_help = '';
+
+UPDATE structure_fields SET language_help = 'inv_rec_to_stor_spent_time_msg_defintion' WHERE field = 'inv_rec_to_stor_spent_time_msg_defintion' AND model = 'Generated' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_creat_to_stor_spent_time_msg_defintion' WHERE field = 'creat_to_stor_spent_time_msg' AND model = 'Generated' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_coll_to_stor_spent_time_msg_defintion' WHERE field = 'coll_to_stor_spent_time_msg' AND model = 'Generated' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_rec_to_stor_spent_time_msg_defintion' WHERE field = 'rec_to_stor_spent_time_msg' AND model = 'Generated' AND language_help = '';
+
+UPDATE structure_fields SET language_help = 'inv_initial_storage_datetime_defintion' WHERE field = 'storage_datetime' AND model = 'AliquotMaster' AND language_help = '';
+
+INSERT INTO i18n (id,en,fr) VALUES
+('inv_coll_to_creation_spent_time_msg_defintion', 
+'Elapsed time between the date of the specimen collection (surgery date, biopsy date, urine collection date, etc) and the date of the process that allowed to obtain the derivative (DNA extraction, blood centrifugation, protein extraction, RNA amplification, etc).',
+'Temps écoulé entre la date du prélèvement du specimen (date de la chirurgie, la date biopsie, date du prélèvement d''urine, etc) et la date du processus qui a permis d''obtenir le dérivé (extraction d''ADN, centrifugation du sang, extraction des protéines, amplification d''ARN, etc).'),
+
+('inv_coll_to_rec_spent_time_msg_defintion',
+'Elapsed time between the date of the specimen collection (surgery date, biopsy date, urine collection date, etc) and the date of the specimen reception into the bank/lab (the specimen is physically present into the bank or a lab people just take possession of the sample).',
+'Temps écoulé entre la date du prélèvement du specimen (date de la chirurgie, la date biopsie, date du prélèvement d''urine, etc) et la date de réception du spécimen dans la banque/laboratoire (l''échantillon est physiquement présent dans la banque ou une personne du laboratoire vient de prendre possession de l''échantillon).'),
+
+('inv_initial_storage_datetime_defintion',
+'Date the aliquot (tube, block, etc) has been stored (into a freezer, fridge, nitrogen container, etc) for the first time whatever happens in the futur for this aliquot (aliquot move, use, etc).',
+'Date à laquelle l''aliquot (tube, bloc, etc) a été entreposé (dans un congélateur, un réfrigérateur, un conteneur d''azote, etc) pour la première fois, quoi qu''il arrive à cet aliquot dans le futur (déplacemement de l''aliquot, utilisation, etc.)'),
+
+('inv_rec_to_stor_spent_time_msg_defintion',
+'Elapsed time between the date of the specimen reception into the bank/lab (the specimen is physically present into the bank or a lab people just take possession of the sample) and the date the aliquot (tube, block, etc) has been stored (into a freezer, fridge, nitrogen container, etc) for the first time.',
+'Temps écoulé entre la date de réception du spécimen dans la banque/laboratoire (l''échantillon est physiquement présent dans la banque ou une personne du laboratoire vient de prendre possession de l''échantillon) et la date à laquelle l''aliquot (tube, bloc, etc) a été entreposé (dans un congélateur, un réfrigérateur, un conteneur d''azote, etc) pour la première fois.'),
+
+('inv_creat_to_stor_spent_time_msg_defintion',
+'Elapsed time between the date of the process that allowed to obtain the derivative from a parent sample (DNA extraction, blood centrifugation, protein extraction, RNA amplification, etc) and the date the aliquot (tube, block, etc) has been stored (into a freezer, fridge, nitrogen container, etc) for the first time.',
+'Temps écoulé entre la date du processus qui a permis d''obtenir l''échantillon dérivé à partir d''un échantillon parent (extraction d''ADN, centrifugation de sang, extraction de protéines, amplification d''ARN, etc) et la date à laquelle l''aliquot (tube, bloc, etc) a été entreposé (dans un congélateur, un réfrigérateur, un conteneur d''azote, etc) pour la première fois.'),
+
+('inv_coll_to_stor_spent_time_msg_defintion',
+'Elapsed time between the date of the specimen collection (surgery date, biopsy date, urine collection date, etc) and the date the aliquot (tube, block, etc) has been stored (into a freezer, fridge, nitrogen container, etc) for the first time.',
+'Temps écoulé entre la date du prélèvement du spécimen (ex: date de la chirurgie, date de la biopsie, date de la collection d''urine, etc) la date à laquelle l''aliquot (tube, bloc, etc) a été entreposé (dans un congélateur, un réfrigérateur, un conteneur d''azote, etc) pour la première fois.');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('time_at_room_temp_mn_help',
+'Elapsed time (minutes) between the collection time and the first time the specimen has been stored at low temperature (Ex: Elapsed time between blood sampling and blood storage by the nurse in a fridge before the lab people take possession of the tubes).',
+'Temps écoulé (en minutes) entre l''heure de collection et l''heure ou les spécimens ont été placés à basse température (ex: temps écoulé entre le prélèvement de sang et le stockage du sang par l''infirmière dans un réfrigérateur avant que les personnes du laboratoire prennent possession des tubes).');
+
+UPDATE structure_fields SET language_help = 'inv_realiquoting_datetime_defintion' WHERE field = 'realiquoting_datetime' AND model = 'Realiquoting' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_pathology_reception_datetime_defintion' WHERE field = 'pathology_reception_datetime' AND model = 'SampleDetail' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_quality_control_date_defintion' WHERE field = 'date' AND model = 'QualityCtrl' AND language_help = '';
+UPDATE structure_fields SET language_help = 'inv_use_datetime_defintion' WHERE field = 'use_datetime' AND language_help = '';
+
+DELETE FROM i18n WHERE id IN ('inv_realiquoting_datetime_defintion', 'inv_quality_control_date_defintion', 'inv_pathology_reception_datetime_defintion', 'inv_use_datetime_defintion');
+INSERT INTO i18n (id,en,fr) VALUES
+('inv_realiquoting_datetime_defintion',
+'Date an aliquot of a sample has been realiquoted to create one or many aliquots of this sample from the this aliquot source (ex: DNA tube creation from a stored DNA tube for shipping, tissue block creation from tissue tube, etc).',
+'Date à laquelle l''aliquot d''un échantillon a été realiquoté afin de créer un ou plusieurs aliquots de ce même échantillon à partir de l''aliquot source (ex: création d''un tube d''ADN à partir d''un autre tube d''ADN entreposé pour une expédition, la création d''un bloc de tissu à partir d''un tube de tissu, etc).'),
+
+('inv_pathology_reception_datetime_defintion',
+'Date a specimen has been received in the department of pathology just before the lab people take possession of this specimen (ex: when the specimen is delivered to the lab people by the pathology departmement).',
+'Date à laquelle un spécimen a été reçu dans le département de pathologie juste avant que les personnes du laboratoire prennent possession de ce spécimen (ex: lorsque l''échantillon est délivré aux personnes laboratoire par le departmement pathologie).'),
+
+('inv_quality_control_date_defintion',
+'Date a sample and/or an aliquot has been tested to define the quality, the concentration, etc.',
+'Date à laquelle un échantillon et /ou un aliquot a été testé pour évaluer la qualité, la concentration, etc.'),
+
+('inv_use_datetime_defintion',
+'Date an aliquot has been used (quality control, realiquoting, internal use (loan to another lab, etc), order, etc).',
+'Date à laquelle un aliquot a été utilisé (contrôle de la qualité, ''realiquotage'', usage interne (prêt à un autre laboratoire, etc), commande, etc).');
