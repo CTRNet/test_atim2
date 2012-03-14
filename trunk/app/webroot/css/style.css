@@ -1978,3 +1978,15 @@ table.structure.lineHighlight table.columns.index tbody tr:hover{
 tr.chkLine, table.columns.index tbody tr.chkLine:nth-child(even){
 	background-color: #ff9;
 }
+
+@media print
+{
+	.prHide, .root_menu_for_header, .main_menu_for_header, div.actions, span.icon16.help, div.submitBar{
+		display: none;	
+	}
+	
+	table { page-break-inside:auto }
+    tr    { page-break-inside:avoid; page-break-after:auto }
+    thead { display:table-header-group }
+    tfoot { display:table-footer-group }
+}
