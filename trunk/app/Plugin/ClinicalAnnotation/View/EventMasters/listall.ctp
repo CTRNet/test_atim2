@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'index' => array( 
 			'detail' => array(
-				'link' => '/ClinicalAnnotation/EventMasters/detail/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%',
+				'link' => '/ClinicalAnnotation/EventMasters/detail/'.$atim_menu_variables['Participant.id'].'/%%EventMaster.id%%',
 				'icon' => 'detail')
 		),
 		'bottom' => array(

@@ -216,7 +216,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		foreach($annotations as $annotation){
 			$tmp_array[$annotation['EventMaster']['event_date']][] = array(
 				'event' => __($annotation['EventControl']['event_type']), 
-				'link' => '/ClinicalAnnotation/EventMasters/detail/'.$annotation['EventControl']['event_group'].'/'.$participant_id.'/'.$annotation['EventMaster']['id'],
+				'link' => '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$annotation['EventMaster']['id'],
 				'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c'
 			);
 		}

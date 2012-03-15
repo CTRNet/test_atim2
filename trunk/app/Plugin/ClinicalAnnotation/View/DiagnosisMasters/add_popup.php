@@ -27,7 +27,7 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/EventMasters/add/')){
 		$current[$event_ctrl['EventControl']['event_group']][$event_ctrl['EventControl']['id']] = __($event_ctrl['EventControl']['event_type']);
 	}
 	foreach($current as $group_name => $grp_options){
-		$options[] = array('grpName' => __('event').' - '.__($group_name), 'data' => $grp_options, 'link' => 'ClinicalAnnotation/EventMasters/add/'.$group_name.'/'.$atim_menu_variables['Participant.id'].'/');
+		$options[] = array('grpName' => __('event').' - '.__($group_name), 'data' => $grp_options, 'link' => 'ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id'].'/');
 	}
 }
 AppController::$highlight_missing_translations = true;

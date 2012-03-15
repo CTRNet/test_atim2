@@ -54,13 +54,13 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function detail( $event_group, $participant_id, $event_master_id, $is_ajax = 0 ) {
+	function detail( $participant_id, $event_master_id, $is_ajax = 0 ) {
 		// MANAGE DATA
 		$this->request->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if(empty($this->request->data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}	
-
+		$event_group = $this->request->data['EventControl']['event_group'];
 		$diagnosis_data = $this->DiagnosisMaster->getRelatedDiagnosisEvents($this->request->data['EventMaster']['diagnosis_master_id']);
 		$this->set('diagnosis_data', $diagnosis_data);
 		
@@ -85,11 +85,12 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function add( $event_group, $participant_id, $event_control_id, $diagnosis_master_id = null) {
+	function add( $participant_id, $event_control_id, $diagnosis_master_id = null) {
 		// MANAGE DATA
 
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$event_control_data = $this->EventControl->getOrRedirect($event_control_id);
+		$event_group = $event_control_data['EventControl']['event_group'];
 		
 		// Set diagnosis data for diagnosis selection (radio button)
 		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
@@ -140,17 +141,18 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$event_group.'/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 			}
 		} 
 	}
 	
-	function edit( $event_group, $participant_id, $event_master_id ) {
+	function edit( $participant_id, $event_master_id ) {
 		// MANAGE DATA
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
+		$event_group = $event_master_data['EventControl']['event_group'];
 		
 		// Set diagnosis data for diagnosis selection (radio button)
 		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
@@ -184,26 +186,25 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			if( $hook_link ) { 
 				require($hook_link); 
 			}
-			
+			$this->EventMaster->addWritableField('diagnosis_master_id');
 			if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->request->data = $event_master_data;
 		}
 	}
 
-	function delete($event_group, $participant_id, $event_master_id) {
-		if ((!$participant_id) || (!$event_master_id)) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); }
-
+	function delete($participant_id, $event_master_id) {
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
+		$event_group = $event_master_data['EventControl']['event_group'];
 		
 		$arr_allow_deletion = $this->EventMaster->allowDeletion($event_master_id);
 		
@@ -220,7 +221,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/EventMasters/detail/'.$event_group.'/'.$participant_id.'/'.$event_master_id);
+			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 		}
 	}
 }
