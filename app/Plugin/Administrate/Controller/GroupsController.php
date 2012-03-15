@@ -49,6 +49,9 @@ class GroupsController extends AdministrateAppController {
 	}
 
 	function edit($group_id = null ) {
+		if($group_id == 1){
+			$this->flash('the group administrators cannot be edited', '/Administrate/Groups/detail/1');
+		}
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		
 		if (!$group_id && empty($this->request->data)) {
@@ -97,11 +100,10 @@ class GroupsController extends AdministrateAppController {
 		$this->set('aco_options',$aco_options);
 	}
 
-	function delete( $group_id = null ) {
-		if (!$group_id) {
-			$this->flash('Invalid id for Group', '/Administrate/Groups/index/');
+	function delete( $group_id) {
+		if($group_id == 1){
+			$this->flash('the group administrators cannot be deleted', '/Administrate/Groups/detail/1');
 		}
-		
 		$this->request->data = $this->User->find('first',array('conditions'=>array('User.group_id'=>$group_id)));
 		$this->hook();
 

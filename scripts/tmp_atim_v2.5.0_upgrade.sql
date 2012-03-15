@@ -38,7 +38,16 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("unsaved batch sets that are automatically deleted when there are more than %d",
  "Unsaved batch sets that are automatically deleted when there are more than %d.",
  "Lots de données non enregistrés qui sont supprimés automatiquement lorsqu'il y en a plus de %d."),
-("saved batch sets", "Saved batch sets", "Lots de données enregistrés");   
+("saved batch sets", "Saved batch sets", "Lots de données enregistrés"),
+("permissions were altered to grant group administrators all administrative privileges",
+ "Permissions were altered to grant group \"Administrators\" all administrative privileges.",
+ "Les permissions ont été altérées pour que le groupe des \"Administrators\" ait tous les privilèges d'administration."),
+("the group administrators cannot be deleted",
+ "The group \"Administrators\" cannot be deleted.",
+ "Le groups \"Administrators\" ne peut pas être supprimé."),
+("the group administrators cannot be edited",
+ "The group \"Administrators\" cannot be edited.",
+ "Le groups \"Administrators\" ne peut pas être modifié.");
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
