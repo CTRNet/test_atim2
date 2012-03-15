@@ -17,6 +17,12 @@ class Collection extends InventoryManagementAppModel {
 		), 'ConsentMaster' => array(
 			'className' => 'ClinicalAnnotation.ConsentMaster',
 			'foreignKey' => 'consent_master_id'
+		), 'TreatmentMaster' => array(
+			'className'	=> 'ClinicalAnnotation.TreatmentMaster',
+			'foreignKey'	=> 'treatment_master_id'
+		), 'EventMaster'	=> array(
+			'className'	=> 'ClinicalAnnotation.EventMaster',
+			'foreignKey'	=> 'event_master_id'
 		)
 	);
 	
@@ -87,6 +93,28 @@ class Collection extends InventoryManagementAppModel {
 	 */
 	function allowLinkDeletion($collection_id) {
 		return array('allow_deletion' => true, 'msg' => '');
+	}
+	
+	function validates($options = array()) {
+		//make sure all linked model are owned by the right participant
+		$tmp_data = $this->data;
+		$prev_data = null;
+		if($this->id){
+			$prev_data = $this->read();
+			$this->data = $tmp_data;
+		}
+		foreach(array('ConsentMaster' => 'consent_master_id', 'DiagnosisMaster' => 'diagnosis_master_id', 'TreatmentMaster' => 'treatment_master_id', 'EventMaster' => 'event_master_id') as $model_name => $model_key){
+			if(isset($this->data['Collection'][$model_key]) && $this->data['Collection'][$model_key] && (!isset($prev_data['Collection'][$model_key]) || $prev_data['Collection'][$model_key] != $this->data['Collection'][$model_key])){
+				//defined and changed, check participant
+				$model = AppModel::getInstance('ClinicalAnnotation', $model_name, true);
+				$model_data = $model->getOrRedirect($this->data['Collection'][$model_key]);
+				if(empty($model_data) || $model_data[$model_name]['participant_id'] != $this->data['Collection']['participant_id']){
+					$this->validationErrors[] = 'ERROR: data owned by another partcipant for model ['.$model_name.']';
+				}
+			}
+		}
+		
+		return parent::validates($options);
 	}
 	
 }
