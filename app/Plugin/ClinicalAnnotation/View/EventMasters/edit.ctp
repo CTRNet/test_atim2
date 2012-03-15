@@ -1,7 +1,7 @@
 <?php 
 
 	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/EventMasters/edit/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'],
+		'top'=>'/ClinicalAnnotation/EventMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'],
 	);
 	
 	// 1- EVENT DATA
@@ -34,9 +34,9 @@
 	$radio_checked = empty($this->request->data['EventMaster']['diagnosis_master_id']); 
 	
 	$structure_links = array(
-		'top'=>'/ClinicalAnnotation/EventMasters/edit/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'],
+		'top'=>'/ClinicalAnnotation/EventMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id'],
 		'bottom'=>array(
-				'cancel'=>'/ClinicalAnnotation/EventMasters/detail/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id']
+				'cancel'=>'/ClinicalAnnotation/EventMasters/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventMaster.id']
 		),'tree'	=> array(
 			'DiagnosisMaster' => array(
 				'radiolist' => array('EventMaster.diagnosis_master_id'=>'%%DiagnosisMaster.id'.'%%')			

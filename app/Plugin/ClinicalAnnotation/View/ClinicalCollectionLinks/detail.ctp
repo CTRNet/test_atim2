@@ -103,7 +103,7 @@
 		$structure_bottom_links['treatment'] = '/ClinicalAnnotation/TreatmentMasters/detail/'.$collection['participant_id'].'/'.$collection['treatment_master_id'].'/';
 	}
 	if($collection['event_master_id']){
-		$structure_bottom_links['event'] = '/ClinicalAnnotation/EventMasters/detail/'.$collection_data[0]['EventMaster']['EventControl']['event_group'].'/'.$collection['participant_id'].'/'.$collection['event_master_id'].'/';
+		$structure_bottom_links['event'] = '/ClinicalAnnotation/EventMasters/detail/'.$collection['participant_id'].'/'.$collection['event_master_id'].'/';
 	}
 	$final_options = array(
 		'data' 		=> isset($collection_data[0]['EventMaster']['EventMaster']['id']) ? array($collection_data[0]['EventMaster']) : array(),

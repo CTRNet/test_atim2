@@ -28,10 +28,10 @@
 			
 			), 'EventMaster' => array(
 				'see event summary' => array(
-					'link' => '/ClinicalAnnotation/EventMasters/detail/clinical/%%EventMaster.participant_id%%/%%EventMaster.id%%/1',
+					'link' => '/ClinicalAnnotation/EventMasters/detail/%%EventMaster.participant_id%%/%%EventMaster.id%%/1',
 					'icon' => 'annotation'
 				), 'access to all data' => array(
-					'link' => '/ClinicalAnnotation/EventMasters/detail/clinical/%%EventMaster.participant_id%%/%%EventMaster.id%%/',
+					'link' => '/ClinicalAnnotation/EventMasters/detail/%%EventMaster.participant_id%%/%%EventMaster.id%%/',
 					'icon' => 'access_to_data'
 				)
 			)

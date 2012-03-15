@@ -58,7 +58,7 @@ class EventControl extends ClinicalAnnotationAppModel {
 			$links[] = array(
 					'order' => $event_ctrl['EventControl']['display_order'],
 					'label' => __($event_ctrl['EventControl']['disease_site']).' - '.__($event_ctrl['EventControl']['event_type']),
-					'link' => '/ClinicalAnnotation/EventMasters/add/'.$event_group.'/'.$participant_id.'/'.$event_ctrl['EventControl']['id']
+					'link' => '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id']
 			);
 		}
 		AppController::buildBottomMenuOptions($links);
