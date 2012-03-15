@@ -240,11 +240,11 @@ INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag
 CREATE TABLE IF NOT EXISTS `chus_ed_clinical_followups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   
-  `weight_in_kg` decimal(6,2) DEFAULT NULL,  
-  `weight_in_lbs` decimal(6,2) DEFAULT NULL,  
-  `height_in_cm` decimal(6,2) DEFAULT NULL,  
-  `height_in_feet` decimal(6,2) DEFAULT NULL,  
-  `bmi` decimal(6,2) DEFAULT NULL, 
+  `weight_in_kg` decimal(8,2) DEFAULT NULL,  
+  `weight_in_lbs` decimal(8,2) DEFAULT NULL,  
+  `height_in_cm` decimal(8,2) DEFAULT NULL,  
+  `height_in_feet` decimal(8,2) DEFAULT NULL,  
+  `bmi` decimal(8,2) DEFAULT NULL, 
   
   `event_master_id` int(11) DEFAULT NULL,
   `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -255,11 +255,11 @@ CREATE TABLE IF NOT EXISTS `chus_ed_clinical_followups` (
 CREATE TABLE IF NOT EXISTS `chus_ed_clinical_followups_revs` (
   `id` int(11) NOT NULL,
   
-  `weight_in_kg` decimal(6,2) DEFAULT NULL,  
-  `weight_in_lbs` decimal(6,2) DEFAULT NULL,  
-  `height_in_cm` decimal(6,2) DEFAULT NULL,  
-  `height_in_feet` decimal(6,2) DEFAULT NULL,  
-  `bmi` decimal(6,2) DEFAULT NULL, 
+  `weight_in_kg` decimal(8,2) DEFAULT NULL,  
+  `weight_in_lbs` decimal(8,2) DEFAULT NULL,  
+  `height_in_cm` decimal(8,2) DEFAULT NULL,  
+  `height_in_feet` decimal(8,2) DEFAULT NULL,  
+  `bmi` decimal(8,2) DEFAULT NULL, 
   
   `event_master_id` int(11) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
