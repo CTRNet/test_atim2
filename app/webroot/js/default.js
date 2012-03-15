@@ -2,6 +2,10 @@ var toolTarget = null;
 var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
 var submitData = new Object();
 
+jQuery.fn.fullWidth = function(){
+	return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width")); 
+};
+
 function initSummary(){
 	var open = function(){
 		var summary_hover = $(this);
@@ -790,8 +794,20 @@ function initActions(){
 		});
 	}
 	
-	function flyOverSubmit(){
+	/**
+	 * Moves the submit button so that it always appear in the screen.
+	 * Moves the top right menu so that it's almost always in the screen. It 
+	 * will not overlap with the title.
+	 */
+	function flyOverComponents(){
 		$(".flyOverSubmit").css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
+		var r_pos = $(document).width() - $(window).width() - $(document).scrollLeft() + 10;
+		var l_pos = $(window).width() + $(document).scrollLeft() - $(".root_menu_for_header").width();
+		var total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left; 
+		if(l_pos < total_width){
+			r_pos -= total_width - l_pos;
+		}
+		$(".root_menu_for_header, .main_menu_for_header").css("right", r_pos);
 	}
 	
 	function initAutoHideVolume(){
@@ -997,9 +1013,8 @@ function initActions(){
 		$("input:visible, select:visible, textarea:visible").first().focus();
 		
 		//fly over submit button, always in the screen
-		flyOverSubmit();
-		$(window).scroll(flyOverSubmit);
-		$(window).resize(flyOverSubmit);
+		flyOverComponents();
+		$(window).scroll(flyOverComponents).resize(flyOverComponents);
 		
 		if(window.initPage){
 			initPage();
@@ -1230,7 +1245,7 @@ function initActions(){
 			$(".flyOverSubmit").show();
 		}
 		
-		flyOverSubmit();
+		flyOverComponents();
 		return false;
 	}
 	
@@ -1284,3 +1299,5 @@ function initActions(){
 			event.stopPropagation();
 		}
 	}
+
+	
