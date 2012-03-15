@@ -424,4 +424,77 @@ INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_
 ((SELECT id FROM structure_value_domains WHERE domain_name="chus_dx_nature"),
 (SELECT id FROM structure_permissible_values WHERE value="metastatic" AND language_alias="metastatic"), "4", "1");
 
+ALTER TABLE chus_ed_clinical_followups
+	DROP COLUMN weight_in_lbs,
+	DROP COLUMN height_in_feet;
+
+ALTER TABLE chus_ed_clinical_followups_revs
+	DROP COLUMN weight_in_lbs,
+	DROP COLUMN height_in_feet;	
+	
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('weight_in_lbs','height_in_feet') AND tablename = 'chus_ed_clinical_followups');
+DELETE FROM structure_fields WHERE field IN ('weight_in_lbs','height_in_feet') AND tablename = 'chus_ed_clinical_followups';
+
+ALTER TABLE `reproductive_histories` ADD `chus_hrt_use_precision` VARCHAR( 250 ) DEFAULT NULL AFTER `hrt_use` ;
+ALTER TABLE `reproductive_histories_revs` ADD `chus_hrt_use_precision` VARCHAR( 250 ) DEFAULT NULL AFTER `hrt_use` ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ReproductiveHistory', 'reproductive_histories', 'chus_hrt_use_precision', 'input',  NULL , '0', 'size=25', '', '', 'precision', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='reproductivehistories'), (SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='chus_hrt_use_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=25' AND `default`='' AND `language_help`='' AND `language_label`='precision' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='precision' WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='chus_hrt_use_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('chus_dx_ovary', 'chus_dx_breast')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field` IN ('clinical_tstage', 'clinical_nstage', 'clinical_mstage'));
+
+ALTER TABLE `chus_dxd_ovaries` 
+	DROP COLUMN `stage`;
+ALTER TABLE `chus_dxd_ovaries_revs` 
+	DROP COLUMN `stage`;
+ALTER TABLE `chus_dxd_breasts` 
+	DROP COLUMN `stage`;
+ALTER TABLE `chus_dxd_breasts_revs` 
+	DROP COLUMN `stage`;	
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='DiagnosisDetail' AND `tablename` IN ('chus_dxd_ovaries','chus_dxd_breasts') AND `field`='stage');
+DELETE FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='DiagnosisDetail' AND `tablename` IN ('chus_dxd_ovaries','chus_dxd_breasts') AND `field`='stage';
+
+UPDATE structure_formats SET `language_heading` = 'staging', `flag_override_label` = '1', `language_label` = 'clinical stage', `flag_override_tag` = '1', `language_tag` = ''
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('chus_dx_ovary', 'chus_dx_breast')) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND field = 'clinical_stage_summary');
+
+UPDATE structure_fields SET type = 'select', setting = '', structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='chus_dx_stage')
+WHERE `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND field = 'clinical_stage_summary';
+
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('chus_dx_ovary', 'chus_dx_breast'))  AND structure_field_id IN (SELECT id FROM structure_fields WHERE `plugin`='Clinicalannotation' AND `field`='path_stage_summary');
+
+UPDATE structure_fields SET  `type`='float_positive' WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='age_at_menarche';
+ALTER TABLE reproductive_histories
+ MODIFY age_at_menarche FLOAT UNSIGNED DEFAULT NULL;
+ALTER TABLE reproductive_histories_revs
+ MODIFY age_at_menarche FLOAT UNSIGNED DEFAULT NULL;
+
+ALTER TABLE `reproductive_histories` ADD `chus_evista_use_precision` VARCHAR( 250 ) DEFAULT NULL AFTER `chus_evista_use` ;
+ALTER TABLE `reproductive_histories_revs` ADD `chus_evista_use_precision` VARCHAR( 250 ) DEFAULT NULL AFTER `chus_evista_use` ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ReproductiveHistory', 'reproductive_histories', 'chus_evista_use_precision', 'input',  NULL , '0', 'size=25', '', '', '', 'precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='reproductivehistories'), (SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='chus_evista_use_precision' ), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+UPDATE structure_fields SET  `type`='float_positive' WHERE field='years_quit_smoking';
+ALTER TABLE ed_all_lifestyle_smokings
+ MODIFY years_quit_smoking FLOAT UNSIGNED DEFAULT NULL;
+ALTER TABLE ed_all_lifestyle_smokings_revs
+ MODIFY years_quit_smoking FLOAT UNSIGNED DEFAULT NULL;
+
+UPDATE structure_fields SET  `type`='float_positive' WHERE field='chus_duration_in_years';
+ALTER TABLE ed_all_lifestyle_smokings
+ MODIFY chus_duration_in_years FLOAT UNSIGNED DEFAULT NULL;
+ALTER TABLE ed_all_lifestyle_smokings_revs
+ MODIFY chus_duration_in_years FLOAT UNSIGNED DEFAULT NULL;
+
+
+
 
