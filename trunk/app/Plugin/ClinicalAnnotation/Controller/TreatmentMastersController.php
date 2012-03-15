@@ -17,7 +17,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
-		$this->request->data = $this->paginate($this->TreatmentMaster, $_SESSION['TrtMaster_filter']);
+		$this->request->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id' => $participant_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
