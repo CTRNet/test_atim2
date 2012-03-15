@@ -1365,15 +1365,16 @@ class StructuresHelper extends Helper {
 							echo '<span class="divider">|</span> ';
 							$first = false;
 						}
-//TODO: Looks useless, remove
-// 						if(isset($data_val[$table_row_part['model']])){
-// 							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
-// 							if(isset($table_row_part['format']) && strlen($table_row_part['format']) > 0){
-// 								$table_row_part['format'] = preg_replace('/name="data\[/', 'name="data['.$to_prefix, $table_row_part['format']);
-// 							}else{
-// 								$table_row_part['name'] = $to_prefix.$table_row_part['name'];
-// 							}
-// 						}
+
+						if(isset($data_val[$table_row_part['model']])){
+							//prepends model.pkey to the beginning of the name (used by permission tree)
+							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
+							if(isset($table_row_part['format']) && strlen($table_row_part['format']) > 0){
+								$table_row_part['format'] = preg_replace('/name="data\[/', 'name="data['.$to_prefix, $table_row_part['format']);
+							}else{
+								$table_row_part['name'] = $to_prefix.$table_row_part['name'];
+							}
+						}
 						echo $this->getPrintableField(
 								$table_row_part, 
 								$options, 

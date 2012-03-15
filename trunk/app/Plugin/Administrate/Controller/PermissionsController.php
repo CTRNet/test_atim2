@@ -107,10 +107,41 @@ class PermissionsController extends AdministrateAppController {
 			unset($this->request->data['Group']);
 			foreach($this->request->data as $i => $aco){
 				$this->updatePermission( 
-				$aro['Aro']['id'], 
-				$aco['Aco']['id'], 
-				intval($aco['Aco']['state']) );
+					$aro['Aro']['id'], 
+					$aco['Aco']['id'], 
+					intval($aco['Aco']['state']) 
+				);
 			}
+			
+			if($group_id == 1){
+				//make sure admin permissions are always allowed on the administrate module
+				$permission_model = AppModel::getInstance('', 'Permission', false);
+				$permission = $permission_model->find('first', array(
+					'conditions' => array('Permission.aro_id' => 1, 'Permission.aco_id' => array(1, 2)),
+					'order'	=> 'Permission.aco_id DESC',
+					'recursive' => -1)
+				);
+				$altered_permissions = false;
+				if($permission['Permission']['_create'] == -1){
+					//highest node is blocked, allow it.
+					$altered_permissions = true;
+					$this->updatePermission(1, 2, 1);
+				}
+				$permissions = $this->Aco->children(2);//all administrate functions
+				$permissions = AppController::defineArrayKey($permissions, 'Aco', 'id', true);
+				$permissions_to_delete = $permission_model->find('all', array('conditions' => array('Permission.aco_id' => array_keys($permissions), 'Permission.aro_id' => 1), 'recursive' => -1));
+				if($permissions_to_delete){
+					$altered_permissions = true;
+					foreach($permissions_to_delete as $permission_to_delete){
+						$this->updatePermission(1, $permission_to_delete['Permission']['aco_id'], 0);
+					}
+				}
+				
+				if($altered_permissions){
+					AppController::addWarningMsg(__('permissions were altered to grant group administrators all administrative privileges'));
+				}
+			}
+			
 			$this->SystemVar->setVar('permission_timestamp', time());
 			Cache::clear(false, "menus");
 			//straight flash because we redirect to the edit screen
