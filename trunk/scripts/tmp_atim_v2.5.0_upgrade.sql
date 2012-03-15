@@ -295,13 +295,19 @@ ALTER TABLE collections
  ADD COLUMN participant_id INT DEFAULT NULL AFTER collection_notes,
  ADD COLUMN diagnosis_master_id INT DEFAULT NULL AFTER participant_id,
  ADD COLUMN consent_master_id INT DEFAULT NULL AFTER diagnosis_master_id,
+ ADD COLUMN treatment_master_id INT DEFAULT NULL AFTER consent_master_id,
+ ADD COLUMN event_master_id INT DEFAULT NULL AFTER treatment_master_id, 
  ADD FOREIGN KEY (participant_id) REFERENCES participants(id),
  ADD FOREIGN KEY (diagnosis_master_id) REFERENCES diagnosis_masters(id),
- ADD FOREIGN KEY (consent_master_id) REFERENCES consent_masters(id);
+ ADD FOREIGN KEY (consent_master_id) REFERENCES consent_masters(id),
+ ADD FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters(id),
+ ADD FOREIGN KEY (event_master_id) REFERENCES event_masters(id);
 ALTER TABLE collections_revs
  ADD COLUMN participant_id INT DEFAULT NULL AFTER collection_notes,
  ADD COLUMN diagnosis_master_id INT DEFAULT NULL AFTER participant_id,
- ADD COLUMN consent_master_id INT DEFAULT NULL AFTER diagnosis_master_id;
+ ADD COLUMN consent_master_id INT DEFAULT NULL AFTER diagnosis_master_id,
+ ADD COLUMN treatment_master_id INT DEFAULT NULL AFTER consent_master_id,
+ ADD COLUMN event_master_id INT DEFAULT NULL AFTER treatment_master_id;
  
 UPDATE collections AS c
 INNER JOIN clinical_collection_links AS ccl ON c.id=ccl.collection_id
@@ -1033,4 +1039,141 @@ UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE str
 UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='realiquoting_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='realiquoted_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_edit`='1', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE treatment_controls
+ ADD COLUMN flag_use_for_ccl BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE event_controls
+ ADD COLUMN flag_use_for_ccl BOOLEAN NOT NULL DEFAULT FALSE;
+
+UPDATE treatment_controls SET flag_use_for_ccl=true WHERE tx_method like '%surgery%';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentControl', 'treatment_controls', 'tx_method', 'input',  NULL , '0', '', '', '', 'name', ''), 
+('ClinicalAnnotation', 'EventControl', 'event_controls', 'event_type', 'input',  NULL , '0', '', '', '', 'type', ''), 
+('ClinicalAnnotation', 'EventControl', 'event_masters', 'event_date', 'date',  NULL , '0', '', '', '', 'date / start date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), '1', '300', 'treatment', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '301', '', '1', 'start date', '0', '', '1', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '400', 'annotation', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date / start date' AND `language_tag`=''), '1', '401', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `language_heading`='collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='diagnosis' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `language_heading`='consent' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='date' WHERE model='EventControl' AND tablename='event_masters' AND field='event_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+DROP TABLE clinical_collection_links;
+DROP TABLE clinical_collection_links_revs;
+UPDATE menus SET use_summary='' WHERE id='clin_CAN_67';
+
+
+DROP VIEW view_aliquots;
+CREATE VIEW view_aliquots AS 
+SELECT 
+al.id AS aliquot_master_id,
+al.sample_master_id AS sample_master_id,
+al.collection_id AS collection_id, 
+col.bank_id, 
+al.storage_master_id AS storage_master_id,
+col.participant_id, 
+col.diagnosis_master_id, 
+col.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+
+al.barcode,
+al.aliquot_label,
+alc.aliquot_type,
+al.aliquot_control_id,
+al.in_stock,
+
+stor.code,
+stor.selection_label,
+al.storage_coord_x,
+al.storage_coord_y,
+
+stor.temperature,
+stor.temp_unit,
+
+al.created
+
+FROM aliquot_masters AS al
+INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
+INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
+INNER JOIN sample_controls AS sampc ON samp.sample_control_id = sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id=parent_sampc.id
+LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
+LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
+WHERE al.deleted != 1;
+
+DROP VIEW view_samples;
+CREATE VIEW view_samples AS 
+SELECT 
+samp.id AS sample_master_id,
+samp.parent_id AS parent_sample_id,
+samp.initial_specimen_sample_id,
+samp.collection_id AS collection_id,
+
+col.bank_id, 
+col.sop_master_id, 
+col.participant_id, 
+col.diagnosis_master_id, 
+col.consent_master_id,
+
+part.participant_identifier, 
+
+col.acquisition_label, 
+
+specimenc.sample_type AS initial_specimen_sample_type,
+specimen.sample_control_id AS initial_specimen_sample_control_id,
+parent_sampc.sample_type AS parent_sample_type,
+parent_samp.sample_control_id AS parent_sample_control_id,
+sampc.sample_type,
+samp.sample_control_id,
+samp.sample_code,
+sampc.sample_category
+
+FROM sample_masters as samp
+INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
+INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
+LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
+LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
+LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
+LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
+WHERE samp.deleted != 1;
+
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- Delete obsolete structure fields and validations
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (model='EventControl' AND tablename='event_masters' AND field='event_date' AND `type`='date' AND structure_value_domain IS NULL ));
+DELETE FROM structure_fields WHERE (model='EventControl' AND tablename='event_masters' AND field='event_date' AND `type`='date' AND structure_value_domain IS NULL );
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='event_form_type' AND `language_tag`=''), '1', '400', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='401', `flag_override_tag`='1', `language_tag`='', `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list')) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='402' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- Delete obsolete structure fields and validations
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (model='EventControl' AND tablename='event_controls' AND field='event_type' AND `type`='input' AND structure_value_domain IS NULL ));
+DELETE FROM structure_fields WHERE (model='EventControl' AND tablename='event_controls' AND field='event_type' AND `type`='input' AND structure_value_domain IS NULL );
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='annotation' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+
+
+
 
