@@ -78,9 +78,12 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { require($hook_link); }	
+			if( $hook_link ) { 
+				require($hook_link); 
+			}	
 			
 			if($submitted_data_validates) {
+				$this->ConsentMaster->addWritableField(array('participant_id', 'consent_control_id'));
 				if ( $this->ConsentMaster->save($this->request->data) ) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {

@@ -134,6 +134,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				require($hook_link); 
 			}
 
+			$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
 			if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
