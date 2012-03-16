@@ -1956,7 +1956,6 @@ class StructuresHelper extends Helper {
 					}
 					$link_location = &$link_location['link'];
 				}
-					
 				
 				// if ACO/ARO permissions check succeeds or if it's a js command, create link
 				if (AppController::checkLinkPermission($link_location)
@@ -1997,7 +1996,7 @@ class StructuresHelper extends Helper {
 					}else if($json){
 						$html_attributes['data-json'] = $json;
 					}
-						
+					
 					$html_attributes['escape'] = false; // inline option removed from LINK function and moved to Options array
 					$html_attributes['class'] .= $class;
 					if($state =='index'){
@@ -2207,11 +2206,13 @@ class StructuresHelper extends Helper {
 						if(!is_array($value)){
 							// find text in LINK href in format of %%MODEL.FIELD%% and replace with that MODEL.FIELD value...
 							$link = str_replace( '%%'.$model.'.'.$field.'%%', $value, $link );
-							$link = str_replace( '@@'.$model.'.'.$field.'@@', $value, $link );
 						}
 					}
 				}
 			}
+		}
+		if(preg_match('/%%[\w.]+%%/', $link) && Configure::read('debug')){
+			AppController::addWarningMsg('DEBUG: bad link detected ['.$link.']');
 		}
 		return $link;
 	}

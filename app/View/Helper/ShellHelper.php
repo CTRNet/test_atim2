@@ -292,7 +292,7 @@ class ShellHelper extends Helper {
 					if(!$is_root){
 							
 						$sub_count = 0;
-						foreach($menu as $menu_item){
+						foreach($menu as &$menu_item){
 							
 							if($menu_item['Menu']['use_link'] && count($options['variables'])){
 								foreach($options['variables'] as $k => $v){
@@ -369,6 +369,14 @@ class ShellHelper extends Helper {
 														';
 							}
 							$sub_count++;
+						}
+						
+						if(Configure::read('debug')){
+							foreach($menu as $menu_item){
+								if(preg_match('/%%[\w.]+%%/', $menu_item['Menu']['use_link'])){
+									AppController::addWarningMsg('DEBUG: bad link detected ['.$menu_item['Menu']['use_link'].']');
+								}
+							}	
 						}
 						
 						// append FLYOUT menus to all menu bar TABS except ROOT tab
