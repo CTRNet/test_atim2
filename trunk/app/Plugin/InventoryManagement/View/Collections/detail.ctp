@@ -30,19 +30,16 @@
 		);
 	}
 			
-	if($is_from_tree_view){
+	if($is_ajax){
 		$structure_links['bottom'] = $bottom_links;
 	}else{
 		$structure_links['bottom'] = array_merge(array('new search' => InventoryManagementAppController::$search_links), $bottom_links);
 	}
 		
-	
-	$structure_override = array();
-	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links' => $structure_links, 'override' => $structure_override, 'settings' => $settings);
+	$final_options = array('links' => $structure_links, 'settings' => $settings);
 	
-	if(!$is_from_tree_view && !empty($sample_data)){
+	if(!$is_ajax && !empty($sample_data)){
 		$final_options['settings']['actions'] = false;
 	}
 	
@@ -55,7 +52,7 @@
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
 
-	if(!$is_from_tree_view && !empty($sample_data)){
+	if(!$is_ajax && !empty($sample_data)){
 		$structure_settings = array(
 			'tree'=>array(
 				'SampleMaster'		=> 'SampleMaster'
