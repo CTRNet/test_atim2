@@ -845,31 +845,6 @@ function initActions(){
 		return false;
 	}
 	
-	function loadUses(url){
-		$.post(document.URL, {data : ["uses"]}, function(data){
-			var origHeight = $("div.uses").height();
-			$("div.uses").html(data);
-			var newHeight = $("div.uses").height();
-			$("div.uses").css('height', origHeight).animate({height: newHeight}, 500);
-		});
-	}
-	
-	function loadStorageHistory(url){
-		$.post(url, {data : ["storage_history"]}, function(data){
-			var origHeight = $("div.storage_history").height();
-			$("div.storage_history").html(data);
-			var newHeight = $("div.storage_history").height();
-			$("div.storage_history").css('height', origHeight).animate({height: newHeight}, 500);
-		});
-	}
-	
-	function loadRealiquotedParent(url){
-		matches = url.match(/(\/[\d]+)(\/[\d]+)(\/[\d]+)/);
-		$.get(root_url + "InventoryManagement/AliquotMasters/listAllRealiquotedParents/" + matches[1] + "/" + matches[2] + "/" + matches[3] + "?t=" + new Date().getTime(), function(data){
-			$(".realiquoted_parents").html(data);
-		});
-	}
-	
 	function warningMoreInfoClick(event){
 		//only called on the first click of each element, then toggle function handles it
 		$(event.srcElement).toggle(function(){
@@ -1071,12 +1046,13 @@ function initActions(){
 			}
 		});
 		
-		//URL based events
-		if(document.URL.match(/InventoryManagement\/AliquotMasters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
-			loadUses(document.URL);
-			loadStorageHistory(document.URL);
-			loadRealiquotedParent(document.URL);
-		}
+		$(".ajaxLoad").each(function(){
+			$(this).html('<div class="loading">---' + STR_LOADING + '---</div>');
+			var div = $(this);
+			$.get(root_url + $(this).data('url'), function(page){
+				$(div).html(page);
+			});
+		});
 	}
 
 	function globalInit(scope){
