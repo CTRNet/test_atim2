@@ -73,6 +73,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			}
 		}
 		$this->set('identifier_controls_list', $identifier_controls_list);
+		$this->Structures->set('empty', 'empty_structure');
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

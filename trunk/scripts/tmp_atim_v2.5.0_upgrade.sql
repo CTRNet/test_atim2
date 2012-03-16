@@ -47,7 +47,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Le groups \"Administrators\" ne peut pas être supprimé."),
 ("the group administrators cannot be edited",
  "The group \"Administrators\" cannot be edited.",
- "Le groups \"Administrators\" ne peut pas être modifié.");
+ "Le groups \"Administrators\" ne peut pas être modifié."),
+("you need privileges on the following modules to manage participant inventory: %s",
+ "You need privileges on the following modules to manage participant inventory: %s.",
+ "Vous devez avoir des privilèges sur les modules suivants pour gérer l'inventaire des participants: %s."); 
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';

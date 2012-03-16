@@ -1366,7 +1366,7 @@ class StructuresHelper extends Helper {
 							$first = false;
 						}
 
-						if(isset($data_val[$table_row_part['model']])){
+						if(isset($data_val[$table_row_part['model']]['id'])){
 							//prepends model.pkey to the beginning of the name (used by permission tree)
 							$to_prefix = $data_val[$table_row_part['model']]['id']."][";
 							if(isset($table_row_part['format']) && strlen($table_row_part['format']) > 0){
@@ -2449,6 +2449,10 @@ class StructuresHelper extends Helper {
 				}
 			}
 		}
+	}
+	
+	function extraAjaxLink($url){
+		return AppController::checkLinkPermission($url) ? '<div class="ajaxLoad" data-url="'.$url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>';
 	}
 }
 	

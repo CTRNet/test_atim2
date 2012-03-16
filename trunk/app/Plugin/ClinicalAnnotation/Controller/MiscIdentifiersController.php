@@ -291,6 +291,12 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		}
 		
 	}
+	
+	function listall($participant_id){
+		//only for permissions
+		//since identifiers are all loaded within participants to build the menu,
+		//it's useless to have an ajax callback aftewards
+	}
 }
 
 ?>
