@@ -75,16 +75,13 @@
 
 		// BUILD FORM
 		$this->Structures->build($final_atim_structure, $final_options);
-		
+		$data_url = sprintf('InventoryManagement/AliquotMasters/listallUses/%d/%d/%d/', $atim_menu_variables['Collection.id'], $atim_menu_variables['SampleMaster.id'], $atim_menu_variables['AliquotMaster.id']);
 		// 2- USES LIST
-		$structure_links['index'] = array(
-		   'detail' => '/InventoryManagement/AliquotMasters/redirectToAliquotUseDetail/%%ViewAliquotUse.detail_url%%');
-		
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'data' => array(), 
 			'settings' => array('header' => __('uses'), 'actions' => false),
-			'extras'	=> '<div class="uses"><div class="loading">---'.__('loading').'---</div></div>'
+			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
 		);
 
 		// CUSTOM CODE
@@ -96,13 +93,14 @@
 		// BUILD FORM
 		$this->Structures->build($final_atim_structure, $final_options);
 
-		// 3- STORAGE HISTORY	
+		// 3- STORAGE HISTORY
+		$data_url = sprintf('InventoryManagement/AliquotMasters/storageHistory/%d/%d/%d/', $atim_menu_variables['Collection.id'], $atim_menu_variables['SampleMaster.id'], $atim_menu_variables['AliquotMaster.id']);
 		unset($structure_links['index']);
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'links'		=> $structure_links,
 			'settings'	=> array('header' => __('storage history'), 'actions' => false),
-			'extras'	=> '<div class="storage_history"><div class="loading">---'.__('loading').'---</div></div>'
+			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
 		);
 		
 		$hook_link = $this->Structures->hook('storage_history');
@@ -115,12 +113,13 @@
 		
 		
 		// 4 - REALIQUOTED PARENTS	
+		$data_url = sprintf('InventoryManagement/AliquotMasters/listAllRealiquotedParents/%d/%d/%d/', $atim_menu_variables['Collection.id'], $atim_menu_variables['SampleMaster.id'], $atim_menu_variables['AliquotMaster.id']);
 		unset($structure_links['index']);
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'links'		=> $structure_links,
 			'settings'	=> array('header' => __('realiquoted parent')),
-			'extras'	=> '<div class="realiquoted_parents"><div class="loading">---'.__('loading').'---</div></div>'
+			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
 		);
 		
 		$hook_link = $this->Structures->hook('realiquoted_parent');
@@ -130,5 +129,3 @@
 		
 		$this->Structures->build($final_atim_structure, $final_options);
 	}
-	
-?>
