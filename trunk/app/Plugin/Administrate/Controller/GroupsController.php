@@ -48,10 +48,12 @@ class GroupsController extends AdministrateAppController {
 		}
 	}
 
-	function edit($group_id = null ) {
+	function edit($group_id) {
 		if($group_id == 1){
 			$this->flash('the group administrators cannot be edited', '/Administrate/Groups/detail/1');
 		}
+		$this->Group->getOrRedirect($group_id);
+		
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		
 		if (!$group_id && empty($this->request->data)) {
@@ -63,6 +65,11 @@ class GroupsController extends AdministrateAppController {
 		
 		if (!empty($this->request->data)) {
 			$this->Group->id = $group_id;
+			$this->Group->data = array();
+			$this->Aco->pkey_safeguard = false;
+			$this->Aro->pkey_safeguard = false;
+			$this->Aco->check_writable_fields = false;
+			$this->Aro->check_writable_fields = false;
 			if ($this->Group->save($this->request->data)) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 

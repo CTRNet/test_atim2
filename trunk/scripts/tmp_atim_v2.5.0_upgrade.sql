@@ -50,14 +50,17 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Le groups \"Administrators\" ne peut pas être modifié."),
 ("you need privileges on the following modules to manage participant inventory: %s",
  "You need privileges on the following modules to manage participant inventory: %s.",
- "Vous devez avoir des privilèges sur les modules suivants pour gérer l'inventaire des participants: %s.")
+ "Vous devez avoir des privilèges sur les modules suivants pour gérer l'inventaire des participants: %s."),
 ("at least one collection is linked to that treatment",
  "At least one collection is linked to that treatment.",
  "Au moins une collection est liée à ce traitement."),
 ("links to collections", "Links to collections", "Liens à des collections"),
 ("at least one collection is linked to that annotation",
  "At least one collection is linked to that annotation.",
- "Au moins une collection est liée à cette annotation.");
+ "Au moins une collection est liée à cette annotation."),
+("unlinked participant collections", "Unlinked participant collections", "Collections de participants non liées"),
+("for all banks", "for all banks", "pour toutes les banques"),
+("for your bank", "for your bank", "pour votre banque");
  
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';

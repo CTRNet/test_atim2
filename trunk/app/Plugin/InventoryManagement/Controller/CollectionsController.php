@@ -35,6 +35,17 @@ class CollectionsController extends InventoryManagementAppController {
 				unset($this->request->data[$limit]);
 				$this->set("overflow", true);
 			}
+		}else if(isset($this->passedArgs['unlinkedParticipants'])){
+			$group_model = AppModel::getInstance('', 'Group');
+			$group = $group_model->find('first', array('conditions' => array('Group.id' => $this->Session->read('Auth.User.group_id'))));
+			$collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+			$conditions = array('ViewCollection.collection_property' => 'participant collection', 'ViewCollection.participant_id' => null);
+			if($group['Group']['bank_id']){
+				$this->set('bank_filter', true);
+				$conditions['ViewCollection.bank_id'] = $group['Group']['bank_id'];
+			}
+			$this->Structures->set('view_collection');
+			$this->request->data = $this->paginate($this->ViewCollection, $conditions);
 		}else{
 			$this->searchHandler($search_id, $this->ViewCollection, 'view_collection', '/InventoryManagement/Collections/search');
 		}
