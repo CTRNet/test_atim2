@@ -1087,11 +1087,12 @@ class SampleMastersController extends InventoryManagementAppController {
 				}
 			}
 			$this->SourceAliquot->validationErrors = null;
+			$this->AliquotMaster->addWritableField(array('storage_coord_x', 'storage_coord_y', 'current_volume', 'sample_master_id'));
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
-			}				
+			}
 			
 			// 3- SAVE PROCESS
 			
@@ -1177,7 +1178,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					if(!isset($unique_aliquot_master_data['AliquotMaster'])){
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
-					$this->flash('your data has been saved','/InventoryManagement/AliquotMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $unique_aliquot_master_data['AliquotMaster']['sample_master_id']. '/' . $aliquot_master_id);					
+					$this->flash('your data has been saved','/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
 				}
 				
 			}else{
