@@ -19,6 +19,28 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		'Codingicd.CodingIcdo3Topo'
 	);
 	
+	function beforeFilter(){
+		parent::beforeFilter();
+		
+		//permissions on collections, consent, dx, tx and event are required
+		$error = array();
+		$check = array(
+			'collection'	=> '/InventoryManagement/Collections/detail/',
+			'consent'		=> '/ClinicalAnnotation/ConsentMasters/detail/',
+			'diagnosis'		=> '/ClinicalAnnotation/DiagnosisMasters/detail/',
+			'treatment'		=> '/ClinicalAnnotation/TreatmentMasters/detail/',
+			'event'			=> '/ClinicalAnnotation/EventMasters/detail/'
+		);
+		foreach($check as $name => $link){
+			if(!AppController::checkLinkPermission($link)){
+				$error[] = __($name);
+			}
+		}
+		if($error){
+			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+		}
+	}
+	
 	//var $paginate = array('Collection' => array('limit' => pagination_amount,'order'=>'Collection.acquisition_label ASC'));	
 	
 	function listall( $participant_id ) {
