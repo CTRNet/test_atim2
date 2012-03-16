@@ -257,11 +257,13 @@ class StructuresHelper extends Helper {
 	 * @return depending on the return option, echoes the structure and returns true or returns the string
 	 */
 	function build(array $atim_structure = array(), array $options = array()){
-		if(Configure::read('debug') > 0){
+		if(Configure::read('debug')){
 			$tmp = array();
 			if(isset($atim_structure['Structure'][0])){
 				foreach($atim_structure['Structure'] as $struct){
-					$tmp[] = $struct['alias'];
+					if(isset($struct['alias'])){
+						$tmp[] = $struct['alias'];
+					}
 				}
 			}else if(isset($atim_structure['Structure'])){
 				$tmp[] = $atim_structure['Structure']['alias'];
