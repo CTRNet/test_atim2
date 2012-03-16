@@ -176,6 +176,8 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 				EventMaster::generateDxCompatWarnings($this->request->data, $event_data);
 			}
 		}
+		
+		$this->Structures->set('empty', 'empty_structure');
 	}
 
 	function add( $participant_id, $dx_control_id, $parent_id){

@@ -37,6 +37,9 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}
 		}
 		if($error){
+			if($this->request->is('ajax')){
+				die(__('You are not authorized to access that location.'));
+			}
 			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
 		}
 	}
@@ -46,9 +49,17 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 	function listall( $participant_id ) {
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 
+		$conditions = array('Collection.participant_id' => $participant_id);
+		if(isset($this->passedArgs['filterModel']) && isset($this->passedArgs['filterId'])){
+			$filter_model = $this->passedArgs['filterModel'];
+			if(isset($this->$filter_model)){
+				$conditions[$this->$filter_model->name.'.id'] = $this->passedArgs['filterId'];
+			}
+		}
+		
 		// MANAGE DATA
 		$this->request->data = $this->Collection->find('all', array(
-			'conditions' => array('Collection.participant_id' => $participant_id),
+			'conditions' => $conditions,
 			'order' => 'Collection.acquisition_label ASC',
 			'limit' => pagination_amount,
 			'joins' => array(
@@ -62,6 +73,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				array('table' => 'event_controls', 'alias' => 'EventControl', 'type' => 'LEFT', 'conditions' => array('event_masters_dup.event_control_id = EventControl.id'))
 			), 'fields' => array('*')
 		));
+		
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

@@ -8,7 +8,7 @@
 	
 	$structure_settings = array(
 		'actions'		=> false, 
-		'header'		=> '1- ' . __('data', null),
+		'header'		=> __('data'),
 		'form_bottom'	=> false
 	);
 	
@@ -34,7 +34,7 @@
 		'data'	=> $data_for_checklist,
 		'settings'	=> array(
 			'form_top'	=> false,
-			'header' => '2- ' . __('related diagnosis', null),
+			'header' => __('related diagnosis'),
 			'tree'		=> array('DiagnosisMaster' => 'DiagnosisMaster'),
 			'form_inputs' => false
 			

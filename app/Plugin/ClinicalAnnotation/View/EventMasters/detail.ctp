@@ -16,7 +16,7 @@
 	$structure_settings = array(
 		'actions'=> $is_ajax, 
 		
-		'header' => '1- ' . __('data', null),
+		'header' => __('data'),
 		'form_bottom'=> !$is_ajax 
 	);
 		
@@ -36,16 +36,22 @@
 		// 2- DIAGNOSTICS
 		
 		$structure_settings = array(
-			'form_inputs'=>false,
-			'pagination'=>false,
-			'actions'=>true,
+			'form_inputs'	=> false,
+			'pagination'	=> false,
+			'actions'		=> false,
 			'form_bottom'	=> true,
-			'header' => '2- ' . __('related diagnosis', null), 
-			'form_top' => false
+			'header' 		=> __('related diagnosis'), 
+			'form_top' 		=> false
 		);
 		
 		$final_options = array('data' => $diagnosis_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
 		$final_atim_structure = $diagnosis_structure;
+		
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')){
+			$final_options['type'] = 'detail';
+			$final_atim_structure = array();
+			$final_options['extras'] = '<div>'.__('You are not authorized to access that location.').'</div>';
+		}
 		
 		$hook_link = $this->Structures->hook('dx_list');
 		if( $hook_link ) { 
@@ -53,5 +59,20 @@
 		}
 		 
 		$this->Structures->build( $final_atim_structure,  $final_options);
+		
+		
+		
+		$final_atim_structure = array();
+		$final_options['type'] = 'detail';
+		$final_options['settings']['header'] = __('links to collections');
+		$final_options['settings']['actions'] = true;
+		$final_options['extras'] = $this->Structures->extraAjaxLink('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:EventMaster/filterId:'.$atim_menu_variables['EventMaster.id']);
+		
+		$hook_link = $this->Structures->hook('ccl');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		$this->Structures->build(array(), $final_options);
 	}
 ?>

@@ -20,15 +20,12 @@
 		unset($structure_links['bottom']['redefine unknown primary']);
 	}
 	
-// 	if(isset($child_controls_list) && !empty($child_controls_list)) {
-// 		$structure_links['bottom']['add diagnosis'] = $child_controls_list;
-// 	} else {
-// 		unset($structure_links['bottom']['add diagnosis']);
-// 	}
-	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
+	$final_options = array(
+		'links'		=> $structure_links,
+		'settings'	=> array('actions' => $is_ajax)
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
@@ -40,5 +37,17 @@
 	$this->Structures->build( $final_atim_structure, $final_options );
 	
 	if(!$is_ajax){
+		$final_atim_structure = array();
+		$final_options['settings']['header'] = __('links to collections');
+		$final_options['settings']['actions'] = true;
+		$final_options['extras'] = $this->Structures->extraAjaxLink('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:DiagnosisMaster/filterId:'.$atim_menu_variables['DiagnosisMaster.id']);
+		
+		$hook_link = $this->Structures->hook('ccl');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		$this->Structures->build(array(), $final_options);
+		
 		require('add_popup.php');
 	}
