@@ -30,7 +30,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { require($hook_link); }		
 	}
 	
-	function detail($participant_id, $tx_master_id, $is_ajax = 0){
+	function detail($participant_id, $tx_master_id){
 		// MANAGE DATA
 		$treatment_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
 		if(empty($treatment_master_data)) { 
@@ -46,7 +46,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		// set structure alias based on control data
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'diagnosis_structure');
-		$this->set('is_ajax', $is_ajax);
+		$this->set('is_ajax', $this->request->is('ajax'));
 		
 		if($treatment_master_data['TreatmentControl']['extend_tablename']){
 			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $treatment_master_data['TreatmentControl']['extend_tablename']);

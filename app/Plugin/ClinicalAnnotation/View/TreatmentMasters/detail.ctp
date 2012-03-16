@@ -30,7 +30,7 @@
 	
 	$this->Structures->build( $final_atim_structure, $final_options );
 
-	if(isset($extend_form_alias)){
+	if(isset($extend_form_alias) && !$is_ajax){
 		$structure_settings = array(
 			'pagination'	=> false,
 			'actions'		=> false,

@@ -275,6 +275,14 @@ class StructuresHelper extends Helper {
 			$options['type'] = $this->params['action'];//no type, default to action
 		}
 		
+		$args = AppController::getInstance()->passedArgs;
+		if(isset($args['noHeader'])){
+			$options['settings']['header'] = '';
+		}
+		if(isset($args['noActions'])){
+			$options['settings']['actions'] = false;
+		}
+		
 		//print warning when unknown stuff and debug is on
 		if(Configure::read('debug') > 0){
 			if(is_array($options)){
