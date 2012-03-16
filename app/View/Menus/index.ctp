@@ -41,15 +41,28 @@
 		
 	}
 	
-	if(isset($due_messages_count) && $due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/')){
-		$atim_content['messages'] = '<ul class="warning"><li>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
-		Click <a href="javascript:goToNotDoneDueMessages()">here</a> to see them.
-		</li></ul>
-		<form action="'.$this->request->webroot.'ClinicalAnnotation/ParticipantMessages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
-			<input type="hidden" name="data[ParticipantMessage][done]" value="0">
-			<input type="hidden" name="data[ParticipantMessage][due_date_end]" value="'.now().'">
-		</form>
-		';
+	$due_msg_cond = isset($due_messages_count) && $due_messages_count > 0 && AppController::checkLinkPermission('/ClinicalAnnotation/ParticipantMessages/search/');
+	$coll_cond = isset($unlinked_part_coll) && $unlinked_part_coll > 0 && AppController::checkLinkPermission('/InventoryManagement/Collections/search/');  
+	
+	if($due_msg_cond || $coll_cond){
+		$atim_content['messages'] = '';
+		if($due_msg_cond){
+			$atim_content['messages'] = '<ul class="warning"><li>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
+				Click <a id="goToNotDue" href="javascript:goToNotDoneDueMessages()">here</a> to see them.
+				</li></ul>
+				<form action="'.$this->request->webroot.'ClinicalAnnotation/ParticipantMessages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
+					<input type="hidden" name="data[ParticipantMessage][done]" value="0">
+					<input type="hidden" name="data[ParticipantMessage][due_date_end]" value="'.now().'">
+				</form>
+			';
+		}
+		if($coll_cond){
+			$for_bank_part = isset($bank_filter) ? __('for your bank') : __('for all banks');
+			$atim_content['messages'] .= '<ul class="warning"><li>'.__('unlinked participant collections').' ('.$for_bank_part.'): '.$part_coll_w_o_consent.'.
+				Click <a id="goToUnlinkedColl" href="'.$this->request->webroot.'InventoryManagement/Collections/search/'.AppController::getNewSearchId().'/unlinkedParticipants:/ ">here</a> to see them.
+				</li></ul>
+			';
+		}
 	}
 	
 	if(isset($set_of_menus)){

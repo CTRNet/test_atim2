@@ -25,8 +25,22 @@ class MenusController extends AppController {
 			);
 			$this->set( 'atim_menu', $this->Menus->get('/menus') );
 			
+			//msg about expired messages
 			$participant_message_model = AppModel::getInstance('ClinicalAnnotation', 'ParticipantMessage', true);
 			$this->set('due_messages_count', $participant_message_model->find('count', array('conditions' => array('ParticipantMessage.done' => 0, 'ParticipantMessage.due_date <' => now()))));
+			
+			//msg about unlinked participant collections
+			$group_model = AppModel::getInstance('', 'Group');
+			$group = $group_model->find('first', array('conditions' => array('Group.id' => $this->Session->read('Auth.User.group_id'))));
+			$collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+			$conditions = array('Collection.collection_property' => 'participant collection', 'Collection.participant_id' => null);
+			if($group['Group']['bank_id']){
+				$this->set('bank_filter', true);
+				$conditions['Collection.bank_id'] = $group['Group']['bank_id'];
+			}
+			$this->set('unlinked_part_coll', $collection_model->find('count', array('conditions' => $conditions)));
+			
+			
 		}else if($set_of_menus == "tools"){
 			$this->set( 'atim_menu', $this->Menus->get('/menus/tools') );
 						$menu_data = $this->Menu->find('all',array('conditions'=> array(

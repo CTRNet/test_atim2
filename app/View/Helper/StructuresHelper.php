@@ -2213,8 +2213,9 @@ class StructuresHelper extends Helper {
 				}
 			}
 		}
-		if(preg_match('/%%[\w.]+%%/', $link) && Configure::read('debug')){
-			AppController::addWarningMsg('DEBUG: bad link detected ['.$link.']');
+		$to_check = is_array($link) ? $link['link'] : $link;
+		if(preg_match('/%%[\w.]+%%/', $to_check) && Configure::read('debug')){
+			AppController::addWarningMsg('DEBUG: bad link detected ['.$to_check.']');
 		}
 		return $link;
 	}
