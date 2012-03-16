@@ -8,7 +8,7 @@
 	
 	$structure_settings = array(
 		'actions'		=> false, 
-		'header' 		=> '1- ' . __('data', null),
+		'header' 		=>  __('data'),
 		'form_bottom'	=> false);
 		
 	$final_atim_structure = $atim_structure;
@@ -24,7 +24,7 @@
 	// 2- SEPARATOR & HEADER
 	
 	$structure_settings = array(
-		'header'		=> '2- ' . __('related diagnosis', null),
+		'header'		=> __('related diagnosis'),
 		'form_top'		=> false,
 		'tree'			=> array('DiagnosisMaster' => 'DiagnosisMaster'),
 		'form_inputs'	=> false

@@ -55,6 +55,15 @@ class EventMaster extends ClinicalAnnotationAppModel {
 			}
 		}
 	}
+	
+	function allowDeletion($event_master_id){
+		$collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+		if($collection_model->find('first', array('conditions' => array('Collection.event_master_id' => $event_master_id)))){
+			return array('allow_deletion' => false, 'msg' => 'at least one collection is linked to that annotation');
+		}
+		
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>

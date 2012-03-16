@@ -63,6 +63,11 @@ class TreatmentMaster extends ClinicalAnnotationAppModel {
 			}
 		}
 		
+		$collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
+		if($collection_model->find('first', array('conditions' => array('Collection.treatment_master_id' => $tx_master_id)))){
+			return array('allow_deletion' => false, 'msg' => 'at least one collection is linked to that treatment');
+		}
+		
 		return array('allow_deletion' => true, 'msg' => '');
 	}
 }

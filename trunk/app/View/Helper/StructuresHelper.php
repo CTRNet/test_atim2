@@ -2460,7 +2460,7 @@ class StructuresHelper extends Helper {
 	}
 	
 	function extraAjaxLink($url){
-		return AppController::checkLinkPermission($url) ? '<div class="ajaxLoad" data-url="'.$url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>';
+		return AppController::checkLinkPermission($url) ? '<div class="ajaxLoad" data-url="'.$url.'"></div>' : '<div>'.__('You are not authorized to access that location.').'</div>';
 	}
 }
 	

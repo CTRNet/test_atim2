@@ -42,6 +42,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		$this->Structures->set($consent_control_data['ConsentControl']['form_alias']);
 		
 		$this->set('consent_type', $consent_control_data['ConsentControl']['controls_type']);
+		$this->set('is_ajax', $this->request->is('ajax'));
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

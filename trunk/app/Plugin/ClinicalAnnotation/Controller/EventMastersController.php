@@ -86,8 +86,11 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	}
 	
 	function add( $participant_id, $event_control_id, $diagnosis_master_id = null) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
+			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+		}
+		
 		// MANAGE DATA
-
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$event_control_data = $this->EventControl->getOrRedirect($event_control_id);
 		$event_group = $event_control_data['EventControl']['event_group'];
@@ -147,6 +150,10 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	}
 	
 	function edit( $participant_id, $event_master_id ) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
+			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
+		}
+		
 		// MANAGE DATA
 		$event_master_data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if (empty($event_master_data)) { 
