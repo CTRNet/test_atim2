@@ -8,11 +8,11 @@ function initCopyControl(){
 	//create buttons and bind onclick command
 	enableCopyCtrl();
 	
-	var pasteAllButton = '<span class="button paste pasteAll"><a class="paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no"><span class="icon16 paste"></span>' + STR_PASTE_ON_ALL_LINES + '</a></span>';
+	var pasteAllButton = '<span class="button paste pasteAll"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no">' + STR_PASTE_ON_ALL_LINES + '</a></span>';
 	if($(".copy").length > 0){
 		//add copy all button into a new tfoot
 		$(".copy").each(function(){
-			var table = $(this).parents("table:first");
+			var table = getParentElement($(this), "TABLE");
 			if(!$(table).data("copyAllLinesEnabled")){
 				var tableWidth = $(table).first("tr").find("th").length;
 				$(table).append("<tfoot><tr><td colspan='" + tableWidth + "' align='right'>" + pasteAllButton + "</td></tr></tfoot>");
@@ -21,7 +21,7 @@ function initCopyControl(){
 		});
 	}
 	$(".pasteAll").click(function(){
-		var table = $(this).parents("table:first");
+		var table = getParentElement(this, "TABLE");
 		$(table).find("tbody tr").each(function(){
 			pasteLine(this);
 		});
@@ -29,7 +29,7 @@ function initCopyControl(){
 	});
 	
 	if($(".pasteAll").length > 1){
-		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no"><span class="icon16 paste"></span>' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
+		$("table.structure:last").append('<div style="text-align: right;"><span id="pasteAllOfAll" class="button paste"><a class="form paste" title="' + STR_PASTE_ON_ALL_LINES + '" href="#no">' + STR_PASTE_ON_ALL_LINES_OF_ALL_SECTIONS + '</a></span></div>');
 		$("#pasteAllOfAll").click(function(){
 			$("table.columns.index tbody tr").each(function(){
 				if($(this).find("input.addLineCount").length == 0){
@@ -85,7 +85,7 @@ function pasteLine(line){
 				if((copyBuffer[accuracyName] != undefined && $(this).is(":visible"))
 					|| (copyBuffer[accuracyName] == undefined && !$(this).is(":visible"))
 				){
-					var cell = $(this).parents("td:first");
+					var cell = getParentElement($(this), "TD");
 					$(cell).find(".accuracy_target_blue").click();
 				}
 			}
@@ -100,7 +100,7 @@ function pasteLine(line){
 function enableCopyCtrl(){
 	$(":hidden").each(function(){
 		if($(this).prop("name") != undefined && $(this).prop("name").indexOf("][FunctionManagement][CopyCtrl]") > 5){
-			$(this).parent().append("<span class='button copy'><a class='icon16 copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='icon16 paste' title='" + STR_PASTE + "'></a></span>");
+			$(this).parent().append("<span class='button copy'><a class='form copy' title='" + STR_COPY + "'></a></span><span class='button paste'><a class='form paste' title='" + STR_PASTE + "'></a></span>");
 			bindCopyCtrl($(this).parent());
 			$(this).remove();
 		}

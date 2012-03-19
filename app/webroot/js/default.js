@@ -1,12 +1,23 @@
 var toolTarget = null;
 var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
-var submitData = new Object();
 
-jQuery.fn.fullWidth = function(){
-	return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width")); 
-};
-
-var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
+function initSummary(){
+	var open = function(){
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		if ( summary_popup.length>0 ) {
+			summary_popup.stop(true, true).slideDown(100);
+		}
+	};
+	var close = function(){
+		var summary_hover = $(this);
+		var summary_popup = summary_hover.find('ul');
+		if ( summary_popup.length>0 ) {
+			summary_popup.delay(101).slideUp(100);
+		}
+	};
+	$('#menu #summary').hover(open, close);
+}
 
 //Slide down animation (show) for action menu
 var actionMenuShow = function(){
@@ -102,7 +113,38 @@ function initActions(){
 	$('div.filter_menu.scroll').bind('mousewheel', actionMouseweelHandler);
 }
 
-	//TODO: REMOVE
+/*
+	admin editors, expandable list of elements
+	individual elements should be wrapped in p tags, and those p tags wrapped in a containing div
+	fields (input, etc) should obviously have array names as they will be exact clones
+*/
+
+	function clone_fields(containing_div) {
+		
+		div = document.getElementById(containing_div); // div containing add artist selects/inputs
+		ps = div.getElementsByTagName("p"); // ps is array of p tags in div
+		
+		new_p = ps[ps.length-1].cloneNode(true); // make copy of last p tag and all elements it contains
+		
+		div.appendChild(new_p); // append newly copied p tag inside div
+		
+	}
+	
+	function remove_fields(p) {
+	
+		a = p.parentNode; // a tag is parent of onclick attribute
+		div = a.parentNode; // div is parent of a tag
+		
+		ps = div.getElementsByTagName("p"); // ps is array of p tags in div
+		
+		if ( ps.length>1 ) { // if more than one p tag in div...
+			div.removeChild(a); // remove p tag that a tag is in
+		} else {
+			alert('Sorry, you cannot remove all of these field sets.'); // alert message
+		}
+		
+	}
+	
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
 		if(startIndex > -1){
@@ -225,7 +267,7 @@ function initActions(){
 				//when we click
 				$(this).click(function(){
 					//append it into the text field with "or" string + btn_remove
-					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or icon16 delete_mini'></a></span> ");
+					$(this).parent().append("<span class='adv_ctrl " + $($field).prop("class") + "' style='" + $($field).prop("style") + "'>" + STR_OR + " " + fieldHTML + "<a href='#' onclick='return false;' class='adv_ctrl btn_rmv_or delete_10x10'></a></span> ");
 					//find the newly generated input
 					var $newField = $(this).parent().find("span.adv_ctrl:last");
 					
@@ -257,8 +299,8 @@ function initActions(){
 			$(scope).find(".range").each(function(){
 				//uses .btn_add_or to know if this is a search form and if advanced controls are on
 				var cell = $(this).parent().parent().parent(); 
-				$(cell).append(" <a href='#' class='icon16 range range_btn' title='" + STR_RANGE + "'></a> " +
-						"<a href='#' class='icon16 specific specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
+				$(cell).append(" <a href='#' class='range_btn' title='" + STR_RANGE + "'></a> " +
+						"<a href='#' class='specific_btn'></a>").data('mode', 'specific').find(".specific_btn").hide();
 				$(cell).find("span:first").addClass("specific_span");
 				
 				var baseName = $(cell).find("input").prop("name");
@@ -271,7 +313,7 @@ function initActions(){
 			
 			$(scope).find(".file").each(function(){
 				var cell = $(this).parent().parent().parent();
-				$(cell).append(" <a href='#' class='icon16 csv_upload file_btn'></a>").data('mode', 'specific');
+				$(cell).append(" <a href='#' class='file_btn'></a>").data('mode', 'specific');
 				
 				if($(cell).find(".specific_btn").length == 0){
 					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();
@@ -325,11 +367,15 @@ function initActions(){
 	 * @param element The element contained within the row to remove
 	 */
 	function removeParentRow(element){
-		element = $(element).parents("tr:first");
+		element = getParentElement(element, "TR");
 		
 		if($(element)[0].nodeName == "TR"){
 			$(element).remove();
 		}
+	}
+	
+	function getParentRow(element){
+		return getParentElement(element, "TR");
 	}
 	
 	function initAutocomplete(scope){
@@ -337,7 +383,7 @@ function initActions(){
 //			var element = $(this);
 			$(this).autocomplete({
 				//if the generated link is ///link it doesn't work. That's why we have a "if" statement on root_url
-				source: (root_url == "/" ? "" : root_url) + $(this).attr("url")
+				source: (root_url == "/" ? "" : root_url + "/") + $(this).attr("url")
 				//alternate source for debugging
 //				source: function(request, response) {
 //					$.post(root_url + "/" + $(element).attr("url"), request, function(data){
@@ -394,15 +440,13 @@ function initActions(){
 	function initCheckAll(scope){
 		var elem = $(scope).find(".checkAll");
 		if(elem.length > 0){
-			parent = $(elem).parents("form:first");
+			parent = getParentElement(elem, "FORM");
 			$(elem).click(function(){
 				$(parent).find('input[type=checkbox]').prop("checked", true);
-				$(parent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
 				return false;
 			});
 			$(scope).find(".uncheckAll").click(function(){
 				$(parent).find('input[type=checkbox]').prop("checked", false);
-				$(parent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
 				return false;
 			});
 		}
@@ -427,7 +471,7 @@ function initActions(){
 		if(buttons != null && buttons.length > 0){
 			for(i in buttons){
 				buttonsHtml += 
-					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
+					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="form ' + buttons[i].icon + '">' + buttons[i].label + '</a></div>';
 			}
 			buttonsHtml = '<div class="actions">' + buttonsHtml + '</div>';
 		}
@@ -447,6 +491,26 @@ function initActions(){
 	
 	function buildConfirmDialog(id, question, buttons){
 		buildDialog(id, question, null, buttons);
+	}
+	
+	//Delete confirmation dialog
+	function initDeleteConfirm(){
+		if($(".form.delete:not(.noPrompt)").length > 0){
+			var yes_action = function(){
+				document.location = $("#deleteConfirmPopup").data('link'); 
+			};
+			var no_action = function(){
+				$("#deleteConfirmPopup").popup('close');
+			}; 
+			
+			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete ignore"}));
+			
+			$(".form.delete:not(.ignore)").click(function(){
+				$("#deleteConfirmPopup").popup();
+				$("#deleteConfirmPopup").data('link', $(this).prop("href"));
+				return false;
+			});
+		}
 	}
 	
 	//tool_popup
@@ -478,7 +542,7 @@ function initActions(){
 	function initAddLine(scope){
 		$(scope).find(".addLineLink").each(function(){
 			//get the table row
-			var table = $(this).parents("table:first");
+			var table = $(getParentElement(this, "TABLE"));
 			var tableBody = $(table).find("tbody");
 			var lastLine = $(tableBody).find("tr:last");
 			var templateLineHtml = lastLine.html();
@@ -491,12 +555,12 @@ function initActions(){
 					counter --;
 				}
 				var newLines = $(tableBody).find("tr.newLine");
+				initRemoveLine(newLines);
 				initAutocomplete(newLines);
 				initDatepicker(newLines);
 				initToolPopup(newLines);
 				initTooltips(document);
 				initCheckboxes(newLines);
-				$('form').highlight('td');
 				if(window.copyControl){
 					bindCopyCtrl(newLines);
 				}
@@ -504,7 +568,6 @@ function initActions(){
 					initLabBook(newLines);
 				}
 				initAccuracy(newLines);
-				
 				$(newLines).removeClass("newLine");
 				return false;
 			});
@@ -520,55 +583,13 @@ function initActions(){
 				return false;
 			}
 		});
-		
-		if($(".jsChronology").length > 0){
-			$(".jsChronology").each(function(){
-				var href = $(this).attr("href");
-				if(href.indexOf('/Participants/') != -1){
-					$(this).addClass('participant');
-				}else if(href.indexOf('/DiagnosisMasters/') != -1){
-					$(this).addClass('diagnosis');
-				}else if(href.indexOf('/TreatmentMasters/') != -1){
-					$(this).addClass('treatments');
-				}else if(href.indexOf('/Collections/') != -1){
-					$(this).addClass('collection');
-				}else if(href.indexOf('/EventMasters/') != -1){
-					$(this).addClass('annotation');
-				}else if(href.indexOf('/ConsentMasters/') != -1){
-					$(this).addClass('consents');
-				}
-			}).click(function(){
-				var link = this;
-				//remove highlighted stuff
-				var td = $(".at").removeClass("at").find("td:last-child");
-				$(td).html($(td).data('content'));
-				var tr = $(link).parents("tr").first().addClass("at");
-				td = $(tr).find("td").last();
-				console.log(td);
-				$(td).data('content', $(td).html());
-				$(td).html('<div style="position: relative;">' + $(td).html() + '<div class="treeArrow" style="display: block"></div></div>');
-				
-				if($(link).data('cached_result')){
-					$("#frame").html($(link).data('cached_result'));
-				}else{
-					$("#frame").html("<div class='loading'></div>");
-					$.get($(this).attr("href") + "?t=" + new Date().getTime(), function(data){
-						$("#frame").html(data);
-						$(link).data('cached_result', data);
-					});
-				}
-				return false;
-			});
-			$(".this_column_1.total_columns_1").removeClass("total_columns_1").addClass("total_columns_2").css("width", "1%").parent().append(
-					'<td class="this_column_2 total_columns2"><div id="frame"></td>'
-			);
-			
-		}
 	}
 	
-	function removeLine(){
-		$(this).parents("tr:first").remove();
-		return false;
+	function initRemoveLine(scope){
+		$(scope).find(".removeLineLink").click(function(){
+			$(getParentElement(this, "TR")).remove();
+			return false;
+		});
 	}
 	
 	function initAjaxClass(scope){
@@ -576,13 +597,9 @@ function initActions(){
 		//evals the json within the class of the element and calls the method defined in callback
 		//the callback method needs to take this and json as parameters
 		$(scope).find(".ajax").click(function(){
-			try{
-				json = $(this).data('json');
-				var fct = eval("(" + json.callback + ")");
-				fct.apply(this, [this, json]);
-			}catch(e){
-				console.log(e);
-			}
+			var json = getJsonFromClass($(this).prop("class"));
+			var fct = eval("(" + json.callback + ")");
+			fct.apply(this, [this, json]);
 			return false;
 		});
 	}
@@ -600,7 +617,7 @@ function initActions(){
 				}
 				if(currName.indexOf(labBookFields[i]) > -1){
 					fields.push($(this));
-					var parentTd = $(this).parents("td:first");
+					var parentTd = getParentElement(this, "TD");
 					if($(parentTd).find(".labBook").length == 0){
 						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
 					}
@@ -739,19 +756,8 @@ function initActions(){
 		});
 	}
 	
-	/**
-	 * Moves the submit button so that it always appear in the screen.
-	 * Moves the top right menu so that it's almost always in the screen. It 
-	 * will not overlap with the title.
-	 */
-	function flyOverComponents(){
+	function flyOverSubmit(){
 		$(".flyOverSubmit").css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
-		var r_pos = $(document).width() - $(window).width() - $(document).scrollLeft() + 10;
-		var l_pos = $(window).width() + $(document).scrollLeft() - $(".root_menu_for_header").width();
-		if(l_pos < header_total_width){
-			r_pos -= total_width - l_pos;
-		}
-		$(".root_menu_for_header, .main_menu_for_header").css("right", r_pos);
 	}
 	
 	function initAutoHideVolume(){
@@ -788,15 +794,20 @@ function initActions(){
 		return false;
 	}
 	
-	function warningMoreInfoClick(event){
-		//only called on the first click of each element, then toggle function handles it
-		$(event.srcElement).toggle(function(){
-			$(this).html("[-]").siblings("pre.warningMoreInfo").show();
-		}, function(){
-			$(this).html("[+]").siblings("pre.warningMoreInfo").hide();
-		}).click();
+	function loadUsesAndStorageHistory(url){
+		$.post(document.URL, {data : "uses"}, function(data){
+			var origHeight = $("div.uses").height();
+			$("div.uses").html(data);
+			var newHeight = $("div.uses").height();
+			$("div.uses").css('height', origHeight).animate({height: newHeight}, 500);
+		});
+		$.post(url, {data : "storage_history"}, function(data){
+			var origHeight = $("div.storage_history").height();
+			$("div.storage_history").html(data);
+			var newHeight = $("div.storage_history").height();
+			$("div.storage_history").css('height', origHeight).animate({height: newHeight}, 500);
+		});
 	}
-	
 	
 	function initJsControls(){
 		if(window.storageLayout){
@@ -819,6 +830,9 @@ function initActions(){
 		}
 		if(window.batchSetControls){
 			initBatchSetControls();
+		}
+		if(window.ajaxTreeView){
+			initAjaxTreeView(document);
 		}
 		if(window.treeView){
 			initTreeView(document);
@@ -843,12 +857,11 @@ function initActions(){
 		}
 		if($(".ajax_search_results").length == 1){
 			$(".ajax_search_results").parent().hide();
-			$("input.submit").click(function(){
-				var submit_button = $(this);
+			$("input.submit").prop("onclick", "").unbind('unclick').click(function(){
 				$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 				$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 				$(".ajax_search_results").parent().show();
-				successFct = function(data){
+				$.post($("form").attr("action"), $("form").serialize(), function(data){
 					try{
 						data = $.parseJSON(data);
 						$(".ajax_search_results").html(data.page);
@@ -856,19 +869,10 @@ function initActions(){
 						//update the form action
 						$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
 						handleSearchResultLinks();
-						//stop submit button animation
-						$(submit_button).siblings("a").find("span").removeClass('fetching');
 					}catch(exception){
 						//simply submit the form then
 						$("form").submit();
 					}
-				};
-				$.ajax({
-					type	: "POST",
-					url		: $("form").attr("action"),
-					data	: $("form").serialize(),
-					success	: successFct,
-					error	: function(){ $("form").submit(); }
 				});
 				return false;
 			});
@@ -893,10 +897,13 @@ function initActions(){
 			});
 		}
 		
+		initDeleteConfirm();
+		
 		initAutocomplete(document);
 		initAdvancedControls(document);
 		initToolPopup(document);
 		initActions();
+		initSummary();
 		initAjaxClass(document);
 		initAccuracy(document);
 		initAddLine(document);//must be before datepicker
@@ -907,6 +914,7 @@ function initActions(){
 		
 		initTooltips(document);
 		initCheckAll(document);
+		initRemoveLine(document);
 		initCheckboxes(document);
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
@@ -916,9 +924,28 @@ function initActions(){
 			}
 		});
 		
+		//focus on first field
+		$("input:visible, select:visible, textarea:visible").first().focus();
+		
+		//on login page, displays a warning if the server is more than ~2 min late compared to the client
+		if(window.loginPage != undefined){
+			//adding date to the request URL to fool IE caching
+			$.get(root_url + 'users/login/1?t=' + (new Date().getTime()), function(data){
+				data = $.parseJSON(data);
+				if(data.logged_in == 1){
+					document.location = ".";
+				}else{ 
+					var foo = new Date;
+					if(data.server_time - parseInt(foo.getTime() / 1000) < -120){
+						$("#timeErr").show();
+					}
+				}
+			});
+		}
+		
 		if(useHighlighting){
 			//field highlighting
-			if($("table.structure.addgrid, table.structure.editgrid").length == 1){
+			if($("#table1row0").length == 1){
 				//gridview
 				$('form').highlight('td');
 			}else{
@@ -926,75 +953,23 @@ function initActions(){
 			}
 		}
 		
-		//focus on first field
-		$("input:visible, select:visible, textarea:visible").first().focus();
-		
 		//fly over submit button, always in the screen
-		flyOverComponents();
-		$(window).scroll(flyOverComponents).resize(flyOverComponents);
+		flyOverSubmit();
+		$(window).scroll(flyOverSubmit);
+		$(window).resize(flyOverSubmit);
 		
 		if(window.initPage){
 			initPage();
 		}
+		
 		$("a.databrowserMore").click(function(){
 			$(this).parent().find("span, a").toggle();
 			return false;
 		});
 		
-		$(document).delegate("a.submit", 'click', function(){
-			//Search button loading animation
-			if(!$(this).find('span').hasClass('fetching')){
-				//trigger submit form (will go through validations)
-				$(this).siblings("input.submit").click();
-				
-			}
-			return $(this).attr("href").indexOf("javascript:") == 0;
-		}).delegate("form", "submit", function(){
-			//submitting form
-			$(this).find('a.submit span').last().addClass('fetching');
-			submitData.lastRequest = $.cookie('last_request');
-			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
-			return true;
-		}).delegate(".jsApplyPreset", "click", function(){
-			applyPreset($(this).data("json"));
-			return false;
-		}).delegate("a.delete:not(.noPrompt)", "click", openDeleteConfirmPopup
-		).delegate(".reveal.notFetched", "click", treeViewNodeClick
-		).delegate(".sectionCtrl", "click", sectionCtrl
-		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick
-		).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction
-		).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
-		).delegate(".removeLineLink", "click", removeLine);
-		
-		$(window).bind("pageshow", function(event){
-			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
-			//don't bother using console.log, console is not ready yet
-			$(document).find('a.submit span.fetching').removeClass('fetching');
-			
-			//on login page, displays a warning if the server is more than ~2 min late compared to the client
-			if(window.loginPage != undefined){
-				//adding date to the request URL to fool IE caching
-				$.get(root_url + 'Users/login/1?t=' + (new Date().getTime()), function(data){
-					data = $.parseJSON(data);
-					if(data.logged_in == 1){
-						document.location = root_url;
-					}else{ 
-						var foo = new Date;
-						if(data.server_time - parseInt(foo.getTime() / 1000) < -120){
-							$("#timeErr").show();
-						}
-					}
-				});
-			}
-		});
-		
-		$(".ajaxLoad").each(function(){
-			$(this).html('<div class="loading">---' + STR_LOADING + '---</div>');
-			var div = $(this);
-			$.get(root_url + $(this).data('url'), function(page){
-				$(div).html(page);
-			});
-		});
+		if(document.URL.match(/inventorymanagement\/aliquot_masters\/detail\/([0-9]+)\/([0-9]+)\/([0-9]+)/)){
+			loadUsesAndStorageHistory(document.URL);
+		}
 	}
 
 	function globalInit(scope){
@@ -1006,6 +981,7 @@ function initActions(){
 		initTooltips(scope);
 		initAutocomplete(scope);
 		initCheckAll(scope);
+		initRemoveLine(scope);
 		initCheckboxes(scope);
 		initAccuracy(scope);
 		initAdvancedControls(scope);
@@ -1019,207 +995,3 @@ function initActions(){
 	function debug(str){
 //		$("#debug").append(str + "<br/>");
 	}
-	
-	function treeViewNodeClick(event){
-		var element = event.currentTarget;
-		$(element).removeClass("notFetched").unbind('click');
-		var json = $(element).data("json");
-		var expandButton = $(element);
-		if(json.url != undefined && json.url.length > 0){
-			$(element).addClass("fetching");
-			var flat_url = json.url.replace(/\//g, "_");
-			if(flat_url.length > 0){
-				$.get(root_url + json.url + "?t=" + new Date().getTime(), function(data){
-					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
-					if($("#" + flat_url).find("ul").length == 1){
-						var currentLi = $(expandButton).parents("li:first");
-						$(currentLi).append("<ul>" + $("#" + flat_url).find("ul").html() + "</ul>");
-						initAjaxClass($(currentLi).find("ul"));
-						$(expandButton).click(function(){
-							$(currentLi).find("ul").first().stop().toggle("blind");
-						});
-					}
-					$(expandButton).removeClass("fetching");
-					$("#" + flat_url).remove();
-					
-					if(window.initTree){
-						initTree($(currentLi));
-					}
-				});
-			}
-		}
-	}
-	
-	/**
-	 * Called when a detail view is displayed in within the same page as the tree view
-	 * @param new_at_li
-	 * @param json
-	 */
-	function set_at_state_in_tree_root(new_at_li, json){
-		$(".tree_root").find("div.treeArrow").hide();
-		$(".tree_root").find("div.rightPart").removeClass("at");
-		$li = $(new_at_li).parents("li:first");
-		$($li).find("div.rightPart:first").addClass("at");
-		$($li).find("div.treeArrow:first").show();
-		$("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
-		$.get($(this).prop("href") + "?t=" + new Date().getTime(), {}, function(data){
-			$("#frame").html(data);
-			initActions();
-		});
-	}
-	
-	/**
-	 * Called for tree views listing radio buttons (such as treatments, to select a dx)
-	 * to display the selected element.
-	 * @param scope
-	 */
-	function initTreeView(scope){
-		$("a.reveal.activate").each(function(){
-			var matchingUl	= $(this).parents("li:first").children().filter("ul").first();
-			$(this).click(function(){
-				$(matchingUl).stop().toggle("blind");
-			});
-		});
-		
-		var element = $(scope).find(".tree_root input[type=radio]:checked");
-		if(element.length == 1){
-			var lis = $(element).parents("li");
-			lis[0] = null;
-			$(lis).find("a.reveal.activate:first").click();
-		}
-	}
-	
-	function openDeleteConfirmPopup(event){
-		if($("#deleteConfirmPopup").length == 0){
-			var yes_action = function(){
-				document.location = $("#deleteConfirmPopup").data('link');
-				return false;
-			};
-			var no_action = function(){
-				$("#deleteConfirmPopup").popup('close');
-				return false;
-			}; 
-			
-			buildConfirmDialog('deleteConfirmPopup', STR_DELETE_CONFIRM, new Array({label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}));
-		}
-		
-		$("#deleteConfirmPopup").popup();
-		$("#deleteConfirmPopup").data('link', $(event.currentTarget).prop("href"));
-		return false;
-	}
-
-	function openSaveBrowsingStepsPopup(link){
-		$.get(root_url + link, null, function(data){
-			data = $.parseJSON(data);
-			$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
-			$("#default_popup input[type=text]").first().focus();
-			$("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
-		});
-	}
-	
-	function popupSubmit(url){
-		$.post(url, $("#default_popup form").serialize(), function(data){
-			console.log(data);
-			data = $.parseJSON(data);
-			if(data.type == 'form'){
-				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
-				$("#default_popup input[type=text]").first().focus();
-				$("#default_popup form").attr("action", 'javascript:popupSubmit("' + $("#default_popup form").attr("action") + '");');
-			}else if(data.type == 'message'){
-				$("#message").remove();
-				buildDialog("message", data.message, null, [{icon : 'detail', action : function(){ $("#message").popup('close'); return false; }, label : STR_OK}]);
-				$("#message").popup();
-			}
-		});
-	}
-	
-	/**
-	 * Will see if the last_request time has changed in order to stop the rotating beam. Used by CSV download.
-	 */
-	function fetchingBeamCheck(){
-		if(submitData.lastRequest != $.cookie('last_request')){
-			$(document).find('a.submit span.fetching').removeClass('fetching');
-		}else{
-			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);
-		}
-	}
-	
-	/*
-	 * Toggles display of batch entry sections
-	 */
-	
-	function sectionCtrl(event){
-		if($(event.srcElement).hasClass('delete')){
-			//hide the content in the button data
-			$(event.srcElement).parents(".descriptive_heading:first").nextAll(".section:first").appendTo("body").hide();
-			$(event.srcElement).data("section", $("body .section:last"));
-			$(event.srcElement).parents(".descriptive_heading:first").css("text-decoration", "line-through");
-			$(event.srcElement).removeClass('delete').addClass('redo');
-		}else{
-			$(event.srcElement).parents(".descriptive_heading:first").after($(event.srcElement).data("section").show());
-			$(event.srcElement).parents(".descriptive_heading:first").css("text-decoration", "none");
-			$(event.srcElement).addClass('delete').removeClass('redo');
-		}
-		
-		if($(".descriptive_heading a.sectionCtrl.delete").length == 0){
-			$(".flyOverSubmit").hide();
-		}else{
-			$(".flyOverSubmit").show();
-		}
-		
-		flyOverComponents();
-		return false;
-	}
-	
-	/**
-	 * When a checkbox is checked/unchecked, toggles line coloring. Support of shiftkey to select multiple lines.
-	 * @param event
-	 * @param orgEvent
-	 */
-	function checkboxIndexFunction(event, orgEvent){
-		var shiftKey = orgEvent ? false : event.originalEvent.shiftKey;
-		if(shiftKey){
-			marking = true;
-			checked = $(event.currentTarget).prop("checked");
-			markingFct = function(){
-				if(marking){
-					$(this).find("td.checkbox input[type=checkbox]").attr("checked", checked);
-					if(checked){
-						$(this).addClass("chkLine");
-					}else{
-						$(this).removeClass("chkLine");
-					}
-					if($(this).hasClass("checkboxIndexFunctionMark")){
-						marking = !marking;
-					}
-				}
-			}; 
-			if($(event.currentTarget).parents("tr:first").nextAll(".checkboxIndexFunctionMark").length){
-				$(event.currentTarget).parents("tr:first").nextAll().each(markingFct);
-			}else if($(event.currentTarget).parents("tr:first").prevAll(".checkboxIndexFunctionMark").length){
-				$(event.currentTarget).parents("tr:first").prevAll().each(markingFct);
-			}
-		}
-		$(".checkboxIndexFunctionMark").removeClass("checkboxIndexFunctionMark");
-		$(event.currentTarget).parents("tr:first").addClass("checkboxIndexFunctionMark");
-		if(orgEvent ? !$(event.currentTarget).prop("checked") : $(event.currentTarget).prop("checked")){
-			$(event.currentTarget).parents("tr:first").addClass("chkLine");
-		}else{
-			$(event.currentTarget).parents("tr:first").removeClass("chkLine");
-		}
-		event.stopPropagation();
-	}
-	
-	/**
-	 * Clicking on a line with a checkbox will check/uncheck it. No suport for shiftKey.
-	 * @param event
-	 */
-	function checkboxIndexLineFunction(event){
-		if($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey){
-			//line clicked, toggle it's checkbox (don't support shift click, as it is for text selection
-			$(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [ event ]);
-			event.stopPropagation();
-		}
-	}
-
-	

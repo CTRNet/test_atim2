@@ -1,7 +1,8 @@
 /**
  * This script is used by the storage_layout page for drag and drop
  */
-var dragging = false;//counter Chrome text selection issue
+var submitted = false; //avoids internal double posts
+var dragging = false;//counter Chrome 15 text selection issue
 var modified = false;//if true, save warning
 
 function initStorageLayout(){
@@ -11,12 +12,9 @@ function initStorageLayout(){
 	$("#default_popup").clone().attr("id", "otherPopup").appendTo("body");
 	
 	//bind preparePost to the submit button
-	$("input.submit").first().siblings("a").click(function(){
-		if(!$(this).find('span').hasClass('fetching')){
-			$(this).find('span').addClass('fetching');
-			window.onbeforeunload = null;
-			preparePost();
-		}
+	$("a.form.submit").attr("onclick", null).click(function(){
+		window.onbeforeunload = null;
+		preparePost();
 		return false;
 	});
 	
@@ -40,7 +38,7 @@ function initStorageLayout(){
 	};
 	
 	//handle the "pick a storage to drag and drop to" button and popup
-	$.get(root_url + 'StorageLayout/StorageMasters/search/', function(data){
+	$.get(root_url + 'storagelayout/storage_masters/search/', function(data){
 		var isVisible = $("#default_popup:visible").length;
 		$("#default_popup").html('<div class="wrapper"><div class="frame">' + data + '</div></div>');
 		$("#default_popup form").append("<input type='hidden' name='data[current_storage_id]' value='" + id + "'/>");
@@ -67,7 +65,7 @@ function initStorageLayout(){
 					$("#default_popup").popup();
 				}
 				
-				$("#default_popup a.detail").click(function(){
+				$("#default_popup a.form.detail").click(function(){
 					//handle selection buttons
 					$("#secondStorageRow").html("");
 					var id = $(this).attr("href").match("[0-9]+(/)*$")[0];
@@ -75,7 +73,7 @@ function initStorageLayout(){
 						//if not the same storage
 						$("#secondStorageRow").data("storageId", id);
 						$("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
-						$.get(root_url + 'StorageLayout/StorageMasters/storageLayout/' + id + '/1', function(data){
+						$.get(root_url + 'storagelayout/storage_masters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
 								initRow($("#secondStorageRow"), data);
@@ -103,9 +101,9 @@ function initRow(row, data){
 	id = row.data('storageId');
 	//display items in the proper cells
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
-		var appendString = "<li class='dragme " + jsonOrgItems[i].type + "' data-json='{ \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
+		var appendString = "<li class='dragme " + jsonOrgItems[i].type + " { \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
 			//ajax view button
-			+ '<a href="javascript:showInPopup(\'' + jsonOrgItems[i].link + '\');" title="' + detailString + '" class="icon16 ' + jsonOrgItems[i].icon_name + '" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="javascript:showInPopup(\'' + jsonOrgItems[i].link + '\');" title="' + detailString + '" class="form ' + jsonOrgItems[i].icon_name + '" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 		if(jsonOrgItems[i].x.length > 0){
@@ -251,44 +249,47 @@ function recycleItem(scope, item) {
  * @return true on first attemp, false otherwise
  */
 function preparePost(){
-	//check conflicts
-	var idStr = '';
-	if($('#firstStorageRow').data('checkConflicts') == 2){
-		idStr = '#firstStorageRow';
-	}
-	if($('#secondStorageRow').data('checkConflicts') == 2){
-		idStr += ',#secondStorageRow';
-	}
-	var gotConflicts = false;
-	$(idStr).find("table ul").each(function(){
-		if($(this).find('li').length > 1){
-			$(this).parent().css('background-color', 'lightCoral');
-			gotConflicts = true;
-		}else{
-			$(this).parent().css('background-color', 'transparent');
+	if(!submitted){
+		//check conflicts
+		var idStr = '';
+		if($('#firstStorageRow').data('checkConflicts') == 2){
+			idStr = '#firstStorageRow';
 		}
-	});
-	
-	if(gotConflicts){
-		if($('#conflictPopup').length == 0){
-			buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
+		if($('#secondStorageRow').data('checkConflicts') == 2){
+			idStr += ',#secondStorageRow';
 		}
-		$('#conflictPopup').popup();
-	}else{
-		var cells = '';
-		var elements = $(".dragme");
-		for(var i = elements.length - 1; i >= 0; --i){
-			itemData = $(elements[i]).data("json");
-			var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
-			cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
-		}
-		if(cells.length > 0){
-			cells = cells.substr(0, cells.length - 1);
-		}
-		var form = $("#firstStorageRow").parents("form:first");
-		$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
+		var gotConflicts = false;
+		$(idStr).find("table ul").each(function(){
+			if($(this).find('li').length > 1){
+				$(this).parent().css('background-color', 'lightCoral');
+				gotConflicts = true;
+			}else{
+				$(this).parent().css('background-color', 'transparent');
+			}
+		});
 		
+		submitted = true;
+		if(gotConflicts){
+			if($('#conflictPopup').length == 0){
+				buildDialog('conflictPopup', STR_VALIDATION_ERROR, STR_STORAGE_CONFLICT_MSG, [{label : STR_OK, icon : 'detail', action : function(){ $('#conflictPopup').popup('close'); } }]);
+			}
+			$('#conflictPopup').popup();
+		}else{
+			var cells = '';
+			var elements = $(".dragme");
+			for(var i = elements.length - 1; i >= 0; --i){
+				itemData = getJsonFromClass($(elements[i]).prop("class"));
+				var info = $(elements[i]).parent().prop("id").match(/s\_([^\_]+)\_c\_([^\_]+)\_([^\_]+)/);
+				cells += '{"id" : "' + itemData.id + '", "type" : "' + itemData.type + '", "s" : "' + info[1] + '", "x" : "' + info[2] + '", "y" : "' + info[3] + '"},'; 
+			}
+			if(cells.length > 0){
+				cells = cells.substr(0, cells.length - 1);
+			}
+			var form = getParentElement($("#firstStorageRow"), "FORM");
+			$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
+		}
 	}
+	
 }
 
 /**

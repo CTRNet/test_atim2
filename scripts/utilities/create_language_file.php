@@ -8,12 +8,12 @@
 	//$filee = fopen("C:\\wamp\\www\\atim2\\app\\locale\\eng\\LC_MESSAGES\\default.po", "w+t");
 	//$filef = fopen("C:\\wamp\\www\\atim2\\app\\locale\\fre\\LC_MESSAGES\\default.po", "w+t");
 	//$filex = fopen("C:\\wamp\\www\\atim2\\app\\locale\\error\\ERROR_MESSAGES\\error.po", "w+t");
-	$filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
-	$filef = fopen("../../app/Locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
+	$filee = fopen("../../app/locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
+	$filef = fopen("../../app/locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
 	//$filex = fopen("../app/locale/error/ERROR_MESSAGES/error.po", "w+t");
 	
 	//Establishes a connection to the MySQL server
-	$connection = @mysql_connect("127.0.0.1", "root", "root")
+	$connection = @mysql_connect("127.0.0.1:8889", "root", "root")
 					or die("Could not connect to MySQL");
 	if(!mysql_set_charset("latin1", $connection)){
 		die("We failed");

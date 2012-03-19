@@ -48,7 +48,7 @@ function initDatamartActions(){
 		var parent = $(selectToReplace).parent();
 		$(selectToReplace).remove();
 		parent.append($("#hierarchy")).append($("#search_for"));
-		$("#hierarchy").parents("td:first").css("width", "100%");
+		getParentElement($("#hierarchy"), "TD").css("width", "100%");
 	}
 	
 	//popup to confirm removal (batchset)
@@ -61,6 +61,7 @@ function initDatamartActions(){
 		$("#popup").popup('close');
 	});
 }
+
 function validateSubmit(){
 	var errors = new Array();
 	if($("#search_for").val() == ""){
