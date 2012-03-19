@@ -1059,4 +1059,58 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('other lesion cannot be determined', 'Other Lesion - Cannot Be Determined', 'Autre lésion - Ne peut être déterminée');
 ('other lesion greatest dimension', 'Other Lesion - Tumor Size Greatest Dimension (cm)', 'Autre lésion - Plus grande dimension de la tumeur (cm)');
 
+-- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-03-19 after migration
+-- ------------------------------------------------------------------------
+
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings
+  ADD COLUMN normal_result char(1) NOT NULL DEFAULT '';
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs
+  ADD COLUMN normal_result char(1) NOT NULL DEFAULT '';  
+  
+INSERT INTO structures(`alias`) VALUES ('qc_hb_imaging_result');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'normal_result', 'yes_no',  NULL , '0', '', '', '', 'normal', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_imaging_result'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='normal_result' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='normal' AND `language_tag`=''), '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+
+UPDATE event_controls SET form_alias = CONCAT (form_alias, ',qc_hb_imaging_result') 
+WHERE event_group = 'imagery' AND detail_tablename = 'qc_hb_ed_hepatobilary_medical_imagings' 
+AND event_type NOT IN ('medical imaging doppler ultrasound',
+'medical imaging ERCP',
+'medical imaging transhepatic cholangiography',
+'medical imaging HIDA scan');
+
+ALTER TABLE qc_hb_ed_hepatobiliary_lifestyles
+  ADD COLUMN drugs text;
+ALTER TABLE qc_hb_ed_hepatobiliary_lifestyles_revs
+  ADD COLUMN drugs text; 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobiliary_lifestyles', 'drugs', 'textarea',  NULL , '0', '', '', '', 'drugs', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ed_hepatobiliary_lifestyle'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobiliary_lifestyles' AND `field`='drugs' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='drugs' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+UPDATE structure_fields SET  `setting`='cols=40,rows=6' WHERE model='EventDetail' AND tablename='qc_hb_ed_hepatobiliary_lifestyles' AND field='drugs' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+
+UPDATE diagnosis_controls SET flag_compare_with_cap = '0';
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='pd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
