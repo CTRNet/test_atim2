@@ -67,7 +67,7 @@ function initStorageLayout(){
 					$("#default_popup").popup();
 				}
 				
-				$("#default_popup a.form.detail").click(function(){
+				$("#default_popup a.detail").click(function(){
 					//handle selection buttons
 					$("#secondStorageRow").html("");
 					var id = $(this).attr("href").match("[0-9]+(/)*$")[0];
@@ -75,7 +75,7 @@ function initStorageLayout(){
 						//if not the same storage
 						$("#secondStorageRow").data("storageId", id);
 						$("#secondStorageRow").html("<div class='loading' style='display: table-cell; min-width: 1px;'>---" + STR_LOADING + "---</div>");
-						$.get(root_url + 'storagelayout/StorageMasters/storageLayout/' + id + '/1', function(data){
+						$.get(root_url + 'StorageLayout/StorageMasters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
 								initRow($("#secondStorageRow"), data);
@@ -285,7 +285,7 @@ function preparePost(){
 		if(cells.length > 0){
 			cells = cells.substr(0, cells.length - 1);
 		}
-		var form = getParentElement($("#firstStorageRow"), "FORM");
+		var form = $("#firstStorageRow").parents("form:first");
 		$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
 		
 	}

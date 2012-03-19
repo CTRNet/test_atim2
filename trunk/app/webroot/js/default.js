@@ -8,24 +8,6 @@ jQuery.fn.fullWidth = function(){
 
 var header_total_width = $("#header div:first").fullWidth() + $("#header div:first").offset().left;
 
-function initSummary(){
-	var open = function(){
-		var summary_hover = $(this);
-		var summary_popup = summary_hover.find('ul');
-		if ( summary_popup.length>0 ) {
-			summary_popup.stop(true, true).slideDown(100);
-		}
-	};
-	var close = function(){
-		var summary_hover = $(this);
-		var summary_popup = summary_hover.find('ul');
-		if ( summary_popup.length>0 ) {
-			summary_popup.delay(101).slideUp(100);
-		}
-	};
-	$('#menu #summary').hover(open, close);
-}
-
 //Slide down animation (show) for action menu
 var actionMenuShow = function(){
 	var action_hover = $(this);
@@ -120,38 +102,6 @@ function initActions(){
 	$('div.filter_menu.scroll').bind('mousewheel', actionMouseweelHandler);
 }
 
-/*
-	admin editors, expandable list of elements
-	individual elements should be wrapped in p tags, and those p tags wrapped in a containing div
-	fields (input, etc) should obviously have array names as they will be exact clones
-*/
-
-	function clone_fields(containing_div) {
-		
-		div = document.getElementById(containing_div); // div containing add artist selects/inputs
-		ps = div.getElementsByTagName("p"); // ps is array of p tags in div
-		
-		new_p = ps[ps.length-1].cloneNode(true); // make copy of last p tag and all elements it contains
-		
-		div.appendChild(new_p); // append newly copied p tag inside div
-		
-	}
-	
-	function remove_fields(p) {
-	
-		a = p.parentNode; // a tag is parent of onclick attribute
-		div = a.parentNode; // div is parent of a tag
-		
-		ps = div.getElementsByTagName("p"); // ps is array of p tags in div
-		
-		if ( ps.length>1 ) { // if more than one p tag in div...
-			div.removeChild(a); // remove p tag that a tag is in
-		} else {
-			alert('Sorry, you cannot remove all of these field sets.'); // alert message
-		}
-		
-	}
-	
 	//TODO: REMOVE
 	function getJsonFromClass(cssClass){
 		var startIndex = cssClass.indexOf("{");
@@ -375,15 +325,11 @@ function initActions(){
 	 * @param element The element contained within the row to remove
 	 */
 	function removeParentRow(element){
-		element = getParentElement(element, "TR");
+		element = $(element).parents("tr:first");
 		
 		if($(element)[0].nodeName == "TR"){
 			$(element).remove();
 		}
-	}
-	
-	function getParentRow(element){
-		return getParentElement(element, "TR");
 	}
 	
 	function initAutocomplete(scope){
@@ -448,7 +394,7 @@ function initActions(){
 	function initCheckAll(scope){
 		var elem = $(scope).find(".checkAll");
 		if(elem.length > 0){
-			parent = getParentElement(elem, "FORM");
+			parent = $(elem).parents("form:first");
 			$(elem).click(function(){
 				$(parent).find('input[type=checkbox]').prop("checked", true);
 				$(parent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
@@ -532,7 +478,7 @@ function initActions(){
 	function initAddLine(scope){
 		$(scope).find(".addLineLink").each(function(){
 			//get the table row
-			var table = $(getParentElement(this, "TABLE"));
+			var table = $(this).parents("table:first");
 			var tableBody = $(table).find("tbody");
 			var lastLine = $(tableBody).find("tr:last");
 			var templateLineHtml = lastLine.html();
@@ -545,7 +491,6 @@ function initActions(){
 					counter --;
 				}
 				var newLines = $(tableBody).find("tr.newLine");
-				initRemoveLine(newLines);
 				initAutocomplete(newLines);
 				initDatepicker(newLines);
 				initToolPopup(newLines);
@@ -621,11 +566,9 @@ function initActions(){
 		}
 	}
 	
-	function initRemoveLine(scope){
-		$(scope).find(".removeLineLink").click(function(){
-			$(getParentElement(this, "TR")).remove();
-			return false;
-		});
+	function removeLine(){
+		$(this).parents("tr:first").remove();
+		return false;
 	}
 	
 	function initAjaxClass(scope){
@@ -657,7 +600,7 @@ function initActions(){
 				}
 				if(currName.indexOf(labBookFields[i]) > -1){
 					fields.push($(this));
-					var parentTd = getParentElement(this, "TD");
+					var parentTd = $(this).parents("td:first");
 					if($(parentTd).find(".labBook").length == 0){
 						$(this).after("<span class='labBook'>[" + STR_LAB_BOOK + "]</span>");
 					}
@@ -954,7 +897,6 @@ function initActions(){
 		initAdvancedControls(document);
 		initToolPopup(document);
 		initActions();
-		initSummary();
 		initAjaxClass(document);
 		initAccuracy(document);
 		initAddLine(document);//must be before datepicker
@@ -965,7 +907,6 @@ function initActions(){
 		
 		initTooltips(document);
 		initCheckAll(document);
-		initRemoveLine(document);
 		initCheckboxes(document);
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
@@ -1022,7 +963,8 @@ function initActions(){
 		).delegate(".sectionCtrl", "click", sectionCtrl
 		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick
 		).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction
-		).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction);
+		).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
+		).delegate(".removeLineLink", "click", removeLine);
 		
 		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
@@ -1064,7 +1006,6 @@ function initActions(){
 		initTooltips(scope);
 		initAutocomplete(scope);
 		initCheckAll(scope);
-		initRemoveLine(scope);
 		initCheckboxes(scope);
 		initAccuracy(scope);
 		initAdvancedControls(scope);
@@ -1091,7 +1032,7 @@ function initActions(){
 				$.get(root_url + json.url + "?t=" + new Date().getTime(), function(data){
 					$("body").append("<div id='" + flat_url + "' style='display: none'>" + data + "</div>");
 					if($("#" + flat_url).find("ul").length == 1){
-						var currentLi = getParentElement(expandButton, "LI");
+						var currentLi = $(expandButton).parents("li:first");
 						$(currentLi).append("<ul>" + $("#" + flat_url).find("ul").html() + "</ul>");
 						initAjaxClass($(currentLi).find("ul"));
 						$(expandButton).click(function(){
@@ -1117,7 +1058,7 @@ function initActions(){
 	function set_at_state_in_tree_root(new_at_li, json){
 		$(".tree_root").find("div.treeArrow").hide();
 		$(".tree_root").find("div.rightPart").removeClass("at");
-		$li = getParentElement(new_at_li, "LI");
+		$li = $(new_at_li).parents("li:first");
 		$($li).find("div.rightPart:first").addClass("at");
 		$($li).find("div.treeArrow:first").show();
 		$("#frame").html("<div class='loading'>---" + STR_LOADING + "---</div>");
@@ -1129,12 +1070,12 @@ function initActions(){
 	
 	/**
 	 * Called for tree views listing radio buttons (such as treatments, to select a dx)
+	 * to display the selected element.
 	 * @param scope
 	 */
 	function initTreeView(scope){
 		$("a.reveal.activate").each(function(){
-			var matchingUl = getParentElement($(this), "LI"); 
-			matchingUl	= $(matchingUl).children().filter("ul").first();
+			var matchingUl	= $(this).parents("li:first").children().filter("ul").first();
 			$(this).click(function(){
 				$(matchingUl).stop().toggle("blind");
 			});
@@ -1202,6 +1143,10 @@ function initActions(){
 			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);
 		}
 	}
+	
+	/*
+	 * Toggles display of batch entry sections
+	 */
 	
 	function sectionCtrl(event){
 		if($(event.srcElement).hasClass('delete')){

@@ -8,7 +8,7 @@ function manageContacts(){
 			$("#manageContactPopup").popup('close');
 			$("#manageContactPopup").find("div").first().html(data);
 			$("#manageContactPopup").find("div").first().find("a.detail").click(function(){
-				var row = getParentElement($(this), "TR");
+				var row = $(this).parents("tr:first");
 				var cells = $(row).find("td");
 				if(cells.length > 7){
 					var clean = function(str){

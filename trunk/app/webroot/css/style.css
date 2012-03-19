@@ -733,10 +733,10 @@ div.menu ul#summary li ul {
 	padding: 10px;
 	z-index: 1000;
 	border-radius: 7px 0 7px 7px; 
-	
-	/*
-		z-index: 20;
-	*/
+}
+
+div.menu ul#summary:hover li ul {
+	display: block;
 }
 
 
