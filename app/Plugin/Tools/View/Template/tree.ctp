@@ -133,7 +133,7 @@ if(isset($is_ajax)){
 
 	function bindButtons(scope){
 		$(scope).find(".delete").unbind('click').click(function(){
-			var parentLi = getParentElement(this, "LI"); 
+			var parentLi = $(this).parents("li:first"); 
 			if($(currentNode).data() == $(parentLi).data()){
 				$(parentLi).find("ul:first").remove();
 				nextNode();
@@ -165,7 +165,7 @@ if(isset($is_ajax)){
 					})
 				);
 			}
-			li = getParentElement(this, "LI");
+			li = $(this).parents("li:first");
 			var options = null;
 			if($(li).data("datamart_structure_id") == 2){
 				options = getDropdownOptions("");
@@ -182,8 +182,9 @@ if(isset($is_ajax)){
 			};
 			
 			$("#addDialog select").html(options).change(updateNumInput);
-			$("#addDialog").data("node", $(getParentElement(this, "LI")));
-			$("#addDialog").data("parent_id", $(getParentElement(this, "LI")).data("nodeId"));
+			var liParent = $(this).parents("li:first");
+			$("#addDialog").data("node", liParent);
+			$("#addDialog").data("parent_id", $(liParent).data("nodeId"));
 			updateNumInput();
 			$("#addDialog").popup();
 		});
@@ -267,26 +268,26 @@ if(isset($is_ajax)){
 	var currentNode = null;
 	function initWizardMode(wizard_id){
 		//for each page
-		//1 - overwrite the submit button
-		//2 - reanable js constrol (calendar, addline, suggest, data accuracy, etc.
+		//2 - re enable js controls (calendar, addline, suggest, data accuracy, etc.)
 		$(".nameInput").remove();
 		setLoading();
-		$.get(root_url + 'InventoryManagement/collections/templateInit/' + collectionId + '/' + wizard_id + "?t=" + new Date().getTime(), function(jsonData){
+		$.get(root_url + 'InventoryManagement/Collections/templateInit/' + collectionId + '/' + wizard_id + "/noActions:/?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
 			$(".ajaxContent").html(jsonData.display);
 			$(".ajaxContent form").append("<input type='hidden' name='data[0][bogus_hidden_for_submit]' value=''/>");
 			globalInit(".ajaxContent");
-			overrideSubmitButton();
 		});
+
+		$(document).delegate(".ajaxContent input[type=submit]", "click", overrideSubmitButton);
 	}
 
 	function setLoading(){
 		$(".ajaxContent").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
+		flyOverComponents();
 	}
 
 	function overrideSubmitButton(){
-		$(".ajaxContent input[type=submit]").unbind('click').click(function(){
-			$.post($("form").prop("action"), $("form").serialize(), function(jsonData){
+			$.post($("form").prop("action") + "/noActions:/", $("form").serialize(), function(jsonData){
 				jsonData = $.parseJSON(jsonData);
 				if(jsonData.goToNext){
 					//update current node display if needed
@@ -298,13 +299,13 @@ if(isset($is_ajax)){
 					}catch(e){
 						//do nothing
 					}
+					flyOverComponents();
 					globalInit(".ajaxContent");
-					overrideSubmitButton();
 				}
 			}); 
 			setLoading();
 			return false;
-		});
+//		});
 	}
 
 	function nextNode(){
@@ -321,7 +322,7 @@ if(isset($is_ajax)){
 				currentNode = $(currentNode).find("li:not(.wizardDone)").first();
 			}else{
 				//goin up
-				ul = getParentElement(currentNode, "UL");
+				ul = $(currentNode).parents("ul:first");
 				while(true){
 					$(ul).find("li.wizardDone a.add").remove();
 					if($(ul).hasClass("tree_root")){
@@ -332,7 +333,7 @@ if(isset($is_ajax)){
 						currentNode = $(ul).find("li:not(.wizardDone)").first();
 						break;
 					}
-					ul = getParentElement(ul, "UL");
+					ul = $(ul).parents("ul:first");
 				}
 			}
 		}
@@ -343,11 +344,11 @@ if(isset($is_ajax)){
 			url = null;
 			if(data.datamart_structure_id == 1){
 				//aliquot
-				parentLi = getParentElement(currentNode, "LI");
-				url = 'InventoryManagement/AliquotMasters/add/' + $(parentLi).data("id") + '/' + data.controlId + '/' + data.quantity;
+				parentLi = $(currentNode).parents("li:first");
+				url = 'InventoryManagement/AliquotMasters/add/' + $(parentLi).data("id") + '/' + data.controlId + '/' + data.quantity + '/';
 			}else{
 				//sample
-				parentLi = getParentElement(currentNode, "LI");
+				parentLi = $(currentNode).parents("li:first");
 				parentLiData = $(parentLi).data();
 				parentId = null;
 				if(parentLiData.datamart_structure_id == 5){
@@ -359,15 +360,15 @@ if(isset($is_ajax)){
 				url = 'InventoryManagement/SampleMasters/add/<?php echo $collection_id; ?>/' + data.controlId + '/' + parentId + '/';
 			}
 			
-			$.get(root_url + url, function(jsonData){
+			$.get(root_url + url + 'noActions:/', function(jsonData){
 				jsonData = $.parseJSON(jsonData);
 				try{
 					$(".ajaxContent").html(jsonData.display);
 				}catch(e){
 					//do sweet nothing
 				}
+				flyOverComponents();
 				globalInit(".ajaxContent");
-				overrideSubmitButton();
 				if($("input[name=autosubmit]:checked").length == 1){
 					$(".ajaxContent input[type=submit]").click();
 				}
@@ -406,8 +407,8 @@ if(isset($is_ajax)){
 							  $(item).animate({
 									"background-color": "#fff"
 								  }, timer)
-						  })
-				  })
+						  });
+				  });
 		  });	
 	}
 </script>

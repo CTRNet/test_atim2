@@ -12,7 +12,7 @@ function initCopyControl(){
 	if($(".copy").length > 0){
 		//add copy all button into a new tfoot
 		$(".copy").each(function(){
-			var table = getParentElement($(this), "TABLE");
+			var table = $(this).parents("table:first");
 			if(!$(table).data("copyAllLinesEnabled")){
 				var tableWidth = $(table).first("tr").find("th").length;
 				$(table).append("<tfoot><tr><td colspan='" + tableWidth + "' align='right'>" + pasteAllButton + "</td></tr></tfoot>");
@@ -21,7 +21,7 @@ function initCopyControl(){
 		});
 	}
 	$(".pasteAll").click(function(){
-		var table = getParentElement(this, "TABLE");
+		var table = $(this).parents("table:first");
 		$(table).find("tbody tr").each(function(){
 			pasteLine(this);
 		});
@@ -85,7 +85,7 @@ function pasteLine(line){
 				if((copyBuffer[accuracyName] != undefined && $(this).is(":visible"))
 					|| (copyBuffer[accuracyName] == undefined && !$(this).is(":visible"))
 				){
-					var cell = getParentElement($(this), "TD");
+					var cell = $(this).parents("td:first");
 					$(cell).find(".accuracy_target_blue").click();
 				}
 			}

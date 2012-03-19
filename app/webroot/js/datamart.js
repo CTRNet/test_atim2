@@ -48,7 +48,7 @@ function initDatamartActions(){
 		var parent = $(selectToReplace).parent();
 		$(selectToReplace).remove();
 		parent.append($("#hierarchy")).append($("#search_for"));
-		getParentElement($("#hierarchy"), "TD").css("width", "100%");
+		$("#hierarchy").parents("td:first").css("width", "100%");
 	}
 	
 	//popup to confirm removal (batchset)
