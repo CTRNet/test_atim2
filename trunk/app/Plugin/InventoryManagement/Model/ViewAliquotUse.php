@@ -47,7 +47,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 					self::USE_DATETIME_ACCU	=> 'DerivativeDetail.creation_datetime_accuracy',
 					self::USE_BY			=> 'DerivativeDetail.creation_by',
 					self::CREATED			=> 'SourceAliquot.created',
-					self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/AliquotMasters/listAllSourceAliquots/",sample_derivative.collection_id ,"/",sample_derivative.id)',
+					self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/SampleMasters/detail/",sample_derivative.collection_id ,"/",sample_derivative.id)',
 					self::SAMPLE_MASTER_ID	=> 'sample_source.id',
 					self::COLLECTION_ID		=> 'sample_source.collection_id'
 				), "Realiquoting" => array(
