@@ -2,7 +2,7 @@
 
 -- Update version information
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.4.3', NOW(), '4244');
+('2.4.3A', NOW(), '4303');
 
 UPDATE structure_fields SET  `type`='integer_positive',  `structure_value_domain`= NULL  WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='hrt_years_used' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='hrt_years_used');
 UPDATE structure_fields SET  `setting`='' WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='age_at_menopause' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
