@@ -304,12 +304,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->set($aliquot);
 					if(!$this->AliquotMaster->validates()){
 						foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-							$errors[$field][$msg][] = ($is_batch_process? $record_counter : $line_counter);
+								$errors[$field][is_array($msg) ? $msg[0] : $msg][] = ($is_batch_process? $record_counter : $line_counter);
 						}
 					}
 					
 					// Reset data to get position data
-					$created_aliquots[$key] = $this->AliquotMaster->data;
+					$created_aliquots[$key] = $aliquot;
 				}
 				$this->request->data[] = array('parent' => $sample_master_data, 'children' => $created_aliquots);//prep data in case validation fails
 				if(!$new_aliquot_created){

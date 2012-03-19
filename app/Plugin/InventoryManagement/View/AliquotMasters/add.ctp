@@ -74,6 +74,6 @@ if($is_ajax){
 	ob_end_clean();
 	$display = ob_get_contents().$display;
 	ob_clean();
-	$this->Shell->validationErrors = null;
+	$this->validationErrors = array();
 	echo json_encode(array('goToNext' => false, 'display' => $display, 'id' => null));
 }

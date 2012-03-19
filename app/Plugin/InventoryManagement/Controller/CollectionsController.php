@@ -332,7 +332,7 @@ class CollectionsController extends InventoryManagementAppController {
 		$this->set('structure_header', array('title' => __('samples and aliquots creation from template'), 'description' => __('collection template') .': '.__($template['Template']['name'])));
 		$this->Structures->set('template');
 		$this->request->data = $template;
-		$this->render('/../../Tools/views/template/tree');
+		$this->render('/../../Tools/View/Template/tree');
 	}
 	
 	function templateInit($collection_id, $template_id){
@@ -346,7 +346,6 @@ class CollectionsController extends InventoryManagementAppController {
 		$this->set('template_id', $template_id);
 		
 		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => false, 'name' => 'TemplateInit'));
-		$this->TemplateInit->_schema = array();
 		$to_begin_msg = true;//can be overriden in hooks
 		$this->Structures->set('empty', 'template_init_structure');
 		
