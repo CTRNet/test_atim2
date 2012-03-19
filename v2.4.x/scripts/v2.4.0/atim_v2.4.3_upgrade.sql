@@ -92,51 +92,6 @@ UPDATE aliquot_masters am, (SELECT COUNT(*) AS real_use_counter, aliquot_master_
 SET am.use_counter = uses.real_use_counter
 WHERE uses.aliquot_master_id = am.id AND am.deleted != 1 AND (am.use_counter != uses.real_use_counter OR am.use_counter IS NULL OR am.use_counter LIKE '');
 
--- Purified RNA Creation ------------------------------------------------------------------------
-
-INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_category`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-(null, 'purified rna', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivatives', 'sd_der_purified_rnas', 0, 'purified rna');
-SET @purified_rna_ctrl_id = LAST_INSERT_ID();
-
-CREATE TABLE IF NOT EXISTS `sd_der_purified_rnas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sample_master_id` int(11) DEFAULT NULL,
-  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `FK_sd_der_purified_rnas_sample_masters` (`sample_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-CREATE TABLE IF NOT EXISTS `sd_der_purified_rnas_revs` (
-  `id` int(11) NOT NULL,
-  `sample_master_id` int(11) DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  PRIMARY KEY (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-ALTER TABLE `sd_der_purified_rnas`
-  ADD CONSTRAINT `FK_sd_der_purified_rnas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
-
-INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id,	derivative_sample_control_id, flag_active) 
-VALUES ((SELECT id FROM sample_controls WHERE sample_type = 'rna'), @purified_rna_ctrl_id, 1); 
-
-INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
-(null, @purified_rna_ctrl_id, 'tube', '(ul + conc)', 'aliquot_masters,ad_der_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', 1, 'Derivative tube requiring volume in ul and concentration', 0, 'tube');
-SET @purified_rna_alq_ctrl_id = LAST_INSERT_ID();
-
-INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active) VALUES (@purified_rna_alq_ctrl_id,@purified_rna_alq_ctrl_id,1);
-
-INSERT INTO i18n (id,en,fr) VALUES ('purified rna', 'Purified RNA', 'ARN purifié');
-
-
-SET @purified_rna_ctrl_id = (SELECT id FROM sample_controls WHERE sample_type = 'purified rna');
-SET @purified_rna_alq_ctrl_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @purified_rna_ctrl_id);
-UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE derivative_sample_control_id = @purified_rna_ctrl_id;
-UPDATE aliquot_controls SET flag_active=false WHERE sample_control_id = @purified_rna_ctrl_id;
-UPDATE realiquoting_controls SET flag_active=false WHERE parent_aliquot_control_id = @purified_rna_alq_ctrl_id;
-
--- -----------------------------------------------------------------------------------------------------------------------------------
-
 REPLACE INTO i18n (id,en,fr) VALUEs 
 ('inv_creation_datetime_defintion', 
 'Date of the process that allowed to obtain the derivative from a parent sample (DNA extraction, blood centrifugation, protein extraction, RNA amplification, etc).',
