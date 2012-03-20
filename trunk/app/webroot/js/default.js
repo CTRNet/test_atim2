@@ -429,7 +429,7 @@ function initActions(){
 				buttonsHtml += 
 					'<div id="' + id + i +'" class="bottom_button"><a href="#" class="' + buttons[i].icon + '"><span class="icon16 ' + buttons[i].icon + '"></span>' + buttons[i].label + '</a></div>';
 			}
-			buttonsHtml = '<div class="actions">' + buttonsHtml + '</div>';
+			buttonsHtml = '<div class="actions split">' + buttonsHtml + '</div>';
 		}
 		$("#" + id).remove();
 		$("body").append('<div id="' + id + '" class="std_popup question">' +

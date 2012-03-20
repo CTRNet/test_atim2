@@ -183,12 +183,14 @@ div.actions {
 	position: relative;
 	height: 35px;
 	font-size: 11px;
-	line-height: 1.3em;
 	color: #bbf;
 	background: #dde8f2;
 	border-radius: 0 0 5px 5px;
 	padding: 6px 0 0 10px;
 	white-space: nowrap;
+	margin: 0px;
+	min-height: 0px;
+	line-height: 25px;
 }
 
 	div.bottom_button {
@@ -211,11 +213,10 @@ div.actions {
 	div.bottom_button:last-child{
 		border-radius: 0 5px 5px 0;
 	}
-	div.bottom_button:only-of-type{
+	div.bottom_button:only-of-type, div.actions.split div.bottom_button{
 		border-radius: 5px;
+		margin: 0 3px 0 3px;
 	}
-	
-	
 	
 	div.bottom_button a {
 		font-size: 12px;
@@ -1745,12 +1746,6 @@ ul.actionDropdown li a{
 
 .databrowser a.link{
 	text-decoration: none;
-}
-
-div.actions{
-	margin: 0px;
-	min-height: 0px;
-	line-height: 25px;	
 }
 
 .std_popup{
