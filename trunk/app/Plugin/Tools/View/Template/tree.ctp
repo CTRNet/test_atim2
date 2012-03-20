@@ -107,6 +107,8 @@ if(isset($is_ajax)){
 			//wizard mode
 			initWizardMode(<?php echo $template_id; ?>);
 		}
+
+		setTimeout(dataSavedFadeout, 3500);
 	}
 
 	function drawTreeRecur(treeData, node){
