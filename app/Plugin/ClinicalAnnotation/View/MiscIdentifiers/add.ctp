@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'top'=>'/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'. $atim_menu_variables['MiscIdentifierControl.id'] .'/',
-		'bottom'=>array('cancel'=>'/ClinicalAnnotation/MiscIdentifiers/listall/'.$atim_menu_variables['Participant.id'].'/')
+		'bottom'=>array('cancel'=>'/ClinicalAnnotation/Participants/profile/'.$atim_menu_variables['Participant.id'].'/')
 	);
 	
 	$structure_override = array();	
@@ -18,5 +18,3 @@
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
-	
-?>

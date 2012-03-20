@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'top'=>'/ClinicalAnnotation/MiscIdentifiers/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['MiscIdentifier.id'].'/',
-		'bottom'=>array('cancel'=>'/ClinicalAnnotation/MiscIdentifiers/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['MiscIdentifier.id'].'/')
+		'bottom'=>array('cancel'=>'/ClinicalAnnotation/Participants/profile/'.$atim_menu_variables['Participant.id'].'/')
 	);
 	
 	$structure_override = array();
