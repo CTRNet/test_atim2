@@ -2,6 +2,10 @@
 
 class Participant extends ClinicalAnnotationAppModel {
 	
+	public $virtualFields = array(
+		'age'	=> 'IF(date_of_birth IS NULL, NULL, YEAR(NOW()) - YEAR(date_of_birth) - (DAYOFYEAR(NOW()) < DAYOFYEAR(date_of_birth)))'
+	);
+	
 	function summary($variables=array()){
 		$return = false;
 		
