@@ -1623,44 +1623,63 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='previous_primary_code_system' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 ALTER TABLE family_histories
-  ADD COLUMN `chus_primary_description` varchar(250) DEFAULT NULL AFTER primary_icd10_code;
+  ADD COLUMN `chus_tumor_description` varchar(250) DEFAULT NULL AFTER primary_icd10_code,
+  ADD COLUMN `chus_tumor_origin` varchar(250) DEFAULT NULL AFTER chus_tumor_description ;
 ALTER TABLE family_histories_revs
-  ADD COLUMN `chus_primary_description` varchar(250) DEFAULT NULL AFTER primary_icd10_code;
-
-INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_fam_histor_primary_list', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''family history: primary'')');
+  ADD COLUMN `chus_tumor_description` varchar(250) DEFAULT NULL AFTER primary_icd10_code,
+  ADD COLUMN `chus_tumor_origin` varchar(250) DEFAULT NULL AFTER chus_tumor_description ;
+  
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'chus_fam_histor_tumors_list', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''family history: tumors list'')');
 INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
-VALUES ('family history: primary', '1', '250');
+VALUES ('family history: tumors list', '1', '250');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`, `use_as_input`) 
 VALUES 
-('brain','Brain','Cerveau', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('settler','Settler','Colon', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('stomach','Stomach','Estomac ', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('ganglion','Ganglion','Ganglion', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('generalized','Generalized','Généralisé', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('gynecological','Gynecological','Gynecologique', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('Hodgkin','Hodgkin','Hodgkin', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('intestine','Intestine','Intestin', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('larynx','Larynx','Larynx', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('leukemia','Leukemia','Leucémie', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('lymphoma','Lymphoma','Lymphome', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('marrow','Marrow','Moelle', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('bone','Bone','Os', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('ovary','Ovary','Ovaire', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('pancreas','Pancreas','Pancreas', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('lung','Lung','Poumon', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('prostate','Prostate','Prostate', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('rectum','Rectum','Rectum', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('kidney','Kidney','Rein', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('breast','Breast','Sein', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('testicle','Testicle','Testicule', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('uterus','Uterus','Utérus', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('bladder','Bladder','Vessie', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1),
-('vulva','Vulva','Vulve', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: primary'), 1);
+('brain','Brain','Cerveau', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('settler','Settler','Colon', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('stomach','Stomach','Estomac ', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('ganglion','Ganglion','Ganglion', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('generalized','Generalized','Généralisé', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('gynecological','Gynecological','Gynecologique', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('hodgkin','Hodgkin','Hodgkin', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('intestine','Intestine','Intestin', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('larynx','Larynx','Larynx', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('leukemia','Leukemia','Leucémie', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('lymphoma','Lymphoma','Lymphome', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('marrow','Marrow','Moelle', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('bone','Bone','Os', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('ovary','Ovary','Ovaire', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('pancreas','Pancreas','Pancreas', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('lung','Lung','Poumon', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('prostate','Prostate','Prostate', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('rectum','Rectum','Rectum', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('kidney','Kidney','Rein', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('breast','Breast','Sein', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('testicle','Testicle','Testicule', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('uterus','Uterus','Utérus', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('bladder','Bladder','Vessie', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('vulva','Vulva','Vulve', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+
+('angiosarcoma','Angiosarcoma','Angiosarcome', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('cervix','Cervix','Col utérus', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('endometrial','Endometrial','Endomètre', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('liver','Liver','Foie', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('throat','Throat','Gorge', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('groin','Groin','Aine', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('pituitary','Pituitary','Hypophyse', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('unknown','Unknown','Inconnu', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('melanoma','Melanoma','Mélanome', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('myeloma','Myeloma','Myélome', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('skin','Skin','Peau', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('penis','Penis','Pénis', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('esophagus','Esophagus','Oesophage', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1),
+('thyroid','Thyroid','Thyroïde', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1);
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('Clinicalannotation', 'FamilyHistory', 'family_histories', 'chus_primary_description', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_fam_histor_primary_list') , '0', '', '', '', 'primary', '');
+('Clinicalannotation', 'FamilyHistory', 'family_histories', 'chus_tumor_description', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chus_fam_histor_tumors_list') , '0', '', '', '', 'tumor', ''),
+('Clinicalannotation', 'FamilyHistory', 'family_histories', 'chus_tumor_origin', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='origin') , '0', '', '', '', '', 'origin');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
-((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='chus_primary_description' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_fam_histor_primary_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='chus_tumor_description'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='chus_tumor_origin'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
 
 -- ------------------------------------------------------------------------------------------------------
 

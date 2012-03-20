@@ -19,8 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-2012-03-14.xls";
-
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-2012-03-14_revised.xls";
 	static $xls_header_rows = 1;
 	
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
