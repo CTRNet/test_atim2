@@ -77,10 +77,14 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			// Launch validation
 			$submitted_data_validates = true;
 			
+			if(!$is_incremented_identifier){
+				$this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $controls['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
+			}
+			
 			// ... special validations
 			$this->MiscIdentifier->set($this->request->data);
-			$submitted_data_validates = ($this->MiscIdentifier->validates())? $submitted_data_validates: false;
-			if($controls['MiscIdentifierControl']['flag_unique']){
+			$submitted_data_validates = $this->MiscIdentifier->validates() ? $submitted_data_validates : false;
+			if($controls['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value'])){
 				if($this->MiscIdentifier->find('first', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'identifier_value' => $this->request->data['MiscIdentifier']['identifier_value'])))){
 					$submitted_data_validates = false;
 					$this->MiscIdentifier->validationErrors['identifier_value'] = __('this field must be unique').' ('.__('value').')';
@@ -96,8 +100,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				// Set incremented identifier if required
 				if($is_incremented_identifier) {
-					$new_identifier_value = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format']);
-					if($new_identifier_value === false) { $this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true ); }
+					$new_identifier_value = $this->MiscIdentifierControl->getKeyIncrement($controls['MiscIdentifierControl']['autoincrement_name'], $controls['MiscIdentifierControl']['misc_identifier_format'], $controls['MiscIdentifierControl']['pad_to_length']);
+					if($new_identifier_value === false) { 
+						$this->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true ); 
+					}
 					$this->request->data['MiscIdentifier']['identifier_value'] = $new_identifier_value; 
 				}
 			
@@ -136,7 +142,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifier.id'=>$misc_identifier_id) );
 
-		$form_alias = $is_incremented_identifier? 'incrementedmiscidentifiers' : 'miscidentifiers';
+		$form_alias = $is_incremented_identifier ? 'incrementedmiscidentifiers' : 'miscidentifiers';
 		$this->Structures->set($form_alias);
 				
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -152,6 +158,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			$submitted_data_validates = true;
 			// ... special validations
 			
+			if(!$is_incremented_identifier && $misc_identifier_data['MiscIdentifierControl']['pad_to_length']){
+				$this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $misc_identifier_data['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
+			}
+			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
@@ -160,6 +170,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			
 			if($submitted_data_validates) {
 				$this->MiscIdentifier->id = $misc_identifier_id;
+				$this->MiscIdentifier->data = null;
 				if ( $this->MiscIdentifier->save($this->request->data) ) {
 					
 					$hook_link = $this->hook('postsave_process');
