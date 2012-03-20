@@ -1,6 +1,9 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) 
 VALUES('2.5.0', NOW(),'> 4043');
 
+SELECT IF(sample_type='amplified rna', 'Amplified RNA sample type has changed from 2.4.3 to 2.4.3A. It has now been deactivated. Read the release notes for more informations.', '') as msg FROM sample_controls WHERE sample_type='amplified rna';
+UPDATE sample_controls SET flag_active=0 WHERE sample_type='amplified rna';
+
 REPLACE INTO i18n (id, en, fr) VALUES
 ('reserved for study','Reserved For Study/Project','Réservé pour une Étude/Projet'),
 ('identifier name','Identifier Name', "Nom d'identifiant"),
@@ -1190,4 +1193,10 @@ UPDATE structure_formats SET `language_heading`='annotation' WHERE structure_id=
 
 UPDATE datamart_structures SET index_link='/ClinicalAnnotation/EventMasters/detail/%%EventMaster.participant_id%%/%%EventMaster.id%%/' WHERE model='EventMaster';
 
+ALTER TABLE templates
+ MODIFY owning_entity_id INT NOT NULL,
+ MODIFY visible_entity_id INT NOT NULL;
+
+ALTER TABLE misc_identifier_controls
+ ADD COLUMN pad_to_length TINYINT NOT NULL DEFAULT 0;
 
