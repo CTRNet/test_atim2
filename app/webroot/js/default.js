@@ -544,7 +544,6 @@ function initActions(){
 				$(td).html($(td).data('content'));
 				var tr = $(link).parents("tr").first().addClass("at");
 				td = $(tr).find("td").last();
-				console.log(td);
 				$(td).data('content', $(td).html());
 				$(td).html('<div style="position: relative;">' + $(td).html() + '<div class="treeArrow" style="display: block"></div></div>');
 				
@@ -1119,7 +1118,6 @@ function initActions(){
 	
 	function popupSubmit(url){
 		$.post(url, $("#default_popup form").serialize(), function(data){
-			console.log(data);
 			data = $.parseJSON(data);
 			if(data.type == 'form'){
 				$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data.page + "</div></div>").popup();
@@ -1220,6 +1218,13 @@ function initActions(){
 			$(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [ event ]);
 			event.stopPropagation();
 		}
+	}
+	
+	/**
+	 * Hides the confirm msgs div, but keeps it in the display to avoid having page content moving. 
+	 */
+	function dataSavedFadeout(){
+		$("ul.confirm").animate({opacity: 0}, 700);
 	}
 
 	
