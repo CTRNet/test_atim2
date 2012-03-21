@@ -403,39 +403,34 @@ class StructuresComponent extends Component {
 								if(isset($data)){
 									if($auto_accuracy && in_array($form_fields_key, $accuracy_fields)){
 										//accuracy treatment
-										if(isset($this->controller->data['exact_search'])){
-											$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
-											$conditions[ $form_fields[$form_fields_key.'_accuracy']['key'] ] = array('c', ' ');
-										}else{
-											$tmp_cond = array();
+										$tmp_cond = array();
+										$tmp_cond[] = array(
+											$form_fields[$form_fields_key]['key'] => $data,
+											$form_fields[$form_fields_key.'_accuracy']['key'] => array('c', ' ')
+										);
+										if(strpos($data, " ") !== false){
+											//datetime
+											list($data, $time) = explode(" ", $data);
+											list($hour, ) = explode(":", $time);
 											$tmp_cond[] = array(
-												$form_fields[$form_fields_key]['key'] => $data,
-												$form_fields[$form_fields_key.'_accuracy']['key'] => array('c', ' ')
-											);
-											if(strpos($data, " ") !== false){
-												//datetime
-												list($data, $time) = explode(" ", $data);
-												list($hour, ) = explode(":", $time);
-												$tmp_cond[] = array(
-													$form_fields[$form_fields_key]['key'] => sprintf("%s %s:00:00", $data, $hour),
-													$form_fields[$form_fields_key.'_accuracy']['key'] => 'i'
-												);
-												$tmp_cond[] = array(
-													$form_fields[$form_fields_key]['key'] => $data." 00:00:00",
-													$form_fields[$form_fields_key.'_accuracy']['key'] => 'h'
-												);
-											}
-											list($year, $month) = explode("-", $data);
-											$tmp_cond[] = array(
-												$form_fields[$form_fields_key]['key'] => sprintf("%s-%s-01 00:00:00", $year, $month),
-												$form_fields[$form_fields_key.'_accuracy']['key'] => 'd'
+												$form_fields[$form_fields_key]['key'] => sprintf("%s %s:00:00", $data, $hour),
+												$form_fields[$form_fields_key.'_accuracy']['key'] => 'i'
 											);
 											$tmp_cond[] = array(
-												$form_fields[$form_fields_key]['key'] => sprintf("%s-01-01 00:00:00", $year),
-												$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
+												$form_fields[$form_fields_key]['key'] => $data." 00:00:00",
+												$form_fields[$form_fields_key.'_accuracy']['key'] => 'h'
 											);
-											$conditions[] = array("OR" => $tmp_cond);
 										}
+										list($year, $month) = explode("-", $data);
+										$tmp_cond[] = array(
+											$form_fields[$form_fields_key]['key'] => sprintf("%s-%s-01 00:00:00", $year, $month),
+											$form_fields[$form_fields_key.'_accuracy']['key'] => 'd'
+										);
+										$tmp_cond[] = array(
+											$form_fields[$form_fields_key]['key'] => sprintf("%s-01-01 00:00:00", $year),
+											$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
+										);
+										$conditions[] = array("OR" => $tmp_cond);
 									}else{
 										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
 									}
