@@ -377,9 +377,10 @@ class AppModel extends Model {
 	 * Replace the %%key_increment%% part of a string with the key increment value
 	 * @param string $key - The key to seek in the database
 	 * @param string $str - The string where to put the value. %%key_increment%% will be replaced by the value. 
+	 * @param int $pad_to_length - The min length of the key increment part. If the retrieved key is too short, 0 will be prepended. 
 	 * @return string The string with the replaced value or false when SQL error happens
 	 */
-	function getKeyIncrement($key, $str){
+	function getKeyIncrement($key, $str, $pad_to_length = 0){
 		$this->query('LOCK TABLE key_increments WRITE');
 		$result = $this->query('SELECT key_value FROM key_increments WHERE key_name="'.$key.'"');
 		if(empty($result)){
@@ -393,7 +394,7 @@ class AppModel extends Model {
 			return false; 
 		}
 		$this->query('UNLOCK TABLES');
-		return str_replace("%%key_increment%%", $result[0]['key_increments']['key_value'], $str);
+		return str_replace("%%key_increment%%", str_pad($result[0]['key_increments']['key_value'], $pad_to_length, '0', STR_PAD_LEFT), $str);
 	}
 	
 	static function getMagicCodingIcdTriggerArray(){
