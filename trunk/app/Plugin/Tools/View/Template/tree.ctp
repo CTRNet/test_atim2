@@ -268,6 +268,7 @@ if(isset($is_ajax)){
 
 	
 	var currentNode = null;
+	var templateInitId = null;
 	function initWizardMode(wizard_id){
 		//for each page
 		//2 - re enable js controls (calendar, addline, suggest, data accuracy, etc.)
@@ -278,6 +279,7 @@ if(isset($is_ajax)){
 			$(".ajaxContent").html(jsonData.display);
 			$(".ajaxContent form").append("<input type='hidden' name='data[0][bogus_hidden_for_submit]' value=''/>");
 			globalInit(".ajaxContent");
+			templateInitId = $("input[type=hidden][name=data\\\[template_init_id\\\]]").val();
 		});
 
 		$(document).delegate(".ajaxContent input[type=submit]", "click", overrideSubmitButton);
@@ -301,6 +303,7 @@ if(isset($is_ajax)){
 					}catch(e){
 						//do nothing
 					}
+					addTemplateInitId();
 					flyOverComponents();
 					globalInit(".ajaxContent");
 				}
@@ -371,6 +374,7 @@ if(isset($is_ajax)){
 				}
 				flyOverComponents();
 				globalInit(".ajaxContent");
+				addTemplateInitId();
 				if($("input[name=autosubmit]:checked").length == 1){
 					$(".ajaxContent input[type=submit]").click();
 				}
@@ -412,5 +416,9 @@ if(isset($is_ajax)){
 						  });
 				  });
 		  });	
+	}
+
+	function addTemplateInitId(){
+		$("form").append('<input type="hidden" name="data[template_init_id]" value="' + templateInitId + '"/>');
 	}
 </script>

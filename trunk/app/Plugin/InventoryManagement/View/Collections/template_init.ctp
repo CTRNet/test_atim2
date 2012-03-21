@@ -7,7 +7,7 @@
 		'settings' => empty($template_init_structure['Sfs'])? 
 			array(): 
 			array('header' => array('title' => __('default values')),
-		)
+		), 'extras' => $this->Form->input('template_init_id', array('type' => 'hidden', 'value' => $template_init_id, 'id' => false))
 	);
 	
 	$hook_link = $this->Structures->hook();

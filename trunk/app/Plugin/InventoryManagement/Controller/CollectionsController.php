@@ -363,6 +363,7 @@ class CollectionsController extends InventoryManagementAppController {
 			}
 		}
 		
+		$template_init_id = null;
 		if(!empty($this->request->data)){
 			//validate and stuff
 			$data_validates = true;
@@ -377,12 +378,26 @@ class CollectionsController extends InventoryManagementAppController {
 			if( $hook_link ) { 
 				require($hook_link); 
 			}
+			
+			if(isset($this->request->data['template_init_id'])){
+				$template_init_id = $this->request->data['template_init_id'];
+			}
 		
-			if($data_validates){
-				$_SESSION['InventoryManagement']['TemplateInit'] = $this->request->data;
+			if($data_validates && $template_init_id){
+				$this->Session->write('Template.init_data.'.$this->request->data['template_init_id'], $this->request->data); 
 				$this->set('goToNext', true);
 			}
 		}
+		
+		if($template_init_id == null){
+			if($template_init_id = $this->Session->read('Template.init_id')){
+				++ $template_init_id;
+			}else{
+				$template_init_id = 1;
+			}
+			$this->Session->write('Template.init_id', $template_init_id);
+		}
+		$this->set('template_init_id', $template_init_id);
 		
 		if($to_begin_msg){
 			AppController::addInfoMsg(__('to begin, click submit'));
