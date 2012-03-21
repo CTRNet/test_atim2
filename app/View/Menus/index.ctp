@@ -58,7 +58,7 @@
 		}
 		if($coll_cond){
 			$for_bank_part = isset($bank_filter) ? __('for your bank') : __('for all banks');
-			$atim_content['messages'] .= '<ul class="warning"><li>'.__('unlinked participant collections').' ('.$for_bank_part.'): '.$part_coll_w_o_consent.'.
+			$atim_content['messages'] .= '<ul class="warning"><li>'.__('unlinked participant collections').' ('.$for_bank_part.'): '.$unlinked_part_coll.'.
 				Click <a id="goToUnlinkedColl" href="'.$this->request->webroot.'InventoryManagement/Collections/search/'.AppController::getNewSearchId().'/unlinkedParticipants:/ ">here</a> to see them.
 				</li></ul>
 			';
