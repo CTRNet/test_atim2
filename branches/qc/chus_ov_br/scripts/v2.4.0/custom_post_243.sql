@@ -505,5 +505,37 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='familyhistories'), (SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='chus_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("great-grandfather", "great-grandfather"),
+('great-grandmother','great-grandmother'),
+('granddaughter','granddaughter'),
+('grandson','grandson');
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES((SELECT id FROM structure_value_domains WHERE domain_name="relation"),  (SELECT id FROM structure_permissible_values WHERE value="great-grandfather" AND language_alias="great-grandfather"), "15", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="relation"),  (SELECT id FROM structure_permissible_values WHERE value="great-grandmother" AND language_alias="great-grandmother"), "16", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="relation"),  (SELECT id FROM structure_permissible_values WHERE value="granddaughter" AND language_alias="granddaughter"), "17", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="relation"),  (SELECT id FROM structure_permissible_values WHERE value="grandson" AND language_alias="grandson"), "18", "1");
 
+INSERT INTO i18n (id,en,fr) VALUES 
+('great-grandfather', 'Great-Grandfather', 'Arrière grand-père'),
+('great-grandmother', 'Great-Grandmother', 'Arrière grand-mère'),
+('granddaughter', 'Granddaughter', 'Petite-fille'),
+('grandson', 'Grandson', 'Petit-fils');
+					
+		
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('great-aunt','great-aunt'),
+('great-uncle','great-uncle');
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="relation"),  (SELECT id FROM structure_permissible_values WHERE value="great-aunt" AND language_alias="great-aunt"), "20", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="relation"),  (SELECT id FROM structure_permissible_values WHERE value="great-uncle" AND language_alias="great-uncle"), "21", "1");
+			
+INSERT INTO i18n (id,en,fr) VALUES 
+('great-aunt', 'Great-Aunt', ' Grande-tante'),
+('great-uncle', 'Great-Uncle', ' Grand-oncle');		
 
+ 
+				

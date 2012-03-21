@@ -119,7 +119,7 @@ Config::$models['OvaryDiagnosisMaster'] = $model;
 	
 function postOvaryDiagnosesRead(Model $m){
 //TODO delete return
-return false;
+//return false;
 
 	global $connection;
 	
@@ -128,13 +128,13 @@ return false;
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
 	
 	$frsq_nbr = str_replace(' ', '', utf8_encode($m->values['#FRSQ']));
-	$participant_id = isset(Config::$participant_id_from_frsq_nbr[$frsq_nbr])? Config::$participant_id_from_frsq_nbr[$frsq_nbr] : null;
+	$participant_id = isset(Config::$ids_from_frsq_nbr[$frsq_nbr])? Config::$ids_from_frsq_nbr[$frsq_nbr]['participant_id'] : null;
 	if(!$participant_id)  {
 		$frsq_nbrs = preg_replace(array('/(\({0,1}voir)/i','/(\))/','/(\()/','/([A-Z]+)([0-9]+),([0-9]+)/'), array('-', '','-','$1$2-$1$3'), $frsq_nbr);
 		$frsq_nbrs = explode('-',$frsq_nbrs);
 		
 		foreach($frsq_nbrs as $new_frsq_nbr) {
-			$new_participant_id = isset(Config::$participant_id_from_frsq_nbr[$new_frsq_nbr])? Config::$participant_id_from_frsq_nbr[$new_frsq_nbr] : null;
+			$new_participant_id = isset(Config::$ids_from_frsq_nbr[$new_frsq_nbr])? Config::$ids_from_frsq_nbr[$new_frsq_nbr]['participant_id'] : null;
 			if(!$new_participant_id) {
 				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant With Many FRSQ# #1'][] = "The FRSQ# '".$new_frsq_nbr."' is not defined in step 1! [Will try to assign data to other FRSQ# '".$m->values['#FRSQ']."'! [line: ".$m->line.']';
 			} else {
@@ -178,6 +178,7 @@ return false;
 		$consent_master_id = customInsertChusRecord($master_fields, 'consent_masters');
 		customInsertChusRecord(array('consent_master_id' => $consent_master_id), 'cd_nationals', true);
 		
+		Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] = $consent_master_id;
 		Config::$data_for_import_from_participant_id[$participant_id]['consent_date'] = $consent_date;
 	}
 	
@@ -459,8 +460,6 @@ return false;
 		default:
 			die('ERR 99849944 : ['.$ovary_dx_from_natures.']');
 	}
-
-//TODO definir le diag lié a la collection
 	
 	// 6- NOTES CLEAN UP
 	
@@ -478,6 +477,9 @@ function postOvaryDiagnosesWrite(Model $m){
 		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
 		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 	}
+	
+	if(!isset(Config::$data_for_import_from_participant_id[$m->values['participant_id']])) die ('ERR 9988939383');
+	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['ovca_diagnosis_ids'][] = array('diagnosis_master_id' => $m->last_id, 'FRSQ#' => $m->values['#FRSQ']);
 	
 	participantDataCompletion($m, $m->values['participant_id'], $m->last_id, (isset($m->values['parent_id'])? $m->values['parent_id'] : null));
 }
