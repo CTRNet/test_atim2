@@ -96,7 +96,9 @@ class TemplateController extends AppController {
 				if($template_id != 0){
 					$this->request->data['Template']['id'] = $template_id;
 				}
+				$this->Template->addWritableField(array('owning_entity_id', 'visible_entity_id'));
 				if($this->Template->save($this->request->data)){
+					print_r($this->Template->data);
 					if($template_id == 0){
 						$template_id = $this->Template->getLastInsertId();
 					}
@@ -109,6 +111,7 @@ class TemplateController extends AppController {
 				$nodes_mapping = array();//for new nodes, key is the received node id, value is the db node
 				$found_nodes = array();//already in db found nodes
 				
+				$this->TemplateNode->check_writable_fields = false;
 				foreach($tree as $node){
 					if($node->nodeId < 0){
 						//create the node in Db
@@ -132,7 +135,8 @@ class TemplateController extends AppController {
 						$found_nodes[] = $this->TemplateNode->id;
 					}else{
 						$found_nodes[] = $node->nodeId;
-						$this->TemplateNode->save(array('TemplateNode' => array('id' => $node->nodeId, 'quantity' => $node->quantity)));
+						$this->TemplateNode->id = $node->nodeId;
+						$this->TemplateNode->save(array('TemplateNode' => array('quantity' => $node->quantity)));
 					}
 				}
 				
