@@ -1,8 +1,8 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) 
 VALUES('2.5.0', NOW(),'> 4043');
 
-SELECT IF(sample_type='amplified rna', 'Amplified RNA sample type has changed from 2.4.3 to 2.4.3A. It has now been deactivated. Read the release notes for more informations.', '') as msg FROM sample_controls WHERE sample_type='amplified rna';
-UPDATE sample_controls SET flag_active=0 WHERE sample_type='amplified rna';
+SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed from 2.4.3 to 2.4.3A. It has now been deactivated. Read the release notes for more informations.', '') as msg FROM sample_controls WHERE sample_type='purified rna';
+UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
 ('reserved for study','Reserved For Study/Project','Réservé pour une Étude/Projet'),
@@ -1200,3 +1200,11 @@ ALTER TABLE templates
 ALTER TABLE misc_identifier_controls
  ADD COLUMN pad_to_length TINYINT NOT NULL DEFAULT 0;
 
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("complete", "complete response");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="complete" AND language_alias="complete response"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("partial", "partial response");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="response"), (SELECT id FROM structure_permissible_values WHERE value="partial" AND language_alias="partial response"), "1", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="complete" AND spv.language_alias="complete";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="partial" AND spv.language_alias="partial";
+DELETE FROM structure_permissible_values WHERE value="partial" AND language_alias="partial";
