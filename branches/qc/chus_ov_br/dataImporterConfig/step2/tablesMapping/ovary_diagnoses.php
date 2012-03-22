@@ -119,7 +119,7 @@ Config::$models['OvaryDiagnosisMaster'] = $model;
 	
 function postOvaryDiagnosesRead(Model $m){
 //TODO delete return
-//return false;
+return false;
 
 	global $connection;
 	
@@ -479,7 +479,7 @@ function postOvaryDiagnosesWrite(Model $m){
 	}
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$m->values['participant_id']])) die ('ERR 9988939383');
-	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['ovca_diagnosis_ids'][] = array('diagnosis_master_id' => $m->last_id, 'FRSQ#' => $m->values['#FRSQ']);
+	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['ovca_diagnosis_ids'][] = array('diagnosis_master_id' => $m->last_id, 'FRSQ#' => str_replace(' ', '', utf8_encode($m->values['#FRSQ'])));
 	
 	participantDataCompletion($m, $m->values['participant_id'], $m->last_id, (isset($m->values['parent_id'])? $m->values['parent_id'] : null));
 }

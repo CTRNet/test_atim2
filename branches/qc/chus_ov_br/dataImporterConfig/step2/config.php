@@ -50,10 +50,13 @@ class Config{
 	static $diagnosis_controls = array();
 	static $treatment_controls = array();
 	static $event_controls = array();
+	static $storage_controls = array();
 	
 	static $cytoreduction_values = array();
 	
 	static $ids_from_frsq_nbr = array();
+	static $participant_id_from_ov_nbr = array();
+	
 	static $data_for_import_from_participant_id = array();
 	
 	static $summary_msg = array();	
@@ -190,9 +193,22 @@ function addonFunctionStart(){
 		Config::$ids_from_frsq_nbr[$row['identifier_value']]['participant_id'] = $row['participant_id'];
 		Config::$ids_from_frsq_nbr[$row['identifier_value']]['misc_identifier_id'] = $row['id'];
 		
+		if(preg_match('/^OV[A-Z]{0,1}([0-9]+)$/', $row['identifier_value'], $matches)) {
+			Config::$participant_id_from_ov_nbr['OV'.$matches[1]] = $row['participant_id'];
+		}
+		
 		if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_ov_file' => false, 'data_imported_from_br_file' => false);
 		Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
 	}
+	
+	// ** Set storage controls **
+	
+	$query = "select id,storage_type,detail_tablename from storage_controls where flag_active = '1';";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
+	
 }
 
 //=========================================================================================================
@@ -221,7 +237,7 @@ function addonFunctionEnd(){
 //	addPatientsHistory();
 //	addFamilyHistory();
   addCollections();
-	
+					
 	// WARNING DISPLAY
 
 	echo "<br><br><FONT COLOR=\"blue\" >
@@ -248,7 +264,7 @@ function addonFunctionEnd(){
 		if(!empty($msg_arr['@@ERROR@@'])) {
 			echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> </FONT><br>";
 			foreach($msg_arr['@@ERROR@@'] as $type => $msgs) {
-				echo "<br> --> <FONT COLOR=\"red\" >". $type . "</FONT><br>";
+				echo "<br> --> <FONT COLOR=\"red\" >". utf8_decode($type) . "</FONT><br>";
 				foreach($msgs as $msg) echo "$msg<br>";
 			}
 		}	
@@ -256,7 +272,7 @@ function addonFunctionEnd(){
 		if(!empty($msg_arr['@@WARNING@@'])) {
 			echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> </FONT><br>";
 			foreach($msg_arr['@@WARNING@@'] as $type => $msgs) {
-				echo "<br> --> <FONT COLOR=\"orange\" >". $type . "</FONT><br>";
+				echo "<br> --> <FONT COLOR=\"orange\" >". utf8_decode($type) . "</FONT><br>";
 				foreach($msgs as $msg) echo "$msg<br>";
 			}
 		}	
@@ -264,7 +280,7 @@ function addonFunctionEnd(){
 		if(!empty($msg_arr['@@MESSAGE@@'])) {
 			echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> </FONT><br>";
 			foreach($msg_arr['@@MESSAGE@@'] as $type => $msgs) {
-				echo "<br> --> <FONT COLOR=\"green\" >". $type . "</FONT><br>";
+				echo "<br> --> <FONT COLOR=\"green\" >". utf8_decode($type) . "</FONT><br>";
 				foreach($msgs as $msg) echo "$msg<br>";
 			}
 		}
@@ -272,7 +288,11 @@ function addonFunctionEnd(){
 	
 	echo "<br>";
 //TODO
-//pr('exit before todo');exit;		
+
+	
+
+pr('exit before todo');
+exit;		
 
 }
 
@@ -968,14 +988,18 @@ function getDateAndAccuracy($date) {
 //=========================================================================================================
 
 function addCollections() {
+	global $storage_list;
+	$storage_list = array();
 	
+	$tiss_ascite_collections = array();
+	loadAscite2mlCollection($tiss_ascite_collections);
 
 	
-	addAscite2Ml();
+	
 	
 }
 
-function addAscite2Ml() {
+function loadAscite2mlCollection(&$tiss_ascite_collections) {
 	
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path);
@@ -1004,27 +1028,300 @@ function addAscite2Ml() {
 				} else {
 					$line_data[utf8_encode($field)] = '';
 				}
+			}	
+
+			if(empty($line_data['Qté'])) {
+				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Empty Qté'][] = "No Qté: Data won't be migrated! [line: $line_counter]";
+				continue;
 			}
 			
-			// GET PARTICIPANT ID
+			// GET FRSQ # & OV NBR
 			
-			if(empty($line_data['#FRSQ'])) {
-				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['No FRSQ #'][] = "The line: $line_counter has no FRSQ#. Data won't be migrated!";
+			if(empty($line_data['Échantillon']) && empty($line_data['#FRSQ'])) {
+				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['No FRSQ # & Échantillon value'][] = "No FRSQ# & Échantillon values. Data won't be migrated! [line: $line_counter]";
 				continue;
+			}
+			
+			$echantillon_tmp = preg_replace('/ +$/','',$line_data['Échantillon']);
+			$ov_nbr = preg_replace('/ +$/','',$line_data['#FRSQ']);
+			$frsq_nbr= '';
+			if(preg_match('/^([A-Z]+)([0-9]+) {0,2}[asc|FA].*$/', $echantillon_tmp, $matches)) {
+				$frsq_nbr = $matches[1].$matches[2];
+				if(!preg_match('/^OV([A-Z]{0,1})([0-9]+)$/',$frsq_nbr,$matches)) Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Wrong Échantillon value format'][] = "The format of the Échantillon value [".$line_data['Échantillon']."] is not an expected format (OV999 asc, OVB999 FA, etc)! [line: $line_counter]";
+			} else if(!empty($echantillon_tmp)) {
+				pr("'".$line_data['Échantillon']."'");
+				die('ERR 88767383');
+			}
+			
+			// Collection
+			
+			$collection_date = '';
+			$collection_date_accuracy = '';
+			if(!empty($line_data['Date collecte'])) {
+				$collection_date = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$collection_date_accuracy = 'h';
+			}
+			
+			$collection_key = "$ov_nbr#$frsq_nbr#$collection_date";
+			
+			if(!isset($tiss_ascite_collections[$collection_key])) {
+				$tiss_ascite_collections[$collection_key] = array(
+					'ov_nbr' => $ov_nbr, 
+					'frsq_nbr' => $frsq_nbr, 
+					'collection_date' => $collection_date, 
+					'collection_date_accuracy' => $collection_date_accuracy, 
+					'inventory' => array());
+			}
+			
+			// Sample
+			
+			$line_data['Heure Réception'] = str_replace('ND','',$line_data['Heure Réception']);
+			if(!empty($line_data['Heure Réception']) && empty($collection_date)) die('ERR 890003');
+			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] 890004 be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
+			$date_reception = empty($collection_date)? '' : (empty($line_data['Heure Réception'])? $collection_date : str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date));
+			
+			if(!isset($tiss_ascite_collections[$collection_key]['inventory']['ascite'][$date_reception])) {
+				$date_reception_accuracy = empty($line_data['Heure Réception'])? 'h':'c';
+				$tiss_ascite_collections[$collection_key]['inventory']['ascite'][$date_reception] = array('date_reception' => $date_reception, 'date_reception_accuracy' => (empty($line_data['Heure Réception'])? 'h':'c'), 'aliquots' => array());
+			}
+			
+			// aliquot
+			
+			$expected_nbr_of_tubes = $line_data['Qté'];
+			if(!empty($line_data['Qté']) && $line_data['Unité'] != 'ml') die('ERR ['.$line_counter.'] 889994');
+			
+			$aliquot_label = $line_data['Échantillon'];
+			
+			$storage_date = '';
+			$line_data['Heure Entreposage'] = str_replace('ND','',$line_data['Heure Entreposage']);
+			if(!empty($line_data['Date de congélation'])) {
+				$storage_date = customGetFormatedDate($line_data['Date de congélation']).' 00:00:00';
+				$storage_date_accuracy = 'h';
+				if(!empty($line_data['Heure Entreposage'])) {
+					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Entreposage'], $matches)) die('ERR  ['.$line_counter.'] 89000ddd4');
+					$storage_date = str_replace('00:00:00', $line_data['Heure Entreposage'].':00', $storage_date);
+					$storage_date_accuracy = 'c';
+				}
+			} else if(!empty($line_data['Heure Entreposage'])) {
+				die('ERR ['.$line_counter.'] 99994884');
+			}
+			
+			$aliquot_to_create = array();
+			$created_aliquot_counter = 0;
+			if(!empty($line_data['Emplacement'])) {
+				// Created stored aliquot
+				if(empty($line_data['Boite'])) die('ERR  ['.$line_counter.'] 88990373'.$line_data['Boite'].'//'.$line_data['Emplacement']);
+				
+				$storage_master_id = getStorageId('ascite_1_ml', 'box100', $line_data['Boite']);
+				
+				$stored_aliquots_positions = array();
+				$emplacement_tmp = str_replace(array(' ','.'), array('',','), $line_data['Emplacement']);
+				if(preg_match('/^0([1-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions[] = $matches[1];
+				} else if(preg_match('/^([1-9]|[1-9][0-9]|100)$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions[] = $matches[1];
+				} else if(preg_match('/^([1-9],|[1-9][0-9],|100,)+([1-9]|[1-9][0-9]|100)$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions = explode(',',$emplacement_tmp);
+				} else if(preg_match('/^(0[1-9]|[1-9]|[1-9][0-9]|100)-(0[1-9]|[1-9]|[1-9][0-9]|100)$/', $emplacement_tmp, $matches)) {
+					$start = $matches[1];
+					$end  = $matches[2];
+					if($start >= $end) die('ERR ['.$line_counter.'] 89938399303 : '.$emplacement_tmp);
+					While($start <=  $end) {
+						$stored_aliquots_positions[] = $start;
+						$start++;
+					}
+				} else {
+					die('ERR  ['.$line_counter.'] 9984949494 : '.$emplacement_tmp);
+				}
+				
+				foreach($stored_aliquots_positions as $new_pos) {
+					$created_aliquot_counter++;
+					$aliquot_to_create[] = array(
+						'aliquot_label' => $aliquot_label.' ' .$created_aliquot_counter, 
+						'aliquot_type' => 'tube',
+						'initial_volume' => "1",
+						'current_volume' => "1",
+						'in_stock' => "yes - available",
+						'storage_master_id' => $storage_master_id,
+						'storage_datetime' => $storage_date,
+						'storage_datetime_accuracy' => $storage_date_accuracy,
+						'storage_coord_x' => $new_pos,
+						'storage_coord_y' => "",
+						'use' => array()
+					);
+				}
+			}
+			
+			if(!empty($line_data['Use#']) || !empty($line_data['Dons1'])) {
+				if(empty($line_data['Use#']) || empty($line_data['Dons1'])) die('ERR ['.$line_counter.'] 8899eee944');
+				if(!preg_match('/^[0-9]+$/',$line_data['Use#'],$matches)) die('ERR ['.$line_counter.'] 8899eeeddd944');
+				$aliquot_used_nbr = $line_data['Use#'];
+				
+				if(preg_match('/^([0-9]+) (.*) ([19|20][0-9]{2}\-[0-1][0-9])$/', $line_data['Dons1'], $matches)) {
+					pr($matches);
+					exit;
+				}
+				
+				
+				
+				//TODO tenir compte de Dons2
+				//TODO vérifier que Qté = nbr créé...
+				
+				
+			} else if(!empty($line_data['Dons2'])) {
+				die('ERR ['.$line_counter.'] 8899944 ['.$line_data['Dons2'].']');
 
 			}
-			$frsq_nbr = utf8_encode($line_data['#FRSQ']);
 			
-			$participant_id = isset(Config::$ids_from_frsq_nbr[$frsq_nbr])? Config::$ids_from_frsq_nbr[$frsq_nbr]['participant_id'] : null;
-			if(!$participant_id)  {
-				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step2 ('ASCITE 2 ml') but this number is not defined in step 1! [line: $line_counter]";
-				continue;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		//	$tiss_ascite_collections[$collection_key] array()
+			
+			
+
+
+			
+			//TODO continue
+			
+		}
+	}
+
+}
+
+function getStorageId($aliquot_description, $storage_control_type, $selection_label) {
+	global $storage_list;
+	
+	$selection_label = preg_replace('/ +$/','',$selection_label);
+	$storage_key = $aliquot_description.$storage_control_type.$selection_label;
+	if(isset($storage_list[$aliquot_description.$storage_control_type.$selection_label])) return $storage_list[$aliquot_description.$storage_control_type.$selection_label];
+	$code_tmp = sizeof($storage_list) + 1;
+	
+	$master_fields = array(
+		"code" => "'$code_tmp'",
+		"storage_control_id"	=> Config::$storage_controls[$storage_control_type]['storage_control_id'],
+		"short_label"			=> "'".$selection_label."'",
+		"selection_label"		=> "'".$selection_label."'",
+		"lft"		=> "'".(($code_tmp*2)-1)."'",
+		"rght"		=> "'".($code_tmp*2)."'"
+	);
+	$storage_master_id = customInsertChusRecord($master_fields, 'storage_masters');	
+	customInsertChusRecord(array("storage_master_id" => $storage_master_id), Config::$storage_controls[$storage_control_type]['detail_tablename'], true);	
+		
+	$storage_list[$aliquot_description.$storage_control_type.$selection_label] = $storage_master_id;
+	return $storage_master_id;	
+}
+
+
+
+
+
+
+function addAscite2Ml($collections) {
+//TODO use section with ovnbr and frsqnbr	
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
+	$tmp_xls_reader->read( Config::$xls_file_path);
+	
+	$sheets_nbr = array();
+	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	if(!array_key_exists('Ascite Disponible (2ml)', $sheets_nbr)) die("ERROR: Worksheet Ascite Disponible (2ml) is missing!\n");
+
+	$headers = array();
+	$line_counter = 0;
+	foreach($tmp_xls_reader->sheets[$sheets_nbr['Ascite Disponible (2ml)']]['cells'] as $line => $new_line) {	
+		$line_counter++;
+		if($line_counter == 1) {
+			// HEADER
+			$headers = $new_line;
+		
+		} else {
+			
+			// SET DATA ARRAY
+			
+			$line_data = array();
+			$frsq_nbr = '';
+			foreach($headers as $key => $field) {
+				if(isset($new_line[$key])) {
+					$line_data[utf8_encode($field)] = $new_line[$key];
+				} else {
+					$line_data[utf8_encode($field)] = '';
+				}
 			}	
 			
-			// GET CONSENT MASTER ID			
-			$consent_master_id = isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'])? Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] : null;
-			if(!$consent_master_id) Config::$summary_msg['ASCITE 2 ml']['@@MESSAGE@@']['No Consent exists'][] = "The patient having FRSQ# '".$line_data['#FRSQ']."' has no created consent! Then collection won't be linked to a consent! [line: $line_counter]";
+			// GET FRSQ # & OV NBR
 			
+			if(empty($line_data['Échantillon']) && empty($line_data['#FRSQ'])) {
+				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['No FRSQ # & Échantillon value'][] = "No FRSQ# & Échantillon values. Data won't be migrated! [line: $line_counter]";
+				continue;
+			}
+			
+			$specimen_label = preg_replace('/ +$/','',$line_data['Échantillon']);
+			$ov_nbr_from_frsq = $line_data['#FRSQ'];
+			$ov_nbr_from_echantillon = '';
+			$frsq_nbr_from_echantillon = '';
+			
+			if(empty($specimen_label)) {
+				Config::$summary_msg['ASCITE 2 ml']['@@MESSAGE@@']['No Échantillon value'][] = "No Échantillon value: The specimen label will be created copying #FRSQ [$ov_nbr_from_frsq] + 'FA'! [line: $line_counter]";
+				$specimen_label = $ov_nbr_from_frsq.' FA';
+			} else {
+				if(preg_match('/^OV([A-Z]{0,1})([0-9]+) {0,2}[asc|FA].*$/', $specimen_label, $matches)) {
+					$frsq_nbr_from_echantillon = 'OV'.$matches[1].$matches[2];
+					$ov_nbr_from_echantillon = 'OV'.$matches[2];
+				} else {
+					Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Wrong Échantillon value format'][] = "The format of the Échantillon value [$specimen_label] is not an expected format (OV999 asc, OVB999 FA, etc)! [line: $line_counter]";
+				}
+			}
+			
+			if(!empty($ov_nbr_from_echantillon) && !empty($ov_nbr_from_frsq) && ($ov_nbr_from_frsq != $ov_nbr_from_echantillon)) {
+				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['OV Number Mis Match'][] = "The OV number in #FRSQ [$ov_nbr_from_frsq] is different of the OV number [$ov_nbr_from_echantillon] extracted from Échantillon value ($specimen_label). Won't import data! [line: $line_counter]";
+				continue;
+			}
+			
+			
+			$ov_nbr = empty($ov_nbr_from_echantillon)? $ov_nbr_from_frsq : $ov_nbr_from_echantillon;
+			$frsq_nbr = $frsq_nbr_from_echantillon;
+
+			// GET PARTICIPANT_ID & MISC_IDENTIFIER_ID & COLLECTION_FRSQ_NBR
+			
+			$participant_id = null;
+			$misc_identifier_id = null;
+			
+			$frsq_nbr_used = null;
+			
+			if(array_key_exists($frsq_nbr, Config::$ids_from_frsq_nbr)) {
+				$participant_id = Config::$ids_from_frsq_nbr[$frsq_nbr]['participant_id'];
+				$misc_identifier_id = Config::$ids_from_frsq_nbr[$frsq_nbr]['misc_identifier_id'];
+				$frsq_nbr_used = $frsq_nbr;
+			
+			} else if(array_key_exists($ov_nbr, Config::$participant_id_from_ov_nbr)) {
+				$participant_id = Config::$participant_id_from_ov_nbr[$ov_nbr];
+				if(sizeof(Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'] == 1)) {
+					$frsq_nbr_used = Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'][0];
+					$misc_identifier_id = Config::$ids_from_frsq_nbr[$frsq_nbr_used]['misc_identifier_id'];
+					//The FRSQ# from Echantillon does not exists. use the unique one knonw for the participant.
+					Config::$summary_msg['ASCITE 2 ml']['@@MESSAGE@@']['Assign FRSQ# different than Échantillon'][] = "The FRSQ# extracted from Échantillon value [$specimen_label] does not exist. Will use the unique FRSQ# [$frsq_nbr_used] created for the participant from diagnosis file or step 1! [line: $line_counter]";
+				} else {
+					//Too many nubr.... unable to define wichich one
+					Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Unable to assign FRSQ#'][] = "The FRSQ# extracted from Échantillon value [$specimen_label] does not exist and the participant isolated has too many FRSQ# (".implode(', ',Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'])."). Unable to select the good one! [line: $line_counter]";
+				}
+			} else {
+				Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Unknown Participant'][] = "Unknown participant having #FRSQ [$ov_nbr_from_frsq] and Échantillon [$ov_nbr_from_echantillon]. Won't import data! [line: $line_counter]";
+				continue;				
+			}
+			
+			// GET CONSENT_MASTER_ID	
+					
+			$consent_master_id = isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'])? Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] : null;
+			if(!$consent_master_id) Config::$summary_msg['ASCITE 2 ml']['@@MESSAGE@@']['No Consent exists'][] = "The patient having OV BNR '$ov_nbr' has no created consent! Then collection won't be linked to a consent! [line: $line_counter]";
+	
 			// GET DIAGNOSIS MASTER ID
 			
 			$diagnosis_master_id = null;
@@ -1032,29 +1329,50 @@ function addAscite2Ml() {
 				$diag_found = 0;
 				$diagnoses_frsqs = array();
 				foreach(Config::$data_for_import_from_participant_id[$participant_id]['ovca_diagnosis_ids'] as $new_ovcas) {
-					if($new_ovcas['FRSQ#'] == $line_data['#FRSQ']) {
+					if($new_ovcas['FRSQ#'] == $frsq_nbr_used) {
 						$diag_found ++;
 						if(!$diagnosis_master_id) $diagnosis_master_id = $new_ovcas['FRSQ#']['diagnosis_master_id'];
 					}
 					$diagnoses_frsqs[] = $new_ovcas['FRSQ#'];
 				}
 				if(!$diag_found) {
-					Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['No OVCA can be linked to Ascite'][] = "The patient having FRSQ# '".$line_data['#FRSQ']."' has one or many OVCA diagnosis linked to following FRSQ#(s) [".implode(', ',$diagnoses_frsqs)."], but no one is linked to this FRSQ#! Collection won't be linked to a OVCA diagnosis! [line: $line_counter]";
+					Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['No OVCA can be linked to Ascite'][] = "The patient having FRSQ# '$ov_nbr_from_frsq' has one or many OVCA diagnosis linked to following FRSQ#(s) [".implode(', ',$diagnoses_frsqs)."], but no one is linked to this FRSQ#! Collection won't be linked to a OVCA diagnosis! [line: $line_counter]";
 				} else if($diag_found > 1){
-					Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Too many OVCA(s) can be linked to Ascite'][] = "The patient having FRSQ# '".$line_data['#FRSQ']."' has one or many OVCA diagnoses linked to this FRSQ#(s)! Then collection has to be linked to a diagnosis after migration process! [line: $line_counter]";
+					Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Too many OVCA(s) can be linked to Ascite'][] = "The patient having FRSQ# '$ov_nbr_from_frsq' has one or many OVCA diagnoses linked to this FRSQ#(s)! Then collection has to be linked to a diagnosis after migration process! [line: $line_counter]";
 				}
 			} else {
-				Config::$summary_msg['ASCITE 2 ml']['@@MESSAGE@@']['No OVCA(s) exists'][] = "The patient having FRSQ# '".$line_data['#FRSQ']."' has no OVCA diagnosis! Then collection won't be linked to a diagnosis! [line: $line_counter]";
+				Config::$summary_msg['ASCITE 2 ml']['@@MESSAGE@@']['No OVCA(s) exists'][] = "The patient having FRSQ# '$ov_nbr_from_frsq' has no OVCA diagnosis! Then collection won't be linked to a diagnosis! [line: $line_counter]";
+			}			
+
+			// COMPLETE COLLECTION
+			
+			
+			$coll_uniqu_label = getCollUniqLabel($participant_id, $collection_date, $misc_identifier_id, $diagnosis_master_id,$consent_master_id);
+			if(!array_key_exists($coll_uniqu_label, $collections)) {
+				$collections[$coll_uniqu_label] = array(
+					'clinical_collection_link' => array(
+						'participant_id'=>$participant_id, 
+						'diagnosis_master_id'=>$diagnosis_master_id, 
+						'misc_identifier_id'=>$misc_identifier_id),
+					'collection' => array(
+						'collection_datetime'=>'', 
+						'collection_datetime_accuracy'=>'c', 
+						'collection_property'=>'participant collection', 
+						'collection_notes'=>'2'),
+					'samples' => array()
+				);
 			}
+			
+			
+
 			
 			//TODO continue
 			
 		}
 	}
 
-
+	return $collections;
 }
-
 
 
 ?>
