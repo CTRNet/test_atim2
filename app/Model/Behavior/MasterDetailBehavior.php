@@ -6,24 +6,30 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	function setup(&$model, $settings = array()) { 
 		
-		if ( strpos($model->alias,'Master') || strpos($model->alias,'Control') ) {
+		if ( strpos($model->alias,'Master') || strpos($model->alias,'Control') || (isset($model->base_model) && strpos($model->base_model,'Master'))){
+			$model_to_use = null;
+			if(isset($model->base_model)){
+				$model_to_use = AppModel::getInstance($model->base_plugin, $model->base_model);
+			} else {
+				$model_to_use = $model;
+			}
 			
-			$default_class 	= $model->alias;
+			$default_class 	= $model_to_use->alias;
 			$default_class 	= str_replace('Master','',$default_class);
 			$default_class 	= str_replace('Control','',$default_class);
 			
 			$master_class		= $default_class.'Master';
-			$master_foreign	= Inflector::singularize($model->table).'_id';
+			$master_foreign	= Inflector::singularize($model_to_use->table).'_id';
 			
 			$control_class		= $default_class.'Control';
-			$control_foreign	= str_replace('master','control',Inflector::singularize($model->table).'_id');
+			$control_foreign	= str_replace('master','control',Inflector::singularize($model_to_use->table).'_id');
 			
 			$detail_class		= $default_class.'Detail';
 			$detail_tablename	= 'detail_tablename';
 			$form_alias	= 'form_alias';
 			
-			$is_master_model	= $master_class==$model->alias ? true : false;
-			$is_control_model	= $control_class==$model->alias ? true : false;
+			$is_master_model	= $master_class == $model_to_use->alias ? true : false;
+			$is_control_model	= $control_class == $model_to_use->alias ? true : false;
 			
 			$default = array(
 				'master_class' 		=>	$master_class, 
@@ -49,9 +55,10 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 		}
 			
-		if (!isset($this->__settings[$model->alias]))  $this->__settings[$model->alias] = $default;
+		if (!isset($this->__settings[$model->alias])){
+			$this->__settings[$model->alias] = $default;
+		}
 		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($settings) ? $settings : array());
-		
 	}
 	
 	function afterFind($model, $results, $primary){
@@ -69,7 +76,7 @@ class MasterDetailBehavior extends ModelBehavior {
 							$grouping[$detail_model_cache_key]['model'] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class, 'alias' => $detail_class.'_'.$result[$control_class][$detail_field]));
 							$grouping[$detail_model_cache_key]['id_to_index'] = array();
 						}
-						$grouping[$detail_model_cache_key]['id_to_index'][$result[$model->alias]['id']] = $key;
+						$grouping[$detail_model_cache_key]['id_to_index'][$result[$model->alias][$model->primaryKey]] = $key;
 					}
 				}
 				

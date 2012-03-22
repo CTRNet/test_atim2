@@ -163,21 +163,18 @@ class CollectionsController extends InventoryManagementAppController {
 			if($copy_source){
 				if($copy_links_option > 0 && $this->request->data['Collection']['collection_property'] == 'independent collection'){
 					AppController::addWarningMsg(__('links were not copied since the destination is an independant collection'));
-				}else if($copy_links_option > 1 && $copy_links_option < 6){
+				}else if($copy_links_option > 1){
 					$classic_ccl_insert = false;
-					$this->request->data['Collection'] = array_merge(
-						$this->request->data['Collection'],
-						array(
-							'participant_id' 		=> $copy_src_data['Collection']['participant_id'],
-							'consent_master_id' 	=> $copy_src_data['Collection']['consent_master_id'],
-							'diagnosis_master_id'	=> $copy_src_data['Collection']['diagnosis_master_id']
-						)
-					);
-					if($copy_links_option == 3 || $copy_links_option == 2){
-						unset($this->request->data['Collection']['consent_master_id']);
-					}
-					if($copy_links_option == 4 || $copy_links_option == 2){
-						unset($this->request->data['Collection']['diagnosis_master_id']);
+					$this->request->data['Collection']['participant_id'] = $copy_src_data['Collection']['participant_id'];
+					if($copy_links_option == 6){
+						$this->request->data['Collection'] = array_merge($this->request->data['Collection'],
+							array(
+								'consent_master_id' 	=> $copy_src_data['Collection']['consent_master_id'],
+								'diagnosis_master_id'	=> $copy_src_data['Collection']['diagnosis_master_id'],
+								'treatment_master_id'	=> $copy_src_data['Collection']['treatment_master_id'],
+								'event_master_id'	=> $copy_src_data['Collection']['event_master_id']
+							)
+						);
 					}
 				}
 			}

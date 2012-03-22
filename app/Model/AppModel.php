@@ -1043,9 +1043,9 @@ class AppModel extends Model {
 	}
 	
 	function afterFind($results, $primary = false) {
-		if(isset($this->virtual_fields_replace)){
+		if(isset($this->fields_replace)){
 			foreach($results as &$result){
-				foreach($this->virtual_fields_replace as $field_name => $options){
+				foreach($this->fields_replace as $field_name => $options){
 					if(isset($options['msg'][$result[$this->name][$field_name]])){
 						$result[$this->name][$field_name] = $options['msg'][$result[$this->name][$field_name]];
 					}else if($options['type'] == 'spentTime'){

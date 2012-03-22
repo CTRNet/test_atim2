@@ -69,7 +69,10 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("collection date missing", "Collection date missing", "Date de collection manquante"),
 ("spent time cannot be calculated on inaccurate dates", "Spent time cannot be calculated on inaccurate dates", "Le temps écoulé ne peut pas être calculé sur des dates inexactes"),
 ("the collection date is after the derivative creation date", "The collection date is after the derivative creation date", "La date de collection est après la date de création du dérivé"),
-("the collection date is after the specimen reception date", "The collection date is after the specimen reception date", "La date de collection est après la date de réception su spécimen");
+("the collection date is after the specimen reception date", "The collection date is after the specimen reception date", "La date de collection est après la date de réception su spécimen"),
+("all (participant, consent, diagnosis and treatment/annotation)",
+ "All (Participant, Consent, Diagnosis and Treatment/Annotation)",
+ "Tout (participant, Consentement, Diagnotic, Traitement/Annotation)");
  
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
@@ -1166,11 +1169,25 @@ parent_samp.sample_control_id AS parent_sample_control_id,
 sampc.sample_type,
 samp.sample_control_id,
 samp.sample_code,
-sampc.sample_category
+sampc.sample_category,
+
+IF(specimen_details.reception_datetime IS NULL, NULL,
+ IF(col.collection_datetime IS NULL, 'Err a',
+ IF(col.collection_datetime_accuracy != 'c' OR specimen_details.reception_datetime_accuracy != 'c', 'Err b',
+ IF(col.collection_datetime > specimen_details.reception_datetime, 'Err c',
+ TIMESTAMPDIFF(MINUTE, col.collection_datetime, specimen_details.reception_datetime))))) AS coll_to_rec_spent_time_msg,
+ 
+IF(derivative_details.creation_datetime IS NULL, NULL,
+ IF(col.collection_datetime IS NULL, 'Err a',
+ IF(col.collection_datetime_accuracy != 'c' OR derivative_details.creation_datetime_accuracy != 'c', 'Err b',
+ IF(col.collection_datetime > derivative_details.creation_datetime, 'Err c',
+ TIMESTAMPDIFF(MINUTE, col.collection_datetime, derivative_details.creation_datetime))))) AS coll_to_creation_spent_time_msg 
 
 FROM sample_masters as samp
 INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
 INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
+LEFT JOIN specimen_details ON specimen_details.sample_master_id=samp.id
+LEFT JOIN derivative_details ON derivative_details.sample_master_id=samp.id
 LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
 LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
 LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
@@ -1272,4 +1289,18 @@ ALTER TABLE view_samples
  ADD KEY(sample_type),
  ADD KEY(sample_control_id),
  ADD KEY(sample_code),
- ADD KEY(sample_category);
+ ADD KEY(sample_category),
+ ADD KEY(coll_to_creation_spent_time_msg),
+ ADD KEY(coll_to_rec_spent_time_msg);
+ 
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("6", "all (participant, consent, diagnosis and treatment/annotation)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"), (SELECT id FROM structure_permissible_values WHERE value="6" AND language_alias="all (participant, consent, diagnosis and treatment/annotation)"), "3", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="3" AND spv.language_alias="participant and diagnosis";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="4" AND spv.language_alias="participant and consent";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="5" AND spv.language_alias="participant, consent and diagnosis";
+DELETE FROM structure_permissible_values WHERE value="3" AND language_alias="participant and diagnosis";
+DELETE FROM structure_permissible_values WHERE value="4" AND language_alias="participant and consent";
+DELETE FROM structure_permissible_values WHERE value="5" AND language_alias="participant, consent and diagnosis";
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt') ,  `default`='6' WHERE model='FunctionManagement' AND tablename='' AND field='col_copy_binding_opt' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt');
+

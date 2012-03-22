@@ -6,6 +6,24 @@ class ViewCollection extends InventoryManagementAppModel {
 	var $base_plugin = 'InventoryManagement';
 	var $primaryKey = 'collection_id';
 	
+	var $belongsTo = array(
+		'Collection' => array(
+			'className'   => 'InventoryManagement.Collection',
+			'foreignKey'  => 'collection_id',
+			'type'			=> 'INNER'
+		),
+		'Participant' => array(
+			'className' => 'ClinicalAnnotation.Participant',
+			'foreignKey' => 'participant_id'
+		), 'DiagnosisMaster' => array(
+			'className' => 'ClinicalAnnotation.DiagnosisMaster',
+			'foreignKey' => 'diagnosis_master_id'
+		), 'ConsentMaster' => array(
+			'className' => 'ClinicalAnnotation.ConsentMaster',
+			'foreignKey' => 'consent_master_id'
+		)
+	);
+	
 	function summary($variables=array()) {
 		$return = false;
 		
