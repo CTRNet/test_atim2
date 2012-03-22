@@ -19,7 +19,7 @@ class ClinicalAnnotationAppModel extends AppModel {
 		return CodingIcdo3Morpho::validateId($id);
 	}
 	
-	function afterSave(){
+	function afterSave($created){
 		if($this->name != 'Participant'){
 			//manages Participant.last_modification and Participant.last_modification_ds_id
 			$participant_id = null;
@@ -48,7 +48,9 @@ class ClinicalAnnotationAppModel extends AppModel {
 			$participant_model->save(array('last_modification' => $this->data[$this->name]['modified'], 'last_modification_ds_id' => $datamart_structure['DatamartStructure']['id']));
 			$participant_model->check_writable_fields = true;
 		}
+		parent::afterSave($created);
 	}
+	
 }
 
 ?>

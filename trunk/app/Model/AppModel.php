@@ -1040,6 +1040,40 @@ class AppModel extends Model {
 			array($this->name.'.sharing_status' => 'group', $this->name.'.group_id' => AppController::getInstance()->Session->read('Auth.User.group_id')),
 			array($this->name.'.sharing_status' => 'all')
 		));
-				
+	}
+	
+	function afterFind($results, $primary = false) {
+		if(isset($this->virtual_fields_replace)){
+			foreach($results as &$result){
+				foreach($this->virtual_fields_replace as $field_name => $options){
+					if(isset($options['msg'][$result[$this->name][$field_name]])){
+						$result[$this->name][$field_name] = $options['msg'][$result[$this->name][$field_name]];
+					}else if($options['type'] == 'spentTime'){
+						$remainder = $result[$this->name][$field_name];
+						$time['minutes'] = $remainder % 60;
+						$remainder = ($remainder - $time['minutes']) / 60;
+						$time['hours'] = $remainder % 24;
+						$time['days'] = ($remainder - $time['hours']) / 24; 
+						$result[$this->name][$field_name] = AppModel::translateDateValueAndUnit($time, 'days') 
+								.AppModel::translateDateValueAndUnit($time, 'hours') 
+								.AppModel::translateDateValueAndUnit($time, 'minutes');
+					}
+				}
+			}
+		}
+		return $results;
+	}
+	
+	function afterSave($created){
+		if($this->registered_view){
+			foreach($this->registered_view as $registered_view => $foreign_keys){
+				list($plugin_name, $model_name) = explode('.', $registered_view);
+				$model = AppModel::getInstance($plugin_name, $model_name);
+				foreach($foreign_keys as $foreign_key){
+					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s IN(%3$d))', $model->table, $foreign_key, $this->id);  
+					$this->query($query);
+				}
+			}
+		}
 	}
 }

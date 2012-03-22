@@ -11,6 +11,10 @@ class StorageMaster extends StorageLayoutAppModel {
 	
 	var $actsAs = array('Tree');
 	
+	var $registered_view = array(
+		'InventoryManagement.ViewAliquot' => array('storage_master_id')
+	);
+	
 	var $used_storage_pos = array();
 	const POSITION_FREE = 1;//the position is free
 	const POSITION_OCCUPIED = 2;//the position is already occupied (in the db)

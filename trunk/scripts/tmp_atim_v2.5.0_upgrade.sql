@@ -63,7 +63,13 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Au moins une collection est liée à cette annotation."),
 ("unlinked participant collections", "Unlinked participant collections", "Collections de participants non liées"),
 ("for all banks", "for all banks", "pour toutes les banques"),
-("for your bank", "for your bank", "pour votre banque");
+("for your bank", "for your bank", "pour votre banque"),
+("partial response", "Partial response", "Réponse partielle"),
+("complete response", "Complete response", "Réponse complète"),
+("collection date missing", "Collection date missing", "Date de collection manquante"),
+("spent time cannot be calculated on inaccurate dates", "Spent time cannot be calculated on inaccurate dates", "Le temps écoulé ne peut pas être calculé sur des dates inexactes"),
+("the collection date is after the derivative creation date", "The collection date is after the derivative creation date", "La date de collection est après la date de création du dérivé"),
+("the collection date is after the specimen reception date", "The collection date is after the specimen reception date", "La date de collection est après la date de réception su spécimen");
  
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
@@ -334,7 +340,7 @@ INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, c
 
 
 DROP VIEW view_collections;
-CREATE VIEW `view_collections` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`col`.`deleted` AS `deleted`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
+CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
 left join `participants` `part` on `col`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
 left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 where `col`.`deleted` <> 1;
 
@@ -1088,7 +1094,7 @@ UPDATE menus SET use_summary='' WHERE id='clin_CAN_67';
 
 
 DROP VIEW view_aliquots;
-CREATE VIEW view_aliquots AS 
+CREATE VIEW view_aliquots_view AS 
 SELECT 
 al.id AS aliquot_master_id,
 al.sample_master_id AS sample_master_id,
@@ -1096,8 +1102,6 @@ al.collection_id AS collection_id,
 col.bank_id, 
 al.storage_master_id AS storage_master_id,
 col.participant_id, 
-col.diagnosis_master_id, 
-col.consent_master_id,
 
 part.participant_identifier, 
 
@@ -1140,7 +1144,7 @@ LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.del
 WHERE al.deleted != 1;
 
 DROP VIEW view_samples;
-CREATE VIEW view_samples AS 
+CREATE VIEW view_samples_view AS 
 SELECT 
 samp.id AS sample_master_id,
 samp.parent_id AS parent_sample_id,
@@ -1150,8 +1154,6 @@ samp.collection_id AS collection_id,
 col.bank_id, 
 col.sop_master_id, 
 col.participant_id, 
-col.diagnosis_master_id, 
-col.consent_master_id,
 
 part.participant_identifier, 
 
@@ -1208,3 +1210,66 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="complete" AND spv.language_alias="complete";
 DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="partial" AND spv.language_alias="partial";
 DELETE FROM structure_permissible_values WHERE value="partial" AND language_alias="partial";
+
+UPDATE structure_fields SET model='SampleMaster' WHERE model='Generated' AND field='coll_to_creation_spent_time_msg';
+UPDATE structure_fields SET model='SampleMaster' WHERE model='Generated' AND field='coll_to_rec_spent_time_msg';
+
+CREATE TABLE view_aliquots (SELECT * FROM view_aliquots_view);
+ALTER TABLE view_aliquots
+ ADD PRIMARY KEY(aliquot_master_id),
+ ADD KEY(sample_master_id),
+ ADD KEY(collection_id),
+ ADD KEY(bank_id),
+ ADD KEY(storage_master_id),
+ ADD KEY(participant_id),
+ ADD KEY(participant_identifier),
+ ADD KEY(acquisition_label),
+ ADD KEY(initial_specimen_sample_type),
+ ADD KEY(initial_specimen_sample_control_id),
+ ADD KEY(parent_sample_type),
+ ADD KEY(parent_sample_control_id),
+ ADD KEY(barcode),
+ ADD KEY(aliquot_label),
+ ADD KEY(aliquot_type),
+ ADD KEY(aliquot_control_id),
+ ADD KEY(in_stock),
+ ADD KEY(code),
+ ADD KEY(selection_label),
+ ADD KEY(temperature),
+ ADD KEY(temp_unit),
+ ADD KEY(created);
+
+CREATE TABLE view_collections (SELECT * FROM view_collections_view);
+ALTER TABLE view_collections
+ ADD PRIMARY KEY(collection_id),
+ ADD KEY(bank_id),
+ ADD KEY(sop_master_id),
+ ADD KEY(participant_id),
+ ADD KEY(diagnosis_master_id),
+ ADD KEY(consent_master_id),
+ ADD KEY(participant_identifier),
+ ADD KEY(acquisition_label),
+ ADD KEY(collection_site),
+ ADD KEY(collection_datetime),
+ ADD KEY(collection_property),
+ ADD KEY(created);
+
+CREATE TABLE view_samples (SELECT * FROM view_samples_view);
+ALTER TABLE view_samples
+ ADD PRIMARY KEY(sample_master_id),
+ ADD KEY(parent_sample_id),
+ ADD KEY(initial_specimen_sample_id),
+ ADD KEY(collection_id),
+ ADD KEY(bank_id),
+ ADD KEY(sop_master_id),
+ ADD KEY(participant_id),
+ ADD KEY(participant_identifier),
+ ADD KEY(acquisition_label),
+ ADD KEY(initial_specimen_sample_type),
+ ADD KEY(initial_specimen_sample_control_id),
+ ADD KEY(parent_sample_type),
+ ADD KEY(parent_sample_control_id),
+ ADD KEY(sample_type),
+ ADD KEY(sample_control_id),
+ ADD KEY(sample_code),
+ ADD KEY(sample_category);

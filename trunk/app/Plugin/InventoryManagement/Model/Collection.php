@@ -40,6 +40,12 @@ class Collection extends InventoryManagementAppModel {
 		)
 	);
 	
+	var $registered_view = array(
+		'InventoryManagement.ViewCollection' => array('collection_id'),
+		'InventoryManagement.ViewSample' => array('collection_id'),
+		'InventoryManagement.ViewAliquot' => array('collection_id')
+	);
+	
 	function summary($variables=array()) {
 		$return = false;
 		

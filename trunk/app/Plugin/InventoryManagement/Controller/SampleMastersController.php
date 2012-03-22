@@ -175,7 +175,6 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(empty($sample_data)) { 
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}	
-		
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
 			case 'specimen':
@@ -203,15 +202,6 @@ class SampleMastersController extends InventoryManagementAppController {
 		
 		$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data));	
 		$this->set('parent_sample_master_id', $parent_sample_master_id);	
-	
-		// Calulate spent time between:
-		if($is_specimen){
-			// -> specimen collection and specimen reception
-			$sample_data['Generated']['coll_to_rec_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['SpecimenDetail']['reception_datetime']));
-		} else {
-			// -> specimen collection and derivative creation
-			$sample_data['Generated']['coll_to_creation_spent_time_msg'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($sample_data['Collection']['collection_datetime'], $sample_data['DerivativeDetail']['creation_datetime']));
-		}
 		
 		// Set sample data
 		$this->set('sample_master_data', $sample_data);
@@ -497,12 +487,14 @@ class SampleMastersController extends InventoryManagementAppController {
 					if($is_specimen){
 						// SpecimenDetail
 						$this->request->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+						$this->SpecimenDetail->id = $sample_master_id;
 						if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 					} else {
 						// DerivativeDetail
 						$this->request->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+						$this->DerivativeDetail->id = $sample_master_id;
 						if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
@@ -658,16 +650,21 @@ class SampleMastersController extends InventoryManagementAppController {
 				
 			if($submitted_data_validates) {
 				// Save sample data
+				$this->SampleMaster->id = $sample_master_id;
 				if($this->SampleMaster->save($this->request->data, false)) {				
 					//Save either Specimen or Derivative Details
 					if($is_specimen){
 						// SpecimenDetail
-						$this->SpecimenDetail->id = $sample_data['SpecimenDetail']['id'];
-						if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+						$this->SpecimenDetail->id = $sample_master_id;
+						if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { 
+							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
 					} else {
 						// DerivativeDetail
-						$this->DerivativeDetail->id = $sample_data['DerivativeDetail']['id'];
-						if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
+						$this->DerivativeDetail->id = $sample_master_id;
+						if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { 
+							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+						}
 					}
 
 					$hook_link = $this->hook('postsave_process');
@@ -1256,4 +1253,3 @@ class SampleMastersController extends InventoryManagementAppController {
 	}
 }
 	
-?>
