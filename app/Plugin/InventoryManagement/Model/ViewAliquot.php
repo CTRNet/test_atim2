@@ -5,5 +5,3 @@ class ViewAliquot extends InventoryManagementAppModel {
 	var $base_model = "AliquotMaster";
 	var $base_plugin = 'InventoryManagement';
 }
-
-?>

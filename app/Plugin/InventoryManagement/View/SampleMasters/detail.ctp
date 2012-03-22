@@ -113,6 +113,7 @@
 	// 3 - ALIQUOTS LISTS
 	if(isset($aliquots_data)){
 		$structure_links['index']['detail'] = '/InventoryManagement/AliquotMasters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
+		$structure_links['index']['delete'] = '/InventoryManagement/AliquotMasters/delete/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
 		$hook_link = $this->Structures->hook('aliquots');
 		
 		$arr_size = count($aliquots_data);

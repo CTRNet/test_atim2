@@ -5,6 +5,5 @@ class ViewSample extends InventoryManagementAppModel {
 	
 	var $base_model = "SampleMaster";
 	var $base_plugin = 'InventoryManagement';
+	
 }
-
-?>
