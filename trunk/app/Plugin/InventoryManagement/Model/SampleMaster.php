@@ -6,11 +6,13 @@ class SampleMaster extends InventoryManagementAppModel {
 	
 	var $belongsTo = array(       
 		'SampleControl' => array(           
-			'className'    => 'InventoryManagement.SampleControl',            
-			'foreignKey'    => 'sample_control_id'),        
+			'className'		=> 'InventoryManagement.SampleControl',            
+			'foreignKey'	=> 'sample_control_id',
+			'type'			=> 'INNER'),        
 		'Collection' => array(           
-			'className'    => 'InventoryManagement.Collection',            
-			'foreignKey'    => 'collection_id'));   
+			'className'		=> 'InventoryManagement.Collection',            
+			'foreignKey'	=> 'collection_id',
+			'type'			=> 'INNER'));   
 
 	var $hasOne = array(
 		'SpecimenDetail' => array(
@@ -230,49 +232,5 @@ class SampleMaster extends InventoryManagementAppModel {
 	
 	static function joinOnSampleDup($on_field){
 		return array('table' => 'sample_masters', 'alias' => 'sample_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = sample_masters_dup.id'));
-	}
-	
-	/**
-	 * Add/remove the spent time virtual field
-	 * @param bool $activate True to activate, otherwise deactivates
-	 */
-	function additionalVirtualFields($activate){
-		if($activate){
-			echo 'POWER TAPISS';
-			$this->virtualFields['coll_to_creation_spent_time_msg'] = 'IF(DerivativeDetail.creation_datetime IS NULL , NULL,
-				IF(Collection.collection_datetime IS NULL, "Err a", 
-				IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", "Err b",
-				IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, "Err c",
-				TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime)))))';
-			$this->virtualFields['coll_to_rec_spent_time_msg'] = 'IF(SpecimenDetail.reception_datetime IS NULL , NULL,
-				IF(Collection.collection_datetime IS NULL, "Err a", 
-				IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", SpecimenDetail.reception_datetime,
-				IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, "Err c",
-				TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime)))))';
-			
-			if(!isset($this->virtual_fields_replace)){
-				$this->virtual_fields_replace = array();
-			}
-			//The "Err - [a-z]" is needed for bilingual sorting
-			$this->virtual_fields_replace['coll_to_creation_spent_time_msg'] = array(
-				'msg' => array(
-					'Err a' => 'Err a - '.__('collection date missing'),		
-					'Err b' => 'Err b - '.__('spent time cannot be calculated on inaccurate dates'),
-					'Err c' => 'Err c - '.__('the collection date is after the derivative creation date')
-				), 'type' => 'spentTime'		
-			);
-			$this->virtual_fields_replace['coll_to_rec_spent_time_msg'] = array(
-				'msg' => array(
-					'Err a' => 'Err a - '.__('collection date missing'),		
-					'Err b' => 'Err b - '.__('spent time cannot be calculated on inaccurate dates'),
-					'Err c' => 'Err c - '.__('the collection date is after the specimen reception date')
-				), 'type' => 'spentTime'		
-			);
-		}else{
-			unset($this->virtualFields['coll_to_creation_spent_time_msg']);
-			unset($this->virtual_fields_replace['coll_to_creation_spent_time_msg']);
-			unset($this->virtualFields['coll_to_rec_spent_time_msg']);
-			unset($this->virtual_fields_replace['coll_to_rec_spent_time_msg']);
-		}
 	}
 }

@@ -171,10 +171,13 @@ class SampleMastersController extends InventoryManagementAppController {
 		// MANAGE DATA
 
 		// Get the sample data
-		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id)));
+		$sample_data = $this->ViewSample->find('first', array('conditions' => array('ViewSample.collection_id' => $collection_id, 'ViewSample.sample_master_id' => $sample_master_id)));
 		if(empty($sample_data)) { 
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}	
+		}
+		$sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
+		$sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
+		 
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
 			case 'specimen':
