@@ -1152,6 +1152,7 @@ span.help {
 .icon16.add_to_shipment { background-position: -32px -16px; }
 .icon16.aliquot, .icon16.aliquots { background-position: -80px -96px; }
 .icon16.annotation { background-position: -48px -96px; }
+.icon16.blank { background-position: 16px 16px; }
 .icon16.cancel { background-position: -32px -112px; }
 .icon16.collection, .icon16.collections { background-position: -80px -112px; }
 .icon16.confirm  { background-position: -32px 0; }
@@ -1972,6 +1973,49 @@ table.structure.lineHighlight table.columns.index tbody tr:hover{
 }
 tr.chkLine, table.columns.index tbody tr.chkLine:nth-child(even){
 	background-color: #ff9;
+}
+
+.jqMenuButton{
+	display: inline-block;
+	border: solid black 1px;
+	padding: 5px;
+	position: relative;
+	cursor: pointer;
+}
+
+.jqMenuContent{
+	position: absolute;
+	background:white;
+	border: solid black 1px;
+	top: 20px;
+	left: -1px;
+	display: none;
+	z-index: 1;
+}
+
+.jqMenuBack{
+	min-height: 20px;
+	display: none;
+	padding: 5px 0 0 5px;
+	cursor: pointer;
+}
+
+.jqMenuScroll{
+	overflow: scroll;
+	overflow-x: hidden;
+	height: 300px;
+	width: 200px;
+}
+
+.jqMenuScroll ul{
+	display: none;
+}
+
+.jqMenuScroll ul li{
+	margin-top: 4px;	
+	border: solid transparent 1px;
+	cursor: pointer;
+	padding: 3px;
 }
 
 @media print

@@ -72,7 +72,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("the collection date is after the specimen reception date", "The collection date is after the specimen reception date", "La date de collection est après la date de réception su spécimen"),
 ("all (participant, consent, diagnosis and treatment/annotation)",
  "All (Participant, Consent, Diagnosis and Treatment/Annotation)",
- "Tout (participant, Consentement, Diagnotic, Traitement/Annotation)");
+ "Tout (participant, Consentement, Diagnotic, Traitement/Annotation)"),
+("the value must be between %g and %g", "The value must be between %g and %g", "La valeur doit être entre %g et %g");
  
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';

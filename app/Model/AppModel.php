@@ -1043,9 +1043,15 @@ class AppModel extends Model {
 	}
 	
 	function afterFind($results, $primary = false) {
-		if(isset($this->fields_replace)){
+		if(isset($this->fields_replace) && isset($results[0][$this->name])){
+			$current_fields_replace = $this->fields_replace;
+			foreach($current_fields_replace as $field_name => $options){
+				if(isset($results[0][$this->name]) && !array_key_exists($field_name, $results[0][$this->name])){
+					unset($current_fields_replace[$field_name]);
+				}
+			} 
 			foreach($results as &$result){
-				foreach($this->fields_replace as $field_name => $options){
+				foreach($current_fields_replace as $field_name => $options){
 					if(isset($options['msg'][$result[$this->name][$field_name]])){
 						$result[$this->name][$field_name] = $options['msg'][$result[$this->name][$field_name]];
 					}else if($options['type'] == 'spentTime'){

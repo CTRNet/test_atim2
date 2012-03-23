@@ -61,6 +61,8 @@ class Browser extends DatamartAppModel {
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
 	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, array $sub_models_id_filter = null){
+		$prev_setting = AppController::$highlight_missing_translations;
+		AppController::$highlight_missing_translations = false;
 		$app_controller = AppController::getInstance();
 		$DatamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
@@ -94,7 +96,7 @@ class Browser extends DatamartAppModel {
 			$sorted_rez = array();
 			if($rez != null){
 				foreach($rez['children'] as $k => $v){
-					$sorted_rez[$k] = $v['default'];
+					$sorted_rez[$k] = $v['label'];
 				}
 				asort($sorted_rez, SORT_STRING);
 				foreach($sorted_rez as $k => $foo){
@@ -102,15 +104,15 @@ class Browser extends DatamartAppModel {
 				}
 			}else{
 				$sorted_rez[] = array(
-					'default' => __('nothing to browse to'),
-					'class' => 'disabled',
+					'label' => __('nothing to browse to'),
+					'style' => 'disabled',
 					'value' => '',
 				);
 			}
 			
 			$result[] = array(
 				'value' => '',
-				'default' => __('browse'),
+				'label' => __('browse'),
 				'children' => $sorted_rez
 			);
 			
@@ -130,9 +132,9 @@ class Browser extends DatamartAppModel {
 				$data_unit = $data[$k];
 				$tmp_result = array(
 					'value' => $data_unit['DatamartStructure']['id'], 
-					'default' => __($data_unit['DatamartStructure']['display_name']),
-					'class' => $data_unit['DatamartStructure']['display_name'],
-					'action' => 'Datamart/Browser/browse/'.$node_id.'/',
+					'label' => __($data_unit['DatamartStructure']['display_name']),
+					'style' => $data_unit['DatamartStructure']['display_name'],
+					'value' => 'Datamart/Browser/browse/'.$node_id.'/',
 					);
 					$tmp_model = AppModel::getInstance($data_unit['DatamartStructure']['plugin'], $data_unit['DatamartStructure']['model'], true);
 					if($ctrl_name = $tmp_model->getControlName()){
@@ -146,6 +148,7 @@ class Browser extends DatamartAppModel {
 				$result[] = $tmp_result;
 			}
 		}
+		AppController::$highlight_missing_translations = $prev_setting;
 		return $result;
 	}
 	
@@ -164,8 +167,8 @@ class Browser extends DatamartAppModel {
 			$result = array();
 			array_push($stack, $current_id);
 			$to_arr = array_diff($from_to[$current_id], $stack);
-			$result['default'] = __($browsing_structures[$current_id]['display_name']);
-			$result['class'] = $browsing_structures[$current_id]['display_name'];
+			$result['label'] = __($browsing_structures[$current_id]['display_name']);
+			$result['style'] = $browsing_structures[$current_id]['display_name'];
 			$tmp = array_shift($stack);
 			$result['value'] = implode(self::$model_separator_str, $stack);
 			array_unshift($stack, $tmp);
@@ -173,10 +176,10 @@ class Browser extends DatamartAppModel {
 				$result['children'] = array(
 								array(
 									'value' => $result['value'],
-									'default' => __('filter')),
+									'label' => __('filter')),
 								array(
 									'value' => $result['value']."/true/",
-									'default' => __('no filter'))
+									'label' => __('no filter'))
 								);
 				$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
 				if($control_name = $browsing_model->getControlName()){
@@ -245,7 +248,7 @@ class Browser extends DatamartAppModel {
 			$label = self::getTranslatedDatabrowserLabel($child_data[$control_model->name]['databrowser_label']);
 			$children_arr[] = array(
 				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$control_model->name]['id'],
-				'default' => $label
+				'label' => $label
 			);
 		}
 		return $children_arr;
