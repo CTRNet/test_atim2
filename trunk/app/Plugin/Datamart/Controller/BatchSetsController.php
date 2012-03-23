@@ -103,7 +103,7 @@ class BatchSetsController extends DatamartAppController {
 		$belong_to_this_user = $batch_set['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id'];
 		$this->set( 'belong_to_this_user', $belong_to_this_user );
 			
-		$this->Structures->set( 'datamart_browser_start', 'atim_structure_for_process');
+		$this->Structures->set( 'empty', 'atim_structure_for_process');
 		
 		// do search for RESULTS, using THIS->DATA if any
 		$this->ModelToSearch = null;
@@ -215,15 +215,13 @@ class BatchSetsController extends DatamartAppController {
 			);
 			
 			$tmp = array(0 => array(
-					'value' => '0',
-					'default' => __('remove from batch set'),
-					'action' => '/Datamart/BatchSets/remove/'.$batch_set_id.'/'
+					'label' => __('remove from batch set'),
+					'value' => '/Datamart/BatchSets/remove/'.$batch_set_id.'/'
 			));
 			if(!is_numeric($batch_set['BatchSet']['datamart_structure_id'])){
 				$tmp[1] = array(
-					'value' => '0',
-					'default' => __('create generic batch set'),
-					'action' => '/Datamart/BatchSets/add/-1'
+					'label' => __('create generic batch set'),
+					'value' => '/Datamart/BatchSets/add/-1'
 				);
 			}	
 			$actions[0]['children'] = array_merge(
@@ -233,9 +231,8 @@ class BatchSetsController extends DatamartAppController {
 
 			if($this->DatamartStructure->getIdByModelName($batch_set['BatchSet']['model']) != null){
 				$actions[] = array(
-					"value"		=> 0,
-					"default"	=> __("initiate browsing"),
-					"action"	=> "Datamart/Browser/batchToDatabrowser/".$batch_set['BatchSet']['model']."/"
+					'label'	=> __("initiate browsing"),
+					'value'	=> "Datamart/Browser/batchToDatabrowser/".$batch_set['BatchSet']['model']."/"
 				);
 			}
 		}

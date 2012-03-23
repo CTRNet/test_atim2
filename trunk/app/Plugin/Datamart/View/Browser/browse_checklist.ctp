@@ -69,9 +69,9 @@
 	}
 	$links['top'] = $top;
 	
-	$extras = array();
+	$extras = array('end' => '<div id="actionsTarget"></div>');
 	if(isset($node_id)){
-		$extras['end'] = $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
+		$extras['end'] .= $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
 	}
 	
 	$this->Structures->build($atim_structure, array(
@@ -88,21 +88,7 @@
 var datamartActions = true;
 var errorYouMustSelectAnAction = "<?php echo __("you must select an action"); ?>";
 var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("you need to select at least one item"); ?>";
+var menuItems = '<?php echo json_encode(Sanitize::clean($dropdown_options)); ?>';
+var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
+var STR_BACK = '<?php echo __('back'); ?>';
 </script>
-
-
-
-
-<?php 
-if(isset($dropdown_options)){
-?>
-<a tabindex="0" href="#news-items" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="hierarchy"><span class="ui-icon ui-icon-triangle-1-s"></span><span class="label"><?php echo __("action"); ?></span></a>
-<div class="hidden ui-widget">
-<input id="search_for" type="hidden" name="data[Browser][search_for]"/>
-<ul class='actionDropdown'>
-	<?php 
-	DatamartAppController::printList($dropdown_options, "", $this->request->webroot);
-	?>
-</ul>
-</div>
-<?php } ?>

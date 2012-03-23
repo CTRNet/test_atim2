@@ -1,6 +1,9 @@
 var toolTarget = null;
 var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version >= 9;
 var submitData = new Object();
+var orgAction = null;
+var removeConfirmed = false;
+
 
 jQuery.fn.fullWidth = function(){
 	return parseInt($(this).width()) + parseInt($(this).css("margin-left")) + parseInt($(this).css("margin-right")) + parseInt($(this).css("padding-left")) + parseInt($(this).css("padding-right")) + parseInt($(this).css("border-left-width")) + parseInt($(this).css("border-right-width")); 
@@ -100,16 +103,75 @@ function initActions(){
 	$('div.actions a.down').unbind('click', actionClickDown).click(actionClickDown);
 	$('div.actions a.up').unbind('click', actionClickUp).click(actionClickUp);
 	$('div.filter_menu.scroll').bind('mousewheel', actionMouseweelHandler);
-}
-
-	//TODO: REMOVE
-	function getJsonFromClass(cssClass){
-		var startIndex = cssClass.indexOf("{");
-		if(startIndex > -1){
-			return eval ('(' + cssClass.substr(startIndex, cssClass.lastIndexOf("}") - startIndex + 1) + ')');
+	
+	if(window.menuItems){
+		function actionDisplay(data){
+			return '<span class="row"><span class="cell"><span class="icon16 ' + (data.style ? data.style : 'blank') + '"></span></span><span class="cell" style="padding-left: 5px;">' + data.label + '</span></span>';
 		}
-		return null;
+		
+		function validateSubmit(){
+			var errors = new Array();
+			if($("#actionsTarget input").val() == ""){
+				errors.push(errorYouMustSelectAnAction);
+			}
+			if($(":checkbox").length > 0 && $(":checkbox:checked").length == 0){
+				errors.push(errorYouNeedToSelectAtLeastOneItem);
+			}else if($("form").prop("action").indexOf("remove") != -1 && !removeConfirmed){
+				//popup do you wish do remove
+				$("#popup").popup();
+				return false;
+			}
+			
+			if(errors.length > 0){
+				alert(errors.join("\n"));
+				return false;
+			}
+			
+			return true;
+		}
+		
+		$("#actionsTarget").fmMenu({
+			data : $.parseJSON(menuItems), 
+			displayFunction : actionDisplay, 
+			defaultLabel : STR_SELECT_AN_ACTION, 
+			inputName : "data[Browser][search_for]",
+			strBack : STR_BACK
+		});
+		
+		if(!window.errorYouMustSelectAnAction){
+			window.errorYouMustSelectAnAction = "js untranslated errorYouMustSelectAnAction";	
+		}
+		if(!window.errorYouNeedToSelectAtLeastOneItem){
+			window.errorYouNeedToSelectAtLeastOneItem = "js untranslated errorYouNeedToSelectAtLeastOneItem";	
+		}
+
+		orgAction = $("form").prop("action");
+
+		$("a.submit").unbind('click').prop("onclick", "").click(function(){
+			if(validateSubmit()){
+				var action = null;
+				if(isNaN($("#actionsTarget input").val())){
+					action = root_url + $("#actionsTarget input").val(); 
+				}else{
+					action = orgAction + $("#actionsTarget input").val();
+				}
+				$("form").prop("action", action).submit();
+			}
+			return false;
+		});
+
+		//popup to confirm removal (batchset)
+		$(".button.confirm").click(function(){
+			removeConfirmed = true;
+			$("#popup").popup('close');
+			$("form").submit();
+		});
+		$(".button.close").click(function(){
+			$("#popup").popup('close');
+		});
+
 	}
+}
 
 	function initDatepicker(scope){
 		$(scope).find(".datepicker").each(function(){
@@ -800,9 +862,6 @@ function initActions(){
 	function initJsControls(){
 		if(window.storageLayout){
 			initStorageLayout();
-		}
-		if(window.datamartActions){
-			initDatamartActions();
 		}
 		if(window.copyControl){
 			initCopyControl();

@@ -11,15 +11,15 @@ class DatamartAppController extends AppController {
 	
 	static function printList($options, $label, $webroot){
 		foreach($options as $option){
-			$curr_label = $label." &gt; ".$option['default'];
+			$curr_label = $label." &gt; ".$option['label'];
 			$curr_label_for_class = str_replace("'", "&#39;", $curr_label);
-			$action = isset($option['action']) ? ', "action" : "'.$webroot.$option['action'].'" ' : "";
+			$action = isset($option['value']) ? ', "action" : "'.$webroot.$option['value'].'" ' : "";
 			$class = isset($option['class']) ? $option['class'] : "";
 			echo("<li class='"."'><a href='#' class='{ \"value\" : \"".$option['value']."\", \"label\" : \"".$curr_label_for_class."\" ".$action." } ".$class."'>".$option['default']."</a>");
 			if(isset($option['children'])){
 				if(count($option['children']) > 15){
 					$tmp_children = array();
-					if($option['children'][0]['default'] == __("filter")){
+					if($option['children'][0]['label'] == __("filter")){
 						//remove filter and no filter from the pages
 						$tmp_children = array_splice($option['children'], 2);
 					}else{

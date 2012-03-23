@@ -81,7 +81,7 @@ class BrowserController extends DatamartAppController {
 			if($node_id == 0){
 				//new access
 				$this->set("dropdown_options", $this->Browser->getDropdownOptions($control_id, $node_id, null, null, null, null, null, array("AliquotControl" => array(0))));
-				$this->Structures->set("datamart_browser_start");
+				$this->Structures->set("empty");
 				$this->set('type', "add");
 				$this->set('top', "/Datamart/Browser/browse/0/");
 			}else{
@@ -244,24 +244,24 @@ class BrowserController extends DatamartAppController {
 				$this->Browser->checklist_sub_models_id_filter
 			);
 			foreach($dropdown_options as $key => $option){
-				if(isset($option['action']) && strpos($option['action'], 'Datamart/csv/csv') === 0){
+				if(isset($option['value']) && strpos($option['value'], 'Datamart/csv/csv') === 0){
 					unset($dropdown_options[$key]);
 				}
 			}
 			$action = 'Datamart/Browser/csv/%d/'.$node_id."/".$merge_to."/";
 			$dropdown_options[] = array(
 				'value' => '0',
-				'default' => __('export as CSV file (comma-separated values)'),
-				'action' => sprintf($action, 0)
+				'label' => __('export as CSV file (comma-separated values)'),
+				'value' => sprintf($action, 0)
 			);
 			$dropdown_options[] = array(
 				'value' => '0',
-				'default' => __('full export as CSV file'),
-				'action' => sprintf($action, 1)
+				'label' => __('full export as CSV file'),
+				'value' => sprintf($action, 1)
 			);
 			
 			$this->set("dropdown_options", $dropdown_options);
-			$this->Structures->set("datamart_browser_start");
+			$this->Structures->set("empty");
 			
 			if($this->Browser->checklist_model->name != $browsing['DatamartStructure']['model']){
 				$browsing['DatamartStructure']['index_link'] = str_replace(

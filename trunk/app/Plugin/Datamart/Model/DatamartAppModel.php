@@ -19,20 +19,20 @@ class DatamartAppModel extends AppModel {
 		$compatible_batch_sets = $batch_set->getCompatibleBatchSets($plugin_name, $model_name, $datamart_structure_id, $batch_set_id);
 		$batch_set_menu[] = array(
 			'value' => '0',
-			'default' => __('create batchset'),
-			'action' => 'Datamart/BatchSets/add/'
+			'label' => __('create batchset'),
+			'value' => 'Datamart/BatchSets/add/'
 		);
 		foreach($compatible_batch_sets as $batch_set){
 			$batch_set_menu[] = array(
 				'value' => '0',
-				'default' => __('add to compatible batchset'). " [".$batch_set['BatchSet']['title']."]",
-				'action' => 'Datamart/BatchSets/add/'.$batch_set['BatchSet']['id']
+				'label' => __('add to compatible batchset'). " [".$batch_set['BatchSet']['title']."]",
+				'value' => 'Datamart/BatchSets/add/'.$batch_set['BatchSet']['id']
 			);
 		}
 		$result = array();
 		$result[] = array(
 			'value' => '0',
-			'default' => __('batchset'),
+			'label' => __('batchset'),
 			'children' => $batch_set_menu
 		);
 		
@@ -43,13 +43,13 @@ class DatamartAppModel extends AppModel {
 			foreach($functions as $function){
 				$functions_menu[] = array(
 					'value' 	=> '0',
-					'default' 	=> __($function['DatamartStructureFunction']['label']),
-					'action'	=> $function['DatamartStructureFunction']['link']
+					'label' 	=> __($function['DatamartStructureFunction']['label']),
+					'value'	=> $function['DatamartStructureFunction']['link']
 				);
 			}
 			$result[] = array(
 				'value' => '0',
-				'default' => __('batch actions'),
+				'label' => __('batch actions'),
 				'children' => $functions_menu
 			);
 		}
@@ -62,13 +62,13 @@ class DatamartAppModel extends AppModel {
 		}
 		$result[] = array(
 			'value' => '0',
-			'default' => __('export as CSV file (comma-separated values)'),
-			'action' => sprintf($csv_action, 0)
+			'label' => __('export as CSV file (comma-separated values)'),
+			'value' => sprintf($csv_action, 0)
 		);
 		$result[] = array(
 			'value' => '0',
-			'default' => __('full export as CSV file'),
-			'action' => sprintf($csv_action, 1)
+			'label' => __('full export as CSV file'),
+			'value' => sprintf($csv_action, 1)
 		);
 		
 		return $result;

@@ -58,6 +58,7 @@ if(!$headers_were_sent){
 			var STR_OK = "<?php echo __('ok'); ?>";
 			var STR_CANCEL = "<?php echo __('cancel'); ?>";
 			var STR_LOADING = "<?php echo __('loading'); ?>";
+			var STR_BACK = "<?php echo __('back'); ?>";
 						
 		</script>
 	<!--[if IE 7]>
@@ -94,10 +95,10 @@ if(!$headers_were_sent){
 	echo $this->Html->script('fg.menu.js')."\n";
 	echo $this->Html->script('default')."\n";
 	echo $this->Html->script('storage_layout')."\n";
-	echo $this->Html->script('datamart')."\n";
 	echo $this->Html->script('copyControl')."\n";
 	echo $this->Html->script('ccl')."\n";
 	echo $this->Html->script('dropdownConfig')."\n";
+	echo $this->Html->script('jquery.fm-menu')."\n";
 	?>
 	
 	<script type="text/javascript">
