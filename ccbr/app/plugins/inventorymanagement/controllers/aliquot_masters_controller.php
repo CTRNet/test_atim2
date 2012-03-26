@@ -1769,7 +1769,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// D- Update parent aliquot current volume
-					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, (empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? false : true), false);
+					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, true, false);
 				}
 				
 				$hook_link = $this->hook('postsave_process');
