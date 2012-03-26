@@ -96,11 +96,13 @@ class Browser extends DatamartAppModel {
 			$sorted_rez = array();
 			if($rez != null){
 				foreach($rez['children'] as $k => $v){
-					$sorted_rez[$k] = $v['label'];
+					//prepending a '_' to avoid chrome parseJSON ordering bug
+					//http://code.google.com/p/chromium/issues/detail?id=883 
+					$sorted_rez['_'.$k] = $v['label']; 
 				}
 				asort($sorted_rez, SORT_STRING);
-				foreach($sorted_rez as $k => $foo){
-					$sorted_rez[$k] = $rez['children'][$k];
+				foreach($rez['children'] as $k => $foo){
+					$sorted_rez['_'.$k] = $rez['children'][$k];
 				}
 			}else{
 				$sorted_rez[] = array(
@@ -133,17 +135,17 @@ class Browser extends DatamartAppModel {
 				$tmp_result = array(
 					'value' => $data_unit['DatamartStructure']['id'], 
 					'label' => __($data_unit['DatamartStructure']['display_name']),
-					'style' => $data_unit['DatamartStructure']['display_name'],
-					'value' => 'Datamart/Browser/browse/'.$node_id.'/',
-					);
-					$tmp_model = AppModel::getInstance($data_unit['DatamartStructure']['plugin'], $data_unit['DatamartStructure']['model'], true);
-					if($ctrl_name = $tmp_model->getControlName()){
-						$ids = isset($sub_models_id_filter[$ctrl_name]) ? $sub_models_id_filter[$ctrl_name] : array(); 
-						$children = self::getSubModels($data_unit, $data_unit['DatamartStructure']['id'], $ids);
-						if(!empty($children)){
-							$tmp_result['children'] = $children;
-						} 
-					}
+					'style' => $data_unit['DatamartStructure']['display_name']
+				);
+				$tmp_model = AppModel::getInstance($data_unit['DatamartStructure']['plugin'], $data_unit['DatamartStructure']['model'], true);
+				if($ctrl_name = $tmp_model->getControlName()){
+					$ids = isset($sub_models_id_filter[$ctrl_name]) ? $sub_models_id_filter[$ctrl_name] : array(); 
+					$children = self::getSubModels($data_unit, $data_unit['DatamartStructure']['id'], $ids);
+					if(!empty($children)){
+						array_unshift($children, array('label' => __('all'), 'value' => $data_unit['DatamartStructure']['id']));
+						$tmp_result['children'] = $children;
+					} 
+				}
 					
 				$result[] = $tmp_result;
 			}
@@ -503,8 +505,8 @@ class Browser extends DatamartAppModel {
 					if(!$content = Cache::read($cache_key, 'browser')){
 						if($cell['BrowsingResult']['raw']){
 							$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
-							$adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array(); 
-							if(count($search['search_conditions']) || $adv_search){
+							$adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array();
+							if((isset($search['search_conditions']) && count($search['search_conditions'])) || $adv_search){
 								$structure = null;
 								if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 									//alternate structure required
@@ -1276,6 +1278,7 @@ class Browser extends DatamartAppModel {
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
 		$browsing_ctrl_model = AppModel::getInstance('Datamart', 'BrowsingControl', true);
 		$browsing = $dm_structure_model->find('first', array('conditions' => array('id' => $params['struct_ctrl_id'])));
+		assert($browsing);
 		$controller = AppController::getInstance();
 		$node_id = $params['node_id'];
 		$save = array(); 
@@ -1284,7 +1287,6 @@ class Browser extends DatamartAppModel {
 			$controller->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			return false;
 		}
-		
 		$model_to_search = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
 		$use_sub_model = null;
 		
