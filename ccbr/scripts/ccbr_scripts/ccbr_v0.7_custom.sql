@@ -290,7 +290,7 @@ INSERT INTO `std_boxs` (`id`,`storage_master_id`,`deleted`) VALUES
 (12,17,0),
 (13,18,0),
 (14,19,0),
-(15,20,0;
+(15,20,0);
 
 INSERT INTO `std_boxs` (`id`,`storage_master_id`,`deleted`) VALUES
 (16,21,0),
@@ -348,7 +348,16 @@ UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_se
 -- Inventory Language Updates
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	('cerebrospinal fluid', 'Cerebrospinal Fluid', ''),
-	('stem cells', 'Stem Cells', '');
+	('stem cells', 'Stem Cells', ''),
+	('ccbr tube type', 'Tube Type', ''),
+	('ccbr edta', 'EDTA', ''),
+	('ccbr citrate', 'Citrate', ''),
+	('ccbr total cell count', 'Total Cell Count (Millions)', ''),
+	('ccbr cell count', 'Cell Count', ''),
+	('ccbr cell count unit', 'Units', '');
+
+-- Fix bug for sample collected by other
+UPDATE `structure_fields` SET `field`='ccbr_sample_pickup_other' WHERE `field` = 'ccbr_sample_pickup_by' AND `language_label` = 'ccbr sample pickup other';
 
 -- Hide acquisition label
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -361,34 +370,102 @@ UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHER
 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- Bone marrow specimen fields
+ALTER TABLE `sd_spe_bone_marrows` 
+	ADD COLUMN `ccbr_tube_type` VARCHAR(45) NULL AFTER `collected_volume_unit` ,
+	ADD COLUMN `ccbr_total_cell_count` DECIMAL(10,1) NULL AFTER `ccbr_tube_type` ;
+
+ALTER TABLE `sd_spe_bone_marrows_revs` 
+	ADD COLUMN `ccbr_tube_type` VARCHAR(45) NULL AFTER `collected_volume_unit` ,
+	ADD COLUMN `ccbr_total_cell_count` DECIMAL(10,1) NULL AFTER `ccbr_tube_type` ;
+	
+-- Add detail form to bone marrow specimen build list
+UPDATE `sample_controls` SET `form_alias`='sample_masters,specimens,sd_spe_bone_marrows' WHERE `sample_type` = 'bone marrow';
+
+-- Bone Marrow Tube Type Value Domain
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ccbr_bm_tube_type", "", "", "");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("edta", "ccbr edta");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ccbr_bm_tube_type"), (SELECT id FROM structure_permissible_values WHERE value="edta" AND language_alias="ccbr edta"), "1", "1");INSERT INTO structure_permissible_values (value, language_alias) VALUES("citrate", "ccbr citrate");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ccbr_bm_tube_type"), (SELECT id FROM structure_permissible_values WHERE value="citrate" AND language_alias="ccbr citrate"), "2", "1");
+
+-- Link fields to detail structure
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_bone_marrows', 'ccbr_tube_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_bm_tube_type') , '0', '', '', '', 'ccbr tube type', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bone_marrows' AND `field`='ccbr_tube_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_bm_tube_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ccbr tube type' AND `language_tag`=''), '1', '500', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- Sample Level: Total Cell Count
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'sd_spe_bone_marrows', 'ccbr_total_cell_count', 'float_positive',  NULL , '0', 'size=5', '', '', 'ccbr total cell count', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bone_marrows' AND `field`='ccbr_total_cell_count' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ccbr total cell count' AND `language_tag`=''), '1', '450', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- Disable existing aliquot tube for bone marrow specimen
+UPDATE `aliquot_controls` SET `flag_active`=0 WHERE `sample_control_id`= (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'bone marrow' AND `sample_category` = 'specimen') AND `form_alias`= 'aliquot_masters,ad_spec_tubes_incl_ml_vol';
+
+-- New structure for CCBR bone marrow tube
+INSERT INTO `structures` (`alias`) VALUES ('ad_ccbr_spec_tubes_incl_cell_count');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_ccbr_spec_tubes_incl_cell_count'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='cell_count' AND `type`='float_positive'), '1', '451', '', '1', 'ccbr cell count', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='ad_ccbr_spec_tubes_incl_cell_count'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='cell_count_unit' AND `type`='select'), '1', '451', '', '1', 'ccbr cell count unit', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- Create new aliquot tube for bone marrow
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+ ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'bone marrow' AND `sample_category` = 'specimen'), 'tube', '', 'aliquot_masters,ad_ccbr_spec_tubes_incl_cell_count', 'ad_tubes', 'ml', 1, 'Specimen tube requiring cell count for CCBR', 0, 'tube');
+
 -- Create new sample types
 INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-('stem cells', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivatives', 'sd_der_stem_cells', 0, 'stem cells'),
-('cerebrospinal fluid', 'specimen', 'sample_masters,specimens', 'sd_spe_cerebrospinal_fluid', 0);
+('ccbr stem cells', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivatives', 'sd_der_ccbr_stem_cells', 0, 'stem cells'),
+('ccbr cerebrospinal fluid', 'specimen', 'sample_masters,specimens', 'sd_spe_ccbr_cerebrospinal_fluid', 0, 'cerebrospinal fluid');
 
 -- Activate new types (CSF)
 INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES
-((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'cerebrospinal fluid' AND `sample_category` = 'specimen'), 1);
+((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr cerebrospinal fluid' AND `sample_category` = 'specimen'), 1);
+
+-- Create aliquot tube for cerebrospinal fluid
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+ ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr cerebrospinal fluid' AND `sample_category` = 'specimen'), 'tube', '(ml)', 'aliquot_masters,ad_spec_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Specimen tube requiring volume in ml', 0, 'tube');
 
 -- Blood -> Stem Cells
 INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
-((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'blood' AND `sample_category` = 'specimen'), (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'stem cells' AND `sample_category` = 'derivative'), 1);
+((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'blood' AND `sample_category` = 'specimen'), (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr stem cells' AND `sample_category` = 'derivative'), 1);
 
 -- Bone Marrow -> Stem Cells
 INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
-(SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'bone marrow' AND `sample_category` = 'specimen', (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'stem cells' AND `sample_category` = 'derivative'), 1);
+((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'bone marrow' AND `sample_category` = 'specimen'), (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr stem cells' AND `sample_category` = 'derivative'), 1);
+
+-- Create aliquot tube for stem cells
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+ ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr stem cells' AND `sample_category` = 'derivative'), 'tube', '', 'aliquot_masters,ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Derivative tube requiring volume in ml specific for cells', 0, 'tube');
+
+
+-- Leukapheresis
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+ ('ccbr leukapheresis', 'derivative', 'sample_masters,sd_undetailed_derivatives,derivatives', 'sd_der_ccbr_leukapheresis', 0, 'leukapheresis');
+
+-- Blood -> Leukapheresis
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'blood' AND `sample_category` = 'specimen'), (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr leukapheresis' AND `sample_category` = 'derivative'), 1);
+
+-- Create new aliquot tube for Leukapheresis
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+ ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr leukapheresis' AND `sample_category` = 'derivative'), 'tube', '', 'aliquot_masters,ad_der_cell_tubes_incl_ml_vol', 'ad_tubes', 'ml', 1, 'Derivative tube requiring volume in ml specific for cells', 0, 'tube');
+
 
 -- Detail table creation
-DROP TABLE IF EXISTS `sd_der_stem_cells`;
-CREATE TABLE `sd_der_stem_cells` (
+DROP TABLE IF EXISTS `sd_der_ccbr_stem_cells`;
+CREATE TABLE `sd_der_ccbr_stem_cells` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sample_master_id` int(11) DEFAULT NULL,
   `deleted` TINYINT(3) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `sd_der_stem_cells_revs`;
-CREATE TABLE `sd_der_stem_cells_revs` (
+DROP TABLE IF EXISTS `sd_der_ccbr_stem_cells_revs`;
+CREATE TABLE `sd_der_ccbr_stem_cells_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) DEFAULT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -396,8 +473,8 @@ CREATE TABLE `sd_der_stem_cells_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `sd_spe_cerebrospinal_fluid`;
-CREATE TABLE `sd_spe_cerebrospinal_fluid` (
+DROP TABLE IF EXISTS `sd_spe_ccbr_cerebrospinal_fluid`;
+CREATE TABLE `sd_spe_ccbr_cerebrospinal_fluid` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sample_master_id` int(11) DEFAULT NULL,
   `collected_volume` DECIMAL(10,2) DEFAULT NULL,
@@ -406,8 +483,8 @@ CREATE TABLE `sd_spe_cerebrospinal_fluid` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `sd_spe_cerebrospinal_fluid_revs`;
-CREATE TABLE `sd_spe_cerebrospinal_fluid_revs` (
+DROP TABLE IF EXISTS `sd_spe_ccbr_cerebrospinal_fluid_revs`;
+CREATE TABLE `sd_spe_ccbr_cerebrospinal_fluid_revs` (
   `id` int(11) NOT NULL,
   `sample_master_id` int(11) DEFAULT NULL,
   `collected_volume` DECIMAL(10,2) DEFAULT NULL,
@@ -416,3 +493,31 @@ CREATE TABLE `sd_spe_cerebrospinal_fluid_revs` (
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+DROP TABLE IF EXISTS `sd_der_ccbr_leukapheresis`;
+CREATE TABLE `sd_der_ccbr_leukapheresis` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `deleted` TINYINT(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `sd_der_ccbr_leukapheresis_revs`;
+CREATE TABLE `sd_der_ccbr_leukapheresis_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+-- Disable unneeded sample types
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(25, 3, 24, 132, 17, 18, 118);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(167);
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('ccbr leukapheresis', 'Leukapheresis', ''),
+	('ccbr cerebrospinal fluid', 'Cerebrospinal Fluid', ''),
+	('ccbr stem cells', 'Stem Cells', '');
