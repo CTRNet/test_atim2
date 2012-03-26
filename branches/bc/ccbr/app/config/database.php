@@ -82,9 +82,9 @@ class DATABASE_CONFIG {
 		'driver' => 'mysql',
 		'persistent' => true,
 		'host' => 'localhost',
-		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_new',
+		'login' => 'ctrnadmi_atim',
+		'password' => '1Qaz1Qaz',
+		'database' => 'ctrnadmi_ccbr',
 		'prefix' => '',
 		'encoding' => 'utf8'
 	);

@@ -66,7 +66,8 @@ class User extends AppModel {
 
 		unset($data['User']['new_password'], $data['User']['confirm_password']);
 		
-		$data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
+		$this->read();
+		$data['User']['group_id'] = $this->data['User']['group_id'];//otherwise aros table is altered
 		if ( $this->save( $data ) ) {
 			AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
 		}
