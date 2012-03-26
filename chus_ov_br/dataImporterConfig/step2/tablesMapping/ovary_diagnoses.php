@@ -119,7 +119,7 @@ Config::$models['OvaryDiagnosisMaster'] = $model;
 	
 function postOvaryDiagnosesRead(Model $m){
 //TODO delete return
-return false;
+//return false;
 
 	global $connection;
 	
