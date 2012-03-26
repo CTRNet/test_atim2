@@ -174,7 +174,6 @@ class BrowserController extends DatamartAppController {
 			}
 			
 			$created_node = null;
-			
 			//save nodes (direct and indirect)
 			foreach($direct_id_arr as $control_id){
 				$sub_struct_ctrl_id = null;
@@ -409,8 +408,10 @@ class BrowserController extends DatamartAppController {
 		$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
 		$node_id = null;
 		if(empty($tmp)){
+			$this->BrowsingResult->check_writable_fields = false;
 			$this->BrowsingResult->save($save);
 			$node_id = $this->BrowsingResult->id;
+			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingIndex->save(array("BrowsingIndex" => array('root_node_id' => $node_id)));
 		}else{
 			//current set already exists, use it

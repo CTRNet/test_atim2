@@ -106,7 +106,7 @@ function initActions(){
 	
 	if(window.menuItems){
 		function actionDisplay(data){
-			return '<span class="row"><span class="cell"><span class="icon16 ' + (data.style ? data.style : 'blank') + '"></span></span><span class="cell" style="padding-left: 5px;">' + data.label + '</span></span>';
+			return '<span class="row" id="' + data.value + '"><span class="cell"><span class="icon16 ' + (data.style ? data.style : 'blank') + '"></span></span><span class="cell" style="padding-left: 5px;">' + data.label + '</span></span>';
 		}
 		
 		function validateSubmit(){
@@ -150,7 +150,7 @@ function initActions(){
 		$("a.submit").unbind('click').prop("onclick", "").click(function(){
 			if(validateSubmit()){
 				var action = null;
-				if(isNaN($("#actionsTarget input").val())){
+				if(isNaN($("#actionsTarget input").val()[0])){
 					action = root_url + $("#actionsTarget input").val(); 
 				}else{
 					action = orgAction + $("#actionsTarget input").val();
@@ -456,15 +456,15 @@ function initActions(){
 	function initCheckAll(scope){
 		var elem = $(scope).find(".checkAll");
 		if(elem.length > 0){
-			parent = $(elem).parents("form:first");
+			var elemParent = $(elem).parents("form:first");
 			$(elem).click(function(){
-				$(parent).find('input[type=checkbox]').prop("checked", true);
-				$(parent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
+				$(elemParent).find('input[type=checkbox]').prop("checked", true);
+				$(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
 				return false;
 			});
 			$(scope).find(".uncheckAll").click(function(){
-				$(parent).find('input[type=checkbox]').prop("checked", false);
-				$(parent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
+				$(elemParent).find('input[type=checkbox]').prop("checked", false);
+				$(elemParent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
 				return false;
 			});
 		}
