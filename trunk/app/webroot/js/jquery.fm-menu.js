@@ -4,7 +4,7 @@
  * @description: Builds a multi level menu with a fixed height and widths. 
  * Sub menus replace the current page and a back button is displayed.
  */
-//TODO: test if compatible with selenium IDE
+
 /**
  * Object memory
  */
@@ -12,6 +12,9 @@ var FmMenu = function(menuButton){
 	this.menuButton = menuButton;
 	this.selectedLi = null;
 	this.keyFunction = FmMenu.prototype.keyFunction;
+	this.makeSelectionVisible = FmMenu.prototype.makeSelectionVisible;
+	this.liTopOffset = null;
+	this.liBottomOffset = null;
 	$(menuButton).data('FmMenu', this);
 };
 
@@ -79,8 +82,11 @@ jQuery.fn.fmMenu = function(options){
 		fmMenu.menuButton.find(".jqMenuScroll").scrollTop(0);
 		if(!tagDrilldown){
 			fmMenu.closeMenu();
-			event.stopPropagation();
 		}
+		
+		fmMenu.selectedLi = null;
+		fmMenu.menuButton.find("li.ui-state-hover:visible").removeClass("ui-state-hover");
+		event.stopPropagation();
 	}).hover(function(){
 			fmMenu.menuButton.find("li").removeClass("ui-state-hover"); 
 			fmMenu.selectedLi = $(this).addClass("ui-state-hover");},
@@ -89,7 +95,7 @@ jQuery.fn.fmMenu = function(options){
 	});//toggles hovering classes
 	
 	//back button action
-	this.find(".jqMenuBack").click(function(){
+	this.find(".jqMenuBack").click(function(event){
 		fmMenu.menuButton.find("." + $(".jqMenuScroll ul:visible").hide().data('grand-parent-name')).show();
 		fmMenu.menuButton.find("input").val("");
 		if(fmMenu.menuButton.find(".jqMenuScroll ul:visible").data('grand-parent-name') == null){
@@ -104,15 +110,22 @@ jQuery.fn.fmMenu = function(options){
 			fmMenu.menuButton.find(".jqButtonLabel span").show();
 		}
 		fmMenu.menuButton.find(".jqMenuScroll").scrollTop(0);
+		if(fmMenu.menuButton.find(".jqMenuScroll li.ui-state-hover:visible").length == 1){
+			//when keys are used, back button keeps seletion where it was
+			fmMenu.selectedLi = fmMenu.menuButton.find(".jqMenuScroll li.ui-state-hover:visible");
+		}else{
+			fmMenu.selectedLi = null;
+		}
+		event.stopPropagation();
 	}).hover(function(){$(this).addClass("ui-state-hover");},function(){$(this).removeClass("ui-state-hover");}
 	).mousedown(function(){$(this).addClass("ui-state-active");}
 	).mouseup(function(){$(this).removeClass("ui-state-active");});
 	
 	this.hover(function(){$(this).addClass("ui-state-hover");},function(){$(this).removeClass("ui-state-hover");})
 		.click(function(event){
-			$(this).addClass("ui-state-active").find(".jqMenuContent").show(); event.stopPropagation();
+			$(this).addClass("ui-state-active").find(".jqMenuContent").show(); 
+			event.stopPropagation();
 			$(document).focus().keydown(fmMenu, fmMenu.handleKeys);
-			
 	});
 	$("html").click(function(){fmMenu.closeMenu();});
 };
@@ -149,10 +162,17 @@ FmMenu.prototype.closeMenu = function(){
 		$(this.menuButton).find(".jqMenuScroll ul").hide();
 		$(this.menuButton).find(".jqMenuScroll ul.0").show();
 		$(this.menuButton).find(".jqMenuBack").hide();
+		this.menuButton.find("li.ui-state-hover").removeClass("ui-state-hover");
+		this.selectedLi = null;
 	}
 	$(document).unbind('keydown', this.handleKeys);
 };
 
+/**
+ * Handles keyboard inputs and calls functions binded do char codes
+ * @param event
+ * @returns
+ */
 FmMenu.prototype.handleKeys = function(event){
 	event.stopPropagation();
 	if(event.data.keyFunction[event.keyCode]){
@@ -160,24 +180,46 @@ FmMenu.prototype.handleKeys = function(event){
 	}
 };
 
-FmMenu.prototype.keySelect = function(event){
-	console.log('key select');
-	console.log(this.menuButton);
+/**
+ * Called by select keys (right, space, enter)
+ * @returns {Boolean}
+ */
+FmMenu.prototype.keySelect = function(){
+	if(this.selectedLi){
+		this.selectedLi.click();
+	}
+	return false;
 };
 
+/**
+ * Called by back keys (left, esc)
+ * @returns {Boolean}
+ */
+FmMenu.prototype.keyBack = function(){
+	if(this.menuButton.find(".jqMenuBack:visible").length){
+		this.menuButton.find(".jqMenuBack").click();
+		this.makeSelectionVisible();
+	}else{
+		this.closeMenu();
+	}
+	return false;
+};
 
+//All existing key binding functions
 FmMenu.prototype.keyFunction = new Array();
-FmMenu.prototype.keyFunction[13] = function(event){ return this.keySelect(event); };//enter
-FmMenu.prototype.keyFunction[32] = function(event){ return this.keySelect(event); };//space
-FmMenu.prototype.keyFunction[39] = function(event){ return this.keySelect(event); };//right arrow
-FmMenu.prototype.keyFunction[27] = function(event){ return this.keyBack(event); };//esc
-FmMenu.prototype.keyFunction[37] = function(event){ return this.keyBack(event); };//left arrow
+FmMenu.prototype.keyFunction[13] = function(event){ return event.data.keySelect(); };//enter
+FmMenu.prototype.keyFunction[32] = function(event){ return event.data.keySelect(); };//space
+FmMenu.prototype.keyFunction[39] = function(event){ return event.data.keySelect(); };//right arrow
+FmMenu.prototype.keyFunction[27] = function(event){ return event.data.keyBack(); };//esc
+FmMenu.prototype.keyFunction[37] = function(event){ return event.data.keyBack(); };//left arrow
 FmMenu.prototype.keyFunction[38] = function(event){
-	//up
+	//up key
 	if(event.data.selectedLi){
 		//select next
 		$(event.data.selectedLi).parents("ul").find('li').removeClass('ui-state-hover');
-		event.data.selectedLi = $(event.data.selectedLi).prev("li");
+		if($(event.data.selectedLi).prev("li").length == 1){
+			event.data.selectedLi = $(event.data.selectedLi).prev("li");
+		}
 	}
 	
 	if(event.data.selectedLi && event.data.selectedLi.length > 0){
@@ -188,14 +230,17 @@ FmMenu.prototype.keyFunction[38] = function(event){
 			event.data.selectedLi = $(this).find('li:last').addClass('ui-state-hover');
 		});
 	}
+	event.data.makeSelectionVisible();
 	return false;
 };
 FmMenu.prototype.keyFunction[40] = function(event){
-	//down
+	//down key
 	if(event.data.selectedLi){
 		//select next
 		$(event.data.selectedLi).parents("ul").find('li').removeClass('ui-state-hover');
-		event.data.selectedLi = $(event.data.selectedLi).next("li");
+		if($(event.data.selectedLi).next("li").length == 1){
+			event.data.selectedLi = $(event.data.selectedLi).next("li");
+		}
 	}
 	
 	if(event.data.selectedLi && event.data.selectedLi.length > 0){
@@ -206,6 +251,30 @@ FmMenu.prototype.keyFunction[40] = function(event){
 			event.data.selectedLi = $(this).find('li:first').addClass('ui-state-hover');
 		});
 	}
+	event.data.makeSelectionVisible();
 	return false;
+};
+
+/**
+ * Scrolls the pane to make the selection visible
+ */
+FmMenu.prototype.makeSelectionVisible = function(){
+	if(this.liTopOffset == null){
+		this.liBottomOffset = parseInt(this.selectedLi.css("padding-bottom")) + parseInt(this.selectedLi.css('border-bottom-width')) + parseInt(this.selectedLi.css("padding-top")) + parseInt(this.selectedLi.css('border-top-width'));
+	}
+	var eMin = this.selectedLi.offset().top;
+	var eMax = eMin + this.selectedLi.height() + this.liBottomOffset;
+	var scrollNode = $(this.menuButton).find(".jqMenuScroll");
+	var scrollNodeTop = scrollNode.offset().top;
+	var scrollNodeBottom = scrollNodeTop + scrollNode.height();
+	if(eMin < scrollNodeTop){
+		//scroll up
+		scrollNode.scrollTop(scrollNode.scrollTop() + eMin - scrollNodeTop);
+	}else if(eMax > scrollNodeBottom){
+		//scroll down
+		scrollNode.scrollTop(scrollNode.scrollTop() + eMax - scrollNodeBottom);
+		eMin = this.selectedLi.offset().top;
+		eMax = eMin + this.selectedLi.height();
+	}
 };
 
