@@ -247,16 +247,11 @@ class BrowserController extends DatamartAppController {
 					unset($dropdown_options[$key]);
 				}
 			}
-			$action = 'Datamart/Browser/csv/%d/'.$node_id."/".$merge_to."/";
+			$action = 'javascript:setCsvPopup("Datamart/Browser/csv/%d/'.$node_id.'/'.$merge_to.'/");';
 			$dropdown_options[] = array(
 				'value' => '0',
 				'label' => __('export as CSV file (comma-separated values)'),
 				'value' => sprintf($action, 0)
-			);
-			$dropdown_options[] = array(
-				'value' => '0',
-				'label' => __('full export as CSV file'),
-				'value' => sprintf($action, 1)
 			);
 			
 			$this->set("dropdown_options", $dropdown_options);
@@ -335,6 +330,12 @@ class BrowserController extends DatamartAppController {
 	 * @param int $merge_to
 	 */
 	function csv($all_fields, $node_id, $merge_to){
+		$config = array_merge($this->request->data['Config'], $this->request->data[0]);
+		unset($this->request->data[0]);
+		unset($this->request->data['Config']);
+		$this->configureCsv($config);
+		
+		
 		$browsing = $this->BrowsingResult->findById($node_id);
 		$ids = current(current($this->request->data));
 		if(is_string($ids)){
@@ -353,7 +354,6 @@ class BrowserController extends DatamartAppController {
 		
 		Configure::write('debug', 0);
 		$this->set('csv_header', true);
-		$this->set('all_fields', $all_fields);
 		while($this->request->data = $this->Browser->getDataChunk(300)){
 			$this->render('../csv/csv');
 			$this->set('csv_header', false);

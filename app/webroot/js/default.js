@@ -111,7 +111,7 @@ function initActions(){
 		
 		function validateSubmit(){
 			var errors = new Array();
-			if($("#actionsTarget input").val() == ""){
+			if($("#actionsTarget input[type=hidden]").val() == ""){
 				errors.push(errorYouMustSelectAnAction);
 			}
 			if($(":checkbox").length > 0 && $(":checkbox:checked").length == 0){
@@ -150,10 +150,13 @@ function initActions(){
 		$("a.submit").unbind('click').prop("onclick", "").click(function(){
 			if(validateSubmit()){
 				var action = null;
-				if(isNaN($("#actionsTarget input").val()[0])){
-					action = root_url + $("#actionsTarget input").val(); 
+				var actionTargetValue = $("#actionsTarget input[type=hidden]").val();
+				if(actionTargetValue.indexOf('javascript:') == 0){
+					action = actionTargetValue;
+				}else if(isNaN(actionTargetValue[0])){
+					action = root_url + actionTargetValue; 
 				}else{
-					action = orgAction + $("#actionsTarget input").val();
+					action = orgAction + actionTargetValue;
 				}
 				$("form").prop("action", action).submit();
 			}
@@ -1284,6 +1287,30 @@ function initActions(){
 	 */
 	function dataSavedFadeout(){
 		$("ul.confirm").animate({opacity: 0}, 700);
+	}
+	
+	function setCsvPopup(target){
+		if($("#csvPopup").length == 0){
+			buildDialog('csvPopup', 'CSV', "<div class='loading'>--- " + STR_LOADING + " ---</div>", null);
+			$.get(root_url + 'Datamart/Csv/csv/popup:/', function(data){
+				var visible = $("#csvPopup:visible").length == 1;
+				$("#csvPopup:visible").popup('close');
+				$("#csvPopup h4 + div").html(data);
+				if(visible){
+					$("#csvPopup").popup();
+				}
+				$("#csvPopup form").attr("action", root_url + target);
+				$("#csvPopup a.submit").click(function(){
+					$("#csvPopup form input[type=hidden]").remove();
+					$("form:first input[type=checkbox]:checked").each(function(){
+						$("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
+					});
+				});
+			});
+		}
+		$("#csvPopup").popup();
+		$("input.submit").siblings("a").find("span").removeClass('fetching');
+		return false;
 	}
 
 	
