@@ -450,8 +450,6 @@ class SampleMastersController extends InventorymanagementAppController {
 			if($hook_link){
 				require($hook_link);
 			}
-			
-			$this->data['SampleMasters']['sample_code'] = 'ZZ';
 				
 			if($submitted_data_validates) {
 				// Save sample data
