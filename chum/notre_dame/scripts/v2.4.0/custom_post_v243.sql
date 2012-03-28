@@ -62,8 +62,25 @@ DELETE FROM realiquoting_controls WHERE parent_aliquot_control_id = @purified_rn
 DELETE FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'purified rna');
 DELETE FROM sample_controls WHERE sample_type = 'purified rna';
 
+-- ---------------------------------------------------------------------------------------
+-- Section below executed on server 2012-03-28
+-- ---------------------------------------------------------------------------------------
 
+ALTER TABLE order_lines
+   MODIFY `sample_aliquot_precision` varchar(100) DEFAULT NULL;
+ALTER TABLE order_lines_revs
+   MODIFY `sample_aliquot_precision` varchar(100) DEFAULT NULL;
 
+SET @tissue_tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'tube' AND flag_active = '1' AND sample_control_id = (SELECT ID FROM sample_controls WHERE sample_type = 'tissue'));
+SET @tissue_block_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE aliquot_type = 'block' AND flag_active = '1' AND sample_control_id = (SELECT ID FROM sample_controls WHERE sample_type = 'tissue'));
+SELECT @tissue_tube_aliquot_control_id as 1, @tissue_block_aliquot_control_id as 2;
+INSERT INTO realiquoting_controls (	parent_aliquot_control_id, child_aliquot_control_id, flag_active ) VALUES (@tissue_block_aliquot_control_id, @tissue_tube_aliquot_control_id, '1');
 
+UPDATE ad_tubes SET tmp_storage_solution='DMSO + serum' WHERE tmp_storage_solution='DMSO + Serum'; 
+UPDATE ad_tubes_revs SET tmp_storage_solution='DMSO + serum' WHERE tmp_storage_solution='DMSO + Serum';
 
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tissue_storage_solution"), (SELECT id FROM structure_permissible_values WHERE value="DMSO + serum" AND language_alias="DMSO + serum"), "3", "1");
 
