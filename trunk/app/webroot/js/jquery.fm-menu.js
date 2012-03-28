@@ -15,6 +15,7 @@ var FmMenu = function(menuButton){
 	this.makeSelectionVisible = FmMenu.prototype.makeSelectionVisible;
 	this.liTopOffset = null;
 	this.liBottomOffset = null;
+	this.typingSearch = '';
 	$(menuButton).data('FmMenu', this);
 };
 
@@ -36,6 +37,7 @@ jQuery.fn.fmMenu = function(options){
 		'<span class="jqButtonLabel"><span class="jqDefaultLabel">' + options.defaultLabel + '</span></span><span class="ui-icon ui-icon-triangle-1-s" style="display: inline-block; vertical-align: middle;"></span>'
 		+ '<div class="jqMenuContent ui-widget ui-widget-content ui-corner-all fg-menu-flyout">'
 		+ '<div class="jqMenuBack ui-state-default ui-corner-all"><span class="ui-icon ui-icon-triangle-1-w" style="display: inline-block; vertical-align: middle;"></span><span>' + options.strBack + '</span></div>'
+		+ '<input class="jqMenuInput" type="text"/>'
 		+ '<div class="jqMenuScroll">'
 		+ '</div>'
 		+ '</div>'
@@ -56,11 +58,11 @@ jQuery.fn.fmMenu = function(options){
 			//a sub menu was selected
 			$(this).parents("ul:first").hide();
 			fmMenu.menuButton.find(".jqMenuBack").show();
-			fmMenu.menuButton.find("input").val("");
+			fmMenu.menuButton.find("input[type=hidden]").val("");
 			tagDrilldown = true;
 		}else{
 			//a value was selected
-			fmMenu.menuButton.find("input").val($(this).data('value'));
+			fmMenu.menuButton.find("input[type=hidden]").val($(this).data('value'));
 			tagDrilldown = false;
 		}
 		
@@ -86,7 +88,9 @@ jQuery.fn.fmMenu = function(options){
 		
 		fmMenu.selectedLi = null;
 		fmMenu.menuButton.find("li.ui-state-hover:visible").removeClass("ui-state-hover");
+		fmMenu.typingSearch = '';
 		event.stopPropagation();
+		$(".jqMenuInput").focus();
 	}).hover(function(){
 			fmMenu.menuButton.find("li").removeClass("ui-state-hover"); 
 			fmMenu.selectedLi = $(this).addClass("ui-state-hover");},
@@ -97,7 +101,7 @@ jQuery.fn.fmMenu = function(options){
 	//back button action
 	this.find(".jqMenuBack").click(function(event){
 		fmMenu.menuButton.find("." + $(".jqMenuScroll ul:visible").hide().data('grand-parent-name')).show();
-		fmMenu.menuButton.find("input").val("");
+		fmMenu.menuButton.find("input[type=hidden]").val("");
 		if(fmMenu.menuButton.find(".jqMenuScroll ul:visible").data('grand-parent-name') == null){
 			fmMenu.menuButton.find(".jqMenuBack").hide();
 		}
@@ -117,6 +121,8 @@ jQuery.fn.fmMenu = function(options){
 			fmMenu.selectedLi = null;
 		}
 		event.stopPropagation();
+		fmMenu.typingSearch = '';
+		$(".jqMenuInput").focus();
 	}).hover(function(){$(this).addClass("ui-state-hover");},function(){$(this).removeClass("ui-state-hover");}
 	).mousedown(function(){$(this).addClass("ui-state-active");}
 	).mouseup(function(){$(this).removeClass("ui-state-active");});
@@ -125,9 +131,10 @@ jQuery.fn.fmMenu = function(options){
 		.click(function(event){
 			$(this).addClass("ui-state-active").find(".jqMenuContent").show(); 
 			event.stopPropagation();
-			$(document).focus().keydown(fmMenu, fmMenu.handleKeys);
+			$(".jqMenuInput").focus();
 	});
 	$("html").click(function(){fmMenu.closeMenu();});
+	$(".jqMenuInput").keydown(fmMenu, fmMenu.handleKeyDown).bind('input', fmMenu, fmMenu.handleKeyUp);
 };
 
 /**
@@ -139,16 +146,19 @@ jQuery.fn.fmMenu = function(options){
  */
 FmMenu.prototype.buildMenuRecur = function(menuData, parentName, grandParentName, displayFunction){
 	var options = '';
+	var indexedLi = new Array();
+	var index = 0;
 	for(i in menuData){
 		var currentName = parentName + '_' + i;
 		var display = displayFunction ? displayFunction(menuData[i]) : menuData[i].label; 
 		options += '<li class="ui-widget ui-corner-all" data-child-name="' + currentName + '" data-value="' + menuData[i].value + '" data-label="' + menuData[i].label + '"><span class="cell" style="width: 100%;">' + display + '</span><span class="cell">' + (menuData[i].children ? '<span class="ui-icon ui-icon-triangle-1-e" style="display: inline-block; vertical-align: middle;"></span>' : '') + '</span></li>';
+		indexedLi[index ++] = menuData[i].label.toUpperCase(); 
 		if(menuData[i].children){
 			this.buildMenuRecur(menuData[i].children, currentName, parentName, displayFunction);
 		}
 	}
 
-	$(this.menuButton).find(".jqMenuScroll").append('<ul class="' + parentName + '" data-grand-parent-name="' + grandParentName + '">' + options + '</ul>');
+	$(this.menuButton).find(".jqMenuScroll").append('<ul class="' + parentName + '" data-grand-parent-name="' + grandParentName + '">' + options + '</ul>').find("ul:last").data('indexedLi', indexedLi);
 };
 
 /**
@@ -156,7 +166,7 @@ FmMenu.prototype.buildMenuRecur = function(menuData, parentName, grandParentName
  */
 FmMenu.prototype.closeMenu = function(){
 	$(this.menuButton).removeClass("ui-state-active").find(".jqMenuContent").hide();
-	if($(this.menuButton).find("input").val() == ""){
+	if($(this.menuButton).find("input[type=hidden]").val() == ""){
 		$(this.menuButton).find("span.jqButtonLabel span:not(:first-child)").remove();
 		$(this.menuButton).find("span.jqButtonLabel span").show();
 		$(this.menuButton).find(".jqMenuScroll ul").hide();
@@ -165,7 +175,6 @@ FmMenu.prototype.closeMenu = function(){
 		this.menuButton.find("li.ui-state-hover").removeClass("ui-state-hover");
 		this.selectedLi = null;
 	}
-	$(document).unbind('keydown', this.handleKeys);
 };
 
 /**
@@ -173,10 +182,55 @@ FmMenu.prototype.closeMenu = function(){
  * @param event
  * @returns
  */
-FmMenu.prototype.handleKeys = function(event){
+FmMenu.prototype.handleKeyDown = function(event){
 	event.stopPropagation();
 	if(event.data.keyFunction[event.keyCode]){
+		event.data.typingSearch = '';
+		$(event.data.menuButton).find(".jqMenuInput").val("");
 		return event.data.keyFunction[event.keyCode](event);
+	}
+};
+
+/**
+ * Handles typing search for items
+ * @param event
+ */
+FmMenu.prototype.handleKeyUp = function(event){
+	var indexedLi = event.data.menuButton.find(".jqMenuScroll ul:visible").data('indexedLi');
+	var lookFor = event.data.menuButton.find(".jqMenuInput").val().toUpperCase();
+	if(lookFor.length > 0){
+		var found = find(indexedLi, lookFor, event.data);
+		if(!found && lookFor.length > 1){
+			//first find fail, try to search only with the last inputed char
+			event.data.menuButton.find(".jqMenuInput").val(lookFor.substr(lookFor.length - 1));
+			lookFor = event.data.menuButton.find(".jqMenuInput").val().toUpperCase();
+			found = find(indexedLi, lookFor, event.data);
+		}
+		if(!found){
+			//nothing was found, clear the input
+			event.data.menuButton.find(".jqMenuInput").val("");
+		}
+	}
+	
+	/**
+	 * Searches for an item, given a search string
+	 * @param indexedLi
+	 * @param lookFor
+	 * @param fmMenu
+	 * @returns {Boolean}
+	 */
+	function find(indexedLi, lookFor, fmMenu){
+		for(i in indexedLi){
+			if(lookFor == indexedLi[i].substr(0, lookFor.length)){
+				++i;
+				fmMenu.selectedLi = event.data.menuButton.find(".jqMenuScroll ul:visible li:nth-child(" + i + ")");
+				fmMenu.selectedLi.siblings().removeClass("ui-state-hover");
+				fmMenu.selectedLi.addClass("ui-state-hover");
+				fmMenu.makeSelectionVisible();
+				return true;
+			}
+		}
+		return false;
 	}
 };
 
@@ -212,6 +266,7 @@ FmMenu.prototype.keyFunction[32] = function(event){ return event.data.keySelect(
 FmMenu.prototype.keyFunction[39] = function(event){ return event.data.keySelect(); };//right arrow
 FmMenu.prototype.keyFunction[27] = function(event){ return event.data.keyBack(); };//esc
 FmMenu.prototype.keyFunction[37] = function(event){ return event.data.keyBack(); };//left arrow
+FmMenu.prototype.keyFunction[8] = function(event){ return event.data.keyBack(); };//left arrow
 FmMenu.prototype.keyFunction[38] = function(event){
 	//up key
 	if(event.data.selectedLi){
@@ -259,22 +314,24 @@ FmMenu.prototype.keyFunction[40] = function(event){
  * Scrolls the pane to make the selection visible
  */
 FmMenu.prototype.makeSelectionVisible = function(){
-	if(this.liTopOffset == null){
-		this.liBottomOffset = parseInt(this.selectedLi.css("padding-bottom")) + parseInt(this.selectedLi.css('border-bottom-width')) + parseInt(this.selectedLi.css("padding-top")) + parseInt(this.selectedLi.css('border-top-width'));
-	}
-	var eMin = this.selectedLi.offset().top;
-	var eMax = eMin + this.selectedLi.height() + this.liBottomOffset;
-	var scrollNode = $(this.menuButton).find(".jqMenuScroll");
-	var scrollNodeTop = scrollNode.offset().top;
-	var scrollNodeBottom = scrollNodeTop + scrollNode.height();
-	if(eMin < scrollNodeTop){
-		//scroll up
-		scrollNode.scrollTop(scrollNode.scrollTop() + eMin - scrollNodeTop);
-	}else if(eMax > scrollNodeBottom){
-		//scroll down
-		scrollNode.scrollTop(scrollNode.scrollTop() + eMax - scrollNodeBottom);
-		eMin = this.selectedLi.offset().top;
-		eMax = eMin + this.selectedLi.height();
+	if(this.selectedLi){
+		if(this.liTopOffset == null){
+			this.liBottomOffset = parseInt(this.selectedLi.css("padding-bottom")) + parseInt(this.selectedLi.css('border-bottom-width')) + parseInt(this.selectedLi.css("padding-top")) + parseInt(this.selectedLi.css('border-top-width'));
+		}
+		var eMin = this.selectedLi.offset().top;
+		var eMax = eMin + this.selectedLi.height() + this.liBottomOffset;
+		var scrollNode = $(this.menuButton).find(".jqMenuScroll");
+		var scrollNodeTop = scrollNode.offset().top;
+		var scrollNodeBottom = scrollNodeTop + scrollNode.height();
+		if(eMin < scrollNodeTop){
+			//scroll up
+			scrollNode.scrollTop(scrollNode.scrollTop() + eMin - scrollNodeTop);
+		}else if(eMax > scrollNodeBottom){
+			//scroll down
+			scrollNode.scrollTop(scrollNode.scrollTop() + eMax - scrollNodeBottom);
+			eMin = this.selectedLi.offset().top;
+			eMax = eMin + this.selectedLi.height();
+		}
 	}
 };
 
