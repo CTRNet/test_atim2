@@ -48,7 +48,7 @@ jQuery.fn.fmMenu = function(options){
 	fmMenu.buildMenuRecur(options.data, 0, null, options.displayFunction);
 	
 	//start with the top menu
-	this.find(".jqMenuScroll ul.0").show();
+	this.css('text-decoration', 'none').find(".jqMenuScroll ul.0").show();
 	
 	//bind click command on menu options
 	this.find(".jqMenuScroll li").click(function(event){
@@ -127,11 +127,23 @@ jQuery.fn.fmMenu = function(options){
 	).mousedown(function(){$(this).addClass("ui-state-active");}
 	).mouseup(function(){$(this).removeClass("ui-state-active");});
 	
-	this.hover(function(){$(this).addClass("ui-state-hover");},function(){$(this).removeClass("ui-state-hover");})
-		.click(function(event){
-			$(this).addClass("ui-state-active").find(".jqMenuContent").show(); 
-			event.stopPropagation();
-			$(".jqMenuInput").focus();
+	this.hover(function(){$(this).addClass("ui-state-hover");},function(){$(this).removeClass("ui-state-hover");
+	}).click(function(event){
+		$(this).addClass("ui-state-active").find(".jqMenuContent").show(); 
+		event.stopPropagation();
+		$(".jqMenuInput").focus();
+		return false;
+	}).focus(function(){
+		$(this).addClass("ui-state-focus");
+	}).blur(function(){
+		if($(this).find(".jqMenuScroll:visible").length == 0){
+			$(this).removeClass("ui-state-focus");
+		}
+	}).keydown(function(event){
+		if(event.keyCode == 32 || event.keyCode == 38 || event.keyCode == 40){
+			//if space, up or down
+			$(this).click();
+		}
 	});
 	$("html").click(function(){fmMenu.closeMenu();});
 	$(".jqMenuInput").keydown(fmMenu, fmMenu.handleKeyDown).bind('input', fmMenu, fmMenu.handleKeyUp);
@@ -241,6 +253,7 @@ FmMenu.prototype.handleKeyUp = function(event){
 FmMenu.prototype.keySelect = function(){
 	if(this.selectedLi){
 		this.selectedLi.click();
+		this.menuButton.focus();
 	}
 	return false;
 };
@@ -255,6 +268,7 @@ FmMenu.prototype.keyBack = function(){
 		this.makeSelectionVisible();
 	}else{
 		this.closeMenu();
+		this.menuButton.focus();
 	}
 	return false;
 };
@@ -266,7 +280,8 @@ FmMenu.prototype.keyFunction[32] = function(event){ return event.data.keySelect(
 FmMenu.prototype.keyFunction[39] = function(event){ return event.data.keySelect(); };//right arrow
 FmMenu.prototype.keyFunction[27] = function(event){ return event.data.keyBack(); };//esc
 FmMenu.prototype.keyFunction[37] = function(event){ return event.data.keyBack(); };//left arrow
-FmMenu.prototype.keyFunction[8] = function(event){ return event.data.keyBack(); };//left arrow
+FmMenu.prototype.keyFunction[8] = function(event){ return event.data.keyBack(); };//backspace arrow
+FmMenu.prototype.keyFunction[9] = function(event){ return event.data.closeMenu(); };//tab
 FmMenu.prototype.keyFunction[38] = function(event){
 	//up key
 	if(event.data.selectedLi){

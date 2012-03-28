@@ -970,6 +970,11 @@ class AppController extends Controller {
 			$this->redirect('/Users/login');
 		}
 	}
+	
+	function configureCsv($config){
+		$this->csv_config = $config;
+		$this->Session->write('Config.language', $config['config_language']);
+	}
 }
 	
 	AppController::init();

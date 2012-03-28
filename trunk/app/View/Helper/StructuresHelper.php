@@ -1123,6 +1123,10 @@ class StructuresHelper extends Helper {
 		$options['type'] = 'csv';//go back to csv
 		
 		if(is_array($table_structure) && count($data)){
+			if(isset(AppController::getInstance()->csv_config)){
+				$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
+			}
+			
 			//header line
 			$line = array();
 			if($options['settings']['csv_header']){
@@ -1178,7 +1182,7 @@ class StructuresHelper extends Helper {
 			}
 		}
 		
-		echo $this->Csv->render($options['settings']['csv_header'], csv_encoding);
+		echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 	}
 
 

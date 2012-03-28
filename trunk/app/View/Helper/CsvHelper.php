@@ -6,6 +6,7 @@ class CsvHelper extends AppHelper {
     var $filename = 'export'; 
     var $line = array(); 
     var $buffer; 
+    var $csv_separator = csv_separator;
      
     function CsvHelper() { 
         $this->clear(); 
@@ -26,7 +27,7 @@ class CsvHelper extends AppHelper {
     } 
      
     function addRow($row) { 
-        fputcsv($this->buffer, $row, csv_separator, $this->enclosure); 
+        fputcsv($this->buffer, $row, $this->csv_separator, $this->enclosure); 
     } 
      
     function renderHeaders() { 
@@ -59,7 +60,5 @@ class CsvHelper extends AppHelper {
             $output = mb_convert_encoding($output, $to_encoding, $from_encoding); 
         } 
         return $this->output($output); 
-    } 
+    }
 } 
-
-?>
