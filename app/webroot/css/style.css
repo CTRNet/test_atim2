@@ -2011,6 +2011,13 @@ tr.chkLine, table.columns.index tbody tr.chkLine:nth-child(even){
 	display: none;
 }
 
+.jqMenuInput{
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	top: -50px;
+}
+
 .jqMenuScroll ul li{
 	margin-top: 4px;	
 	border: solid transparent 1px;
