@@ -69,7 +69,7 @@
 	}
 	$links['top'] = $top;
 	
-	$extras = array('end' => '<div id="actionsTarget"></div>');
+	$extras = array('end' => '<a id="actionsTarget"></a>');
 	if(isset($node_id)){
 		$extras['end'] .= $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
 	}
