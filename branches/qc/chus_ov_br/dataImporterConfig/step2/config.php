@@ -232,12 +232,27 @@ function addonFunctionEnd(){
 
 	// ADD PATIENT OTHER DATA
 	
-//TODO	uncomment
+//TODO	addPatientsHistory();
+//TODO	addFamilyHistory();
+  	addCollections();
 
-//	addPatientsHistory();
-//	addFamilyHistory();
-  addCollections();
-					
+  	// INVENTORY COMPLETION
+		
+	$query = "UPDATE sample_masters SET sample_code=id;";
+	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE sample_masters_revs SET sample_code=id;";
+	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	
+	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	
+	$query = "UPDATE aliquot_masters SET barcode=id;";
+	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
+	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	
 	// WARNING DISPLAY
 
 	echo "<br><br><FONT COLOR=\"blue\" >
@@ -288,8 +303,8 @@ function addonFunctionEnd(){
 	
 	echo "<br>";
 //TODO
-pr('exit before todo');
-exit;		
+//pr('exit before todo');exit;
+		
 
 }
 
@@ -930,7 +945,7 @@ function pr($arr) {
 	print_r($arr);
 }
 
-function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false) {
+function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false, $flush_empty_fields = false) {
 	global $connection;
 	$created = $is_detail_table? array() : array(
 		"created"		=> "NOW()", 
@@ -938,6 +953,14 @@ function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false
 		"modified"		=> "NOW()",
 		"modified_by"	=> Config::$db_created_id
 	);
+	
+	if($flush_empty_fields) {
+		$tmp = array();
+		foreach($data_arr as $key => $value) {
+			if(strlen($value) && ($value != "''")) $tmp[$key] = $value;
+		}
+		$data_arr = $tmp;
+	}
 	
 	$insert_arr = array_merge($data_arr, $created);
 	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
@@ -985,26 +1008,37 @@ function getDateAndAccuracy($date) {
 //=========================================================================================================
 
 function addCollections() {
+	global $next_sample_code;
+	$next_sample_code = 1;
+	global $next_aliquot_code;
+	$next_aliquot_code = 1;
 	global $storage_list;
-	global $collections_to_create;
-	
-	
 	$storage_list = array();
-	$collections_to_create = array();
+	global $shipping_list;
+	$shipping_list = array();
 	
 	// ASCITE & TISSUE
 	
-	loadAscite2mlCollection();
-
+	$collections_to_create = array();
 	
-	pr($collections_to_create);
-	exit;
+	$collections_to_create = loadAscite2mlCollection($collections_to_create);
+	$collections_to_create = loadAscite10mlCollection($collections_to_create);
+	$collections_to_create = loadTissueCollection($collections_to_create);
+	//TODO tissue
+	createCollection($collections_to_create);
+
+	// 
+	
+	$collections_to_create = array();
+		
+//	pr($collections_to_create);
+//	exit;
 	
 	
 	
 }
 
-function loadAscite2mlCollection() {
+function loadAscite2mlCollection($collections_to_create) {
 	global $collections_to_create;
 		
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
@@ -1071,7 +1105,7 @@ function loadAscite2mlCollection() {
 				$collection_date_accuracy = 'h';
 			}
 			
-			$collection_key = "participant_id=$participant_id#misc_identifier_id=".empty($misc_identifier_id)?'':$misc_identifier_id."#diagnosis_master_id=".empty($diagnosis_master_id)?'':$diagnosis_master_id."#date=$collection_date";
+			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
 			
 			if(!isset($collections_to_create[$collection_key])) {
 				$collections_to_create[$collection_key] = array(
@@ -1081,8 +1115,8 @@ function loadAscite2mlCollection() {
 						'diagnosis_master_id' => $diagnosis_master_id,
 						'consent_master_id' => $consent_master_id),
 					'collection' => array(
-						'collection_date' => $collection_date, 
-						'collection_date_accuracy' => $collection_date_accuracy),
+						'collection_datetime' => "'$collection_date'", 
+						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
 					'inventory' => array());
 			}
 			
@@ -1091,25 +1125,25 @@ function loadAscite2mlCollection() {
 			$line_data['Heure Réception'] = str_replace('ND','',$line_data['Heure Réception']);
 			if(!empty($line_data['Heure Réception']) && empty($collection_date)) die('ERR 890003');
 			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] 890004 be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
-			$reception_datetime = (!empty($collection_date) && !empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : '';
-			$reception_datetime_accuracy = (!empty($reception_datetime))? 'c' : '';
+			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
+			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : 'h';
 			
 			if(!isset($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime])) {
-				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_masters'] = array('sample_type' => 'ascite');
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_masters'] = array();
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array('reception_datetime' => $reception_datetime, 'reception_datetime_accuracy' => $reception_datetime_accuracy);
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['aliquots'] = array();
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives'] = array();
 			}
 			
 			// Ascite supernatant
 			
-			if(!isset($collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'])) {
-				$collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'][0]['sample_masters'] = array('sample_type' => 'ascite supernatant');
-				$collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'][0]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'][0]['derivative_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'][0]['aliquots'] = array();
-				$collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'][0]['derivatives'] = array();
+			if(!isset($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'])) {
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['sample_masters'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['sample_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['derivative_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['derivatives'] = array();
 			}			
 			
 			// Ascite supernatant Tube
@@ -1133,7 +1167,29 @@ function loadAscite2mlCollection() {
 				die('ERR ['.$line_counter.'] 99994884');
 			}
 			
-			$aliquot_to_create = array();
+			if(!empty($collection_date) && !empty($storage_datetime)) {
+				$collection_date_tmp = str_replace(array(' ', ':', '-'), array('','',''), $collection_date);
+				$storage_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $storage_datetime);
+				if($storage_datetime_tmp < $collection_date_tmp) Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
+			}
+			
+			$remisage = str_replace(array(' ','ND'), array('',''), $line_data['Temps au remisage (H)']);
+			if(!empty($remisage)) {
+				if(!in_array($remisage, array('<1h','1h<<4h','4h<','<8h'))) {
+					if(preg_match('/^00:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '<1h';
+					} else if(preg_match('/^0[1-3]:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '1h<<4h';
+					} else if(preg_match('/^0[4-7]:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '<8h';
+					} else {
+						Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Remisage error'][] = "unsupported remisage value : $remisage (be sure cell custom format is h:mm)! [line: $line_counter]";
+						$remisage = '';
+					}
+				}
+			}			
+			
+			$created_aliquots = 0;
 			if(!empty($line_data['Emplacement'])) {
 				// Created stored aliquot
 				if(empty($line_data['Boite'])) die('ERR  ['.$line_counter.'] 88990373'.$line_data['Boite'].'//'.$line_data['Emplacement']);
@@ -1161,22 +1217,23 @@ function loadAscite2mlCollection() {
 				}
 				
 				foreach($stored_aliquots_positions as $new_pos) {
-					$aliquot_to_create[] = array(
+					$created_aliquots++;
+					$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][] = array(
 						'aliquot_masters' => array(
-							'aliquot_label' => $aliquot_label, 
-							'aliquot_type' => 'tube',
-							'initial_volume' => "1",
-							'current_volume' => "1",
-							'in_stock' => "yes - available",
-							'storage_master_id' => $storage_master_id,
-							'storage_datetime' => $storage_datetime,
-							'storage_datetime_accuracy' => $storage_datetime_accuracy,
-							'storage_coord_x' => $new_pos,
-							'storage_coord_y' => '',
-							'chus_time_limit_of_storage' => ''),
-//TODO chus_time_limit_of_storage					
+							'aliquot_label' => "'$aliquot_label'", 
+							'initial_volume' => "'1'",
+							'current_volume' => "'1'",
+							'in_stock' => "'yes - available'",
+							'storage_master_id' => "'$storage_master_id'",
+							'storage_datetime' => "'$storage_datetime'",
+							'storage_datetime_accuracy' => "'$storage_datetime_accuracy'",
+							'storage_coord_x' => "'$new_pos'",
+							'storage_coord_y' => "''",
+							'chus_time_limit_of_storage' => "''",
+							'chus_time_limit_of_storage' => "'$remisage'"),				
 						'aliquot_details' => array(),
-						'aliquot_internal_uses' => array()
+						'aliquot_internal_uses' => array(),
+						'shippings' => array()
 					);
 				}
 			}
@@ -1187,32 +1244,34 @@ function loadAscite2mlCollection() {
 				
 				$generic_aliquot_used_data = array(
 					'aliquot_masters' => array(
-						'aliquot_label' => $aliquot_label, 
-						'aliquot_type' => 'tube',
-						'initial_volume' => "1",
-						'current_volume' => "1",
-						'in_stock' => "no",
-						'storage_master_id' => '',
-						'storage_datetime' => '',
-						'storage_datetime_accuracy' => '',
-						'storage_coord_x' => '',
-						'storage_coord_y' => '',
-						'chus_time_limit_of_storage' => ''),
-//TODO chus_time_limit_of_storage					
-					'aliquot_details' => array());
+						'aliquot_label' => "'$aliquot_label'", 
+						'initial_volume' => "'1'",
+						'current_volume' => "'1'",
+						'in_stock' => "'no'",
+						'in_stock_detail' => "'shipped'",
+						'storage_master_id' => "''",
+						'storage_datetime' => "'$storage_datetime'",
+						'storage_datetime_accuracy' => "'$storage_datetime_accuracy'",
+						'storage_coord_x' => "''",
+						'storage_coord_y' => "''",
+						'chus_time_limit_of_storage' => "''",
+						'chus_time_limit_of_storage' => "'$remisage'"),				
+					'aliquot_details' => array(),
+					'aliquot_internal_uses' => array());
 			
 				$aliquot_used_nbr = $line_data['Use#'];
 				$used_aliquots_counter = 0;
 				
-				if(preg_match('/^([0-9]+) (.*) (19|20)([0-9]{2}\-[0-1][0-9])$/', $line_data['Dons1'], $matches)) {
+				if(preg_match('/^([0-9]+) (Aris|TFRI) (19|20)([0-9]{2}\-[0-1][0-9])$/', $line_data['Dons1'], $matches)) {
 					for($i = 0; $i < $matches[1]; $i++) {
 						$used_aliquots_counter++;
-						$aliquot_to_create[] = array_merge(
+						$created_aliquots++;
+						$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][] = array_merge(
 							$generic_aliquot_used_data, 
-							array('aliquot_internal_uses' => array(
-								'use_code' => 'Dons : '.$matches[2],
-								'use_datetime' => $matches[3].$matches[4].'-01 00:00:00',
-								'use_datetime_accuracy' => 'd'))
+							array('shippings' => array(
+								'recipient' => "'".$matches[2]."'",
+								'shipping_datetime' => "'".$matches[3].$matches[4]."-01 00:00:00'",
+								'shipping_datetime_accuracy' => "'d'"))
 						);						
 					}
 				} else {
@@ -1220,15 +1279,16 @@ function loadAscite2mlCollection() {
 				}
 				
 				if(!empty($line_data['Dons2'])) {
-					if(preg_match('/^([0-9]+) (.*) (19|20)([0-9]{2}\-[0-1][0-9])$/', $line_data['Dons2'], $matches)) {
+					if(preg_match('/^([0-9]+) (Aris|TFRI) (19|20)([0-9]{2}\-[0-1][0-9])$/', $line_data['Dons2'], $matches)) {
 						for($i = 0; $i < $matches[1]; $i++) {
 							$used_aliquots_counter++;
-							$aliquot_to_create[] = array_merge(
+							$created_aliquots++;
+							$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][] = array_merge(
 								$generic_aliquot_used_data, 
-								array('aliquot_internal_uses' => array(
-									'use_code' => 'Dons : '.$matches[2],
-									'use_datetime' => $matches[3].$matches[4].'-01 00:00:00',
-									'use_datetime_accuracy' => 'd'))
+								array('shippings' => array(
+									'recipient' => "'".$matches[2]."'",
+									'shipping_datetime' => "'".$matches[3].$matches[4]."-01 00:00:00'",
+									'shipping_datetime_accuracy' => "'d'"))
 							);				
 						}
 					} else {
@@ -1242,12 +1302,553 @@ function loadAscite2mlCollection() {
 				die('ERR ['.$line_counter.'] 8899944 ['.$line_data['Dons2'].']');
 			}
 			
-			if(sizeof($aliquot_to_create) != $expected_nbr_of_tubes) Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Tube defintion error'][] = "The number of tubes defined into Qté ($expected_nbr_of_tubes) is different than the number of created tubes (".sizeof($aliquot_to_create).")! [line: $line_counter]";
-		
-			$collections_to_create[$collection_key]['inventory']['ascite']['derivatives']['ascite supernatant'][0]['aliquots'] = $aliquot_to_create;
+			if($created_aliquots != $expected_nbr_of_tubes) Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Tube defintion error'][] = "The number of tubes defined into Qté ($expected_nbr_of_tubes) is different than the number of created tubes ($created_aliquots)! [line: $line_counter]";
 		}
 	}
+	
+	return $collections_to_create;
 }
+
+function loadAscite10mlCollection($collections_to_create) {
+	global $collections_to_create;
+		
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
+	$tmp_xls_reader->read( Config::$xls_file_path);
+	
+	$sheets_nbr = array();
+	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	if(!array_key_exists('Ascite Disponible (10ml)', $sheets_nbr)) die("ERROR: Worksheet Ascite Disponible (10ml) is missing!\n");
+
+	$headers = array();
+	$line_counter = 0;
+	foreach($tmp_xls_reader->sheets[$sheets_nbr['Ascite Disponible (10ml)']]['cells'] as $line => $new_line) {	
+		$line_counter++;
+		if($line_counter == 1) {
+			// HEADER
+			$headers = $new_line;
+		
+		} else {
+			
+			// SET DATA ARRAY
+			
+			$line_data = array();
+			$frsq_nbr = '';
+			foreach($headers as $key => $field) {
+				if(isset($new_line[$key])) {
+					$line_data[utf8_encode($field)] = $new_line[$key];
+				} else {
+					$line_data[utf8_encode($field)] = '';
+				}
+			}	
+
+			if(empty($line_data['Qté'])) {
+				Config::$summary_msg['ASCITE 10 ml']['@@ERROR@@']['Empty Qté'][] = "No Qté: Row data won't be migrated! [line: $line_counter]";
+				continue;
+			}
+			
+			// GET Participant Id & Misci Identifier Id & FRSQ Nbr
+			
+			if(empty($line_data['Échantillon']) && empty($line_data['#FRSQ'])) {
+				Config::$summary_msg['ASCITE 10 ml']['@@ERROR@@']['No FRSQ # & Échantillon value'][] = "No FRSQ# & Échantillon values. Data won't be migrated! [line: $line_counter]";
+				continue;
+			}
+			
+			$echantillon_value = preg_replace('/ +$/','',$line_data['Échantillon']);
+			$frsq_value = preg_replace('/ +$/','',$line_data['#FRSQ']);
+			
+			$ids = getParticipantIdentifierAndDiagnosisIds('ASCITE 10 ml', $line_counter, $frsq_value, $echantillon_value);
+			if(empty($ids)) continue;
+			
+			$participant_id = $ids['participant_id'];
+			$misc_identifier_id = $ids['misc_identifier_id'];
+			$diagnosis_master_id = $ids['diagnosis_master_id'];
+
+			// GET CONSENT_MASTER_ID	
+					
+			$consent_master_id = isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'])? Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] : null;
+	
+			// Collection
+			
+			$collection_date = '';
+			$collection_date_accuracy = '';
+			if(!empty($line_data['Date collecte'])) {
+				$collection_date = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$collection_date_accuracy = 'h';
+			}
+			
+			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
+			
+			if(!isset($collections_to_create[$collection_key])) {
+				$collections_to_create[$collection_key] = array(
+					'link' => array(
+						'participant_id' => $participant_id, 
+						'misc_identifier_id' => $misc_identifier_id, 
+						'diagnosis_master_id' => $diagnosis_master_id,
+						'consent_master_id' => $consent_master_id),
+					'collection' => array(
+						'collection_datetime' => "'$collection_date'", 
+						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
+					'inventory' => array());
+			}
+			
+			// Ascite
+			
+			$line_data['Heure Réception'] = str_replace('ND','',$line_data['Heure Réception']);
+			if(!empty($line_data['Heure Réception']) && empty($collection_date)) die('ERR 890wwww003');
+			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] 890rqrqrq004 be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
+			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
+			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : $collection_date_accuracy;
+			
+			if(!isset($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime])) {
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_masters'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['aliquots'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives'] = array();
+			}
+			
+			// Ascite supernatant
+			
+			if(!isset($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'])) {
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['sample_masters'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['sample_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['derivative_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'] = array();
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['derivatives'] = array();
+			}			
+			
+			// Ascite supernatant Tube
+					
+			$aliquot_label = $line_data['Échantillon'];
+			
+			$storage_datetime = '';
+			$storage_datetime_accuracy = '';
+			$line_data['Heure congélation'] = str_replace('ND','',$line_data['Heure congélation']);
+			if(!empty($line_data['Date collecte'])) {
+				$storage_datetime = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$storage_datetime_accuracy = 'h';
+				if(!empty($line_data['Heure congélation'])) {
+					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure congélation'], $matches)) die('ERR  ['.$line_counter.'] 89000eqweddd4');
+					$storage_datetime = str_replace('00:00:00', $line_data['Heure congélation'].':00', $storage_datetime);
+					$storage_datetime_accuracy = 'c';
+				}
+			} else if(!empty($line_data['Heure congélation'])) {
+				die('ERR ['.$line_counter.'] 99994www884');
+			}
+			
+			$remisage = str_replace(array(' ','ND'), array('',''), $line_data['Temps au remisage']);
+			if(!empty($remisage)) {
+				if(!in_array($remisage, array('<1h','1h<<4h','4h<','<8h'))) {
+					if(preg_match('/^00:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '<1h';
+					} else if(preg_match('/^0[1-3]:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '1h<<4h';
+					} else if(preg_match('/^0[4-7]:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '<8h';
+					} else {
+						Config::$summary_msg['ASCITE 10 ml']['@@ERROR@@']['Remisage error'][] = "unsupported remisage value : $remisage (be sure cell custom format is h:mm)! [line: $line_counter]";
+						$remisage = '';
+					}
+				}	
+			}		
+			
+			$created_aliquots = 0;
+			$ascite_volume = $line_data['Qté'];
+			if(!preg_match('/^[0-9]*$/', $ascite_volume, $matches)) die('ERR 9994849944 ' . $ascite_volume);
+			if(!empty($line_data['Emplacement'])) {
+				// Created stored aliquot
+				if(empty($line_data['Boite'])) die('ERR  ['.$line_counter.'] 88990rrr373'.$line_data['Boite'].'//'.$line_data['Emplacement']);
+				
+				$storage_master_id = getStorageId('ascite_10_ml', 'box49', $line_data['Boite']);
+				
+				$stored_aliquots_positions = array();
+				$emplacement_tmp = str_replace(array(' ','.'), array('',','), $line_data['Emplacement']);
+				if(preg_match('/^0([1-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions[] = $matches[1];
+				} else if(preg_match('/^([1-9]|[1-4][0-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions[] = $matches[1];
+				} else if(preg_match('/^([1-9],|[1-4][0-9],)+([1-9]|[1-4][0-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions = explode(',',$emplacement_tmp);
+				} else if(preg_match('/^(0[1-9]|[1-9]|[1-4][0-9])-(0[1-9]|[1-9]|[1-4][0-9])$/', $emplacement_tmp, $matches)) {
+					$start = $matches[1];
+					$end  = $matches[2];
+					if($start >= $end) die('ERR ['.$line_counter.'] 89938399303 : '.$emplacement_tmp);
+					While($start <=  $end) {
+						$stored_aliquots_positions[] = $start;
+						$start++;
+					}
+				} else {
+					die('ERR  ['.$line_counter.'] 9984949494 : '.$emplacement_tmp);
+				}
+				
+				$div = sizeof($stored_aliquots_positions);
+				$div = (empty($div)? 1 : $div);
+				$ascite_volume_per_tube = $ascite_volume / $div;
+				
+				foreach($stored_aliquots_positions as $new_pos) {
+					$created_aliquots++;
+					$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][] = array(
+						'aliquot_masters' => array(
+							'aliquot_label' => "'$aliquot_label'", 
+							'initial_volume' => "'$ascite_volume_per_tube'",
+							'current_volume' => "'$ascite_volume_per_tube'",
+							'in_stock' => "'yes - available'",
+							'storage_master_id' => "'$storage_master_id'",
+							'storage_datetime' => "'$storage_datetime'",
+							'storage_datetime_accuracy' => "'$storage_datetime_accuracy'",
+							'storage_coord_x' => "'$new_pos'",
+							'storage_coord_y' => "''",
+							'chus_time_limit_of_storage' => "''",
+							'chus_time_limit_of_storage' => "'$remisage'"),				
+						'aliquot_details' => array(),
+						'aliquot_internal_uses' => array(),
+						'shippings' => array()
+					);
+				}
+			} else {
+				
+				// Created unstored aliquot?
+				Config::$summary_msg['ASCITE 10 ml']['@@WARNING@@']['Creating unpositioned aliquot'][] = "Will create one tube unpositioned. See line: $line_counter";
+				
+				$storage_master_id = (!empty($line_data['Boite']))? getStorageId('ascite_10_ml', 'box49', $line_data['Boite']) : '';
+				
+				$created_aliquots++;
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][] = array(
+					'aliquot_masters' => array(
+						'aliquot_label' => "'$aliquot_label'", 
+						'initial_volume' => "'$ascite_volume'",
+						'current_volume' => "'$ascite_volume'",
+						'in_stock' => "'yes - available'",
+						'storage_master_id' => "'$storage_master_id'",
+						'storage_datetime' => "'$storage_datetime'",
+						'storage_datetime_accuracy' => "'$storage_datetime_accuracy'",
+						'storage_coord_x' => "'$new_pos'",
+						'storage_coord_y' => "''",
+						'chus_time_limit_of_storage' => "''",
+						'chus_time_limit_of_storage' => "'$remisage'"),				
+					'aliquot_details' => array(),
+					'aliquot_internal_uses' => array(),
+					'shippings' => array()
+				);
+			}
+			
+			if(!empty($line_data['Dons Volume']) || !empty($line_data['à Qui']) || !empty($line_data['Date'])) {
+				if(empty($line_data['Dons Volume']) || empty($line_data['à Qui']) || empty($line_data['Date'])) die('ERR ['.$line_counter.'] 8899edddee944');
+				if(!preg_match('/^[0-9]+$/',$line_data['Dons Volume'],$matches)) die('ERR ['.$line_counter.'] 8899eeedeeeedd944');
+				if(!preg_match('/^(19|20)([0-9]{2}\-[0-1][0-9])$/',$line_data['Date'],$matches)) die('ERR ['.$line_counter.'] 88aascc2eeeedd944');
+				if(!preg_match('/^(aliquot 1 ml)$/',$line_data['à Qui'],$matches)) die('ERR ['.$line_counter.'] 88aasccddddd2eeeedd944');
+				if($created_aliquots != 1) die('ERR ['.$line_counter.'] 88adcacadd944');
+				
+				$aliquot_internal_uses = array();
+				for($i = 0; $i < $line_data['Dons Volume']; $i++) {
+					$aliquot_internal_uses[] = array(
+						'use_code' => "'?'",
+						'used_volume' => "'1'",
+						'use_datetime' => "'".$line_data['Date']."-01 00:00:00'",
+						'use_datetime_accuracy' => "'d'"
+					);						
+				}
+				
+				$last_aliquot_key = sizeof($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots']) - 1;
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][$last_aliquot_key]['aliquot_internal_uses'] = $aliquot_internal_uses;
+				$initial_volume = $collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][$last_aliquot_key]['aliquot_masters']['initial_volume'];
+				$initial_volume = str_replace("'","",$initial_volume);
+				$initial_volume += $line_data['Dons Volume'];
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives']['ascite supernatant'][0]['aliquots'][$last_aliquot_key]['aliquot_masters']['initial_volume'] = $initial_volume;
+			}
+		}
+	}
+	
+	return $collections_to_create;
+}
+
+
+//TODO
+function loadTissueCollection($collections_to_create) {
+	global $collections_to_create;
+		
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
+	$tmp_xls_reader->read( Config::$xls_file_path);
+	
+	$sheets_nbr = array();
+	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	if(!array_key_exists('Tissus Disponible', $sheets_nbr)) die("ERROR: Worksheet Tissus Disponible is missing!\n");
+
+	$headers = array();
+	$line_counter = 0;
+	foreach($tmp_xls_reader->sheets[$sheets_nbr['Tissus Disponible']]['cells'] as $line => $new_line) {	
+		$line_counter++;
+		if($line_counter == 1) {
+			// HEADER
+			$headers = $new_line;
+		
+		} else {
+			
+			// SET DATA ARRAY
+			
+			$line_data = array();
+			$frsq_nbr = '';
+			foreach($headers as $key => $field) {
+				if(isset($new_line[$key])) {
+					$line_data[utf8_encode($field)] = $new_line[$key];
+				} else {
+					$line_data[utf8_encode($field)] = '';
+				}
+			}	
+
+			if(!empty($line_data['# FRSQ']) || !empty($line_data['Échantillon']) || strlen($line_data['Volume/Qté'])) {
+				$empty_fields = '';
+				if(empty($line_data['# FRSQ'])) $empty_fields = '# FRSQ';
+				if(empty($line_data['Échantillon'])) $empty_fields = (empty($empty_fields)? '' : ', ').'Échantillon';
+				if(!strlen($line_data['Volume/Qté'])) $empty_fields = (empty($empty_fields)? '' : ', ').'Volume/Qté';
+				if(!empty($empty_fields)) {
+					Config::$summary_msg['TISSU']['@@ERROR@@']['Empty fields'][] = "No $empty_fields: Row data won't be migrated! [line: $line_counter]";
+					continue;					
+				}
+			}
+			
+			// GET Participant Id & Misci Identifier Id & FRSQ Nbr
+					
+			$echantillon_value = preg_replace('/ +$/','',$line_data['Échantillon']);
+			$frsq_value = preg_replace('/ +$/','',$line_data['# FRSQ']);
+			
+			$ids = getParticipantIdentifierAndDiagnosisIds('TISSU', $line_counter, $frsq_value, $echantillon_value);
+			if(empty($ids)) continue;
+			
+			$participant_id = $ids['participant_id'];
+			$misc_identifier_id = $ids['misc_identifier_id'];
+			$diagnosis_master_id = $ids['diagnosis_master_id'];
+
+			// GET CONSENT_MASTER_ID	
+					
+			$consent_master_id = isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'])? Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] : null;
+	
+			// Collection
+			
+			$collection_date = '';
+			$collection_date_accuracy = '';
+			if(!empty($line_data['Date collecte'])) {
+				$collection_date = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$collection_date_accuracy = 'h';
+			}
+			
+			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
+			
+			if(!isset($collections_to_create[$collection_key])) {
+				$collections_to_create[$collection_key] = array(
+					'link' => array(
+						'participant_id' => $participant_id, 
+						'misc_identifier_id' => $misc_identifier_id, 
+						'diagnosis_master_id' => $diagnosis_master_id,
+						'consent_master_id' => $consent_master_id),
+					'collection' => array(
+						'collection_datetime' => "'$collection_date'", 
+						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
+					'inventory' => array());
+			}
+			
+			// Tissue
+			
+			$line_data['Heure Réception'] = str_replace(array('ND','?'),array('',''),$line_data['Heure Réception']);
+			if(!empty($line_data['Heure Réception']) && empty($collection_date)) die('ERR vqwqv');
+			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] fafasassa be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
+			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
+			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : $collection_date_accuracy;
+			
+			if(!isset($collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime])) {
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_masters'] = array();
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['aliquots'] = array();
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives'] = array();
+			}
+			
+			$aliquot_label = $line_data['Échantillon'];
+			
+			$storage_datetime = '';
+			$storage_datetime_accuracy = '';
+			$line_data['Heure congélation'] = str_replace('ND','',$line_data['Heure congélation']);
+			if(!empty($line_data['Date collecte'])) {
+				$storage_datetime = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$storage_datetime_accuracy = 'h';
+				if(!empty($line_data['Heure congélation'])) {
+					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure congélation'], $matches)) die('ERR  ['.$line_counter.'] 89000eqweddd4');
+					$storage_datetime = str_replace('00:00:00', $line_data['Heure congélation'].':00', $storage_datetime);
+					$storage_datetime_accuracy = 'c';
+				}
+			} else if(!empty($line_data['Heure congélation'])) {
+				die('ERR ['.$line_counter.'] 99994www884');
+			}
+			
+			$remisage = str_replace(array(' ','ND', '?'), array('','',''), $line_data['Temps au remisage']);
+			if(!empty($remisage)) {
+				if(!in_array($remisage, array('<1h','1h<<4h','4h<','<8h'))) {
+					if(preg_match('/^00:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '<1h';
+					} else if(preg_match('/^0[1-3]:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '1h<<4h';
+					} else if(preg_match('/^0[4-7]:[0-5][0-9]$/',$remisage, $matches)) {
+						$remisage = '<8h';
+					} else {
+						Config::$summary_msg['TISSU']['@@ERROR@@']['Remisage error'][] = "unsupported remisage value : $remisage (be sure cell custom format is h:mm)! [line: $line_counter]";
+						$remisage = '';
+					}
+				}	
+			}		
+			
+continue;			
+			
+			$created_aliquots = 0;
+			$tissue_volume = $line_data['Qté'];
+			if(!preg_match('/^[0-9]*$/', $tissue_volume, $matches)) die('ERR 9994849944 ' . $tissue_volume);
+			if(!empty($line_data['Emplacement'])) {
+				// Created stored aliquot
+				if(empty($line_data['Boite'])) die('ERR  ['.$line_counter.'] 88990rrr373'.$line_data['Boite'].'//'.$line_data['Emplacement']);
+				
+				$storage_master_id = getStorageId('tissue_10_ml', 'box49', $line_data['Boite']);
+				
+				$stored_aliquots_positions = array();
+				$emplacement_tmp = str_replace(array(' ','.'), array('',','), $line_data['Emplacement']);
+				if(preg_match('/^0([1-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions[] = $matches[1];
+				} else if(preg_match('/^([1-9]|[1-4][0-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions[] = $matches[1];
+				} else if(preg_match('/^([1-9],|[1-4][0-9],)+([1-9]|[1-4][0-9])$/', $emplacement_tmp, $matches)) {
+					$stored_aliquots_positions = explode(',',$emplacement_tmp);
+				} else if(preg_match('/^(0[1-9]|[1-9]|[1-4][0-9])-(0[1-9]|[1-9]|[1-4][0-9])$/', $emplacement_tmp, $matches)) {
+					$start = $matches[1];
+					$end  = $matches[2];
+					if($start >= $end) die('ERR ['.$line_counter.'] 89938399303 : '.$emplacement_tmp);
+					While($start <=  $end) {
+						$stored_aliquots_positions[] = $start;
+						$start++;
+					}
+				} else {
+					die('ERR  ['.$line_counter.'] 9984949494 : '.$emplacement_tmp);
+				}
+				
+				$div = sizeof($stored_aliquots_positions);
+				$div = (empty($div)? 1 : $div);
+				$tissue_volume_per_tube = $tissue_volume / $div;
+				
+				foreach($stored_aliquots_positions as $new_pos) {
+					$created_aliquots++;
+					$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives']['tissue supernatant'][0]['aliquots'][] = array(
+						'aliquot_masters' => array(
+							'aliquot_label' => "'$aliquot_label'", 
+							'initial_volume' => "'$tissue_volume_per_tube'",
+							'current_volume' => "'$tissue_volume_per_tube'",
+							'in_stock' => "'yes - available'",
+							'storage_master_id' => "'$storage_master_id'",
+							'storage_datetime' => "'$storage_datetime'",
+							'storage_datetime_accuracy' => "'$storage_datetime_accuracy'",
+							'storage_coord_x' => "'$new_pos'",
+							'storage_coord_y' => "''",
+							'chus_time_limit_of_storage' => "''",
+							'chus_time_limit_of_storage' => "'$remisage'"),				
+						'aliquot_details' => array(),
+						'aliquot_internal_uses' => array(),
+						'shippings' => array()
+					);
+				}
+			} else {
+				
+				// Created unstored aliquot?
+				Config::$summary_msg['TISSU']['@@WARNING@@']['Creating unpositioned aliquot'][] = "Will create one tube unpositioned. See line: $line_counter";
+				
+				$storage_master_id = (!empty($line_data['Boite']))? getStorageId('tissue_10_ml', 'box49', $line_data['Boite']) : '';
+				
+				$created_aliquots++;
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives']['tissue supernatant'][0]['aliquots'][] = array(
+					'aliquot_masters' => array(
+						'aliquot_label' => "'$aliquot_label'", 
+						'initial_volume' => "'$tissue_volume'",
+						'current_volume' => "'$tissue_volume'",
+						'in_stock' => "'yes - available'",
+						'storage_master_id' => "'$storage_master_id'",
+						'storage_datetime' => "'$storage_datetime'",
+						'storage_datetime_accuracy' => "'$storage_datetime_accuracy'",
+						'storage_coord_x' => "'$new_pos'",
+						'storage_coord_y' => "''",
+						'chus_time_limit_of_storage' => "''",
+						'chus_time_limit_of_storage' => "'$remisage'"),				
+					'aliquot_details' => array(),
+					'aliquot_internal_uses' => array(),
+					'shippings' => array()
+				);
+			}
+			
+			if(!empty($line_data['Dons Volume']) || !empty($line_data['à Qui']) || !empty($line_data['Date'])) {
+				if(empty($line_data['Dons Volume']) || empty($line_data['à Qui']) || empty($line_data['Date'])) die('ERR ['.$line_counter.'] 8899edddee944');
+				if(!preg_match('/^[0-9]+$/',$line_data['Dons Volume'],$matches)) die('ERR ['.$line_counter.'] 8899eeedeeeedd944');
+				if(!preg_match('/^(19|20)([0-9]{2}\-[0-1][0-9])$/',$line_data['Date'],$matches)) die('ERR ['.$line_counter.'] 88aascc2eeeedd944');
+				if(!preg_match('/^(aliquot 1 ml)$/',$line_data['à Qui'],$matches)) die('ERR ['.$line_counter.'] 88aasccddddd2eeeedd944');
+				if($created_aliquots != 1) die('ERR ['.$line_counter.'] 88adcacadd944');
+				
+				$aliquot_internal_uses = array();
+				for($i = 0; $i < $line_data['Dons Volume']; $i++) {
+					$aliquot_internal_uses[] = array(
+						'use_code' => "'?'",
+						'used_volume' => "'1'",
+						'use_datetime' => "'".$line_data['Date']."-01 00:00:00'",
+						'use_datetime_accuracy' => "'d'"
+					);						
+				}
+				
+				$last_aliquot_key = sizeof($collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives']['tissue supernatant'][0]['aliquots']) - 1;
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives']['tissue supernatant'][0]['aliquots'][$last_aliquot_key]['aliquot_internal_uses'] = $aliquot_internal_uses;
+				$initial_volume = $collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives']['tissue supernatant'][0]['aliquots'][$last_aliquot_key]['aliquot_masters']['initial_volume'];
+				$initial_volume = str_replace("'","",$initial_volume);
+				$initial_volume += $line_data['Dons Volume'];
+				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives']['tissue supernatant'][0]['aliquots'][$last_aliquot_key]['aliquot_masters']['initial_volume'] = $initial_volume;
+			}
+		}
+	}
+	
+	return $collections_to_create;
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function getParticipantIdentifierAndDiagnosisIds($worksheet, $line_counter, $frsq_value, $echantillon_value) {
 	if(empty($frsq_value) && empty($echantillon_value)) die('ERR 888d88d88a9');
@@ -1323,10 +1924,10 @@ function getParticipantIdentifierAndDiagnosisIds($worksheet, $line_counter, $frs
 			}
 		}
 		if($diag_found > 1){
-			Config::$summary_msg[$worksheet]['@@WARNING@@']['Too many OVCA(s) can be linked to Ascite'][] = "The patient having #FRSQ [$ov_nbr_from_frsq] and Échantillon [$ov_nbr_from_echantillon] has many OVCA diagnoses linked to this FRSQ#(s)! Then collection has to be linked to a diagnosis after migration process! [line: $line_counter]";
+			Config::$summary_msg[$worksheet]['@@WARNING@@']['Too many OVCA(s) can be linked to sample'][] = "The patient having #FRSQ [$ov_nbr_from_frsq] and Échantillon [$ov_nbr_from_echantillon] has many OVCA diagnoses linked to this FRSQ#(s)! Then collection has to be linked to a diagnosis after migration process! [line: $line_counter]";
 			$diagnosis_master_id = null;
 		} else if(!$diag_found) {
-			Config::$summary_msg[$worksheet]['@@WARNING@@']['No OVCA can be linked to Ascite'][] = "The patient having #FRSQ [$ov_nbr_from_frsq] and Échantillon [$ov_nbr_from_echantillon] has one or many OVCA diagnosis linked to following FRSQ#(s) [".implode(', ',$diagnoses_frsqs)."], but no one is linked to this FRSQ# [$collection_frsq_nbr]! Collection won't be linked to a OVCA diagnosis! [line: $line_counter]";
+			Config::$summary_msg[$worksheet]['@@WARNING@@']['No OVCA can be linked to sample'][] = "The patient having #FRSQ [$ov_nbr_from_frsq] and Échantillon [$ov_nbr_from_echantillon] has one or many OVCA diagnosis linked to following FRSQ#(s) [".implode(', ',$diagnoses_frsqs)."], but no one is linked to this FRSQ# [$collection_frsq_nbr]! Collection won't be linked to a OVCA diagnosis! [line: $line_counter]";
 		}
 	}
 	
@@ -1359,11 +1960,148 @@ function getStorageId($aliquot_description, $storage_control_type, $selection_la
 	return $storage_master_id;	
 }
 
+function createCollection($collections_to_create) {
+	global $next_sample_code;
+	
+	foreach($collections_to_create as $new_collection) {
+		
+		// Create colleciton
+		if(!isset($new_collection['collection'])) die('ERR 889940404023');
+		$collection_id = customInsertChusRecord(array_merge($new_collection['collection'], array('bank_id' => '2', 'collection_property' => "'participant collection'")), 'collections');	
+		
+		if(!isset($new_collection['link'])) die('ERR 889940404023.3');
+		customInsertChusRecord(array_merge($new_collection['link'], array('collection_id' => $collection_id)), 'clinical_collection_links', false, true);			
+		
+		if(!isset($new_collection['inventory'])) die('ERR 889940404023.1');
+		foreach($new_collection['inventory'] as $specimen_type => $specimen_products_list) {
+			foreach($specimen_products_list as $new_specimen_products) {
+				$additional_data = array(
+					'sample_code' => "'$next_sample_code'", 
+					'sample_control_id' => Config::$sample_aliquot_controls[$specimen_type]['sample_control_id'],
+					'collection_id' => $collection_id,
+					'initial_specimen_sample_type' => "'$specimen_type'");
+				$sample_master_id = customInsertChusRecord(array_merge($new_specimen_products['sample_masters'], $additional_data), 'sample_masters', false, true);			
+				customInsertChusRecord(array_merge($new_specimen_products['sample_details'], array('sample_master_id' => $sample_master_id)), Config::$sample_aliquot_controls[$specimen_type]['detail_tablename'], true, true);			
+				customInsertChusRecord(array_merge($new_specimen_products['specimen_details'], array('sample_master_id' => $sample_master_id)), 'specimen_details', false, true);
+				$next_sample_code++;
+				
+				// Create Derivative
+				createDerivative($collection_id, $sample_master_id, $specimen_type, $sample_master_id, $specimen_type, $new_specimen_products['derivatives']);
+			
+				// Create Aliquot
+				createAliquot($collection_id, $sample_master_id, $specimen_type, $new_specimen_products['aliquots']);	
+			}	
+		}
+	}
+}
 
+function createDerivative($collection_id, $initial_specimen_sample_id, $initial_specimen_sample_type, $parent_sample_master_id, $parent_sample_type, $derivatives_data) {
+	global $next_sample_code;
+	
+	foreach($derivatives_data as $derivative_type => $derivatives_list) {
+		foreach($derivatives_list as $new_derivative) {
+			$additional_data = array(
+				'sample_code' => "'$next_sample_code'", 
+				'sample_control_id' => Config::$sample_aliquot_controls[$derivative_type]['sample_control_id'],
+				'collection_id' => $collection_id,
+				'initial_specimen_sample_id' => $initial_specimen_sample_id,
+				'initial_specimen_sample_type' => "'$initial_specimen_sample_type'",
+				'parent_id' => $parent_sample_master_id,
+				'parent_sample_type' => "'$parent_sample_type'");
+			$sample_master_id = customInsertChusRecord(array_merge($new_derivative['sample_masters'], $additional_data), 'sample_masters', false, true);			
+			customInsertChusRecord(array_merge($new_derivative['sample_details'], array('sample_master_id' => $sample_master_id)), Config::$sample_aliquot_controls[$derivative_type]['detail_tablename'], true, true);			
+			customInsertChusRecord(array_merge($new_derivative['derivative_details'], array('sample_master_id' => $sample_master_id)), 'derivative_details', false, true);
+			$next_sample_code++;
+				
+			// Create Derivative
+			createDerivative($collection_id,$initial_specimen_sample_id, $initial_specimen_sample_type, $sample_master_id, $derivative_type, $new_derivative['derivatives']);
+		
+			// Create Aliquot
+			createAliquot($collection_id, $sample_master_id, $derivative_type, $new_derivative['aliquots']);	
+		}	
+	}
+}
 
+function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquots) {
+	global $next_aliquot_code;
+		
+	foreach($aliquots as $new_aliquot) {
+		$additional_data = array(
+			'collection_id' => $collection_id,
+			'aliquot_control_id' => Config::$sample_aliquot_controls[$sample_type]['aliquots']['tube']['aliquot_control_id'],
+			'sample_master_id' => $sample_master_id,
+			'barcode' => $next_aliquot_code);
+		$aliquot_master_id = customInsertChusRecord(array_merge($new_aliquot['aliquot_masters'], $additional_data), 'aliquot_masters', false, true);			
+		customInsertChusRecord(array_merge($new_aliquot['aliquot_details'], array('aliquot_master_id' => $aliquot_master_id)), Config::$sample_aliquot_controls[$sample_type]['aliquots']['tube']['detail_tablename'], true, true);			
+		$next_aliquot_code++;
+				
+		createInternalUse($aliquot_master_id, $new_aliquot['aliquot_internal_uses']);
+		createAliquotShipment($aliquot_master_id, $new_aliquot['shippings'], Config::$sample_aliquot_controls[$sample_type]['sample_control_id'], Config::$sample_aliquot_controls[$sample_type]['aliquots']['tube']['aliquot_control_id']);
+	}
+}
 
+function createInternalUse($aliquot_master_id, $aliquot_internal_uses) {
+	foreach($aliquot_internal_uses as $new_use) {
+		$data = array(
+			'aliquot_master_id' => $aliquot_master_id,
+			'use_code' => $new_use['use_code'],
+			'used_volume' => $new_use['used_volume'],
+			'use_datetime' => $new_use['use_datetime'],
+			'use_datetime_accuracy' => $new_use['use_datetime_accuracy']
+		);
+		customInsertChusRecord($data, 'aliquot_internal_uses', false, true);	
+	}  
+}
 
+function createAliquotShipment($aliquot_master_id, $shipping_data, $sample_control_id, $aliquot_control_id) {
+	if(empty($shipping_data)) return;
+	
+	$ids = getShippingIds($shipping_data['recipient'], $shipping_data['shipping_datetime'], $shipping_data['shipping_datetime_accuracy'], $sample_control_id, $aliquot_control_id);
+	
+	$order_item_data = array(
+		'order_line_id' => $ids['order_line_id'],
+		'aliquot_master_id' => $aliquot_master_id,
+		'shipment_id' => $ids['shipment_id'],
+		'status' => "'shipped'"
+	); 
+	customInsertChusRecord($order_item_data, 'order_items', false, true);
+}
 
-
+function getShippingIds($recipient, $shipping_datetime, $shipping_datetime_accuracy, $sample_control_id, $aliquot_control_id) {
+	global $shipping_list;
+	
+	$order_key = $recipient."/".$shipping_datetime."/".$shipping_datetime_accuracy;
+	if(!isset($shipping_list[$order_key])) {
+		$order_data = array(
+			'order_number' => $recipient,
+			'processing_status' => "'completed'",
+			'date_order_completed' => str_replace(' 00:00:00', '', $shipping_datetime),
+			'date_order_completed_accuracy' => $shipping_datetime_accuracy
+		);
+		$shipping_list[$order_key]['order_id'] = customInsertChusRecord($order_data, 'orders', false, true);
+	}
+	
+	$shipment_key = $sample_control_id."/".$aliquot_control_id;
+	if(!isset($shipping_list[$order_key]['shipments'][$shipment_key])) {
+		$order_line_data = array(
+			'sample_control_id' => $sample_control_id,
+			'aliquot_control_id' => $aliquot_control_id,
+			'order_id' => $shipping_list[$order_key]['order_id'],
+			'status' => "'shipped'"
+		); 
+		$shipping_list[$order_key]['shipments'][$shipment_key]['order_line_id'] = customInsertChusRecord($order_line_data, 'order_lines', false, true);
+		
+		$shipment_data =  array(
+			'shipment_code' => $recipient,
+			'datetime_shipped' => $shipping_datetime,
+			'datetime_shipped_accuracy' => $shipping_datetime_accuracy,
+			'recipient' => $recipient,
+			'order_id' => $shipping_list[$order_key]['order_id']
+		); 	
+		$shipping_list[$order_key]['shipments'][$shipment_key]['shipment_id'] = customInsertChusRecord($shipment_data, 'shipments', false, true);
+	}
+	
+	return array_merge(array('order_id' => $shipping_list[$order_key]['order_id']), $shipping_list[$order_key]['shipments'][$shipment_key]); 
+}
 
 ?>

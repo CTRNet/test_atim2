@@ -18,7 +18,7 @@ class AliquotMasterCustom extends AliquotMaster {
 		switch($view_sample['ViewSample']['sample_type']) {
 			case 'tissue':
 				$SampleMasterModel = AppModel::getInstance("Clinicalannotation", "SampleMaster", true);
-				$tmp_sample_data = $SampleMasterModel->find('first',array('condtions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
+				$tmp_sample_data = $SampleMasterModel->find('first',array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
 				$type_char = '';
 				$suffix = '';
 				if($tmp_sample_data['SampleDetail']['tissue_source'] == 'breast') {

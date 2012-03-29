@@ -522,8 +522,7 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('great-grandmother', 'Great-Grandmother', 'Arrière grand-mère'),
 ('granddaughter', 'Granddaughter', 'Petite-fille'),
 ('grandson', 'Grandson', 'Petit-fils');
-					
-		
+	
 INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
 ('great-aunt','great-aunt'),
 ('great-uncle','great-uncle');
@@ -537,5 +536,5 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('great-aunt', 'Great-Aunt', ' Grande-tante'),
 ('great-uncle', 'Great-Uncle', ' Grand-oncle');		
 
- 
-				
+UPDATE structure_formats SET `display_order`='1202', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1201', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND type = 'input');
