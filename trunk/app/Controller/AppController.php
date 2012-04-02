@@ -747,13 +747,6 @@ class AppController extends Controller {
 			if(count($ctrl_ids) == 1){
 				//only one ctrl, attach detail
 				$has_one = array();
-				if(isset($model->base_model)){
-					$has_one[$master_class_name] = array(
-							'className' => $master_class_name,
-							'foreignKey' => 'id'
-					);
-					AppModel::getInstance($model->base_plugin, $model->base_model);
-				}
 				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
 				$ctrl_model = isset($controller->$control_class) ? $controller->$control_class : AppModel::getInstance('', $control_class, false);
 				if(!$ctrl_model){

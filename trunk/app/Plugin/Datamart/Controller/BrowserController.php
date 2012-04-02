@@ -243,7 +243,7 @@ class BrowserController extends DatamartAppController {
 				$this->Browser->checklist_sub_models_id_filter
 			);
 			foreach($dropdown_options as $key => $option){
-				if(isset($option['value']) && strpos($option['value'], 'Datamart/csv/csv') === 0){
+				if(isset($option['value']) && strpos($option['value'], 'javascript:setCsvPopup(\'Datamart/csv/csv') === 0){
 					unset($dropdown_options[$key]);
 				}
 			}
@@ -286,6 +286,11 @@ class BrowserController extends DatamartAppController {
 			
 			$saved_browsing_index = $this->SavedBrowsingIndex->find('all', array('conditions' => array_merge($this->SavedBrowsingIndex->getOwnershipConditions(), array('SavedBrowsingIndex.starting_datamart_structure_id' => $browsing['DatamartStructure']['id'])), 'order' => 'SavedBrowsingIndex.name'));
 			$this->set('saved_browsing_index', $saved_browsing_index);
+			
+			$this->set('csv_merge_data', $this->BrowsingResult->getSingleLineMergeableNodes($node_id));
+			
+			
+			
 
 		}else if($browsing != null){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
@@ -331,6 +336,7 @@ class BrowserController extends DatamartAppController {
 	 */
 	function csv($all_fields, $node_id, $merge_to){
 		$config = array_merge($this->request->data['Config'], $this->request->data[0]);
+		
 		unset($this->request->data[0]);
 		unset($this->request->data['Config']);
 		$this->configureCsv($config);
@@ -341,22 +347,87 @@ class BrowserController extends DatamartAppController {
 		if(is_string($ids)){
 			$ids = explode(",", $ids);
 		}
-		$this->Browser->InitDataLoad($browsing, $merge_to, $ids);
 		
-		if(!$this->Browser->valid_permission){
-			$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
-			return;
-		}
-		
-		$this->set("result_structure", $this->Browser->result_structure);
 		$this->layout = false;
-		
-		
 		Configure::write('debug', 0);
-		$this->set('csv_header', true);
-		while($this->request->data = $this->Browser->getDataChunk(300)){
-			$this->render('../csv/csv');
-			$this->set('csv_header', false);
+		
+		if($config['redundancy'] == 'same'){
+			//check selected nodes
+			$mergeable_nodes = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
+			$valid_ids = array_merge(array_keys($mergeable_nodes['parents']), array_keys($mergeable_nodes['flat_children']));
+			foreach($config['singleLineNodes'] as $k => $received_id){
+				if(!in_array($received_id, $valid_ids)){
+					unset($config['singleLineNodes'][$k]);
+				}
+			}
+			
+			//for each added nodes, count the max width
+			$nodes_info = array($node_id => array('max_length' => 1));
+			$total_max_length = 1;
+			foreach($config['singleLineNodes'] as $received_id){
+				$nodes_info[$received_id] = array(
+					'max_length'	=> $this->BrowsingResult->countMaxDuplicates($node_id, $received_id)
+				);
+				$total_max_length += $nodes_info[$received_id]['max_length']; 
+			}
+			
+			$base_fetch_limit = 500 / $total_max_length;
+			$offset = 0;
+			
+			//get all nodes structures
+			$browsing_results = $this->BrowsingResult->find('all', array('conditions' => array('BrowsingResult.id' => array_merge(array($node_id), $config['singleLineNodes']))));
+			$browsing_results = AppController::defineArrayKey($browsing_results, 'BrowsingResult', 'id', true);
+			$structures = array();
+			$models = array();
+			$joins = array();
+			foreach($browsing_results as $browsing_result){
+				$structures_array[$browsing_result['BrowsingResult']['id']] = $this->Structures->getFormById($browsing_result['DatamartStructure']['structure_id']);
+				$nodes_info[$browsing_result['BrowsingResult']['id']]['display_name'] = __($browsing_result['DatamartStructure']['display_name']);
+				$models[$browsing_result['BrowsingResult']['id']] = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['model']);
+				if($browsing_result['BrowsingResult']['id'] != $node_id){
+					$joins[$browsing_result['BrowsingResult']['id']] = $this->BrowsingResult->getJoins($browsing_result['BrowsingResult']['id'], $node_id);
+				}
+			}
+			
+			$this->set('nodes_info', $nodes_info);
+			$this->set('structures_array', $structures_array);
+			$this->set('csv_header', true);
+			
+			while($primary_data = $models[$node_id]->find('all', array('conditions' => array($models[$node_id]->name.'.'.$models[$node_id]->primaryKey => $ids), 'limit' => $base_fetch_limit, 'offset' => $offset))){
+				$primary_data = AppController::defineArrayKey($primary_data, $models[$node_id]->name, $models[$node_id]->primaryKey, true);
+				$this->request->data = array();
+				$this->request->data[$node_id] = AppController::defineArrayKey($primary_data, $models[$node_id]->name, $models[$node_id]->primaryKey);
+				$base_model_condition = array($models[$node_id]->name.'.'.$models[$node_id]->primaryKey => array_keys($primary_data));
+				foreach($nodes_info as $key => $node_info){
+					if($key == $node_id){
+						continue;//skip primary node
+					}
+					$data = $models[$key]->find('all', array(
+						'fields'	=> array('*'),
+						'joins'	=> $joins[$key],
+						'conditions'	=> array_merge($base_model_condition, array($models[$key]->name.'.'.$models[$key]->primaryKey.' IN ('.$browsing_results[$key]['BrowsingResult']['id_csv'].')'))
+					));
+					$this->request->data[$key] = AppController::defineArrayKey($data, $models[$node_id]->name, $models[$node_id]->primaryKey);
+				}
+				$offset += $base_fetch_limit;
+				$this->render('../csv/csv_same_line');
+			}
+			
+		}else{
+			$this->Browser->InitDataLoad($browsing, $merge_to, $ids);
+			
+			if(!$this->Browser->valid_permission){
+				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+				return;
+			}
+			
+			$this->set("result_structure", $this->Browser->result_structure);
+			
+			$this->set('csv_header', true);
+			while($this->request->data = $this->Browser->getDataChunk(300)){
+				$this->render('../csv/csv');
+				$this->set('csv_header', false);
+			}
 		}
 		
 		$this->render(false);
