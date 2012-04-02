@@ -1296,16 +1296,119 @@ function initActions(){
 				var visible = $("#csvPopup:visible").length == 1;
 				$("#csvPopup:visible").popup('close');
 				$("#csvPopup h4 + div").html(data);
-				if(visible){
-					$("#csvPopup").popup();
-				}
+				
 				$("#csvPopup form").attr("action", root_url + target);
 				$("#csvPopup a.submit").click(function(){
 					$("#csvPopup form input[type=hidden]").remove();
 					$("form:first input[type=checkbox]:checked").each(function(){
 						$("#csvPopup form").append('<input type="hidden" name="' + this.name + '" value="' + this.value + '"/>');
 					});
+					$(".databrowser .selectableNode.selected").each(function(){
+						$("#csvPopup form").append('<input type="hidden" name="data[0][singleLineNodes][]" value="' + $(this).parent("a").data("nodeId") + '"/>');
+					});
 				});
+				
+				//option to select some browsing tree nodes
+				if($(".databrowser").length == 1){
+					//keep the single line option + bind command
+					$("#csvPopup table:last").append("<tr><td colspan=3></td></tr>");
+					var lastLine = $("#csvPopup table:last tr:last").hide();
+					$(".databrowser").clone(false).appendTo($("#csvPopup table:last td:last"));
+					
+					var browserTable = $("#csvPopup .databrowser"); 
+					browserTable.find("a.icon16.link").hide();//hide table + merge links
+					browserTable.find("a > span.icon16").css("opacity",  0.05);
+					browserTable.find("a").click(function(){ return false; }).css("cursor", "default");
+					
+					//put all nodes in an object
+					var browsingNodes = new Object();
+					browserTable.find("a").each(function(){
+						var id = $(this).attr("href").match(/\/browse\/([\d]+)\/$/);
+						if(id != null && "1" in id){
+							browsingNodes[id[1]] = this;
+							$(this).data("nodeId", id[1]);
+						}
+					});
+					
+					var nodeToggle = function(event){
+						var span = $(event.currentTarget).find("span:first"); 
+						var nodeId = $(event.currentTarget).data("nodeId");
+						span.toggleClass("selected");
+						if(span.hasClass("selected")){
+							//disable other similar structure id
+							var structureId = null;
+							if(nodeId in csvMergeData.flat_children){
+								structureId = csvMergeData.flat_children[nodeId].BrowsingResult.browsing_structures_id;
+							}else{
+								structureId = csvMergeData.parents[nodeId].BrowsingResult.browsing_structures_id;
+							}
+							for(i in csvMergeData.parents){
+								if(i != nodeId && csvMergeData.parents[i].BrowsingResult.browsing_structures_id == structureId){
+									if($(browsingNodes[i]).find("span:first").hasClass("selected")){
+										$(browsingNodes[i]).click();
+									}
+								}
+							}
+							
+							for(i in csvMergeData.flat_children){
+								if(i != nodeId && csvMergeData.flat_children[i].BrowsingResult.browsing_structures_id == structureId){
+									if($(browsingNodes[i]).find("span:first").hasClass("selected")){
+										$(browsingNodes[i]).click();
+									}
+								}
+							}
+						}else{
+							if(nodeId in csvMergeData.parents){
+								//disable all parents
+								var parentId = csvMergeData.parents[nodeId].BrowsingResult.parent_id; 
+								if(parentId in csvMergeData.parents && $(browsingNodes[parentId]).find("span:first").hasClass("selected")){
+									$(browsingNodes[parentId]).click();
+								}
+							}else{
+								//disable all children
+								for(i in csvMergeData.flat_children){
+									if(csvMergeData.flat_children[i].BrowsingResult.parent_id == nodeId && $(browsingNodes[i]).find("span:first").hasClass("selected")){
+										$(browsingNodes[i]).click();
+									}
+								}
+							}
+						}
+						
+					};
+					
+					//for all "csv mergeable nodes", raise opacity
+					csvMergeData = $.parseJSON(csvMergeData);
+					for(i in csvMergeData.parents){
+						var node = browsingNodes[i];
+						$(node).find("span.icon16").css("opacity", "").addClass("selectableNode").parent("a").css("cursor", "").click(nodeToggle);
+					}
+					for(i in csvMergeData.flat_children){
+						var node = browsingNodes[i];
+						$(node).find("span.icon16").css("opacity", "").addClass("selectableNode").parent("a").css("cursor", "").click(nodeToggle);
+					}
+					
+					//current not is opaque
+					var node = browsingNodes[csvMergeData.current_id];
+					$(node).find("span.icon16").css("opacity", 1);
+					
+					$("select[name=data\\[0\\]\\[redundancy\\]]").change(function(){
+						if($(this).val() == "same"){
+							lastLine.show();
+						}else{
+							lastLine.hide();
+						}
+						$("#csvPopup").popup('close');
+						$("#csvPopup").popup();
+					});
+					
+				}else{
+					//remove single line option
+					$("select[name=data\\[0\\]\\[redundancy\\]]").parents("tr:first").remove();
+				}
+				
+				if(visible){
+					$("#csvPopup").popup();
+				}
 			});
 		}
 		$("#csvPopup").popup();

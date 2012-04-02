@@ -91,4 +91,5 @@ var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("you need to select at l
 var menuItems = '<?php echo json_encode(Sanitize::clean($dropdown_options)); ?>';
 var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
 var STR_BACK = '<?php echo __('back'); ?>';
+var csvMergeData = '<?php echo json_encode(isset($csv_merge_data) ? $csv_merge_data : array()) ; ?>';
 </script>

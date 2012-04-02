@@ -1118,71 +1118,137 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
-		$options['type'] = 'index';
-		$table_structure = $this->buildStack($atim_structure, $options);
-		$options['type'] = 'csv';//go back to csv
-		
-		if(is_array($table_structure) && count($data)){
-			if(isset(AppController::getInstance()->csv_config)){
-				$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
-			}
-			
-			//header line
-			$line = array();
+		if(isset($this->Csv->nodes_info)){
+			//same line mode
+			$this->Csv->current = array();
 			if($options['settings']['csv_header']){
-				if(empty($options['settings']['columns_names'])){
-					foreach($table_structure as $table_column){
+				//first call, build all structures
+				$options['type'] = 'index';
+				foreach($this->Csv->nodes_info as $node_id => $node_info){
+					$this->Csv->structures[$node_id] = $structure = $this->buildStack($this->Csv->structures[$node_id], $options);
+					foreach($this->Csv->structures[$node_id] as $table_column){
+						$cols_count = 0;
+						$sub_line = array();
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
-								$line[] = $table_row_part['label'];
+								$sub_line[] = $table_row_part['label'];
+								++ $cols_count;
+							}
+						}
+						$this->Csv->nodes_info[$node_id]['cols_count'] = $cols_count;
+						for($i = 1; $i <= $node_info['max_length']; ++ $i){
+							foreach($sub_line as $sub_line_part){
+								$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
 							}
 						}
 					}
-				}else{
-					$line = array_merge(array(''), $options['settings']['columns_names']);
 				}
+				$options['type'] = 'csv';//go back to csv
 				$this->Csv->addRow($line);
 			}
 			
-
-			//content
-			if(empty($options['settings']['columns_names'])){
-				foreach($data as $data_unit){
-					$line = array();
-					foreach($table_structure as $table_column){
-						foreach ( $table_column as $fm => $table_row){
-							foreach($table_row as $table_row_part){
-								if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
-									$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
-								}else{
-									$line[] = "";
+			$lines = array();
+			//data = array(node => pkey => data rows => data line
+			foreach($this->Csv->nodes_info as $node_id => $node_info){
+				//fill the node section of the lines array. the index is the pkey of the line
+				foreach($data[$node_id] as $pkey => $data_row){
+					if(!isset($lines[$pkey])){
+						$lines[$pkey] = array();
+					}
+					$instances = 0;
+					foreach($data_row as $model_data){
+						//node_data is all data of a node linked to a pkey
+						foreach($this->Csv->structures[$node_id] as $table_column){
+							foreach ( $table_column as $fm => $table_row){
+								foreach($table_row as $table_row_part){
+									if(isset($model_data[$table_row_part['model']][$table_row_part['field']])){
+										$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
+									}else{
+										$lines[$pkey][] = "";
+									}
 								}
 							}
 						}
+						++ $instances;
+					}
+					if($instances < $this->Csv->nodes_info[$node_id]['max_length']){
+						//padding
+						$lines[$pkey] = array_merge($lines[$pkey], array_fill(0, $this->Csv->nodes_info[$node_id]['cols_count'], ""));
+					}
+				}
+			}
+			foreach($lines as &$line){
+				$this->Csv->addRow($line);
+			}
+			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
+		}else{
+			//default mode, multi lines
+			$options['type'] = 'index';
+			$table_structure = $this->buildStack($atim_structure, $options);
+			$options['type'] = 'csv';//go back to csv
+			
+			if(is_array($table_structure) && count($data)){
+				if(isset(AppController::getInstance()->csv_config)){
+					$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
+				}
+				
+				//header line
+				$line = array();
+				if($options['settings']['csv_header']){
+					if(empty($options['settings']['columns_names'])){
+						foreach($table_structure as $table_column){
+							foreach($table_column as $fm => $table_row){
+								foreach($table_row as $table_row_part){
+									$line[] = $table_row_part['label'];
+								}
+							}
+						}
+					}else{
+						$line = array_merge(array(''), $options['settings']['columns_names']);
 					}
 					$this->Csv->addRow($line);
 				}
-			}else{
-				foreach($table_structure as $table_column){
-					foreach($table_column as $fm => $table_row){
-						foreach($table_row as $table_row_part){
-							$line = array($table_row_part['label']);
-							$current_data = $data[0][0][$table_row_part['field']];
-							foreach($options['settings']['columns_names'] as $column_name){
-								if(array_key_exists($column_name, $current_data)){
-									$line[] = trim($this->getPrintableField($table_row_part, $options, $current_data[$column_name], null, null));
-								}else{
-									$line[] = '';
+				
+	
+				//content
+				if(empty($options['settings']['columns_names'])){
+					foreach($data as $data_unit){
+						$line = array();
+						foreach($table_structure as $table_column){
+							foreach ( $table_column as $fm => $table_row){
+								foreach($table_row as $table_row_part){
+									if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
+										$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+									}else{
+										$line[] = "";
+									}
 								}
 							}
-							$this->Csv->addRow($line);
+						}
+						$this->Csv->addRow($line);
+					}
+				}else{
+					foreach($table_structure as $table_column){
+						foreach($table_column as $fm => $table_row){
+							foreach($table_row as $table_row_part){
+								$line = array($table_row_part['label']);
+								$current_data = $data[0][0][$table_row_part['field']];
+								foreach($options['settings']['columns_names'] as $column_name){
+									if(array_key_exists($column_name, $current_data)){
+										$line[] = trim($this->getPrintableField($table_row_part, $options, $current_data[$column_name], null, null));
+									}else{
+										$line[] = '';
+									}
+								}
+								$this->Csv->addRow($line);
+							}
 						}
 					}
 				}
 			}
+			
+			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 		}
-		
-		echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 	}
 
 
@@ -2472,4 +2538,3 @@ class StructuresHelper extends Helper {
 	}
 }
 	
-?>

@@ -1082,4 +1082,25 @@ class AppModel extends Model {
 			}
 		}
 	}
+	
+	function makeTree(array &$in){
+		if(!empty($in)){
+			$starting_pkey = $in[0][$this->name][$this->primaryKey];
+			$in = AppController::defineArrayKey($in, $this->name, $this->primaryKey, true);
+			$to_remove = array();
+			foreach($in as $key => &$part){
+				if($part[$this->name]['parent_id'] != null && isset($in[$part[$this->name]['parent_id']])){
+					//parent exists, create link
+					if(!isset($in[$part[$this->name]['parent_id']][$this->name]['children'])){
+						$in[$part[$this->name]['parent_id']][$this->name]['children'] = array();
+					}
+					$in[$part[$this->name]['parent_id']][$this->name]['children'][] = &$part;
+					$to_remove[] = $key;
+				}
+			}
+			foreach($to_remove as &$key){
+				unset($in[$key]);
+			}
+		}
+	}
 }
