@@ -1242,16 +1242,22 @@ class Browser extends DatamartAppModel {
 								assert(!empty($control));
 								
 								//make sure parent relation to current node is 1:1
-								$id_count = substr_count($parent_browsing['BrowsingResult']['id_csv'], ',') + 1;
 								$parent_ref_key = $parent_browsing_model->name.'.'.$control['BrowsingControl']['use_field'];
-								$distinct_count = $parent_browsing_model->find('first', array('conditions' => array($parent_ref_key => explode(',', $parent_browsing['BrowsingResult']['id_csv'])), 'fields' => array('COUNT(DISTINCT '.$parent_ref_key.') AS count')));
-								if($distinct_count[0]['count'] != $id_count){
+								$distinct_count = $parent_browsing_model->find('first', array(
+									'conditions' => array($parent_ref_key => explode(',', $parent_browsing['BrowsingResult']['id_csv'])), 
+									'fields' => array('COUNT('.$parent_ref_key.') AS c'),
+									'group'	=> array($parent_browsing_model->name.'.'.$parent_browsing_model->primaryKey),
+									'order'	=> array('c DESC')
+								));
+								if($distinct_count[0]['c'] > 1){
 									return $parent_browsing['DatamartStructure']['display_name'];
 								}
 								
 								$conditions = array($parent_ref_key.' = '.$curr_model->name.'.'.$curr_model->primaryKey);
 								
 							}
+
+							$conditions[] = $parent_browsing_model->name.'.'.$parent_browsing_model->primaryKey.' IN('.$parent_browsing['BrowsingResult']['id_csv'].')';
 							
 							$params['joins'][] = array(
 									'table'		=> $parent_browsing_model->table,
@@ -1265,8 +1271,10 @@ class Browser extends DatamartAppModel {
 						}
 					}
 				}
+				
 				$cond = sprintf('%s.%s %s %s.%s', $params['browsing_model']->name, $field['field'], $adv_field['relation'], $adv_field['model'], $adv_field['field']);
 				$params['conditions'][] = $cond;
+				pr($parent_browsing);
 				$params['conditions_adv'][$field['field']] = $option_key;
 			}
 		}
@@ -1392,7 +1400,9 @@ class Browser extends DatamartAppModel {
 				$browsing_filter = $browsing_filter[$advanced_data[$model_to_search->name]['browsing_filter']];
 			}
 		}
-		
+		foreach($joins as $join){
+			unset($model_to_search->belongsTo[$join['alias']]);
+		}
 		$save_ids = $model_to_search->find('all', array(
 				'conditions'	=> $search_conditions,
 				'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
