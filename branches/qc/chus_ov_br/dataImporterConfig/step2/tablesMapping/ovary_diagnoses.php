@@ -657,7 +657,7 @@ function addEvent($fields, $event_group, $disease_site, $event_type, Model $m, $
 			$value_tmp = utf8_encode($m->values[$fields[0]]);
 		
 			if($value_tmp == 'ND') {
-				Config::$summary_msg['CA125']['@@WARNING@@']['CA125 value = ND'][] = "CA125 was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
+				Config::$summary_msg['CA125']['@@MESSAGE@@']['CA125 value = ND'][] = "CA125 was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
 				return;
 			
 			} else if(preg_match('/^[0-9]+([\.,][0-9]+)?$/',$value_tmp,$matches)) {
@@ -720,7 +720,7 @@ function addEvent($fields, $event_group, $disease_site, $event_type, Model $m, $
 			
 			$value_tmp = utf8_encode($m->values[$fields[0]]);
 			if($value_tmp == 'ND') {
-				Config::$summary_msg['CTSCan']['@@WARNING@@']['CTSCan value = ND'][] = "CTSCan was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
+				Config::$summary_msg['CTSCan']['@@MESSAGE@@']['CTSCan value = ND'][] = "CTSCan was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
 				return;
 				
 			} else if(in_array($value_tmp, array('Positif','positif'))) { 
