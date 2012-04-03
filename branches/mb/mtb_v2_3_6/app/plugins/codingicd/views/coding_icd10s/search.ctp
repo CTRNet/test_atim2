@@ -6,11 +6,11 @@ if(isset($overflow)){
 	</ul>
 	<?php 
 }
-$header = array('title' => __('icd9 code picker', true), 'description' => __('select an icd9 code', true));
-$index_link_prefix = "/codingicd/CodingIcd9s/search/";
+$header = array('title' => __('icd10 code picker', true), 'description' => __('select an icd10 code', true));
+$index_link_prefix = "/codingicd/CodingIcd10s/search/";
 $links = array(
 	'index' => array('detail' => $index_link_prefix.'%%CodingIcd.id%%'),
-	'bottom' => array('back' => '/codingicd/CodingIcd9s/tool/'.$use_icd_type));
+	'bottom' => array('back' => '/codingicd/CodingIcd10s/tool/'.$use_icd_type));
 $this->Structures->build($atim_structure, array('type' => 'index', 'settings' => array('pagination' => false, 'header' => $header), 'links' => $links));
 ?>
 <script type="text/javascript">
