@@ -20,12 +20,61 @@ class BrowsingResult extends DatamartAppModel {
 		return $browsing;
 	}
 	
+	/**
+	 * Return a model associated to a node
+	 * @param mixed $node Either a browsing result id or the data array related to it
+	 */
+	function getModelAndStructureForNode($browsing_result){
+		if(is_integer($browsing_result)){
+			$browsing_result = $this->getOrRedirect($browsing_result);
+		}
+		assert(is_array($browsing_result));
+		
+		$structures_component = AppController::getInstance()->Structures;
+		$model = null;
+		$structure = $structures_component->getFormById($browsing_result['DatamartStructure']['structure_id']);
+		$header_sub_type = null;
+		$specific = null;
+		if($browsing_result['BrowsingResult']['browsing_structures_sub_id']){
+			//specific
+			$specific = true;
+			$model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['control_master_model']);
+			$control_id = $browsing_result['BrowsingResult']['browsing_structures_sub_id'];
+			$control_model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $model->getControlName());
+			$control_model_data = $control_model->find('first', array(
+					'fields' => array($control_model->name.'.form_alias', $control_model->name.'.databrowser_label'),
+					'conditions' => array($control_model->name.".id" => $control_id))
+			);
+			
+			$header_sub_type = $control_model_data[$control_model->name]['databrowser_label'];
+			
+			//init base model
+			$structure_alias = $structure['Structure']['alias'];
+			AppController::buildDetailBinding(
+					$model,
+					array($model->name.'.'.$model->getControlForeign() => $control_id),
+					&$structure_alias
+			);
+			
+			$structure = $structures_component->get('form', $structure_alias);
+		}else{
+			$specific = false;
+			$model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['model']);
+		}
+		
+		return array('specific' => $specific, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type);
+	}
+	
 	
 	function getSingleLineMergeableNodes($starting_node_id){
 		$starting_node = $this->getOrRedirect($starting_node_id);
-		$required_fields = array('BrowsingResult.id', 'BrowsingResult.parent_id', 'BrowsingResult.browsing_structures_id');
+		$required_fields = array('BrowsingResult.id', 'BrowsingResult.parent_id', 'BrowsingResult.browsing_structures_id', 'BrowsingResult.browsing_type');
 		$parents_nodes = $this->getPath($starting_node_id, $required_fields);
-		array_pop($parents_nodes);//the last element is the starting node
+		$starting_node = array_pop($parents_nodes);//the last element is the starting node
+		if($starting_node['BrowsingResult']['browsing_type'] == 'drilldown'){
+			//starting node is a drilldown, flush the direct parent
+			array_pop($parents_nodes);
+		}
 		
 		$filtered_parents = array();
 		
@@ -34,6 +83,7 @@ class BrowsingResult extends DatamartAppModel {
 		//filter parents
 		$current_ctrl_id = $starting_node['BrowsingResult']['browsing_structures_id'];
 		$encountered_ctrls = array();
+		//drilldowns are automatically stop conditions caused by encountered_ctrls
 		while ($parent = array_pop($parents_nodes)){
 			if(in_array($parent['BrowsingResult']['browsing_structures_id'], $encountered_ctrls)){
 				//already encoutered type, don't go futher up
@@ -47,7 +97,6 @@ class BrowsingResult extends DatamartAppModel {
 			}else if($datamart_controls_model->find1ToN($current_ctrl_id, $parent['BrowsingResult']['browsing_structures_id'])){
 				//compatible node found on a terminating node
 				$filtered_parents[] = $parent;
-				$current_ctrl_id = $parent['BrowsingResult']['browsing_structures_id'];
 				break;
 			}else{
 				//incompatible node found, no need to go further up the tree
@@ -77,7 +126,10 @@ class BrowsingResult extends DatamartAppModel {
 				$current_ctrl_id = $child_node['current_ctrl_id'];
 				$encountered_ctrls = $child_node['encountered_ctrls'];
 				foreach($child_node['nodes'] as $k => &$node){
-					if(!in_array($node['BrowsingResult']['browsing_structures_id'], $encountered_ctrls)){
+					if($node['BrowsingResult']['browsing_type'] == 'drilldown'){
+						//drilldown are automatically rejected
+						unset($child_node['nodes'][$k]);
+					}else if(!in_array($node['BrowsingResult']['browsing_structures_id'], $encountered_ctrls)){
 						if($datamart_controls_model->findNTo1($current_ctrl_id, $node['BrowsingResult']['browsing_structures_id'])){
 							//compatible node found, leave it in the tree
 							$flat_children_nodes[$node['BrowsingResult']['id']] = $node; 

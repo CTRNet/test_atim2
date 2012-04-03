@@ -19,6 +19,9 @@ mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.4.0/atim_v2.4.1_upgrade.sq
 echo running atim_v2.4.2_upgrade.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.4.0/atim_v2.4.2_upgrade.sql
 
+echo running atim_v2.4.3A_upgrade.sql
+mysql -u $2 -p$3 $1 --default-character-set=utf8 < v2.4.0/atim_v2.4.3A_upgrade.sql
+
 echo running tmp_atim_v2.5.0_upgrade.sql
 mysql -u $2 -p$3 $1 --default-character-set=utf8 < tmp_atim_v2.5.0_upgrade.sql
 

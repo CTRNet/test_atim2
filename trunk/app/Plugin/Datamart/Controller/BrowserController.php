@@ -287,7 +287,8 @@ class BrowserController extends DatamartAppController {
 			$saved_browsing_index = $this->SavedBrowsingIndex->find('all', array('conditions' => array_merge($this->SavedBrowsingIndex->getOwnershipConditions(), array('SavedBrowsingIndex.starting_datamart_structure_id' => $browsing['DatamartStructure']['id'])), 'order' => 'SavedBrowsingIndex.name'));
 			$this->set('saved_browsing_index', $saved_browsing_index);
 			
-			$this->set('csv_merge_data', $this->BrowsingResult->getSingleLineMergeableNodes($node_id));
+			$csv_merge_data = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
+			$this->set('csv_merge_data', $csv_merge_data);
 			
 			
 			
@@ -351,8 +352,9 @@ class BrowserController extends DatamartAppController {
 		$this->layout = false;
 		Configure::write('debug', 0);
 		
-		if($config['redundancy'] == 'same'){
+		if($config['redundancy'] == 'same' && isset($config['singleLineNodes']) && !empty($config['singleLineNodes'])){
 			//check selected nodes
+			//TODO: permissions check
 			$mergeable_nodes = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
 			$valid_ids = array_merge(array_keys($mergeable_nodes['parents']), array_keys($mergeable_nodes['flat_children']));
 			foreach($config['singleLineNodes'] as $k => $received_id){
@@ -371,7 +373,7 @@ class BrowserController extends DatamartAppController {
 				$total_max_length += $nodes_info[$received_id]['max_length']; 
 			}
 			
-			$base_fetch_limit = 500 / $total_max_length;
+			$base_fetch_limit = (int)(500 / $total_max_length);
 			$offset = 0;
 			
 			//get all nodes structures
@@ -380,10 +382,12 @@ class BrowserController extends DatamartAppController {
 			$structures = array();
 			$models = array();
 			$joins = array();
+			AppModel::getInstance('Datamart', 'Browser');
 			foreach($browsing_results as $browsing_result){
-				$structures_array[$browsing_result['BrowsingResult']['id']] = $this->Structures->getFormById($browsing_result['DatamartStructure']['structure_id']);
-				$nodes_info[$browsing_result['BrowsingResult']['id']]['display_name'] = __($browsing_result['DatamartStructure']['display_name']);
-				$models[$browsing_result['BrowsingResult']['id']] = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['model']);
+				$info = $this->BrowsingResult->getModelAndStructureForNode($browsing_result);
+				$structures_array[$browsing_result['BrowsingResult']['id']] = $info['structure'];
+				$nodes_info[$browsing_result['BrowsingResult']['id']]['display_name'] = __($browsing_result['DatamartStructure']['display_name']).($info['header_sub_type'] ? ' - '.Browser::getTranslatedDatabrowserLabel($info['header_sub_type']) : '');
+				$models[$browsing_result['BrowsingResult']['id']] = $info['model'];
 				if($browsing_result['BrowsingResult']['id'] != $node_id){
 					$joins[$browsing_result['BrowsingResult']['id']] = $this->BrowsingResult->getJoins($browsing_result['BrowsingResult']['id'], $node_id);
 				}
@@ -402,6 +406,9 @@ class BrowserController extends DatamartAppController {
 					if($key == $node_id){
 						continue;//skip primary node
 					}
+					foreach($joins[$key] as $join){
+						unset($models[$key]->belongsTo[$join['alias']]);
+					}
 					$data = $models[$key]->find('all', array(
 						'fields'	=> array('*'),
 						'joins'	=> $joins[$key],
@@ -414,7 +421,7 @@ class BrowserController extends DatamartAppController {
 			}
 			
 		}else{
-			$this->Browser->InitDataLoad($browsing, $merge_to, $ids);
+			$this->Browser->InitDataLoad($browsing, $config['redundancy'] == 'same' ? 0 : $merge_to, $ids);
 			
 			if(!$this->Browser->valid_permission){
 				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
