@@ -158,7 +158,7 @@ function initActions(){
 				}else{
 					action = orgAction + actionTargetValue;
 				}
-				$("form").prop("action", action).submit();
+				$(this).parents("form:first").prop("action", action).submit();
 			}
 			return false;
 		});
@@ -471,14 +471,6 @@ function initActions(){
 				return false;
 			});
 		}
-	}
-	
-	function getParentElement(currElement, parentName){
-		do{
-			currElement = $(currElement).parent();
-			nodeName = currElement[0].nodeName;
-		}while(nodeName != parentName && nodeName != "undefined");
-		return currElement;
 	}
 	
 	/**

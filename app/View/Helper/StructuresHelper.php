@@ -1125,21 +1125,22 @@ class StructuresHelper extends Helper {
 				//first call, build all structures
 				$options['type'] = 'index';
 				foreach($this->Csv->nodes_info as $node_id => $node_info){
+					$sub_line = array();
 					$this->Csv->structures[$node_id] = $structure = $this->buildStack($this->Csv->structures[$node_id], $options);
 					foreach($this->Csv->structures[$node_id] as $table_column){
 						$cols_count = 0;
-						$sub_line = array();
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
 								$sub_line[] = $table_row_part['label'];
 								++ $cols_count;
 							}
 						}
-						$this->Csv->nodes_info[$node_id]['cols_count'] = $cols_count;
-						for($i = 1; $i <= $node_info['max_length']; ++ $i){
-							foreach($sub_line as $sub_line_part){
-								$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
-							}
+						
+					}
+					$this->Csv->nodes_info[$node_id]['cols_count'] = $cols_count;
+					for($i = 1; $i <= $node_info['max_length']; ++ $i){
+						foreach($sub_line as $sub_line_part){
+							$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
 						}
 					}
 				}

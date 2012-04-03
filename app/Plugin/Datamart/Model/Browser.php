@@ -1036,7 +1036,6 @@ class Browser extends DatamartAppModel {
 		array_unshift($nodes_to_fetch, $node_id);
 		$last_browsing = null;
 		$iteration_count = 1;
-		$structures_component = AppController::getInstance()->Structures;
 		
 		//building the relationship logic between nodes
 		foreach($nodes_to_fetch as $node){
@@ -1051,37 +1050,13 @@ class Browser extends DatamartAppModel {
 				'group' => array($current_model->getControlForeign()), 
 				'limit' => 2));
 			
-			$structure = null;
-			$header_sub_type = " ";
-			$structure = $structures_component->getFormById($current_browsing['DatamartStructure']['structure_id']);
-			if($control_id && count($control_id) == 1){
-				//we can use the specific structure
-				
-				//load the structure
-				$control_id = $control_id[0][$current_browsing['DatamartStructure']['model']][$current_model->getControlForeign()]; 
-				$control_model = AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_model->getControlName(), true);
-				$control_model_data = $control_model->find('first', array(
-					'fields' => array($control_model->name.'.form_alias', $control_model->name.'.databrowser_label'), 
-					'conditions' => array($control_model->name.".id" => $control_id))
-				);
-				
-				$header_sub_type = "/".Browser::getTranslatedDatabrowserLabel($control_model_data[$control_model->name]['databrowser_label'])." ";
-				
-				//init base model
-				AppModel::getInstance($current_browsing['DatamartStructure']['plugin'], $current_browsing['DatamartStructure']['control_master_model'], true);
-				$structure_alias = $structure['Structure']['alias'];
-				AppController::buildDetailBinding(
-					$current_model, 
-					array($current_model->name.'.'.$current_model->getControlForeign() => $control_id), 
-					&$structure_alias
-				);
-				
-				$structure = $structures_component->get('form', $structure_alias);
-
-			}else if(!empty($current_browsing['DatamartStructure']['control_master_model'])){
+			$model_and_struct_for_node = self::$browsing_result_model->getModelAndStructureForNode($current_browsing);
+			$structure = $model_and_struct_for_node['structure'];
+			$header_sub_type = $model_and_struct_for_node['header_sub_type'] ? "/".self::getTranslatedDatabrowserLabel($model_and_struct_for_node['header_sub_type']) : " ";
+			if(!$model_and_struct_for_node['specific'] && $current_browsing['DatamartStructure']['control_master_model']){
 				//must use the generic structure (or its empty...)
 				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
-			}
+			} 
 			
 			if($this->checklist_model == null){
 				$this->checklist_sub_models_id_filter = Browser::getDropdownSubFiltering($current_browsing);
