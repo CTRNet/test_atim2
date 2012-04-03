@@ -344,6 +344,12 @@ class BrowserController extends DatamartAppController {
 		
 		
 		$browsing = $this->BrowsingResult->findById($node_id);
+		
+		if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
+			$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+			return;
+		}
+		
 		$ids = current(current($this->request->data));
 		if(is_string($ids)){
 			$ids = explode(",", $ids);
@@ -354,7 +360,6 @@ class BrowserController extends DatamartAppController {
 		
 		if($config['redundancy'] == 'same' && isset($config['singleLineNodes']) && !empty($config['singleLineNodes'])){
 			//check selected nodes
-			//TODO: permissions check
 			$mergeable_nodes = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
 			$valid_ids = array_merge(array_keys($mergeable_nodes['parents']), array_keys($mergeable_nodes['flat_children']));
 			foreach($config['singleLineNodes'] as $k => $received_id){
@@ -379,11 +384,17 @@ class BrowserController extends DatamartAppController {
 			//get all nodes structures
 			$browsing_results = $this->BrowsingResult->find('all', array('conditions' => array('BrowsingResult.id' => array_merge(array($node_id), $config['singleLineNodes']))));
 			$browsing_results = AppController::defineArrayKey($browsing_results, 'BrowsingResult', 'id', true);
-			$structures = array();
-			$models = array();
-			$joins = array();
-			AppModel::getInstance('Datamart', 'Browser');
+			$structures_array = array();//structures[node_id] = structure to use
+			$models = array();//models[node_id] = model
+			$joins = array();//joins[node_id] = joins array
+			AppModel::getInstance('Datamart', 'Browser');//for a static call
 			foreach($browsing_results as $browsing_result){
+				//permissions
+				if(!AppController::checkLinkPermission($browsing_result['DatamartStructure']['index_link'])){
+					$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+					return;
+				}
+				
 				$info = $this->BrowsingResult->getModelAndStructureForNode($browsing_result);
 				$structures_array[$browsing_result['BrowsingResult']['id']] = $info['structure'];
 				$nodes_info[$browsing_result['BrowsingResult']['id']]['display_name'] = __($browsing_result['DatamartStructure']['display_name']).($info['header_sub_type'] ? ' - '.Browser::getTranslatedDatabrowserLabel($info['header_sub_type']) : '');
