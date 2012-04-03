@@ -9,10 +9,14 @@ class AppModel extends Model {
 
 	//The values in this array can trigger magic actions when applied to a field settings
 	private static $magic_coding_icd_trigger_array = array(
-			"CodingIcd10Who" => "/codingicd/CodingIcd10s/tool/who", 
-			"CodingIcd10Ca" => "/codingicd/CodingIcd10s/tool/ca", 
-			"CodingIcdo3Morpho" => "/codingicd/CodingIcdo3s/tool/morpho", 
-			"CodingIcdo3Topo" => "/codingicd/CodingIcdo3s/tool/topo");
+		"CodingIcd10Who" => "/codingicd/CodingIcd10s/tool/who", 
+		"CodingIcd10Ca" => "/codingicd/CodingIcd10s/tool/ca", 
+		"CodingIcdo3Morpho" => "/codingicd/CodingIcdo3s/tool/morpho", 
+		"CodingIcdo3Topo" => "/codingicd/CodingIcdo3s/tool/topo",
+		//MB custom---------
+		'CodingIcd9' => "/codingicd/CodingIcd9s/"
+		//------------------
+	);
 	
 	/**
 	 * @desc Used to store the previous model when a model is recreated for detail search
