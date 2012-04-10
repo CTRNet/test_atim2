@@ -246,8 +246,12 @@ $tx_detail_precision = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-// $xls_reader->read('/Volumes/data/prostate_crchum.xls');
-$xls_reader->read('/Volumes/data/prostate_chum.xls');
+if(count($argv) > 1){
+	$xls_reader->read($argv[1]);
+}else{
+	// $xls_reader->read('/Volumes/data/prostate_crchum.xls');
+	$xls_reader->read('/Volumes/data/prostate_chum.xls');
+}
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
@@ -257,6 +261,7 @@ while($line = next($cells)){
 	$line_number = key($cells);
 	$icd10 = str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]);
 	$morpho = str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]);
+	SardoToAtim::icd10Update($icd10, "");
 	$dx_data = array(
 		'master' => array(
 			'participant_id'			=> $line['participant_id'],
@@ -266,8 +271,8 @@ while($line = next($cells)){
 			'parent_id'					=> null,
 			'dx_date'					=> $line[SardoToAtim::$columns['Date du diagnostic']],
 			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
-			'icd10_code'				=> isset(SardoToAtim::$icd10_ca_equiv[$icd10]) ? SardoToAtim::$icd10_ca_equiv[$icd10] : $icd10,
-			'morphology'				=> isset(SardoToAtim::$icd10_ca_equiv[$morpho]) ? SardoToAtim::$icd10_ca_equiv[$morpho] : $morpho,
+			'icd10_code'				=> $icd10,
+			'morphology'				=> $morpho,
 			'clinical_tstage'			=> $line[SardoToAtim::$columns['TNM T']],
 			'clinical_nstage'			=> $line[SardoToAtim::$columns['TNM N']],
 			'clinical_mstage'			=> $line[SardoToAtim::$columns['TNM M']],
@@ -305,11 +310,11 @@ while($line = next($cells)){
 				'treatment_control_id'	=> 4,
 				'start_date'			=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - date']],
 				'start_date_accuracy'	=> $line['CHIR 1 Tx00 - date_accuracy'],
-				'diagnosis_master_id'	=> $dx_id
+				'diagnosis_master_id'	=> $dx_id,
+				'facility'				=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - lieu']],
 			), 'detail' => array(
 				'qc_nd_precision'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00']],
-				'qc_nd_no_patho'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - no patho']],
-				'qc_nd_location'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - lieu']],
+				'path_num'				=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - no patho']]
 			)
 		);
 	

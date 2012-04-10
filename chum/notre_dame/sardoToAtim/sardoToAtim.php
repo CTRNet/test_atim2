@@ -80,37 +80,42 @@ class SardoToAtim{
 		'ô' => 'o'
 	);
 	
+	//null means laterality check. 0=right, 1=left, 9=unknown
 	static $icd10_ca_equiv = array(
+		'C079'	=> 'C07',
 		'C199'	=> 'C19',
 		'C209'	=> 'C20',
 		'C239'	=> 'C23',
+		'C300'	=> 'C3000',
 		'C341'	=> 'C3410',
 		'C343'	=> 'C3439',
-		'C349'	=> 'C3499',
-		'C501'	=> 'C5019',
-		'C502'	=> 'C5029',
-		'C503'	=> 'C5039',
-		'C504'	=> 'C5049',
-		'C505'	=> 'C5059',
-		'C508'	=> 'C5089',
-		'C509'	=> 'C5099',
+		'C349'	=> null,
+		'C379'	=> 'C37',
+		'C420'	=> 'C959',
+		'C421'	=> 'C900',
+		'C500'	=> null,
+		'C501'	=> null,
+		'C502'	=> null,
+		'C503'	=> null,
+		'C504'	=> null,
+		'C505'	=> null,
+		'C508'	=> null,
+		'C509'	=> null,
 		'C529'	=> 'C52',
 		'C570'	=> 'C5709',
 		'C559'	=> 'C55',
 		'C589'	=> 'C58',
+		'C619'	=> 'C61',
+		'C621'	=> null,
+		'C629'	=> null,
+		'C649'	=> 'C64',
 		'C659'	=> 'C65',
 		'C669'	=> 'C66',
 		'C739'	=> 'C73',
+		'K802'	=> 'K8020',
 		'N835'	=> 'N8352',
 		'Z804'	=> 'Z8048'
 	);
-	
-	static $icdo3_morpho_equiv = array(
-		'84723'	=> '84721',
-		'85073'	=> '85072'
-	);
-	
-	static $morpho_codes = array();
 	
 	static private $table_fields_cache = array();//table fields cache
 	static private $table_fields_revs_cache = array();//the compatible fields between x and x_revs
@@ -535,7 +540,7 @@ class SardoToAtim{
 		self::$table_fields_cache[$tablename] = $fields;
 	}
 	
-	static function insertRev($src_tablename, $id, $key = 'id'){
+	static function insertRev($src_tablename, $id, $key = 'id', $used_date = null){
 		if(!array_key_exists($src_tablename, self::$table_fields_revs_cache)){
 			if(!array_key_exists($src_tablename, self::$table_fields_cache)){
 				self::updateFieldsCache($src_tablename);
@@ -550,9 +555,13 @@ class SardoToAtim{
 			$result->free();
 			self::$table_fields_revs_cache[$src_tablename] = array_intersect(array_keys(self::$table_fields_cache[$src_tablename]), $fields);
 		}
+		if($used_date == null){
+			$used_date = date("Y-m-d H:i:s");
+		}
 		$imploded_str = '`'.implode('`, `', self::$table_fields_revs_cache[$src_tablename]).'`';
-		$query = "INSERT INTO ".$src_tablename."_revs (".$imploded_str.", version_created) (SELECT ".$imploded_str.", NOW() FROM ".$src_tablename." WHERE ".$key."=".$id.")";
+		$query = "INSERT INTO ".$src_tablename."_revs (".$imploded_str.", version_created) (SELECT ".$imploded_str.", '".$used_date."' FROM ".$src_tablename." WHERE ".$key."=".$id.")";
 		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		return $used_date;
 	}
 	
 	static function formatWithAccuracy($date_str){
@@ -805,9 +814,9 @@ class SardoToAtim{
 			}
 			printf("INSERT made in table %s for keys %s based on line %d.\n", $levels['master'], implode(', ', $keys_values), $line_number);
 		}
-		self::insertRev($levels['master'], $last_id);
+		$used_date = self::insertRev($levels['master'], $last_id);
 		if($detail_table_name != null){
-			self::insertRev($detail_table_name, $last_id, substr($levels['master'], 0, -1)."_id");
+			self::insertRev($detail_table_name, $last_id, substr($levels['master'], 0, -1)."_id", $used_date);
 		}
 		
 		return $last_id;
@@ -841,13 +850,23 @@ class SardoToAtim{
 		$result->free();
 	}
 	
-	static private function checkValueDomain($table_name, $field, $domain_name){
-		$query = sprintf("SELECT DISTINCT %s AS value FROM %s WHERE %s NOT IN(
+	static private function checkValueDomain($table_name, $field, $domain_name, $custom = false){
+		$query = null;
+		if($custom){
+			$query = "SELECT DISTINCT %s AS value FROM %s WHERE %s NOT IN(
+			SELECT value
+			FROM structure_permissible_values_customs AS spvc
+			INNER JOIN structure_permissible_values_custom_controls AS spvcc ON spvc.control_id=spvcc.id
+			WHERE spvcc.name='%s')";
+		}else{
+			$query = "SELECT DISTINCT %s AS value FROM %s WHERE %s NOT IN(
 			SELECT value
 			FROM structure_value_domains_permissible_values AS svdpv
 			INNER JOIN structure_value_domains AS svd ON svdpv.structure_value_domain_id=svd.id
 			INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id
-			WHERE svd.domain_name='%s')", $field, $table_name, $field, $domain_name);
+			WHERE svd.domain_name='%s')";
+		}
+		$query = sprintf($query, $field, $table_name, $field, $domain_name);
 		$results = self::$connection->query($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 		$values = array();
 		while($row = $results->fetch_assoc()){
@@ -858,38 +877,54 @@ class SardoToAtim{
 		
 		$inserted_ids = array();
 		if($values){
-			$query = "INSERT INTO structure_permissible_values (value, language_alias) VALUES (?, ?)";
-			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-			foreach($values as $value){
-				$stmt->bind_param('ss', $value, $value);
-				$stmt->execute();
-				self::printStmtWarnings($stmt, -1, $query);
-				$inserted_ids[] = $stmt->insert_id;
-				printf("INSERT new value [%s] for value domain [%s]\n", $value, $domain_name);
+			if($custom){
+				$query = 'INSERT INTO structure_permissible_values_customs (control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by, deleted) VALUES 
+					((SELECT id FROM structure_permissible_values_custom_controls WHERE name=?) ?, ?, ?, 0, 1, NOW(), 1, NOW(), 1, 0)';
+				$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+				foreach($values as $value){
+					$stmt->bind_param('ssss', $domain_name, $value, $value, $value);
+					$stmt->execute();
+					self::printStmtWarnings($stmt, -1, $query);
+					$inserted_ids[] = $stmt->insert_id;
+					printf("INSERT new value [%s] for custom value domain [%s]\n", $value, $domain_name);
+				}
+				$stmt->close();
+			}else{
+				$query = "INSERT INTO structure_permissible_values (value, language_alias) VALUES (?, ?)";
+				$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+				foreach($values as $value){
+					$stmt->bind_param('ss', $value, $value);
+					$stmt->execute();
+					self::printStmtWarnings($stmt, -1, $query);
+					$inserted_ids[] = $stmt->insert_id;
+					printf("INSERT new value [%s] for value domain [%s]\n", $value, $domain_name);
+				}
+				$stmt->close();
+				
+				$query = 'INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES((SELECT id FROM structure_value_domains WHERE domain_name=?), ?)';
+				$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+				foreach($inserted_ids as $inserted_id){
+					$stmt->bind_param('si', $domain_name, $inserted_id);
+					$stmt->execute();
+					self::printStmtWarnings($stmt, -1, $query);
+				}
+				$stmt->close();
 			}
-			$stmt->close();
-			
-			$query = 'INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id) VALUES((SELECT id FROM structure_value_domains WHERE domain_name=?), ?)';
-			$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-			foreach($inserted_ids as $inserted_id){
-				$stmt->bind_param('si', $domain_name, $inserted_id);
-				$stmt->execute();
-				self::printStmtWarnings($stmt, -1, $query);
-			}
-			$stmt->close();
 		}
 	}
 	
 	static private function checkValueDomains(){
 		self::validateTopo();
 		self::validateMorpho();
-		self::checkValueDomain('qc_nd_dxd_primary_sardo', 'laterality', 'laterality');
+		self::checkValueDomain('qc_nd_dxd_primary_sardos', 'laterality', 'laterality');
 		self::checkValueDomain('qc_nd_ed_biopsy', 'type', 'qc_nd_biopsy_type');
 		self::checkValueDomain('diagnosis_masters', 'dx_nature', 'dx_nature');
 		self::checkValueDomain('reproductive_histories', 'qc_nd_cause', 'qc_nd_menopause_cause');
-		self::checkValueDomain('qc_nd_dxd_primary_sardo', 'figo', 'qc_nd_figo');
-		
-		//TODO: complete me
+		self::checkValueDomain('qc_nd_dxd_primary_sardos', 'figo', 'qc_nd_figo');
+		self::checkValueDomain('qc_nd_dxd_primary_sardos', 'laterality', 'laterality', true);
+		self::checkValueDomain('treatment_masters', 'facility', 'treatment facility', true);
+		self::checkValueDomain('qc_nd_ed_cytology', 'type', 'qc_nd_cytology_type');
+		self::checkValueDomain('qc_nd_txd_hormonotherapies', 'type', 'qc_nd_hormono_type');
 	}
 	
 	
@@ -942,6 +977,28 @@ class SardoToAtim{
 	
 	static function toNumber($in){
 		return (float)str_replace(',', ".", $in);
+	}
+
+	/**
+	 * Will update an icd10 code based on laterality.
+	 * @param string $icd10
+	 * @param string $laterality
+	 */
+	static function icd10Update(&$icd10, $laterality){
+		if(array_key_exists($icd10, self::$icd10_ca_equiv)){
+			if(self::$icd10_ca_equiv[$icd10] == null){
+				//laterality check
+				if(strpos($laterality, 'DROIT') !== false){
+					$icd10 .= '0';
+				}else if(strpos($laterality, 'GAUCHE') !== false){
+					$icd10 .= '1';
+				}else{
+					$icd10 .= '9';
+				}
+			}else{
+				$icd10 = self::$icd10_ca_equiv[$icd10];
+			}
+		}
 	}
 }
 
