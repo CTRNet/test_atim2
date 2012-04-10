@@ -913,19 +913,25 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if(!$this->AliquotMaster->validates()){
 					$error_msg = array_merge($error_msg, $this->AliquotMaster->validationError);
 				}
-					
+				
+				$aliquot_data_to_save_tmp = array(
+					'id'				=> $aliquot_master_id,
+					'aliquot_control_id'=> $aliquot_data['AliquotControl']['id'],
+					'in_stock'			=> $data_unit['AliquotMaster']['in_stock'],
+					'in_stock_detail'	=> $data_unit['AliquotMaster']['in_stock_detail']
+				);
 				if($data_unit['FunctionManagement']['remove_from_storage']){
-					$aliquot_data_to_save[] = array(
-						'id' => $aliquot_master_id,
-						'aliquot_control_id' => $aliquot_data['AliquotMaster']['aliquot_control_id'],
+					$aliquot_data_to_save_tmp += array(
 						'storage_master_id' => null,
 						'storage_coord_x' => null,
 						'storage_coord_y' => null
 					);
 				}
+				$aliquot_data_to_save[] = $aliquot_data_to_save_tmp;
 				
 				$parent = array(
 					'AliquotMaster' => $data_unit['AliquotMaster'],
+					'StorageMaster'	=> $data_unit['StorageMaster'],
 					'FunctionManagement' => $data_unit['FunctionManagement'],
 					'AliquotControl' => isset($data_unit['AliquotControl']) ? $data_unit['AliquotControl'] : array() 
 				);
@@ -962,6 +968,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if(!empty($aliquot_data_to_save)){
 					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
 				}
+				
 				foreach($uses_to_save as $use){
 					$this->AliquotMaster->updateAliquotUseAndVolume($use['AliquotInternalUse']['aliquot_master_id'], true, true, false);
 				}
@@ -2040,8 +2047,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('realiquot_into', $child_aliquot_ctrl_id);
 		$this->set('sample_ctrl_id', $this->data['sample_ctrl_id']);		
 		
-		$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		$this->Structures->set('in_stock_detail,in_stock_detail_volume', 'in_stock_detail');
+		$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		
 		// Set url to cancel
 		$url_to_cancel = (isset($this->data['url_to_cancel']) && !empty($this->data['url_to_cancel']))? $this->data['url_to_cancel'] : '/menus';

@@ -26,10 +26,8 @@ class Config{
 	
 	//if reading excel file
 	
-// 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/Add_2011_11_02/CHUS#3-COEUR template-v2.0 (2011-10-05).xls';
-//	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/Add_2011_11_02/McGill#2-COEUR-clinical data_mcgill_july2011.xls';
- 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR/Add_2011_11_02/TFRI-COEUR CBCF#2-v2.0 (2011-08-29).xls';
-	static $xls_header_rows = 2;
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/OHRI data for 2010 samples.xls';
+	static $xls_header_rows = 1;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
 	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
