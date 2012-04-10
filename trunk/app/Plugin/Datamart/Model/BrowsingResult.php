@@ -21,7 +21,7 @@ class BrowsingResult extends DatamartAppModel {
 	}
 	
 	/**
-	 * Return a model associated to a node
+	 * Return a model associated to a node (takes the detail model if the result set allows it)
 	 * @param mixed $node Either a browsing result id or the data array related to it
 	 */
 	function getModelAndStructureForNode($browsing_result){
@@ -31,15 +31,27 @@ class BrowsingResult extends DatamartAppModel {
 		assert(is_array($browsing_result));
 		
 		$structures_component = AppController::getInstance()->Structures;
-		$model = null;
+		$model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['model']);
 		$structure = $structures_component->getFormById($browsing_result['DatamartStructure']['structure_id']);
 		$header_sub_type = null;
-		$specific = null;
+		$control_id = null;
 		if($browsing_result['BrowsingResult']['browsing_structures_sub_id']){
 			//specific
-			$specific = true;
-			$model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['control_master_model']);
 			$control_id = $browsing_result['BrowsingResult']['browsing_structures_sub_id'];
+		}else if($browsing_result['DatamartStructure']['control_master_model']){
+			$control_foreign = $model->getControlForeign();
+			$data = $model->find('all', array(
+				'fields'		=> array($model->name.'.'.$control_foreign),
+				'conditions' 	=> array($model->name.'.'.$model->primaryKey.' IN('.$browsing_result['BrowsingResult']['id_csv'].')'),
+				'group by'		=> array($model->name.'.'.$control_foreign)
+			));
+			if(count($data) == 1){
+				$control_id = $data[0][$model->name][$control_foreign];
+			}
+		}
+		
+		if($control_id){
+			$model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['control_master_model']);
 			$control_model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $model->getControlName());
 			$control_model_data = $control_model->find('first', array(
 					'fields' => array($control_model->name.'.form_alias', $control_model->name.'.databrowser_label'),
@@ -57,12 +69,9 @@ class BrowsingResult extends DatamartAppModel {
 			);
 			
 			$structure = $structures_component->get('form', $structure_alias);
-		}else{
-			$specific = false;
-			$model = AppModel::getInstance($browsing_result['DatamartStructure']['plugin'], $browsing_result['DatamartStructure']['model']);
 		}
 		
-		return array('specific' => $specific, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type);
+		return array('specific' => $control_id != null, 'model' => $model, 'structure' => $structure, 'header_sub_type' => $header_sub_type);
 	}
 	
 	
