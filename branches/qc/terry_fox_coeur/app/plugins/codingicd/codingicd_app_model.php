@@ -41,9 +41,8 @@ class CodingicdAppModel extends AppModel {
 
 			
 		foreach($terms as $term){
-			if($exact_search){
-				$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
-			}else{
+			$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
+			if(!$exact_search){
 				$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
 			}
 			$term = $db->value($term);

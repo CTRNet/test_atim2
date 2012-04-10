@@ -17,13 +17,15 @@ class ClinicalCollectionLink extends ClinicalAnnotationAppModel{
     function summary( $variables=array() ) {
 		$return = false;
 		
-		if ( isset($variables['ClinicalCollectionLinks.id']) ) {
+		if ( isset($variables['ClinicalCollectionLink.id']) ) {
 			
 			$result = $this->find('first', array('conditions'=>array('ClinicalCollectionLink.id'=>$variables['ClinicalCollectionLink.id'])));
 			
 			$return = array(
-				'data'			=> $result,
-				'structure alias'=>'clinicalcollectionlinks'
+				'menu'				=>	array( NULL, ($result['Collection']['acquisition_label']) ),
+				'title'				=>	array( NULL, ($result['Collection']['acquisition_label']) ),
+				'structure alias' 	=> 'clinicalcollectionlinks',
+				'data'				=> $result
 			);
 		}
 		

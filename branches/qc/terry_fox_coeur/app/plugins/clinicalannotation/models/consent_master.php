@@ -13,6 +13,8 @@ class ConsentMaster extends ClinicalannotationAppModel {
 			'className' => 'Clinicalannotation.ClinicalCollectionLink',
 			'foreignKey' => 'consent_master_id'));
 	
+	static public $join_consent_control_on_dup = array('table' => 'consent_controls', 'alias' => 'ConsentControl', 'type' => 'LEFT', 'conditions' => array('consent_masters_dup.consent_control_id = ConsentControl.id'));
+	
 	/**
 	 * Check if a record can be deleted.
 	 * 
@@ -37,7 +39,9 @@ class ConsentMaster extends ClinicalannotationAppModel {
 		return $arr_allow_deletion;
 	}	
 	
-	
+	static function joinOnConsentDup($on_field){
+		return array('table' => 'consent_masters', 'alias' => 'consent_masters_dup', 'type' => 'LEFT', 'conditions' => array($on_field.' = consent_masters_dup.id'));
+	}
 }
 
 ?>

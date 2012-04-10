@@ -41,10 +41,11 @@ class AliquotControl extends InventorymanagementAppModel {
 						'foreignKey'	=> 'sample_control_id'))));
 			$aliquot_controls = $this->find('all', array('conditions' => $conditions));
 			foreach($aliquot_controls as $aliquot_control) {
-				$aliquot_type_precision = $aliquot_control['AliquotControl']['aliquot_type_precision'];
-				$result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'], true) 
-					. ' ['.__($aliquot_control['SampleControl']['sample_type'], true)
-					. (empty($aliquot_type_precision)? '' :  ' - ' . __($aliquot_type_precision, true)) . ']';
+				$result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'], true) ;
+//				$aliquot_type_precision = $aliquot_control['AliquotControl']['aliquot_type_precision'];
+//				$result[$aliquot_control['AliquotControl']['id']] = __($aliquot_control['AliquotControl']['aliquot_type'], true) 
+//					. ' ['.__($aliquot_control['SampleControl']['sample_type'], true)
+//					. (empty($aliquot_type_precision)? '' :  ' - ' . __($aliquot_type_precision, true)) . ']';
 			}
 		}else{
 			$aliquot_controls = $this->find('all', array('conditions' => $conditions));

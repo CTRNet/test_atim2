@@ -2,7 +2,13 @@
 
 class PermissionsController extends AdministrateAppController {
 	
-	var $uses = array('Aco','Aro', 'ExternalLink', 'Group'); 
+	var $uses = array(
+		'Aco',
+		'Aro', 
+		'ExternalLink', 
+		'Group',
+		'Administrate.PermissionsPreset'
+	); 
 	
 	function index(){
 		
@@ -134,7 +140,7 @@ class PermissionsController extends AdministrateAppController {
 			)
 		);
 		
-		$threaded_data = $this->Aco->find('threaded');
+		$threaded_data = $this->Aco->find('threaded', array('order' => 'Aco.alias'));
 		$threaded_data = $this->addPermissionStateToThreadedData($threaded_data);
 		
 		$this->data = $threaded_data;
@@ -166,6 +172,59 @@ class PermissionsController extends AdministrateAppController {
 		return $threaded_data;
 	}
 	
+	function savePreset(){
+		$this->Structures->set('permission_save_preset');
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		if(!empty($this->data)){
+			$permission_preset = $this->PermissionsPreset->find('first', array('conditions' => array('PermissionsPreset.name' => $this->data['PermissionsPreset']['name'])));
+			if(empty($permission_preset)){
+				if($this->PermissionsPreset->save(array(
+					'name' => $this->data['PermissionsPreset']['name'],
+					'serialized_data' => serialize(array('allow' => $this->data[0]['allow'], 'deny' => $this->data[0]['deny'])),
+					'description' => $this->data['PermissionsPreset']['description']
+				))){
+					echo 200;
+					exit;
+				}else{
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+			}else if($this->data[0]['overwrite']){
+				if($this->PermissionsPreset->save(array(
+					'id' => $permission_preset['PermissionsPreset']['id'],
+					'serialized_data' => serialize(array('allow' => $this->data[0]['allow'], 'deny' => $this->data[0]['deny'])),
+					'description' => $this->data['PermissionsPreset']['description']
+				))){
+					echo 200;
+					exit;
+				}else{
+					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+			}else{
+				$this->PermissionsPreset->validationErrors['name'] = __('this name already exists', true)." ".__('select a new one or check the overwrite option', true);
+			}
+		}
+	}
+	
+	function loadPreset(){
+		$this->Structures->set('permission_save_preset');
+		//layout = ajax to avoid printing layout
+		$this->layout = 'ajax';
+		//debug = 0 to avoid printing debug queries that would break the javascript array
+		Configure::write('debug', 0);
+		$this->data = $this->PermissionsPreset->find('all', array('order' => array('PermissionsPreset.name')));
+		foreach($this->data as &$unit){
+			$preset = unserialize($unit['PermissionsPreset']['serialized_data']);
+			$unit['PermissionsPreset']['link'] = 'javascript:applyPreset("'.addslashes(json_encode($preset)).'");';
+			$unit['PermissionsPreset']['delete'] = 'javascript:deletePreset('.$unit['PermissionsPreset']['id'].');';
+		}
+	}
+	
+	function deletePreset($preset_id){
+		$this->PermissionsPreset->atim_delete($preset_id);
+	}
 }
 
 ?>

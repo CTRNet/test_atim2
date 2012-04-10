@@ -1,25 +1,38 @@
 <?php 
-
-	$search_type_links = array();
-	$search_type_links['participants'] = array('link'=> '/clinicalannotation/participants/index/', 'icon' => 'search');
-	$search_type_links['misc identifiers'] = array('link'=> '/clinicalannotation/misc_identifiers/index/', 'icon' => 'search');
-
 	$structure_links = array(
 		'index'=>array('detail'=>'/clinicalannotation/participants/profile/%%Participant.id%%'),
-		'bottom'=>array(
-			'add participant'=>'/clinicalannotation/participants/add/', 
-			'new search' => $search_type_links
+		'bottom' => array(
+			'new search' => ClinicalannotationAppController::$search_links,
+			'add participant'=>'/clinicalannotation/participants/add/'
 		)
 	);
 	
+	$settings = array('return' => true);
+	if(isset($is_ajax)){
+		$settings['actions'] = false;
+	}else{
+		$settings['header'] = __('search type', null).': '.__('participants', null);
+	}
+	
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('type'=>'index','links'=>$structure_links, 'settings' => array('header' => __('search type', null).': '.__('participants', null)));
+	$final_options = array(
+		'type' => 'index',
+		'links' => $structure_links, 
+		'settings' => $settings
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
-	$structures->build( $final_atim_structure, $final_options );
+	$form = $structures->build( $final_atim_structure, $final_options );
+	if(isset($is_ajax)){
+		echo json_encode(array('page' => $shell->validationHtml().$form, 'new_search_id' => AppController::getNewSearchId()));
+	}else{
+		echo $form;
+	}
 ?>
