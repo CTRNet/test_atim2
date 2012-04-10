@@ -59,7 +59,7 @@ SardoToAtim::$columns = array(
     "HORM adjuvante Tx00",
     "RADIO néo-adjuvante Tx00",
     "RADIO adjuvante Tx00",
-    "Pr00 - sites d'atteinte",
+    "Pr00 - sites d'atteinte",//TODO: Import into ATiM power tapiss
     "Pr01 - date",
     "Pr01 - sites",
     "Délai DX-Pr01 (M)",
@@ -118,8 +118,12 @@ $patho_fields = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-$xls_reader->read('/Volumes/data/sein_crchum.xls');
-// $xls_reader->read('/Volumes/data/sein_chum.xls');
+if(count($argv) > 1){
+	$xls_reader->read($argv[1]);
+}else{
+	// $xls_reader->read('/Volumes/data/sein_crchum.xls');
+	$xls_reader->read('/Volumes/data/sein_chum.xls');
+}
 $cells = $xls_reader->sheets[0]['cells'];
 
 SardoToAtim::basicChecks($cells);
@@ -128,6 +132,7 @@ while($line = next($cells)){
 	$line_number = key($cells);
 	$icd10 = str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]);
 	$morpho = str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]);
+	SardoToAtim::icd10Update($icd10, $line[SardoToAtim::$columns['Latéralité']]);
 	$dx_data = array(
 		'master' => array(
 			'participant_id'			=> $line['participant_id'],
@@ -138,14 +143,13 @@ while($line = next($cells)){
 			'dx_date'					=> $line[SardoToAtim::$columns['Date du diagnostic']],
 			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
 			'dx_nature'					=> $line[SardoToAtim::$columns['Diagnostic']],
-			'icd10_code'				=> isset(SardoToAtim::$icd10_ca_equiv[$icd10]) ? SardoToAtim::$icd10_ca_equiv[$icd10] : $icd10,
-			'morphology'				=> isset(SardoToAtim::$icdo3_morpho_equiv[$morpho]) ? SardoToAtim::$icdo3_morpho_equiv[$morpho] : $morpho,
+			'icd10_code'				=> $icd10,
+			'morphology'				=> $morpho,
 			'clinical_stage_summary'	=> $line[SardoToAtim::$columns['TNM clinique']],
 			'path_tstage'				=> $line[SardoToAtim::$columns['TNM pT']],
 			'path_nstage'				=> $line[SardoToAtim::$columns['TNM pN']],
 			'path_mstage'				=> $line[SardoToAtim::$columns['TNM pM']],
-			'path_stage_summary'		=> $line[SardoToAtim::$columns['TNM pathologique']],
-			'survival_time_months'		=> $line[SardoToAtim::$columns['Survie (mois)']],
+			'path_stage_summary'		=> $line[SardoToAtim::$columns['TNM pathologique']]
 		), 'detail' => array(
 			'laterality'				=> $line[SardoToAtim::$columns['Latéralité']],
 			'tnm_g'						=> $line[SardoToAtim::$columns['TNM G']]
@@ -155,7 +159,9 @@ while($line = next($cells)){
 	
 	if($line[SardoToAtim::$columns['Antécédents familiaux ce cancer']] == 'Oui'){
 		$fam_hist_data = array(
-			'sardo_diagnosis_id'	=>	$line[SardoToAtim::$columns['No DX SARDO']]
+			'participant_id'		=> $line['participant_id'],
+			'sardo_diagnosis_id'	=> $line[SardoToAtim::$columns['No DX SARDO']],
+			'qc_nd_sardo_type'		=> 'breast cancer'
 		);
 		SardoToAtim::update(Models::FAMILY_HISTORY, $fam_hist_data, $line_number, 'participant_id');
 	}
@@ -346,7 +352,9 @@ while($line = next($cells)){
 				'participant_id'			=> $line['participant_id'],
 				'menopause_status'			=> $converted_menopause['status'],
 				'qc_nd_cause'				=> $converted_menopause['cause'],
-				'qc_nd_gravida_para_aborta' => $line[SardoToAtim::$columns['Gravida Para Aborta']]
+				'gravida'					=> substr($line[SardoToAtim::$columns['Gravida Para Aborta']], 1, 2),
+				'para'						=> substr($line[SardoToAtim::$columns['Gravida Para Aborta']], 5, 2),
+				'qc_nd_aborta'				=> substr($line[SardoToAtim::$columns['Gravida Para Aborta']], 9, 2)
 			)
 		);
 		SardoToAtim::update(Models::REPRODUCTIVE_HISTORY, $menopause, $line_number);

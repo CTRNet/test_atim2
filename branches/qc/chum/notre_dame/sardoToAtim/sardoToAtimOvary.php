@@ -78,8 +78,12 @@ SardoToAtim::$date_columns = array(
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 
-$xls_reader->read('/Volumes/data/ovaire_crchum.xls');
-// $xls_reader->read('/Volumes/data/ovaire_chum.xls');
+if(count($argv) > 1){
+	$xls_reader->read($argv[1]);
+}else{
+	// $xls_reader->read('/Volumes/data/ovaire_crchum.xls');
+	$xls_reader->read('/Volumes/data/ovaire_chum.xls');
+}
 $cells = $xls_reader->sheets[0]['cells'];
 
 $stmt = SardoToAtim::$connection->prepare("SELECT * FROM participants WHERE id=?");
@@ -89,6 +93,7 @@ while($line = next($cells)){
 	$line_number = key($cells);
 	$icd10 = str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]);
 	$morpho = str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]);
+	SardoToAtim::icd10Update($icd10, $line[SardoToAtim::$columns['Latéralité']]);
 	$dx_data = array(
 		'master' => array(
 			'participant_id'			=> $line['participant_id'],
@@ -97,13 +102,12 @@ while($line = next($cells)){
 			'parent_id'					=> null,
 			'dx_date'					=> $line[SardoToAtim::$columns['Date du diagnostic']],
 			'dx_date_accuracy'			=> $line['Date du diagnostic_accuracy'],
-			'icd10_code'				=> isset(SardoToAtim::$icd10_ca_equiv[$icd10]) ? SardoToAtim::$icd10_ca_equiv[$icd10] : $icd10,
-			'morphology'				=> isset(SardoToAtim::$icdo3_morpho_equiv[$morpho]) ? SardoToAtim::$icdo3_morpho_equiv[$morpho] : $morpho,
+			'icd10_code'				=> $icd10,
+			'morphology'				=> $morpho,
 			'path_tstage'				=> $line[SardoToAtim::$columns['TNM pT']],
 			'path_nstage'				=> $line[SardoToAtim::$columns['TNM pN']],
 			'path_mstage'				=> $line[SardoToAtim::$columns['TNM pM']],
-			'path_stage_summary'		=> $line[SardoToAtim::$columns['TNM pathologique']],
-			'survival_time_months'		=> $line[SardoToAtim::$columns['Survie (mois)']]
+			'path_stage_summary'		=> $line[SardoToAtim::$columns['TNM pathologique']]
 		), 'detail' => array(
 			'laterality'				=> $line[SardoToAtim::$columns['Latéralité']],
 			'tnm_g'						=> $line[SardoToAtim::$columns['TNM G']],
