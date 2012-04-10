@@ -72,9 +72,9 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, "tableId"=>$dx_control_id));
 		$this->set( 'atim_menu', $this->Menus->get('/clinicalannotation/diagnosis_masters/listall/') );
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_control_id)));
-		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		$this->Structures->set('diagnosismasters', 'diagnosismasters');
 		$this->Structures->set('empty', 'empty_structure');
+		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 
 		$this->set( 'dx_type', $dx_control_data['DiagnosisControl']['controls_type']);
 		
@@ -125,10 +125,10 @@ class DiagnosisMastersController extends ClinicalannotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.diagnosis_control_id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id']));
 		$dx_control_data = $this->DiagnosisControl->find('first', array('conditions' => array('DiagnosisControl.id' => $dx_master_data['DiagnosisMaster']['diagnosis_control_id'])));
-		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		
 		$this->Structures->set('empty', 'empty_structure');
 		$this->Structures->set('diagnosismasters', 'diagnosismasters');
+		$this->Structures->set($dx_control_data['DiagnosisControl']['form_alias']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

@@ -1,6 +1,5 @@
 <?php
-$pkey = "Patient Biobank Number
-(required)";
+$pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"bank_id" 						=> "#bank_id",
