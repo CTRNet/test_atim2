@@ -1,16 +1,11 @@
 <?php 
 
-	$search_type_links = array();
-	$search_type_links['order'] = array('link'=> '/order/orders/index/', 'icon' => 'search');
-	$search_type_links['order item'] = array('link'=> '/order/order_items/index/', 'icon' => 'search');
-	$search_type_links['shipment'] = array('link'=> '/order/shipments/index/', 'icon' => 'search');
-	
 	$structure_links = array(
 		'bottom'=>array(
+			'new search' => OrderAppController::$search_links,
 			'edit all' => '/order/order_items/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
 			'add item'=> '/order/order_items/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
 			'add shipment'=>array('link'=>'/order/shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
-			'new search' => $search_type_links
 		)
 	);
 	

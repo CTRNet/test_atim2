@@ -19,7 +19,10 @@
 		'index'=>array(
 			'detail'=>'/clinicalannotation/treatment_masters/detail/'.$atim_menu_variables['Participant.id'].'/%%TreatmentMaster.id%%/'
 		),
-		'bottom'=>array('filter' => $filter_links, 'add' => $add_links)
+		'bottom'=>array(
+			//'filter' => $filter_links, //this can be added back into the hook if needed 
+			'add' => $add_links
+		)
 	);
 
 	$structure_override = array();
@@ -27,7 +30,9 @@
 	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override);
 	$final_atim_structure = $atim_structure; 
 	$hook_link = $structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 	$structures->build( $final_atim_structure, $final_options );
 	
 ?>

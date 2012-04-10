@@ -19,7 +19,7 @@
 		}
 		ksort($add_links);
 		$bottom = array(
-			'search' => '/storagelayout/storage_masters/index', 
+			'search' => '/storagelayout/storage_masters/search', 
 			'add' => $add_links);
 	}
 	

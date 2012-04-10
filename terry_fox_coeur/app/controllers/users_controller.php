@@ -13,7 +13,11 @@ class UsersController extends AppController {
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'login') );
 	}
 	
-	function login() {
+	function login(){
+		if($this->RequestHandler->isAjax()){
+			echo json_encode(array("logged_in" => isset($_SESSION['Auth']['User']), "server_time" => time()));
+			exit;
+		}
 		$version_data = $this->Version->find('first', array('fields' => array('MAX(id) AS id')));
 		$this->Version->id = $version_data[0]['id'];
 		$this->Version->read();
@@ -22,6 +26,13 @@ class UsersController extends AppController {
 			AppController::addWarningMsg(__('permissions have been regenerated', true));
 			$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 			$this->Version->save();
+		}
+		if($this->Version->data['Version']['version_number'] != __('core_app_version', true)){
+			//update the i18n string
+			$version_number = $this->Version->data['Version']['version_number'];
+			$this->User->query("UPDATE i18n SET en='".$version_number."', fr ='".$version_number."' WHERE id='core_app_version'");
+			
+			AppController::addWarningMsg('The language files need to be regenerated. (Invalid translation for core_app_version.)');	
 		}
 		
 		if($this->Auth->user()){
@@ -35,9 +46,18 @@ class UsersController extends AppController {
 				);
 				$this->UserLoginAttempt->save($login_data);
 				$_SESSION['ctrapp_core']['warning_msg'] = array();//init
+				$_SESSION['ctrapp_core']['info_msg'] = array();//init
+				
+				//flush tmp batch sets
+				$batch_set_model = AppModel::getInstance('datamart', 'BatchSet', true);
+				$batch_set_model->deleteCurrentUserTmp();
 			}
 			$group = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
 			$_SESSION['Auth']['User']['flag_show_confidential'] = $group['Group']['flag_show_confidential'];
+			if(!isset($_SESSION['Auth']['User']['search_id'])){
+				$_SESSION['Auth']['User']['search_id'] = 1;
+				$_SESSION['ctrapp_core']['search'] = array();
+			}
 			$this->redirect($this->Auth->redirect());
 		}else if(!empty($this->data)){
 			//failed login
@@ -68,7 +88,6 @@ class UsersController extends AppController {
 		$this->Acl->flushCache();
 		$this->redirect($this->Auth->logout());
 	}
-
 }
 
 ?>

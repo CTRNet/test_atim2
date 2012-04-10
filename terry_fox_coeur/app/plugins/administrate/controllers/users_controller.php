@@ -43,12 +43,13 @@ class UsersController extends AdministrateAppController {
 				$hashed_pwd = Security::hash($this->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->data['Generated']['field1'], 'confirm_password' => $this->data['Generated']['field1']));
 				if($this->data['User']['password'] != $hashed_pwd){
-					$password_data['User']['new_password'] .= 'invalid';
+					$password_data['User']['new_password'] = '';
 				}
-				$this->User->validatePassword($password_data, '/administrate/users/add/'.$group_id);
+				
+				$this->User->validatePassword($password_data);
 				
 				$this->data['Generated']['field1'] = Security::hash($this->data['Generated']['field1'], null, true);
-				$submitted_data_validates = true;
+				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->data['User']['group_id'] = $group_id;
 				$this->data['User']['flag_active'] = true;
 				
@@ -141,6 +142,16 @@ class UsersController extends AdministrateAppController {
 			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
 		}
 	}
+	
+	function search($search_id = 0){
+		$this->set( 'atim_menu', $this->Menus->get('/administrate/groups') );
+		$this->searchHandler($search_id, $this->User, 'users', '/administrate/users/search');
+		$this->Structures->set('empty', 'empty_structure');
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	}
 }
 
-?>

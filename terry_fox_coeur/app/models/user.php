@@ -66,7 +66,8 @@ class User extends AppModel {
 
 		unset($data['User']['new_password'], $data['User']['confirm_password']);
 		
-		$data['User']['group_id'] = $_SESSION['Auth']['User']['group_id'];
+		$this->read();
+		$data['User']['group_id'] = $this->data['User']['group_id'];//otherwise aros table is altered
 		if ( $this->save( $data ) ) {
 			AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
 		}
@@ -75,18 +76,18 @@ class User extends AppModel {
 	/**
 	 * Will throw a flash message if the password is not valid
 	 * @param array $data
-	 * @param string $error_flash_link
-	 * @param string $success_flash_link
 	 */
-	function validatePassword(array $data, $error_flash_link){
+	function validatePassword(array $data){
 		if ( !isset($data['User']['new_password'], $data['User']['confirm_password']) ) {
 			//do nothing
 
-		}else if ( $data['User']['new_password'] !== $data['User']['confirm_password'] ) {
-			AppController::getInstance()->flash( 'Sorry, new password was not entered correctly.', $error_flash_link );
-
-		}else if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
-			AppController::getInstance()->flash( 'passwords minimal length', $error_flash_link );
+		}else{
+			if ($data['User']['new_password'] !== $data['User']['confirm_password']){
+				$this->validationErrors['password'][] = 'passwords do not match'; 
+			}
+			if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
+				$this->validationErrors['password'][] = 'passwords minimal length';
+			}
 		}
 	}
 

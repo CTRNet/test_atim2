@@ -1,6 +1,6 @@
 <?php
 	$structure_links = array(
-		'top'=>array('search'=>'/material/materials/search/'),
+		'top'=>array('search'=>'/material/materials/search/'.AppController::getNewSearchId()),
 		'bottom'=>array(
 			'add'=>'/material/materials/add/'
 		)
