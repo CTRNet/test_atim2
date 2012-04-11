@@ -158,8 +158,7 @@ while($line = next($cells)){
 				'start_date_accuracy'	=> $line['CHIMIO 1 Tx00 - début_accuracy'],
 				'diagnosis_master_id'	=> $dx_id
 			), 'detail' => array(
-				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO 1 Tx00']], 
-				'qc_nd_pre_chir'		=> 'n'
+				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO 1 Tx00']] 
 			)
 		);
 		
@@ -225,21 +224,23 @@ while($line = next($cells)){
 			}else{
 				$date_to = SardoToAtim::formatWithAccuracy($date_to);
 			}
-			
-			$hormono = array(
-				'master' => array(
-					'participant_id'		=> $line['participant_id'],
-					'treatment_control_id'	=> 5,
-					'start_date'			=> $date_from['val'],
-					'start_date_accuracy'	=> $date_from['accuracy'],
-					'finish_date'			=> $date_to['val'],
-					'finish_date_accuracy'	=> $date_to['accuracy'],
-					'diagnosis_master_id'	=> $dx_id
-				), 'detail' => array(
-					'type'					=> $value
-				)
-			);
-			SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number);
+			$types = explode(',', $value);
+			foreach($types as $type){
+				$hormono = array(
+					'master' => array(
+						'participant_id'		=> $line['participant_id'],
+						'treatment_control_id'	=> 5,
+						'start_date'			=> $date_from['val'],
+						'start_date_accuracy'	=> $date_from['accuracy'],
+						'finish_date'			=> $date_to['val'],
+						'finish_date_accuracy'	=> $date_to['accuracy'],
+						'diagnosis_master_id'	=> $dx_id
+					), 'detail' => array(
+						'type'					=> trim($type)
+					)
+				);
+				SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number);
+			}
 		}
 	}
 	

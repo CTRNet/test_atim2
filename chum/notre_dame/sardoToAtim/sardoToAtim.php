@@ -879,7 +879,7 @@ class SardoToAtim{
 		if($values){
 			if($custom){
 				$query = 'INSERT INTO structure_permissible_values_customs (control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by, deleted) VALUES 
-					((SELECT id FROM structure_permissible_values_custom_controls WHERE name=?) ?, ?, ?, 0, 1, NOW(), 1, NOW(), 1, 0)';
+					((SELECT id FROM structure_permissible_values_custom_controls WHERE name=?), ?, ?, ?, 0, 1, NOW(), 1, NOW(), 1, 0)';
 				$stmt = self::$connection->prepare($query) or die('Prepare failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 				foreach($values as $value){
 					$stmt->bind_param('ssss', $domain_name, $value, $value, $value);

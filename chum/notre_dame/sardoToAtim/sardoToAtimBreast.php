@@ -121,8 +121,8 @@ SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 if(count($argv) > 1){
 	$xls_reader->read($argv[1]);
 }else{
-	// $xls_reader->read('/Volumes/data/sein_crchum.xls');
-	$xls_reader->read('/Volumes/data/sein_chum.xls');
+	$xls_reader->read('/Volumes/data/sein_crchum.xls');
+// 	$xls_reader->read('/Volumes/data/sein_chum.xls');
 }
 $cells = $xls_reader->sheets[0]['cells'];
 
@@ -241,14 +241,14 @@ while($line = next($cells)){
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
 				'treatment_control_id'	=> 1,
-				'diagnosis_master_id'	=> $dx_id
+				'diagnosis_master_id'	=> $dx_id,
+				'tx_intent'				=> 'neoadjuvant'
 			), 'detail' => array(
-				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO néo-adjuvante Tx00']],
-				'qc_nd_is_neoadjuvant'	=> 'y',
+				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO néo-adjuvante Tx00']]
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id', 'tx_intent')));
 	}
 	
 	if($line[SardoToAtim::$columns['CHIMIO adjuvante Tx00']]){
@@ -256,44 +256,50 @@ while($line = next($cells)){
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
 				'treatment_control_id'	=> 1,
-				'diagnosis_master_id'	=> $dx_id
+				'diagnosis_master_id'	=> $dx_id,
+				'tx_intent'				=> 'adjuvant'
 		), 'detail' => array(
-				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO adjuvante Tx00']],
-				'qc_nd_is_neoadjuvant'	=> 'n',
+				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO adjuvante Tx00']]
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id', 'tx_intent')));
 	}
 
 	if($line[SardoToAtim::$columns['HORM néo-adjuvante Tx00']]){
-		$hormono = array(
-			'master' => array(
-				'participant_id'		=> $line['participant_id'],
-				'treatment_control_id'	=> 5,
-				'diagnosis_master_id'	=> $dx_id
-		), 'detail' => array(
-				'type'			=> $line[SardoToAtim::$columns['HORM adjuvante Tx00']],
-				'is_neoadjuvant'	=> 'y',
-			)
-		);
-	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('is_neoadjuvant')));
+		$types = explode(',', $line[SardoToAtim::$columns['HORM adjuvante Tx00']]);
+		foreach($types as $type){
+			$hormono = array(
+				'master' => array(
+					'participant_id'		=> $line['participant_id'],
+					'treatment_control_id'	=> 5,
+					'diagnosis_master_id'	=> $dx_id,
+					'tx_intent'				=> 'neoadjuvant'
+			), 'detail' => array(
+					'type'				=> trim($type)
+				)
+			);
+		
+			SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id', 'tx_intent')));
+		}
 	}
 
 	if($line[SardoToAtim::$columns['HORM adjuvante Tx00']]){
-		$hormono = array(
-			'master' => array(
-				'participant_id'		=> $line['participant_id'],
-				'treatment_control_id'	=> 5,
-				'diagnosis_master_id'	=> $dx_id
-		), 'detail' => array(
-				'type'			=> $line[SardoToAtim::$columns['HORM adjuvante Tx00']],
-				'is_neoadjuvant'	=> 'n',
-			)
-		);
+		$types = explode(',', $line[SardoToAtim::$columns['HORM adjuvante Tx00']]);
+		foreach($types as $type){
+			$hormono = array(
+				'master' => array(
+					'participant_id'		=> $line['participant_id'],
+					'treatment_control_id'	=> 5,
+					'diagnosis_master_id'	=> $dx_id,
+					'tx_intent'				=> 'adjuvant'
+			), 'detail' => array(
+					'type'				=> trim($type)
+				)
+			);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('is_neoadjuvant')));
+			SardoToAtim::update(Models::TREATMENT_MASTER, $hormono, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id', 'tx_intent')));
+		}
 	}
 
 	if($line[SardoToAtim::$columns['RADIO néo-adjuvante Tx00']]){
@@ -301,14 +307,14 @@ while($line = next($cells)){
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
 				'treatment_control_id'	=> 2,
-				'diagnosis_master_id'	=> $dx_id
+				'diagnosis_master_id'	=> $dx_id,
+				'tx_intent'				=> 'neoadjuvant'
 		), 'detail' => array(
-				'qc_nd_type'			=> $line[SardoToAtim::$columns['RADIO néo-adjuvante Tx00']],
-				'qc_nd_is_neoadjuvant'	=> 'y',
+				'qc_nd_type'			=> $line[SardoToAtim::$columns['RADIO néo-adjuvante Tx00']]
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id', 'tx_intent')));
 	}
 	
 	if($line[SardoToAtim::$columns['RADIO adjuvante Tx00']]){
@@ -316,14 +322,14 @@ while($line = next($cells)){
 			'master' => array(
 				'participant_id'		=> $line['participant_id'],
 				'treatment_control_id'	=> 2,
-				'diagnosis_master_id'	=> $dx_id
+				'diagnosis_master_id'	=> $dx_id,
+				'tx_intent'				=> 'adjuvant'
 		), 'detail' => array(
 				'qc_nd_type'			=> $line[SardoToAtim::$columns['RADIO adjuvante Tx00']],
-				'qc_nd_is_neoadjuvant'	=> 'n',
 			)
 		);
 	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id'), 'detail' => array('qc_nd_is_neoadjuvant')));
+		SardoToAtim::update(Models::TREATMENT_MASTER, $radio, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'diagnosis_master_id', 'tx_intent')));
 	}
 	
 	foreach(range(1, 3) as $progression_count){
