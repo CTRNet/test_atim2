@@ -136,7 +136,43 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 -- end 2012-03-29
 
 
+
+
+
+
+
 -- 2012-04-04
+REPLACE INTO i18n (id, en, fr) VALUES
+("location(site)", "Location", "Lieu"),
+("report number", "Report number", "Numéro du rapport"),
+("residual disease", "Residual disease", "Maladie résiduelle"),
+("medication", "Medication", "Médication"),
+("N/S", "N/S","N/S"),
+("not evaluable", "Not evaluable", "Non évaluable"),
+("suspect", "Suspect", "Suspect"),
+("hormonotherapy", "Hormonotherapy", "Hormonothérapie"),
+("is neoadjuvant", "Is neoadjuvant", "Est néo-adjuvant"),
+("year of menopause", "Year of menopause", "Année de la ménopause"),
+("cause", "Cause", "Cause"),
+("aborta", "Aborta", "Aborta"),
+('help_survival_time',
+ "Survival time is the difference between date of death and diagnosis date. If date of death is not available, it's the difference between last contact date and diagnosis date. In both cases, both dates accuracy need to be exact.",
+ "Le temps de survie est la différence entre la date du décès et la date du diagnostic. Si la date du décès n'est pas disponible, la différence entre la date du dernier contact et la date du diagnostic est utilisée. Dans les deux cas, la précision des deux dates dois être exacte."),
+("survival time year(s)", "Survival time year(s)", "Temps de survie année(s)"),
+("and day(s)", "and day(s)", "et jour(s)"),
+("invalid primary disease code", "Invalid primary disease code", "Code de maladie primaire invalide"),
+("figo stage", "Figo stage", "Stade figo"),
+("icd10 - topo", "Icd10 - Topo", "Icd10 - Topo"),
+("site", "Site", "Site"),
+("ca125", "CA125", "CA125"),
+("cigarettes per day", "Cigarettes per day", "Cigarettes par jour"),
+("started on", "Started on", "Commencé le"),
+("stopped on", "Stopped on", "Arrêté le"),
+("detailed", "Detailed", "Détaillé"),
+("post(mail)", "Post", "Poste"),
+("post(after)", "Post", "Post");
+
+
 DELETE FROM structure_validations WHERE id IN(98, 99);
 UPDATE structure_validations SET rule='validateIcd10CaCode', language_message='invalid disease code' WHERE id=97;
 INSERT INTO structure_validations (structure_field_id, rule, on_action, language_message) VALUES
@@ -196,18 +232,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardo') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-101' AND `plugin`='Clinicalannotation' AND `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `language_label`='survival time months' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_survival time' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
 UPDATE structure_fields SET  `language_label`='survival time year(s)' WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='survival_time_years' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `language_help`='help_survival_time',  `language_tag`='and day(s)' WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='survival_time_days' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
-
-REPLACE INTO i18n (id, en, fr) VALUES
-('help_survival_time',
- "Survival time is the difference between date of death and diagnosis date. If date of death is not available, it's the difference between last contact date and diagnosis date. In both cases, both dates accuracy need to be exact.",
- "Le temps de survie est la différence entre la date du décès et la date du diagnostic. Si la date du décès n'est pas disponible, la différence entre la date du dernier contact et la date du diagnostic est utilisée. Dans les deux cas, la précision des deux dates dois être exacte."),
-("survival time year(s)", "Survival time year(s)", "Temps de survie année(s)"),
-("and day(s)", "and day(s)", "et jour(s)"),
-("invalid primary disease code", "Invalid primary disease code", "Code de maladie primaire invalide"),
-("figo stage", "Figo stage", "Stade figo"),
-("icd10 - topo", "Icd10 - Topo", "Icd10 - Topo"),
-("site", "Site", "Site"),
-("ca125", "CA125", "CA125");
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'ReproductiveHistory', 'reproductive_histories', 'qc_nd_aborta', 'integer_positive',  NULL , '0', '', '', '', 'aborta', '');
@@ -283,6 +307,7 @@ UPDATE event_controls SET disease_site='general' WHERE disease_site='all';
 UPDATE treatment_controls SET disease_site='general' WHERE disease_site='all';
 
 RENAME TABLE qc_nd_ed_ca125 TO qc_nd_ed_ca125s;
+RENAME TABLE qc_nd_ed_ca125_revs TO qc_nd_ed_ca125s_revs;
 UPDATE structure_fields SET tablename='qc_nd_ed_ca125s' WHERE tablename='qc_nd_ed_ca125';
 UPDATE event_controls SET detail_tablename='qc_nd_ed_ca125s' WHERE id=30;
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_ed_ca125') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ca125s' AND `field`='value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -323,18 +348,20 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0', 
 UPDATE event_controls SET event_type='procure (questionnaire)' WHERE id=11;
 
 INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
-('general', 'lifestyle', 'smoking', 1, 'eventmasters,ed_all_lifestyle_smoking', 'ed_all_lifestyle_smokings', 0, 'lifestyle|all|smoking');
+('general', 'lifestyle', 'smoking', 1, 'ed_all_lifestyle_smoking', 'ed_all_lifestyle_smokings', 0, 'lifestyle|all|smoking');
 
 ALTER TABLE ed_all_lifestyle_smokings
  ADD COLUMN qc_nd_started_on DATE DEFAULT NULL,
  ADD COLUMN qc_nd_started_on_accuracy CHAR(1) DEFAULT 'c',
  ADD COLUMN qc_nd_stopped_on DATE DEFAULT NULL,
- ADD COLUMN qc_nd_stopped_on_accuracy CHAR(1) DEFAULT 'c';
+ ADD COLUMN qc_nd_stopped_on_accuracy CHAR(1) DEFAULT 'c',
+ ADD COLUMN qc_nd_cigs_a_day SMALLINT UNSIGNED DEFAULT NULL;
 ALTER TABLE ed_all_lifestyle_smokings_revs
  ADD COLUMN qc_nd_started_on DATE DEFAULT NULL,
  ADD COLUMN qc_nd_started_on_accuracy CHAR(1) DEFAULT 'c',
  ADD COLUMN qc_nd_stopped_on DATE DEFAULT NULL,
- ADD COLUMN qc_nd_stopped_on_accuracy CHAR(1) DEFAULT 'c';
+ ADD COLUMN qc_nd_stopped_on_accuracy CHAR(1) DEFAULT 'c',
+ ADD COLUMN qc_nd_cigs_a_day SMALLINT UNSIGNED DEFAULT NULL;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'EventDetail', 'ed_all_lifestyle_smokings', 'qc_nd_started_on', 'date',  NULL , '0', '', '', '', 'started on', ''), 
 ('Clinicalannotation', 'EventDetail', 'ed_all_lifestyle_smokings', 'qc_nd_stopped_on', 'date',  NULL , '0', '', '', '', 'stopped on', '');
@@ -343,3 +370,105 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='qc_nd_stopped_on' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stopped on' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='years_quit_smoking' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'ed_all_lifestyle_smokings', 'qc_nd_cigs_a_day', 'integer_positive',  NULL , '0', '', '', '', 'cigarettes per day', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='qc_nd_cigs_a_day' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cigarettes per day' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("post", "post(after)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="menopause_status"), (SELECT id FROM structure_permissible_values WHERE value="post" AND language_alias="post(after)"), "3", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="post" AND spv.language_alias="post";
+DELETE FROM structure_permissible_values WHERE value="post" AND language_alias="post";
+
+UPDATE structure_fields SET  `language_label`='year of menopause' WHERE model='ReproductiveHistory' AND tablename='reproductive_histories' AND field='qc_nd_year_menopause' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='location(site)' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='facility' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='facility') AND `flag_confidential`='0');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_residual_disease", "", "", NULL);
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_residual_disease')  WHERE model='TreatmentDetail' AND tablename='txd_surgeries' AND field='qc_nd_residual_disease' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE protocol_masters SET name='Chimiothérapie SAI' WHERE id=24;
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_chemo_type", "", "", NULL);
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_chemo_type')  WHERE model='TreatmentDetail' AND tablename='txd_chemos' AND field='qc_nd_type' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+SET foreign_key_checks = 0;
+TRUNCATE diagnosis_masters;
+TRUNCATE dxd_primaries;
+TRUNCATE dxd_secondaries;
+TRUNCATE dxd_remissions;
+TRUNCATE dxd_progressions;
+TRUNCATE dxd_recurrences;
+TRUNCATE qc_nd_dxd_primary_sardos;
+TRUNCATE qc_nd_dx_progression_sardos;
+TRUNCATE diagnosis_masters_revs;
+TRUNCATE dxd_primaries_revs;
+TRUNCATE dxd_secondaries_revs;
+TRUNCATE dxd_remissions_revs;
+TRUNCATE dxd_progressions_revs;
+TRUNCATE dxd_recurrences_revs;
+TRUNCATE qc_nd_dxd_primary_sardos_revs;
+TRUNCATE qc_nd_dx_progression_sardos_revs;
+DELETE d, e FROM qc_nd_ed_all_procure_lifestyles AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_smintestines AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_perihilarbileducts AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_pancreasexos AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_pancreasendos AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_intrahepbileducts AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_hepatocellular_carcinomas AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_gallbladders AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_distalexbileducts AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_colon_biopsies AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_ampullas AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_cap_report_colon_rectum_resections AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_all_comorbidities AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_biopsy AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_cytology AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_ca125s AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_pathologies AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_observations AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_patho_prostates AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM qc_nd_ed_aps_prostates AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE d, e FROM ed_all_lifestyle_smokings AS d INNER JOIN event_masters AS e ON e.id=d.event_master_id WHERE e.created_by=12;
+DELETE FROM event_masters_revs WHERE id NOT IN(SELECT id FROM event_masters);
+DELETE FROM qc_nd_ed_all_procure_lifestyles_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_all_procure_lifestyles);
+DELETE FROM ed_cap_report_smintestines_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_smintestines);
+DELETE FROM ed_cap_report_perihilarbileducts_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_perihilarbileducts);
+DELETE FROM ed_cap_report_pancreasexos_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_pancreasexos);
+DELETE FROM ed_cap_report_pancreasendos_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_pancreasendos);
+DELETE FROM ed_cap_report_intrahepbileducts_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_intrahepbileducts);
+DELETE FROM ed_cap_report_hepatocellular_carcinomas_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_hepatocellular_carcinomas);
+DELETE FROM ed_cap_report_gallbladders_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_gallbladders);
+DELETE FROM ed_cap_report_distalexbileducts_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_distalexbileducts);
+DELETE FROM ed_cap_report_colon_biopsies_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_colon_biopsies);
+DELETE FROM ed_cap_report_ampullas_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_ampullas);
+DELETE FROM ed_cap_report_colon_rectum_resections_revs WHERE id NOT IN(SELECT id FROM ed_cap_report_colon_rectum_resections);
+DELETE FROM ed_all_comorbidities_revs WHERE id NOT IN(SELECT id FROM ed_all_comorbidities);
+DELETE FROM qc_nd_ed_biopsy_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_biopsy);
+DELETE FROM qc_nd_ed_cytology_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_cytology);
+DELETE FROM qc_nd_ed_ca125s_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_ca125s);
+DELETE FROM qc_nd_ed_pathologies_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_pathologies);
+DELETE FROM qc_nd_ed_observations_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_observations);
+DELETE FROM qc_nd_ed_patho_prostates_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_patho_prostates);
+DELETE FROM qc_nd_ed_aps_prostates_revs WHERE id NOT IN(SELECT id FROM qc_nd_ed_aps_prostates);
+DELETE FROM ed_all_lifestyle_smokings_revs WHERE id NOT IN(SELECT id FROM ed_all_lifestyle_smokings);
+TRUNCATE treatment_masters;
+TRUNCATE txd_chemos;
+TRUNCATE txd_radiations;
+TRUNCATE txd_surgeries;
+TRUNCATE txd_surgeries;
+TRUNCATE qc_nd_txd_hormonotherapies;
+TRUNCATE qc_nd_txd_medications;
+TRUNCATE family_histories;
+TRUNCATE treatment_masters_revs;
+TRUNCATE txd_chemos_revs;
+TRUNCATE txd_radiations_revs;
+TRUNCATE txd_surgeries_revs;
+TRUNCATE txd_surgeries_revs;
+TRUNCATE qc_nd_txd_hormonotherapies_revs;
+TRUNCATE qc_nd_txd_medications_revs;
+TRUNCATE family_histories_revs;
+DELETE FROM reproductive_histories WHERE created_by=12;
+DELETE FROM reproductive_histories_revs WHERE id NOT IN(SELECT id FROM reproductive_histories);
+SET foreign_key_checks = 1;
