@@ -925,6 +925,9 @@ class SardoToAtim{
 		self::checkValueDomain('treatment_masters', 'facility', 'treatment facility', true);
 		self::checkValueDomain('qc_nd_ed_cytology', 'type', 'qc_nd_cytology_type');
 		self::checkValueDomain('qc_nd_txd_hormonotherapies', 'type', 'qc_nd_hormono_type');
+		self::checkValueDomain('txd_surgeries', 'qc_nd_residual_disease', 'qc_nd_residual_disease');
+		self::checkValueDomain('txd_chemos', 'qc_nd_type', 'qc_nd_chemo_type');
+		//checkValueDomain($table_name, $field, $domain_name, $custom = false)
 	}
 	
 	
