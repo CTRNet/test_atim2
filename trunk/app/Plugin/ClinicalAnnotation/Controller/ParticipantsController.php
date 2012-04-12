@@ -198,7 +198,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id, 'ConsentMaster.consent_status' => 'obtained')));
 		foreach($consents as $consent){
 			$tmp_array[$consent['ConsentMaster']['consent_signed_date']][] = array(
-				'event' => __('consent'), 
+				'event' => __('consent').', '.__($consent['ConsentControl']['controls_type']), 
 				'link' => '/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$consent['ConsentMaster']['id'],
 				'date_accuracy' => isset($consent['ConsentMaster']['consent_signed_date_accuracy']) ? $consent['ConsentMaster']['consent_signed_date_accuracy'] : 'c'
 			);
@@ -207,7 +207,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		$dxs = $this->DiagnosisMaster->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
 		foreach($dxs as $dx){
 			$tmp_array[$dx['DiagnosisMaster']['dx_date']][] = array(
-				'event' => __('diagnosis'), 
+				'event' => __('diagnosis').', '.__($dx['DiagnosisControl']['category']).' - '.__($dx['DiagnosisControl']['controls_type']), 
 				'link' => '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$dx['DiagnosisMaster']['id'],
 				'date_accuracy' => $dx['DiagnosisMaster']['dx_date_accuracy']
 			);
@@ -216,7 +216,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		$annotations = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id)));
 		foreach($annotations as $annotation){
 			$tmp_array[$annotation['EventMaster']['event_date']][] = array(
-				'event' => __($annotation['EventControl']['event_type']), 
+				'event' => __($annotation['EventControl']['event_group']).', '.__($annotation['EventControl']['event_type']), 
 				'link' => '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$annotation['EventMaster']['id'],
 				'date_accuracy' => isset($annotation['EventMaster']['event_date_accuracy']) ? $annotation['EventMaster']['event_date_accuracy'] : 'c'
 			);
