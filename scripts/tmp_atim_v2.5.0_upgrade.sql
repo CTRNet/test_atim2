@@ -1353,3 +1353,9 @@ ALTER TABLE derivative_details
  DROP COLUMN modified_by;
 ALTER TABLE derivative_details_revs
  DROP COLUMN modified_by;
+ 
+ALTER TABLE protocol_masters
+ DROP COLUMN type;
+ALTER TABLE protocol_masters_revs
+ DROP COLUMN type;
+ 

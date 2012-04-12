@@ -24,7 +24,7 @@ class ProtocolMaster extends ProtocolAppModel {
 			$result = $this->find('first', array('conditions'=>array('ProtocolMaster.id'=>$variables['ProtocolMaster.id'])));
 			
 			$return = array(
-				'menu'			=>	array( NULL, __($result['ProtocolMaster']['type'], TRUE) . ' - ' . $result['ProtocolMaster']['code']),
+				'menu'			=>	array( NULL, __($result['ProtocolControl']['type'], TRUE) . ' - ' . $result['ProtocolMaster']['code']),
 				'title'			=>	array( NULL, $result['ProtocolMaster']['code']),
 				'data'			=> $result,
 				'structure alias'=>'protocolmasters'
@@ -49,7 +49,7 @@ class ProtocolMaster extends ProtocolAppModel {
 				$criteria['ProtocolMaster.protocol_control_id'] = $protocol_control_id; 
 			} 
 			foreach($this->find('all', array('conditions' => $criteria, 'order' => 'ProtocolMaster.code')) as $new_protocol) {
-				self::$protocol_dropdown[$new_protocol['ProtocolMaster']['id']] = __($new_protocol['ProtocolMaster']['type']) . ' : ' . $new_protocol['ProtocolMaster']['code'] . ' (' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']) . ')';
+				self::$protocol_dropdown[$new_protocol['ProtocolMaster']['id']] = __($new_protocol['ProtocolControl']['type']) . ' : ' . $new_protocol['ProtocolMaster']['code'] . (empty($new_protocol['ProtocolMaster']['name']) ? '' : ' (' . $new_protocol['ProtocolMaster']['name'] . ')');
 			}
 			self::$protocol_dropdown_set = true;
 		}
