@@ -27,12 +27,11 @@ if($controls){
 				'list' => '/Tools/Template/index',
 				'reset' => array('link' => 'javascript:confirmReset();', 'icon' => 'redo')
 			)
-		), 'settings' => array('return' => true),
+		), 'settings' => array('return' => true, 'form_bottom' => true),
 		'extras' => $tree_html
 	);
 	if(isset($is_ajax)){
 		$final_options['settings']['actions'] = false;
-		$final_options['settings']['form_bottom'] = false;
 	}
 }else{
 	$final_options = array(
@@ -55,7 +54,7 @@ if(isset($is_ajax)){
 	$page = $this->Shell->validationHtml().$page;
 	$tmp = $this->Shell->validationErrors();
 	$has_errors = !empty($tmp);
-	$this->Shell->validationErrors = null;
+	$this->validationErrors = array();
 	echo json_encode(array('page' => $page, 'has_errors' => $has_errors));
 	return;
 }else{
@@ -91,7 +90,7 @@ if(isset($is_ajax)){
 				data = $.parseJSON(data);
 				$("body").append("<div class='hidden' id='tmp_add'></div>");
 				$("#tmp_add").html(data.page);
-				$("form").first().attr("action", $("#tmp_add form").attr("action")).find("table").first().replaceWith($("#tmp_add table").first());
+				$("form:first").attr("action", $("#tmp_add form").attr("action")).find("table:first").replaceWith($("#tmp_add table:first"));
 				$(".wrapper").find(".validation").remove();
 				$(".wrapper").prepend($(".validation"));
 				$("#tmp_add").remove();
@@ -414,7 +413,7 @@ if(isset($is_ajax)){
 						  }, timer, function() {
 							  $(item).animate({
 									"background-color": "#fff"
-								  }, timer)
+								  }, timer);
 						  });
 				  });
 		  });	
