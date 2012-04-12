@@ -163,6 +163,7 @@ if(isset($is_ajax)){
 								data.quantity = isNaN(parseInt($("#addDialog input").val())) ? 1 : $("#addDialog input").val();
 								addNode(data , $("#addDialog").data("node"));
 							}
+							return false;
 						} 
 					})
 				);
@@ -189,6 +190,7 @@ if(isset($is_ajax)){
 			$("#addDialog").data("parent_id", $(liParent).data("nodeId"));
 			updateNumInput();
 			$("#addDialog").popup();
+			return false;
 		});
 	}
 	
