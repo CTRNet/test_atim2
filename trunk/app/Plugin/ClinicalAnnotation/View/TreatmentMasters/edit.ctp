@@ -7,7 +7,7 @@
 	// 1- TRT
 	$structure_settings = array(
 		'actions'		=> false, 
-		'header' 		=> '1- ' . __('data', null),
+		'header' 		=> __('data', null),
 		'form_bottom'	=> false
 	);
 	
@@ -28,7 +28,7 @@
 	// 2- SEPARATOR & HEADER
 	
 	$structure_settings = array(
-		'header' 		=> '2- ' . __('related diagnosis', null),
+		'header' 		=> __('related diagnosis', null),
 		'form_top' 		=> false,
 		'tree'			=> array('DiagnosisMaster' => 'DiagnosisMaster'),
 		'form_inputs'	=> false
