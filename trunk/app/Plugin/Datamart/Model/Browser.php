@@ -476,7 +476,7 @@ class Browser extends DatamartAppModel {
 		$result .= "<table class='structure'><tr><td style='padding-left: 10px;'>".__("browsing")
 			."<table class='databrowser'>\n";
 		ksort($tree);
-		$lang = AppController::getInstance()->Session->read('Auth.User.lang'); 
+		$lang = AppController::getInstance()->Session->read('Config.language');
 		
 		foreach($tree as $y => $line){
 			$result .= '<tr><td></td>';//print a first empty column, css will print an highlighted h-line in the top left cell
@@ -501,7 +501,7 @@ class Browser extends DatamartAppModel {
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
 					$title = __($cell['DatamartStructure']['display_name']);
 					$info = __($cell['BrowsingResult']['browsing_type']).' - '.AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
-					$cache_key = 'browsingNodeContent'.$lang.$cell['BrowsingResult']['id'];
+					$cache_key = 'node_'.$lang.$cell['BrowsingResult']['id'];
 					if(!$content = Cache::read($cache_key, 'browser')){
 						if($cell['BrowsingResult']['raw']){
 							$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
