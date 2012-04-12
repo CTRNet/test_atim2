@@ -5,6 +5,10 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+('collection contents', 'Collection contents', 'Contenu de la collection'),
+('no participant is linked to the current participant collection', 
+ "No participant is linked to the current participant collection.",
+ "Aucun participant n'est lié à la présente collection de participant."),
 ('reserved for study','Reserved For Study/Project','Réservé pour une Étude/Projet'),
 ('identifier name','Identifier Name', "Nom d'identifiant"),
 ('click here to access it', "Click here to access it.", "Cliquez ici pour y accéder."),
@@ -73,7 +77,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("all (participant, consent, diagnosis and treatment/annotation)",
  "All (Participant, Consent, Diagnosis and Treatment/Annotation)",
  "Tout (participant, Consentement, Diagnotic, Traitement/Annotation)"),
-("the value must be between %g and %g", "The value must be between %g and %g", "La valeur doit être entre %g et %g");
+("the value must be between %g and %g", "The value must be between %g and %g", "La valeur doit être entre %g et %g"),
+("invalid primary disease code", "Invalid primary disease code", "Code de maladie primaire invalide");
  
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
@@ -1333,3 +1338,18 @@ UPDATE structure_fields SET `structure_value_domain`=(SELECT id FROM structure_v
 INSERT INTO structure_validations(structure_field_id, rule) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='csv_export_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='visible' AND `language_help`='help_csv_export_type' AND `language_label`='type' AND `language_tag`=''), 'notEmpty'), 
 ((SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='redundancy' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='csv_redundancy')  AND `flag_confidential`='0' AND `setting`='' AND `default`='multiple' AND `language_help`='help_csv_redundancy' AND `language_label`='redundancy display' AND `language_tag`=''), 'notEmpty');
+
+ALTER TABLE specimen_details
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE specimen_details_revs
+ DROP COLUMN modified_by;
+ALTER TABLE derivative_details
+ DROP COLUMN created,
+ DROP COLUMN created_by,
+ DROP COLUMN modified,
+ DROP COLUMN modified_by;
+ALTER TABLE derivative_details_revs
+ DROP COLUMN modified_by;

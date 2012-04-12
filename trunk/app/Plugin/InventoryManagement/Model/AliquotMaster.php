@@ -32,7 +32,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'LEFT', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot'
+		'InventoryManagement.ViewAliquot' => array('aliquot_master_id')
 	);
 		
 	function summary($variables=array()) {

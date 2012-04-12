@@ -134,8 +134,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 
 		$is_intial_display = isset($this->request->data[0]['ids'])? true : false;
-		$is_batch_process = empty($sample_master_id)? true : false;
-		$this->set('is_batch_process',$is_batch_process);
+		$is_batch_process = empty($sample_master_id);
+		$this->set('is_batch_process', $is_batch_process);
 		
 		// GET ALIQUOT CONTROL DATA
 		
@@ -157,6 +157,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(isset($this->request->data['url_to_cancel'])) {
 			$url_to_cancel =  $this->request->data['url_to_cancel'];
 			unset($this->request->data['url_to_cancel']);	
+		}
+		$template_init_id = null;
+		if(isset($this->request->data['template_init_id'])){
+			$template_init_id = $this->request->data['template_init_id'];
+			unset($this->request->data['template_init_id']);
 		}
 		
 		// GET SAMPLES DATA		
@@ -271,7 +276,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}else{
 					
 			// 2- VALIDATE PROCESS
-			
 			$errors = array();
 			$prev_data = $this->request->data;
 			$this->request->data = array();
