@@ -6,6 +6,7 @@ class ProtocolMaster extends ProtocolAppModel {
 	var $useTable = 'protocol_masters';
 	
 	public static $protocol_dropdown = array();
+	private static $protocol_dropdown_set = false;
 
 	var $belongsTo = array(        
 	   'ProtocolControl' => array(            
@@ -41,21 +42,19 @@ class ProtocolMaster extends ProtocolAppModel {
 	 * @updated N. Luc
 	 */  	
 	function getProtocolPermissibleValuesFromId($protocol_control_id = null) {
-		$result = array();
 		// Build tmp array to sort according translation
 		$criteria = array();
-		if(empty(self::$protocol_dropdown)){
+		if(!self::$protocol_dropdown_set){
 			if(!is_null($protocol_control_id)){
 				$criteria['ProtocolMaster.protocol_control_id'] = $protocol_control_id; 
 			} 
 			foreach($this->find('all', array('conditions' => $criteria, 'order' => 'ProtocolMaster.code')) as $new_protocol) {
-				$result[$new_protocol['ProtocolMaster']['id']] = __($new_protocol['ProtocolMaster']['type']) . ' : ' . $new_protocol['ProtocolMaster']['code'] . ' (' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']) . ')';
+				self::$protocol_dropdown[$new_protocol['ProtocolMaster']['id']] = __($new_protocol['ProtocolMaster']['type']) . ' : ' . $new_protocol['ProtocolMaster']['code'] . ' (' . (empty($new_protocol['ProtocolMaster']['name'])? '-' : $new_protocol['ProtocolMaster']['name']) . ')';
 			}
-		}else{
-			$result = self::$protocol_dropdown;
+			self::$protocol_dropdown_set = true;
 		}
-				
-		return $result;
+		
+		return self::$protocol_dropdown;
 	}	
 	
 	/**
