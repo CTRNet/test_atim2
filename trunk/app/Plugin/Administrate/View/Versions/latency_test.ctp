@@ -26,17 +26,17 @@ function testLatency(hammer){
 
 function testLatency2(id){
 	var pingTime = new Date();
-	$.get(root_url + "administrate/versions/latencyTest", "", function(data){
+	$.get(root_url + "Administrate/Versions/latencyTest?id=" + id + "&t=" + (new Date()).getTime(), "", function(data){
 		var pongTime = new Date();
 		var latency = pongTime.getTime() - pingTime.getTime();
-		$("textarea").append(id + ": " + (latency) + "ms\n");
+		$("textarea").append(id + ": " + (latency) + "ms\r");
 		maxLatency = Math.max(maxLatency, latency);
 		minLatency = Math.min(minLatency, latency);
 		total += latency;
 		++ count;
 		if(count == 10){
 			//end results
-			$("textarea").append("---Max: " + maxLatency + "ms ---Min: " + minLatency + "ms ---Avg: " + (total / 10) + "\n");
+			$("textarea").append("---Max: " + maxLatency + "ms ---Min: " + minLatency + "ms ---Avg: " + (total / 10) + "\r");
 		}
 	});
 }
