@@ -292,26 +292,24 @@ if(isset($is_ajax)){
 	}
 
 	function overrideSubmitButton(){
-			$.post($("form").prop("action") + "/noActions:/", $("form").serialize(), function(jsonData){
-				jsonData = $.parseJSON(jsonData);
-				if(jsonData.goToNext){
-					//update current node display if needed
-					$(currentNode).data("id", jsonData.id);
-					nextNode();
-				}else{
-					try{
-						$(".ajaxContent").html(jsonData.display);
-					}catch(e){
-						//do nothing
-					}
-					addTemplateInitId();
-					flyOverComponents();
-					globalInit(".ajaxContent");
+		$.post($("form").prop("action") + "/noActions:/templateInitId:" + templateInitId + '/', $("form").serialize(), function(jsonData){
+			jsonData = $.parseJSON(jsonData);
+			if(jsonData.goToNext){
+				//update current node display if needed
+				$(currentNode).data("id", jsonData.id);
+				nextNode();
+			}else{
+				try{
+					$(".ajaxContent").html(jsonData.display);
+				}catch(e){
+					//do nothing
 				}
-			}); 
-			setLoading();
-			return false;
-//		});
+				flyOverComponents();
+				globalInit(".ajaxContent");
+			}
+		}); 
+		setLoading();
+		return false;
 	}
 
 	function nextNode(){
@@ -365,7 +363,8 @@ if(isset($is_ajax)){
 				}
 				url = 'InventoryManagement/SampleMasters/add/<?php echo $collection_id; ?>/' + data.controlId + '/' + parentId + '/';
 			}
-			$.get(root_url + url + 'noActions:/', function(jsonData){
+			
+			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/', function(jsonData){
 				jsonData = $.parseJSON(jsonData);
 				try{
 					$(".ajaxContent").html(jsonData.display);
@@ -374,7 +373,6 @@ if(isset($is_ajax)){
 				}
 				flyOverComponents();
 				globalInit(".ajaxContent");
-				addTemplateInitId();
 				if($("input[name=autosubmit]:checked").length == 1){
 					$(".ajaxContent input[type=submit]").click();
 				}
@@ -416,9 +414,5 @@ if(isset($is_ajax)){
 						  });
 				  });
 		  });	
-	}
-
-	function addTemplateInitId(){
-		$("form").append('<input type="hidden" name="data[template_init_id]" value="' + templateInitId + '"/>');
 	}
 </script>
