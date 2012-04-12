@@ -801,7 +801,14 @@ function initActions(){
 	 * will not overlap with the title.
 	 */
 	function flyOverComponents(){
-		$(".flyOverSubmit").css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
+		//submit
+		$(".flyOverSubmit").each(function(){
+			if($(this).parents(".popup_container:first").length == 0){
+				$(this).css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
+			}
+		});
+		
+		//top menu
 		var r_pos = $(document).width() - $(window).width() - $(document).scrollLeft() + 10;
 		var l_pos = $(window).width() + $(document).scrollLeft() - $(".root_menu_for_header").width();
 		if(l_pos < header_total_width){
