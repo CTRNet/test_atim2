@@ -380,7 +380,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->request->data['SampleControl']['sample_category'] = $sample_control_data['SampleControl']['sample_category'];
 	
 			//Set default reception date
-			if($is_specimen){
+			if($is_specimen && !isset(AppController::getInstance()->passedArgs['templateInitId'])){
 				$default_reception_datetime = null;
 				$default_reception_datetime_accuracy = null;
 				if($this->SampleMaster->find('count', array('conditions' => array('SampleMaster.collection_id' => $collection_id))) == 0){
@@ -392,8 +392,10 @@ class SampleMastersController extends InventoryManagementAppController {
 					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
 					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
-				$this->request->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
-				$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
+				if($default_reception_datetime){
+					$this->request->data['SpecimenDetail']['reception_datetime'] = $default_reception_datetime;
+					$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $default_reception_datetime_accuracy;
+				}
 			}
 			
 			$hook_link = $this->hook('initial_display');

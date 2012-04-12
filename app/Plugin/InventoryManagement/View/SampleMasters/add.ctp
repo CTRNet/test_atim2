@@ -19,6 +19,11 @@
 		'SampleMaster.parent_id' => $sample_parent_id,
 		'DerivativeDetail.lab_book_master_id' => (isset($lab_books_list) && (!empty($lab_books_list)))? $lab_books_list: array('' => ''));
 	
+	$args = AppController::getInstance()->passedArgs;
+	if(isset($args['templateInitId'])){
+		$structure_override = array_merge(Set::flatten(AppController::getInstance()->Session->read('Template.init_data.'.$args['templateInitId'])), $structure_override);
+	}
+
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
 	

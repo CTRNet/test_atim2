@@ -11,6 +11,11 @@
 		"type" => "edit",
 		"settings" 	=> array("actions" => false, "form_top" => false, "form_bottom" => false, "stretch" => false, 'section_start' => $is_batch_process)));
 	
+	$args = AppController::getInstance()->passedArgs;
+	if(isset($args['templateInitId'])){
+		$override_data = array_merge(Set::flatten(AppController::getInstance()->Session->read('Template.init_data.'.$args['templateInitId'])), $override_data);
+	}
+	
 	$options_children = array_merge($options, array(
 		"type" => "addgrid",
 		"settings" 	=> array("add_fields" => true, "del_fields" => true, "actions" => false, "form_top" => false, "form_bottom" => false, 'section_end' => $is_batch_process),

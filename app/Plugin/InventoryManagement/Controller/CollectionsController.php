@@ -12,6 +12,7 @@ class CollectionsController extends InventoryManagementAppController {
 		'InventoryManagement.AliquotMaster',
 		'InventoryManagement.SpecimenReviewMaster',
 		'InventoryManagement.ParentToDerivativeSampleControl',
+		'InventoryManagement.SpecimenDetail',//here for collection template validation
 		
 		'ExternalLink'
 	);
@@ -342,9 +343,9 @@ class CollectionsController extends InventoryManagementAppController {
 		$this->set('template', $template);
 		$this->set('template_id', $template_id);
 		
-		$this->TemplateInit = new AppModel(array('id' => 'TemplateInit', 'table' => false, 'name' => 'TemplateInit'));
+		$this->TemplateInit = AppModel::getInstance('InventoryManagement', 'TemplateInit');
 		$to_begin_msg = true;//can be overriden in hooks
-		$this->Structures->set('empty', 'template_init_structure');
+		$this->Structures->set('template_init_structure', 'template_init_structure');
 		
 		$this->set('collection_id', $collection_id);
 		
@@ -353,22 +354,21 @@ class CollectionsController extends InventoryManagementAppController {
 			require($hook_link); 
 		}
 		
-		foreach($this->Structures->controller->viewVars['template_init_structure']['Sfs'] as $new_field) {
-			if(in_array($new_field['type'], array('datetime', 'timestamp', 'date', 'time'))) {
-				$this->TemplateInit->_schema[$new_field['field']] = array('type' => $new_field['type']);
-				//TODO Should we be able to manage accuracy?
-			}
-		}
-		
 		$template_init_id = null;
 		if(!empty($this->request->data)){
 			//validate and stuff
 			$data_validates = true;
 			
+			if(isset($this->request->data['template_init_id'])){
+				$template_init_id = $this->request->data['template_init_id'];
+			}
+			
 			$this->TemplateInit->set($this->request->data);
 			if(!$this->TemplateInit->validates()){
 				$data_validates = false;						
-			}	
+			}else{
+				$this->request->data = $this->TemplateInit->data['TemplateInit']; 
+			}
 
 			//hook
 			$hook_link = $this->hook('validate_and_set');
@@ -376,12 +376,8 @@ class CollectionsController extends InventoryManagementAppController {
 				require($hook_link); 
 			}
 			
-			if(isset($this->request->data['template_init_id'])){
-				$template_init_id = $this->request->data['template_init_id'];
-			}
-		
 			if($data_validates && $template_init_id){
-				$this->Session->write('Template.init_data.'.$this->request->data['template_init_id'], $this->request->data); 
+				$this->Session->write('Template.init_data.'.$template_init_id, $this->request->data); 
 				$this->set('goToNext', true);
 			}
 		}
