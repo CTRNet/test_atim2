@@ -127,7 +127,7 @@ class ReproductiveHistoriesController extends ClinicalAnnotationAppController {
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}	
 
-		$arr_allow_deletion = $this->allowReproductiveHistoryDeletion($reproductive_history_id);
+		$arr_allow_deletion = $this->ReproductiveHistory->allowDeletion($reproductive_history_id);
 		
 		// CUSTOM CODE
 		$hook_link = $this->hook('delete');
