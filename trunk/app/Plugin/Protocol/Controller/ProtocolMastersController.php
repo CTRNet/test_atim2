@@ -35,7 +35,9 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->Structures->set($protocol_control_data['ProtocolControl']['form_alias']);
 		
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }
+		if( $hook_link ) { 
+			require($hook_link); 
+		}
 		
 		if ( empty($this->request->data) ) {
 			$this->request->data = array();
@@ -45,8 +47,6 @@ class ProtocolMastersController extends ProtocolAppController {
 		} else {
 			
 			$this->request->data['ProtocolMaster']['protocol_control_id'] = $protocol_control_id;
-			$this->request->data['ProtocolMaster']['type'] = $protocol_control_data['ProtocolControl']['type'];
-			$this->request->data['ProtocolMaster']['tumour_group'] = $protocol_control_data['ProtocolControl']['tumour_group'];
 
 			$submitted_data_validates = true;
 			
@@ -54,7 +54,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			if( $hook_link ) { 
 				require($hook_link); 
 			}
-			
+			$this->ProtocolMaster->addWritableField(array('protocol_control_id'));
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->request->data) ){
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
@@ -101,6 +101,7 @@ class ProtocolMastersController extends ProtocolAppController {
 			}
 			
 			$this->ProtocolMaster->id = $protocol_master_id;
+			$this->ProtocolMaster->data = array();
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->request->data) ) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
