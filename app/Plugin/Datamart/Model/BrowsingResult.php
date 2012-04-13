@@ -43,7 +43,7 @@ class BrowsingResult extends DatamartAppModel {
 			$data = $model->find('all', array(
 				'fields'		=> array($model->name.'.'.$control_foreign),
 				'conditions' 	=> array($model->name.'.'.$model->primaryKey.' IN('.$browsing_result['BrowsingResult']['id_csv'].')'),
-				'group by'		=> array($model->name.'.'.$control_foreign)
+				'group'		=> array($model->name.'.'.$control_foreign)
 			));
 			if(count($data) == 1){
 				$control_id = $data[0][$model->name][$control_foreign];
