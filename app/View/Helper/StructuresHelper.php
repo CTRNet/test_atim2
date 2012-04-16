@@ -1,4 +1,4 @@
-<?php
+ <?php
 class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
@@ -797,6 +797,7 @@ class StructuresHelper extends Helper {
 				}
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => $table_row_part['type'], 'value' => $current_value, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "checkbox"){
+				unset($table_row_part['settings']['options']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u"){
 				$display =
@@ -2423,6 +2424,7 @@ class StructuresHelper extends Helper {
 			$result .= $this->Form->hour($name, time_format == 24, array_merge($attributes, array('value' => $hour)));
 			$result .= $this->Form->minute($name, array_merge($attributes, array('value' => $minutes)));
 		}else{
+			unset($attributes['options']);
 			$result .= '<span class="tooltip">'.$this->Form->text($name.".hour", array_merge($attributes, array('type' => 'number', 'value' => $hour, 'size' => 3, 'min' => time_format == 12 ? 1 : 0, 'max' => time_format == 12 ? 12 : 23)))."<div>".__('hour', true)."</div></span>";
 			$result .= '<span class="tooltip">'.$this->Form->text($name.".min", array_merge($attributes, array('type' => 'number', 'value' => $minutes, 'size' => 3, 'min' => 0, 'max' => 59)))."<div>".__('minutes', true)."</div></span>";
 		}

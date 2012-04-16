@@ -6,8 +6,8 @@ class AppController extends Controller {
 	private static $acl = null;
 	public static $beignFlash = false;
 	var $uses = array('Config', 'SystemVar');
-	var $components	= array( 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager', 'Paginator', /*'DebugKit.Toolbar'*/ );
-	var $helpers	= array('Session', 'Csv', 'Html', 'Js', 'Shell', 'Structures', 'Time', 'Form');
+	var $components	= array('Acl', 'Session', 'SessionAcl', 'Auth', 'Menus', 'RequestHandler', 'Structures', 'PermissionManager', 'Paginator', /*'DebugKit.Toolbar'*/ );
+	public $helpers	= array('Session', 'Csv', 'Html', 'Js', 'Shell', 'Structures', 'Time', 'Form');
 	
 	//use AppController::getCalInfo to get those with translations
 	private static $cal_info_short = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');

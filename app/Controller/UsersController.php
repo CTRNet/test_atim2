@@ -2,7 +2,6 @@
 
 class UsersController extends AppController {
 
-	var $helpers = array('Html', 'Form');
 	var $uses = array('User', 'UserLoginAttempt', 'Version');
 	
 	function beforeFilter() {
