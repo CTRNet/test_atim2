@@ -1052,7 +1052,7 @@ class Browser extends DatamartAppModel {
 			
 			$model_and_struct_for_node = self::$browsing_result_model->getModelAndStructureForNode($current_browsing);
 			$structure = $model_and_struct_for_node['structure'];
-			$header_sub_type = $model_and_struct_for_node['header_sub_type'] ? "/".self::getTranslatedDatabrowserLabel($model_and_struct_for_node['header_sub_type']) : " ";
+			$header_sub_type = ($model_and_struct_for_node['header_sub_type'] ? "/".self::getTranslatedDatabrowserLabel($model_and_struct_for_node['header_sub_type']) : '').' ';
 			if(!$model_and_struct_for_node['specific'] && $current_browsing['DatamartStructure']['control_master_model']){
 				//must use the generic structure (or its empty...)
 				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));

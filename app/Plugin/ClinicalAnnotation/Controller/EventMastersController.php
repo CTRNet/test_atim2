@@ -59,7 +59,9 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$this->request->data = $this->EventMaster->find('first',array('conditions'=>array('EventMaster.id'=>$event_master_id, 'EventMaster.participant_id'=>$participant_id)));
 		if(empty($this->request->data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}	
+		}
+		$this->EventMaster->calculatedDetailfields($this->request->data);
+		
 		$event_group = $this->request->data['EventControl']['event_group'];
 		$diagnosis_data = $this->DiagnosisMaster->getRelatedDiagnosisEvents($this->request->data['EventMaster']['diagnosis_master_id']);
 		$this->set('diagnosis_data', $diagnosis_data);

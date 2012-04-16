@@ -424,6 +424,7 @@ class AppModel extends Model {
 			//build accuracy settings for that table
 			$this->buildAccuracyConfig();
 		}
+		
 		foreach(self::$accuracy_config[$this->table] as $date_field => $accuracy_field){
 			if(!isset($this->data[$this->name][$date_field])){
 				continue;
@@ -566,7 +567,7 @@ class AppModel extends Model {
 					$detail_class_instance->set(isset($this->data[$detail_class]) ? $this->data[$detail_class] : array());
 					$valid_detail_class = $detail_class_instance->validates();
 					if($detail_class_instance->data){
-						$this->data = array_merge($detail_class_instance->data, $this->data);
+						$this->data = array_merge($this->data, $detail_class_instance->data);
 					}
 					if(!$valid_detail_class){
 						//put details validation errors in the master model
@@ -575,6 +576,7 @@ class AppModel extends Model {
 				}
 			}
 		}
+		
 		parent::validates($options);
 		return count($this->validationErrors) == 0;
 	}
@@ -755,17 +757,19 @@ class AppModel extends Model {
 	 */
 	 
 	static function getSpentTime($start_date, $end_date){
-		$arr_spent_time 
-			= array(
-				'message' => null,
-				'days' => '0',
-				'hours' => '0',
-				'minutes' => '0');
+		$arr_spent_time = array(
+			'message'			=> null,
+			'years'				=> '0',
+			'days_mod_years'	=> '0',
+			'days'				=> '0',
+			'hours'				=> '0',
+			'minutes'			=> '0'
+		);
 		
 		$empty_date = '0000-00-00 00:00:00';
 		
 		// Verfiy date is not empty
-		if(empty($start_date)||empty($end_date)
+		if(empty($start_date) || empty($end_date)
 			|| (strcmp($start_date, $empty_date) == 0)
 			|| (strcmp($end_date, $empty_date) == 0)
 		){
@@ -795,6 +799,15 @@ class AppModel extends Model {
 				if($arr_spent_time['minutes']<10) {
 					$arr_spent_time['minutes'] = '0' . $arr_spent_time['minutes'];
 				}
+				
+				$arr_spent_time['years'] = substr($end_date, 0, 4)  - substr($start_date, 0, 4);
+				if(strtotime($end_date) < strtotime(substr($end_date, 0, 4).substr($start_date, 4))){
+					$arr_spent_time['years'] --;
+					$latest_year_mark = strtotime((substr($end_date, 0, 4) - 1).substr($start_date, 4));
+				}else{
+					$latest_year_mark = strtotime(substr($end_date, 0, 4).substr($start_date, 4));
+				}
+				$arr_spent_time['days_mod_years'] = floor(($end - $latest_year_mark) / 86400);
 			}
 			
 		}
@@ -823,7 +836,7 @@ class AppModel extends Model {
 		return mktime($hour, $minute, $second, $month, $day, $year);
 	}	
 	
-	static function manageSpentTimeDataDisplay($spent_time_data) {
+	static function manageSpentTimeDataDisplay($spent_time_data, $with_time = true){
 		$spent_time_msg = '';
 		if(!empty($spent_time_data)) {	
 			if(!is_null($spent_time_data['message'])) {
@@ -835,9 +848,15 @@ class AppModel extends Model {
 					$spent_time_msg = __($spent_time_data['message']);
 				}
 			} else {
-				$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'days') 
-								.AppModel::translateDateValueAndUnit($spent_time_data, 'hours') 
-								.AppModel::translateDateValueAndUnit($spent_time_data, 'minutes');
+				if($with_time){
+					$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'days') 
+						.AppModel::translateDateValueAndUnit($spent_time_data, 'hours') 
+						.AppModel::translateDateValueAndUnit($spent_time_data, 'minutes');
+				}else{
+					$spent_time_data['days'] = $spent_time_data['days_mod_years'];
+					$spent_time_msg = AppModel::translateDateValueAndUnit($spent_time_data, 'years')
+						.AppModel::translateDateValueAndUnit($spent_time_data, 'days');
+				}
 			} 	
 		}
 		

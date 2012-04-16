@@ -50,6 +50,7 @@ class BrowserController extends DatamartAppController {
 	}
 	
 	function delete($index_id){
+		$this->BrowsingResult;//lazy load
 		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 		if(!empty($this->request->data)){
 			$this->BrowsingIndex->atimDelete($index_id);

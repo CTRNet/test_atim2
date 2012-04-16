@@ -5,6 +5,12 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("cannot calculate on incomplete date", "Cannot calculate on incomplete date", "Impossible de calculer sur date incomplète"),
+("years", "Years", "Années"),
+("smoked for", "Smoked for", "Fumé pendant"),
+("stopped since", "Stopped since", "Arrêté depuis"),
+("started on", "Started on", "Commencé le"),
+("stopped on", "Stopped on", "Arrêté le"),
 ('collection contents', 'Collection contents', 'Contenu de la collection'),
 ('no participant is linked to the current participant collection', 
  "No participant is linked to the current participant collection.",
@@ -1368,3 +1374,35 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reception by' AND `language_tag`=''), '1', '200', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='template_init_structure'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_reception_datetime_defintion' AND `language_label`='reception date' AND `language_tag`=''), '1', '300', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
  
+ALTER TABLE ed_all_lifestyle_smokings
+ ADD COLUMN started_on DATE DEFAULT NULL,
+ ADD COLUMN started_on_accuracy CHAR(1) NOT NULL DEFAULT 'c',
+ ADD COLUMN stopped_on DATE DEFAULT NULL,
+ ADD COLUMN stopped_on_accuracy CHAR(1) NOT NULL DEFAULT 'c';
+ALTER TABLE ed_all_lifestyle_smokings_revs
+ ADD COLUMN started_on DATE DEFAULT NULL,
+ ADD COLUMN started_on_accuracy CHAR(1) NOT NULL DEFAULT 'c',
+ ADD COLUMN stopped_on DATE DEFAULT NULL,
+ ADD COLUMN stopped_on_accuracy CHAR(1) NOT NULL DEFAULT 'c';
+ 
+SELECT IF(COUNT(*) = 0, "You have no entries into ed_all_lifestyle_smokings.years_quit_smoking. Drop that column.", "You have entries into ed_all_lifestyle_smokings.years_quit_smoking. That column is no longer supported in the trunk and have been hidden. You may either update the other columns in order to drop it or reactivate it. If you reactive it, you must customize the virtual fields") AS msg FROM ed_all_lifestyle_smokings WHERE years_quit_smoking IS NULL;
+ 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_lifestyle_smokings', 'started_on', 'date',  NULL , '0', '', '', '', 'started on', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_lifestyle_smokings', 'stopped_on', 'date',  NULL , '0', '', '', '', 'stopped on', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='started_on' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='started on' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='stopped_on' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stopped on' AND `language_tag`=''), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+-- delete structure_formats
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='years_quit_smoking' AND `language_label`='years quit smoking' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- Delete obsolete structure fields and validations
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='years_quit_smoking' AND `language_label`='years quit smoking' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='ed_all_lifestyle_smokings' AND `field`='years_quit_smoking' AND `language_label`='years quit smoking' AND `language_tag`='' AND `type`='input' AND `setting`='size=10' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', '', 'smoked_for', 'input',  NULL , '0', '', '', '', 'smoked for', ''), 
+('ClinicalAnnotation', 'EventDetail', '', 'stopped_since', 'input',  NULL , '0', '', '', '', 'stopped since', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='smoked_for' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='smoked for' AND `language_tag`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_lifestyle_smoking'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='' AND `field`='stopped_since' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stopped since' AND `language_tag`=''), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
