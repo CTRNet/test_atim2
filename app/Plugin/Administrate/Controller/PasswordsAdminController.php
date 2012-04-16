@@ -1,6 +1,6 @@
 <?php
 
-class PasswordsController extends AdministrateAppController {
+class PasswordsAdminController extends AdministrateAppController {
 	
 	var $name = 'Passwords';
 	var $uses = array('User');
@@ -14,12 +14,10 @@ class PasswordsController extends AdministrateAppController {
 		if ( empty($this->request->data) ) {
 			$this->set( 'data', $this->User->read() );
 		} else {
-			$flash_link = '/Administrate/passwords/index/'.$group_id.'/'.$user_id;
+			$flash_link = '/Administrate/PasswordsAdmin/index/'.$group_id.'/'.$user_id;
 			$this->User->savePassword($this->request->data, $flash_link, $flash_link);
 		}
 		
 	}
 
 }
-
-?>
