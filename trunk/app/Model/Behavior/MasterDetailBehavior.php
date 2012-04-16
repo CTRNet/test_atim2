@@ -139,8 +139,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id, $master_class.'.deleted' => array('0', '1')), 'recursive' => 0));
 			assert($associated) or die('MasterDetailBehavior afterSave failed to fetch control details');
 			$table = $associated[$control_class][$detail_field];
-			$alias = $detail_class.'_'.$table;//we must give a different alias for each table, otherwise saving over multiple controls might fail
-			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $alias, 'primaryKey' => $master_foreign) );
+			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $detail_class, 'primaryKey' => $master_foreign) );
 			$detail_model->writable_fields_mode = $model->writable_fields_mode;
 			$detail_model->check_writable_fields = $model->check_writable_fields;
 			$detail_model->primaryKey = $master_foreign;

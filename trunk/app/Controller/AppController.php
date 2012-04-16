@@ -952,6 +952,7 @@ class AppController extends Controller {
 		Cache::clear(false);
 		Cache::clear(false, 'structures');
 		Cache::clear(false, 'menus');
+		Cache::clear(false, 'browser');
 		Cache::clear(false, '_cake_core_');
 		Cache::clear(false, '_cake_model_');
 		AppController::addWarningMsg(__('cache has been cleared'));
