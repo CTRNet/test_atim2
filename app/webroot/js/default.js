@@ -3,6 +3,7 @@ var useHighlighting = jQuery.browser.msie == undefined || jQuery.browser.version
 var submitData = new Object();
 var orgAction = null;
 var removeConfirmed = false;
+var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 
 
 jQuery.fn.fullWidth = function(){
@@ -561,6 +562,9 @@ function initActions(){
 					initLabBook(newLines);
 				}
 				initAccuracy(newLines);
+				initFlyOverCells(newLines);
+				flyOverComponents();
+				
 				
 				$(newLines).removeClass("newLine");
 				return false;
@@ -801,20 +805,31 @@ function initActions(){
 	 * will not overlap with the title.
 	 */
 	function flyOverComponents(){
+		var scrollLeft = $(document).scrollLeft();
 		//submit
 		$(".flyOverSubmit").each(function(){
 			if($(this).parents(".popup_container:first").length == 0){
-				$(this).css("right", (Math.max($(".submitBar").width() - $(window).width() - $(document).scrollLeft() + 20, 0)) + "px");
+				$(this).css("right", (Math.max($(".submitBar").width() - $(window).width() - scrollLeft + 20, 0)) + "px");
 			}
 		});
 		
 		//top menu
 		var r_pos = $(document).width() - $(window).width() - $(document).scrollLeft() + 10;
-		var l_pos = $(window).width() + $(document).scrollLeft() - $(".root_menu_for_header").width();
+		var l_pos = $(window).width() + scrollLeft - $(".root_menu_for_header").width();
 		if(l_pos < header_total_width){
-			r_pos -= total_width - l_pos;
+			r_pos -= header_total_width - l_pos;
 		}
 		$(".root_menu_for_header, .main_menu_for_header").css("right", r_pos);
+		
+		//cells
+		$("div.floatingCell").css("left", scrollLeft);
+		$(".floatingBckGrnd").css("left", scrollLeft + contentMargin);
+		if(scrollLeft > contentMargin){
+			$(".floatingBckGrnd .left").css("opacity", 1);
+		}else{
+			$(".floatingBckGrnd .left").css("opacity", 0);
+		}
+		$(".floatingBckGrnd .right div").css("opacity", Math.min(15, scrollLeft) * 0.03);
 	}
 	
 	function initAutoHideVolume(){
@@ -1055,6 +1070,33 @@ function initActions(){
 				$(div).html(page);
 			});
 		});
+		
+		$("th.floatingCell").each(function(){
+			//floaintCells are headers. Make their column float for thead and tbody
+			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
+			initFlyOverCells($(this).parents("table:first").find("tbody"));
+		});
+	}
+	
+	function initFlyOverCells(scope){
+		$(scope).parents("table:first").find("th.floatingCell").each(function(){
+			$(scope).find("td:nth-child(" + ($(this).prevAll().length + 1) + ")").each(function(){
+				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>');
+			});
+		});
+		if($(".floatingBckGrnd").data("initialized")){
+			$(".floatingBckGrnd").css({
+				height: ($(scope).parents("table:first").find("thead").height() + $(scope).parents("table:first").find("tbody").height()) + "px"
+			});
+		}else{
+			$(".floatingBckGrnd").css({
+				width : (contentMargin + $("th.floatingCell:last").next().offset().left - $("th.floatingCell:first").offset().left) + "px",
+				height: ($(scope).parents("table:first").find("thead").height() + $(scope).parents("table:first").find("tbody").height()) + "px",
+				top	:  $("th.floatingCell:first").offset().top + "px",
+				left: $("th.floatingCell:first").offset().left + "px"
+			}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
+			
+		}
 	}
 
 	function globalInit(scope){

@@ -217,13 +217,14 @@ class StructuresComponent extends Component {
 		if(count($atim_structure['Sfs'])){
 			// Sort the data with ORDER descending, FIELD ascending 
 			foreach($atim_structure['Sfs'] as $key => $row){
-				$sort_order_0[$key] = $row['display_column'];
-				$sort_order_1[$key] = $row['display_order'];
-				$sort_order_2[$key] = $row['model'];
+				$sort_order_0[$key] = $row['flag_float'];
+				$sort_order_1[$key] = $row['display_column'];
+				$sort_order_2[$key] = $row['display_order'];
+				$sort_order_3[$key] = $row['model'];
 			}
 			
 			// multisort, PHP array 
-			array_multisort( $sort_order_0, SORT_ASC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $atim_structure['Sfs'] );
+			array_multisort( $sort_order_0, SORT_DESC, $sort_order_1, SORT_ASC, $sort_order_2, SORT_ASC, $sort_order_3, SORT_ASC, $atim_structure['Sfs'] );
 		}
 	}
 	
