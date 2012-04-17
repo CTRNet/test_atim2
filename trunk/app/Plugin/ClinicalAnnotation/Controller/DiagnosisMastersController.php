@@ -29,17 +29,35 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		$event_master_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-		$curr_data = array_merge($this->DiagnosisMaster->find('all', array(
-				'conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisMaster.parent_id' => $parent_dx_id ),
-				'order' => array('DiagnosisMaster.dx_date')
-			)), $tx_model->find('all', array(
-				'conditions' => array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentMaster.diagnosis_master_id' => $parent_dx_id == null ? -1 : $parent_dx_id ),
-				'order' => array('TreatmentMaster.start_date')
-			)), $event_master_model->find('all', array(
-				'conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.diagnosis_master_id' => $parent_dx_id == null ? -1 : $parent_dx_id),
-				'order' => array('EventMaster.event_date')
-			))
-		);
+		$dx_data = $this->DiagnosisMaster->find('all', array(
+			'conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisMaster.parent_id' => $parent_dx_id ),
+			'order' => array('DiagnosisMaster.dx_date')
+		));
+		$tx_data = $tx_model->find('all', array(
+			'conditions' => array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentMaster.diagnosis_master_id' => $parent_dx_id == null ? -1 : $parent_dx_id ),
+			'order' => array('TreatmentMaster.start_date')
+		));
+		$event_data = $event_master_model->find('all', array(
+			'conditions' => array('EventMaster.participant_id' => $participant_id, 'EventMaster.diagnosis_master_id' => $parent_dx_id == null ? -1 : $parent_dx_id),
+			'order' => array('EventMaster.event_date')
+		));
+		$tmp_data = array();
+		foreach($dx_data as &$unit){
+			$tmp_data[$unit['DiagnosisMaster']['dx_date']][] = $unit;
+		}
+		foreach($tx_data as &$unit){
+			$tmp_data[$unit['TreatmentMaster']['start_date']][] = $unit;
+		}
+		foreach($event_data as &$unit){
+			$tmp_data[$unit['EventMaster']['event_date']][] = $unit;
+		}
+		ksort($tmp_data);
+		$curr_data = array();
+		foreach($tmp_data as &$date_data_arr){
+			foreach($date_data_arr as &$unit){
+				$curr_data[] = $unit;
+			}
+		}
 		
 		$ids = array();//ids already having child
 		$can_have_child = $this->DiagnosisMaster->find('all', array(
