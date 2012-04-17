@@ -16,3 +16,10 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Inventorymanagement', 'SampleDetail', '', 'qc_lady_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_dna_storage_solution') , '0', '', '', '', 'storage solution', '');
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_lady_storage_solution' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_dna_storage_solution') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_sd_der_dnas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_storage_solution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_dna_storage_solution') AND `flag_confidential`='0');
+
+-- 2012-04-17
+UPDATE consent_controls SET controls_type='Tissue Repository and Database' WHERE id=1;
+INSERT INTO consent_controls(controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) 
+(SELECT 'Q-CROC-03 (Neo-Adjuvant)', flag_active, form_alias, detail_tablename, display_order, 'Q-CROC-03 (Neo-Adjuvant)' FROM consent_controls WHERE id=1);
+INSERT INTO consent_controls(controls_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) 
+(SELECT 'Q-CROC-03 (Metastatic)', flag_active, form_alias, detail_tablename, display_order, 'Q-CROC-03 (Metastatic)' FROM consent_controls WHERE id=1);
