@@ -334,3 +334,12 @@ ALTER TABLE `ld_lymph_ed_imagings_revs`
 UPDATE structure_fields SET field =  'nodal_sites_nbr', language_label = 'nodal sites nbr' WHERE field = 'nodules_nbr' AND tablename = 'ld_lymph_ed_imagings';
 INSERT INTO i18n (id,en) VALUEs ('nodal sites nbr','Nodal Sites Nbr');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_ed_imagings') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ld_lymph_ed_imagings' AND `field`='nodal_sites_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+-- 2012-04-17
+INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x_size, coord_y_title, coord_y_type, coord_y_size, display_x_size, display_y_size, reverse_x_numbering, reverse_y_numbering, horizontal_increment, set_temperature, is_tma_block, flag_active, form_alias, detail_tablename, databrowser_label, check_conflicts) VALUES
+('box21 1A-3I', 'position', 'integer', 3, NULL, 'alphabetical', 9, 3, 9, 0, 0, 0, 0, 0, 1, 'storagemasters', 'std_boxs', 'box21 1A-3I', 1); 
+
+REPLACE INTO i18n (id, en, fr) VALUES
+("box21 1A-3I", "Box21 1A-3I", "Boîte21 1A-3I");
+
