@@ -1,4 +1,4 @@
- <?php
+<?php
 class StructuresHelper extends Helper {
 		
 	var $helpers = array( 'Csv', 'Html', 'Form', 'Javascript', 'Ajax', 'Paginator','Session' );
@@ -1573,9 +1573,15 @@ class StructuresHelper extends Helper {
 							$first_cell = false;
 
 							// label and help/info marker, if available...
-							$return_string .= '
-								<th>
-							';
+							if($table_row_part['flag_float']){
+								$return_string .= '
+									<th class="floatingCell">
+								';
+							}else{
+								$return_string .= '
+									<th>
+								';
+							}
 
 							if($table_row_part['heading']){
 								$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>'; 
@@ -1718,6 +1724,7 @@ class StructuresHelper extends Helper {
 						"setting" 			=> $sfs['setting'],//required for icd10 magic
 						"default"			=> $sfs['default'],
 						"flag_confidential"	=> $sfs['flag_confidential'],
+						"flag_float"		=> $sfs['flag_float'],
 						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]
 					);
 					$settings = $my_default_settings_arr;
