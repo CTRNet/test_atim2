@@ -19,8 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-//	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-30.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES ET BIOLOGIQUES-SEIN_2012.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -53,10 +52,10 @@ class Config{
 	static $event_controls = array();
 	static $storage_controls = array();
 	
-	static $cytoreduction_values = array();
+//	static $cytoreduction_values = array();
 	
-	static $ids_from_frsq_nbr = array();
-	static $participant_id_from_ov_nbr = array();
+//	static $ids_from_frsq_nbr = array();
+	static $participant_id_from_br_nbr = array();
 	
 	static $data_for_import_from_participant_id = array();
 	
@@ -74,14 +73,10 @@ class Config{
 //Config::$value_domains['health_status']= new ValueDomain("health_status", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
-Config::$parent_models[] = "OvaryDiagnosisMaster";
+Config::$parent_models[] = "BreastDiagnosisMaster";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step2/tablesMapping/ovary_diagnoses.php'; 
-
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/ovary_bank_identifiers.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/breast_bank_identifiers.php'; 
+Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step3/tablesMapping/breast_diagnoses.php'; 
 
 //=========================================================================================================
 // START functions
@@ -93,8 +88,8 @@ function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
-	DATA EXPORT PROCESS Step 2 : CHUS OVBR<br>
-	Ovary Data Import<br>
+	DATA EXPORT PROCESS Step 3 : CHUS OVBR<br>
+	Breast Data Import<br>
 	source_file = $file_path<br>
 	<br>=====================================================================
 	</FONT><br>";		
@@ -109,28 +104,28 @@ function addonFunctionStart(){
 	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] < 1) {
-		die("Step2: Participant table should be completed");
+		die("Step3: Participant table should be completed");
 	}
 	
 	$query = "SELECT COUNT(*) FROM misc_identifiers;";
 	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] < 1) {
-		die("Step2: Identifiers table should be completed");
+		die("Step3: Identifiers table should be completed");
 	}	
 	
 	$query = "SELECT COUNT(*) FROM diagnosis_masters;";
 	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$row = $results->fetch_assoc();
-	if($row['COUNT(*)'] > 0) {
-		die("Step2: Diagnoses table should be empty");
+	if($row['COUNT(*)'] < 1) {
+		die("Step3: Diagnoses table should not be empty");
 	}	
 
 	$query = "SELECT COUNT(*) FROM collections;";
 	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$row = $results->fetch_assoc();
-	if($row['COUNT(*)'] > 0) {
-		die("Step2: Collections table should be empty");
+	if($row['COUNT(*)'] < 1) {
+		die("Step3: Collections table should not be empty");
 	}	
 	
 	// ** Set sample aliquot controls **
@@ -176,32 +171,29 @@ function addonFunctionStart(){
 	
 	// ** Set cytoreduction value **
 	
-	$query = "select value from structure_permissible_values_customs where control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'cytoreductions values');";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		Config::$cytoreduction_values[] = $row['value'];
-	}
+//	$query = "select value from structure_permissible_values_customs where control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'cytoreductions values');";
+//	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+//	while($row = $results->fetch_assoc()){
+//		Config::$cytoreduction_values[] = $row['value'];
+//	}
 
 	// ** Set participant_id / identifier values links array **
 	
-	$query = "SELECT ident.id, ctrl.misc_identifier_name, ident.identifier_value, ident.participant_id
-	FROM misc_identifier_controls AS ctrl INNER JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = ctrl.id
-	WHERE ctrl.misc_identifier_name LIKE '%FRSQ%' AND ident.deleted != 1";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		if(isset(Config::$ids_from_frsq_nbr[$row['identifier_value']])) {
-			pr($row);
-			die('ERR 99887399.1');
+	$query = "SELECT ident.id, ctrl.misc_identifier_name, ident.identifier_value, ident.participant_id, part.date_of_birth, part.date_of_birth_accuracy
+	FROM misc_identifier_controls AS ctrl 
+	INNER JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = ctrl.id
+	INNER JOIN participants AS part ON part.id = ident.participant_id
+	WHERE ctrl.misc_identifier_name LIKE '%FRSQ BR' AND ident.deleted != 1";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ($query) ".__LINE__);
+	while($row = $results->fetch_assoc()){			
+		if(!preg_match('/^BR([0-9]+)$/', $row['identifier_value'], $matches)) {
+			echo "<FONT COLOR=\"red\" >WARNING: FRSQ BR identifier format to confirm: ".$row['identifier_value']."</FONT>";
 		}
-		Config::$ids_from_frsq_nbr[$row['identifier_value']]['participant_id'] = $row['participant_id'];
-		Config::$ids_from_frsq_nbr[$row['identifier_value']]['misc_identifier_id'] = $row['id'];
+		Config::$participant_id_from_br_nbr[$row['identifier_value']] = $row['participant_id'];
 		
-		if(preg_match('/^OV[A-Z]{0,1}([0-9]+)$/', $row['identifier_value'], $matches)) {
-			Config::$participant_id_from_ov_nbr['OV'.$matches[1]] = $row['participant_id'];
-		}
-		
-		if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_ov_file' => false);
+		if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_br_file' => false);
 		Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
+		Config::$data_for_import_from_participant_id[$row['participant_id']]['date_of_birth_from_step2'] = $row['date_of_birth'];	
 	}
 	
 	// ** Set storage controls **
@@ -211,7 +203,6 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
-	
 }
 
 //=========================================================================================================
@@ -221,56 +212,58 @@ function addonFunctionStart(){
 function addonFunctionEnd(){
 	global $connection;
 
+
+	
 	// DIAGNOSIS UPDATE
 	
-	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE diagnosis_masters parent, diagnosis_masters child SET child.primary_id = parent.primary_id WHERE child.primary_id IS NULL AND child.parent_id IS NOT NULL AND child.parent_id = parent.id;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-	// ADD PATIENT OTHER DATA
-	
-	addPatientsHistory();
-   	addFamilyHistory();
-  	addCollections();
-
-  	// INVENTORY COMPLETION
-		
-	$query = "UPDATE sample_masters SET sample_code=id;";
-	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE sample_masters_revs SET sample_code=id;";
-	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
-	
-	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
-	
-	$query = "UPDATE aliquot_masters SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+//	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE parent_id IS NULL;";
+//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
+//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	
+//	$query = "UPDATE diagnosis_masters parent, diagnosis_masters child SET child.primary_id = parent.primary_id WHERE child.primary_id IS NULL AND child.parent_id IS NOT NULL AND child.parent_id = parent.id;";
+//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
+//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//
+//	// ADD PATIENT OTHER DATA
+//	
+//	addPatientsHistory();
+//   	addFamilyHistory();
+//  	addCollections();
+//
+//  	// INVENTORY COMPLETION
+//		
+//	$query = "UPDATE sample_masters SET sample_code=id;";
+//	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	$query = "UPDATE sample_masters_revs SET sample_code=id;";
+//	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+//	
+//	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+//	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+//	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+//	
+//	$query = "UPDATE aliquot_masters SET barcode=id;";
+//	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
+//	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
 	
 	// WARNING DISPLAY
 
-	echo "<br><br><FONT COLOR=\"blue\" >
-	=====================================================================<br><br>
-	PARTICIPANT WITH MULTI-#FRSQ
-	<br><br>=====================================================================
-	</FONT><br>";	
-	
-	echo "<br> --> <FONT COLOR=\"orange\" >Data like the CA125, DX, CTSCan can be duplicated for participants having more than one #FRSQ (see below). Clean up will be required! </FONT><br>";
-	foreach(Config::$data_for_import_from_participant_id as $new_part_dat_set) {
-		if(isset($new_part_dat_set['#FRSQ OV']) && (sizeof($new_part_dat_set['#FRSQ OV']) > 1)) {
-			 echo "New participant : ".implode(",", $new_part_dat_set['#FRSQ OV'])."<br>";
-		}
-	}
-	
+//	echo "<br><br><FONT COLOR=\"blue\" >
+//	=====================================================================<br><br>
+//	PARTICIPANT WITH MULTI-#FRSQ
+//	<br><br>=====================================================================
+//	</FONT><br>";	
+//	
+//	echo "<br> --> <FONT COLOR=\"orange\" >Data like the CA125, DX, CTSCan can be duplicated for participants having more than one #FRSQ (see below). Clean up will be required! </FONT><br>";
+//	foreach(Config::$data_for_import_from_participant_id as $new_part_dat_set) {
+//		if(isset($new_part_dat_set['#FRSQ OV']) && (sizeof($new_part_dat_set['#FRSQ OV']) > 1)) {
+//			 echo "New participant : ".implode(",", $new_part_dat_set['#FRSQ OV'])."<br>";
+//		}
+//	}
+//	
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		
 		echo "<br><br><FONT COLOR=\"blue\" >
@@ -303,6 +296,9 @@ function addonFunctionEnd(){
 			}
 		}
 	}
+	
+	pr('TODO: addonFunctionEnd');
+	exit;
 }
 
 function addPatientsHistory() {
@@ -352,7 +348,7 @@ function addPatientsHistory() {
 						Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Participant With Many FRSQ# #1'][] = "The FRSQ# '".$new_frsq_nbr."' is not defined in step 1! [Will try to assign data to other FRSQ# '".$line_data['#FRSQ']."'! [line: $line_counter]";
 					} else {
 						if($participant_id && ($new_participant_id != $participant_id)){
-							Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Participant With Many FRSQ# #2'][] = "The FRSQ#s '".$line_data['#FRSQ']."' have beend assigned to the same participant in step2 ('PATIENT HISTORY') but match different participants in step 1! [line: $line_counter]";
+							Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Participant With Many FRSQ# #2'][] = "The FRSQ#s '".$line_data['#FRSQ']."' have beend assigned to the same participant in step3 ('PATIENT HISTORY') but match different participants in step 1! [line: $line_counter]";
 						} else if(!$participant_id) {
 							$participant_id = $new_participant_id;
 						}
@@ -360,7 +356,7 @@ function addPatientsHistory() {
 				}
 			}
 			if(!$participant_id) {
-				Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step2 ('PATIENT HISTORY') but this number is not defined in step 1! [line: $line_counter]";
+				Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step3 ('PATIENT HISTORY') but this number is not defined in step 1! [line: $line_counter]";
 				continue;
 			}
 			
@@ -814,7 +810,7 @@ function addFamilyHistory() {
 						Config::$summary_msg['FAMILY HISTORY']['@@WARNING@@']['Participant With Many FRSQ# #1'][] = "The FRSQ# '".$new_frsq_nbr."' is not defined in step 1! [Will try to assign data to other FRSQ# '".$line_data['#FRSQ']."'! [line: $line_counter]";
 					} else {
 						if($participant_id && ($new_participant_id != $participant_id)){
-							Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Participant With Many FRSQ# #2'][] = "The FRSQ#s '".$line_data['#FRSQ']."' have beend assigned to the same participant in step2 ('FAMILY HISTORY') but match different participants in step 1! [line: $line_counter]";
+							Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Participant With Many FRSQ# #2'][] = "The FRSQ#s '".$line_data['#FRSQ']."' have beend assigned to the same participant in step3 ('FAMILY HISTORY') but match different participants in step 1! [line: $line_counter]";
 						} else if(!$participant_id) {
 							$participant_id = $new_participant_id;
 						}
@@ -822,7 +818,7 @@ function addFamilyHistory() {
 				}
 			}
 			if(!$participant_id) {
-				Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step2 ('FAMILY HISTORY') but this number is not defined in step 1! [line: $line_counter]";
+				Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step3 ('FAMILY HISTORY') but this number is not defined in step 1! [line: $line_counter]";
 				continue;
 			}
 			
@@ -2513,14 +2509,14 @@ function getParticipantIdentifierAndDiagnosisIds($worksheet, $line_counter, $frs
 		$misc_identifier_id = Config::$ids_from_frsq_nbr[$frsq_nbr]['misc_identifier_id'];
 		$collection_frsq_nbr = $frsq_nbr;
 		
-		if(array_key_exists($ov_nbr, Config::$participant_id_from_ov_nbr) && (Config::$participant_id_from_ov_nbr[$ov_nbr] != $participant_id)) {
+		if(array_key_exists($ov_nbr, Config::$participant_id_from_br_nbr) && (Config::$participant_id_from_br_nbr[$ov_nbr] != $participant_id)) {
 			Config::$summary_msg[$worksheet]['@@ERROR@@']['2 different participants'][] = "The patient defintion is different according to the analyzed value : '#FRSQ' ($frsq_value) or 'Échantillon' value ($echantillon_value)! [line: $line_counter]";
 		}
 		
-	} else if(array_key_exists($ov_nbr, Config::$participant_id_from_ov_nbr)) {
+	} else if(array_key_exists($ov_nbr, Config::$participant_id_from_br_nbr)) {
 		if(!empty($frsq_nbr)) Config::$summary_msg[$worksheet]['@@MESSAGE@@']["'Echantillon' FRSQ Nbr unknown"][] = "The frsq number ($frsq_nbr) extracted from 'Échantillon' value ($echantillon_value) is not defined into step1! Will use Ov Nbr ($ov_nbr) to find participant! [Line: $line_counter]";
 		
-		$participant_id = Config::$participant_id_from_ov_nbr[$ov_nbr];
+		$participant_id = Config::$participant_id_from_br_nbr[$ov_nbr];
 		
 		if(sizeof(Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'] == 1)) {
 			$collection_frsq_nbr = Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'][0];
