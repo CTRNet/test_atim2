@@ -55,8 +55,6 @@ class StorageMaster extends StorageLayoutAppModel {
 	}
 	
 	function validates($options = array()){
-		pr('WARNING!!: storage data can be updated into StorageMaster->validates() function: be sure to reset data into controller using $this->StorageMaster->data!');
-
 		if(!(array_key_exists('FunctionManagement', $this->data) && array_key_exists('recorded_storage_selection_label', $this->data['FunctionManagement']))) {
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}		
@@ -955,7 +953,7 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @see Model::find()
 	 */
 	function find($type = 'first', $query = array()) {
-		if((!isset($query['recursive']) || $query['recursive'] > -1)){
+		if((isset($query['recursive']) ? $query['recursive'] > -1 : $this->recursive > -1) && !isset($query['contain'])){
 			//Order by directive. Since the ATiM field model is "0" it doesn't work automatically.
 			if(isset($query['extra']['sort']) && $query['extra']['sort'] == '0.empty_spaces'){
 				$query['order'] = 'empty_spaces '.$query['extra']['direction'];
@@ -999,6 +997,7 @@ class StorageMaster extends StorageLayoutAppModel {
 				$query['group'] = array('StorageMaster.id');
 			}
 		}
+		
 		return parent::find($type, $query);
 	}
 }
