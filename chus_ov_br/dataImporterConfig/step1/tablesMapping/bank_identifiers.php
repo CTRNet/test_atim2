@@ -23,8 +23,10 @@ function postBankNbrRead(Model $m){
 	$m->values['FRSQNbr'] =  str_replace(' ', '', utf8_encode($m->values['FRSQNbr']));
 	if(preg_match('/(sein)/i', $m->values['Ov / Sein'], $matches)) {
 		$m->values['misc_identifier_control_id'] = '1';
+		if(!preg_match('/^BR(.*)$/', $m->values['FRSQNbr'], $matches)) Config::$summary_msg['@@ERROR@@']['Breast Bank Number Format'][] = "A breast bank number is not like 'BR%': Please check data! [".$m->values['FRSQNbr'].']! [Line : '.$m->line.']';
 	} else if(preg_match('/(ovaire)/i', $m->values['Ov / Sein'], $matches)){	
 		$m->values['misc_identifier_control_id'] = '2';
+		if(preg_match('/^BR(.*)$/', $m->values['FRSQNbr'], $matches)) Config::$summary_msg['@@ERROR@@']['Ovary Bank Number Format'][] = "An ovary bank number is like 'BR%': Please check data! [".$m->values['FRSQNbr'].']! [Line : '.$m->line.']';
 	} else {
 		die("ERR Participant 001: Bank unknown ".$m->values['Ov / Sein']."!");
 	}
