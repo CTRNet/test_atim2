@@ -118,9 +118,6 @@ $model->custom_data = array();
 Config::$models['OvaryDiagnosisMaster'] = $model;
 	
 function postOvaryDiagnosesRead(Model $m){
-//TODO delete return
-return false;
-
 	global $connection;
 	
 	$m->values['notes'] = '';
