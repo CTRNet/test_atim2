@@ -1962,7 +1962,7 @@ table.columns.index tbody tr:nth-child(even), div.indexLangHeader{
 	background-color: #f3f3f3;
 }
 
-table.structure.lineHighlight table.columns.index tbody tr:hover{
+table.structure.lineHighlight table.columns.index tbody tr:hover, table.structure.lineHighlight table.columns.index tbody tr:hover div.floatingCell{
 	background-color: #ffc;
 }
 .row{
@@ -2065,7 +2065,7 @@ tr.chkLine, table.columns.index tbody tr.chkLine:nth-child(even){
 	height: 100%;
 	right: -6px;
 	background: -webkit-gradient(linear, left top, right top, from(#555), to(#ddd)); /* for webkit browsers */
-	background: -moz-linear-gradient(top,  #555,  #ddd);
+	background: -moz-linear-gradient(left,  #555,  #ddd);
 	opacity: 0;
 }
 	
