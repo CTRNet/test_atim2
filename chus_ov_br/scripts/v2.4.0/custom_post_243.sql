@@ -538,3 +538,33 @@ INSERT INTO i18n (id,en,fr) VALUES
 
 UPDATE structure_formats SET `display_order`='1202', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='1201', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND type = 'input');
+
+UPDATE aliquot_controls SET volume_unit = 'ug' WHERE sample_control_id IN (SELECT id FROM sample_controls WHERE sample_type IN ('rna','amplified rna','cdna','dna'));
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES("ug", "ug");
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) VALUES((SELECT id FROM structure_value_domains WHERE domain_name="aliquot_volume_unit"),  (SELECT id FROM structure_permissible_values WHERE value="ug" AND language_alias="ug"), "1", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('ug','ug','ug');
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('aliquot used volume', 'Used Volume/Weight', 'Volume/Poids utilisé'),
+('aliquots with volume', 'Aliquots with volume/weight', 'Aliquots avec volume/poids'),
+('aliquots without volume', 'Aliquots without volume/weight', 'Aliquots sans volume/poids'),
+('current volume', 'Current Volume/Weight', 'Volume/Poids courant'),
+('initial volume', 'Initial Volume/Weight', 'Volume/Poids initial'),
+('no volume has to be recorded for this aliquot type', 'No volume/weight has to be recorded for this aliquot type!', 'Aucun volume/poids doit être enregistré pour ce type d''aliquot!'),
+('no volume has to be recorded when the volume unit field is empty', 'No volume/weight has to be recorded when the volume unit field is empty!', 'Aucun volume/poids ne doit être enregistré losque le champ ''unité'' est vide!'),
+('parent used volume', 'Parent Used Volume/Weight', 'Volume/Poids utilisé du parent'),
+('parent_used_volume_help', 'Volume/Weight of the parent aliquot used to create the children aliquot.', 'Volume/Poids de l''aliquot parent utilisé pour créer l''aliquot enfant.'),
+('source aliquot used volume', 'Used Volume/Weight', 'Volume/Poids utilisé'),
+('source_used_volume_help', 'Volume/Weight of the source aliquot to create the new derivative sample.', 'Volume/Poids de l''aliquot source utilisé pour créer l''échantillon dérivé.'),
+('tested aliquot used volume', 'Used Volume/Weight', 'Volume/Poids utilisé'),
+('tested_aliquot_volume_help', 'Volume/Weight of the aliquot used for the quality control.', 'Volume/Poids de l''aliquot utilisé pour le contrôle de qualité.'),
+('the aliquot with barcode [%s] has reached a volume bellow 0', 'The aliquot with barcode [%s] has reached a volume/weight below 0.', 'L''aliquot avec le code à barres [%s] a atteint un volume/poids inférieur à 0.'),
+('the inputed volume was automatically removed', 'The inputed volume/weight was automatically removed', 'La valeur du volume/poids entrée a été automatiquement retirée'),
+('the used volume is higher than the remaining volume', 'The used volume/weight is higher than the remaining volume', 'Le volume/poids utilisé est supérieur au volume restant'),
+('this aliquot has no recorded volume', 'This aliquot has no recorded volume/weight', 'Cet aliquot n''a aucun volume/poids enregistré'),
+('used volume', 'Used Volume/Weight', 'Volume/Poids utilisé'),
+('volume should be a positif decimal', 'Volume/Weight should be a positive decimal!', 'Le volume/poids doit être un décimal positif!'),
+('volume unit', 'Volume/Weight Unit', 'Unité de volume/poids');
+
+
+
