@@ -177,9 +177,11 @@ class TreeBehavior extends ModelBehavior {
 		
 		//ATiM start-------
 		//add writable fields + prevent hack
-		$Model->addWritableField(array('lft', 'rght'));
-		unset($Model->data[$Model->alias][$left]);
-		unset($Model->data[$Model->alias][$right]);
+		if(method_exists($Model, 'addWritableField')){
+			$Model->addWritableField(array('lft', 'rght'));
+			unset($Model->data[$Model->alias][$left]);
+			unset($Model->data[$Model->alias][$right]);
+		}
 		//ATiM end---------
 
 		$this->_addToWhitelist($Model, array($left, $right));
