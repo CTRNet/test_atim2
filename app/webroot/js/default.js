@@ -1079,9 +1079,28 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
-		$(scope).parents("table:first").find("th.floatingCell").each(function(){
+		$(scope).parents("table:first").find("th.floatingCell:last").each(function(){
+			//from the last floatingCell index
 			$(scope).find("td:nth-child(" + ($(this).prevAll().length + 1) + ")").each(function(){
-				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>');
+				//for every lines within the scope
+				
+				//apply the rule to self and previous cells
+				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>').find(".floatingCell").css({ 
+					"padding-top" : $(this).css("padding-top"), 
+					"padding-right" : $(this).css("padding-right"),
+					"padding-bottom" : $(this).css("padding-bottom"),
+					"padding-left" : $(this).css("padding-left")
+				});
+				$(this).css("padding", 0);
+				$(this).prevAll().each(function(){
+					$(this).html('<div class="floatingCell">' + $(this).html() + '</div>').find(".floatingCell").css({ 
+						"padding-top" : $(this).css("padding-top"), 
+						"padding-right" : $(this).css("padding-right"),
+						"padding-bottom" : $(this).css("padding-bottom"),
+						"padding-left" : $(this).css("padding-left")
+					});
+					$(this).css("padding", 0);
+				});
 			});
 		});
 		if($(".floatingBckGrnd").data("initialized")){
@@ -1090,7 +1109,7 @@ function initActions(){
 			});
 		}else{
 			$(".floatingBckGrnd").css({
-				width : (contentMargin + $("th.floatingCell:last").next().offset().left - $("th.floatingCell:first").offset().left) + "px",
+				width : (contentMargin + $("th.floatingCell:last").offset().left + $("th.floatingCell:last").width() + 3 + parseInt($("th.floatingCell:last").css("padding-right")) - $(".floatingBckGrnd").parents("tr:first").offset().left) + "px",
 				height: ($(scope).parents("table:first").find("thead").height() + $(scope).parents("table:first").find("tbody").height()) + "px",
 				top	:  $("th.floatingCell:first").offset().top + "px",
 				left: $("th.floatingCell:first").offset().left + "px"
