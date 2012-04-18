@@ -173,6 +173,10 @@ class TreeBehavior extends ModelBehavior {
  * @return boolean true to continue, false to abort the save
  */
 	public function beforeSave(Model $Model) {
+		//ATiM start-------
+		$Model->addWritableField(array('lft', 'rght'));
+		//ATiM end---------
+		
 		extract($this->settings[$Model->alias]);
 
 		$this->_addToWhitelist($Model, array($left, $right));
