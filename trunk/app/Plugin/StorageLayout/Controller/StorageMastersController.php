@@ -171,7 +171,6 @@ class StorageMastersController extends StorageLayoutAppController {
 			
 			// Set control ID en type
 			$this->request->data['StorageMaster']['storage_control_id'] = $storage_control_data['StorageControl']['id'];
-			$this->request->data['StorageMaster']['storage_type'] = $storage_control_data['StorageControl']['storage_type'];			
 			
 			// Validates and set additional data
 			$submitted_data_validates = true;
@@ -204,6 +203,8 @@ class StorageMastersController extends StorageLayoutAppController {
 				$bool_save_done = true;
 
 				$storage_master_id = null;
+				$this->StorageMaster->addWritableField(array('storage_control_id', 'parent_id', 'selection_label', 'temperature', 'temp_unit'));
+				
 				if($this->StorageMaster->save($this->request->data, false)) {
 					$storage_master_id = $this->StorageMaster->getLastInsertId();
 				} else {
@@ -287,6 +288,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			$submitted_data_validates = true;
 			
 			$this->request->data['StorageMaster']['id'] = $storage_master_id;
+			$this->StorageMaster->data = array();
 			$this->StorageMaster->set($this->request->data);
 			if(!$this->StorageMaster->validates()){
 				$submitted_data_validates = false;
