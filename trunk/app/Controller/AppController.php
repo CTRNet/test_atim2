@@ -18,7 +18,6 @@ class AppController extends Controller {
 	static $highlight_missing_translations = true;
 	
 	function beforeFilter() {
-		setcookie('last_request', time(), time()+60*60*24, '/');
 		App::uses('Sanitize', 'Utility');
 		AppController::$me = $this;
 		if(Configure::read('debug') != 0){
@@ -511,10 +510,16 @@ class AppController extends Controller {
 	/**
 	 * @desc cookie manipulation to counter cake problems. see eventum #1032
 	 */
-	static function atimSetCookie(){
-		$session_delay = Configure::read("Session.timeout") * (Configure::read("Security.level") == "low" ? 1800 : 100);
-		if(isset($_COOKIE[Configure::read("Session.cookie")])){
-			setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], time() + $session_delay, "/");
+	static function atimSetCookie($skip_expiration_cookie){
+		$session_expiration = time() + Configure::read("Session.timeout");
+		
+		setcookie('last_request', time(), $session_expiration, '/');
+		
+		if(!$skip_expiration_cookie){
+			setcookie('session_expiration', $session_expiration, $session_expiration, '/');
+			if(isset($_COOKIE[Configure::read("Session.cookie")])){
+				setcookie(Configure::read("Session.cookie"), $_COOKIE[Configure::read("Session.cookie")], $session_expiration, "/");
+			}
 		}
 	}
 	

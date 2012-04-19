@@ -14,7 +14,7 @@ class UsersController extends AppController {
 	}
 	
 	function login(){
-		if($this->request->is('ajax')){
+		if($this->request->is('ajax') && !isset($this->passedArgs['login'])){
 			echo json_encode(array("logged_in" => isset($_SESSION['Auth']['User']), "server_time" => time()));
 			exit;
 		}
@@ -26,8 +26,10 @@ class UsersController extends AppController {
 		if($this->Version->data['Version']['permissions_regenerated'] == 0){
 			$this->newVersionSetup();
 		}
-
-		if($this->Auth->login()){
+		
+		$this->set('skip_expiration_cookie', true);
+		
+		if($this->Auth->login() && (!isset($this->passedArgs['login']) || !empty($this->request->data))){
 			if(!empty($this->request->data)){
 				//successfulll login
 				$login_data = array(
@@ -46,7 +48,11 @@ class UsersController extends AppController {
 				$_SESSION['ctrapp_core']['search'] = array();
 			}
 			$this->resetPermissions();
-			$this->redirect($this->Auth->redirect());
+			if(isset($this->passedArgs['login'])){
+				$this->render('ok');
+			}else{
+				$this->redirect($this->Auth->redirect());
+			}
 		}else if(isset($this->request->data['User'])){
 			//failed login
 			$login_data = array(
@@ -72,6 +78,10 @@ class UsersController extends AppController {
 				$this->User->validationErrors[] = __($_SESSION['Message']['auth']['message']);
 			}
 			unset($_SESSION['Message']['auth']);
+		}
+		
+		if(isset($this->passedArgs['login'])){
+			AppController::addInfoMsg(__('your session has expired'));
 		}
 	}
 	

@@ -18,7 +18,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
+$debug = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -32,7 +32,7 @@
  * In production mode, flash messages redirect after a time interval.
  * In development mode, you need to click the flash message to continue.
  */
-	Configure::write('debug', 2);
+	Configure::write('debug', $debug);
 
 /**
  * Configure the Error handler used to handle errors for your application.  By default
@@ -178,8 +178,12 @@
 
 /**
  * The level of CakePHP security.
+ * -high: 10
+ * -medium: 100;
+ * -low: 300;
  */
-	Configure::write('Security.level', 'medium');
+	Configure::write('Security.level', $debug ? 'medium': 'high');
+	Configure::write('Session.timeout', $debug ? 3600 : 600);//in seconds
 
 /**
  * A random string used in security hashing methods.
@@ -281,3 +285,5 @@ Cache::config('_cake_model_', array(
 	Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'duration' => '+1 week'));
 	Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => '+1 week'));
 	Cache::config('default', array('engine' => 'File'));
+	
+	unset($debug);
