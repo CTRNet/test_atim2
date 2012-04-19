@@ -5,50 +5,61 @@
  * @version: 0.0.1
  * @see: http://frank-mich.com/
  **/
-var closePop = true;
+var FmPopup = function(popup){
+	$(popup).data('FmPopup', this);
+	this.closePop = true;
+	this.closable = true;
+	this.popupOuter = null;
+};
 
 jQuery.fn.popup = function(options){
-	if(options == "close"){
-		$(".popup_outer").hide();
-	}else if($(".popup_outer").length == 0){
+	var fmPopup = $(this).data('FmPopup') == undefined ? new FmPopup(this) : $(this).data('FmPopup');
+	if(options != undefined && options.closable != undefined){
+		fmPopup.closable = options.closable; 
+	}
+	
+	if(fmPopup.popupOuter == null){
 		$("body").append("<div class='popup_outer'>"
 				+ "<div class='popup_container'></div>"
 				+ "<div class='popup_close'><a href='#'>X</a></div>"
 				+ "</div>");
+		fmPopup.popupOuter = $("body div.popup_outer:last"); 
 		$(".popup_outer").click(function(){
-			if(closePop){
-				$(".popup_outer").hide();
+			if(fmPopup.closePop && fmPopup.closable){
+				console.log(fmPopup.closable);
+				$(fmPopup.popupOuter).hide();
 			}else{
-				closePop = true;
+				fmPopup.closePop = true;
 			}
 		});
 		$(document).keyup(function(event) {
-		  if(event.keyCode == 27) { // Capture Esc key
-			  $(".popup_outer").hide();
-		  }
+			if(event.keyCode == 27 && fmPopup.closable) { // Capture Esc key
+				$(fmPopup.popupOuter).hide();
+			}
 		});
-	}else{
-		$(".popup_outer").show();
-	}
-	$(this).each(function(){
-		$(".popup_container").children().hide();
-		if(options){
-			$(this).css(options);
-		}
+		
 		$(this).css({
 			"margin" : "auto",
 			"position" : "relative"
 		});
-		if($(this).parent().html() != $($(".popup_container")[0]).html()){
-			$(".popup_container").append($(this));
-			
-			$(this).click(function(){
-				closePop = false;
-			});
+		
+		$(fmPopup.popupOuter).find(".popup_container").append($(this));
+		if(fmPopup.closable){
+			(fmPopup.popupOuter).find(".popup_container").append($(fmPopup.popupOuter).find(".popup_close"));
 		}
-		$(".popup_close").appendTo($(".popup_container")).show();
+	}
+	
+	if(options == "close"){
+		$(fmPopup.popupOuter).hide();
+	}else{
 		$(this).show();
-		$(".popup_container").css("left", $(window).width() / 2 - $(".popup_container").width() / 2 + "px");
-		$(".popup_container").css("top", $(window).height() / 2 - $(".popup_container").height() / 2 + "px");
-	});
+		var container = $(fmPopup.popupOuter).find(".popup_container");
+		$(fmPopup.popupOuter).show();
+		container.css({
+			left : $(window).width() / 2 - container.width() / 2 + "px",
+			top : $(window).height() / 2 - container.height() / 2 + "px"
+		});
+	}
+	
+	
 }

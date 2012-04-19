@@ -4,6 +4,7 @@ var submitData = new Object();
 var orgAction = null;
 var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
+var sessionTimeout = new Object();
 
 
 jQuery.fn.fullWidth = function(){
@@ -875,6 +876,52 @@ function initActions(){
 		}).click();
 	}
 	
+	function sessionExpired(){
+		if($("#loginPopup").length == 0){
+			$("body").append("<div id='loginPopup' class='std_popup'><div class='loading'>--- " + STR_LOADING + " ---</div></div>");
+		}
+		var submitFunction = function(){
+			$.post(root_url + "Users/Login/login:/", $("#loginPopup form").serialize(), function(data){
+				if(data.indexOf('ok') == 0){
+					$.get(root_url + "Menus", function(){
+						//dumb call to refresh cookies
+						$("#loginPopup").popup('close');
+					});
+				}else{
+					$("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
+					$("#loginPopup a.submit").click(submitFunction);
+				}
+			});
+			$("#loginPopup").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
+			return false;
+		};
+		
+		$.get(root_url + "Users/Login/login:/", function(data){
+			$("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
+			$("#loginPopup form").submit(submitFunction);
+		});
+		$("#loginPopup").popup({closable:false});
+	}
+	
+	function cookieWatch(){
+		if($.cookie("session_expiration")){
+			if(!sessionTimeout.lastRequest || sessionTimeout.lastRequest != $.cookie("last_request")){
+				//5 to 1 second earlier expiration (due to 4 secs error margin)
+				sessionTimeout.lastRequest = $.cookie("last_request");
+				sessionTimeout.expirationTime = new Date().getTime() - sessionTimeout.serverOffset + (($.cookie("session_expiration") - $.cookie("last_request") - 5) * 1000);
+			}
+			if(sessionTimeout.expirationTime > new Date().getTime() && $("#loginPopup:visible").length == 1){
+				$("#loginPopup").popup('close');
+			}
+		}
+		
+		if(sessionTimeout.expirationTime && sessionTimeout.expirationTime <= new Date().getTime() && $("#loginPopup:visible").length == 0){
+			sessionExpired();
+		}
+		
+		setTimeout(cookieWatch, 4000);//4 seconds error margin
+	}
+	
 	
 	function initJsControls(){
 		if(window.storageLayout){
@@ -1076,6 +1123,13 @@ function initActions(){
 			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
 			initFlyOverCells($(this).parents("table:first").find("tbody"));
 		});
+
+		if($.cookie("session_expiration")){
+			sessionTimeout.serverOffset = new Date().getTime() - $.cookie('last_request') * 1000;
+			if(!window.loginPage){
+				cookieWatch();
+			}
+		}
 	}
 	
 	function initFlyOverCells(scope){

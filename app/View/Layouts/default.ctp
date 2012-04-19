@@ -3,7 +3,7 @@ $headers_were_sent = headers_sent();
 if(!$headers_were_sent){
 // 	ob_start('ob_gzhandler');
 	header ('Content-type: text/html; charset=utf-8');
-	AppController::atimSetCookie();
+	AppController::atimSetCookie(isset($skip_expiration_cookie) && $skip_expiration_cookie);
 }
 ?>
 
@@ -79,6 +79,7 @@ if(!$headers_were_sent){
 	echo $content_for_layout;
 	
 	echo $this->Shell->footer();
+	
 
 	echo $this->element('sql_dump');
 	
