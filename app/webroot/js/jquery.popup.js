@@ -33,9 +33,6 @@ jQuery.fn.popup = function(options){
 				fmPopup.closePop = true;
 			}
 		});
-		$(fmPopup.popupOuter).find(".popup_container").click(function(event){
-			event.stopPropagation();
-		});
 		$(document).keyup(function(event) {
 			if(event.keyCode == 27 && fmPopup.closable) { // Capture Esc key
 				//TODO: close only toppest popup
