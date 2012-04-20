@@ -889,6 +889,7 @@ function initActions(){
 					});
 				}else{
 					$("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
+					$("#loginPopup").popup();
 					$("#loginPopup a.submit").click(submitFunction);
 				}
 			});
@@ -898,6 +899,7 @@ function initActions(){
 		
 		$.get(root_url + "Users/Login/login:/", function(data){
 			$("#loginPopup").html("<div class='wrapper'>" + data + "</div>");
+			$("#loginPopup").popup();
 			$("#loginPopup form").submit(submitFunction);
 		});
 		$("#loginPopup").popup({closable:false});
