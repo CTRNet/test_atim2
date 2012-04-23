@@ -131,7 +131,7 @@ class Participant extends ClinicalAnnotationAppModel {
 		return $arr_allow_deletion;
 	}
 	
-	function beforeSave(){
+	function beforeSave($options = array()){
 		$this->addWritableField(array('last_modification', 'last_modification_ds_id'));
 		$ret_val = parent::beforeSave();
 		$this->data['Participant']['last_modification'] = $this->data['Participant']['modified']; 
@@ -139,5 +139,3 @@ class Participant extends ClinicalAnnotationAppModel {
 		return $ret_val; 
 	}
 }
-
-?>

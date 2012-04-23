@@ -1419,8 +1419,6 @@ left join `structure_value_domains` `svd` on((`svd`.`id` = `sfi`.`structure_valu
  
 UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'); 
 
-SELECT * FROM structure_formats WHERE plugin='StorageLayout' AND model='StorageMaster' and field='barcode';
-
 UPDATE coding_icd_o_3_morphology SET fr_description="Tumeur maligne de nature primaire ou secondaire non assurée", translated=1 WHERE id=80009;
 UPDATE coding_icd_o_3_morphology SET fr_description="Cellules tumorales bénignes", translated=1 WHERE id=80010;
 UPDATE coding_icd_o_3_morphology SET fr_description="Cellules tumorales de bénignité ou  de malignité non assurée", translated=1 WHERE id=80011;

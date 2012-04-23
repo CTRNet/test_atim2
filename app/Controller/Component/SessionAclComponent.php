@@ -21,7 +21,7 @@ class SessionAclComponent extends AclComponent
 	public $components = array('Acl', 'Session');
 	
 
-    function initialize($controller) 
+	public function initialize(Controller $controller) 
     { 
         $this->master = $controller; 
         $controller->Acl = $this; 

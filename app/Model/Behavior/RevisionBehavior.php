@@ -141,7 +141,7 @@ class RevisionBehavior extends ModelBehavior {
      * @param object $Model
      * @param array $config
      */
-	public function setup($model, $config = array()) {	
+    public function setup(Model $model, $config = array()) {
 		if (is_array($config)) {
 			$this->settings[$model->alias] = array_merge($this->defaults, $config);			
 		} else {
@@ -770,7 +770,7 @@ class RevisionBehavior extends ModelBehavior {
 	 *
 	 * @param unknown_type $Model
 	 */
-	public function afterDelete($model) {
+	public function afterDelete(Model $model) {
 		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}		
@@ -793,7 +793,7 @@ class RevisionBehavior extends ModelBehavior {
 	 * @param boolean $created
 	 * @return boolean
 	 */
-	public function afterSave($model, $created) {
+	public function afterSave(Model $model, $created) {
 		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}		
@@ -897,7 +897,7 @@ class RevisionBehavior extends ModelBehavior {
 	 * @param object $Model
 	 * @return boolean
 	 */
-	public function beforeDelete($model, $cascade = true) {
+	public function beforeDelete(Model $model, $cascade = true) {
 		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}		
@@ -924,7 +924,7 @@ class RevisionBehavior extends ModelBehavior {
 	 * @param object $Model
 	 * @return boolean
 	 */
-	public function beforeSave($model) {
+	public function beforeSave(Model $model) {
 		if ($this->settings[$model->alias]['auto'] === false) {
 			return true;
 		}

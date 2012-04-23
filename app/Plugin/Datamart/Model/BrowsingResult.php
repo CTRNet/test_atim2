@@ -65,7 +65,7 @@ class BrowsingResult extends DatamartAppModel {
 			AppController::buildDetailBinding(
 					$model,
 					array($model->name.'.'.$model->getControlForeign() => $control_id),
-					&$structure_alias
+					$structure_alias
 			);
 			
 			$structure = $structures_component->get('form', $structure_alias);

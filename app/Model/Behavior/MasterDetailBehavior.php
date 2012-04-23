@@ -4,7 +4,7 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	var $__settings = array(); 
 	
-	function setup(&$model, $settings = array()) { 
+	public function setup(Model $model, $config = array()) { 
 		
 		if ( strpos($model->alias,'Master') || strpos($model->alias,'Control') || (isset($model->base_model) && strpos($model->base_model,'Master'))){
 			$model_to_use = null;
@@ -58,10 +58,10 @@ class MasterDetailBehavior extends ModelBehavior {
 		if (!isset($this->__settings[$model->alias])){
 			$this->__settings[$model->alias] = $default;
 		}
-		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($settings) ? $settings : array());
+		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
 	}
 	
-	function afterFind($model, $results, $primary){
+	public function afterFind(Model $model, $results, $primary) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
@@ -109,7 +109,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return $results;
 	}
 	
-	function beforeFind($model, $query){
+	public function beforeFind(Model $model, $query) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
@@ -131,7 +131,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return true;
 	}
 	
-	function afterSave ($model, $created) {
+	public function afterSave(Model $model, $created) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if ( $is_master_model || $is_control_model ) {
@@ -183,7 +183,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		}
 	}
 	
-	function beforeDelete($model, $cascade = true){
+	public function beforeDelete(Model $model, $cascade = true) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
