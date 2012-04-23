@@ -35,7 +35,7 @@ class CodingIcdAppModel extends AppModel {
 			$search_fields[] = "id";
 		}
 		
-		if (!$db =& ConnectionManager::getDataSource($this->useDbConfig)) {
+		if (!$db = ConnectionManager::getDataSource($this->useDbConfig)) {
 			return false;
 		}
 
@@ -49,12 +49,14 @@ class CodingIcdAppModel extends AppModel {
 			$term = $db->value($term);
 			$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST (".$term." IN BOOLEAN MODE)";
 		}
-		
+		var_dump($limit);
 		if($limit != null){
+			echo 'FINCH';
 			$data = $this->find('all', array(
 				'conditions' => array(implode(" OR ", $conditions)),
 				'limit' => $limit));
 		}else{
+			echo 'NUTELLA';
 			$data = $this->find('all', array(
 				'conditions' => array(implode(" OR ", $conditions))));
 		}

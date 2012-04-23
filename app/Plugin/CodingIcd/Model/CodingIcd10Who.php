@@ -18,13 +18,7 @@ class CodingIcd10Who extends CodingIcdAppModel{
 		return self::$singleton->globalValidateId($id);
 	}
 	
-	static function getInstance(){
+	static function getSingleton(){
 		return self::$singleton;
 	}
-	
-	function globalSearch($terms, $exact_search){
-		return parent::globalSearch($terms, $exact_search, array("_title", "_sub_title", "_description"), true, null);
-	}
 }
-
-?>

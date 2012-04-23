@@ -9,7 +9,7 @@ class CodingIcdo3sController extends CodingIcdAppController{
 		Clicking that link reveals a DIV tag with this Action/View that should have functionality to affect the indicated form field.
 	*/
 	function tool($use_icd_type){
-		parent::tool();
+		parent::tool($use_icd_type);
 		$this->set("use_icd_type", $use_icd_type);
 	}
 	

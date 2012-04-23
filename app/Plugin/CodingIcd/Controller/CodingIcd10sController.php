@@ -9,7 +9,7 @@ class CodingIcd10sController extends CodingIcdAppController{
 	*/
 	
 	function tool($use_icd_type){
-		parent::tool();
+		parent::tool($use_icd_type);
 		$this->set("use_icd_type", $use_icd_type);
 	}
 
