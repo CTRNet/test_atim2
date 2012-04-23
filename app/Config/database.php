@@ -67,8 +67,7 @@ class DATABASE_CONFIG {
 		'password' => 'root',
 		'database' => 'atim_new',
 		'prefix' => '',
-		'encoding' => 'utf8',
-		'port'	=> 8889
+		'encoding' => 'utf8'
 	);
 
 }

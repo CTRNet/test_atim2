@@ -29,6 +29,7 @@
 	$structure_links['bottom'] = array(
 		'edit' => '/InventoryManagement/SampleMasters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'], 
 		'delete' => '/InventoryManagement/SampleMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'],
+		'print barcodes' => array('link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:SampleMaster/id:'.$atim_menu_variables['SampleMaster.id'], 'icon' => 'barcode'),
 		'add derivative' => $add_derivatives,
 		'add aliquot' => $add_aliquots,
 		'see parent sample' => ($is_from_tree_view? null : $show_parent_link),

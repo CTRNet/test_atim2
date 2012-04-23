@@ -8,6 +8,7 @@ class CsvController extends DatamartAppController {
 	 * Either generates the CSV popup or the CSV file.
 	 */
 	function csv(){
+		AppController::atimSetCookie(false);
 		if(isset($this->passedArgs['popup'])){
 			//generates CSV popup
 			$this->Structures->set('csv_popup');

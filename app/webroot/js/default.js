@@ -1313,6 +1313,7 @@ function initActions(){
 	 * Will see if the last_request time has changed in order to stop the rotating beam. Used by CSV download.
 	 */
 	function fetchingBeamCheck(){
+		console.log(submitData.lastRequest + " - " + $.cookie('last_request'));
 		if(submitData.lastRequest != $.cookie('last_request')){
 			$(document).find('a.submit span.fetching').removeClass('fetching');
 		}else{

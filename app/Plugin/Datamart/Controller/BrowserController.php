@@ -353,7 +353,7 @@ class BrowserController extends DatamartAppController {
 		
 		$this->layout = false;
 		Configure::write('debug', 0);
-		
+		AppController::atimSetCookie(false);
 		if($config['redundancy'] == 'same' && isset($config['singleLineNodes']) && !empty($config['singleLineNodes'])){
 			//check selected nodes
 			$mergeable_nodes = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);

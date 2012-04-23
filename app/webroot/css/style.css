@@ -1152,6 +1152,7 @@ span.help {
 .icon16.add_to_shipment { background-position: -32px -16px; }
 .icon16.aliquot, .icon16.aliquots { background-position: -80px -96px; }
 .icon16.annotation { background-position: -48px -96px; }
+.icon16.barcode { background-position: -112px -48px;}
 .icon16.blank { background-position: 16px 16px; }
 .icon16.cancel { background-position: -32px -112px; }
 .icon16.collection, .icon16.collections { background-position: -80px -112px; }
