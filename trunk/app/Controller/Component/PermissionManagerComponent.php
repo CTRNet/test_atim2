@@ -22,10 +22,9 @@ class PermissionManagerComponent extends Component {
 		)
 	);
 	
-	function initialize( $controller, $settings=array() ) {
+	public function initialize(Controller $controller) {
 		$this->log = array();
 		$this->controller = $controller;
-		if(count($settings)) $this->defaults = $settings;
 		
 		// If there are no Aco entries, build the entire list.
 		if(! $this->controller->Acl->Aco->find('count',array('fields' => 'Aco.id')) ){

@@ -36,7 +36,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param array $settings Settings to override for model. 
      * @access public 
      */ 
-    function setup($model, $config = array()) 
+    public function setup(Model $model, $config = array()) 
     { 
         $default = array('field' => 'deleted', /*'field_date' => 'deleted_date',*/ 'delete' => true, 'find' => true); 
 
@@ -56,7 +56,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean Set to true to continue with delete, false otherwise 
      * @access public 
      */ 
-    function beforeDelete($model, $cascade = true) 
+    public function beforeDelete(Model $model, $cascade = true) 
     { 
         if ($this->__settings[$model->alias]['delete'] && $model->hasField($this->__settings[$model->alias]['field'])) 
         { 
@@ -231,11 +231,11 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return mixed Set to false to abort find operation, or return an array with data used to execute query 
      * @access public 
      */ 
-    function beforeFind($model, $query) 
+    public function beforeFind(Model $model, $query) 
     {
         if ($this->__settings[$model->alias]['find'] && $model->hasField($this->__settings[$model->alias]['field'])) 
         { 
-            $Db =& ConnectionManager::getDataSource($model->useDbConfig); 
+            $Db = ConnectionManager::getDataSource($model->useDbConfig); 
             $include = false; 
 
             if (!empty($query['conditions']) && is_string($query['conditions'])) 
@@ -302,7 +302,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @return boolean True if the operation should continue, false if it should abort 
      * @access public 
      */ 
-    function beforeSave($model) 
+    public function beforeSave(Model $model) 
     { 
         if ($this->__settings[$model->alias]['find']) 
         { 
@@ -330,7 +330,7 @@ class SoftDeletableBehavior extends ModelBehavior
      * @param boolean $created True if this save created a new record 
      * @access public 
      */ 
-    function afterSave($model, $created) 
+    public function afterSave(Model $model, $created) 
     { 
         if (isset($this->__backAttributes[$model->alias]['find'])) 
         { 

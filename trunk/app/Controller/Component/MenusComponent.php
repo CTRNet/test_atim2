@@ -7,7 +7,7 @@ class MenusComponent extends Component {
 	var $components = array('Session', 'SessionAcl');
 	var $uses = array('Aco');
 	
-	function initialize( $controller, $settings=array() ) {
+	public function initialize(Controller $controller) {
 		$this->controller = $controller;
 	}
 	
@@ -25,8 +25,10 @@ class MenusComponent extends Component {
 			
 			$alias_with_params = $alias;
 			foreach ( $this->controller->request->params as $param ) {
-				$alias_with_params .= '/'.$param;
-				$alias_calculated[]	= $alias_with_params.'%';
+				if(is_string($param)){
+					$alias_with_params .= '/'.$param;
+					$alias_calculated[]	= $alias_with_params.'%';
+				}
 			}
 			$alias_calculated = array_reverse($alias_calculated);
 			$prefix = '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'];

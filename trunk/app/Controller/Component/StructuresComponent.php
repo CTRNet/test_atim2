@@ -6,7 +6,7 @@ class StructuresComponent extends Component {
 	
 	public static $range_types = array("date", "datetime", "time", "integer", "integer_positive", "float", "float_positive");
 	
-	function initialize( $controller, $settings=array() ) {
+	public function initialize(Controller $controller) {
 		$this->controller = $controller;
 		StructuresComponent::$singleton = $this;
 	}
