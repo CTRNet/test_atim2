@@ -53,7 +53,7 @@
 			<?php
 			$this->Structures->build($empty, array('data' => array(), 'type' => 'add', 'links' => $links, 'settings' => array('actions' => false, 'form_bottom' => false))); 
 			$key_parts = explode(".", $checklist_key);
-			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='".$this->request->data."'/>\n");
+			echo("<input type='hidden' name='data[".$key_parts[0]."][".$key_parts[1]."]' value='all'/>\n");
 		}
 		$is_datagrid = true;
 		$type = "add";

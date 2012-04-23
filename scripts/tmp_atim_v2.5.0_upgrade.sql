@@ -5,6 +5,9 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("participant contacts", "Participant contacts", "Contacts des participants"),
+("reproductive histories", "Reproductive histories", "Gynécologie"),
+("apply saved browsing steps", "Apply saved browsing steps", "Appliquer les étapes de naviguation sauvegardées"),
 ("cannot calculate on incomplete date", "Cannot calculate on incomplete date", "Impossible de calculer sur date incomplète"),
 ("years", "Years", "Années"),
 ("smoked for", "Smoked for", "Fumé pendant"),
