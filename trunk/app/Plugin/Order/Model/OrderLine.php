@@ -42,8 +42,8 @@ class OrderLine extends OrderAppModel {
 	
 	
 	
-	function afterFind($results){
-		$results = parent::afterFind($results);
+	function afterFind($results, $primary = false) {
+		$results = parent::afterFind($results, $primary);
 		
 		if(isset($results['0']['OrderItem'])) {
 			foreach($results as &$new_order_line) {

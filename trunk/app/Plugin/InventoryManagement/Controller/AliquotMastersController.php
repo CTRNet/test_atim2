@@ -2400,4 +2400,33 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 			
 	}
+	
+	function printBarcodes(){
+		$this->layout = false;
+		Configure::write('debug', 0);
+		$conditions = array();
+		switch($this->passedArgs['model']){
+			case 'Collection':
+				$conditions['AliquotMaster.collection_id'] = isset($this->request->data['ViewCollection']['collection_id']) ? $this->request->data['ViewCollection']['collection_id'] : $this->passedArgs['id'];  
+				break;
+			case 'SampleMaster':
+				$conditions['AliquotMaster.sample_master_id'] = isset($this->request->data['ViewSample']['sample_master_id']) ? $this->request->data['ViewSample']['sample_master_id'] : $this->passedArgs['id'];
+				break;
+			case 'AliquotMaster':
+			default:
+				$conditions['AliquotMaster.id'] = isset($this->request->data['ViewAliquot']['aliquot_master_id']) ? $this->request->data['ViewAliquot']['aliquot_master_id'] : $this->passedArgs['id'];
+				break;
+		}
+		
+		$this->Structures->set('aliquot_barcode', 'result_structure');
+		$this->set('csv_header', true);
+		$offset = 0;
+		AppController::atimSetCookie(false);
+		while($this->request->data = $this->AliquotMaster->find('all', array('conditions' => $conditions, 'limit' => 300, 'offset' => $offset))){
+			$this->render('../../../Datamart/View/Csv/csv');
+			$this->set('csv_header', false);
+			$offset += 300;
+		}
+		$this->render(false);
+	}
 }
