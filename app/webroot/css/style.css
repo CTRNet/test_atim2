@@ -2073,3 +2073,7 @@ div.floatingCell{
 	position: relative;
 	z-index: 2;
 }
+
+select{
+	max-width: 250px;
+}
