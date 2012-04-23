@@ -6,7 +6,7 @@ class BatchSet extends DatamartAppModel {
 	
 	var $belongsTo = array(
 		'Adhoc' => array(            
-			'className'    => 'Datamart.adhoc',            
+			'className'    => 'Datamart.Adhoc',            
 			'foreignKey'    => 'datamart_adhoc_id'
 		), 'DatamartStructure' => array(
 			'className' => 'Datamart.DatamartStructure',

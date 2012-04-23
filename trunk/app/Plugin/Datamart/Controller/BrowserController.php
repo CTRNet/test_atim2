@@ -81,7 +81,7 @@ class BrowserController extends DatamartAppController {
 		if(empty($this->request->data)){
 			if($node_id == 0){
 				//new access
-				$this->set("dropdown_options", $this->Browser->getDropdownOptions($control_id, $node_id, null, null, null, null, null, array("AliquotControl" => array(0))));
+				$this->set("dropdown_options", $this->Browser->getBrowserDropdownOptions($control_id, $node_id, null, null, null, null, null, array("AliquotControl" => array(0))));
 				$this->Structures->set("empty");
 				$this->set('type', "add");
 				$this->set('top', "/Datamart/Browser/browse/0/");
@@ -123,22 +123,17 @@ class BrowserController extends DatamartAppController {
 				$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
 				//save selected subset if parent model found and from a checklist 
 				$ids = array();
-				if(count($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]) == 1 
-					&& strpos($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey], ",") !== false
-				){
-					//all ids in one field
-					$ids = explode(",", $this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]);
+				if(is_array($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey])){
+					$ids = array_filter($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]);
+					$ids = array_unique($ids);
+					sort($ids);
+					$id_csv = implode(",",  $ids);
 				}else{
-					//ids in n fields
-					foreach($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey] as $id){
-						if($id != 0){
-							$ids[] = $id;
-						}
-					}
+					//fetch ids from the parent node
+					$id_csv = $parent['BrowsingResult']['id_csv'];
+					$ids = explode(',', $id_csv);
 				}
-				$ids = array_unique($ids);
-				sort($ids);
-				$id_csv = implode(",",  $ids);
+				
 				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_id'])));
@@ -233,7 +228,7 @@ class BrowserController extends DatamartAppController {
 			$this->set('checklist_key_name', $browsing['DatamartStructure']['model'].".".$browsing_model->primaryKey);
 			$this->set('is_root', $browsing['BrowsingResult']['parent_id'] == 0);
 			
-			$dropdown_options = $this->Browser->getDropdownOptions(
+			$dropdown_options = $this->Browser->getBrowserDropdownOptions(
 				$browsing['DatamartStructure']['id'], 
 				$node_id, 
 				$browsing['DatamartStructure']['plugin'], 
@@ -280,7 +275,7 @@ class BrowserController extends DatamartAppController {
 				}
 			}else{
 				//overflow
-				$this->request->data = $browsing['BrowsingResult']['id_csv'];
+				$this->request->data = 'all';
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
 			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['raw']);

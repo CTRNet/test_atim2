@@ -60,14 +60,14 @@ class Browser extends DatamartAppModel {
 	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id
 	 * @return Returns an array representing the options to display in the action drop down 
 	 */
-	function getDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, array $sub_models_id_filter = null){
+	function getBrowserDropdownOptions($starting_ctrl_id, $node_id, $plugin_name, $model_name, $data_model, $model_pkey, $data_pkey, array $sub_models_id_filter = null){
 		$prev_setting = AppController::$highlight_missing_translations;
 		AppController::$highlight_missing_translations = false;
 		$app_controller = AppController::getInstance();
 		$DatamartStructure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 		if($starting_ctrl_id != 0){
 			if($plugin_name == null || $model_name == null || $data_model == null || $model_pkey == null || $data_pkey == null){
-				$app_controller->redirect( '/Pages/err_internal?p[]=missing parameter for getDropdownOptions', null, true);
+				$app_controller->redirect( '/Pages/err_internal?p[]=missing parameter for getBrowserDropdownOptions', null, true);
 			}
 			//the query contains a useless CONCAT to counter a cakephp behavior
 			$data = $this->query(
@@ -294,7 +294,8 @@ class Browser extends DatamartAppModel {
 				if($merge){
 					$child_node = Browser::getTree($child, $active_node, $merged_ids, $linked_types_down, $linked_types_up);
 				}else{
-					$child_node = Browser::getTree($child, $active_node, $merged_ids, $foo = array(), $linked_types_up);
+					$foo = array();
+					$child_node = Browser::getTree($child, $active_node, $merged_ids, $foo, $linked_types_up);
 				}
 				$tree_node['children'][] = $child_node;
 				$tree_node['active'] = $child_node['active'] || $tree_node['active'];
@@ -1177,7 +1178,7 @@ class Browser extends DatamartAppModel {
 	 * @param array $params
 	 * @return null on success, a model display_name string if a parent node has not a 1:1 relation with it's descendant
 	 */
-	function buildAdvancedSearchParameters(array $params){
+	function buildAdvancedSearchParameters(array &$params){
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
 		$browsing_control_model = AppModel::getInstance('Datamart', 'BrowsingControl', true);
 		$joined_models = array();
@@ -1362,7 +1363,7 @@ class Browser extends DatamartAppModel {
 					'browsing'		=> $browsing,
 					'browsing_model'=> $model_to_search
 			);
-			$error_model_display_name = $this->buildAdvancedSearchParameters(&$adv_params);
+			$error_model_display_name = $this->buildAdvancedSearchParameters($adv_params);
 			if($error_model_display_name != null){
 				//example: If 3 tx are owned by the same participant, this error will be displayed.
 				//we do it to make sure the result set is made with 1:1 relationship, thus clear.

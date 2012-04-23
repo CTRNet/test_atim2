@@ -2483,7 +2483,7 @@ class StructuresHelper extends Helper {
 		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail')){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				if(strpos($table_row_part['setting'], $trigger) !== false){
-					eval('$instance = '.$key.'::getInstance();');
+					eval('$instance = '.$key.'::getSingleton();');
 					$current_value .= " - ".$instance->getDescription($current_value);
 				}
 			}
