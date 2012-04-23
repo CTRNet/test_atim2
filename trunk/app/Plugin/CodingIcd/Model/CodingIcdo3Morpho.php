@@ -26,13 +26,12 @@ class CodingIcdo3Morpho extends CodingIcdAppModel{
 		return (is_numeric($tmp_id) || strlen($tmp_id) == 0) ? self::$singleton->globalValidateId($id) : false;
 	}
 	
-	static function getInstance(){
+	static function getSingleton(){
 		return self::$singleton;
 	}
 	
-	function globalSearch($terms, $exact_search){
-		return parent::globalSearch($terms, $exact_search, array("_description"), true, null);
+	function globalSearch(array $terms, $exact_search, $search_fields_suffix, $search_on_id, $limit){
+		return parent::globalSearch($terms, $exact_search, array("_description"), $search_on_id, $limit);
 	}
 }
 
-?>

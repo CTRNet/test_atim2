@@ -1,6 +1,6 @@
 <?php
 class CodingIcdAppController extends AppController {	
-	function tool(){
+	function tool($use_icd_type){
 		$this->layout = 'ajax';
 		$this->Structures->set('simple_search');
 		$this->Structures->set('empty', "empty");
@@ -20,7 +20,7 @@ class CodingIcdAppController extends AppController {
 			$this->Structures->set("CodingIcd_".$lang);
 			$limit = 25;
 			
-			if (!$db =& ConnectionManager::getDataSource($model_to_use->useDbConfig)) {
+			if (!$db = ConnectionManager::getDataSource($model_to_use->useDbConfig)) {
 				return false;
 			}
 

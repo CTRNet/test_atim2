@@ -28,10 +28,14 @@ jQuery.fn.popup = function(options){
 		fmPopup.popupOuter.data("FmPopup.prototype.id", FmPopup.prototype.id ++);
 		$(fmPopup.popupOuter).click(function(){
 			if(fmPopup.closePop && fmPopup.closable){
+				console.log('closing');
 				$(fmPopup.popupOuter).hide();
 			}else{
 				fmPopup.closePop = true;
 			}
+		});
+		$(fmPopup.popupOuter).find(".popup_container").click(function(event){
+			fmPopup.closePop = false;
 		});
 		$(document).keyup(function(event) {
 			if(event.keyCode == 27 && fmPopup.closable) { // Capture Esc key
