@@ -144,7 +144,7 @@ function postOvaryDiagnosesRead(Model $m){
 		}
 	} 
 	
-	if(!$participant_id) die("The FRSQ# '".$m->values['#FRSQ']."' has beend assigned to a participant in step2 ('DIAGNOSTIQUE') but this number is not defined in step 1! [line: $line_counter]");
+	if(!$participant_id) die("The FRSQ# '".$m->values['#FRSQ']."' has beend assigned to a participant in step2 ('DIAGNOSTIQUE') but this number is not defined in step 1! [line: $m->line]");
 	$m->values['participant_id'] = $participant_id;
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$participant_id])) die('ERR 9983933');
@@ -155,7 +155,7 @@ function postOvaryDiagnosesRead(Model $m){
 	
 		// 2- CREATE CONSENT
 	
-	$consent_date = customGetFormatedDate($m->values[utf8_decode('Date (année-mois-jour)')]);
+	$consent_date = customGetFormatedDate($m->values[utf8_decode('Date (année-mois-jour)')], 'DIAGNOSTIC', $m->line);
 	if(empty($consent_date)) {
 		die('ERR empty consent date line '.$m->line);
 	}
@@ -181,7 +181,7 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	// 3- UPDATE PARTICIPANT BIRTH DATE
 	
-	$date_of_birth = customGetFormatedDate($m->values[utf8_decode('Date Naissance JJ-MM-AAAA')]);
+	$date_of_birth = customGetFormatedDate($m->values[utf8_decode('Date Naissance JJ-MM-AAAA')], 'DIAGNOSTIC', $m->line);
 	if($date_of_birth) {
 		if(isset(Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth'])) {
 			if($date_of_birth != Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth']) {
@@ -974,7 +974,7 @@ function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
 	$start_date = null;
 	$start_date_comment = '';
 	if(preg_match('/^[0-9]{5}$/',$m->values['Date Chirurgie AAAA-MM-JJ'],$matches)) {
-		$start_date = customGetFormatedDate($m->values['Date Chirurgie AAAA-MM-JJ'], false);
+		$start_date = customGetFormatedDate($m->values['Date Chirurgie AAAA-MM-JJ'], 'SURGERY', $m->line);
 		$record_surgery = true;
 	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])( {0,1})(.*)/',$m->values['Date Chirurgie AAAA-MM-JJ'],$matches)) {
 		$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
