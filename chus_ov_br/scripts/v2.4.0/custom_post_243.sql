@@ -566,5 +566,58 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('volume should be a positif decimal', 'Volume/Weight should be a positive decimal!', 'Le volume/poids doit être un décimal positif!'),
 ('volume unit', 'Volume/Weight Unit', 'Unité de volume/poids');
 
+-- ADD Event  : Past History
 
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+('all', 'clinical', 'past history', 1, 'eventmasters,chus_ed_past_histories', 'chus_ed_past_histories', 0, 'clinical|all|past history');
 
+CREATE TABLE IF NOT EXISTS `chus_ed_past_histories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  
+  `type` varchar(250) DEFAULT NULL, 
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+CREATE TABLE IF NOT EXISTS `chus_ed_past_histories_revs` (
+  `id` int(11) NOT NULL,
+  
+  `type` varchar(250) DEFAULT NULL,  
+  
+  `event_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `chus_ed_past_histories`
+  ADD CONSTRAINT `chus_ed_past_histories_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('chus_ed_past_histories');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'custom_past_history_types', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''past history types'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
+VALUES ('past history types', '1', '250');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
+VALUES 
+('breast - benin','Breast - Benin','Sein - Bénin', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1),
+('breast - cancer','Breast - Cancer','Sein - Cancer', 2, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1),
+('ovary - benin','Ovary - Benin','Ovaire - Bénin', 3, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1),
+('ovary - cancer','Ovary - Cancer','Ovaire - Cancer', 4, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1),
+('uterus - benin','Uterus - Benin','Utérus - Bénin', 5, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1),
+('uterus - cancer','Uterus - Cancer','Utérus - Cancer', 6, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1),
+('other','Other','Autre', 7, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'past history types'), 1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'chus_ed_past_histories', 'type', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name = 'custom_past_history_types'), '0', '', '', '', 'type', '');
+
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_ed_past_histories'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='chus_ed_past_histories' AND `field`='type'), '1', '98', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='chus_ed_past_histories'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('past history','Past History','Antécédant');

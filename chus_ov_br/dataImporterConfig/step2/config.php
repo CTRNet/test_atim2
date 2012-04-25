@@ -236,8 +236,8 @@ function addonFunctionEnd(){
 	// ADD PATIENT OTHER DATA
 	
 	addPatientsHistory();
-   	addFamilyHistory();
-  	addCollections();
+	addFamilyHistory();
+ 	addCollections();
 
   	// INVENTORY COMPLETION
 		
@@ -254,7 +254,7 @@ function addonFunctionEnd(){
 	$query = "UPDATE aliquot_masters SET barcode=id;";
 	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
 	// WARNING DISPLAY
 
@@ -716,8 +716,118 @@ function addPatientsHistory() {
 				$data_to_insert['participant_id'] = $participant_id;
 				customInsertChusRecord($data_to_insert, 'reproductive_histories');	
 			}
+			
+			// ADD ATCD
+			
+			if(!isset(Config::$event_controls['clinical']['all']['past history'])) die('ERR 88998379');
+			$event_control_id = Config::$event_controls['clinical']['all']['past history']['event_control_id'];
+			$detail_tablename = Config::$event_controls['clinical']['all']['past history']['detail_tablename'];				
+			
+			$all_atcd_events = array();
+			
+			$headers_list = array(
+				'ATCD Personnel::Ovaire::Bénin' => 'ovary - benin',
+				'ATCD Personnel::Ovaire::Cancer' => 'ovary - cancer',
+				'ATCD Personnel::Sein::Bénin' => 'breast - benin',
+				'ATCD Personnel::Sein::Cancer' => 'breast - cancer',
+				'ATCD Personnel::Utérus::Bénin' => 'uterus - benin',
+				'ATCD Personnel::Utérus::Cancer' => 'uterus - cancer');	
+			foreach($headers_list as $header => $type) {
+				if(!empty($line_data[$header])) {
+					$event_data = array(
+						'master' => array(
+							'participant_id' => $participant_id,
+							'event_control_id' =>  $event_control_id,
+							'event_summary' => "'".str_replace("'","''",preg_replace(array('/^(oui )/', '/^(oui)$/', '/^\((.*)\)$/'), array('', '', '$1'), $line_data[$header]))."%%date_detail%%'"
+							),
+						'detail' => array('type' => "'$type'"));
+					
+					$event_date_data = getAtcdDate($line_data[$header.'::Date']);
+
+					if(!empty($event_date_data['date'])) {
+						$event_data['master']['event_date'] = "'".$event_date_data['date']."'";
+						$event_data['master']['event_date_accuracy'] = "'".$event_date_data['accuracy']."'";
+					}
+					if(!empty($event_date_data['note'])) {
+						$event_data['master']['event_summary'] = str_replace('%%date_detail%%', ((($event_data['master']['event_summary'] == "'%%date_detail%%'")? 'Date Info: ' : ' // Date Info: ').str_replace("'","''",$event_date_data['note'])), $event_data['master']['event_summary']);
+					} else {
+						$event_data['master']['event_summary'] = str_replace('%%date_detail%%', '', $event_data['master']['event_summary']);
+					}				
+					$all_atcd_events[] = $event_data;
+				}
+			}
+			
+			if(!empty($line_data['ATCD autres'])) {
+				$date = null;
+				$date_accuracy = null;
+				$summary = '';
+				
+				$data_tmp = preg_replace(array('/^(.*) {0,1}(19|20)([0-9]{2})$/', '/^(.*) {0,1}\((19|20)([0-9]{2})\)$/'), array('$2$3 : $1', '$2$3 : $1'), $line_data['ATCD autres']);
+				
+				if(preg_match('/^(19|20)([0-9]{2}) {0,1}: {0,1}(.*)$/', $data_tmp, $matches)) {
+					$date = $matches[1].$matches[2].'-01-01';
+					$date_accuracy = 'm';
+					$summary = $matches[3];
+				} else if(preg_match('/^(19|20)([0-9]{2})-([01][0-9]) {0,1}: {0,1}(.*)$/', $data_tmp, $matches)) {
+					$date = $matches[1].$matches[2].'-'.$matches[3].'-01';
+					$date_accuracy = 'd';
+					$summary = $matches[4];
+				} else if(preg_match('/^(19|20)([0-9]{2})-([01][0-9])-([0-3][0-9]) {0,1}: {0,1}(.*)$/', $data_tmp, $matches)) {
+					$date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
+					$date_accuracy = 'c';
+					$summary = $matches[5];					
+				
+				} else {
+					$summary = $data_tmp;
+				}
+				
+				$event_data = array(
+					'master' => array(
+						'participant_id' => $participant_id,
+						'event_control_id' =>  $event_control_id,
+						'event_summary' => "'".str_replace("'","''",$summary)."'"
+						),
+					'detail' => array('type' => "'other'"));
+				if(!empty($date)) {
+					$event_data['master']['event_date'] = "'$date'";
+					$event_data['master']['event_date_accuracy'] = "'$date_accuracy'";
+				}	
+				$all_atcd_events[] = $event_data;
+			}
+			
+			foreach($all_atcd_events as $new_atcd) {
+				$event_master_id = customInsertChusRecord($new_atcd['master'], 'event_masters');	
+				$new_atcd['detail']['event_master_id'] = $event_master_id;
+				customInsertChusRecord($new_atcd['detail'], $detail_tablename, true);	
+			}			
 		}
 	}
+}
+
+function getAtcdDate($date_string) {
+	$date_string = preg_replace(array('/^-$/','/^nd$/','/^ND$/'),array('','',''), $date_string);
+	if(!empty($date_string)) {
+		if(preg_match('/^(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => "$date_string-01-01", 'accuracy' => 'm', 'note' => null);
+		
+		} else if(preg_match('/^(19|20)([0-9]{2})-([01][0-9])$/', $date_string, $matches)) {
+			return array('date' => "$date_string-01", 'accuracy' => 'd', 'note' => null);
+		
+		} else if(preg_match('/^([01][0-9])-(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[2].$matches[3].'-'.$matches[1].'-01', 'accuracy' => 'd', 'note' => null);
+
+		} else if(preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c', 'note' => null);
+			
+		} else if(preg_match('/^(Jan|Mar|Apr|May|Jun|Aug|Sep|Nov)-(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[2].$matches[3].'-'.str_replace(array('Jan','Mar','Apr','May','Jun','Aug','Sep','Nov'), array('01','03','04','05','06','08','09','11'), $matches[1]).'-01', 'accuracy' => 'd', 'note' => null);
+						
+		} else {
+			return array('date' => null, 'accuracy' => null, 'note' => $date_string);
+		}
+	}
+	
+	return array('date' => null, 'accuracy' => null, 'note' => null);
 }
 
 function addFamilyHistory() {
@@ -972,17 +1082,33 @@ function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false
 	return $record_id;	
 }
 
-function customGetFormatedDate($date_strg) {
+function customGetFormatedDate($date_strg, $worksheet, $line) {
 	$date = null;
+	
 	if(!empty($date_strg)) {
-		//format excel date integer representation
-		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
-		$xls_offset = 36526;//2000-01-01
-		$date = date("Y-m-d", $php_offset + (($date_strg - $xls_offset) * 86400));
+		if(preg_match('/^([0-9]+)$/', $date_strg, $matches)) {
+			//format excel date integer representation
+			$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
+			$xls_offset = 36526;//2000-01-01
+			$date = date("Y-m-d", $php_offset + (($date_strg - $xls_offset) * 86400));
+			
+		} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date_strg, $matches)) {
+			$date = $date_strg;
 		
-		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches)) die('ERR Wrong date format: '.$date);
+		} else if(preg_match('/^(19|20)([0-9]{2})\-([1-9])\-([0-3][0-9])$/', $date_strg, $matches)) {
+			$date = $matches[1].$matches[2].'-0'.$matches[3].'-'.$matches[4];
+			
+		} else {
+			Config::$summary_msg[$worksheet]['@@ERROR@@']['Wrong excel date value format'][] = "The format of a date ($date_strg) into the excel file is wrong (line $line)! Date will be flushed!";
+			$date = null;
+		}
+		
+		if((!is_null($date)) && (!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches))) {
+			Config::$summary_msg[$worksheet]['@@ERROR@@']['Wrong generated date format'][] = "The format of a date generated from file value is wrong (line $line): '$date_strg' => '$date'! Date will be flushed!";
+			$date = null;
+		}
 	}
-
+	
 	return $date;
 }
 
@@ -1094,7 +1220,7 @@ function loadAscite2mlCollection($collections_to_create) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date collecte'])) {
-				$collection_date = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 2 ml', $line_counter).' 00:00:00';
 				$collection_date_accuracy = 'h';
 			}
 			
@@ -1149,7 +1275,7 @@ function loadAscite2mlCollection($collections_to_create) {
 			$storage_datetime_accuracy = '';
 			$line_data['Heure Entreposage'] = str_replace('ND','',$line_data['Heure Entreposage']);
 			if(!empty($line_data['Date collecte'])) {
-				$storage_datetime = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$storage_datetime = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 2 ml', $line_counter).' 00:00:00';
 				$storage_datetime_accuracy = 'h';
 				if(!empty($line_data['Heure Entreposage'])) {
 					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Entreposage'], $matches)) die('ERR  ['.$line_counter.'] 89000ddd4');
@@ -1362,7 +1488,7 @@ function loadAscite10mlCollection($collections_to_create) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date collecte'])) {
-				$collection_date = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 10 ml', $line_counter).' 00:00:00';
 				$collection_date_accuracy = 'h';
 			}
 			
@@ -1415,7 +1541,7 @@ function loadAscite10mlCollection($collections_to_create) {
 			$storage_datetime_accuracy = '';
 			$line_data['Heure congélation'] = str_replace('ND','',$line_data['Heure congélation']);
 			if(!empty($line_data['Date collecte'])) {
-				$storage_datetime = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$storage_datetime = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 10 ml', $line_counter).' 00:00:00';
 				$storage_datetime_accuracy = 'h';
 				if(!empty($line_data['Heure congélation'])) {
 					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure congélation'], $matches)) die('ERR  ['.$line_counter.'] 89000eqweddd4');
@@ -1617,7 +1743,7 @@ function loadTissueCollection($collections_to_create) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date collecte'])) {
-				$collection_date = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'TISSU', $line_counter).' 00:00:00';
 				$collection_date_accuracy = 'h';
 			}
 			
@@ -1673,7 +1799,7 @@ function loadTissueCollection($collections_to_create) {
 			$storage_datetime_accuracy = '';
 			$line_data['Heure congélation'] = str_replace('ND','',$line_data['Heure congélation']);
 			if(!empty($line_data['Date collecte'])) {
-				$storage_datetime = customGetFormatedDate($line_data['Date collecte']).' 00:00:00';
+				$storage_datetime = customGetFormatedDate($line_data['Date collecte'], 'TISSU', $line_counter).' 00:00:00';
 				$storage_datetime_accuracy = 'h';
 				if(!empty($line_data['Heure congélation'])) {
 					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure congélation'], $matches)) die('ERR  ['.$line_counter.'] 89000eqweddd4');
@@ -1965,7 +2091,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date Réception'])) {
-				$collection_date = customGetFormatedDate($line_data['Date Réception']).' 00:00:00';
+				$collection_date = customGetFormatedDate($line_data['Date Réception'], 'TISSU', $line_counter).' 00:00:00';
 				$collection_date_accuracy = 'h';
 			}
 			
@@ -2032,7 +2158,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 			$centrifugation_date = '';
 			$centrifugation_date_accuracy = '';
 			if(!empty($line_data['Date traitement'])) {
-				$centrifugation_date = customGetFormatedDate($line_data['Date traitement']).' 00:00:00';
+				$centrifugation_date = customGetFormatedDate($line_data['Date traitement'], 'DNA', $line_counter).' 00:00:00';
 				$centrifugation_date_accuracy = 'h';
 				if(!empty($line_data['Heure début Traitement'])) {
 					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure début Traitement'], $matches)) die('ERR  ['.$line_counter.'] fafasassa cacacacbe sure cell custom format is h:mm ['.$line_data['Heure début Traitement'].']');
@@ -2061,7 +2187,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 			$storage_datetime_accuracy = '';
 			$line_data['Heure Congélation'] = str_replace('ND','',$line_data['Heure Congélation']);
 			if(!empty($line_data['Date traitement'])) {
-				$storage_datetime = customGetFormatedDate($line_data['Date traitement']).' 00:00:00';
+				$storage_datetime = customGetFormatedDate($line_data['Date traitement'], 'BLOOD', $line_counter).' 00:00:00';
 				$storage_datetime_accuracy = 'h';
 				if(!empty($line_data['Heure Congélation'])) {
 					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Congélation'], $matches)) die('ERR  ['.$line_counter.'] 89000ddd4');
@@ -2292,7 +2418,7 @@ function loadDNACollection() {
 			$extraction_date = '';
 			$extraction_date_accuracy = '';
 			if(!empty($line_data['Date extraction'])) {
-				$extraction_date = customGetFormatedDate($line_data['Date extraction']).' 00:00:00';
+				$extraction_date = customGetFormatedDate($line_data['Date extraction'], 'DNA', $line_counter).' 00:00:00';
 				$extraction_date_accuracy = 'h';
 			}		
 			
