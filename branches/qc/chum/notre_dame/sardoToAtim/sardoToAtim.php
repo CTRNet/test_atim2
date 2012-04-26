@@ -50,7 +50,7 @@ class Models{
 class SardoToAtim{
 	static $columns = array();
 	static $date_columns = array();
-	static $bank_identifier_ctrl_ids = array(1,2,5);
+	static $bank_identifier_ctrl_ids = array(1,2,3,4,5);
 	static $bank_identifier_ctrl_ids_column_name = null;
 	static $hospital_identifier_ctrl_ids = array(8, 9, 10);
 	static $hospital_identifier_ctrl_ids_column_name = null;
@@ -62,6 +62,7 @@ class SardoToAtim{
 	static $last_contact_date = null;
 	static $date_of_death = null;
 	static $cause_of_death = null;
+	static $race = null;
 	
 	static $connection = null;
 	
@@ -117,9 +118,18 @@ class SardoToAtim{
 		'Z804'	=> 'Z8048'
 	);
 	
+	static private $proto_tx_assoc = array(
+		1	=> 1,
+		2	=> 3,
+		5	=> 5,
+		6	=> 2 	
+	);
+	
 	static private $table_fields_cache = array();//table fields cache
 	static private $table_fields_revs_cache = array();//the compatible fields between x and x_revs
 	static $commit = true;
+	
+	static $statements = array();
 	
 	
 	static function getNewConnection(){
@@ -170,6 +180,7 @@ class SardoToAtim{
 	static function validateColumns(array $header_cells){
 		$errors = false;
 		foreach($header_cells as $column_number => $column_name){
+			$column_name = utf8_encode($column_name);
 			if(!array_key_exists($column_name, self::$columns)){
 				$errors = true;
 				echo 'ERROR: Missing column ['.$column_name."]\n";
@@ -221,6 +232,12 @@ class SardoToAtim{
 		}else{
 			$errors = true;
 			echo "ERROR: Date of death not found\n";
+		}
+		if(array_key_exists('Race', self::$columns)){
+			self::$race = 'Race';
+		}else{
+			$errors = true;
+			echo "ERROR: Race not found\n";
 		}
 		if(array_key_exists('Cause de décès', self::$columns)){
 			self::$cause_of_death = 'Cause de décès';
@@ -331,6 +348,15 @@ class SardoToAtim{
 			}
 		}
 		
+		if(isset($xls_row[self::$columns[self::$race]]) && $xls_row[self::$columns[self::$race]] != 'N/S' && self::$race != null && $xls_row[self::$columns[self::$race]] && $xls_row[self::$columns[self::$race]] != $sql_row['race']){
+			if(empty($sql_row['race'])){
+				$to_update['race'] = $xls_row[self::$columns[self::$race]];
+				printf("UPDATE: Participant at line [%d]. Race from [%s] to [%s]\n", $line, $sql_row['race'], $xls_row[self::$columns[self::$race]]);
+			}else{
+				printf("WARNING: Race difference for participant at line [%d]. File [%s]. ATiM [%s].", $line, $xls_row[self::$columns[self::$race]], $sql_row['race']);
+			}
+		}
+		
 		//death related data
 		if(!empty($xls_row[self::$columns[self::$date_of_death]]) || (self::$cause_of_death != null && !empty($xls_row[self::$columns[self::$cause_of_death]]))){
 			if($sql_row['vital_status'] != 'deceased'){
@@ -361,172 +387,166 @@ class SardoToAtim{
 	 * and last name.
 	 * @param array $cells
 	 */
-	static function validateParticipantEntry(array &$cells){
-		$errors = false;
-		reset($cells);
+	static function validateParticipantEntry(array &$row, $line){
 		
 		$to_update = array();
-		
-		$query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, created, created_by, modified, modified_by, deleted) VALUES (?, ?, ?, NOW(), 1, NOW(), 1, 0)";
-		$stmt = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-		
-		//bank number
-		$query = "SELECT * FROM misc_identifiers AS mi 
-			INNER JOIN participants AS p ON mi.participant_id=p.id
-			WHERE mi.misc_identifier_control_id IN(".implode(', ', self::$bank_identifier_ctrl_ids).") AND mi.identifier_value=? AND mi.deleted=0 
-			GROUP BY participant_id";
-		$stmt1 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-		
-		//hospital number
-		$query = "SELECT * FROM misc_identifiers AS mi
-			INNER JOIN participants AS p ON mi.participant_id=p.id
-			WHERE identifier_value=? AND misc_identifier_control_id=? AND mi.deleted=0
-			GROUP BY participant_id";		
-		$stmt2 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-		
-		$query = "SELECT identifier_value FROM misc_identifiers WHERE participant_id=? AND misc_identifier_control_id=".self::$ramq_ctrl_id.' AND misc_identifiers.deleted=0';
-		$stmt4 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-		
-		while($row = next($cells)){//the first call skips the first line
-			$error_here = false;
-			$valid_hospital = false;
-			$valid_bank = false;
-			$sql_row1 = null;
-			$sql_row2 = null;
-			$hospital_mi = self::getHospitalIdentifierInfo($row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]]);
-			if($hospital_mi['ctrl_id'] == null){
-				$errors = true;
-				printf("ERROR: The hospital number [%s] at line [%d] cannot be associated to an hospital.\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
-				continue;
-			}
+		if(empty(self::$statements)){
+			$query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, created, created_by, modified, modified_by, deleted) VALUES (?, ?, ?, NOW(), 1, NOW(), 1, 0)";
+			$stmt = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
 			
-			//bank id check
-			if($row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]]){
-				$stmt1->bind_param("s", $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]]);
-				$stmt1->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt1->error."\n");
-				$stmt1->store_result();
-				$sql_row1 = bindRow($stmt1);
-				if(!$stmt1->fetch()){
-					$error_here = true;
-					printf("ERROR: No participant matches bank id [%s] at line [%d]\n", $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], key($cells));
-					$stmt1->free_result();
-					
-				}else if($stmt1->num_rows > 1){
-					$error_here = true;
-					printf("ERROR: The bank id [%s] at line [%d] belongs to more than one participant.\n", $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
-				}else{
-					$valid_bank = true;
-				}
-				
+			//bank number
+			$query = "SELECT * FROM misc_identifiers AS mi 
+				INNER JOIN participants AS p ON mi.participant_id=p.id
+				WHERE mi.misc_identifier_control_id IN(".implode(', ', self::$bank_identifier_ctrl_ids).") AND mi.identifier_value=? AND mi.deleted=0 
+				GROUP BY participant_id";
+			$stmt1 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			
+			//hospital number
+			$query = "SELECT * FROM misc_identifiers AS mi
+				INNER JOIN participants AS p ON mi.participant_id=p.id
+				WHERE identifier_value=? AND misc_identifier_control_id=? AND mi.deleted=0
+				GROUP BY participant_id";		
+			$stmt2 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			
+			$query = "SELECT identifier_value FROM misc_identifiers WHERE participant_id=? AND misc_identifier_control_id=".self::$ramq_ctrl_id.' AND misc_identifiers.deleted=0';
+			$stmt4 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			
+			self::$statements = array('stmt' => $stmt, 'stmt1' => $stmt1, 'stmt2' => $stmt2, 'stmt4' => $stmt4);
+		}else{
+			$stmt = self::$statements['stmt']; 
+			$stmt1 = self::$statements['stmt1']; 
+			$stmt2 = self::$statements['stmt2']; 
+			$stmt4 = self::$statements['stmt4']; 
+		}
+		
+		$error_here = false;
+		$valid_hospital = false;
+		$valid_bank = false;
+		$sql_row1 = null;
+		$sql_row2 = null;
+		$hospital_mi = self::getHospitalIdentifierInfo($row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]]);
+		if($hospital_mi['ctrl_id'] == null){
+			printf("ERROR: The hospital number [%s] at line [%d] cannot be associated to an hospital.\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $line);
+			return false;
+		}
+		
+		//bank id check
+		if($row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]]){
+			$bank_id = trim($row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]]);
+			$stmt1->bind_param("s", $bank_id);
+			$stmt1->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt1->error."\n");
+			$stmt1->store_result();
+			$sql_row1 = bindRow($stmt1);
+			if(!$stmt1->fetch()){
+				$error_here = true;
+				printf("ERROR: No participant matches bank id [%s] at line [%d]\n", $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], $line);
 				$stmt1->free_result();
-				if($error_here){
-					$errors = true;
-					continue;
-				}
-			}
-			
-			if($row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]]){
-				//hospital id check
-				$stmt2->bind_param("si", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $hospital_mi['ctrl_id']);
-				$stmt2->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt2->error."\n");
-				$stmt2->store_result();
-				$sql_row2 = bindRow($stmt2);
-				$stmt2->fetch();
-				if($stmt2->num_rows ==  1){
-					$valid_hospital = true;
-				}else if($stmt2->num_rows > 1){
-					$error_here = true;
-					printf("ERROR: The hospital number [%s] at line [%d] belongs to more than one participant.\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
-				}
-				$stmt2->free_result();
-				if($error_here){
-					$errors = true;
-					continue;
-				}
-			}
-			
-			if($valid_bank && $valid_hospital){
-				if($sql_row1['participant_id'] != $sql_row2['participant_id']){
-					printf("ERROR: The hospital number [%s] and the bank number [%s] do not belong to the same participant on line [%d].\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], key($cells));
-					$errors = true;
-					continue;
-				}
-				$cells[key($cells)]['participant_id'] = $sql_row1['participant_id'];
-				$cells[key($cells)]['date_of_birth'] = $sql_row1['date_of_birth'];
 				
-			}else if($valid_bank){
-				//match the date of birth
-				if($sql_row1['date_of_birth'] && $sql_row1['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
-					printf("ERROR: The date of birth [%s] does not match participant with bank number [%s] at line [%d].\n", $sql_row1['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
-					$errors = true;
-					continue;
-				}
-				
-				$cells[key($cells)]['participant_id'] = $sql_row1['participant_id'];
-					$cells[key($cells)]['date_of_birth'] = $sql_row1['date_of_birth'];
-				
-				//create the hospital number
-				$query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, created, created_by, modified, modified_by, deleted) VALUES (?, ?, ?, NOW(), 1, NOW(), 1, 0)";
-				$stmt->bind_param('sii', $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $hospital_mi['ctrl_id'], $sql_row1['participant_id']);
-				$stmt->execute();
-			}else if($valid_hospital){
-				//match the date of birth
-				if($sql_row2['date_of_birth'] && $sql_row2['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
-					printf("ERROR: The date of birth [%s] does no match participant with bank hospital [%s] at line [%d].\n", $sql_row2['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], key($cells));
-					$errors = true;
-					continue;
-				}
-				
-				$cells[key($cells)]['participant_id'] = $sql_row2['participant_id'];
-				$cells[key($cells)]['date_of_birth'] = $sql_row2['date_of_birth'];
-				
+			}else if($stmt1->num_rows > 1){
+				$error_here = true;
+				printf("ERROR: The bank id [%s] at line [%d] belongs to more than one participant.\n", $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $line);
 			}else{
-				printf("ERROR: Neither the hospital number nor the bank number can be found for participant at line [%d].\n", key($cells));
-				$errors = true;
-				continue;
+				$valid_bank = true;
 			}
 			
-			
-			$to_update = self::validateParticipantData($row, $sql_row1 == null ? $sql_row2 : $sql_row1, key($cells));
-			$errors = $errors ?: $to_update['errors'];
-			
-			if(self::$ramq != null){
-				$stmt4->bind_param("i", $sql_row2['participant_id']);
-				$stmt4->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt4->error."\n");
-				$stmt4->store_result();
-				$sql_row4 = bindRow($stmt4);
-				if($stmt4->fetch() && $sql_row4['identifier_value'] != $row[self::$columns[self::$ramq]]){
-					printf("WARNING: RAMQ for participant at line [%d] differs from the database.\n", key($cells)); 
-				}
-			}
-			
-			$stmt4->free_result();
-			
-			if(!empty($to_update['data'])){
-				$fields_values = $to_update['data'];
-				$fields = array_keys($fields_values);
-				$query = "UPDATE participants SET ".implode('=?, ', $fields)."=?, modified_by=".self::$db_user_id.", modified=NOW() WHERE id=".$to_update['participant_id'];
-				$stmt5 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
-				$params = array(str_repeat('s', count($fields)));
-				foreach($fields_values as &$value){
-					$params[] = &$value;
-				}
-				call_user_func_array(array($stmt5, 'bind_param'), $params);
-				$stmt5->execute();
-				$stmt5->close();
-				
-				self::insertRev('participants', $to_update['participant_id']);
+			$stmt1->free_result();
+			if($error_here){
+				return false;
 			}
 		}
 		
-		$stmt4->close();
-		$stmt2->close();
-		$stmt1->close();
-		$stmt->close();
-
-		if($errors){
-			die("Participant validation failed\n");
+		if($row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]]){
+			//hospital id check
+			$stmt2->bind_param("si", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $hospital_mi['ctrl_id']);
+			$stmt2->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt2->error."\n");
+			$stmt2->store_result();
+			$sql_row2 = bindRow($stmt2);
+			$stmt2->fetch();
+			if($stmt2->num_rows ==  1){
+				$valid_hospital = true;
+			}else if($stmt2->num_rows > 1){
+				$error_here = true;
+				printf("ERROR: The hospital number [%s] at line [%d] belongs to more than one participant.\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $line);
+			}
+			$stmt2->free_result();
+			if($error_here){
+				return false;
+			}
 		}
+		
+		if($valid_bank && $valid_hospital){
+			if($sql_row1['participant_id'] != $sql_row2['participant_id']){
+				printf("ERROR: The hospital number [%s] and the bank number [%s] do not belong to the same participant on line [%d].\n", $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $row[self::$columns[self::$bank_identifier_ctrl_ids_column_name]], $line);
+				return false;
+			}
+			$row['participant_id'] = $sql_row1['participant_id'];
+			$row['date_of_birth'] = $sql_row1['date_of_birth'];
+			
+		}else if($valid_bank){
+			//match the date of birth
+			if($sql_row1['date_of_birth'] && $sql_row1['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
+				printf("ERROR: The date of birth [%s] does not match participant with bank number [%s] at line [%d].\n", $sql_row1['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $line);
+				return false;
+			}
+			
+			$row['participant_id'] = $sql_row1['participant_id'];
+			$row['date_of_birth'] = $sql_row1['date_of_birth'];
+			
+			//create the hospital number
+			$query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, created, created_by, modified, modified_by, deleted) VALUES (?, ?, ?, NOW(), 1, NOW(), 1, 0)";
+			$stmt->bind_param('sii', $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $hospital_mi['ctrl_id'], $sql_row1['participant_id']);
+			$stmt->execute();
+		}else if($valid_hospital){
+			//match the date of birth
+			if($sql_row2['date_of_birth'] && $sql_row2['date_of_birth'] != $row[self::$columns[self::$birth_date]]){
+				print_r($row);
+				printf("ERROR: The date of birth [%s] does not match participant with hospital number [%s] at line [%d].\n", $sql_row2['date_of_birth'], $row[self::$columns[self::$hospital_identifier_ctrl_ids_column_name]], $line);
+				return false;
+			}
+			
+			$row['participant_id'] = $sql_row2['participant_id'];
+			$row['date_of_birth'] = $sql_row2['date_of_birth'];
+			
+		}else{
+			printf("ERROR: Neither the hospital number nor the bank number can be found for participant at line [%d].\n", $line);
+			return false;
+		}
+		
+		
+		$to_update = self::validateParticipantData($row, $sql_row1 == null ? $sql_row2 : $sql_row1, $line);
+		if($to_update['errors']){
+			return false;
+		}
+		
+		if(self::$ramq != null){
+			$stmt4->bind_param("i", $sql_row2['participant_id']);
+			$stmt4->execute() or die('Execute failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt4->error."\n");
+			$stmt4->store_result();
+			$sql_row4 = bindRow($stmt4);
+			if($stmt4->fetch() && (!isset($row[self::$columns[self::$ramq]]) || $sql_row4['identifier_value'] != $row[self::$columns[self::$ramq]])){
+				printf("WARNING: RAMQ for participant at line [%d] differs from the database.\n", $line); 
+			}
+		}
+		
+		$stmt4->free_result();
+		
+		if(!empty($to_update['data'])){
+			$fields_values = $to_update['data'];
+			$fields = array_keys($fields_values);
+			$query = "UPDATE participants SET ".implode('=?, ', $fields)."=?, modified_by=".self::$db_user_id.", modified=NOW() WHERE id=".$to_update['participant_id'];
+			$stmt5 = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			$params = array(str_repeat('s', count($fields)));
+			foreach($fields_values as &$value){
+				$params[] = &$value;
+			}
+			call_user_func_array(array($stmt5, 'bind_param'), $params);
+			$stmt5->execute();
+			$stmt5->close();
+			
+			self::insertRev('participants', $to_update['participant_id']);
+		}
+
+		return true;
 	}
 	
 	static function updateFieldsCache($tablename){
@@ -575,7 +595,7 @@ class SardoToAtim{
 		}else if(strpos($date_str, '-JJ') !== false){
 			$date_str = substr($date_str, 0, 8)."01";
 			$accuracy = 'd';
-		}else if(strpos($date_str, 'AAAA-') === 0){
+		}else if(strpos($date_str, 'AAAA-') === 0 || strpos($date_str, '-MM-') != false){
 			printf("WARNING: Bogus date [%s] deleted.\n", $date_str);
 			$date_str = '';
 			$accuracy = '';
@@ -599,25 +619,10 @@ class SardoToAtim{
 			);
 		}
 		
-		//put all indexes in all rows
-		//formats dates
-		//convert all entries to UTF-8
-		$length = count(self::$columns);
-		$range_array = array();
-		
-		for($i = 1; $i <= $length; ++ $i){
-			$range_array[$i] = null;
-		}
-		foreach($cells as &$row){
-			foreach($row as &$cell){
-				$cell = utf8_encode($cell);
-			}
-			$row = array_replace($range_array, $row);
-		}
-		
 		self::validateColumns($cells[1]);
 		self::autoAssignColumns();
-		reset($cells);
+		
+		/*reset($cells);
 		while(next($cells)){
 			$row = &$cells[key($cells)];
 			foreach(self::$date_columns as $date_column){
@@ -627,6 +632,19 @@ class SardoToAtim{
 			}
 		}
 		self::validateParticipantEntry($cells);
+		*/
+	}
+	
+	static function initLine(&$line, $line_num){
+		foreach($line as &$field){
+			$field = utf8_encode($field);
+		}
+		foreach(self::$date_columns as $date_column){
+			$accuracy_result = self::formatWithAccuracy($line[self::$columns[$date_column]]);
+			$line[self::$columns[$date_column]] = $accuracy_result['val'];
+			$line[$date_column.'_accuracy'] = $accuracy_result['accuracy'];
+		}
+		return self::validateParticipantEntry($line, $line_num);
 	}
 	
 	/**
@@ -927,6 +945,7 @@ class SardoToAtim{
 		self::checkValueDomain('qc_nd_txd_hormonotherapies', 'type', 'qc_nd_hormono_type');
 		self::checkValueDomain('txd_surgeries', 'qc_nd_residual_disease', 'qc_nd_residual_disease');
 		self::checkValueDomain('txd_chemos', 'qc_nd_type', 'qc_nd_chemo_type');
+		self::checkValueDomain('participants', 'race', 'qc_nd_race');
 		//checkValueDomain($table_name, $field, $domain_name, $custom = false)
 	}
 	
@@ -936,6 +955,16 @@ class SardoToAtim{
 
 		$query = 'UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL';
 		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		
+		$query = 'UPDATE treatment_masters SET deleted=1 WHERE treatment_control_id=11';
+		self::$connection->query($query) or die('Query failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		
+		if(self::$statements){
+			foreach(self::$statements as &$stmt){
+				$stmt->close();
+			}
+			self::$statements = array();
+		}
 		
 		if(self::$commit){
 			self::$connection->commit();
@@ -1002,6 +1031,171 @@ class SardoToAtim{
 				$icd10 = self::$icd10_ca_equiv[$icd10];
 			}
 		}
+	}
+	
+	static function manageTx($tx, $is_a_tx_ctrl_id, $line_number){
+		if(!isset(self::$statements['stmt_find_surgery'])){
+			$query = 'SELECT * FROM sardo_tx_conf_surgeries WHERE name=?';
+			self::$statements['stmt_find_surgery'] = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			
+			$query = 'SELECT * FROM protocol_masters WHERE name=?';
+			self::$statements['stmt_find_proto'] = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+			
+			$query = 'INSERT INTO protocol_masters (protocol_control_id, name, `type`, expiry_accuracy, activated_accuracy) VALUES(7, ?, "", "", "")';
+			self::$statements['stmt_insert_mixed_proto'] = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		}
+		
+		$stmt_find_surgery = self::$statements['stmt_find_surgery'];
+		$stmt_find_proto = self::$statements['stmt_find_proto'];
+		$stmt_insert_mixed_proto = self::$statements['stmt_insert_mixed_proto'];
+		
+		if(strpos($tx['name'], 'Observation') === 0 || strpos($tx['name'], 'Biopsie') === 0){
+			$event = array(
+				'master' => array(
+					'participant_id'		=> $tx['participant_id'],
+					'event_control_id'		=> strpos($tx['name'], 'Observation') === 0 ? 32 : 28,
+					'event_date'			=> $tx['date_start'],
+					'event_date_accuracy'	=> $tx['date_start_accuracy'],
+					'diagnosis_master_id'	=> $tx['diagnosis_master_id']
+				), 'detail' => array(
+					'type'					=> $tx['name']
+				)
+			);
+			self::update(Models::EVENT_MASTER, $event, $line_number, 'participant_id', array('master' => array('diagnosis_master_id', 'event_control_id', 'event_date')));
+		}
+		
+		$stmt_find_surgery->bind_param('s', $tx['name']);
+		$stmt_find_surgery->execute();
+		$surgery_conf = bindRow($stmt_find_surgery);
+		$fetched = $stmt_find_surgery->fetch();
+		$stmt_find_surgery->free_result();
+		if($fetched){
+			//is a surgery
+			if($is_a_tx_ctrl_id){
+				self::$commit = false;
+				printf('ERROR: [%s] is a surgery and a ctrl_id[%d] at the same time', $tx['name'], $is_a_tx_ctrl_id);
+				return;
+			}
+			
+			$tx_ctrl_id = null;
+			switch($surgery_conf['site']){
+				case 'Ovaire':
+					$tx_ctrl_id = 7;
+					break;
+				case 'Prostate':
+					$tx_ctrl_id = 8;
+					break;
+				case 'Sein':
+					$tx_ctrl_id = 9;
+					break;
+				default:
+					$tx_ctrl_id = 4;
+			}
+			$surgery = array(
+				'master' => array(
+					'participant_id'		=> $tx['participant_id'],
+					'treatment_control_id'	=> $tx_ctrl_id,
+					'start_date'			=> $tx['date_start'],
+					'start_date_accuracy'	=> $tx['date_start_accuracy'],
+					'diagnosis_master_id'	=> $dx_id
+				), 'detail' => array(
+					'qc_nd_precision'		=> $surgery_conf['name'],
+					'qc_nd_laterality'		=> $surgery_conf['laterality'],
+					'qc_nd_type'			=> $surgery_conf['m_type'],
+					'qc_nd_method'			=> $surgery_conf['method']
+				)
+			);
+			SardoToAtim::update(Models::TREATMENT_MASTER, $surgery, $line_number, 'participant_id', array('master' => array('diagnosis_master_id'), 'detail' => array('qc_nd_precision')));
+			return;
+		}
+
+		//not a surgery nor an event
+		$stmt_find_proto->bind_param('s', $tx['name']);
+		$stmt_find_proto->execute();
+		$row = bindRow($stmt_find_proto);
+		if($stmt_find_proto->fetch()){
+			$proto_id = $row['id'];
+			$stmt_find_proto->free_result();
+			//protocol found
+			$tx_ids = self::getRelatedTxCtrlIds($proto_id);
+			foreach($tx_ids as $id){
+				$treatment = array(
+					'master' => array(
+						'participant_id'		=> $tx['participant_id'],
+						'treatment_control_id'	=> $proto_id,
+						'start_date'			=> $tx['date_start'],
+						'start_date_accuracy'	=> $tx['date_start_accuracy'],
+						'diagnosis_master_id'	=> $tx['diagnosis_master_id'],
+						'finish_date'			=> $tx['date_end'],
+						'finish_date_accuracy'	=> $tx['date_end_accuracy'],
+						'protocol_master_id'	=> $last_id
+					), 'detail' => array(
+					)
+				);
+				self::update(Models::TREATMENT_MASTER, $treatment, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'start_date', 'protocol_master_id')));
+			}
+		}else{
+			$stmt_find_proto->free_result();
+			//protocol not found, insert in generic stuff
+			$stmt_insert_mixed_proto->bind_param('s', $tx['name']);
+			$stmt_insert_mixed_proto->execute() or die('Exec failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".$stmt_insert_mixed_proto->error."\n");
+			$last_id = $stmt_insert_mixed_proto->insert_id;
+			$stmt_insert_mixed_proto->free_result();
+			
+			$treatment = array(
+				'master' => array(
+					'participant_id'		=> $tx['participant_id'],
+					'treatment_control_id'	=> 11,
+					'start_date'			=> $tx['date_start'],
+					'start_date_accuracy'	=> $tx['date_start_accuracy'],
+					'diagnosis_master_id'	=> $tx['diagnosis_master_id'],
+					'finish_date'			=> $tx['date_end'],
+					'finish_date_accuracy'	=> $tx['date_end_accuracy'],
+					'protocol_master_id'	=> $last_id
+				), 'detail' => array(
+				)
+			);
+			self::update(Models::TREATMENT_MASTER, $treatment, $line_number, 'participant_id', array('master' => array('treatment_control_id', 'start_date', 'protocol_master_id')));
+			return;
+		}
+	}
+	
+	static function getRelatedTxCtrlIds($protocol_master_id){
+		$query = "SELECT protocol_control_id FROM protocol_masters WHERE id=".$protocol_master_id." 
+			UNION
+			SELECT protocol_control_id FROM qc_nd_protocol_behaviors WHERE protocol_master_id=".$protocol_master_id;
+		$result = self::$connection->query($query) or die('Query failed at line '.__LINE__." [$query]\n");
+		$tx_ctrl_ids =  array();
+		while($row = $result->fetch_row()){
+			if($row[0] != 7){
+				$tx_ctrl_ids[] = self::$proto_tx_assoc[$row[0]];
+			}
+		}
+		$result->free();
+		return array_unique($tx_ctrl_ids);
+	}
+	
+	static function getSurgeryConfig($name){
+		if(!isset(self::$statements['stmt_find_surgery_config'])){
+			$query = "SELECT * FROM sardo_tx_conf_surgeries WHERE name=?";
+			self::$statements['stmt_find_surgery_config'] = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+
+			$query = "INSERT INTO sardo_tx_conf_surgeries(name, site, laterality, m_type, method) VALUES (?, '', '', '', '')";
+			self::$statements['stmt_insert_surgery_config'] = self::$connection->prepare($query) or die('Prep failed in function ['.__FUNCTION__.'] in file ['.__FILE__.'] at line ['.__LINE__."]\n----".self::$connection->error."\n");
+		}
+		$stmt_find_surgery_config = self::$statements['stmt_find_surgery_config'];
+		$stmt_find_surgery_config->bind_param('s', $name);
+		$stmt_find_surgery_config->execute();
+		$row = bindRow($stmt_find_surgery_config);
+		if(!$stmt_find_surgery_config->fetch()){
+			//create it
+			$stmt_insert_surgery_config = self::$statements['stmt_insert_surgery_config'];
+			$stmt_insert_surgery_config->bind_param('s', $name);
+			$stmt_insert_surgery_config->execute();
+			$row['name'] = $name;
+		}
+		$stmt_find_surgery_config->free_result();
+		return $row;
 	}
 }
 

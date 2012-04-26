@@ -10,14 +10,14 @@ SardoToAtim::$columns = array(
 	"No patient SARDO",
 	"Date de naissance",
 	"Age actuel",//ignore
-	"Race",//ignore
-	"Fanions",//TODO: mettre dans notes?
+	"Race",
+	"Fanions",//ignore
 	"Diagnostic",
 	"Latéralité",
 	"Date du diagnostic",
 	"Age au diagnostic",
-	"Antécédents familiaux de cancer",//FIXME
-	"Antécédents familiaux ce cancer",//FIXME
+	"Antécédents familiaux de cancer",
+	"Antécédents familiaux ce cancer",
 	"Code topographique",
 	"Topographie",//ignore (on a le code dans "Code topographie")
 	"Code morphologique",
@@ -36,7 +36,7 @@ SardoToAtim::$columns = array(
 	"TNM pathologique",
 	"TNM G",
 	"FIGO",
-	"Pr00 - sites d'atteinte",//TODO
+	"Pr00 - sites d'atteinte",
 	"BIOP+ 1 Tx00",
 	"BIOP+ 1 Tx00 - date",
 	"BIOP+ 1 Tx00 - no patho",
@@ -55,7 +55,7 @@ SardoToAtim::$columns = array(
 	"HORM adjuvante Tx00",
 	"RADIO néo-adjuvante Tx00",
 	"RADIO adjuvante Tx00",
-	"Séquence Tx00",//TODO
+	"Séquence Tx00",//ignore
 	"TX 1 Tx00",
 	"TX 1 Tx00 - début",
 	"TX 1 Tx00 - fin",
@@ -74,7 +74,7 @@ SardoToAtim::$columns = array(
 	"TX 6 Tx00",
 	"TX 6 Tx00 - début",
 	"TX 6 Tx00 - fin",
-	"Toute CHIR Tx00 + patho",
+	"Toute CHIR Tx00 + patho",//TODO: doublon de CHIR 1 Tx00 et CHIR 1 Tx00 - no patho
 	"Atteinte multicentrique",
 	"Atteinte multifocale",
 	"Atypie cellulaire",
@@ -104,8 +104,8 @@ SardoToAtim::$columns = array(
 	"Marges de résection - blocs",
 	"Marges résection urètre",
 	"Marges résection urètre - blocs",
-	"Ovaire droit - blocs",//TODO
-	"Ovaire gauche - blocs",//TODO
+	"Ovaire droit - blocs",
+	"Ovaire gauche - blocs",
 	"PIN 1",
 	"PIN 1 - blocs",
 	"PIN 2 3",
@@ -123,8 +123,8 @@ SardoToAtim::$columns = array(
 	"Dernier APS",
 	"APS préCHIR Tx00 - date",
 	"APS préCHIR Tx00",
-	"Délai CHIR-dernier APS (M",//TODO
-	"Délai CHIR-dernier APS (J",//TODO
+	"Délai CHIR-dernier APS (M",//ignore
+	"Délai CHIR-dernier APS (J",//ignore
 	"CA-125 péri-DX - date",
 	"CA-125 péri-DX",
 	"Dernier CA-125 - date",
@@ -133,21 +133,21 @@ SardoToAtim::$columns = array(
 	"CA-125 préCHIR Tx00",
 	"Pr01 - date",
 	"Pr01 - sites",
-	"Délai DX-Pr01 (M)",//TODO
-	"Délai DX-Pr01 (J)",//TODO
+	"Délai DX-Pr01 (M)",//ignore
+	"Délai DX-Pr01 (J)",//ignore
 	"Pr02 - date",
 	"Pr02 - sites",
-	"Délai DX-Pr02 (M)",//TODO
-	"Délai DX-Pr02 (J)",//TODO
+	"Délai DX-Pr02 (M)",//ignore
+	"Délai DX-Pr02 (J)",//ignore
 	"Pr03 - date",
 	"Pr03 - sites",
-	"Délai DX-Pr03 (M)",//TODO
-	"Délai DX-Pr03 (J)",//TODO
-	"Date dernier contact",//TODO
+	"Délai DX-Pr03 (M)",//ignore
+	"Délai DX-Pr03 (J)",//ignore
+	"Date dernier contact",
 	"Date du décès",
 	"Cause de décès",
 	"Censure (0 = vivant, 1 = mort)",//ignore
-	"Survie (mois)"//TODO
+	"Survie (mois)"//ignore
 );
 
 SardoToAtim::$columns = array_flip(SardoToAtim::$columns);
@@ -163,8 +163,6 @@ SardoToAtim::$date_columns = array(
 		'Date dernier contact',
 		'Date du décès',
 		'CYTO+ 1 Tx00 - date',
-		'CHIMIO 1 Tx00 - début',
-		'CHIM préCHIR Tx00 - date',
 		'CA-125 péri-DX - date',
 		'CA-125 préCHIR Tx00 - dat',
 		'Dernier CA-125 - date',
@@ -206,122 +204,11 @@ $patho_fields = array(
 		"Taille tumeur (mm) - num"
 );
 
-$tx_mapping = array(
-		"Biopsie excisionnelle d'un ganglion"	 		=> array('type' => Models::EVENT_MASTER, 'ctrl_id' => 28),
-		"Hémicolectomie"								=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Hémicolectomie droite"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Laparotomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Néphrectomie radicale"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Néphro-urétérectomie"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Pancréatectomie corporéo-caudale"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Polypectomie du rectum"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Prostatectomie radicale"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Résection transurétrale de la prostate (TURP)"	=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Résection transurétrale de la vessie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Bicalutamide"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Hormonothérapie SAI"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Leuprolide"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Radiothérapie du cerveau"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 2),
-		"Radiothérapie du thorax/poumon"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 3),
-		"Implant d'iode 125"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 4),
-		"Radiothérapie pelvienne externe"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 5),
-		"Protocole 5-FU perfusion + RT pré-opératoire"	=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 6),
-		"Protocole R-CHOP"								=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 7),
-		"Protocole Taxol + Cisplatin + 5-FU"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 8),
-		"Observation"									=> array('type' => Models::EVENT_MASTER, 'ctrl_id' => 32),
-		"Etude PCS III BRAS 3" 							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 1),
-		"Dissection des ganglions pelviens" 			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Résection transurétrale du col vésical"		=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Orchiectomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Cure d'hernie inguinale"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Orchiectomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Flutamide"										=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Cyproterone"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Cure d'hernie inguinale"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Néphrectomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Orchiectomie radicale"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Radiothérapie (RT) SAI"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 14),
-		"Prostatectomie"								=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Etude Abbott C94-011 pré-op 8 mois"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 20),
-		"Traitements palliatifs SAI"					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Radiothérapie interstitielle de la prostate"	=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 9),
-		"Gosereline"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Mitomycine"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"BCG"											=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Dissection des ganglions régionaux de la prostate"	=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Busereline"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Nilutamide"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Etude CUOG P 0401"								=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 10),
-		"Radiothérapie de la région pelvienne"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 11),
-		"Résection segmentaire du rectum"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Dissection ganglionnaire"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Etude Abbott M00-244"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 12),
-		"Etude G-0029 BRAS 2"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 13),
-		"CP-751871"										=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 45),
-		"Tamoxifene"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Chirurgie du poumon"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Radiothérapie pancrénienne"					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 15),
-		"Docetaxel ou placebo"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 38),
-		"Etude Abbott C94-011 pré-op 3 mois"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 16),
-		"Radiothérapie de l'amygdale"					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 17),
-		"Etude RTOG 9813 BRAS 2"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 18),
-		"Radiothérapie externe du petit bassin (true pelvis)"=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 19),
-		"Orchiectomie unilatérale"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Ondansétron"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Dissection des ganglions inguinaux"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Etude Abbott M01-366"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 21),
-		"Dissection des ganglions obturateurs"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Rituximab"										=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Doxorubicine"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 39),
-		"Résection antérieure"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Iléostomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Triméthoprime"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 6),
-		"Protocole 5-FU + Leucovorin"					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 22),
-		"Etude RTOG 9601 (RT +/- Casodex)"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 23),
-		"Néphrectomie partielle/subtotale"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Chirurgie du côlon"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Chimiothérapie SAI"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 24),
-		"Prostatectomie totale"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Radiothérapie abdomino-pelvienne"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 25),
-		"Vinorelbine"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 40),
-		"Gemcitabine"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 41),
-		"Etude RTOG 0534 BRAS 2"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 26),
-		"Docetaxel"										=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 42),
-		"Protocole FOLFOX"								=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 27),
-		"Etude TAX 3503 BRAS 1"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 28),
-		"Néphrectomie + résection en bloc"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Cystectomie radicale"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Etude NCIC PR.7 BRAS 1 (déprivation androgénique intermittente)" => array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 29),
-		"Radiothérapie de la parotide" 					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 30),
-		"Testostérone" 									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Orchiectomie bilatérale"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Dissection des ganglions iliaques"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Protocole CHB Lupron + Euflex"					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 31),
-		"Protocole CHB Lupron + Casodex"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 32),
-		"Protocole CHB Zoladex + Casodex"				=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 33),
-		"Degarelix"										=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Capecitabine"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Triptoreline"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Sunitinib"										=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 5),
-		"Carboplatine"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 43),
-		"Paclitaxel"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 44),
-		"Splénectomie"									=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Destruction de tumeur de la vessie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Dissection des ganglions régionaux de la tête et du cou"=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Protocole Cisplatin + radiothérapie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 34),
-		"Radiothérapie de la tête et du cou"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 46),
-		"Etude RTOG 0534 BRAS 1"						=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 2, 'protocol' => 35),
-		"Protocole mFOLFOX 6"							=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 36),
-		"Destruction de tumeur de la vessie"			=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 4),
-		"Protocole Taxol/Carboplatin"					=> array('type' => Models::TREATMENT_MASTER, 'ctrl_id' => 1, 'protocol' => 37)
-);
-
 $tx_detail_precision = array(
 		4	=> 'qc_nd_precision',
 		5	=> 'type',
 		6	=> 'type'
 );
-
 
 SardoToAtim::$bank_identifier_ctrl_ids_column_name = 'No banque de tissus';
 SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
@@ -329,14 +216,48 @@ SardoToAtim::$hospital_identifier_ctrl_ids_column_name = 'No de dossier';
 if(count($argv) > 1){
 	$xls_reader->read($argv[1]);
 }else{
-	$xls_reader->read('/Volumes/data/2012-04-13 Sommaire Banque de tumeurs CR-CHUM.XLS');
-	// 	$xls_reader->read('/Volumes/data/2012-04-19 Sommaire banque de tumeurs CHUM.xls');
+	$xls_reader->read('/Volumes/data/sample.xls');
+// 	$xls_reader->read('/Volumes/data/2012-04-13 Sommaire Banque de tumeurs CR-CHUM.XLS');
+// 	$xls_reader->read('/Volumes/data/2012-04-19 Sommaire banque de tumeurs CHUM.xls');
 }
-
+$cells = $xls_reader->sheets[0]['cells'];
 SardoToAtim::basicChecks($cells);
 reset($cells);
+$participant_validation_only = false;//CONFIG VAR
+$last_bank_num = null;
+$last_id_num = null;
+$cols_width = count($cells[1]);
 while($line = next($cells)){
 	$line_number = key($cells);
+	
+	//path empty fields
+	for($i = 1; $i <= $cols_width; ++$i){
+		if(!isset($line[$i])){
+			$line[$i] = "";
+		}
+	}
+	
+	if($line[SardoToAtim::$columns['No banque de tissus']]){
+		$last_bank_num = $line[SardoToAtim::$columns['No banque de tissus']];
+	}else if($last_id_num == $line[SardoToAtim::$columns['No de dossier']]){
+		$line[SardoToAtim::$columns['No banque de tissus']] = $last_bank_num;
+	}else{
+		printf("ERROR: Participant without a bank number at line [".$line_number."]\n");
+		SardoToAtim::$commit = false;
+	}
+	
+	if(!SardoToAtim::initLine($line, $line_number)){
+		if(!$participant_validation_only){
+			die('Participant validation failed');
+		}
+	}
+	$last_id_num = $line[SardoToATim::$columns['No de dossier']];
+	
+	if($participant_validation_only){
+		unset($line);
+		continue;
+	}
+	$treatments = array();//for surgeries, chemos, hormonos, radios, TODO
 	$icd10 = str_replace('.', '', $line[SardoToAtim::$columns['Code topographique']]);
 	$morpho = str_replace('/', '', $line[SardoToAtim::$columns['Code morphologique']]);
 	SardoToAtim::icd10Update($icd10, $line[SardoToAtim::$columns['Latéralité']]);
@@ -373,10 +294,18 @@ while($line = next($cells)){
 	if($line[SardoToAtim::$columns['Antécédents familiaux ce cancer']] == 'Oui'){
 		$fam_hist_data = array(
 			'participant_id'		=> $line['participant_id'],
-			'sardo_diagnosis_id'	=> $line[SardoToAtim::$columns['No DX SARDO']],
-			'qc_nd_sardo_type'		=> 'breast cancer'
+			'qc_nd_sardo_diagnosis_id'	=> $line[SardoToAtim::$columns['No DX SARDO']],
+			'primary_icd10_code'	=> $icd10
 		);
-		SardoToAtim::update(Models::FAMILY_HISTORY, $fam_hist_data, $line_number, 'participant_id');
+		SardoToAtim::update(Models::FAMILY_HISTORY, $fam_hist_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_diagnosis_id', 'primary_icd10_code')));
+	}
+	if($line[SardoToAtim::$columns['Antécédents familiaux de cancer']] == 'Oui'){
+		$fam_hist_data = array(
+			'participant_id'		=> $line['participant_id'],
+			'qc_nd_sardo_diagnosis_id'	=> $line[SardoToAtim::$columns['No DX SARDO']],
+			'primary_icd10_code'	=> 'C809'
+		);
+		SardoToAtim::update(Models::FAMILY_HISTORY, $fam_hist_data, $line_number, 'participant_id', array('master' => array('qc_nd_sardo_diagnosis_id', 'primary_icd10_code')));
 	}
 	
 	
@@ -399,10 +328,25 @@ while($line = next($cells)){
 		
 		
 		if($line[SardoToAtim::$columns['CHIR 1 Tx00']]){
+			$surgery_conf = SardoToAtim::getSurgeryConfig($line[SardoToAtim::$columns['CHIR 1 Tx00']]);
+			$tx_ctrl_id = null;
+			switch($surgery_conf['site']){
+				case 'Ovaire':
+					$tx_ctrl_id = 7;
+					break;
+				case 'Prostate':
+					$tx_ctrl_id = 8;
+					break;
+				case 'Sein':
+					$tx_ctrl_id = 9;
+					break;
+				default:
+					$tx_ctrl_id = 4;
+			}
 			$surgery = array(
 				'master' => array(
 					'participant_id'		=> $line['participant_id'],
-					'treatment_control_id'	=> 4,
+					'treatment_control_id'	=> $tx_ctrl_id,
 					'start_date'			=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - date']],
 					'start_date_accuracy'	=> $line['CHIR 1 Tx00 - date_accuracy'],
 					'diagnosis_master_id'	=> $dx_id,
@@ -411,10 +355,13 @@ while($line = next($cells)){
 					'qc_nd_precision'		=> $line[SardoToAtim::$columns['CHIR 1 Tx00']],
 					'path_num'				=> $line[SardoToAtim::$columns['CHIR 1 Tx00 - no patho']],
 					'qc_nd_residual_disease'=> $line[SardoToAtim::$columns['Maladie résiduelle']],
+					'qc_nd_laterality'		=> $surgery_conf['laterality'],
+					'qc_nd_type'			=> $surgery_conf['m_type'],
+					'qc_nd_method'			=> $surgery_conf['method']
 				)
 			);
-		
-			SardoToAtim::update(Models::TREATMENT_MASTER, $surgery, $line_number);
+			SardoToAtim::update(Models::TREATMENT_MASTER, $surgery, $line_number, 'participant_id', array('master' => array('diagnosis_master_id'), 'detail' => array('qc_nd_precision')));
+			
 		}
 		
 		$insert_patho = false;
@@ -557,22 +504,27 @@ while($line = next($cells)){
 		foreach(range(1, 3) as $progression_count){
 			$site_key = sprintf('Pr%02d - sites', $progression_count);
 			if($line[SardoToAtim::$columns[$site_key]]){
-				$key = sprintf('Pr%02d', $i);
+				$key = sprintf('Pr%02d', $progression_count);
 				$date_key = $key.' - date';
-				$progression = array(
-					'master' => array(
-						'participant_id'		=> $line['participant_id'],
-						'diagnosis_control_id'	=> 17,
-						'parent_id'				=> $dx_id,
-						'dx_date'				=> $line[SardoToAtim::$columns[$date_key]],
-						'dx_date_accuracy'		=> $line[$date_key.'_accuracy'],
-						'primary_id'			=> $dx_id,
-					), 'detail' => array(
-						'qc_nd_sites'			=> $line[SardoToAtim::$columns[$site_key]],
-						'value'					=> $line[SardoToATim::$columns[$key.' - sites']],
-					)
-				);
-				SardoToAtim::update(Models::DIAGNOSIS_MASTER, $progression, $line_number);
+				foreach(explode(',', $line[SardoToAtim::$columns[$site_key]]) as $site){
+					$site = trim($site);
+					if($site){
+						$progression = array(
+							'master' => array(
+								'participant_id'		=> $line['participant_id'],
+								'diagnosis_control_id'	=> 17,
+								'parent_id'				=> $dx_id,
+								'dx_date'				=> $line[SardoToAtim::$columns[$date_key]],
+								'dx_date_accuracy'		=> $line[$date_key.'_accuracy'],
+								'primary_id'			=> $dx_id,
+							), 'detail' => array(
+								'qc_nd_site'			=> $line[SardoToAtim::$columns[$site_key]],
+								'qc_nd_initial'			=> 'n'
+							)
+						);
+						SardoToAtim::update(Models::DIAGNOSIS_MASTER, $progression, $line_number, 'participant_id', array('master' => array('participant_id', 'diagnosis_control_id', 'parent_id'), 'detail' => array('qc_nd_initial', 'qc_nd_site')));
+					}
+				}
 			}
 		}
 		
@@ -593,22 +545,6 @@ while($line = next($cells)){
 		}
 		
 		
-	}
-	
-	if($line[SardoToAtim::$columns['CHIMIO 1 Tx00']]){
-		$chemo = array(
-			'master' => array(
-				'participant_id'		=> $line['participant_id'],
-				'treatment_control_id'	=> 1,
-				'start_date'			=> $line[SardoToAtim::$columns['CHIMIO 1 Tx00 - début']],
-				'start_date_accuracy'	=> $line['CHIMIO 1 Tx00 - début_accuracy'],
-				'diagnosis_master_id'	=> $dx_id
-			), 'detail' => array(
-				'qc_nd_type'			=> $line[SardoToAtim::$columns['CHIMIO 1 Tx00']]
-			)
-		);
-	
-		SardoToAtim::update(Models::TREATMENT_MASTER, $chemo, $line_number);
 	}
 	
 	if($line[SardoToAtim::$columns['CYTO+ 1 Tx00']]){
@@ -682,62 +618,21 @@ while($line = next($cells)){
 	for($i = 1; $i <= 6; ++ $i){
 		$key_name = sprintf('TX %d Tx00', $i);
 		if($line[SardoToATim::$columns[$key_name]]){
-			if(!array_key_exists($line[SardoToATim::$columns[$key_name]], $tx_mapping)){
-				sardoToAtim::$commit = false;
-				printf("ERROR: Unknown treatment [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
+			if($line[SardoToATim::$columns[$key_name]] == $line[SardoToATim::$columns['CHIR 1 Tx00']] && $line[SardoToATim::$columns[$key_name.' - début']] == $line[SardoToATim::$columns['CHIR 1 Tx00 - date']]){
+				//this is the surgery, skip
 				continue;
 			}
-			$tx_map = $tx_mapping[$line[SardoToATim::$columns[$key_name]]];
-			if($tx_map['type'] == Models::EVENT_MASTER){
-				$event = array(
-					'master' => array(
-						'participant_id'		=> $line['participant_id'],
-						'event_control_id'		=> $tx_map['ctrl_id'],
-						'event_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
-						'event_date_accuracy'	=> $line[$key_name.' - début_accuracy'],
-						'diagnosis_master_id'	=> $dx_id
-					), 'detail' => array(
-						'type'					=> $line[SardoToATim::$columns[$key_name]]
-					)
-				);
-				if($tx_map['ctrl_id'] == 32){
-					//observation
-					$event['detail']['end_date'] = $line[SardoToAtim::$columns[$key_name.' - fin']];
-					$event['detail']['end_date_accuracy'] = $line[$key_name.' - fin_accuracy'];
-				}else if($line[SardoToAtim::$columns[$key_name.' - fin']] && $line[SardoToAtim::$columns[$key_name.' - fin']] != $line[SardoToAtim::$columns[$key_name.' - début']]){
-					printf("WARNING: DB Event has no end date for event [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
-				}
-				SardoToAtim::update(Models::EVENT_MASTER, $event, $line_number);
-	
-			}else if($tx_map['type'] == Models::TREATMENT_MASTER){
-				$tx = array(
-					'master' => array(
-						'participant_id'		=> $line['participant_id'],
-						'treatment_control_id'	=> $tx_map['ctrl_id'],
-						'start_date'			=> $line[SardoToAtim::$columns[$key_name.' - début']],
-						'start_date_accuracy'	=> $line[$key_name.' - début_accuracy'],
-						'finish_date'			=> $line[SardoToAtim::$columns[$key_name.' - fin']],
-						'finish_date_accuracy'	=> $line[$key_name.' - fin_accuracy'],
-						'diagnosis_master_id'	=> $dx_id
-					), 'detail' => array(
-
-					)
-				);
-				if(array_key_exists($tx_map['ctrl_id'], $tx_detail_precision)){
-					$tx['detail'][$tx_detail_precision[$tx_map['ctrl_id']]] = $line[SardoToATim::$columns[$key_name]];
-				}else if(array_key_exists('protocol', $tx_map)){
-					$tx['master']['protocol_master_id'] = $tx_map['protocol'];
-				}else{
-					SardoToAtim::$commit = false;
-					printf("ERROR: Treatment [%s] without protocol or type at line [%d]\n", $line[SardoToATim::$columns[$key_name]], key($cells));
-				}
-				SardoToAtim::update(Models::TREATMENT_MASTER, $tx, $line_number);
-	
-			}else{
-				sardoToAtim::$commit = false;
-				printf("ERROR: Unhandled treatment [%s] for participant at line [%d].\n", $line[SardoToATim::$columns[$key_name]], key($cells));
-				continue;
-			}
+			//TODO: skip other redundant fields
+			$tx = array(
+				'name'	=> $line[SardoToATim::$columns[$key_name]],
+				'participant_id'		=> $line['participant_id'],
+				'date_start'			=> $line[SardoToATim::$columns[$key_name.' - début']],
+				'date_start_accuracy'	=> $line[$key_name.' - début_accuracy'],
+				'date_end'				=> $line[SardoToATim::$columns[$key_name.' - fin']],
+				'date_end_accuracy'		=> $line[$key_name.' - fin_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			);
+			SardoToAtim::manageTx($tx, null, $line_number);
 		}
 	}
 	
@@ -792,25 +687,62 @@ while($line = next($cells)){
 				'event_date_accuracy'	=> $line['APS préCHIR Tx00 - date_accuracy'],
 				'diagnosis_master_id'	=> $dx_id
 			), 'detail' => array(
-				'value'					=> $line[SardoToATim::$columns['APS préCHIR Tx00']]
+				'value'					=> str_replace(',', '.', $line[SardoToATim::$columns['APS préCHIR Tx00']])
 			)
 		);
+		SardoToAtim::update(Models::EVENT_MASTER, $event, $line_number);
 	}
 	if($line[SardoToATim::$columns['Dernier APS - date']]){
 		$event = array(
-				'master' => array(
-						'participant_id'		=> $line['participant_id'],
-						'event_control_id'		=> 34,
-						'event_date'			=> $line[SardoToATim::$columns['Dernier APS - date']],
-						'event_date_accuracy'	=> $line['Dernier APS - date_accuracy'],
-						'diagnosis_master_id'	=> $dx_id
-				), 'detail' => array(
-						'value'					=> $line[SardoToATim::$columns['Dernier APS']]
-				)
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 34,
+				'event_date'			=> $line[SardoToATim::$columns['Dernier APS - date']],
+				'event_date_accuracy'	=> $line['Dernier APS - date_accuracy'],
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'value'					=> str_replace(',', '.', $line[SardoToATim::$columns['Dernier APS']])
+			)
 		);
+		SardoToAtim::update(Models::EVENT_MASTER, $event, $line_number);
 	}
 	
+	foreach(explode(',', $line[SardoToATim::$columns["Pr00 - sites d'atteinte"]]) as $site){
+		$site = trim($site);
+		if($site){
+			$progression = array(
+				'master' => array(
+					'participant_id'		=> $line['participant_id'],
+					'diagnosis_control_id'	=> 17,
+					'parent_id'				=> $dx_id,
+					'primary_id'			=> $dx_id
+				), 'detail' => array(
+					'qc_nd_site'			=> $site,
+					'qc_nd_initial'			=> 'y'
+				)
+			);
+			SardoToAtim::update(Models::DIAGNOSIS_MASTER, $progression, $line_number, 'participant_id', array('master' => array('parent_id', 'diagnosis_control_id'), 'detail' => array('qc_nd_initial', 'qc_nd_site')));
+		}
+	}
+	
+	if($line[SardoToATim::$columns['Ovaire droit - blocs']] || $line[SardoToATim::$columns['Ovaire gauche - blocs']]){
+		$event = array(
+			'master' => array(
+				'participant_id'		=> $line['participant_id'],
+				'event_control_id'		=> 36,
+				'diagnosis_master_id'	=> $dx_id
+			), 'detail' => array(
+				'ovary_right'			=> $line[SardoToATim::$columns['Ovaire droit - blocs']],
+ 				'ovary_left'			=> $line[SardoToATim::$columns['Ovaire gauche - blocs']]
+			)
+		);
+		SardoToAtim::update(Models::EVENT_MASTER, $event, $line_number);
+	}
+	
+	unset($line);
 }
-
+if($participant_validation_only){
+	SardoToAtim::$commit = false;
+}
 SardoToAtim::endChecks();
 
