@@ -143,6 +143,19 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 -- 2012-04-04
 REPLACE INTO i18n (id, en, fr) VALUES
+("unilateral", "Unilateral", "Unilatéral"),
+("with reconstruction", "With reconstruction", "Avec reconstruction"),
+("bilateral", "Bilateral", "Bilatéral"),
+("simple", "Simple", "Simple"),
+("radical", "Radical", "Radical"),
+("turp", "TURP", "TURP"),
+("laparoscopie", "Laparoscopy", "Laparoscopie"),
+("ouverte", "Open", "Ouverte"),
+("robotique", "Robotic", "Robotique"),
+("blocks number", "blocks number", "# de blocs"),
+("right ovary", "Right ovary", "Ovaire droit"),
+("left ovary", "Left ovary", "Ovaire gauche"),
+("epiploon", "Epiploon", "Épiploon"),
 ("location(site)", "Location", "Lieu"),
 ("report number", "Report number", "Numéro du rapport"),
 ("residual disease", "Residual disease", "Maladie résiduelle"),
@@ -172,6 +185,8 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ("post(mail)", "Post", "Poste"),
 ("post(after)", "Post", "Post");
 
+ALTER TABLE structure_value_domains_permissible_values
+ MODIFY COLUMN structure_value_domain_id INT NOT NULL;
 
 DELETE FROM structure_validations WHERE id IN(98, 99);
 UPDATE structure_validations SET rule='validateIcd10CaCode', language_message='invalid disease code' WHERE id=97;
@@ -550,4 +565,389 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 -- delete structure_formats
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-46' AND `plugin`='Clinicalannotation' AND `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `language_label`='date/start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_start_date' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
 
+ALTER TABLE family_histories
+ DROP COLUMN qc_nd_sardo_type,
+ DROP COLUMN last_sardo_import_date,
+ CHANGE sardo_diagnosis_id qc_nd_sardo_diagnosis_id VARCHAR(20) NOT NULL DEFAULT '';
+ALTER TABLE family_histories_revs
+ DROP COLUMN qc_nd_sardo_type,
+ DROP COLUMN last_sardo_import_date,
+ CHANGE sardo_diagnosis_id qc_nd_sardo_diagnosis_id VARCHAR(20) NOT NULL DEFAULT '';
+
+ALTER TABLE dxd_progressions
+ ADD COLUMN qc_nd_initial CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE dxd_progressions_revs
+ ADD COLUMN qc_nd_initial CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE qc_nd_ed_cytology
+ ADD COLUMN no_patho VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN site VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE qc_nd_ed_cytology_revs
+ ADD COLUMN no_patho VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN site VARCHAR(50) NOT NULL DEFAULT '';
+ 
+ALTER TABLE dxd_progressions
+ CHANGE COLUMN qc_nd_sites qc_nd_site VARCHAR(100);
+ALTER TABLE dxd_progressions_revs
+ CHANGE COLUMN qc_nd_sites qc_nd_site VARCHAR(100);
+ 
+INSERT INTO event_controls (disease_site, event_group, event_type, flag_active, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('ovary', 'lab', 'pathology', 1, 'eventmasters,qc_nd_ed_ovary_pathologies', 'qc_nd_ed_ovary_pathologies', 0, 'lab|ovary|pathology');
+
+CREATE TABLE qc_nd_ed_ovary_pathologies(
+ id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ event_master_id INT NOT NULL,
+ blocks_number VARCHAR(50) NOT NULL DEFAULT '',
+ ovary_right TEXT,
+ ovary_left TEXT,
+ epiploon VARCHAR(50) NOT NULL DEFAULT '',
+ other VARCHAR(50) NOT NULL DEFAULT '',
+ deleted BOOLEAN NOT NULL DEFAULT false
+)Engine=InnoDb;
+CREATE TABLE qc_nd_ed_ovary_pathologies_revs(
+ id INT NOT NULL,
+ event_master_id INT NOT NULL,
+ blocks_number VARCHAR(50) NOT NULL DEFAULT '',
+ ovary_right TEXT,
+ ovary_left TEXT,
+ epiploon VARCHAR(50) NOT NULL DEFAULT '',
+ other VARCHAR(50) NOT NULL DEFAULT '',
+ version_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='relation' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='relation') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='family_domain' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='domain') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='previous_primary_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='previous_primary_code_system' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='primary_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='age_at_dx_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='age_accuracy') AND `flag_confidential`='0');
+-- delete structure_formats
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_sardo_type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- Delete obsolete structure fields and validations
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_sardo_type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinicalannotation' AND `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_nd_sardo_type' AND `language_label`='type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_fam_hist_sardo_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_ovary_pathologies');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_ovary_pathologies', 'blocks_number', 'input',  NULL , '0', '', '', '', 'blocks number', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_ovary_pathologies', 'ovary_right', 'input',  NULL , '0', '', '', '', 'right ovary', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_ovary_pathologies', 'ovary_left', 'input',  NULL , '0', '', '', '', 'left ovary', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_ovary_pathologies', 'epiploon', 'input',  NULL , '0', '', '', '', 'epiploon', ''), 
+('Clinicalannotation', 'EventDetail', 'qc_nd_ed_ovary_pathologies', 'other', 'input',  NULL , '0', '', '', '', 'other', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ovary_pathologies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ovary_pathologies' AND `field`='blocks_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='blocks number' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ovary_pathologies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ovary_pathologies' AND `field`='ovary_right' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='right ovary' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ovary_pathologies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ovary_pathologies' AND `field`='ovary_left' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='left ovary' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ovary_pathologies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ovary_pathologies' AND `field`='epiploon' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='epiploon' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_ovary_pathologies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_ovary_pathologies' AND `field`='other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_race", "open", "", NULL);
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_race')  WHERE model='Participant' AND tablename='participants' AND field='race' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='race');
+
+INSERT INTO treatment_controls (tx_method, disease_site, flag_active, detail_tablename, form_alias, extend_tablename, extend_form_alias, display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label) VALUES
+('surgery', 'ovary', 1, 'txd_surgeries', 'treatmentmasters,qc_nd_txd_ovary_surgery', NULL, NULL, 0, NULL,NULL, 'ovary|surgery'), 
+('surgery', 'prostate', 1, 'txd_surgeries', 'treatmentmasters,qc_nd_txd_prostate_surgery', NULL, NULL, 0, NULL,NULL, 'ovary|prostate'), 
+('surgery', 'breast', 1, 'txd_surgeries', 'treatmentmasters,qc_nd_txd_breast_surgery', NULL, NULL, 0, NULL,NULL, 'ovary|breast'); 
+
+ALTER TABLE txd_surgeries
+ ADD COLUMN qc_nd_laterality VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN qc_nd_type VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN qc_nd_method VARCHAR(50) NOT NULL DEFAULT ''; 
+ALTER TABLE txd_surgeries_revs
+ ADD COLUMN qc_nd_laterality VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN qc_nd_type VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN qc_nd_method VARCHAR(50) NOT NULL DEFAULT ''; 
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ovary_surgery_laterality", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("unilateral", "unilateral");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="unilateral" AND language_alias="unilateral"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("bilateral", "bilateral");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_prostate_surgery_type", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("radical", "radical");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_surgery_type"), (SELECT id FROM structure_permissible_values WHERE value="radical" AND language_alias="radical"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("turp", "turp");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_surgery_type"), (SELECT id FROM structure_permissible_values WHERE value="turp" AND language_alias="turp"), "1", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_breast_surgery_type", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_type"), (SELECT id FROM structure_permissible_values WHERE value="radical" AND language_alias="radical"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_type"), (SELECT id FROM structure_permissible_values WHERE value="partial" AND language_alias="partial"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("total", "total");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_type"), (SELECT id FROM structure_permissible_values WHERE value="total" AND language_alias="total"), "1", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_breast_surgery_laterality", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("simple", "simple");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="simple" AND language_alias="simple"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_laterality"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ovary_surgery_method", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("laparoscopie", "laparoscopie");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_method"), (SELECT id FROM structure_permissible_values WHERE value="laparoscopie" AND language_alias="laparoscopie"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("robotique", "robotique");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ovary_surgery_method"), (SELECT id FROM structure_permissible_values WHERE value="robotique" AND language_alias="robotique"), "1", "1");
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_txd_ovary_surgery');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_laterality') , '0', '', '', '', 'laterality', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_method') , '0', '', '', '', 'method', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_precision', 'input',  NULL , '0', '', '', '', 'precision', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_residual_disease', 'input',  NULL , '0', '', '', '', 'residual disease', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_ovary_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_ovary_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_ovary_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='precision' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_ovary_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_residual_disease' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='residual disease' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_txd_prostate_surgery');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_type') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_prostate_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_prostate_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='precision' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_prostate_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_residual_disease' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='residual disease' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_prostate_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_prostate_surgery_method", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_surgery_method"), (SELECT id FROM structure_permissible_values WHERE value="laparoscopie" AND language_alias="laparoscopie"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_surgery_method"), (SELECT id FROM structure_permissible_values WHERE value="robotique" AND language_alias="robotique"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("ouverte", "ouverte");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_surgery_method"), (SELECT id FROM structure_permissible_values WHERE value="ouverte" AND language_alias="ouverte"), "1", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_method') , '0', '', '', '', 'method', '');
+UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_method' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_method') ) WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_txd_prostate_surgery') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_method') AND `flag_confidential`='0');
+ 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_breast_surgery_method", "open", "", "");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("with reconstruction", "with reconstruction");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_breast_surgery_method"), (SELECT id FROM structure_permissible_values WHERE value="with reconstruction" AND language_alias="with reconstruction"), "1", "1");
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_txd_breast_surgery');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_laterality') , '0', '', '', '', 'laterality', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_type') , '0', '', '', '', 'type', ''), 
+('Clinicalannotation', 'TreatmentDetail', 'txd_surgeries', 'qc_nd_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_method') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_breast_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_breast_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_breast_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_breast_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='precision' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_txd_breast_surgery'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_nd_residual_disease' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='residual disease' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+SET foreign_key_checks = 0;
+TRUNCATE protocol_masters;
+TRUNCATE protocol_masters_revs;
+TRUNCATE pd_chemos;
+TRUNCATE pd_chemos_revs;
+TRUNCATE pd_surgeries_revs;
+DROP TABLE qc_nd_pd_sardo_radiations;
+DROP TABLE qc_nd_pd_sardo_radiations_revs;
+DROP TABLE qc_nd_pd_sardo_chemotherapies;
+DROP TABLE qc_nd_pd_sardo_chemotherapies_revs;
+SET foreign_key_checks = 1;
+INSERT INTO treatment_controls (tx_method, disease_site, flag_active, detail_tablename, form_alias, extend_tablename, extend_form_alias, display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label) VALUES
+('immunotherapy', 'general', 1, 'qc_nd_txd_immunotherapy', 'treatmentmasters,qc_nd_txd_immunotherapy', NULL, NULL, 0, NULL,NULL, 'general|immunotherapy'),
+('unclassified', 'general', 0, 'qc_nd_txd_unclassified', 'treatmentmasters', NULL, NULL, 0, NULL,NULL, '');
+CREATE TABLE qc_nd_txd_immunotherapy(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ treatment_master_id INT NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY(treatment_master_id) REFERENCES treatment_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_nd_txd_immunotherapy_revs(
+ id INT UNSIGNED NOT NULL,
+ treatment_master_id INT NOT NULL,
+ version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+CREATE TABLE qc_nd_txd_unclassified(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ treatment_master_id INT NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY(treatment_master_id) REFERENCES treatment_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_nd_txd_unclassified_revs(
+ id INT UNSIGNED NOT NULL,
+ treatment_master_id INT NOT NULL,
+ version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+CREATE TABLE qc_nd_protocol_behaviors(
+ protocol_master_id INT NOT NULL,
+ protocol_control_id INT NOT NULL,
+ UNIQUE KEY(protocol_master_id, protocol_control_id),
+ FOREIGN KEY (protocol_master_id) REFERENCES protocol_masters(id),
+ FOREIGN KEY (protocol_control_id) REFERENCES protocol_controls(id)
+)Engine=InnoDb;
+
+CREATE TABLE qc_nd_proto_hormonotherapies(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ protocol_master_id INT NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY(protocol_master_id) REFERENCES protocol_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_nd_proto_hormonotherapies_revs(
+ id INT UNSIGNED NOT NULL,
+ protocol_master_id INT NOT NULL,
+ version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+CREATE TABLE qc_nd_proto_radiotherapies(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ protocol_master_id INT NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY(protocol_master_id) REFERENCES protocol_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_nd_proto_radiotherapies_revs(
+ id INT UNSIGNED NOT NULL,
+ protocol_master_id INT NOT NULL,
+ version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+CREATE TABLE qc_nd_proto_mixes(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ protocol_master_id INT NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY(protocol_master_id) REFERENCES protocol_masters(id)
+)Engine=InnoDb;
+CREATE TABLE qc_nd_proto_mixes_revs(
+ id INT UNSIGNED NOT NULL,
+ protocol_master_id INT NOT NULL,
+ version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+INSERT INTO protocol_controls (tumour_group, type, detail_tablename, form_alias, extend_tablename, extend_form_alias, created, created_by, modified, modified_by) VALUES
+('general', 'hormonotherapy', 'qc_nd_proto_hormonotherapies', 'protocolmasters', NULL, NULL, NOW(), 1, NOW(), 1),
+('general', 'radiotherapy', 'qc_nd_proto_radiotherapies', 'protocolmasters', NULL, NULL, NOW(), 1, NOW(), 1),
+('general', 'mixed', 'qc_nd_proto_mixes', 'protocolmasters', NULL, NULL, NOW(), 1, NOW(), 1);
+
+CREATE TABLE sardo_tx_conf_surgeries(
+ name VARCHAR(200) NOT NULL PRIMARY KEY,
+ site VARCHAR(50) NOT NULL DEFAULT '',
+ laterality VARCHAR(50) NOT NULL DEFAULT '',
+ m_type VARCHAR(50) NOT NULL DEFAULT '',
+ method VARCHAR(50) NOT NULL DEFAULT ''
+)Engine=InnoDb;
+
+INSERT INTO sardo_tx_conf_surgeries(name, site, laterality, m_type, method) VALUES
+("Colectomie partielle", "Autre", "", "", ""),
+("Destruction de tumeur de la vessie", "Autre", "", "", ""),
+("Excision de tumeur de la glande hypophysaire", "Autre", "", "", ""),
+("Excision de tumeur de la peau", "Autre", "", "", ""),
+("Excision de tumeur de l'anus", "Autre", "", "", ""),
+("Excision électrochirurgicale à l'anse (LEEP) de tumeur du col utérin", "Autre", "", "", ""),
+("Excision simple/partielle profonde (radicale) de la vulve", "Autre", "", "", ""),
+("Excision simple/partielle superficielle de la vulve", "Autre", "", "", ""),
+("Excision totale de la glande surrénale", "Autre", "", "", ""),
+("Excision totale de la vésicule biliaire/Cholécystectomie", "Autre", "", "", ""),
+("Exentération pelvienne postérieure", "Autre", "", "", ""),
+("Gastrectomie partielle/subtotale + résection en bloc", "Autre", "", "", ""),
+("Hémicolectomie droite", "Autre", "", "", ""),
+("Hémicolectomie droite élargie + résection en bloc", "Autre", "", "", ""),
+("Hystérectomie", "Autre", "", "", ""),
+("Hystérectomie radicale  intervention de Wertheim", "Autre", "", "", ""),
+("Hystérectomie sans salpingo-ovariectomie", "Autre", "", "", ""),
+("Hystérectomie totale sans salpingo-ovariectomie", "Autre", "", "", ""),
+("Laparotomie", "Autre", "", "", ""),
+("Lobectomie du poumon +  dissection de gg médiastinal", "Autre", "", "", ""),
+("Myomectomie", "Autre", "", "", ""),
+("Néphrectomie radicale", "Autre", "", "", ""),
+("Néphro-urétérectomie", "Autre", "", "", ""),
+("Omentectomie partielle", "Autre", "", "", ""),
+("Pancréatectomie corporéo-caudale", "Autre", "", "", ""),
+("Parotidectomie totale, excision du nerf facial", "Autre", "", "", ""),
+("Polypectomie du rectum", "Autre", "", "", ""),
+("Résection abdomino-périnéale (APR)", "Autre", "", "", ""),
+("Résection antérieure", "Autre", "", "", ""),
+("Résection cunéiforme d'un lobe du poumon", "Autre", "", "", ""),
+("Résection endo-anale", "Autre", "", "", ""),
+("Résection iléo-caecale", "Autre", "", "", ""),
+("Résection transurétrale de la vessie", "Autre", "", "", ""),
+("Thyroïdectomie totale", "Autre", "", "", ""),
+("Biopsie excisionnelle du sein", "Biopsie", "", "", ""),
+("Biopsie par conisation du col utérin", "Biopsie", "", "", ""),
+("Kystectomie ovarienne unilatérale", "Ovaire", "Unilatérale", "", ""),
+("Ovariectomie", "Ovaire", "", "", ""),
+("Ovariectomie + omentectomie", "Ovaire", "", "", ""),
+("Ovariectomie bilatérale + hystérectomie totale", "Ovaire", "Bilatérale", "", ""),
+("Ovariectomie bilatérale + omentectomie", "Ovaire", "Bilatérale", "", ""),
+("Ovariectomie bilatérale sans hystérectomie", "Ovaire", "Bilatérale", "", ""),
+("Ovariectomie unilatérale", "Ovaire", "Unilatérale", "", ""),
+("Ovariectomie unilatérale sans hystérectomie", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie", "Ovaire", "", "", ""),
+("Salpingo-ovariectomie bilatérale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + hystérectomie", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + hystérectomie subtotale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + hystérectomie totale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie + hystérectomie", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie + hystérectomie subtotale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie + hystérectomie totale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie partielle", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie partielle + hystérectomie", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie partielle + hystérectomie totale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie partielle sans hystérectomie", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie sans hystérectomie", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie totale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie bilatérale + omentectomie totale + hystérectomie totale", "Ovaire", "Bilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale + hystérectomie totale", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale + omentectomie", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale + omentectomie + hystérectomie totale", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale + omentectomie partielle", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale + omentectomie partielle sans hystérectomie", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale + omentectomie totale + hystérectomie totale", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale sans hystérectomie", "Ovaire", "Unilatérale", "", ""),
+("Salpingo-ovariectomie unilatérale+omentectomie partielle+hystérectomie totale", "Ovaire", "Unilatérale", "", ""),
+("Prostatectomie radicale", "Prostate", "", "Radicale", ""),
+("Prostatectomie totale", "Prostate", "", "Radicale", ""),
+("Résection transurétrale de la prostate (TURP)", "Prostate", "", "TURP", ""),
+("Mastectomie avec préservation cutanée", "Sein", "", "", ""),
+("Mastectomie avec préservation cutanée + reconstruction combinée", "Sein", "", "", "avec reconstruction"),
+("Mastectomie avec préservation cutanée + reconstruction par implant", "Sein", "", "", "avec reconstruction"),
+("Mastectomie avec préservation cutanée + reconstruction par lambeau", "Sein", "", "", "avec reconstruction"),
+("Mastectomie avec préservation cutanée + sein opp. non atteint + rec. combinée", "Sein", "", "", "avec reconstruction"),
+("Mastectomie avec préservation cutanée + sein opposé non atteint", "Sein", "", "", ""),
+("Mastectomie partielle", "Sein", "", "Partielle", ""),
+("Mastectomie partielle + résection du mamelon", "Sein", "", "Partielle", ""),
+("Mastectomie radicale", "Sein", "", "Radicale", ""),
+("Mastectomie radicale élargie", "Sein", "", "Radicale", ""),
+("Mastectomie radicale modifiée", "Sein", "", "Radicale", ""),
+("Mastectomie radicale modifiée + reconstruction combinée", "Sein", "", "Radicale", "avec reconstruction"),
+("Mastectomie radicale modifiée + reconstruction par implant", "Sein", "", "Radicale", "avec reconstruction"),
+("Mastectomie radicale modifiée + reconstruction par lambeau", "Sein", "", "Radicale", "avec reconstruction"),
+("Mastectomie radicale modifiée + sein opposé non atteint + reconstruction implant", "Sein", "", "Radicale", "avec reconstruction"),
+("Mastectomie radicale modifiée + sein opposé non atteint + reconstruction lambeau", "Sein", "", "Radicale", "avec reconstruction"),
+("Mastectomie simple/totale", "Sein", "Simple", "Totale", ""),
+("Mastectomie simple/totale + reconstruction combinée", "Sein", "Simple", "Totale", "avec reconstruction"),
+("Mastectomie simple/totale + reconstruction par implant", "Sein", "Simple", "Totale", "avec reconstruction"),
+("Mastectomie simple/totale + reconstruction par lambeau", "Sein", "Simple", "Totale", "avec reconstruction"),
+("Mastectomie simple/totale + sein opposé non atteint", "Sein", "Simple", "Totale", ""),
+("Mastectomie simple/totale + sein opposé non atteint + reconstruction combinée", "Sein", "Simple", "Totale", "avec reconstruction"),
+("Mastectomie sous-cutanée", "Sein", "", "", "");
+
+ALTER TABLE dxd_progressions
+ MODIFY qc_nd_site TEXT; 
+ALTER TABLE dxd_progressions_revs
+ MODIFY qc_nd_site TEXT; 
+ 
+ALTER TABLE qc_nd_ed_biopsy
+ MODIFY `type` VARCHAR(100) NOT NULL DEFAULT '';
+ALTER TABLE qc_nd_ed_biopsy_revs
+ MODIFY `type` VARCHAR(100) NOT NULL DEFAULT '';
+ 
+ 
+ 
  
