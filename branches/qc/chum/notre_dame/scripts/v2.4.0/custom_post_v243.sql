@@ -143,6 +143,8 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 -- 2012-04-04
 REPLACE INTO i18n (id, en, fr) VALUES
+("Prostate", "Prostate", "Prostate"),
+("sardo surgery config", "SARDO: Surgery configuration", "SARDO: Configuration des chirurgies"),
 ("unilateral", "Unilateral", "Unilatéral"),
 ("with reconstruction", "With reconstruction", "Avec reconstruction"),
 ("bilateral", "Bilateral", "Bilatéral"),
@@ -757,7 +759,7 @@ DROP TABLE qc_nd_pd_sardo_chemotherapies_revs;
 SET foreign_key_checks = 1;
 INSERT INTO treatment_controls (tx_method, disease_site, flag_active, detail_tablename, form_alias, extend_tablename, extend_form_alias, display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label) VALUES
 ('immunotherapy', 'general', 1, 'qc_nd_txd_immunotherapy', 'treatmentmasters,qc_nd_txd_immunotherapy', NULL, NULL, 0, NULL,NULL, 'general|immunotherapy'),
-('unclassified', 'general', 0, 'qc_nd_txd_unclassified', 'treatmentmasters', NULL, NULL, 0, NULL,NULL, '');
+('unclassified', 'general', 0, 'qc_nd_txd_unclassifieds', 'treatmentmasters', NULL, NULL, 0, NULL,NULL, '');
 CREATE TABLE qc_nd_txd_immunotherapy(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  treatment_master_id INT NOT NULL,
@@ -770,13 +772,13 @@ CREATE TABLE qc_nd_txd_immunotherapy_revs(
  version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  version_created DATETIME NOT NULL
 )Engine=InnoDb;
-CREATE TABLE qc_nd_txd_unclassified(
+CREATE TABLE qc_nd_txd_unclassifieds(
  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
  treatment_master_id INT NOT NULL,
  deleted BOOLEAN NOT NULL DEFAULT false,
  FOREIGN KEY(treatment_master_id) REFERENCES treatment_masters(id)
 )Engine=InnoDb;
-CREATE TABLE qc_nd_txd_unclassified_revs(
+CREATE TABLE qc_nd_txd_unclassifieds_revs(
  id INT UNSIGNED NOT NULL,
  treatment_master_id INT NOT NULL,
  version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -784,6 +786,7 @@ CREATE TABLE qc_nd_txd_unclassified_revs(
 )Engine=InnoDb;
 
 CREATE TABLE qc_nd_protocol_behaviors(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY
  protocol_master_id INT NOT NULL,
  protocol_control_id INT NOT NULL,
  UNIQUE KEY(protocol_master_id, protocol_control_id),
@@ -833,15 +836,16 @@ INSERT INTO protocol_controls (tumour_group, type, detail_tablename, form_alias,
 ('general', 'radiotherapy', 'qc_nd_proto_radiotherapies', 'protocolmasters', NULL, NULL, NOW(), 1, NOW(), 1),
 ('general', 'mixed', 'qc_nd_proto_mixes', 'protocolmasters', NULL, NULL, NOW(), 1, NOW(), 1);
 
-CREATE TABLE sardo_tx_conf_surgeries(
- name VARCHAR(200) NOT NULL PRIMARY KEY,
+CREATE TABLE qc_nd_sardo_tx_conf_surgeries(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(200) NOT NULL UNIQUE,
  site VARCHAR(50) NOT NULL DEFAULT '',
  laterality VARCHAR(50) NOT NULL DEFAULT '',
  m_type VARCHAR(50) NOT NULL DEFAULT '',
  method VARCHAR(50) NOT NULL DEFAULT ''
 )Engine=InnoDb;
 
-INSERT INTO sardo_tx_conf_surgeries(name, site, laterality, m_type, method) VALUES
+INSERT INTO qc_nd_sardo_tx_conf_surgeries(name, site, laterality, m_type, method) VALUES
 ("Colectomie partielle", "Autre", "", "", ""),
 ("Destruction de tumeur de la vessie", "Autre", "", "", ""),
 ("Excision de tumeur de la glande hypophysaire", "Autre", "", "", ""),
@@ -938,6 +942,15 @@ INSERT INTO sardo_tx_conf_surgeries(name, site, laterality, m_type, method) VALU
 ("Mastectomie simple/totale + sein opposé non atteint + reconstruction combinée", "Sein", "Simple", "Totale", "avec reconstruction"),
 ("Mastectomie sous-cutanée", "Sein", "", "", "");
 
+UPDATE qc_nd_sardo_tx_conf_surgeries SET laterality='simple' WHERE laterality='Simple';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET laterality='unilateral' WHERE laterality='Unilatérale';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET laterality='bilateral' WHERE laterality='Bilatérale';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET m_type='radical' WHERE m_type='Radicale';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET m_type='turp' WHERE m_type='TURP';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET m_type='partial' WHERE m_type='Partielle';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET m_type='total' WHERE m_type='Totale';
+UPDATE qc_nd_sardo_tx_conf_surgeries SET method='with reconstruction' WHERE method='avec reconstruction';
+
 ALTER TABLE dxd_progressions
  MODIFY qc_nd_site TEXT; 
 ALTER TABLE dxd_progressions_revs
@@ -948,6 +961,63 @@ ALTER TABLE qc_nd_ed_biopsy
 ALTER TABLE qc_nd_ed_biopsy_revs
  MODIFY `type` VARCHAR(100) NOT NULL DEFAULT '';
  
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_sardo_surg_conf_site", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Autre", "other");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_sardo_surg_conf_site"), (SELECT id FROM structure_permissible_values WHERE value="Autre" AND language_alias="other"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Ovaire", "ovary");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_sardo_surg_conf_site"), (SELECT id FROM structure_permissible_values WHERE value="Ovaire" AND language_alias="ovary"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_sardo_surg_conf_site"), (SELECT id FROM structure_permissible_values WHERE value="Prostate" AND language_alias="prostate"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Sein", "breast");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_sardo_surg_conf_site"), (SELECT id FROM structure_permissible_values WHERE value="Sein" AND language_alias="breast"), "1", "1");
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_conf_surg_ov');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_laterality') , '0', '', '', '', 'laterality', ''), 
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_method') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_ov'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_ov'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ovary_surgery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_conf_surg_prost');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'm_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_type') , '0', '', '', '', 'type', ''), 
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_method') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_prost'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='m_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_prost'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_surgery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_conf_surg_breast');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_laterality') , '0', '', '', '', 'laterality', ''), 
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'm_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_type') , '0', '', '', '', 'type', ''), 
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'method', 'input', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_method') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_breast'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_breast'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='m_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_conf_surg_breast'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='method' AND `type`='input' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_surg_conf_name');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'QcNdSardoTxConfSurgeries', 'qc_nd_sardo_tx_conf_surgeries', 'name', 'input',  NULL , '0', '', '', '', 'name', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_surg_conf_name'), (SELECT id FROM structure_fields WHERE `model`='QcNdSardoTxConfSurgeries' AND `tablename`='qc_nd_sardo_tx_conf_surgeries' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
  
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_method')  WHERE model='QcNdSardoTxConfSurgeries' AND tablename='qc_nd_sardo_tx_conf_surgeries' AND field='method' AND `type`='input' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_breast_surgery_method');
+
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, flag_active) VALUES
+('core_CAN_41_qc_nd_1', 'core_CAN_41', 0, 1, 'sardo surgery config', 'sardo surgery config', '/administrate/qc_nd_sardo/index/', 1); 
  
+UPDATE menus SET flag_active=true WHERE id IN('proto_CAN_37', 'proto_CAN_82', 'proto_CAN_83');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_sardo_protocol", "open", "", "Protocol.ProtocolControl::getNonMixedProto");
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_protocol');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Protocol', 'QcNdProtocolBehavior', 'qc_nd_protocol_behaviors', 'protocol_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_protocol') , '0', '', '', '', 'protocol type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_protocol'), (SELECT id FROM structure_fields WHERE `model`='QcNdProtocolBehavior' AND `tablename`='qc_nd_protocol_behaviors' AND `field`='protocol_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_protocol')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='protocol type' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_sardo_protocol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QcNdProtocolBehavior' AND `tablename`='qc_nd_protocol_behaviors' AND `field`='protocol_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_protocol') AND `flag_confidential`='0');
+
  
