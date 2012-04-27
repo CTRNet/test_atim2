@@ -205,7 +205,7 @@ function postOvaryDiagnosesRead(Model $m){
 	if(!empty($m->values['STADE (1-4)'])) {
 		if(strtolower($m->values['STADE (1-4)']) == 'nd') {
 			$m->values['STADE (1-4)'] = '';
-			$m->values['notes'] .= "STADE (1-4) file value was 'ND'. // ";		
+			$m->values['notes'] .= "STADE (1-4) file value was 'ND'. || ";		
 		
 		} else if(preg_match('/^([1-3][a-c]{0,1}|4) {0,1}(.*)$/', strtolower($m->values['STADE (1-4)']), $matches)) {
 			$m->values['STADE (1-4)'] = str_replace(array('1','2','3','4'), array('I', 'II', 'III','IV'), $matches[1]);
@@ -213,7 +213,7 @@ function postOvaryDiagnosesRead(Model $m){
 				if(in_array($matches[2], array('a','b','c'))) {
 					Config::$summary_msg['DIAGNOSTIC']['@@WARNNING@@']['STADE (1-4)'][] = "The value '".$matches[0]."' is not supported and will be recorded as [".$matches[1]."]! [Line: ".$m->line.']';
 				}
-				$m->values['notes'] .= "STADE (1-4) file value was '".$matches[0]."'. // ";		
+				$m->values['notes'] .= "STADE (1-4) file value was '".$matches[0]."'. || ";		
 			}
 			$ov_dx_data_exist['stade'] = 'stade';
 			
@@ -249,7 +249,7 @@ function postOvaryDiagnosesRead(Model $m){
 			if(doesValueExist($value)) $ov_dx_data_exist['Morpho'] = 'Morpho';
 			if(preg_match('/^(x )(.+)$/',$value,$matches)) {
 				$m->values[$field] = 'x';		
-				$m->values['notes'] .= str_replace('::',' - ', utf8_encode($field)).' : '.utf8_encode($matches[2]).' // ';
+				$m->values['notes'] .= str_replace('::',' - ', utf8_encode($field)).' : '.utf8_encode($matches[2]).' || ';
 				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Morphologie Ov #1'][] = "The field '$field' contains additional comments [".$matches[2]."] that will be added to diagnosis notes! [Line: ".$m->line.']';
 			}
 		}
@@ -371,8 +371,8 @@ function postOvaryDiagnosesRead(Model $m){
 	$m->values['left_ovary_dx_nature'] = $left_ovary_dx_nature;
 	$m->values['right_ovary_dx_nature'] =  $right_ovary_dx_nature;
 	
-	$ovary_dx_nature_notes = $left_ovary_dx_nature_data['notes'].((!empty($left_ovary_dx_nature_data['notes']) && !empty($right_ovary_dx_nature_data['notes']))? ' // ' : ''). $right_ovary_dx_nature_data['notes'];
-	if(!empty($ovary_dx_nature_notes)) $m->values['notes'] .= $ovary_dx_nature_notes.' // ';
+	$ovary_dx_nature_notes = $left_ovary_dx_nature_data['notes'].((!empty($left_ovary_dx_nature_data['notes']) && !empty($right_ovary_dx_nature_data['notes']))? ' || ' : ''). $right_ovary_dx_nature_data['notes'];
+	if(!empty($ovary_dx_nature_notes)) $m->values['notes'] .= $ovary_dx_nature_notes.' || ';
 				
 	$ovary_dx_from_natures = 'primary';
 	if(in_array($left_ovary_dx_nature, array('','normal')) && in_array($right_ovary_dx_nature, array('','normal'))) {	
@@ -460,7 +460,7 @@ function postOvaryDiagnosesRead(Model $m){
 	
 	// 6- NOTES CLEAN UP
 	
-	$m->values['notes'] = str_replace("'", "''", preg_replace('/(\/\/ )$/', '',$m->values['notes']));
+	$m->values['notes'] = str_replace("'", "''", preg_replace('/(\|\| )$/', '',$m->values['notes']));
 	
 	return true;
 }

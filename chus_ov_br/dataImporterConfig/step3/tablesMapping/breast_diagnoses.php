@@ -6,96 +6,79 @@ $child = array();
 $master_fields = array(
 	"diagnosis_control_id" => "#diagnosis_control_id",
 	"participant_id" => "#participant_id",
-
-//	"clinical_stage_summary" => "STADE (1-4)",
-//
-//	"path_tstage" => "T",
-//	"path_nstage" => "N",
-//	"path_mstage" => "M",
-//
-//
-//	"chus_uncertain_dx" => "#chus_uncertain_dx",
-
+	"dx_nature" => "#dx_nature",
+	"path_tstage" => "#path_tstage",
+	"path_nstage" => "#path_nstage",
+	"path_mstage" => "#path_mstage",
 	"notes" => "#notes"
 );
 $detail_fields = array(
+	"atcd" => "#atcd",
+	"atcd_description" => "ATCD Cancer sein (oui/non)",
+	"laterality" => "#laterality",
 
-//	"atcd" => "#atcd",
-//	"atcd_description" => "ATCD Cancer de l'ovaire (oui/non)",
-//
-//	"left_breast_dx_nature" => "#left_breast_dx_nature",
-//	"left_breast_tumour_grade" => array("GRADE OV G" => array(
-//		""=>"",
-//		"1"=>"1",
-//		"2"=>"2",
-//		"3"=>"3",
-//		"1-2"=>"2",
-//		"2-3"=>"3",
-//		"1, 3"=>"3",
-//		"LMP"=>"LMP",
-//		"ND"=>"ND")),
-//	"left_breast_serous" => array(utf8_decode("Morphologie Ov GAUCHE::Séreux") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_papillary" => array("Morphologie Ov GAUCHE::Papillaire" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_mucinous" => array("Morphologie Ov GAUCHE::Mucineux" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_endometrioid_endometriotic_endometriosis" => array(utf8_decode("Morphologie Ov GAUCHE::Endométrioide") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_squamous" => array("Morphologie Ov GAUCHE::Malpighien" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_Krukenberg" => array("Morphologie Ov GAUCHE::Krukenberg" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_mullerian" => array("Morphologie Ov GAUCHE::Mullerien" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_granulosa" => array("Morphologie Ov GAUCHE::Granulosa" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_squamous_dermoid" => array(utf8_decode("Morphologie Ov GAUCHE::Épidermoide") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_mature_teratoma" => array(utf8_decode("Morphologie Ov GAUCHE::Tératome Mature") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_immature_teratoma" => array(utf8_decode("Morphologie Ov GAUCHE::Tératome Immature") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_brenner" => array("Morphologie Ov GAUCHE::Brenner" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_neuroendocrine" => array("Morphologie Ov GAUCHE::Neuroendocrine" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_sarcoma" => array("Morphologie Ov GAUCHE::Sarcome" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_clear_cell" => array("Morphologie Ov GAUCHE::Clear Cell" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_small_cell" => array("Morphologie Ov GAUCHE::Small Cell" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_sex_cord" => array("Morphologie Ov GAUCHE::Sex cord" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_cells_in_cat_rings" => array("Morphologie Ov GAUCHE::Cellules en bague de chaton" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_struma_ovarii" => array("Morphologie Ov GAUCHE::Struma Ovarii" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_fibroma" => array("Morphologie Ov GAUCHE::Firbome" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_atrophic" => array("Morphologie Ov GAUCHE::Atrophique" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_fallopian_tube_lesion" => array(utf8_decode("Morphologie Ov GAUCHE::Lésion trompe") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_fibrothecoma" => array(utf8_decode("Morphologie Ov GAUCHE::Fibrothécale") => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_polycystic" => array("Morphologie Ov GAUCHE::Polykystique" => array(""=>""," "=>"","x"=>"y")),
-//	"left_breast_inclusion_cyst" => array("Morphologie Ov GAUCHE::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y")),
-//	
-//	"right_breast_dx_nature" => "#right_breast_dx_nature",
-//	"right_breast_tumour_grade" => array("GRADE OV D" => array(
-//		""=>"",
-//		"1"=>"1",
-//		"2"=>"2",
-//		"3"=>"3",
-//		"1-2"=>"2",
-//		"2-3"=>"3",
-//		"1, 3"=>"3",
-//		"LMP"=>"LMP",
-//		"ND"=>"ND")),
-//	"right_breast_serous" => array(utf8_decode("Morphologie Ov DROIT::Séreux") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_papillary" => array("Morphologie Ov DROIT::Papillaire" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_mucinous" => array("Morphologie Ov DROIT::Mucineux" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_endometrioid_endometriotic_endometriosis" => array(utf8_decode("Morphologie Ov DROIT::Endométrioide") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_squamous" => array("Morphologie Ov DROIT::Malpighien" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_Krukenberg" => array("Morphologie Ov DROIT::Krukenberg" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_mullerian" => array("Morphologie Ov DROIT::Mullerien" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_granulosa" => array("Morphologie Ov DROIT::Granulosa" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_squamous_dermoid" => array(utf8_decode("Morphologie Ov DROIT::Épidermoide/Dermoide") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_mature_teratoma" => array(utf8_decode("Morphologie Ov DROIT::Tératome Mature") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_immature_teratoma" => array(utf8_decode("Morphologie Ov DROIT::Tératome Immature") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_brenner" => array("Morphologie Ov DROIT::Brenner" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_neuroendocrine" => array("Morphologie Ov DROIT::Neuroendocrine" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_sarcoma" => array("Morphologie Ov DROIT::Sarcome" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_clear_cell" => array("Morphologie Ov DROIT::Clear Cell" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_small_cell" => array("Morphologie Ov DROIT::Small Cell" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_sex_cord" => array("Morphologie Ov DROIT::Sex cord" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_cells_in_cat_rings" => array("Morphologie Ov DROIT::Cellules en bagues de chaton" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_struma_ovarii" => array("Morphologie Ov DROIT::Struma Ovarii" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_fibroma" => array("Morphologie Ov DROIT::Fibrome" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_atrophic" => array("Morphologie Ov DROIT::Atrophique" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_fallopian_tube_lesion" => array(utf8_decode("Morphologie Ov DROIT::Lésion trompe") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_fibrothecoma" => array(utf8_decode("Morphologie Ov DROIT::Fibrothécale") => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_polycystic" => array("Morphologie Ov DROIT::Polykystique" => array(""=>""," "=>"","x"=>"y")),
-//	"right_breast_inclusion_cyst" => array("Morphologie Ov DROIT::Kyste d'inclusion" => array(""=>""," "=>"","x"=>"y")),
+	"infiltrative_sbr_grade" => array("INFILTRANT::Grade SBR" => array(
+		""=>"",
+		"1"=>"1",
+		"2"=>"2",
+		"3"=>"3",
+		"LMP"=>"LMP",
+		"ND"=>"ND")),
+	"intraductal_ng_grade_holland" => array("INTRACANALAIRE (IN SITU)::Grade NG (Holland)" => array(
+		""=>"",
+		"1"=>"1",
+		"2"=>"2",
+		"3"=>"3",
+		"LMP"=>"LMP",
+		"ND"=>"ND")),
+	"infiltrative_ductal"=>"#infiltrative_ductal",
+	"infiltrative_mucinous"=>"#infiltrative_mucinous",
+	"infiltrative_apocrine"=>"#infiltrative_apocrine",
+	"infiltrative_tubular"=>"#infiltrative_tubular",
+	"infiltrative_trabecular"=>"#infiltrative_trabecular",
+	"infiltrative_alveolar"=>"#infiltrative_alveolar",
+	"infiltrative_papillary"=>"#infiltrative_papillary",
+	"infiltrative_micropapillary"=>"#infiltrative_micropapillary",
+	"infiltrative_cribriform"=>"#infiltrative_cribriform",
+	"infiltrative_lobular"=>"#infiltrative_lobular",
+	"infiltrative_solid"=>"#infiltrative_solid",
+	"infiltrative_medullary"=>"#infiltrative_medullary",
+	"infiltrative_polyadenoid"=>"#infiltrative_polyadenoid",
+	"infiltrative_neuroendocrine"=>"#infiltrative_neuroendocrine",
+	"infiltrative_sarcomatoid"=>"#infiltrative_sarcomatoid",
+	"infiltrative_ring_cell"=>"#infiltrative_ring_cell",
+	"infiltrative_clear_cell"=>"#infiltrative_clear_cell",
+	"infiltrative_giant_cells"=>"#infiltrative_giant_cells",
+	"infiltrative_malpighian"=>"#infiltrative_malpighian",
+	"infiltrative_epidermoid"=>"#infiltrative_epidermoid",
+	"infiltrative_pleomorphic"=>"#infiltrative_pleomorphic",
+	"infiltrative_basal_like"=>"#infiltrative_basal_like",
+	
+	"intraductal_papillary"=>"#intraductal_papillary",
+	"intraductal_ductal"=>"#intraductal_ductal",
+	"intraductal_lobular"=>"#intraductal_lobular",
+	"intraductal_micropapillary"=>"#intraductal_micropapillary",
+	"intraductal_cribriform"=>"#intraductal_cribriform",
+	"intraductal_apocrine"=>"#intraductal_apocrine",
+	"intraductal_comedocarcinoma"=>"#intraductal_comedocarcinoma",
+	"intraductal_solid"=>"#intraductal_solid",
+	"intraductal_intraductal_not_specified"=>"#intraductal_intraductal_not_specified",
+	"intraductal_perc_of_infiltrating"=>"#intraductal_perc_of_infiltrating",
+	
+	"ganglion_axillary_surgery" => array(utf8_decode("GANGLIONS::Chirurgie aisselle") => array(""=>""," "=>"","oui"=>"y","x"=>"y")),
+	"ganglion_sentinel_node" => array(utf8_decode("GANGLIONS::Ganglion Sentinelle") => array(""=>""," "=>"","oui"=>"y","x"=>"y")),
+	"ganglion_total"=>"#ganglion_total",
+	"ganglion_invaded"=>"#ganglion_invaded",
+
+	"observation_necrosis"=>"#observation_necrosis",
+	"observation_microcalcifications"=>"#observation_microcalcifications",
+	"observation_angiolymphatic_invasion"=>"#observation_angiolymphatic_invasion",
+	"observation_multiple_foci_tumor"=>"#observation_multiple_foci_tumor",
+	"observation_microinvasion"=>"#observation_microinvasion",
+	"observation_distant_metastasis"=>"#observation_distant_metastasis",
+	"observation_atypical_fibrocystic_changes"=>"#observation_atypical_fibrocystic_changes",
+	"observation_nipple_affected"=>"#observation_nipple_affected",
+	"observation_epidermis_affected"=>"#observation_epidermis_affected"
 );
 
 //see the Model class definition for more info
@@ -113,8 +96,6 @@ Config::$models['BreastDiagnosisMaster'] = $model;
 function postBreastDiagnosesRead(Model $m){
 	global $connection;
 	
-	$m->values['notes'] = '';
-	
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
 	
 	$frsq_nbr = str_replace(' ', '', utf8_encode($m->values['#FRSQ']));
@@ -127,19 +108,17 @@ function postBreastDiagnosesRead(Model $m){
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$participant_id])) die('ERR 9983933');
 	if(Config::$data_for_import_from_participant_id[$participant_id]['data_imported_from_br_file']) {
-		Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Participant & Many Rows'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has data recorded in many rows of the breast bank file! Please check import deeply! [Line: ".$m->line.']';
+		Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Participant & Many Rows'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has data recorded in many rows in breast bank file! Please check import deeply! [Line: ".$m->line.']';
 	}
 	Config::$data_for_import_from_participant_id[$participant_id]['data_imported_from_br_file'] = true;
 	
 	// 2- CREATE CONSENT
 	
-	$consent_date = customGetFormatedDate($m->values[utf8_decode('Date (année-mois-jour)')]);
-	if(empty($consent_date)) {
-		die('ERR empty consent date line '.$m->line);
-	}
+	$consent_date = customGetFormatedDate($m->values[utf8_decode('Date (année-mois-jour)')], 'DIAGNOSTIC', $m->line);
+	if(empty($consent_date)) die('ERR empty consent date line '.$m->line);
 	if(isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_date'])) {
 		if($consent_date != Config::$data_for_import_from_participant_id[$participant_id]['consent_date']) {
-			Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant & Many Consent Dates'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has different consent dates defined in many rows of the OV file! Only one consent will be created! [Line: ".$m->line.']';
+			Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant & Many Consent Dates'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has different consent dates defined in many rows in breast bank file ($consent_date != ".Config::$data_for_import_from_participant_id[$participant_id]['consent_date'].")! Only one consent will be created with consent_date = ".Config::$data_for_import_from_participant_id[$participant_id]['consent_date']."! [Line: ".$m->line.']';
 		}
 	} else {
 		$master_fields = array(
@@ -158,325 +137,302 @@ function postBreastDiagnosesRead(Model $m){
 	}
 	
 	// 3- UPDATE PARTICIPANT BIRTH DATE
-	
-	$date_of_birth = customGetFormatedDate($m->values[utf8_decode('Date Naissance')]);
-	$date_of_birth_from_step2 = Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth_from_step2'];
-	
-	TODO comparer les dates entre elles avec la step2
-	
-	if($date_of_birth) {
-		if(!empty($date_of_birth_from_step2) && ($date_of_birth_from_step2 != $date_of_birth)) {
-			pr(Config::$data_for_import_from_participant_id[$participant_id]);
-			die('ERR DATE 2');
-		
-		} else if(isset(Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth'])) {
-			if($date_of_birth != Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth']) {
-				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['Participant & Birth Date #1'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has different birth dates defined in many rows of the BR file! [Line: ".$m->line.']';
-			}
-			
-		} else {
-			$query = "UPDATE participants SET date_of_birth = '$date_of_birth', date_of_birth_accuracy = 'c'  WHERE id = ".$m->values['participant_id'].";";
-			mysqli_query($connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$query = str_replace('participants','participants_revs', $query);
-			mysqli_query($connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		}
-		Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth'] = $date_of_birth;
-	}
 
+	$date_of_birth = customGetFormatedDate($m->values[utf8_decode('Date Naissance')], 'DIAGNOSTIC', $m->line);
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//TODO continue dev
-	return false;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	if(isset(Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth_from_file'])) {
+		if($date_of_birth != Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth_from_file']) Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['Participant Birthdate conflict into file'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has different birth dates defined in many rows of the BR file ($date_of_birth != ". Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth_from_file']."! [Line: ".$m->line.']';
+		
+	} else {
+		Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth_from_file'] = $date_of_birth;
+		$date_of_birth_from_step2 = Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth_from_step2'];
+		
+		if((empty($date_of_birth) && empty($date_of_birth_from_step2)) || ($date_of_birth == $date_of_birth_from_step2)) {
+			// Nothing to do
+		} else {
+			if(!empty($date_of_birth) && !empty($date_of_birth_from_step2)) {
+				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['Participant Birthdate conflict step2/3'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR']).(!empty(Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'])? "-".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV']) : '')."] has different birth dates defined from step2 and step3 ($date_of_birth != $date_of_birth_from_step2! Check OV and BR files ! [Line: ".$m->line.']';
+			} else if(!empty($date_of_birth)) {
+				$query = "UPDATE participants SET date_of_birth = '$date_of_birth', date_of_birth_accuracy = 'c'  WHERE id = ".$m->values['participant_id'].";";
+				mysqli_query($connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$query = str_replace('participants','participants_revs', $query);
+				mysqli_query($connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
+			}
+		}	
+	}
 	
 	// 4- SET DX DATA & CONTROL DATA
 	
-	$ov_dx_data_exist = array();
+	$dx_notes = '';
+	$br_dx_data_exist = array();
 	
-	// field: 'STADE (1-4)'
-	
-	if(!empty($m->values['STADE (1-4)'])) {
-		if(strtolower($m->values['STADE (1-4)']) == 'nd') {
-			$m->values['STADE (1-4)'] = '';
-			$m->values['notes'] .= "STADE (1-4) file value was 'ND'. // ";		
-		
-		} else if(preg_match('/^([1-3][a-c]{0,1}|4) {0,1}(.*)$/', strtolower($m->values['STADE (1-4)']), $matches)) {
-			$m->values['STADE (1-4)'] = str_replace(array('1','2','3','4'), array('I', 'II', 'III','IV'), $matches[1]);
-			if(!empty($matches[2])) {
-				if(in_array($matches[2], array('a','b','c'))) {
-					Config::$summary_msg['DIAGNOSTIC']['@@WARNNING@@']['STADE (1-4)'][] = "The value '".$matches[0]."' is not supported and will be recorded as [".$matches[1]."]! [Line: ".$m->line.']';
-				}
-				$m->values['notes'] .= "STADE (1-4) file value was '".$matches[0]."'. // ";		
-			}
-			$ov_dx_data_exist['stade'] = 'stade';
-			
-		} else if($m->values['STADE (1-4)'] == '(4)') {
-			$m->values['STADE (1-4)'] = 'IV';
-		} else {
-			die('ERR 998839938383');
-		}
-	}
-	
-	// field: T N M
-		
-	if(strlen($m->values['T']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'T' value  [".$m->values['T']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['N']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'N' value  [".$m->values['N']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($m->values['M']) > 5) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['TNM values sizes #1'][] = "The 'M' value  [".$m->values['M']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(doesValueExist($m->values['T']) || doesValueExist($m->values['N']) || doesValueExist($m->values['M'])) $ov_dx_data_exist['TNM'] = 'TNM';
-	
-	// field: 'atcd'
+	// field: 'ATCD Cancer sein (oui/non)'
 	
 	$m->values['atcd'] = '';
-	$m->values["ATCD Cancer de l'ovaire (oui/non)"] = utf8_encode($m->values["ATCD Cancer de l'ovaire (oui/non)"]);
-	if(!empty($m->values["ATCD Cancer de l'ovaire (oui/non)"])) {
-		$m->values['atcd'] = preg_match('/non/i',$m->values["ATCD Cancer de l'ovaire (oui/non)"], $matches)? 'n': 'y';
-		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^oui$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
-		$m->values["ATCD Cancer de l'ovaire (oui/non)"] = preg_replace('/^non$/i','',$m->values["ATCD Cancer de l'ovaire (oui/non)"] );
+	$m->values["ATCD Cancer sein (oui/non)"] = preg_replace(array('/^ /','/ $/','/^ND$/'), array('','',''), utf8_encode($m->values["ATCD Cancer sein (oui/non)"]));
+	if(strlen($m->values["ATCD Cancer sein (oui/non)"])) {
+		$m->values['atcd'] = preg_match('/(non)/i',$m->values["ATCD Cancer sein (oui/non)"], $matches)? 'n': 'y';
+		$m->values["ATCD Cancer sein (oui/non)"] = preg_replace(array('/^oui$/i', '/^oui {0,1}(.*)$/i', '/^non$/i', '/^non {0,1}(.*)$/i', '/^\((.*)\)$/'), array('', '$1', '', '$1', '$1'),$m->values["ATCD Cancer sein (oui/non)"]);
 	}
-	if(($m->values["atcd"] == 'y') || doesValueExist($m->values["ATCD Cancer de l'ovaire (oui/non)"])) $ov_dx_data_exist['ATCD'] = 'ATCD';
+	if(($m->values["atcd"] == 'y') || !empty($m->values["ATCD Cancer sein (oui/non)"])) $br_dx_data_exist['ATCD'] = 'ATCD';
 	
-	// fields : 'Morphologie Ov %'
+	// fields: 'SEINS::DROIT', 'SEINS::GAUCHE', 'SEINS::BILATÉRAL'
 	
-	foreach($m->values as $field => $value) {
-		if(preg_match('/^(Morphologie Ov )(DROIT|GAUCHE)::/',$field,$matches)) {
-			if(doesValueExist($value)) $ov_dx_data_exist['Morpho'] = 'Morpho';
-			if(preg_match('/^(x )(.+)$/',$value,$matches)) {
-				$m->values[$field] = 'x';		
-				$m->values['notes'] .= str_replace('::',' - ', utf8_encode($field)).' : '.utf8_encode($matches[2]).' // ';
-				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Morphologie Ov #1'][] = "The field '$field' contains additional comments [".$matches[2]."] that will be added to diagnosis notes! [Line: ".$m->line.']';
+	$m->values['laterality'] = '';	
+	if(!empty($m->values['SEINS::DROIT']) || !empty($m->values['SEINS::GAUCHE']) || !empty($m->values[utf8_decode('SEINS::BILATÉRAL')])) {
+		if(!empty($m->values[utf8_decode('SEINS::BILATÉRAL')])) {
+			if(preg_match('/^x {0,1}\((.*)\)$/', $m->values[utf8_decode('SEINS::BILATÉRAL')], $matches)) {
+				$dx_notes .= (empty($dx_notes)? '' : ' || ').'Lateralité : '.utf8_encode($matches[1]);
+			} else if($m->values[utf8_decode('SEINS::BILATÉRAL')] != 'x') {
+				die('ERR dx laterality 99489299323 ['.$m->values[utf8_decode('SEINS::BILATÉRAL')].']');
 			}
-		}
-	}
-	
-	// 4- CONTROL DX DATA & SET DX ID, etc
-	
-	$uncertain_dx = false;
-	$primary_tumors = array();
-	$all_dx_left_ov = array();
-	$all_dx_right_ov = array();
-	
-	// GET VALUES
-	
-	foreach($m->values as $field => $value) {
-		
-		// a- Site Cancer Primaire
-		
-		if(preg_match('/^(Site cancer primaire::)(.+)$/',$field,$matches)) {	
-			$site_tmp = $matches[2];
-			if(doesValueExist($value)) {
-				$note = preg_match('/^(x {0,1})(.*)$/',$value,$matches)? $matches[2] : $value;
-				if(!empty($note)) $note = utf8_encode(str_replace('::',' - ', $field).' : '.$note);
-				switch(utf8_encode($site_tmp)) {
-					case 'Ovaire':
-						$primary_tumors['breast'] = $note;
-						break;	
-					case 'Trompe':
-						$primary_tumors['fallopian tube'] = $note;
-						break;	
-					case 'Épiploon':
-						$primary_tumors['omentum'] = $note;
-						break;	
-					case 'Endomètre':
-						$primary_tumors['endometrial'] = $note;
-						break;	
-					case 'Utérus':
-						$primary_tumors['uterus'] = $note;
-						break;		
-					case 'Péritoine':
-						$primary_tumors['peritoneum'] = $note;
-						break;		
-					case 'Colon':
-						$primary_tumors['colon'] = $note;
-						break;		
-					case 'Sein':
-						$primary_tumors['breast'] = $note;
-						break;		
-					case 'Estomac':
-						$primary_tumors['stomach'] = $note;
-						break;		
-					case 'Lymphome Non-Hodgkin':
-						$primary_tumors['non hodgkin lymphoma'] = $note;
-						break;		
-					case 'Lymphome Hodgkin':
-						$primary_tumors['hodgkin lymphoma'] = $note;
-						break;		
-					case 'Rectum':
-						$primary_tumors['rectum'] = $note;
-						break;		
-					case 'Appendice':
-						$primary_tumors['appendix'] = $note;
-						break;		
-					case 'Pancréas':
-						$primary_tumors['pancreas'] = $note;
-						break;		
-					case 'Mélanome':
-						$primary_tumors['melanoma'] = $note;
-						break;		
-					case 'Uretère':
-						$primary_tumors['ureter'] = $note;
-						break;		
-					case 'Rein':
-						$primary_tumors['kidney'] = $note;
-						break;		
-					case 'Incertain':
-						$uncertain_dx = true;
-						if(!empty($note)) die('ERR 89038300983.2 : ['.$note.']');
-						break;	
-					default :
-						die('ERR 89038300983');
-				
-				}
+			$m->values['laterality'] = 'bilateral';	
+			if(!empty($m->values['SEINS::GAUCHE'])) {
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant laterality conflict'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has a diagnosis laterality defined as bilateral and left! Only left laterality will be recorded. Please confirm. [Line: ".$m->line.']';
+				$m->values['laterality'] = 'left';
+			} else if(!empty($m->values['SEINS::DROIT'])) {
+				$m->values['laterality'] = 'right';
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Participant laterality conflict'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR'])."] has a diagnosis laterality defined as bilateral and right! Only right laterality will be recorded. Please confirm. [Line: ".$m->line.']';
 			}
-		}
-		
-//		if($uncertain_dx) Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Uncertain diagnostics"][] = "All diagnostic of the line will be defined as uncertain! [Line: ".$m->line.']';
-		$m->values['chus_uncertain_dx'] = ($uncertain_dx? 'y':'');
-		
-		// b- Diagnostic Ovaire
-		
-		if(preg_match('/^Diagnostique OVAIRE (GAUCHE|DROIT)::(.+)$/',$field,$matches)) {
-			$tumour_laterality_tmp = $matches[1];
-			$tumour_type_tmp = str_replace(array('Normal', 'Bénin', 'Borderline', 'Cancer', 'Métastatique'), array('normal', 'benign', 'borderline', 'cancer', 'metastatic'), utf8_encode($matches[2]));
-			if(!in_array($tumour_type_tmp,  array('normal', 'benign', 'borderline', 'cancer', 'metastatic'))) die('ERR 887478444');
-			
-			if(doesValueExist($value)) {
-				$note = preg_match('/^(x {0,1})(.*)$/',$value,$matches)? $matches[2] : $value;
-				if(!empty($note)) $note = utf8_encode(str_replace('::',' - ', $field).' : '.$note);
-				if($tumour_laterality_tmp == 'GAUCHE') {
-					$all_dx_left_ov[$tumour_type_tmp] = $note;
-				} else {
-					$all_dx_right_ov[$tumour_type_tmp] = $note;
-				}
-			}
-		}
-	}
-	
-	// ANALYZE VALUES
-	
-	// a- Breast Diagnostic Clean Up
-	
-	$left_breast_dx_nature_data = getFinalBreastNatureData($all_dx_left_ov, 'GAUCHE', $m);
-	$right_breast_dx_nature_data = getFinalBreastNatureData($all_dx_right_ov, 'DROIT', $m);
-
-	$left_breast_dx_nature = $left_breast_dx_nature_data['nature'];
-	$right_breast_dx_nature = $right_breast_dx_nature_data['nature'];
-
-	$m->values['left_breast_dx_nature'] = $left_breast_dx_nature;
-	$m->values['right_breast_dx_nature'] =  $right_breast_dx_nature;
-	
-	$breast_dx_nature_notes = $left_breast_dx_nature_data['notes'].((!empty($left_breast_dx_nature_data['notes']) && !empty($right_breast_dx_nature_data['notes']))? ' // ' : ''). $right_breast_dx_nature_data['notes'];
-	if(!empty($breast_dx_nature_notes)) $m->values['notes'] .= $breast_dx_nature_notes.' // ';
-				
-	$breast_dx_from_natures = 'primary';
-	if(in_array($left_breast_dx_nature, array('','normal')) && in_array($right_breast_dx_nature, array('','normal'))) {	
-		$breast_dx_from_natures = 'normal';
-	} else if($left_breast_dx_nature == 'metastatic' || $right_breast_dx_nature == 'metastatic') {
-		if($left_breast_dx_nature == 'cancer' || $right_breast_dx_nature == 'cancer') {
-			Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Breast tumor types conflict #1"][] = "The breast tumor type is defined both as 'metastatic' and 'primary' (using 'Diagnostiques OVAIRE' columns)! Migration process created primary breast! [Line: ".$m->line.']';
+		} else if(!empty($m->values['SEINS::GAUCHE'])) {
+			if(!empty($m->values['SEINS::DROIT']) || ($m->values['SEINS::GAUCHE'] != 'x')) die('ERR dx laterality 9948dssd9299323 Line '.$m->line);
+			$m->values['laterality'] = 'left';	
 		} else {
-			$breast_dx_from_natures = 'secondary';
-			if($left_breast_dx_nature != 'metastatic' && $right_breast_dx_nature != 'metastatic') {
-				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Breast Diagnostic Definition From Natures #2"][] = "The breast natures (left and right) define breast tumor as both $left_breast_dx_nature and $right_breast_dx_nature: Will defined tumor as secondary! [Line: ".$m->line.']';
-			}
+			if(!empty($m->values['SEINS::GAUCHE']) || ($m->values['SEINS::DROIT'] != 'x')) die('ERR dx laterality 9948dssd929sa9323 Line '.$m->line);
+			$m->values['laterality'] = 'right';	
+		}
+		$br_dx_data_exist['Laterality'] = 'Laterality';
+	}
+	
+	// fields: 'pTNM'
+	
+	foreach(array('STADE::pT' => 'path_tstage', 'STADE::N' => 'path_nstage', 'STADE::M' => 'path_mstage') as $file_field => $db_field) {
+		$m->values[$db_field] = '';	
+		$m->values[$file_field] = preg_replace(array('/^ND$/i'), array(''), $m->values[$file_field]);
+		if(strlen($m->values[$file_field])) {
+			if(strlen($m->values[$file_field]) > 5)	Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['pPTNM value'][] = "The value (".$m->values[$file_field].")of the field [$file_field] is too long! Please correct if requiered! [Line: ".$m->line.']';
+			$m->values[$db_field] = utf8_encode($m->values[$file_field]);
+			$br_dx_data_exist['pTNM'] = 'pTNM';	
 		}
 	}
 	
-	switch($breast_dx_from_natures) {
-		case 'primary':		
-			$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['breast']['diagnosis_control_id'];
-			if(!array_key_exists('breast', $primary_tumors)) {
-				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Primary breast not defined In 'Site cancer primaire::Ovaire' column"][] = "... but defined into 'Diagnostiques OVAIRE' columns! [Line: ".$m->line.']';
-			} else {
-				unset($primary_tumors['breast']);
-			}
-			createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
-			break;
-		
-		case 'secondary':
-			if(array_key_exists('breast', $primary_tumors)) {
-				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['breast']['diagnosis_control_id'];
-				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']["Breast tumor types conflict #2"][] = "The breast tumor type is defined both as 'metastatic' (using 'Diagnostiques OVAIRE' columns) and 'primary' (using 'Sites cancer primaire' columns)! Migration process created primary breast! [Line: ".$m->line.']';
-				unset($primary_tumors['breast']);
-				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
-			
-			} else {
-				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['secondary']['breast']['diagnosis_control_id'];
-				
-				$parent_id = null;
-				$parent_ids = createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
-				if(sizeof($parent_ids) == 1) {
-					$m->values['parent_id'] = $parent_ids[0];
-				} else {
-					if(sizeof($parent_ids)) {
-						Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Many primaries & breast secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but more than one primary is defined (using 'Sites cancer primaire' columns)! Unable to define the primary of the ovarian secondary so created unknown primary diagnosis! [Line: ".$m->line.']';
-						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
-						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
-						$m->values['parent_id'] = $parent_ids[0];
-												
-					} else {
-						Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Unknonw Primary & breast secondary"][] = "The ovarian tumor has been defined as secondary (using 'Diagnostiques OVAIRE' columns) but no primary is defined (using 'Sites cancer primaire' columns)! Created unknown primary of the ovarian secondary! [Line: ".$m->line.']';
-						$parent_ids = createOtherPrimaries(array('primary diagnosis unknown' => ''), $uncertain_dx, $m);
-						if(sizeof($parent_ids) != 1) die('ERRR 993899393');
-						$m->values['parent_id'] = $parent_ids[0];
-					}
-				}
-			}
-			break;
-		
-		case '':	
-		case 'normal':
-			if(array_key_exists('breast', $primary_tumors)) {
-				$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['breast']['diagnosis_control_id'];
-				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Breast tumor undefined by 'Diagnostique OVAIRE' columns"][] = "The breast primary tumor is just defined in 'Site cancer primaire::Ovaire' column. Primary breast will be created (".(empty($ov_dx_data_exist)? 'with no breast dx data [Stade, TNM, Morpho, ATCD]' : 'includin existing breast dx data ['. implode(",", $ov_dx_data_exist).']').")! [Line: ".$m->line.']';
-				unset($primary_tumors['breast']);
-				createOtherPrimaries($primary_tumors, $uncertain_dx, $m);				
+	// fields: 'INFILTRANT'
+	
+	$infiltrant_fields = array(
+		"INFILTRANT::Canalaire" => 'infiltrative_ductal',
+		"INFILTRANT::Mucineux" => 'infiltrative_mucinous',
+		"INFILTRANT::Apocrine" => 'infiltrative_apocrine',
+		"INFILTRANT::Tubulaire" => 'infiltrative_tubular',
+		"INFILTRANT::Trabéculaire" => 'infiltrative_trabecular',
+		"INFILTRANT::Alvéolaire" => 'infiltrative_alveolar',
+		"INFILTRANT::Papillaire" => 'infiltrative_papillary',
+		"INFILTRANT::Micropapillaire" => 'infiltrative_micropapillary',
+		"INFILTRANT::Cribriforme" => 'infiltrative_cribriform',
+		"INFILTRANT::Lobulaire" => 'infiltrative_lobular',
+		"INFILTRANT::Solide" => 'infiltrative_solid',
+		"INFILTRANT::Médullaire" => 'infiltrative_medullary',
+		"INFILTRANT::Polyadénoïde" => 'infiltrative_polyadenoid',
+		"INFILTRANT::Neuroendocrinienne" => 'infiltrative_neuroendocrine',
+		"INFILTRANT::Sarcomatoide" => 'infiltrative_sarcomatoid',
+		"INFILTRANT::Cellules en bague" => 'infiltrative_ring_cell',
+		"INFILTRANT::Cellules Claires" => 'infiltrative_clear_cell',
+		"INFILTRANT::Cellules géantes" => 'infiltrative_giant_cells',
+		"INFILTRANT::Malpighienne" => 'infiltrative_malpighian',
+		"INFILTRANT::Épidermoide" => 'infiltrative_epidermoid',
+		"INFILTRANT::Pléomorphe" => 'infiltrative_pleomorphic',
+		"INFILTRANT::Basal-Like" => 'infiltrative_basal_like'
+	);
+	foreach($infiltrant_fields as $file_field => $db_field) {
+		$file_field = utf8_decode($file_field);
+		$m->values[$db_field] = '';	
+		if(strlen($m->values[$file_field])) {
+			if($m->values[$file_field] != 'x') {
+				$file_field_initial = $m->values[$file_field];
+				$m->values[$file_field] = preg_replace(array('/^x {0,1}\((.*)\)$/','/^\((.*)\)$/'), array('$1','$1'), $m->values[$file_field]);
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Infiltrative values'][] = "The value ($file_field_initial) of the field [$file_field] is different than 'x': Will defined value as 'yes' and add data (".$m->values[$file_field].") to notes! Please confirm! [Line: ".$m->line.']';
+				$dx_notes .= (empty($dx_notes)? '' : ' || ').'Infiltrant - '.str_replace('INFILTRANT::','',utf8_encode($file_field)).' : '.utf8_encode($m->values[$file_field]);
+			}	
+			$m->values[$db_field] = 'y';	
+			$br_dx_data_exist['Infiltrative'] = 'Infiltrative';	
+		}
+	}
+	
+	if(strlen($m->values["INFILTRANT::Grade SBR"])) $br_dx_data_exist['Infiltrative'] = 'Infiltrative';	
+	
+	// fields: 'INTRACANALAIRE'
+	
+	$intracanal_fields = array(
+		"INTRACANALAIRE (IN SITU)::Papillaire" => 'intraductal_papillary',
+		"INTRACANALAIRE (IN SITU)::Ductal" => 'intraductal_ductal',
+		"INTRACANALAIRE (IN SITU)::Lobulaire" => 'intraductal_lobular',
+		"INTRACANALAIRE (IN SITU)::Micropapillaire" => 'intraductal_micropapillary',
+		"INTRACANALAIRE (IN SITU)::Cribriforme" => 'intraductal_cribriform',
+		"INTRACANALAIRE (IN SITU)::Apocrine" => 'intraductal_apocrine',
+		"INTRACANALAIRE (IN SITU)::Comédocarcinome" => 'intraductal_comedocarcinoma',
+		"INTRACANALAIRE (IN SITU)::Solide" => 'intraductal_solid',
+		"INTRACANALAIRE (IN SITU)::IntraCanalaire(Pas spécification)" => 'intraductal_intraductal_not_specified'
+	);
+	foreach($intracanal_fields as $file_field => $db_field) {
+		$file_field = utf8_decode($file_field);
+		$m->values[$db_field] = '';	
+		if(strlen($m->values[$file_field])) {
+			if($m->values[$file_field] != 'x') {
+				$file_field_initial = $m->values[$file_field];
+				$m->values[$file_field] = preg_replace(array('/^x {0,1}\((.*)\)$/','/^\((.*)\)$/'), array('$1','$1'), $m->values[$file_field]);
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Intraductal values'][] = "The value ($file_field_initial) of the field [$file_field] is different than 'x': Will defined value as 'yes' and add data (".$m->values[$file_field].") to notes! Please confirm! [Line: ".$m->line.']';
+				$dx_notes .= (empty($dx_notes)? '' : ' || ').'Intracanalaire (in situ) -  '.str_replace('INTRACANALAIRE (IN SITU)::','',utf8_encode($file_field)).' : '.utf8_encode($m->values[$file_field]);
+			}	
+			$m->values[$db_field] = 'y';	
+			$br_dx_data_exist['Intraductal'] = 'Intraductal';	
+		}
+	}
+	
+	if(strlen($m->values["INTRACANALAIRE (IN SITU)::Grade NG (Holland)"])) $br_dx_data_exist['Intraductal'] = 'Intraductal';	
 
+	$file_field = "INTRACANALAIRE (IN SITU)::% de l'infiltrant";
+	$db_field = 'intraductal_perc_of_infiltrating';
+	$m->values[$file_field] = preg_replace(array('/^ND$/i'), array(''), $m->values[$file_field]);
+	$m->values[$db_field] = '-9999';
+	if(strlen($m->values[$file_field])) {
+		if(!preg_match('/^(0|[1-9]|[1-9][0-9]|100)$/', $m->values[$file_field], $matches)) {
+			Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["'% de l'infiltrant' values"][] = "The value (".$m->values[$file_field].") of the field [$file_field] is not an integer 0 < < 101! Value will just added to notes or please correct! [Line: ".$m->line.']';
+			$dx_notes .= (empty($dx_notes)? '' : ' || ')."Intracanalaire (in situ) - % de l'infiltrant : ".utf8_encode($m->values[$file_field]);		
+		} else {
+			$m->values[$db_field] = $m->values[$file_field];					
+		}
+		$br_dx_data_exist['Intraductal'] = 'Intraductal';		
+	}
+			
+	// fields: 'GANGLIONS'	
+
+	if(strlen($m->values["GANGLIONS::Chirurgie aisselle"])) $br_dx_data_exist['Ganglions'] = 'Ganglions';	
+	if(strlen($m->values["GANGLIONS::Ganglion Sentinelle"])) $br_dx_data_exist['Ganglions'] = 'Ganglions';	
+
+	foreach(array('GANGLIONS::Nb Total'=>'ganglion_total','GANGLIONS::Nb Envahis'=>'ganglion_invaded') as $file_field => $db_field) {
+		$m->values[$db_field] = '-9999';
+		if(strlen($m->values[$file_field]) && ($m->values[$file_field] != 'ND')) {
+			if(!preg_match('/^([0-9]{1,6})$/', $m->values[$file_field], $matches)) {
+				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@'][$file_field][] = "The value (".$m->values[$file_field].") of the field [$file_field] is not an integer! Please correct! [Line: ".$m->line.']';
 			} else {
-				// No Breast tumor to create
-				Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']['Patient with no Breast Diagnosis'][] = ".... [Line: ".$m->line.']';						
-				if(!empty($ov_dx_data_exist)) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Breast Diagnostic Data & No Breast Dx'][] = "No Breast Diagnosis will be created but diagnosis data exists into the file and won't be recorded! Check ". implode(",", $ov_dx_data_exist)." values. [Line: ".$m->line.']';
-				if(empty($primary_tumors)) {
-					if($uncertain_dx) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Uncertain fields & No tumor'][] = "The field 'Site cancer primaire::Incertain' is checked but no diagnostic will be created in the system! This information won't be recored! [Line: ".$m->line.']';
-				} else {
-					createOtherPrimaries($primary_tumors, $uncertain_dx, $m);
-				}
-				
-				participantDataCompletion($m, $participant_id);
-				
-				return false;				
+				$m->values[$db_field] = $m->values[$file_field];		
 			}
+			$br_dx_data_exist['Ganglions'] = 'Ganglions';	
+		}
+  	}	
+
+ 	// fields: 'observation'
+	
+	$observation_fields = array(
+		"OBSERVATIONS (Oui/Non)::Nécrose" => 'observation_necrosis',
+		"OBSERVATIONS (Oui/Non)::Microcalcifications" => 'observation_microcalcifications',
+		"OBSERVATIONS (Oui/Non)::Perméations angiolymphatiques" => 'observation_angiolymphatic_invasion',
+		"OBSERVATIONS (Oui/Non)::Tumeur à multiples foyers" => 'observation_multiple_foci_tumor',
+		"OBSERVATIONS (Oui/Non)::Microinvasion" => 'observation_microinvasion',
+		"OBSERVATIONS (Oui/Non)::Métastases à distance" => 'observation_distant_metastasis',
+		"OBSERVATIONS (Oui/Non)::Modifications fibrokystiques atypiques" => 'observation_atypical_fibrocystic_changes',
+		"OBSERVATIONS (Oui/Non)::Atteinte du mamelon (Paget)" => 'observation_nipple_affected',
+		"OBSERVATIONS (Oui/Non)::Atteinte de l'épiderme" => 'observation_epidermis_affected'	
+	);
+	foreach($observation_fields as $file_field => $db_field) {
+		$file_field = utf8_decode($file_field);
+		$m->values[$db_field] = '';	
+		if(strlen($m->values[$file_field]) && ('ND' != $m->values[$file_field])) {
+			if(in_array($m->values[$file_field], array('x','+','oui'))) {
+				$m->values[$db_field] = 'y';
+			} else if(in_array($m->values[$file_field], array('-','non'))) {
+				$m->values[$db_field] = 'n';
+			} else {
+				$m->values[$db_field] = 'y';
+				Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Observation values'][] = "The value (".$m->values[$file_field].") of the field [$file_field] is different than '-,oui,non,+,x': Will defined value as 'yes' and add data (".$m->values[$file_field].") to notes! Please confirm! [Line: ".$m->line.']';
+				$dx_notes .= (empty($dx_notes)? '' : ' || '). 'Observations - '. str_replace('OBSERVATIONS (Oui/Non)::','', utf8_encode($file_field)).' : '.utf8_encode($m->values[$file_field]);
+			}
+			$br_dx_data_exist['Observations'] = 'Observations';	
+		}
+	}
+	
+	// 5- SET Breast DX ID, etc
+	
+	$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['breast']['diagnosis_control_id'];
+	$m->values['dx_nature'] = '';
+	$note_from_dx = '';
+	$tmp_dx = preg_replace('/ $/', '', strtolower($m->values[utf8_decode('Dx sein Normal/Bénin/Cancer/Récidive/Risque élevé/Métastase/Reprise de marge')]));
+	
+	if(empty($tmp_dx)) {
+		if(!empty($br_dx_data_exist)) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Breast Diagnostic Data & No Breast Dx'][] = "No Breast Diagnosis will be created but diagnosis data exists into the file and won't be recorded! Check [". implode(", ",$br_dx_data_exist)."] values. [Line: ".$m->line.']';
+		return false;
+	}
+	
+	if(in_array($participant_id, Config::$participant_id_linked_to_br_dx_in_step2)) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Breast Dx defined in step2'][] = "Breast Dx had already been created fot the participant '$frsq_nbr' during step2! Please control dat deeply! [Line: ".$m->line.']';
+	
+	switch(utf8_encode($tmp_dx)) {
+		case "risque élevé":
+			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
+		case "à venir 2012-03-01":
+			break;
+				
+		case "cancer (chimio préop)":
+		case "cancer d":
+		case "cancer g":
+		case "cancer droit":
+		case "cancer gauche":
+		case "cancer, reprise":
+		case "reprise de marge cancer":
+		case "récidive de 1998":
+		case "récidive":
+		case "pas de cancer résiduel post chimio":
+		case "reprise de marge - absence de cancer":
+		case "reprise de marge - négative mais cancer en 2004-10":
+		case "reprise de marge - négative mais cancer en 2004-12)":
+		case "reprise de marge - cancer":
+		case "récidive (1995)":
+		case "récidive de br350":
+		case "récidive #2 (1995, 2001)":
+		case "bénin - tissus cancéreux retiré entièrement a la biopsie":
+		case "cancer post chimio, réponse complète pas de maladie résiduelle":
+		case "cancer post chimio":
+		case "reprise marge":
+		case "post chimio":
+		case "récidive (g)":
+		case "reprise de marge normal":
+		case "reprise de marge normal":
+		case "bénin (sans maladie résiduelle)":
+			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
+		case "cancer":
+			$m->values['dx_nature'] = 'cancer';
+			break;
+				
+		case "normal":
+			$m->values['dx_nature'] = 'normal';
+			break;
+				
+		case "bénin":
+			$m->values['dx_nature'] = 'benign';
+			break;
+				
+		case "métastatique gg":
+			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
+		case "métastatique":
+			$master_fields = array(
+				"diagnosis_control_id" => Config::$diagnosis_controls['primary']['primary diagnosis unknown']['diagnosis_control_id'],
+				"participant_id" => $m->values['participant_id'],
+				"icd10_code" => "'D489'"
+			);
+			$parent_diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
+			customInsertChusRecord(array('diagnosis_master_id' => $parent_diagnosis_master_id), Config::$diagnosis_controls['primary']['primary diagnosis unknown']['detail_tablename'], true);
+			
+			$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['secondary']['breast']['diagnosis_control_id'];
+			$m->values['dx_nature'] = 'metastatic';
+			$m->values['parent_id'] = $parent_diagnosis_master_id;
 			break;
 			
 		default:
-			die('ERR 99849944 : ['.$breast_dx_from_natures.']');
+			die('ERR 88990303 : ['.$tmp_dx.']');	
 	}
 	
-	// 6- NOTES CLEAN UP
+	if(!empty($note_from_dx)) $dx_notes .= (empty($dx_notes)? '' : ' || ').$note_from_dx;
 	
-	$m->values['notes'] = str_replace("'", "''", preg_replace('/(\/\/ )$/', '',$m->values['notes']));
+	if(!empty($m->values['Note'])) $dx_notes = utf8_encode($m->values['Note']).(empty($dx_notes)? '' : ' || '.$dx_notes);
+	$m->values['notes'] = str_replace("'","''",$dx_notes);	
 	
 	return true;
 }
@@ -492,77 +448,9 @@ function postBreastDiagnosesWrite(Model $m){
 	}
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$m->values['participant_id']])) die ('ERR 9988939383');
-	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['ovca_diagnosis_ids'][] = array('diagnosis_master_id' => $m->last_id, 'FRSQ#' => str_replace(' ', '', utf8_encode($m->values['#FRSQ'])));
-	
-	participantDataCompletion($m, $m->values['participant_id'], $m->last_id, (isset($m->values['parent_id'])? $m->values['parent_id'] : null));
-}
+	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['br_diagnosis_ids'][] = array('diagnosis_master_id' => $m->last_id, 'FRSQ#' => str_replace(' ', '', utf8_encode($m->values['#FRSQ'])));
 
-//======================================================================================================================
-// ADDITIONAL FUNCTIONS
-//======================================================================================================================
-
-function doesValueExist($value) {
-	return strlen(str_replace(' ','',$value))? true : false;
-}
-
-function getFinalBreastNatureData($all_dx_ov, $side, Model $m) {
-	
-	if(sizeof($all_dx_ov) > 1) {
-		$type = '';
-		if(array_key_exists('metastatic', $all_dx_ov)) {
-			$type = 'metastatic';
-		} else if(array_key_exists('cancer', $all_dx_ov)) {
-			$type = 'cancer';			
-		} else if(array_key_exists('borderline', $all_dx_ov)) {
-			$type = 'borderline';			
-		} else if(array_key_exists('benign', $all_dx_ov)) {
-			$type = 'benign';			
-		} else if(!array_key_exists('normal', $all_dx_ov)) {
-			die('ERR 89038300983.8893');
-		}
-		
-		$notes_start = "Diagnostique OVAIRE $side : Defined as '$type' ";
-		$notes_end = empty($all_dx_ov[$type])? '' : $all_dx_ov[$type].' ';
-		unset($all_dx_ov[$type]);
-		foreach($all_dx_ov as $sec_type => $sec_notes) {
-			$notes_start .= "& '$sec_type' ";
-			$notes_end .= empty($sec_notes)? '' :(empty($notes_end)? '' : '// ').$sec_notes.' ';
-		}
-
-		$all_dx_ov = array($type => $notes_start.(empty($notes_end)? '' : '// '. $notes_end));
-		
-		Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']["Many diagnostic types for 'OVAIRE $side'"][] = $notes_start.". The 'OVAIRE $side' will be defined as '$type'! [Line: ".$m->line.']';
-	}
-	
-	$breast_dx_nature = empty($all_dx_ov)? '': key($all_dx_ov);
-	$breast_dx_nature_note = empty($breast_dx_nature)? '': $all_dx_ov[$breast_dx_nature];
-	
-	return array('nature' => $breast_dx_nature, 'notes' => $breast_dx_nature_note);
-}
-
-function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
-	$diagnosis_master_ids = array();
-	
-	foreach($primary_tumors as $tumor_site => $notes) {
-		$notes = str_replace("'", "''", $notes);
-		
-		if(!isset(Config::$diagnosis_controls['primary'][$tumor_site])) die('ERR 937993 3 '.$tumor_site);
-		if($tumor_site == 'breast') Config::$summary_msg['DIAGNOSTIC']['@@MESSAGE@@']["Breast primary created"][] = "A Breast primary has been created during breast bank data importation (see 'Site cancer primaire::Sein' column)! [Line: ".$m->line.']';
-		
-		$master_fields = array(
-			"diagnosis_control_id" => Config::$diagnosis_controls['primary'][$tumor_site]['diagnosis_control_id'],
-			"participant_id" => $m->values['participant_id'],
-			"chus_uncertain_dx" => ($uncertain_dx? "'y'" : "''"),
-			"icd10_code" => (($tumor_site == 'primary diagnosis unknown')? "'D489'" : "''"),
-			"notes" => "'$notes'"
-		);
-		$diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
-		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['primary'][$tumor_site]['detail_tablename'], true);
-		
-		$diagnosis_master_ids[] = $diagnosis_master_id;
-	}
-	
-	return $diagnosis_master_ids;
+	participantDataCompletion($m, $m->values['participant_id'], $m->last_id);
 }
 
 //======================================================================================================================
@@ -570,579 +458,223 @@ function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
 //======================================================================================================================
 
 function participantDataCompletion(Model $m, $participant_id, $diagnosis_master_id = null, $parent_diagnosis_master_id = null) {
-	addOvcaSecondary($m, $participant_id, $diagnosis_master_id, $parent_diagnosis_master_id);
-	
 	addSurgery($m, $participant_id, $diagnosis_master_id);
+	addImmuno($m, $participant_id, $diagnosis_master_id);
+	addCa153($m, $participant_id, $diagnosis_master_id);
+	addHormono($m, $participant_id, $diagnosis_master_id);
+//	addOtherTreatment('Radio::Pré op', 'radiation','pre', $m, $participant_id, $diagnosis_master_id);
+//	addOtherTreatment('Radio::Post op', 'radiation','post', $m, $participant_id, $diagnosis_master_id);
 	
-	addOtherTreatment('Radio::Pré op', 'radiation','pre', $m, $participant_id, $diagnosis_master_id);
-	addOtherTreatment('Radio::Post op', 'radiation','post', $m, $participant_id, $diagnosis_master_id);
+//	addOtherTreatment('Chimio::Pré op', 'chemotherapy','pre', $m, $participant_id, $diagnosis_master_id);
+//	addOtherTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
 	
-	addOtherTreatment('Chimio::Pré op', 'chemotherapy','pre', $m, $participant_id, $diagnosis_master_id);
-	addOtherTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
-	
-	addEvent(array('CA125 au Dx'), 'lab', 'breast', 'CA125', $m, $participant_id, $diagnosis_master_id);
-	addEvent(array('CTScan (+ ou -)'), 'clinical', 'all', 'ctscan', $m, $participant_id, $diagnosis_master_id);
-	addEvent(array('Immuno (IHC)::ER','Immuno (IHC)::PR','Immuno (IHC)::P53','Immuno (IHC)::CA125'), 'lab', 'breast', 'immunohistochemistry', $m, $participant_id, $diagnosis_master_id);
-}
-
-function addOvcaSecondary(Model $m, $participant_id, $ovca_diagnosis_master_id, $ovca_parent_diagnosis_master_id) {
-	$ctrl_type_match = array(
-		'peritoneum' => 'Péritoine',
-		'omentum' => 'Épiploon',
-		'fornix' => 'Cul de Sac',
-		'colon' => 'Colon',
-		'small intestine' => 'Grêle',
-		'ganglion' => 'Ganglions',
-		'stomach' => 'Estomac',
-		'brain' => 'Cerveau',
-		'bone' => 'Osseuse',
-		'rectum' => 'Rectum',
-		'lung' => 'Poumon',
-		'liver' => 'Foie',
-		'fallopian tube' => 'Trompe',
-		'uterus' => 'Utérus');
-		
-	$secondaries_to_create = array();
-	foreach($m->values as $field => $value) {
-		$value = utf8_encode($value);
-		if(preg_match('/^Site Métastase de OVCA::(.*)$/', utf8_encode($field), $matches)) {
-			$value_tmp = str_replace(' ', '', $value);
-			if(!empty($value_tmp)) {
-				$control_type = str_replace(array_values($ctrl_type_match), array_keys($ctrl_type_match), $matches[1]);
-				$note = '';
-				if($value != 'x') {
-					if(preg_match('/^x (.*)$/', $value, $matches)) {
-						$note = $matches[1];
-					} else {
-						$note = $value;
-					}				
-				}
-				$secondaries_to_create[$control_type] = $note;
-			}
-		}
-	}
-	
-	if(empty($secondaries_to_create)) return;
-	
-	if(empty($ovca_diagnosis_master_id)) {
-		Config::$summary_msg['OVCA METASTASES']['@@ERROR@@']["No OVCA primary & OVCA secondary to create"][] = "'OVCA Métastases' have been defined into file but the migration process did not created a primary OVCA: This OVCA secondary won't be created! [Line: ".$m->line.']';
-		return;	
-	}
-	if(!empty($ovca_parent_diagnosis_master_id)) {
-		Config::$summary_msg['OVCA METASTASES']['@@ERROR@@']["OVCA defined as secondary & OVCA secondary to create"][] = "'OVCA Métastases' have been defined into file but the migration process already defined the created OVCA as secondary: Unable to add a secondary to a secondary! [Line: ".$m->line.']';
-		return;		
-	}
-	
-	foreach($secondaries_to_create as $control_type => $notes) {
-		if(!isset(Config::$diagnosis_controls['secondary'][$control_type])) die('ERR 7789993 '.$control_type);
-		$master_fields = array(
-			"diagnosis_control_id" => Config::$diagnosis_controls['secondary'][$control_type]['diagnosis_control_id'],
-			"participant_id" => $m->values['participant_id'],
-			"primary_id" => $ovca_diagnosis_master_id,
-			"parent_id" => $ovca_diagnosis_master_id,
-			"notes" => "'".str_replace("'", "''", $notes)."'"
-		);
-		$diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
-		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['secondary'][$control_type]['detail_tablename'], true);
-	}
-}
-
-function addEvent($fields, $event_group, $disease_site, $event_type, Model $m, $participant_id, $diagnosis_master_id = null) {
-	$empty_data = true;
- 	foreach($fields as $field) {
-		if(!array_key_exists(utf8_decode($field), $m->values)) die('ERR 43311111');
-		if(strlen($m->values[$field])) $empty_data = false;
-	}
-	if($empty_data) return;
-	
-	if(!isset(Config::$event_controls[$event_group][$disease_site][$event_type])) die('ERR 88998379');
-	$event_control_id = Config::$event_controls[$event_group][$disease_site][$event_type]['event_control_id'];
-	$detail_tablename = Config::$event_controls[$event_group][$disease_site][$event_type]['detail_tablename'];
-	
-	$all_events_data = array(
-		'record_1' => array('date' => null, 'master' => array(), 'detail' => array(), 'note' => ''),
-		'record_2' => array('date' => null, 'master' => array(), 'detail' => array(), 'note' => ''));
-	
-	switch($event_type) {
-		
-		case 'CA125':
-			
-			$value_tmp = utf8_encode($m->values[$fields[0]]);
-		
-			if($value_tmp == 'ND') {
-				Config::$summary_msg['CA125']['@@MESSAGE@@']['CA125 value = ND'][] = "CA125 was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
-				return;
-			
-			} else if(preg_match('/^[0-9]+([\.,][0-9]+)?$/',$value_tmp,$matches)) {
-				//361,5
-				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $value_tmp)."'";
-				$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
-				unset($all_events_data['record_2']);
-						
-			} else if(preg_match('/^([0-9]+)([\.,][0-9]+)? \((19|20)([0-9]{2})\-([01][0-9])(\-[0-3][0-9]){0,1}\)(.*)$/',$value_tmp,$matches)) {
-				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
-				$all_events_data['record_1']['date'] = $matches[3].$matches[4].'-'.$matches[5].(empty($matches[6])? '' : $matches[6]);
-				
-				if(empty($matches[7])) {
-					$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
-					unset($all_events_data['record_2']);
-					
-				} else {
-					if(preg_match('/^, ([0-9]+)([\.,][0-9]+)? \((19|20)([0-9]{2})\-([01][0-9])(\-[0-3][0-9]){0,1}\)$/',$matches[7],$matches)) {
-						$all_events_data['record_2']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
-						$all_events_data['record_2']['date'] = $matches[3].$matches[4].'-'.$matches[5].(empty($matches[6])? '' : $matches[6]);
-						
-						Config::$summary_msg['CA125']['@@WARNING@@']['Two CA125 values'][] = "CA125 was defined twice [$value_tmp]: unable to define which one is the CA125 at diagnosis! [Line: ".$m->line.']';		
-
-					} else {
-						Config::$summary_msg['CA125']['@@ERROR@@']['CA125 value unsupported'][] = "The CA125 value [$value_tmp] is not supported by the migration process! Record won't be created. Please reformate data! [Line: ".$m->line.']';		
-						return;
-					}
-				} 							
-			} else if(preg_match('/^([0-9]+)([\.,][0-9]+)? \((19|20)([0-9]{2})\-([01][0-9])(\-[0-3][0-9]){0,1} = ([0-9]+)([\.,][0-9]+)?\)$/',$value_tmp,$matches)) {
-				//2858 (2008-08-04 = 36)
-				//448 (2004-05 = 26)
-				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
-				$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
-				
-				$all_events_data['record_2']['detail']['value']=  "'".str_replace(',', '.', $matches[7].(isset($matches[8])?$matches[8] : ''))."'";
-				$all_events_data['record_2']['date'] = $matches[3].$matches[4].'-'.$matches[5].(empty($matches[6])? '' : $matches[6]);
-				
-				Config::$summary_msg['CA125']['@@MESSAGE@@']['Defined CA125 at diagnosis #1'][] = "CA125 was defined twice [$value_tmp]: defined the first one as CA125 at diagnosis! [Line: ".$m->line.']';		
-				
-			} else if(preg_match('/^([0-9]+)([\.,][0-9]+)? \(([0-9]+)([\.,][0-9]+)? le (19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\)$/',$value_tmp,$matches)){
-				//903,5 (141,5 le 2010-04-10)
-				
-				$all_events_data['record_1']['detail']['value'] =  "'".str_replace(',', '.', $matches[1].(empty($matches[2])?'': $matches[2]))."'";
-				$all_events_data['record_1']['detail']['at_diagnostic'] =  "'y'";
-				
-				$all_events_data['record_2']['detail']['value']=  "'".str_replace(',', '.', $matches[3].(empty($matches[4])?'': $matches[4]))."'";
-				$all_events_data['record_2']['date'] = $matches[5].$matches[6].'-'.$matches[7].'-'.$matches[8];
-				
-				Config::$summary_msg['CA125']['@@MESSAGE@@']['Defined CA125 at diagnosis #2'][] = "CA125 was defined twice [$value_tmp]: defined the first one as CA125 at diagnosis! [Line: ".$m->line.']';		
-					
-			} else {
-				Config::$summary_msg['CA125']['@@ERROR@@']['CA125 value unsupported'][] = "The CA125 value [$value_tmp] is not supported by the migration process! Record won't be created. Please reformate data! [Line: ".$m->line.']';		
-				return;
-			}		
-					
-			break;
-			
-			
-		case 'ctscan':
-			
-			$value_tmp = utf8_encode($m->values[$fields[0]]);
-			if($value_tmp == 'ND') {
-				Config::$summary_msg['CTSCan']['@@MESSAGE@@']['CTSCan value = ND'][] = "CTSCan was defined as 'ND'! No event will be created and information won't be recorded! [Line: ".$m->line.']';		
-				return;
-				
-			} else if(in_array($value_tmp, array('Positif','positif'))) { 
-				$all_events_data['record_1']['detail']['result'] =  "'positive'";
-				unset($all_events_data['record_2']);
-				
-			} else if(in_array($value_tmp, array('Négatif','Negatif'))) { 
-				$all_events_data['record_1']['detail']['result'] =  "'negative'";
-				unset($all_events_data['record_2']);
-				
-			} else {
-				Config::$summary_msg['CTSCan']['@@ERROR@@']['CTSCan value unsupported'][] = "The CTSCan value [$value_tmp] is not supported by the migration process! Record won't be created. Please reformate data! [Line: ".$m->line.']';		
-				return;
-			}
-			
-			break;
-			
-		case 'immunohistochemistry':
-			
-			$immuno_note = '';
-			foreach($fields as $field) {
-		 		if(strlen($m->values[$field])) {
-		 			if(!preg_match('/^Immuno \(IHC\)::(.*)$/',$field,$matches)) die('ERR 433de33311111');
-		 			$db_field = $matches[1].'_result';
-		 		
-		 			$db_value = '';
-		 			switch($m->values[$field]) {
-		 				case 'focalement +':
-		 					$all_events_data['record_1']['detail'][$db_field] = "'positive'";
-		 					$immuno_note .= (empty($immuno_note)? '': ' // ').$matches[1].': focalement +.';
-		 					break;
-		 				case '+':
-		 					$all_events_data['record_1']['detail'][$db_field] = "'positive'";
-		 					break;
-		 				case '-':
-		 					$all_events_data['record_1']['detail'][$db_field] = "'negative'";
-		 					break;
-		 				case 'ND':
-		 					$immuno_note .= (empty($immuno_note)? '': ' // ').$matches[1].': ND.';
-		 					break;
-		 				default:
-		 					die('ERR 888388383');		 				
-		 			}				
-		 		}
-			}
-			
-	 		$all_events_data['record_1']['note'] = "$immuno_note";
-	 		unset($all_events_data['record_2']);			
-			
-			if(empty($all_events_data['record_1']['detail'])) { die('Empty immunohistochemistry: probably all ND'); pr($m->values); }
-			break;
-			
-		default:
-			die('38929922');
-	}
-		
-	// RECORD EVENT
-	
-	foreach($all_events_data as $new_record_data) {
-		$master_fields = array(
-			'participant_id' => $participant_id,
-			'event_control_id' =>  $event_control_id,
-			'event_summary' => "'".str_replace("'","''",$new_record_data['note'])."'"
-		);
-		if(!empty($new_record_data['date'])) {
-			$date_tmp = getDateAndAccuracy($new_record_data['date']);
-			$master_fields['event_date'] = "'".$date_tmp['date']."'";
-			$master_fields['event_date_accuracy'] = "'".$date_tmp['accuracy']."'";
-		}	
-		if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
-		$event_master_id = customInsertChusRecord( array_merge($master_fields,$new_record_data['master']), 'event_masters');	
-		customInsertChusRecord(array_merge(array('event_master_id' => $event_master_id), $new_record_data['detail']), $detail_tablename, true);
-	
-	}
-}
-
-function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m, $participant_id, $diagnosis_master_id = null) {
-	if(!array_key_exists(utf8_decode($field), $m->values)) die('ERR 32 32 32 32');
-	$trt_data = $m->values[utf8_decode($field)];
-	
-	if(!isset(Config::$treatment_controls[$treatment_type]['breast'])) die('ERR 88994849');
-	$treatment_control_id = Config::$treatment_controls[$treatment_type]['breast']['treatment_control_id'];
-	$detail_tablename = Config::$treatment_controls[$treatment_type]['breast']['detail_tablename'];
-	
-	$trt_data = utf8_encode($m->values[utf8_decode($field)]);
-	if(empty($trt_data) || ($trt_data == 'non')) {
-		return;
-	} else if($trt_data == 'ND') {
-		Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['treatment value = ND'][] = "Treatment was defined as 'ND'! No treatment will be created and information won't be recorded! [Line: ".$m->line.']';		
-		return;
-	}	
-	
-	$start_date = null;
-	$finish_date = null;
-	$notes = '';
-	
-	if($trt_data != 'oui') {
-		if(!preg_match('/(19|20)([0-9]{2})/',$trt_data,$matches)) {
-			$notes = $trt_data;
-		
-		} else if(preg_match('/^(19|20)([0-9]{2})$/',$trt_data,$matches)) {
-			//2001
-			$start_date = $matches[1].$matches[2];
-			//$notes = $trt_data;
-		
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\)$/',$trt_data,$matches)) {
-			//oui (2005-01)
-			$start_date = $matches[1].$matches[2].'-'.$matches[3];
-			if($matches[1].$matches[2] < $matches[1].$matches[3]) Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Confirm date defintion'][] = "From '$trt_data', the migration process defined start date = '$start_date' and no finsih_date (and not start_date = '".$matches[1].$matches[2]."' and finsih_date = '".$matches[1].$matches[3]."'! Please confirm! [Line: ".$m->line.']';		
-			
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([9][0-9])\)$/',$trt_data,$matches)) {
-			//oui (1991-96)
-			$start_date = $matches[1].$matches[2];
-			$finish_date = $matches[1].$matches[3];
-			
-		} else if(preg_match('/^ {0,1}oui {0,1}\((19|20)([0-9]{2})\-([01][0-9]) au (19|20)([0-9]{2})\-([01][0-9]) {0,1}\) {0,1}(.*)$/',$trt_data,$matches)) {
-			//oui (2004-11 au 2005-01) 3x carbotaxol
-			//oui (2001-11 au 2005-11)
-			//  oui (2001-01 au 2002-11)
-			$start_date = $matches[1].$matches[2].'-'.$matches[3];
-			$finish_date = $matches[4].$matches[5].'-'.$matches[6];
-			if(isset($matches[7])) $notes = $matches[7];
-			
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})(\-| a | à )(19|20)([0-9]{2})\) {0,1}(.*)$/',$trt_data,$matches)) {
-			//oui (2003-2004)
-			//oui (2002-2003) 3cycles
-			//oui (2003 a 2006) Carbotaxol
-			//oui (2003 à 2009)
-			$start_date = $matches[1].$matches[2];
-			$finish_date = $matches[4].$matches[5];
-			if(isset($matches[6])) $notes = $matches[6];
-			
-		} else if(preg_match('/^ {0,1}oui {0,1}\((19|20)([0-9]{2})\) {0,1}(.*)$/',$trt_data,$matches)) {
-			//oui (2003)
-			//oui(2007)
-			//oui (2002) 3x carbotaxol
-			// oui (2001)
-			$start_date = $matches[1].$matches[2];	
-			if(isset($matches[3])) $notes = $matches[3];	
-			
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\)$/',$trt_data,$matches)) {
-			//oui (2007-05-09)
-			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
-			
-		} else if(preg_match('/^oui {0,1}\((19|20)([0-9]{2})\-([01][0-9]) au ([01][0-9])\) {0,1}(.*)$/',$trt_data,$matches)) {
-			//oui (2009-10 au 12)
-			//oui (2002-08 au 09) 2x carbotaxol
-			$start_date = $matches[1].$matches[2].'-'.$matches[3];
-			$finish_date = $matches[1].$matches[2].'-'.$matches[4];
-			if(isset($matches[5])) $notes = $matches[5];	
-			
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9]) au (19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\){0,1}$/',$trt_data,$matches)) {
-			//oui (2004-03-11 au 2007-10-11)
-			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
-			$finish_date = $matches[5].$matches[6].'-'.$matches[7].'-'.$matches[8];
-			
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9]) au (19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])\) {0,1}(.*)$/',$trt_data,$matches)) {
-			//oui (2010-05-21 au 2010-06-10) 4cycles carbotaxol
-			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
-			$finish_date = $matches[5].$matches[6].'-'.$matches[7].'-'.$matches[8];
-			if(isset($matches[9])) $notes = $matches[9];	
-			
-		} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9]) au (19|20)([0-9]{2})\-([01][0-9])\) {0,1}(.*)$/',$trt_data,$matches)) {
-			//oui (2003-06-16 au 2003-08) 3 cycles carbotaxol
-			$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
-			$finish_date = $matches[5].$matches[6].'-'.$matches[7];
-			if(isset($matches[8])) $notes = $matches[8];	
-			
-		} else if(preg_match('/^[^0-9]*(19[0-9]{2}|20[0-9]{2})[^0-9]*$/',$trt_data,$matches)) { 
-			$start_date = $matches[1];
-			$tmp = str_replace(array($start_date, 'oui', ' '), array('','',''), $trt_data);
-			if(!empty($tmp)) $notes = $trt_data;
-				
-		} else {				
-			$notes = "Unable to extract date from '$trt_data'!";
-			Config::$summary_msg[strtoupper($treatment_type)]['@@WARNING@@']['Unable to extract start date from notes'][] = "Unable to extract date from '$trt_data'! [Line: ".$m->line.']';		
-		}
-	}
- 
-		$example_for_control = array(
-			'oui 1987',
-			'Jul-2007',
-			'oui(2009-09 au 12)',
-			'oui (2010-05-21 au 2010-06-10) 4cycles carbotaxol',
-			'oui (Hodgkin 2008)',
-		
-			'oui(2003-07 au 2008-06)',
-			'oui (2003-08-28 au 2007-04-29',
-			'oui (2003-06-16 au 2003-08) 3 cycles carbotaxol',
-			'oui (1991-96)',
-			'2001',
-			'oui (2003-05 au 2003-08 ) 3x carbotaxol',
-			'oui (2004-03-11 au 2007-10-11)',
-			' oui (2001)',
-			'oui (2002-08 au 09) 2x carbotaxol',
-			'oui (carbotaxol 4 cycles)',
-			'oui (2007-05-09)',
-			'oui (2005-01)',
-			'oui (2004-11 au 2005-01) 3x carbotaxol',
-			'oui (2001-11 au 2005-11)',
-			' oui (2001-01 au 2002-11)',
-			'oui (2009-10 au 12)',
-			'oui (2003-2004)',
-			'oui (2002-2003) 3cycles',
-			'oui (2003 a 2006) Carbotaxol',
-			'oui (2003 à 2009)',
-			'oui (2003)',
-			'oui(2007)',
-			'oui (2002) 3x carbotaxol'
-		);
-		if(in_array($trt_data, $example_for_control)) Config::$summary_msg['TREATMENT']['@@MESSAGE@@']['Date management to confirm'][$trt_data] = "[$trt_data] ====> from <b>$start_date</b> to <b>$finish_date</b> // note : <b>$notes</b> [Line: ".$m->line.']';		
-	
-	// Record Trt
-	$notes = str_replace('oui','', $notes);
-	$notes_tmp = str_replace(' ','', $notes);
-	if(!strlen($notes_tmp)) $notes = '';
-	
-	$master_fields = array(
-		'participant_id' => $participant_id,
-		'treatment_control_id' =>  $treatment_control_id,
-		'notes' => "'".str_replace("'","''",$notes)."'"
-	);
-	if(!empty($start_date)) {
-		$date_tmp = getDateAndAccuracy($start_date);
-		$start_date = $date_tmp['date'];
-		$master_fields['start_date'] = "'".$date_tmp['date']."'";
-		$master_fields['start_date_accuracy'] = "'".$date_tmp['accuracy']."'";
-	}
-	if(!empty($finish_date)) {		
-		$date_tmp = getDateAndAccuracy($finish_date);
-		$finish_date = $date_tmp['date'];		
-		$master_fields['finish_date'] = "'".$date_tmp['date']."'";
-		$master_fields['finish_date_accuracy'] = "'".$date_tmp['accuracy']."'";
-	}
-	if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
-	
-	$treatment_master_id = customInsertChusRecord($master_fields, 'treatment_masters');
-	
-	$detail_fields = array(
-		'treatment_master_id' => $treatment_master_id,
-		'pre_post_surgery' => "'".$pre_post_surgery."'"
-	);			
-	customInsertChusRecord($detail_fields, $detail_tablename, true);
-	
-	if(!empty($start_date) && !empty($finish_date) && (str_replace('-','',$start_date) > str_replace('-','',$finish_date))) {
-		Config::$summary_msg[strtoupper($treatment_type)]['@@ERROR@@']['Date error'][$trt_data] = "Dates definition error (from $start_date to $finish_date)! [Line: ".$m->line.']';		
-	}
-
+//	addEvent(array('CA125 au Dx'), 'lab', 'breast', 'CA125', $m, $participant_id, $diagnosis_master_id);
+//	addEvent(array('CTScan (+ ou -)'), 'clinical', 'all', 'ctscan', $m, $participant_id, $diagnosis_master_id);
+//	addEvent(array('Immuno (IHC)::ER','Immuno (IHC)::PR','Immuno (IHC)::P53','Immuno (IHC)::CA125'), 'lab', 'breast', 'immunohistochemistry', $m, $participant_id, $diagnosis_master_id);
 }
 
 function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
-	$record_surgery = false;
+	$surgery_data = array('master' => array(), 'detail' => array());
+	$notes = '';
 	
-	$start_date = null;
-	$start_date_comment = '';
-	if(preg_match('/^[0-9]{5}$/',$m->values['Date Chirurgie AAAA-MM-JJ'],$matches)) {
-		$start_date = customGetFormatedDate($m->values['Date Chirurgie AAAA-MM-JJ'], false);
-		$record_surgery = true;
-	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])( {0,1})(.*)/',$m->values['Date Chirurgie AAAA-MM-JJ'],$matches)) {
-		$start_date = $matches[1].$matches[2].'-'.$matches[3].'-'.$matches[4];
-		$start_date_comment = $matches[6];
-		Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Date + Comment'][] = "Surgery date [".$m->values['Date Chirurgie AAAA-MM-JJ']."] has been recorded as surgery date = '$start_date' and note = '$start_date_comment'! [Line: ".$m->line.']';	
-		$record_surgery = true;
-	} else {
-		if(!empty($m->values['Date Chirurgie AAAA-MM-JJ'])) {
-			$start_date_comment = $m->values['Date Chirurgie AAAA-MM-JJ'];
-			if($m->values['Date Chirurgie AAAA-MM-JJ'] != 'ND') Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Uncertain date'][] = "Surgery date [".$m->values['Date Chirurgie AAAA-MM-JJ']."] can not be recorded as date! Will be added to note! [Line: ".$m->line.']';
-		}
-		$start_date = null;
-		$record_surgery = true;
-	}
-	$notes = empty($start_date_comment)? '': 'Date Chirurgie note: '.$start_date_comment;
-	
-	$type_HAT_HVAL_HVT = "''";
-	$field = 'CHIRURGIE::HAT/HVAL/HVT';
-	if(!empty($m->values[$field])) {
-		if($m->values[$field] == 'x') {
-			$type_HAT_HVAL_HVT = "'y'";
+	$m->values['Date chirurgie'] = str_replace(array('Inconnue','ND'), array('',''), $m->values['Date chirurgie']);
+	if(!empty($m->values['Date chirurgie'])) {
+		if(preg_match('/^([0-9]{5})$/',$m->values['Date chirurgie'],$matches)) {
+			$surgery_data['master']['start_date'] =  customGetFormatedDate($m->values['Date chirurgie'], 'Diagnostique', $m->line);
+			$surgery_data['master']['start_date_accuracy'] = "c";
 		} else {
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
+			Config::$summary_msg['SURGERY']['@@WARNING@@']['Date format'][] = "Surgery date [".$m->values['Date chirurgie']."] can not be recorded as date! Will be added to note! [Line: ".$m->line.']';
+			$notes = 'Date : ' . $m->values['Date chirurgie'];
 		}
-		$record_surgery = true;
-	}
-	$type_SOG = "''";
-	$field = 'CHIRURGIE::SOG';
-	if(!empty($m->values[$field])) {
-		if($m->values[$field] == 'x') {
-			$type_SOG= "'y'";
-		} else {
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		}
-		$record_surgery = true;
-	}
-	$type_SOD = "''";
-	$field = 'CHIRURGIE::SOD';
-	if(!empty($m->values[$field])) {
-		if($m->values[$field] == 'x') {
-			$type_SOD= "'y'";
-		} else {
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		}
-		$record_surgery = true;
-	}
-	$type_SOB = "''";
-	$field = 'CHIRURGIE::SOB';
-	if(!empty($m->values[$field])) {
-		if($m->values[$field] == 'x') {
-			$type_SOB= "'y'";
-		} else {
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		}
-		$record_surgery = true;
-	}
-	$type_omentectomy = "''";
-	$field = utf8_decode('CHIRURGIE::Épiploectomie');
-	if(!empty($m->values[$field])) {
-		if($m->values[$field] == 'x') {
-			$type_omentectomy= "'y'";
-		} else {
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field 'CHIRURGIE::Épiploectomie' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		}
-		$record_surgery = true;
-	}
-	$type_ganglions = "''";
-	$field = 'CHIRURGIE::Ganglions';
-	if(!empty($m->values[$field])) {
-		if($m->values[$field] == 'x') {
-			$type_ganglions= "'y'";
-		} else {
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Surgery detail'][] = "Field '$field' value [".$m->values[$field]."] not supported: added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		}
-		$record_surgery = true;
 	}
 	
-	$cytoreduction = '';
-	if(!empty($m->values['Cytoreduction'])) {
-		$cytoreduction = str_replace(array(' ','Aucune','aucune','microscopique','Microscopique'),array('','none','none','microscpic','microscpic'),$m->values['Cytoreduction']);
-		if(!in_array($cytoreduction, Config::$cytoreduction_values)) {
-			$cytoreduction = '';
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Cytoreduction'][] = "Unsupported Cytoreduction value [".$m->values['Cytoreduction']."] : added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').'Cytoreduction note: '.$m->values['Cytoreduction'];
-		}
-		$record_surgery = true;
-	}
-	
-	$patho_report_number = $m->values['#Rapport Pathologie'];
-	if(strlen($patho_report_number) > 50) Config::$summary_msg['SURGERY']['@@WARNING@@']['Rapport Pathologie'][] = "Rapport Pathologie value [".$m->values['#Rapport Pathologie']."] is too long! Only the first 5 charcters will be imported! [Line: ".$m->line.']';
-	if(strlen($patho_report_number)) $record_surgery = true;
-	
-	$ovg_size_cm = null;
-	$field = 'Taille (cm) OV G';
-	if(preg_match('/^([0-9]+[\.,]{0,1}[0-9]*)$/',$m->values[$field],$matches)) {
-		$ovg_size_cm = "'".str_replace(',','.',$m->values[$field])."'";
-		$record_surgery = true;
-	} else if(!empty($m->values[$field])) {
-		if($m->values[$field] != 'ND') Config::$summary_msg['SURGERY']['@@MESSAGE@@'][$field][] = "Unsupported value [".$m->values[$field]."] : added to note! [Line: ".$m->line.']';
-		$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		$record_surgery = true;
+	$m->values['#Rapport Pathologie'] = str_replace(array('Inconnue','ND'), array('',''), $m->values['#Rapport Pathologie']);
+	if(!empty($m->values['#Rapport Pathologie'])) {
+		$surgery_data['detail']['patho_report_number'] = $m->values['#Rapport Pathologie'];
 	}	
 	
-	$ovd_size_cm = null;
-	$field = 'Taille (cm) OV D';
-	if(preg_match('/^([0-9]+[\.,]{0,1}[0-9]*)$/',$m->values[$field],$matches)) {
-		$ovd_size_cm = "'".str_replace(',','.',$m->values[$field])."'";
-		$record_surgery = true;
-	} else if(!empty($m->values[$field])) {
-		if($m->values[$field] != 'ND') Config::$summary_msg['SURGERY']['@@MESSAGE@@'][$field][] = "Unsupported value [".$m->values[$field]."] : added to note! [Line: ".$m->line.']';
-		$notes .= (empty($notes)? '' : ' // ').$field.' note: '.$m->values[$field];
-		$record_surgery = true;
-	}		
-	
-	// RECORD SURGERY
-	
-	if($record_surgery) {
-		$master_fields = array(
-			'participant_id' => $participant_id,
-			'treatment_control_id' =>  Config::$treatment_controls['surgery']['breast']['treatment_control_id'],
-			'notes' => "'".utf8_encode(str_replace("'","''",$notes))."'"
-		);
-		if(!empty($start_date)) {
-			$master_fields['start_date'] = "'".$start_date."'";
-			$master_fields['start_date_accuracy'] = "'c'";
+	$m->values['TAILLE (mm)'] = str_replace(array('ND'), array(''), $m->values['TAILLE (mm)']);
+	if(!empty($m->values['TAILLE (mm)'])) {
+		if(preg_match('/^([0-9]{1,8}|[0-9]{1,7}\.[0-9])$/',$m->values['TAILLE (mm)'],$matches)) {
+			$surgery_data['detail']['size_mm'] =  $m->values['TAILLE (mm)'];
+		} else {
+			Config::$summary_msg['SURGERY']['@@WARNING@@']['Taille format'][] = "Surgery size [".$m->values['TAILLE (mm)']."] can not be recorded as size! Will be added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' || ').'Taille (mm) : ' . $m->values['TAILLE (mm)'];
 		}
-		if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
+	}	
+	
+	$other_fields = array('breast_reduction' => 'CHIRURGIE::Réduct. Mammaire',
+		'prophylaxis' => 'CHIRURGIE::Prophylaxie',
+		'partial_mastectomy' => 'CHIRURGIE::Mastect. Partielle',
+		'total_mastectomy' => 'CHIRURGIE::Mastect. Totale',
+		'partial_mastectomy_revision' => 'CHIRURGIE::Mastect. Partielle RÉVISION',  
+		'axillary_dissection' => 'CHIRURGIE::Évidemment axillaire',
+		'biopsy' => 'CHIRURGIE::Biopsie'
+	);
+	foreach($other_fields as $db_field => $file_field) {
+		$file_field = utf8_decode($file_field);
+		if(!empty($m->values[$file_field])) {
+			if($m->values[$file_field] == 'x') {
+				$surgery_data['detail'][$db_field] = 'y';
+			} else {
+				Config::$summary_msg['SURGERY']['@@ERROR@@']['Surgery precision'][] = "Surgery '$file_field' value [".$m->values[$file_field]."] is different than 'x'! Data won't be recorded! [Line: ".$m->line.']';	
+			}
+		}
+	}
+	
+	if(!empty($notes)) $surgery_data['master']['notes'] = $notes;
+	
+	if(!empty($surgery_data['master']) || !empty($surgery_data['detail'])) {
+		$surgery_data['detail']['laterality'] = $m->values['laterality'];
 		
-		$treatment_master_id = customInsertChusRecord($master_fields, 'treatment_masters');
+		foreach($surgery_data['master'] as $key => $value) $surgery_data['master'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		foreach($surgery_data['detail'] as $key => $value) $surgery_data['detail'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
 		
-		$detail_fields = array(
-			'treatment_master_id' => $treatment_master_id,
+		$surgery_data['master']['participant_id'] = $participant_id;
+		$surgery_data['master']['treatment_control_id'] = Config::$treatment_controls['surgery']['breast']['treatment_control_id'];
+
+		if($diagnosis_master_id) $surgery_data['master']['diagnosis_master_id'] = $diagnosis_master_id;
 		
-			'cytoreduction' => "'".$cytoreduction."'",
-			'patho_report_number' => "'".utf8_encode($patho_report_number)."'",
-		
-			'type_HAT_HVAL_HVT' => $type_HAT_HVAL_HVT,
-			'type_SOG' => $type_SOG,	
-			'type_SOD' => $type_SOD,
-			'type_SOB' => $type_SOB,
-			'type_omentectomy' => $type_omentectomy,
-			'type_ganglions' => $type_ganglions
-		);	
-		if(!empty($ovg_size_cm)) $detail_fields['ovg_size_cm'] = $ovg_size_cm;
-		if(!empty($ovd_size_cm)) $detail_fields['ovd_size_cm'] = $ovd_size_cm;
-		
-		customInsertChusRecord($detail_fields, Config::$treatment_controls['surgery']['breast']['detail_tablename'], true);
+		$treatment_master_id = customInsertChusRecord($surgery_data['master'], 'treatment_masters');
+		$surgery_data['detail']['treatment_master_id'] = $treatment_master_id;
+		customInsertChusRecord($surgery_data['detail'], Config::$treatment_controls['surgery']['breast']['detail_tablename'], true);		
 	}
 }	
+
+function addImmuno(Model $m, $participant_id, $diagnosis_master_id = null) {
+	$event_data = array('master' => array(), 'detail' => array());
+	$notes = '';
+	
+	$fields_set = array('ER_result' => 'IHC::ER',
+		'PR_result' => 'IHC::PR',
+		'Her2_Neu_result' => 'IHC::Her2/Neu',
+		'EGFR_result' => 'IHC::EGFR'
+	);
+	foreach($fields_set as $db_field => $file_field) {
+		$file_field = utf8_decode($file_field);
+		$value = preg_replace('/^ND$/','',$m->values[$file_field]);
+		if(!empty($value)) {
+			switch($value) {
+				case '+':
+					$event_data['detail'][$db_field] = 'positive';
+					break;
+				case '-':
+					$event_data['detail'][$db_field] = 'negative';
+					break;
+				default:
+				Config::$summary_msg['IMMUNO']['@@WARNING@@']['Immuno data'][] = "Immuno '$file_field' value [$value] is different than '-' or '+'! Data will be added to note!! [Line: ".$m->line.']';	
+				$notes .= (empty($notes)? '' : ' || ').$file_field.' : ' . $value;
+			}
+		}
+	}
+	
+	if(!empty($notes)) $event_data['master']['event_summary'] = $notes;
+	
+	if(!empty($event_data['master']) || !empty($event_data['detail'])) {
+		foreach($event_data['master'] as $key => $value) $event_data['master'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		foreach($event_data['detail'] as $key => $value) $event_data['detail'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		
+		$event_data['master']['participant_id'] = $participant_id;
+		$event_data['master']['event_control_id'] = Config::$event_controls['lab']['breast']['immunohistochemistry']['event_control_id'];
+
+		if($diagnosis_master_id) $event_data['master']['diagnosis_master_id'] = $diagnosis_master_id;
+		
+		$event_master_id = customInsertChusRecord($event_data['master'], 'event_masters');
+		$event_data['detail']['event_master_id'] = $event_master_id;
+		customInsertChusRecord($event_data['detail'], Config::$event_controls['lab']['breast']['immunohistochemistry']['detail_tablename'], true);		
+	}
+}
+
+function addCa153(Model $m, $participant_id, $diagnosis_master_id = null) {
+	$event_data = array('master' => array(), 'detail' => array());
+	$notes = '';
+	
+	$value = preg_replace('/^ND$/','',$m->values['CA15,3 au Dx']);
+	if(!empty($value)) {	
+		if(preg_match('/^([0-9]{1,8}|[0-9]{1,7}\.[0-9])$/',$value,$matches)) {
+			$event_data['detail']['value'] =  $value;
+		
+		} else if(preg_match('/^([0-9]{1,8}|[0-9]{1,7}\,[0-9]) {0,1}\((20|19)([0-9]{2})\)$/',$value,$matches)) {
+			$event_data['detail']['value'] =  str_replace(',','.',$matches[1]);
+			$event_data['master']['event_date'] = $matches[2].$matches[3].'-01-01';
+			$event_data['master']['event_date_accuracy'] = 'm';
+			
+		} else if(preg_match('/^([0-9]{1,8}|[0-9]{1,7}\,[0-9]) {0,1}\((20|19)([0-9]{2}-[01][0-9])\)$/',$value,$matches)) {
+			$event_data['detail']['value'] =  str_replace(',','.',$matches[1]);
+			$event_data['master']['event_date'] = $matches[2].$matches[3].'-01';
+			$event_data['master']['event_date_accuracy'] = 'd';		
+
+		} else if(preg_match('/^\(post op ([0-9]{1,8}|[0-9]{1,7}\,[0-9]) : (20|19)([0-9]{2}-[01][0-9])\)$/',$value,$matches)) {
+			$event_data['detail']['value'] =  str_replace(',','.',$matches[1]);
+			$event_data['master']['event_date'] = $matches[2].$matches[3].'-01';
+			$event_data['master']['event_date_accuracy'] = 'd';						
+			$event_data['master']['event_summary'] = 'Post op.';
+			
+		} else if(preg_match('/^\(post op (20|19)([0-9]{2}-[01][0-9]) : ([0-9]{1,8}|[0-9]{1,7}\,[0-9])\)$/',$value,$matches)) {
+			$event_data['detail']['value'] =  str_replace(',','.',$matches[3]);
+			$event_data['master']['event_date'] = $matches[1].$matches[2].'-01';
+			$event_data['master']['event_date_accuracy'] = 'd';						
+			$event_data['master']['event_summary'] = 'Post op.';
+						
+		} else if(preg_match('/^\(post op (20|19)([0-9]{2}) : ([0-9]{1,8}|[0-9]{1,7}\,[0-9])\)$/',$value,$matches)) {
+			$event_data['detail']['value'] =  str_replace(',','.',$matches[3]);
+			$event_data['master']['event_date'] = $matches[1].$matches[2].'-01-01';
+			$event_data['master']['event_date_accuracy'] = 'm';						
+			$event_data['master']['event_summary'] = 'Post op.';				
+		
+		} else if($value == '15,4 (post-op, 2006)') {	
+			$event_data['detail']['value'] = '15.4';
+			$event_data['master']['event_date'] = '2006-01-01';
+			$event_data['master']['event_date_accuracy'] = 'm';						
+			$event_data['master']['event_summary'] = 'Post op.';	
+						
+		} else {	
+			Config::$summary_msg['CA15,3']['@@WARNING@@']['Ca15,3 format'][] = "Ca15,3 = '$value' can not be recorded as is! Will be added to note! [Line: ".$m->line.']';
+			$event_data['master']['event_summary'] = preg_replace('/^\((.*)\)$/','$1',$value);
+		}
+	}
+
+	if(!empty($event_data['master']) || !empty($event_data['detail'])) {
+		foreach($event_data['master'] as $key => $value) $event_data['master'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		foreach($event_data['detail'] as $key => $value) $event_data['detail'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		
+		$event_data['master']['participant_id'] = $participant_id;
+		$event_data['master']['event_control_id'] = Config::$event_controls['lab']['breast']['CA15.3']['event_control_id'];
+
+		if($diagnosis_master_id) $event_data['master']['diagnosis_master_id'] = $diagnosis_master_id;
+		
+		$event_master_id = customInsertChusRecord($event_data['master'], 'event_masters');
+		$event_data['detail']['event_master_id'] = $event_master_id;
+		customInsertChusRecord($event_data['detail'], Config::$event_controls['lab']['breast']['CA15.3']['detail_tablename'], true);		
+	}
+}
+
+function addHormono(Model $m, $participant_id, $diagnosis_master_id = null) {
+	todo valider
+	$trt_data = array('master' => array(), 'detail' => array());
+	
+	$value = preg_replace(array('/^ND$/', '/^a venir$/' , '/^non$/'), array('','',''),$m->values[utf8_decode('Hormonothérapie Post op  (oui/non)')]);
+	if(!empty($value)) {
+		$value = preg_replace(array('/^oui$/', '/^oui {0,1}\((.*)\)$/'), array('','$1'), $value);
+		$trt_data['mster']['notes'] = $value;
+		$trt_data['detail']['pre_post_surgery'] = 'post';
+	}
+
+	if(!empty($trt_data['master']) || !empty($trt_data['detail'])) {
+		$trt_data['detail']['laterality'] = $m->values['laterality'];
+		
+		foreach($trt_data['master'] as $key => $value) $trt_data['master'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		foreach($trt_data['detail'] as $key => $value) $trt_data['detail'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		
+		$trt_data['master']['participant_id'] = $participant_id;
+		$trt_data['master']['treatment_control_id'] = Config::$treatment_controls['hormonotherapy']['breast']['treatment_control_id'];
+
+		if($diagnosis_master_id) $trt_data['master']['diagnosis_master_id'] = $diagnosis_master_id;
+		
+		$treatment_master_id = customInsertChusRecord($trt_data['master'], 'treatment_masters');
+		$trt_data['detail']['treatment_master_id'] = $treatment_master_id;
+		customInsertChusRecord($trt_data['detail'], Config::$treatment_controls['hormonotherapy']['breast']['detail_tablename'], true);		
+	}
+}
+
+//TODO radiation

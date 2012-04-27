@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES ET BIOLOGIQUES-SEIN_2012.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-04-18.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -51,6 +51,7 @@ class Config{
 	static $treatment_controls = array();
 	static $event_controls = array();
 	static $storage_controls = array();
+	static  $participant_id_linked_to_br_dx_in_step2 = array();
 	
 //	static $cytoreduction_values = array();
 	
@@ -62,15 +63,6 @@ class Config{
 	static $summary_msg = array();	
 	
 }
-
-//add you start queries here
-//Config::$addon_queries_start[] = "..."
-
-//add your end queries here
-//Config::$addon_queries_end[] = "..."
-
-//add some value domains names that you want to use in post read/write functions
-//Config::$value_domains['health_status']= new ValueDomain("health_status", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
 Config::$parent_models[] = "BreastDiagnosisMaster";
@@ -95,8 +87,7 @@ function addonFunctionStart(){
 	</FONT><br>";		
 	
 	echo "ALL Consent will be defined as obtained!<br>";
-	
-	echo "<FONT COLOR=\"red\" >WARNING: CHECK consent date format 2036: excel cells should be formated...</FONT>";
+	echo "<FONT COLOR=\"red\" >WARNING: Be sure Dates columns have been formatted.</FONT>";
 	
 	// ** Data check ** 
 	
@@ -183,17 +174,32 @@ function addonFunctionStart(){
 	FROM misc_identifier_controls AS ctrl 
 	INNER JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = ctrl.id
 	INNER JOIN participants AS part ON part.id = ident.participant_id
-	WHERE ctrl.misc_identifier_name LIKE '%FRSQ BR' AND ident.deleted != 1";
+	WHERE ctrl.misc_identifier_name IN ('#FRSQ BR','#FRSQ OV') AND ident.deleted != 1 
+	ORDER BY ctrl.misc_identifier_name";
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ($query) ".__LINE__);
-	while($row = $results->fetch_assoc()){			
-		if(!preg_match('/^BR([0-9]+)$/', $row['identifier_value'], $matches)) {
-			echo "<FONT COLOR=\"red\" >WARNING: FRSQ BR identifier format to confirm: ".$row['identifier_value']."</FONT>";
-		}
-		Config::$participant_id_from_br_nbr[$row['identifier_value']] = $row['participant_id'];
-		
-		if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_br_file' => false);
-		Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
-		Config::$data_for_import_from_participant_id[$row['participant_id']]['date_of_birth_from_step2'] = $row['date_of_birth'];	
+	while($row = $results->fetch_assoc()){	
+		switch($row['misc_identifier_name']) {
+			case '#FRSQ BR':
+				if(!preg_match('/^BR([0-9]+)$/', $row['identifier_value'], $matches)) {
+					echo "<FONT COLOR=\"red\" >WARNING: FRSQ BR identifier format to confirm: ".$row['identifier_value']."</FONT>";
+				}
+				Config::$participant_id_from_br_nbr[$row['identifier_value']] = $row['participant_id'];
+				
+				if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_br_file' => false);
+				Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
+				Config::$data_for_import_from_participant_id[$row['participant_id']]['date_of_birth_from_step2'] = $row['date_of_birth'];	
+				break;
+				
+			case '#FRSQ OV';
+				if(isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) {
+					Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
+				}
+				break;
+				
+			default:
+				die('ERR 999e00e9e');
+		}		
+
 	}
 	
 	// ** Set storage controls **
@@ -203,6 +209,13 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
+	
+	// ** existing breast cancer **
+	
+	$query = "select dm.participant_id from diagnosis_controls AS dc INNER JOIN diagnosis_masters AS dm ON dm.diagnosis_control_id = dc.id where dc.flag_active = '1' AND dc.controls_type = 'breast';";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()) Config::$participant_id_linked_to_br_dx_in_step2[] = $row['participant_id'];
+
 }
 
 //=========================================================================================================
@@ -211,21 +224,34 @@ function addonFunctionStart(){
 	
 function addonFunctionEnd(){
 	global $connection;
-
-
 	
 	// DIAGNOSIS UPDATE
 	
-//	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE parent_id IS NULL;";
-//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
-//	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//	
+	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE parent_id IS NULL;";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
 //	$query = "UPDATE diagnosis_masters parent, diagnosis_masters child SET child.primary_id = parent.primary_id WHERE child.primary_id IS NULL AND child.parent_id IS NOT NULL AND child.parent_id = parent.id;";
 //	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 //	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
 //	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-//
+	
+	$query = "UPDATE chus_dxd_breasts SET intraductal_perc_of_infiltrating = null WHERE intraductal_perc_of_infiltrating = '-9999';";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = str_replace('chus_dxd_breasts','chus_dxd_breasts_revs',$query);
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE chus_dxd_breasts SET ganglion_total = null WHERE ganglion_total = '-9999';";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = str_replace('chus_dxd_breasts','chus_dxd_breasts_revs',$query);
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
+	$query = "UPDATE chus_dxd_breasts SET ganglion_invaded = null WHERE ganglion_invaded = '-9999';";
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = str_replace('chus_dxd_breasts','chus_dxd_breasts_revs',$query);
+	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	
 //	// ADD PATIENT OTHER DATA
 //	
 //	addPatientsHistory();
@@ -297,8 +323,9 @@ function addonFunctionEnd(){
 		}
 	}
 	
-	pr('TODO: addonFunctionEnd');
-	exit;
+//TODO	
+//pr('TODO: addonFunctionEnd');exit;
+
 }
 
 function addPatientsHistory() {
@@ -968,17 +995,33 @@ function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false
 	return $record_id;	
 }
 
-function customGetFormatedDate($date_strg) {
+function customGetFormatedDate($date_strg, $worksheet, $line) {
 	$date = null;
+	
 	if(!empty($date_strg)) {
-		//format excel date integer representation
-		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
-		$xls_offset = 36526;//2000-01-01
-		$date = date("Y-m-d", $php_offset + (($date_strg - $xls_offset) * 86400));
+		if(preg_match('/^([0-9]+)$/', $date_strg, $matches)) {
+			//format excel date integer representation
+			$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
+			$xls_offset = 36526;//2000-01-01
+			$date = date("Y-m-d", $php_offset + (($date_strg - $xls_offset) * 86400));
+			
+		} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date_strg, $matches)) {
+			$date = $date_strg;
 		
-		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches)) die('ERR Wrong date format: '.$date);
+		} else if(preg_match('/^(19|20)([0-9]{2})\-([1-9])\-([0-3][0-9])$/', $date_strg, $matches)) {
+			$date = $matches[1].$matches[2].'-0'.$matches[3].'-'.$matches[4];
+			
+		} else {
+			Config::$summary_msg[$worksheet]['@@ERROR@@']['Wrong excel date value format'][] = "The format of a date ($date_strg) into the excel file is wrong (line $line)! Date will be flushed!";
+			$date = null;
+		}
+		
+		if((!is_null($date)) && (!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $date, $matches))) {
+			Config::$summary_msg[$worksheet]['@@ERROR@@']['Wrong generated date format'][] = "The format of a date generated from file value is wrong (line $line): '$date_strg' => '$date'! Date will be flushed!";
+			$date = null;
+		}
 	}
-
+	
 	return $date;
 }
 
