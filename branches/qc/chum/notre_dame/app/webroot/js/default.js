@@ -855,6 +855,13 @@ function initActions(){
 		if(window.wizardTreeData){
 			drawTree($.parseJSON(window.wizardTreeData));
 		}
+		
+		//QC_ND start-----
+		if(window.qcNdSardo){
+			window.qcNdSardo();
+		}
+		//QC_ND end-------
+		
 		if($(".ajax_search_results").length == 1){
 			$(".ajax_search_results").parent().hide();
 			$("input.submit").prop("onclick", "").unbind('unclick').click(function(){
