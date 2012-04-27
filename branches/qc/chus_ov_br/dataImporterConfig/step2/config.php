@@ -100,9 +100,8 @@ function addonFunctionStart(){
 	</FONT><br>";		
 	
 	echo "ALL Consent will be defined as obtained!<br>";
-	
-	echo "<FONT COLOR=\"red\" >WARNING: CHECK consent date format 2036: excel cells should be formated...</FONT>";
-	
+	echo "<FONT COLOR=\"red\" >WARNING: Be sure Dates columns have been formatted.</FONT>";
+		
 	// ** Data check ** 
 	
 	$query = "SELECT COUNT(*) FROM participants;";
