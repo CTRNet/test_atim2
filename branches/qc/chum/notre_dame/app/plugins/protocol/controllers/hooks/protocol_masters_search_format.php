@@ -16,7 +16,7 @@ if(isset($this->passedArgs['mixedNoDef'])){
 	
 	$sub_query = 'ProtocolMaster.id NOT IN('.$sub_query.') ';
 	$sub_query_expression = $ds->expression($sub_query);
-	$this->data = $protocol_model->find('all', array($sub_query_expression));
+	$this->data = $protocol_model->find('all', array('conditions' => array($sub_query_expression)));
 	$this->set('mixedNoDef', true);
 	
 	$search_id = "foo";
