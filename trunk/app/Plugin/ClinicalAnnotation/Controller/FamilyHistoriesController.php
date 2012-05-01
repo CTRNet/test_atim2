@@ -119,7 +119,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			if($submitted_data_validates) {
 				
 				// 4- SAVE
-				
+				$this->FamilyHistory->addWritableField('participant_id');
 				if ( $this->FamilyHistory->save($this->request->data) ) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
