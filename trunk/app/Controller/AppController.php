@@ -75,7 +75,7 @@ class AppController extends Controller {
 		}
 	
 		$hook_file = APP . ($this->request->params['plugin'] ? 'Plugin' . DS . $this->request->params['plugin'] . DS : '') . 'Controller' . DS . 'hooks' . DS . $this->request->params['controller'].'_'.$this->request->params['action'].$hook_extension.'.php';
-		echo $hook_file;
+		
 		if(!file_exists($hook_file)){
 			$hook_file=false;
 		}
