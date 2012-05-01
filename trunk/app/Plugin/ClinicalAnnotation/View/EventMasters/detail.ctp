@@ -15,8 +15,6 @@
 	
 	$structure_settings = array(
 		'actions'=> $is_ajax, 
-		
-		'header' => __('data'),
 		'form_bottom'=> !$is_ajax 
 	);
 		

@@ -8,7 +8,6 @@
 	
 	$structure_settings = array(
 		'actions'		=> false, 
-		'header'		=> __('data'),
 		'form_bottom'	=> false
 	);
 	
