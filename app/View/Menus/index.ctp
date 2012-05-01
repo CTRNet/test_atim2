@@ -65,6 +65,11 @@
 		}
 	}
 	
+	$hook_link = $this->Structures->hook();
+	if($hook_link){
+		require($hook_link);
+	}
+	
 	if(isset($set_of_menus)){
 		echo $this->Structures->generateContentWrapper($atim_content, array('links'=>array('bottom'=>array('back to main menu'=>'/Menus'))));
 	}else{

@@ -70,11 +70,15 @@ class AppController extends Controller {
 	}
 	
 	function hook( $hook_extension='' ) {
-		if ( $hook_extension ) $hook_extension = '_'.$hook_extension;
+		if ($hook_extension){
+			$hook_extension = '_'.$hook_extension;
+		}
 	
-		$hook_file = APP . 'Plugin' . DS . $this->request->params['plugin'] . DS . 'Controller' . DS . 'hooks' . DS . $this->request->params['controller'].'_'.$this->request->params['action'].$hook_extension.'.php';
-		
-		if ( !file_exists($hook_file) ) $hook_file=false;
+		$hook_file = APP . ($this->request->params['plugin'] ? 'Plugin' . DS . $this->request->params['plugin'] . DS : '') . 'Controller' . DS . 'hooks' . DS . $this->request->params['controller'].'_'.$this->request->params['action'].$hook_extension.'.php';
+		echo $hook_file;
+		if(!file_exists($hook_file)){
+			$hook_file=false;
+		}
 	
 		return $hook_file;
 	}

@@ -64,6 +64,11 @@ class MenusController extends AppController {
 			$current_item['Menu']['allowed'] = AppController::checkLinkPermission($current_item['Menu']['use_link']);
 		}
 		
+		$hook_link = $this->hook();
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		$this->set( 'menu_data', $menu_data );
 		$this->set('set_of_menus', $set_of_menus);
 	}
