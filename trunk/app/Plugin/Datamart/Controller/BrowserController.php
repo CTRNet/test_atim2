@@ -593,6 +593,7 @@ class BrowserController extends DatamartAppController {
 				$return_id = $tmp['BrowsingResult']['id'];
 			}else{
 				$this->BrowsingResult->id = null;
+				$this->BrowsingResult->check_writable_fields = false;
 				if(!$this->BrowsingResult->save($save)){
 					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
