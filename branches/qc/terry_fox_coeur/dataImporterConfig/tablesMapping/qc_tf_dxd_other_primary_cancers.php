@@ -3,7 +3,6 @@ $pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"participant_id" => $pkey,
-	"primary_number" => "#primary_number",
 	"diagnosis_control_id" => "@15",
 	"dx_date" => "Date of Diagnosis Date",
 	"dx_date_accuracy" => array("Date of Diagnosis Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
@@ -28,6 +27,7 @@ $model->custom_data = array("date_fields" => array(
 ); 
 $model->post_read_function = 'otherDxPostRead';
 $model->insert_condition_function = 'mainDxCondition';
+$model->post_write_function = 'mainDxPostWrite';
 
 $model->custom_data['last_csv_key'] = null;
 $model->custom_data['last_other_dx_values'] = null;
@@ -61,7 +61,7 @@ function otherProgressionSiteInsertNow(Model $m){
 	}
 	
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	$m->values['primary_number'] = $m->parent_model->values['primary_number'];
+	$m->values['parent_id'] = $m->parent_model->last_id;
 		
 	return true;
 }
