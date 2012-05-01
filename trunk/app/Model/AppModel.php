@@ -575,7 +575,16 @@ class AppModel extends Model {
 			$use_form_alias = $associated[$control_class][$form_alias];
 			$use_table_name = $associated[$control_class][$detail_field];
 			if($use_form_alias){
-				$detail_class_instance = new AppModel(array('table' => $use_table_name, 'name' => $detail_class, 'alias' => $detail_class));
+				$plugin_name = $this->getPluginName();
+				$detail_class_instance = AppModel::getInstance($plugin_name, 'EventDetail');
+				if($detail_class_instance->useTable == false){
+					$detail_class_instance->useTable = $use_table_name;
+				}else if($detail_class_instance->useTable != $use_table_name){
+					ClassRegistry::removeObject($detail_class_instance->alias);
+					$detail_class_instance = AppModel::getInstance($plugin_name, 'EventDetail');
+					$detail_class_instance->useTable = $use_table_name;
+				}
+				assert($detail_class_instance->useTable == $use_table_name);
 				if(isset(AppController::getInstance()->{$detail_class}) && (!isset($params['validate']) || $params['validate'])){
 					//attach auto validation
 					$auto_validation_name = $detail_class.$associated[$control_class]['id'];
@@ -1149,5 +1158,14 @@ class AppModel extends Model {
 				unset($in[$key]);
 			}
 		}
+	}
+	
+	function getPluginName(){
+		$class = new ReflectionClass($this);
+		$matches = array();
+		if(preg_match('#'.AppController::getInstance()->request->webroot.'app/Plugin/([\w\d]+)/#', $class->getFileName(), $matches)){
+			return $matches[1];
+		}
+		return null;
 	}
 }
