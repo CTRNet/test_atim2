@@ -23,4 +23,9 @@ class DatamartStructure extends DatamartAppModel {
 		
 		return $result;		
 	}
+	
+	function getModel($id){
+		$d = $this->findById($id);
+		return AppModel::getInstance($d['DatamartStructure']['plugin'], $d['DatamartStructure']['model']);
+	}
 }
