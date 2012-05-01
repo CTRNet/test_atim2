@@ -5,6 +5,9 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("counter", "Counter", "Compteur"),
+("special parameters", "Special parameters", "Paramètres particuliers"),
+("counters", "Counters", "Compteurs"),
 ("invalid disease code", "Invalid disease code.", "Code de maladie invalide."),
 ("participant contacts", "Participant contacts", "Contacts des participants"),
 ("reproductive histories", "Reproductive histories", "Gynécologie"),

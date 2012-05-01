@@ -464,6 +464,7 @@ class Browser extends DatamartAppModel {
 	static function getPrintableTree($current_node, array $merged_ids, $webroot_url){
 		$result = "";
 		$BrowsingResult = new BrowsingResult();
+		$browsing_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
 		$tmp_node = $current_node;
 		$prev_node = NULL;
 		do{
@@ -507,7 +508,8 @@ class Browser extends DatamartAppModel {
 						if($cell['BrowsingResult']['raw']){
 							$search = $cell['BrowsingResult']['serialized_search_params'] ? unserialize($cell['BrowsingResult']['serialized_search_params']) : array();
 							$adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array();
-							if((isset($search['search_conditions']) && count($search['search_conditions'])) || $adv_search){
+							
+							if((isset($search['search_conditions']) && count($search['search_conditions'])) || $adv_search || isset($search['counters'])){
 								$structure = null;
 								if($cell_model->getControlName() && $cell['BrowsingResult']['browsing_structures_sub_id'] > 0){
 									//alternate structure required
@@ -523,7 +525,16 @@ class Browser extends DatamartAppModel {
 								}else{
 									$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
 								}
-								if(count($search['search_conditions']) || $adv_search){//count might be zero if the only condition was the sub type
+								
+								$addon_params = array();
+								if(isset($search['counters'])){
+									foreach($search['counters'] as $counter){
+										$browsing_structure = $browsing_structure_model->findById($counter['browsing_structures_id']);
+										$addon_params[] = array('field' => __('counter').': '.__($browsing_structure['DatamartStructure']['display_name']), 'condition' => $counter['condition']);
+									}
+								}
+								
+								if(count($search['search_conditions']) || $adv_search || $addon_params){//count might be zero if the only condition was the sub type
 									$adv_structure = array();
 									if($cell['DatamartStructure']['adv_search_structure_alias']){
 										$adv_structure = StructuresComponent::$singleton->get('form', $cell['DatamartStructure']['adv_search_structure_alias']);
@@ -533,7 +544,8 @@ class Browser extends DatamartAppModel {
 										'adv_search'	=> $adv_search, 
 										'structure'		=> $structure, 
 										'adv_structure'	=> $adv_structure,
-										'model'			=> $cell_model
+										'model'			=> $cell_model,
+										'addon_params'	=> $addon_params
 									));
 								}
 							}
@@ -694,6 +706,10 @@ class Browser extends DatamartAppModel {
 				$result .= stripslashes(implode(", ", $values));
 			}
 			$result .= "</td>\n";
+		}
+		
+		foreach($params['addon_params'] as $addon_param){
+			$result .= "<tr><th>".$addon_param['field']."</th><td>".$addon_param['condition']."</td>\n";
 		}
 		
 		$result .= "<tr><th>".__("exact search")."</th><td>".($params['search']['exact_search'] ? __("yes") : __('no'))."</td>\n";
@@ -1376,15 +1392,67 @@ class Browser extends DatamartAppModel {
 				$browsing_filter = $browsing_filter[$advanced_data[$model_to_search->name]['browsing_filter']];
 			}
 		}
+		
+		$data = AppController::getInstance()->request->data;
+		
+		$having = array();
+		if(isset($data[0])){
+			//counters conditions
+			//starting from the end, clear empty conditions. Stop at first found condition.
+			$counters_conditions = array_reverse($data[0]);
+			foreach($counters_conditions as $name => $val){
+				if($val){
+					break;
+				}else{
+					unset($counters_conditions[$name]);
+				}
+			}
+			
+			if($counters_conditions){
+				//valid conditions
+				$browsing_control_model = AppModel::getInstance('InventoryManagement', 'BrowsingControl');
+				$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
+				$last_model_id = $browsing['DatamartStructure']['id'];
+				$counters_conditions = array_reverse($counters_conditions);
+				foreach($counters_conditions as $name => $val){
+					$matches = array();
+					assert(preg_match('#^counter\_([\d]+)\_(start|end)$#', $name, $matches));
+					$browsing_result = $browsing_result_model->findById($matches[1]);
+					$found = false;//whether a model is already in the joins array
+					foreach($joins as $join){
+						if($join['alias'] == $browsing_result['DatamartStructure']['model']){
+							$found = true;
+							break;
+						}
+					}
+					if(!$found){
+						//join on it
+						$joins[] = $browsing_control_model->getInnerJoinArray($last_model_id, $browsing_result['BrowsingResult']['browsing_structures_id'], explode(',',$browsing_result['BrowsingResult']['id_csv']));
+					}
+					$model = $datamart_structure_model->getModel($browsing_result['BrowsingResult']['browsing_structures_id']);
+					if($val){
+						$org_search_conditions['counters'][] = array('browsing_structures_id' => $browsing_result['BrowsingResult']['browsing_structures_id'], 'condition' => ($matches[2] == 'start' ? '>=' : '<=').' '.$val);
+						$having[] = 'COUNT(DISTINCT('.$model->name.'.'.$model->primaryKey.')) '.($matches[2] == 'start' ? '>=' : '<=').' '.$val;
+					}
+					$last_model_id = $browsing_result['BrowsingResult']['browsing_structures_id'];
+				}
+			}
+		}
+		
 		foreach($joins as $join){
 			unset($model_to_search->belongsTo[$join['alias']]);
 		}
+		$group = array($model_to_search->name.'.'.$model_to_search->primaryKey);
+		if($having){
+			$group[0] .= ' HAVING '.implode(' AND ', $having);
+		}
 		$save_ids = $model_to_search->find('all', array(
-				'conditions'	=> $search_conditions,
-				'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
-				'recursive'		=> 0,
-				'joins'			=> $joins,
-				'order'			=> array($model_to_search->name.'.'.$model_to_search->primaryKey)
+			'conditions'	=> $search_conditions,
+			'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
+			'recursive'		=> 0,
+			'joins'			=> $joins,
+			'order'			=> array($model_to_search->name.'.'.$model_to_search->primaryKey),
+			'group'			=> $group
 		));
 		
 		if($browsing_filter && $save_ids){
@@ -1462,7 +1530,7 @@ class Browser extends DatamartAppModel {
 		
 		$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
 		$browsing_type = null;
-		if((!$org_search_conditions['search_conditions'] || (count($org_search_conditions['search_conditions']) == 1 && $params['sub_struct_ctrl_id']) && !$org_search_conditions['adv_search_conditions'])){
+		if(!$org_search_conditions['search_conditions'] || (count($org_search_conditions['search_conditions']) == 1 && $params['sub_struct_ctrl_id']) && !$org_search_conditions['adv_search_conditions'] && !isset($org_search_conditions['counters'])){
 			$browsing_type = 'direct access';
 		}else{
 			$browsing_type = 'search';

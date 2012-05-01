@@ -11,7 +11,7 @@
 	if(isset($node_id)){
 		$extras['end'] = $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
 	}
-	if(isset($advanced_structure)){
+	if(isset($advanced_structure) || isset($counters_structure_fields)){
 		$settings['form_bottom'] = false;
 		$settings['actions'] = false;
 	}
@@ -24,17 +24,31 @@
 		'extras' => isset($advanced_structure) ? '' : $extras
 	));
 	
+	unset($settings['header']);
+	
 	if(isset($advanced_structure)){
-		$settings['form_bottom'] = true;
-		$settings['actions'] = true;
-		unset($settings['header']);
+		$settings['form_bottom'] = !isset($counters_structure_fields);
+		$settings['actions'] = !isset($counters_structure_fields);
 		$settings['language_heading'] = __('special parameters');
 		
 		$this->Structures->build($advanced_structure, array(
-				'type' => 'search',
-				'links' => $links,
-				'data' => array(),
-				'settings' => $settings,
-				'extras' => $extras
+			'type' => 'search',
+			'links' => $links,
+			'data' => array(),
+			'settings' => $settings,
+			'extras' => $extras
+		));
+	}
+	
+	if(isset($counters_structure_fields)){
+		$settings['language_heading'] = __('counters');
+		$settings['form_bottom'] = true;
+		$settings['actions'] = true;
+		$this->Structures->build($counters_structure_fields, array(
+			'type' => 'search',
+			'links' => $links,
+			'data' => array(),
+			'settings' => $settings,
+			'extras' => $extras
 		));
 	}
