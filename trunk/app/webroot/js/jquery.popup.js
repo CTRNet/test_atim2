@@ -26,6 +26,9 @@ jQuery.fn.popup = function(options){
 				+ "</div>");
 		fmPopup.popupOuter = $("body div.popup_outer:last");
 		fmPopup.popupOuter.data("FmPopup.prototype.id", FmPopup.prototype.id ++);
+		if(options != undefined && options.background != undefined){
+			fmPopup.popupOuter.css("background", options.background);
+		}
 		$(fmPopup.popupOuter).click(function(){
 			if(fmPopup.closePop && fmPopup.closable){
 				console.log('closing');
