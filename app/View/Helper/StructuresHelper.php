@@ -800,6 +800,7 @@ class StructuresHelper extends Helper {
 				unset($table_row_part['settings']['options']);
 				$display = $this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => 1, 'checked' => $current_value ? true : false)));
 			}else if($table_row_part['type'] == "yes_no" || $table_row_part['type'] == "y_n_u"){
+				unset($table_row_part['settings']['options']);
 				$display =
 					$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'hidden', 'value' => "")))
 					.__('yes', true).$this->Form->input($field_name, array_merge($table_row_part['settings'], array('type' => 'checkbox', 'value' => "y", 'hiddenField' => false, 'checked' => $current_value == "y" ? true : false)))
