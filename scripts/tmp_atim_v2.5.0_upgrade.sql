@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("invalid disease code", "Invalid disease code.", "Code de maladie invalide."),
 ("participant contacts", "Participant contacts", "Contacts des participants"),
 ("reproductive histories", "Reproductive histories", "Gynécologie"),
 ("apply saved browsing steps", "Apply saved browsing steps", "Appliquer les étapes de naviguation sauvegardées"),
@@ -875,8 +876,6 @@ ALTER TABLE pd_chemos DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE pd_chemos_revs DROP COLUMN id;
 ALTER TABLE pd_surgeries DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE pd_surgeries_revs DROP COLUMN id;
-ALTER TABLE pe_chemos DROP COLUMN id, DROP COLUMN deleted;
-ALTER TABLE pe_chemos_revs DROP COLUMN id;
 ALTER TABLE sd_der_amp_rnas DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE sd_der_amp_rnas_revs DROP COLUMN id;
 ALTER TABLE sd_der_ascite_cells DROP COLUMN id, DROP COLUMN deleted;
@@ -955,10 +954,6 @@ ALTER TABLE sopd_general_alls DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE sopd_general_alls_revs DROP COLUMN id;
 ALTER TABLE sopd_inventory_alls DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE sopd_inventory_alls_revs DROP COLUMN id;
-ALTER TABLE sope_general_all DROP COLUMN id, DROP COLUMN deleted;
-ALTER TABLE sope_general_all_revs DROP COLUMN id;
-ALTER TABLE sope_inventory_all DROP COLUMN id, DROP COLUMN deleted;
-ALTER TABLE sope_inventory_all_revs DROP COLUMN id;
 ALTER TABLE specimen_details DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE specimen_details_revs DROP COLUMN id;
 ALTER TABLE spr_breast_cancer_types DROP COLUMN id, DROP COLUMN deleted;
@@ -989,12 +984,6 @@ ALTER TABLE txd_radiations DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE txd_radiations_revs DROP COLUMN id;
 ALTER TABLE txd_surgeries DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE txd_surgeries_revs DROP COLUMN id;
-ALTER TABLE txe_chemos DROP COLUMN id, DROP COLUMN deleted;
-ALTER TABLE txe_chemos_revs DROP COLUMN id;
-ALTER TABLE txe_radiations DROP COLUMN id, DROP COLUMN deleted;
-ALTER TABLE txe_radiations_revs DROP COLUMN id;
-ALTER TABLE txe_surgeries DROP COLUMN id, DROP COLUMN deleted;
-ALTER TABLE txe_surgeries_revs DROP COLUMN id;
 
 ALTER TABLE datamart_batch_sets
  MODIFY COLUMN user_id INT NOT NULL,
@@ -1850,5 +1839,6 @@ INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, fl
 ((SELECT id FROM datamart_structures WHERE model='ViewSample'), 'print barcodes', 'InventoryManagement/AliquotMasters/printBarcodes/model:SampleMaster/', 1),
 ((SELECT id FROM datamart_structures WHERE model='ViewAliquot'), 'print barcodes', 'InventoryManagement/AliquotMasters/printBarcodes/model:AliquotMaster/', 1);
 
-
+INSERT INTO structure_validations (structure_field_id, rule, on_action, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_comorbidities' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'validateIcd10WhoCode', '', 'invalid disease code');
 

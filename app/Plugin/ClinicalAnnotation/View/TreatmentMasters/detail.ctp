@@ -13,8 +13,6 @@
 	
 	$structure_settings = array(
 		'actions'=> $is_ajax, 
-		
-		'header' => __('treatment', null),
 		'form_bottom'=> !$is_ajax 
 	);
 	
@@ -42,7 +40,7 @@
 		}
 		
 		$structure_links['index'] = array(
-				'detail' => '/ClinicalAnnotation/TreatmentExtends/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%/'
+			'detail' => '/ClinicalAnnotation/TreatmentExtends/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%/'
 		);
 		
 		$final_options = array('data' => $tx_extend_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
@@ -53,7 +51,7 @@
 			require($hook_link);
 		}
 		
-		$this->Structures->build( $final_atim_structure,  $final_options);
+		$this->Structures->build( $final_atim_structure, $final_options);
 	}
 	
 	if(!$is_ajax){

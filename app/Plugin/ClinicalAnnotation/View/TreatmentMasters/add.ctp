@@ -7,7 +7,7 @@
 	// 1- TRT
 	$structure_settings = array(
 		'actions'		=> false, 
-		'header' 		=> __('data', null) . ' : ' . $tx_header,
+		'header' 		=> $tx_header,
 		'form_bottom'	=> false
 	);
 	
