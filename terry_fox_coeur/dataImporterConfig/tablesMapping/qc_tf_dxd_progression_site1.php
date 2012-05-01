@@ -3,7 +3,8 @@
 $pkey = "Patient Biobank Number (required)";
 $fields = array(
 	"participant_id" => '#participant_id',
-	"primary_number" => "#primary_number",
+	"primary_id" => "#primary_id",
+	"parent_id" => "#parent_id",
 	"diagnosis_control_id" => "@16",
 	"dx_date" => "Date of Progression/Recurrence Date",
 	"dx_date_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),

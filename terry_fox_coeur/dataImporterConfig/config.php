@@ -26,8 +26,8 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/OHRI data for 2010 samples.xls';
-	static $xls_header_rows = 1;
+ 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/TFRI-COEUR-CBCF#3 -v3.0.xls';
+	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
 	static $insert_revs		= true;//wheter to insert generated queries data in revs as well
@@ -74,6 +74,7 @@ Config::$addon_queries_start[] = "DROP TABLE IF EXISTS start_time";
 Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start_time)";
 
 //add your end queries here
+Config::$addon_queries_end[] = "UPDATE diagnosis_masters SET primary_id=id WHERE parent_id IS NULL";
 //Config::$addon_queries_end[] = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
 //	(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
 //	FROM id_linking AS p 

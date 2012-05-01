@@ -3,16 +3,14 @@ $pkey = "Patient Biobank Number (required)";
 
 $fields = array(
 	"participant_id" => $pkey,
-	"tx_control_id" => array("Event Type" => array("surgery" => 16, "chemotherapy" => 17, "radiotherapy" => 18, "hormonal therapy" => 19)),
-	"tx_method " => array("Event Type" => array("radiotherapy" => 'radiotherapy', "surgery" => 'surgery', "chemotherapy" => 'chemotherapy', "hormonal therapy" => "hormonal therapy")),
-	"disease_site" => "@other",
+	"treatment_control_id" => array("Event Type" => array("surgery" => 16, "chemotherapy" => 17, "radiotherapy" => 18, "hormonal therapy" => 19)),
 	"start_date" => "Date of event (beginning) Date",
 	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"finish_date" => "Date of event (end) Date",
 	"finish_date_accuracy" => array("Date of event (end) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
 );
 
-$model = new Model(4, $pkey, array(), false, "participant_id", $pkey, 'tx_masters', $fields);
+$model = new Model(4, $pkey, array(), false, "participant_id", $pkey, 'treatment_masters', $fields);
 $model->custom_data = array("date_fields" => array(
 	$fields["start_date"]				=> 'Date of event (beginning) Accuracy',
 	$fields["finish_date"]				=> 'Date of event (end) Accuracy'
@@ -21,7 +19,7 @@ $model->post_read_function = 'txPostRead';
 $model->post_write_function = 'txPostWrite';
 
 $model->file_event_types = Config::$opc_file_event_types;
-$model->event_types_to_import = array_keys($fields['tx_control_id']['Event Type']);
+$model->event_types_to_import = array_keys($fields['treatment_control_id']['Event Type']);
 
 Config::addModel($model, 'qc_tf_tx_other');
 
@@ -65,13 +63,13 @@ function txPostWrite(Model $m){
 		case 'surgery':
 		case 'surgery(other)':
 		case 'surgery(ovarectomy)':
-			$query = "INSERT INTO txd_surgeries (tx_master_id, deleted) VALUES "
+			$query = "INSERT INTO txd_surgeries (treatment_master_id, deleted) VALUES "
 				."(".$m->last_id.", 0)";
 			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_surgeries_revs (id, tx_master_id,  version_created)  "
-					."SELECT id, tx_master_id,NOW() FROM txd_surgeries WHERE id='".mysqli_insert_id($connection)."'";
+				$query = "INSERT INTO txd_surgeries_revs (id, treatment_master_id,  version_created)  "
+					."SELECT id, treatment_master_id,NOW() FROM txd_surgeries WHERE id='".mysqli_insert_id($connection)."'";
 				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
@@ -80,26 +78,26 @@ function txPostWrite(Model $m){
 		case 'radiology':
 		case 'radiotherapy':
 		case 'hormonal therapy':
-			$query = "INSERT INTO qc_tf_tx_empty (tx_master_id, deleted) VALUES "
+			$query = "INSERT INTO qc_tf_tx_empty (treatment_master_id, deleted) VALUES "
 				."(".$m->last_id.", 0)";
 			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO qc_tf_tx_empty_revs (id, tx_master_id, version_created)  "
-					."SELECT id, tx_master_id,  NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
+				$query = "INSERT INTO qc_tf_tx_empty_revs (id, treatment_master_id, version_created)  "
+					."SELECT id, treatment_master_id,  NOW() FROM qc_tf_tx_empty WHERE id='".mysqli_insert_id($connection)."'";
 				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				
 			}
 			break;
 			
 		case 'chemotherapy':
-			$query = "INSERT INTO txd_chemos (tx_master_id, deleted) VALUES "
+			$query = "INSERT INTO txd_chemos (treatment_master_id, deleted) VALUES "
 				."(".$m->last_id.", 0)";
 			mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			
 			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_chemos_revs (id, tx_master_id,  version_created)  "
-				."SELECT id, tx_master_id,  NOW() FROM txd_chemos WHERE id='".mysqli_insert_id($connection)."'";
+				$query = "INSERT INTO txd_chemos_revs (id, treatment_master_id,  version_created)  "
+				."SELECT id, treatment_master_id,  NOW() FROM txd_chemos WHERE id='".mysqli_insert_id($connection)."'";
 				mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			}
 			
@@ -111,13 +109,13 @@ function txPostWrite(Model $m){
 						echo '<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line ['.$m->line."]\n";
 					}
 					
-					$query = "INSERT INTO txe_chemos(tx_master_id, drug_id, deleted) VALUES "
+					$query = "INSERT INTO txe_chemos(treatment_master_id, drug_id, deleted) VALUES "
 						."(".$m->last_id.", (SELECT id FROM drugs WHERE generic_name='".$current_drug."'), 0)";
 					mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 					
 					if(Config::$insert_revs){
-						$query = "INSERT INTO txe_chemos_revs(id, tx_master_id, drug_id,  version_created)  "
-						."SELECT id, tx_master_id, drug_id,  NOW() FROM txe_chemos WHERE id='".mysqli_insert_id($connection)."'";
+						$query = "INSERT INTO txe_chemos_revs(id, treatment_master_id, drug_id,  version_created)  "
+						."SELECT id, treatment_master_id, drug_id,  NOW() FROM txe_chemos WHERE id='".mysqli_insert_id($connection)."'";
 						mysqli_query($connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 					}
 				}

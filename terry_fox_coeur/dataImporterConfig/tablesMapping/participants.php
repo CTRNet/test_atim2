@@ -55,8 +55,6 @@ function postParticipantRead(Model $m){
 
 function postParticipantWrite(Model $m){
 	global $connection;
-	global $primary_number;
-	$primary_number = 1;
 	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id;
 	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	if(!isset($m->values['misc_identifier_control_id'])){

@@ -3,7 +3,6 @@ $pkey = "Patient Biobank Number (required)";
 $fields = array(
 	"participant_id" => $pkey,
 	"diagnosis_control_id" => "@14",
-	"primary_number" => "#primary_number",
 	"dx_date" => "Date of EOC Diagnosis Date",
 	"dx_date_accuracy" => array("Date of EOC Diagnosis Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	"age_at_dx" => "Age at Time of Diagnosis (yr)",
@@ -48,6 +47,7 @@ $model->custom_data['last_dx_values'] = null;
 
 $model->post_read_function = 'dxdEocsPostRead';
 $model->insert_condition_function = 'mainDxCondition';
+$model->post_write_function = 'mainDxPostWrite';
 
 Config::$models['qc_tf_dxd_eocs'] = $model;
 
@@ -81,7 +81,8 @@ function dxdEocsPostRead(Model $m){
 
 function progressionSiteInsertNow(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	$m->values['primary_number'] = $m->parent_model->values['primary_number'];
+	$m->values['parent_id'] = $m->parent_model->last_id;
+	$m->values['primary_id'] = $m->parent_model->values['primary_id'];
 
 	return isSameEocDxData($m->values, $m->parent_model->values, $m);
 }
@@ -121,4 +122,8 @@ function isSameEocDxData($m_current, $m_reference, $m) {
 	if($diff_nbr == 1) echo "WARNING: 2 EOC dx for same patient are defined as different because only values for field $diff_field are different [",$m->file,"] at line [", $m->line,"]\n";
 	
 	return ($diff_nbr == 0)? true : false;
+}
+
+function mainDxPostWrite(Model $m){
+	$m->values['primary_id'] = $m->last_id;
 }

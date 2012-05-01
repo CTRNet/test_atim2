@@ -40,9 +40,7 @@ function postCollectionWrite(Model $m){
 		
 		$insert = array(
 			"sample_code" 					=> "'tmp_tissue'", 
-			"sample_category"				=> "'specimen'", 
 			"sample_control_id"				=> Config::$sample_aliquot_controls['tissue']['sample_control_id'], 
-			"sample_type"					=> "'tissue'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'tissue'", 
 			"collection_id"					=> "'".$m->last_id."'", 
@@ -54,7 +52,7 @@ function postCollectionWrite(Model $m){
 		$sample_master_id = mysqli_insert_id($connection);
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('T - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('sample_masters', $sample_master_id);
+		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$lat_domain = Config::$value_domains['tissue_laterality'];
 		$lat_value = $lat_domain->isValidValue($m->values['Tissue Precision Tissue Laterality']);
@@ -84,13 +82,13 @@ function postCollectionWrite(Model $m){
 		//$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sd_spe_tissues (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('sd_spe_tissues', $sample_master_id);
+		Database::insertRev('sd_spe_tissues', $sample_master_id);
 		
 		$insert = array("sample_master_id" => $sample_master_id);
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('specimen_details', $sample_master_id);
+		Database::insertRev('specimen_details', $sample_master_id);
 		
 		//	*** TISSUE : flash frozen tube ***
 	
@@ -102,12 +100,10 @@ function postCollectionWrite(Model $m){
 			
 			$tubes_nbr = 1;
 			$master_insert = array(
-				"aliquot_type"			=> "'tube'",
 				"aliquot_control_id"	=> Config::$sample_aliquot_controls['tissue']['aliquots']['tube']['aliquot_control_id'],
 				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $sample_master_id,
-				"in_stock"				=> "'yes - available'",
-				"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['tissue']['aliquots']['tube']['volume_unit']."'"
+				"in_stock"				=> "'yes - available'"
 			);	
 
 			$detail_insert = array(
@@ -145,13 +141,13 @@ function postCollectionWrite(Model $m){
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$aliquot_master_id = mysqli_insert_id($connection);
-				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$detail_insert["aliquot_master_id"] = $aliquot_master_id;
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
 				$insert = array_merge($insert, $created);
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+				Database::insertRev('ad_tubes', $aliquot_master_id);
 		
 				$tubes_nbr--;
 			}
@@ -164,18 +160,16 @@ function postCollectionWrite(Model $m){
 			if($volume == "NULL") echo "WARNING: Wrong numeric value for volume [",$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)'],"] at line [".$m->line."]\n";
 			
 			$insert = array(
-				"aliquot_type"			=> "'tube'",
 				"aliquot_control_id"	=> Config::$sample_aliquot_controls['tissue']['aliquots']['tube']['aliquot_control_id'],
 				"collection_id"			=> $m->last_id,
 				"sample_master_id"		=> $sample_master_id,
-				"in_stock"				=> "'yes - available'",
-				"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['tissue']['aliquots']['tube']['volume_unit']."'"
+				"in_stock"				=> "'yes - available'"
 			);
 			$insert = array_merge($insert, $created);
 			$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			$aliquot_master_id = mysqli_insert_id($connection);
-			inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+			Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 			$insert = array(
 				"aliquot_master_id"	=> $aliquot_master_id,
@@ -185,7 +179,7 @@ function postCollectionWrite(Model $m){
 			$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 			$insert = array_merge($insert, $created);
 			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+			Database::insertRev('ad_tubes', $aliquot_master_id);
 		}
 		
 		//	*** TISSUE : Paraffin block ***
@@ -194,7 +188,6 @@ function postCollectionWrite(Model $m){
 			if(is_numeric($m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"])){
 				for($i = $m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"]; $i > 0; -- $i){
 					$insert = array(
-						"aliquot_type"			=> "'block'",
 						"aliquot_control_id"	=> Config::$sample_aliquot_controls['tissue']['aliquots']['block']['aliquot_control_id'],
 						"collection_id"			=> $m->last_id,
 						"sample_master_id"		=> $sample_master_id,
@@ -204,7 +197,7 @@ function postCollectionWrite(Model $m){
 					$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 					mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 					$aliquot_master_id = mysqli_insert_id($connection);
-					inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+					Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 					$insert = array(
 						"aliquot_master_id"	=> $aliquot_master_id,
@@ -213,7 +206,7 @@ function postCollectionWrite(Model $m){
 					$query = "INSERT INTO ad_blocks (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 					$insert = array_merge($insert, $created);
 					mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-					inventoryRevsTableCompletion('ad_blocks', $aliquot_master_id);
+					Database::insertRev('ad_blocks', $aliquot_master_id);
 				}
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"],"] at line [".$m->line."]\n";
@@ -229,9 +222,7 @@ function postCollectionWrite(Model $m){
 		
 		$insert = array(
 			"sample_code" 					=> "'tmp_ascite'", 
-			"sample_category"				=> "'specimen'", 
 			"sample_control_id"				=> Config::$sample_aliquot_controls['ascite']['sample_control_id'], 
-			"sample_type"					=> "'ascite'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'ascite'", 
 			"collection_id"					=> "'".$m->last_id."'", 
@@ -243,46 +234,44 @@ function postCollectionWrite(Model $m){
 		$sample_master_id = mysqli_insert_id($connection);
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('A - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('sample_masters', $sample_master_id);
+		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id
 		);
 		$query = "INSERT INTO sd_spe_ascites (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('sd_spe_ascites', $sample_master_id);
+		Database::insertRev('sd_spe_ascites', $sample_master_id);
 		
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('specimen_details', $sample_master_id);
+		Database::insertRev('specimen_details', $sample_master_id);
 		
 		//	*** ASCITE : tube ***
 		
 		if(strlen($m->values['Ascite Precision Ascites Fluids Volume (ml)']) > 0){		
 			if(is_numeric($m->values['Ascite Precision Ascites Fluids Volume (ml)'])){
 				$insert = array(
-					"aliquot_type"			=> "'tube'",
 					"aliquot_control_id"	=> Config::$sample_aliquot_controls['ascite']['aliquots']['tube']['aliquot_control_id'],
 					"collection_id"			=> $m->last_id,
 					"sample_master_id"		=> $sample_master_id,
 					"in_stock"				=> "'yes - available'",
 					"initial_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
-					"current_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'",
-					"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['ascite']['aliquots']['tube']['volume_unit']."'"
+					"current_volume"		=> "'".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."'"
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$aliquot_master_id = mysqli_insert_id($connection);
-				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				Database::insertRev('aliquot_masters', $aliquot_master_id);
 				
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+				Database::insertRev('ad_tubes', $aliquot_master_id);
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Ascite Precision Ascites Fluids Volume (ml)'],"] at line [".$m->line."]\n";
 			}
@@ -297,9 +286,7 @@ function postCollectionWrite(Model $m){
 		
 		$insert = array(
 			"sample_code" 					=> "'tmp_blood'", 
-			"sample_category"				=> "'specimen'", 
 			"sample_control_id"				=> Config::$sample_aliquot_controls['blood']['sample_control_id'], 
-			"sample_type"					=> "'blood'", 
 			"initial_specimen_sample_id"	=> "NULL", 
 			"initial_specimen_sample_type"	=> "'blood'", 
 			"collection_id"					=> "'".$m->last_id."'", 
@@ -311,19 +298,19 @@ function postCollectionWrite(Model $m){
 		$sample_master_id = mysqli_insert_id($connection);
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('B - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('sample_masters', $sample_master_id);
+		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id
 		);
 		$query = "INSERT INTO sd_spe_bloods (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('sd_spe_bloods', $sample_master_id);
+		Database::insertRev('sd_spe_bloods', $sample_master_id);
 		
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		inventoryRevsTableCompletion('specimen_details', $sample_master_id);
+		Database::insertRev('specimen_details', $sample_master_id);
 
 		//	*** SERUM : tube ***
 	
@@ -331,9 +318,7 @@ function postCollectionWrite(Model $m){
 			if(is_numeric($m->values['Blood Precision Frozen Serum Volume (ml)'])){
 				$insert = array(
 					"sample_code" 					=> "'tmp_serum'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['serum']['sample_control_id'], 
-					"sample_type"					=> "'serum'", 
 					"initial_specimen_sample_id"	=> $sample_master_id, 
 					"initial_specimen_sample_type"	=> "'blood'", 
 					"collection_id"					=> "'".$m->last_id."'", 
@@ -346,42 +331,40 @@ function postCollectionWrite(Model $m){
 				$serum_sample_master_id = mysqli_insert_id($connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('SER - ', id) WHERE id=".$serum_sample_master_id;
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sample_masters', $serum_sample_master_id);
+				Database::insertRev('sample_masters', $serum_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $serum_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_serums (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sd_der_serums', $serum_sample_master_id);
+				Database::insertRev('sd_der_serums', $serum_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('derivative_details', $serum_sample_master_id);
+				Database::insertRev('derivative_details', $serum_sample_master_id);
 				
 				$insert = array(
-					"aliquot_type"			=> "'tube'",
 					"aliquot_control_id"	=> Config::$sample_aliquot_controls['serum']['aliquots']['tube']['aliquot_control_id'],
 					"collection_id"			=> $m->last_id,
 					"sample_master_id"		=> $serum_sample_master_id,
 					"in_stock"				=> "'yes - available'",
 					"initial_volume"		=> "'".$m->values['Blood Precision Frozen Serum Volume (ml)']."'",
-					"current_volume"		=> "'".$m->values['Blood Precision Frozen Serum Volume (ml)']."'",
-					"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['serum']['aliquots']['tube']['volume_unit']."'"
+					"current_volume"		=> "'".$m->values['Blood Precision Frozen Serum Volume (ml)']."'"
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$aliquot_master_id = mysqli_insert_id($connection);
-				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+				Database::insertRev('ad_tubes', $aliquot_master_id);
 			}  else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Frozen Serum Volume (ml)'],"] at line [".$m->line."]\n";
 			}
@@ -393,9 +376,7 @@ function postCollectionWrite(Model $m){
 			if(is_numeric($m->values['Blood Precision Frozen Plasma Volume (ml)'])){
 				$insert = array(
 					"sample_code" 					=> "'tmp_plasma'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['plasma']['sample_control_id'], 
-					"sample_type"					=> "'plasma'", 
 					"initial_specimen_sample_id"	=> $sample_master_id, 
 					"initial_specimen_sample_type"	=> "'blood'", 
 					"collection_id"					=> "'".$m->last_id."'", 
@@ -408,42 +389,40 @@ function postCollectionWrite(Model $m){
 				$plasma_sample_master_id = mysqli_insert_id($connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('PLS - ', id) WHERE id=".$plasma_sample_master_id;
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sample_masters', $plasma_sample_master_id);
+				Database::insertRev('sample_masters', $plasma_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $plasma_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_plasmas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sd_der_plasmas', $plasma_sample_master_id);
+				Database::insertRev('sd_der_plasmas', $plasma_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('derivative_details', $plasma_sample_master_id);
+				Database::insertRev('derivative_details', $plasma_sample_master_id);
 				
 				$insert = array(
-					"aliquot_type"			=> "'tube'",
 					"aliquot_control_id"	=> Config::$sample_aliquot_controls['plasma']['aliquots']['tube']['aliquot_control_id'],
 					"collection_id"			=> $m->last_id,
 					"sample_master_id"		=> $plasma_sample_master_id,
 					"in_stock"				=> "'yes - available'",
 					"initial_volume"		=> "'".$m->values['Blood Precision Frozen Plasma Volume (ml)']."'",
-					"current_volume"		=> "'".$m->values['Blood Precision Frozen Plasma Volume (ml)']."'",
-					"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['plasma']['aliquots']['tube']['volume_unit']."'"
+					"current_volume"		=> "'".$m->values['Blood Precision Frozen Plasma Volume (ml)']."'"
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$aliquot_master_id = mysqli_insert_id($connection);
-				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+				Database::insertRev('ad_tubes', $aliquot_master_id);
 			}  else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Frozen Plasma Volume (ml)'],"] at line [".$m->line."]\n";
 			}
@@ -455,9 +434,7 @@ function postCollectionWrite(Model $m){
 			if(is_numeric($m->values['Blood Precision Blood DNA Volume (ug)'])){
 				$insert = array(
 					"sample_code" 					=> "'tmp_dna'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['dna']['sample_control_id'], 
-					"sample_type"					=> "'dna'", 
 					"initial_specimen_sample_id"	=> $sample_master_id, 
 					"initial_specimen_sample_type"	=> "'blood'", 
 					"collection_id"					=> "'".$m->last_id."'", 
@@ -470,33 +447,31 @@ function postCollectionWrite(Model $m){
 				$dna_sample_master_id = mysqli_insert_id($connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('DNA - ', id) WHERE id=".$dna_sample_master_id;
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sample_masters', $dna_sample_master_id);
+				Database::insertRev('sample_masters', $dna_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $dna_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_dnas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sd_der_dnas', $dna_sample_master_id);
+				Database::insertRev('sd_der_dnas', $dna_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('derivative_details', $dna_sample_master_id);
+				Database::insertRev('derivative_details', $dna_sample_master_id);
 				
 				$insert = array(
-					"aliquot_type"			=> "'tube'",
 					"aliquot_control_id"	=> Config::$sample_aliquot_controls['dna']['aliquots']['tube']['aliquot_control_id'],
 					"collection_id"			=> $m->last_id,
 					"sample_master_id"		=> $dna_sample_master_id,
-					"in_stock"				=> "'yes - available'",
-					"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['dna']['aliquots']['tube']['volume_unit']."'"
+					"in_stock"				=> "'yes - available'"
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$aliquot_master_id = mysqli_insert_id($connection);
-				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
@@ -504,7 +479,7 @@ function postCollectionWrite(Model $m){
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);
+				Database::insertRev('ad_tubes', $aliquot_master_id);
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Blood DNA Volume (ug)'],"] at line [".$m->line."]\n";
 			}
@@ -516,9 +491,7 @@ function postCollectionWrite(Model $m){
 			if(is_numeric($m->values['Blood Precision Buffy coat (ul)'])){
 				$insert = array(
 					"sample_code" 					=> "'tmp_blood_cells'", 
-					"sample_category"				=> "'derivative'", 
 					"sample_control_id"				=> Config::$sample_aliquot_controls['blood cell']['sample_control_id'], 
-					"sample_type"					=> "'blood cell'", 
 					"initial_specimen_sample_id"	=> $sample_master_id, 
 					"initial_specimen_sample_type"	=> "'blood'", 
 					"collection_id"					=> "'".$m->last_id."'", 
@@ -531,42 +504,40 @@ function postCollectionWrite(Model $m){
 				$bc_sample_master_id = mysqli_insert_id($connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('BLD-C - ', id) WHERE id=".$bc_sample_master_id;
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sample_masters', $bc_sample_master_id);
+				Database::insertRev('sample_masters', $bc_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $bc_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_blood_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('sd_der_blood_cells', $bc_sample_master_id);
+				Database::insertRev('sd_der_blood_cells', $bc_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('derivative_details', $bc_sample_master_id);
+				Database::insertRev('derivative_details', $bc_sample_master_id);
 				
 				$insert = array(
-					"aliquot_type"			=> "'tube'",
 					"aliquot_control_id"	=> Config::$sample_aliquot_controls['blood cell']['aliquots']['tube']['aliquot_control_id'],
 					"collection_id"			=> $m->last_id,
 					"sample_master_id"		=> $bc_sample_master_id,
 					"in_stock"				=> "'yes - available'",
 					"initial_volume"		=> "'".($m->values['Blood Precision Buffy coat (ul)']/1000)."'",
-					"current_volume"		=> "'".($m->values['Blood Precision Buffy coat (ul)']/1000)."'",
-					"aliquot_volume_unit"	=> "'".Config::$sample_aliquot_controls['blood cell']['aliquots']['tube']['volume_unit']."'"
+					"current_volume"		=> "'".($m->values['Blood Precision Buffy coat (ul)']/1000)."'"
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 				$aliquot_master_id = mysqli_insert_id($connection);
-				inventoryRevsTableCompletion('aliquot_masters', $aliquot_master_id);
+				Database::insertRev('aliquot_masters', $aliquot_master_id);
 	
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				inventoryRevsTableCompletion('ad_tubes', $aliquot_master_id);	
+				Database::insertRev('ad_tubes', $aliquot_master_id);	
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Buffy coat (ul)'],"] at line [".$m->line."]\n";
 			}
@@ -586,56 +557,6 @@ function postCollectionWrite(Model $m){
 		$query = "UPDATE collections_revs SET acquisition_label = '$label' WHERE id = ".$m->last_id;
 		mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed (revs table)");
 	}	
-}
-
-function inventoryRevsTableCompletion($table_name, $id) {
-	global $connection;
-	
-	if(Config::$insert_revs){
-		$query = '';
-		switch($table_name) {
-			case 'sample_masters':
-				$query = "INSERT INTO ".$table_name."_revs (id, sample_code, sample_category, sample_control_id, sample_type, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, version_created) "
-					."SELECT id, sample_code, sample_category, sample_control_id, sample_type, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, NOW() FROM ".$table_name." WHERE id = ".$id;
-				break;
-
-			case 'specimen_details':			
-			case 'derivative_details':	
-			case 'sd_der_blood_cells':	
-			case 'sd_der_dnas':			
-			case 'sd_der_plasmas':			
-			case 'sd_der_serums':			
-			case 'sd_spe_ascites':			
-			case 'sd_spe_bloods':			
-				$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, version_created) "
-					."SELECT id, sample_master_id, NOW() FROM ".$table_name." WHERE sample_master_id = ".$id;
-				break;					
-			
-			case 'sd_spe_tissues':			
-				$query = "INSERT INTO ".$table_name."_revs (id, sample_master_id, tissue_source, qc_tf_tissue_type, tissue_laterality, version_created) "
-					."SELECT id, sample_master_id, tissue_source, qc_tf_tissue_type, tissue_laterality, NOW() FROM ".$table_name." WHERE sample_master_id = ".$id;
-				break;						
-			
-			case 'aliquot_masters':
-				$query = "INSERT INTO ".$table_name."_revs (id, barcode, aliquot_type, aliquot_control_id, collection_id, sample_master_id, initial_volume, current_volume, aliquot_volume_unit, in_stock, in_stock_detail, version_created) "
-					."SELECT id, barcode, aliquot_type, aliquot_control_id, collection_id, sample_master_id, initial_volume, current_volume, aliquot_volume_unit, in_stock, in_stock_detail, NOW() FROM ".$table_name." WHERE id= ".$id;
-				break;
-				
-			case 'ad_blocks':			
-				$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, block_type, version_created) "
-					."SELECT id, aliquot_master_id, block_type, NOW() FROM ".$table_name." WHERE aliquot_master_id = ".$id;
-				break;
-				
-			case 'ad_tubes':			
-				$query = "INSERT INTO ".$table_name."_revs (id, aliquot_master_id, qc_tf_weight_mg, qc_tf_weight_ug, qc_tf_size_mm3, qc_tf_storage_solution, qc_tf_storage_method, version_created) "
-					."SELECT id, aliquot_master_id, qc_tf_weight_mg, qc_tf_weight_ug, qc_tf_size_mm3, qc_tf_storage_solution, qc_tf_storage_method, NOW() FROM ".$table_name." WHERE aliquot_master_id = ".$id;
-				break;
-			
-			default:
-				die("ERR 007");	
-		}
-		mysqli_query($connection, $query) or die("inventroy revs table completion [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
-	}
 }
 
 $model = new Model(5, $pkey, array(), true, NULL, NULL, 'collections', $fields);
