@@ -193,7 +193,7 @@ class StructuresHelper extends Helper {
 			$hook_extension = '_'.$hook_extension;
 		}
 		
-		$hook_file = APP . 'Plugin' . DS . $this->params['plugin'] . DS . 'View' . DS . $this->params['controller'] . DS . 'hooks' . DS . $this->params['action'].$hook_extension.'.php';
+		$hook_file = APP . ($this->params['plugin'] ? 'Plugin' . DS . $this->params['plugin'] . DS : '') . 'View' . DS . $this->params['controller'] . DS . 'hooks' . DS . $this->params['action'].$hook_extension.'.php';
 		if(!file_exists($hook_file)){
 			$hook_file=false;
 		}
