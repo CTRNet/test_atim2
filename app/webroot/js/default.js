@@ -902,7 +902,7 @@ function initActions(){
 			$("#loginPopup").popup();
 			$("#loginPopup form").submit(submitFunction);
 		});
-		$("#loginPopup").popup({closable:false});
+		$("#loginPopup").popup({closable:false, background:"black"});
 	}
 	
 	function cookieWatch(){
