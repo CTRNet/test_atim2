@@ -20,7 +20,6 @@
 		ksort($add_links);
 	
 		$bottom = array(
-			'new search'	=> InventoryManagementAppController::$search_links,
 			'add specimen'	=> $add_links
 		);		
 		if(!empty($templates)){

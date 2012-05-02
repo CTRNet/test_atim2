@@ -20,7 +20,7 @@
 	
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
-		'links'	=> array('bottom' => array('new search' => array('link' => '/labbook/LabBookMasters/search/', 'icon' => 'search'), 'add' => $add_links)),
+		'links'	=> array('bottom' => array('add' => $add_links)),
 		'extras'	=> '<div class="ajax_search_results"></div>'
 	);
 	

@@ -2,7 +2,6 @@
 	$structure_links = array(
 		'index' => array('detail' => '/InventoryManagement/SampleMasters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%'),
 		'bottom' => array(
-			'new search' => InventoryManagementAppController::$search_links,
 			'add collection' => '/InventoryManagement/collections/add' 
 		)
 	);

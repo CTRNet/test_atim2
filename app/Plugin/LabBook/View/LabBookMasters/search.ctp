@@ -10,7 +10,6 @@
 	$structure_links = array(
 		'index' => array('detail' => '/labbook/LabBookMasters/detail/%%LabBookMaster.id%%'),
 		'bottom' => array(
-			'new search' => array('link' => '/labbook/LabBookMasters/index', 'icon' => 'search'), 
 			'add' => $add_links
 		)
 	);

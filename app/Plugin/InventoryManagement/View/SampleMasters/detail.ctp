@@ -53,9 +53,6 @@
 	if($is_from_tree_view) {
 		// Detail form displayed in tree view
 		$sample_settings['header'] = __('sample', null);
-		
-	} else {
-//		$structure_links['bottom'] = array_merge(array('new search' => InventoryManagementAppController::$search_links), $structure_links['bottom']);
 	}
 
 	// Set override

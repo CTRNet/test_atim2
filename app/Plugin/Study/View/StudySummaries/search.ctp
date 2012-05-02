@@ -2,7 +2,6 @@
 	$structure_links = array(
 		'index'=>array('detail' => '/Study/StudySummaries/detail/%%StudySummary.id%%'),
 		'bottom' => array(
-			'new search' => array('icon' => 'search', 'link' => '/Study/StudySummaries/search'),
 			'add'=> '/Study/StudySummaries/add/'
 		)
 	);

@@ -11,7 +11,6 @@
 		$settings['actions'] = false;
 		$structure_links['bottom'] = array_merge(
 			array(
-				'new search' => array('link' => '/labbook/LabBookMasters/search/', 'icon' => 'search'),
 				'edit synchronization option' => '/labbook/LabBookMasters/editSynchOptions/' . $atim_menu_variables['LabBookMaster.id']
 			), $structure_links['bottom']
 		);

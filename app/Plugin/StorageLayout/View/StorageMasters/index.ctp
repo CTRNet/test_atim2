@@ -8,7 +8,6 @@
 
 	$structure_links = array(
 		'bottom' => array(
-			'new search' => array('link' => '/StorageLayout/StorageMasters/search', 'icon' => 'search'),
 			'add' => $add_links,
 			'tree view' => '/StorageLayout/StorageMasters/contentTreeView'
 		) 

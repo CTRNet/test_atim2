@@ -1,9 +1,5 @@
 <?php 
 
-	$structure_links = array(
-		'bottom' => array('new search' => InventoryManagementAppController::$search_links, 'add collection' => '/InventoryManagement/collections/add')
-	);
-
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type' => 'search', 
@@ -16,7 +12,6 @@
 	
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
-		'links'		=> $structure_links,
 		'extras'	=> '<div class="ajax_search_results"></div>'
 	);
 	
@@ -29,6 +24,3 @@
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
 	$this->Structures->build( $final_atim_structure2, $final_options2 );	
-
-	
-?>

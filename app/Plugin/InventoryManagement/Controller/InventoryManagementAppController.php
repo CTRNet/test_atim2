@@ -2,12 +2,6 @@
 
 class InventoryManagementAppController extends AppController {	
 		
-	static $search_links = array(
-		'collections'	=> array('link'=> '/InventoryManagement/Collections/search/', 'icon' => 'search'),
-		'samples'		=> array('link'=> '/InventoryManagement/SampleMasters/search/', 'icon' => 'search'),
-		'aliquots'		=> array('link'=> '/InventoryManagement/AliquotMasters/search/', 'icon' => 'search')
-	);
-	
 	function setBatchMenu(array $data){
 		if(array_key_exists('SampleMaster', $data) && !empty($data['SampleMaster'])){
 			$id = null;

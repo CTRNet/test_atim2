@@ -32,7 +32,6 @@
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
 		'links' => isset($is_ccl_ajax) ? array() : array('bottom' => array(
-			'new search' => InventoryManagementAppController::$search_links,
 			'add collection' => '/InventoryManagement/Collections/add'
 		)),
 		'extras'	=> '<div class="ajax_search_results"></div>'

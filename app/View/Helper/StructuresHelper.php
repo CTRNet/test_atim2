@@ -2255,10 +2255,8 @@ class StructuresHelper extends Helper {
 			}else if($display_class_array[1] == 'users' && $display_class_array[2] == 'logout'){
 				$display_class_name = 'logout';
 			}else if(array_key_exists($display_class_array[1], self::$display_class_mapping_plugin)){
-				$display_class_name = $display_class_array[1];
-				if(in_array($display_class_name, array("datamart", "tools")) && isset($display_class_array[2])){
-					$display_class_name .= " ".$display_class_array[2];
-				}
+				array_shift($display_class_array);
+				$display_class_name = implode(' ', $display_class_array);
 			}else{
 				$display_class_name = 'default';
 			}

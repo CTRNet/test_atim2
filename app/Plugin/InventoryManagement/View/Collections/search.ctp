@@ -30,7 +30,6 @@
 				'detail' => '/InventoryManagement/Collections/detail/%%ViewCollection.collection_id%%',
 				'copy for new collection' => array('link' => '/InventoryManagement/Collections/add/0/%%ViewCollection.collection_id%%', 'icon' => 'copy')
 			), 'bottom' => array(
-				'new search' => InventoryManagementAppController::$search_links,
 				'add collection' => '/InventoryManagement/Collections/add'
 			)
 		);
