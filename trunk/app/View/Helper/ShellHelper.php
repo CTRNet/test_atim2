@@ -277,7 +277,6 @@ class ShellHelper extends Helper {
 				$is_root = false; // used to remove unneeded ROOT menu items from displaying in bar
 				
 				foreach($atim_menu as $menu){
-					
 					$active_item = '';
 					$summary_item = '';
 					$append_menu = '';
@@ -353,22 +352,24 @@ class ShellHelper extends Helper {
 							}
 							
 							$title = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
-							if($menu_item['Menu']['allowed']){
-								$append_menu .= '
-										<!-- '.$menu_item['Menu']['id'].' -->
-										<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
-											'.$this->Html->link( '<span class="icon16 list"></span><span class="menuLabel">'.$title.'</span>', $menu_item['Menu']['use_link'], array('escape' => false, 'title' => $title) ).'
-										</li>
-								';
-							}else{
-								$append_menu .= '
-										<!-- '.$menu_item['Menu']['id'].' -->
-										<li class="not_allowed count_'.$sub_count.'">
-											<a title="'.$title.'"><span class="icon16 not_allowed"></span><span class="menuLabel">'.$title.'</span></a>
-										</li>
-														';
+							if(!$menu_item['Menu']['is_root']){
+								if($menu_item['Menu']['allowed']){
+									$append_menu .= '
+											<!-- '.$menu_item['Menu']['id'].' -->
+											<li class="'.( $menu_item['Menu']['at'] ? 'at ' : '' ).'count_'.$sub_count.'">
+												'.$this->Html->link( '<span class="icon16 list"></span><span class="menuLabel">'.$title.'</span>', $menu_item['Menu']['use_link'], array('escape' => false, 'title' => $title) ).'
+											</li>
+									';
+								}else{
+									$append_menu .= '
+											<!-- '.$menu_item['Menu']['id'].' -->
+											<li class="not_allowed count_'.$sub_count.'">
+												<a title="'.$title.'"><span class="icon16 not_allowed"></span><span class="menuLabel">'.$title.'</span></a>
+											</li>
+															';
+								}
+								$sub_count++;
 							}
-							$sub_count++;
 						}
 						
 						if(Configure::read('debug')){

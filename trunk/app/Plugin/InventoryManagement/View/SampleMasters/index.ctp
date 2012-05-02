@@ -1,7 +1,6 @@
 <?php 
 	$structure_links = array(
 		'bottom' => array(
-			'new search' => InventoryManagementAppController::$search_links,
 			'add collection' => '/InventoryManagement/collections/add'
 		)
 	);

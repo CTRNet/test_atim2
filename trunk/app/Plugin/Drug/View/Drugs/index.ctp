@@ -2,7 +2,6 @@
 
 	$structure_links = array(
 		'bottom'=>array(
-			'new search' => array('link' => '/Drug/Drugs/search/', 'icon' => 'search'),
 			'add'=>'/Drug/Drugs/add/'
 		)
 	);

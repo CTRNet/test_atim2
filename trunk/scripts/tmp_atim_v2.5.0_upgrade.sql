@@ -1845,3 +1845,14 @@ INSERT INTO datamart_structure_functions (datamart_structure_id, label, link, fl
 INSERT INTO structure_validations (structure_field_id, rule, on_action, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_comorbidities' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), 'validateIcd10WhoCode', '', 'invalid disease code');
 
+UPDATE menus SET is_root=1 WHERE parent_id='qry-CAN-1';
+
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_summary, flag_active) VALUES
+('clin_CAN_1_1', 'clin_CAN_1', 1, 1, 'add', '', '/ClinicalAnnotation/Participants/add', '', 1),
+('clin_CAN_1_2', 'clin_CAN_1', 1, 2, 'identifiers', '', '/ClinicalAnnotation/MiscIdentifiers/search/', '', 1),
+('clin_CAN_1_3', 'clin_CAN_1', 1, 3, 'messages', '', '/ClinicalAnnotation/ParticipantMessages/search/', '', 1),
+('inv_CAN_4', 'inv_CAN', 1, 1, 'add', '', '/InventoryManagement/Collections/add', '', 1),
+('inv_CAN_5', 'inv_CAN', 1, 1, 'samples', '', '/InventoryManagement/SampleMasters/search/', '', 1),
+('inv_CAN_6', 'inv_CAN', 1, 1, 'aliquots', '', '/InventoryManagement/AliquotMasters/search/', '', 1);
+
+

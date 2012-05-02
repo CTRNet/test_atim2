@@ -498,8 +498,8 @@ ul.main_menu_for_header li a {
 	background: -webkit-gradient(linear, left top, left bottom, from(#628cae), color-stop(50%, #7aaed8), to(#628cae)); /* for webkit browsers */
 	background: -moz-linear-gradient(top,  #628cae,  #7aaed8, #628cae); 
 }
-li.qry-CAN-1:hover .sub_menu_for_header.qry-CAN-1,
-li.core_CAN_33:hover .sub_menu_for_header.core_CAN_33{
+	
+ul.main_menu_for_header > li:hover .sub_menu_for_header{
 	display: block;
 }
 
@@ -1217,7 +1217,13 @@ a.icon16.search { text-decoration: none; color: #000; }
 .icon32.customize {background-position: -32px -128px;}
 .icon32.logout {background-position: -32px -224px;}
 .icon32.clinicalannotation {background-position: -32px -64px;}
+.icon32.clinicalannotation.miscidentifiers {background-position: -96px -96px;}
+.icon32.clinicalannotation.participants.add {background-position: -96px -32px;}
+.icon32.clinicalannotation.participantmessages {background-position: -96px -128px;}
 .icon32.inventorymanagement {background-position: -64px -256px;}
+.icon32.inventorymanagement.collections.add {background-position: -96px -160px;}
+.icon32.inventorymanagement.samplemasters{background-position: -96px -192px;}
+.icon32.inventorymanagement.aliquotmasters{background-position: -96px -224px;}
 .icon32.datamart {background-position: 0px -192px;}
 .icon32.tools {background-position: -32px -256px;}
 .icon32.administrate {background-position: -64px -64px;}

@@ -31,11 +31,7 @@
 		);
 	}
 			
-	if($is_ajax){
-		$structure_links['bottom'] = $bottom_links;
-	}else{
-		$structure_links['bottom'] = array_merge(array('new search' => InventoryManagementAppController::$search_links), $bottom_links);
-	}
+	$structure_links['bottom'] = $bottom_links;
 		
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'settings' => $settings);

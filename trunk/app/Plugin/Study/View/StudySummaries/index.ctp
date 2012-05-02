@@ -1,7 +1,6 @@
 <?php
 	$structure_links = array(
 		'bottom' => array(
-			'new search' => array('icon' => 'search', 'link' => '/Study/StudySummaries/search'),
 			'add'=> '/Study/StudySummaries/add',
 		)
 	);

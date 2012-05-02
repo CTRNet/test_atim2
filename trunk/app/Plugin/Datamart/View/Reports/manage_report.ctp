@@ -52,7 +52,7 @@
 					'list'=>'/Datamart/reports/index/')
 			);
 			if($display_new_search){
-				$structure_links['bottom']['new search'] = '/Datamart/reports/manageReport/' . $atim_menu_variables['Report.id'];
+				$structure_links['bottom']['new search'] = array('link' => '/Datamart/reports/manageReport/' . $atim_menu_variables['Report.id'], 'icon' => 'search');
 			}
 			
 			$structure_override = array();	

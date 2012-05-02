@@ -8,7 +8,6 @@
 	
 	$structure_links = array(
 		'bottom'=>array(
-			'new search' => array('link' => '/Protocol/ProtocolMasters/search/', 'icon' => 'search'),
 			'add' => $add_links
 		)
 	);

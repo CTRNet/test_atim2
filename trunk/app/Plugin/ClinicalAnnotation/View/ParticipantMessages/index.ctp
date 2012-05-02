@@ -1,10 +1,4 @@
 <?php
-	$structure_links = array(
-		'bottom'=>array(
-			'new search' => ClinicalAnnotationAppController::$search_links
-		)
-	);
-
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
@@ -15,7 +9,6 @@
 	
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
-		'links'		=> $structure_links,
 		'extras'	=> '<div class="ajax_search_results"></div>'
 	);
 	

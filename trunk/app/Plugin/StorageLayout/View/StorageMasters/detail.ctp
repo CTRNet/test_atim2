@@ -7,7 +7,6 @@
 	$settings = array();
 	
 	//Basic
-	$structure_links['bottom']['new search'] = array('link' => '/StorageLayout/StorageMasters/search/', 'icon' => 'search');
 	$structure_links['bottom']['edit'] = '/StorageLayout/StorageMasters/edit/' . $atim_menu_variables['StorageMaster.id'];
 	if($is_tma) {
 		// No children storage could be added to a TMA block

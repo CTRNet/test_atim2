@@ -11,7 +11,6 @@
 	$structure_links = array(
 		'index'=>array(),
 		'bottom'=>array(
-			'new search'	=> ClinicalAnnotationAppController::$search_links,
 			'edit'			=> '/ClinicalAnnotation/Participants/edit/'.$atim_menu_variables['Participant.id'],
 			'delete'		=> '/ClinicalAnnotation/Participants/delete/'.$atim_menu_variables['Participant.id'],
 			'add identifier'=> $identifiers_menu

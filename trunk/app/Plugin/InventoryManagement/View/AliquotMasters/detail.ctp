@@ -40,9 +40,6 @@
 
 		$settings['header'] = __('aliquot', null);
 		
-	} else {
-		// General detail form display
-//		$structure_links['bottom'] = array_merge( array('new search' => InventoryManagementAppController::$search_links), $structure_links['bottom']); 
 	}
 	
 	$final_atim_structure = $atim_structure;

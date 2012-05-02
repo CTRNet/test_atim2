@@ -55,8 +55,11 @@ class AppController extends Controller {
 		if(!$this->request->is('ajax')){
 			$atim_sub_menu_for_header = array();
 			$menu_model = AppModel::getInstance("", "Menu", true);
-			$atim_sub_menu_for_header['qry-CAN-1'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'qry-CAN-1'), 'order' => array('Menu.display_order')));
-			$atim_sub_menu_for_header['core_CAN_33'] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'core_CAN_33'), 'order' => array('Menu.display_order')));
+			
+			$main_menu_items = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => 'MAIN_MENU_1')));
+			foreach($main_menu_items as $item){
+				$atim_sub_menu_for_header[$item['Menu']['id']] = $menu_model->find('all', array('conditions' => array('Menu.parent_id' => $item['Menu']['id'], 'Menu.is_root' => 1), 'order' => array('Menu.display_order')));
+			}
 		
 			$this->set( 'atim_menu_for_header', $this->Menus->get('/menus/tools'));
 			$this->set( 'atim_sub_menu_for_header', $atim_sub_menu_for_header);
