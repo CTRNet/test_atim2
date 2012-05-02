@@ -51,14 +51,11 @@ class Config{
 	static $treatment_controls = array();
 	static $event_controls = array();
 	static $storage_controls = array();
+	
 	static  $participant_id_linked_to_br_dx_in_step2 = array();
-	
-//	static $cytoreduction_values = array();
-	
-//	static $ids_from_frsq_nbr = array();
 	static $participant_id_from_br_nbr = array();
-	
 	static $data_for_import_from_participant_id = array();
+	static $patient_history_from_id = array();
 	
 	static $summary_msg = array();	
 	
@@ -87,7 +84,7 @@ function addonFunctionStart(){
 	</FONT><br>";		
 	
 	echo "ALL Consent will be defined as obtained!<br>";
-	echo "<FONT COLOR=\"red\" >WARNING: Be sure Dates columns have been formatted.</FONT>";
+	echo "<FONT COLOR=\"red\" >WARNING: Be sure Dates columns have been formatted.</FONT><br>";
 	
 	// ** Data check ** 
 	
@@ -215,7 +212,30 @@ function addonFunctionStart(){
 	$query = "select dm.participant_id from diagnosis_controls AS dc INNER JOIN diagnosis_masters AS dm ON dm.diagnosis_control_id = dc.id where dc.flag_active = '1' AND dc.controls_type = 'breast';";
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()) Config::$participant_id_linked_to_br_dx_in_step2[] = $row['participant_id'];
-
+	
+	// ** patient history data from step2 **
+	
+	$followup_event_control_id = Config::$event_controls['clinical']['all']['followup']['event_control_id']	;
+	$smoking_event_control_id = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['event_control_id'];
+	
+	$query = "SELECT part.id, 
+	
+	part.vital_status, part.chus_date_of_status, part.chus_date_of_status_accuracy, part.chus_cause_of_death,
+	em_fol.id AS fol_event_id, em_fol.event_summary AS fol_summary, ed_fol.weight_in_kg, ed_fol.height_in_cm,
+	em_smok.id AS smok_event_id, ed_smok.smoking_history, ed_smok.smoking_status, ed_smok.years_quit_smoking, ed_smok.chus_duration_in_years, ed_smok.chus_quantity_per_day,
+	rep.id AS reproduct_id, rep.age_at_menarche,rep.gravida,rep.para,rep.chus_abortus,rep.menopause_status,rep.age_at_menopause,rep.menopause_onset_reason,rep.hrt_use,rep.chus_hrt_use_precision,rep.hrt_years_used,rep.chus_evista_use,rep.chus_evista_use_precision
+	
+	FROM participants AS part 
+	
+	LEFT JOIN event_masters AS em_fol ON em_fol.participant_id = part.id AND em_fol.event_control_id = $followup_event_control_id AND em_fol.deleted != 1 
+	LEFT JOIN chus_ed_clinical_followups AS ed_fol ON ed_fol.event_master_id = em_fol.id
+	
+	LEFT JOIN event_masters AS em_smok ON em_smok.participant_id = part.id AND em_smok.event_control_id = $smoking_event_control_id AND em_smok.deleted != 1 
+	LEFT JOIN ed_all_lifestyle_smokings AS ed_smok ON ed_smok.event_master_id = em_smok.id	
+	
+	LEFT JOIN reproductive_histories AS rep ON rep.participant_id = part.id AND rep.deleted != 1;";
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__."<br>$query");
+	while($row = $results->fetch_assoc()) Config::$patient_history_from_id[$row['id']] = $row;    
 }
 
 //=========================================================================================================
@@ -253,8 +273,8 @@ function addonFunctionEnd(){
 	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
 //	// ADD PATIENT OTHER DATA
-//	
-//	addPatientsHistory();
+
+ 	addPatientsHistory();
 //   	addFamilyHistory();
 //  	addCollections();
 //
@@ -365,23 +385,7 @@ function addPatientsHistory() {
 			if(empty($line_data['#FRSQ'])) die('ERR Missing #FRSQ in patient history worksheet line : '.$line_counter);
 			$frsq_nbr = str_replace(' ', '', $line_data['#FRSQ']);
 			
-			$participant_id = isset(Config::$ids_from_frsq_nbr[$frsq_nbr])? Config::$ids_from_frsq_nbr[$frsq_nbr]['participant_id'] : null;
-			if(!$participant_id)  {
-				$frsq_nbrs = preg_replace(array('/(\({0,1}voir)/i','/(\))/','/(\()/','/([A-Z]+)([0-9]+),([0-9]+)/','/([A-Z]+[0-9]+),([A-Z]+)([0-9]+)-([0-9]+)/'), array('-', '','-','$1$2-$1$3','$1-$2$3-$2$4'), $frsq_nbr);
-				$frsq_nbrs = explode('-',$frsq_nbrs);
-				foreach($frsq_nbrs as $new_frsq_nbr) {
-					$new_participant_id = isset(Config::$ids_from_frsq_nbr[$new_frsq_nbr])? Config::$ids_from_frsq_nbr[$new_frsq_nbr]['participant_id'] : null;
-					if(!$new_participant_id) {
-						Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Participant With Many FRSQ# #1'][] = "The FRSQ# '".$new_frsq_nbr."' is not defined in step 1! [Will try to assign data to other FRSQ# '".$line_data['#FRSQ']."'! [line: $line_counter]";
-					} else {
-						if($participant_id && ($new_participant_id != $participant_id)){
-							Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Participant With Many FRSQ# #2'][] = "The FRSQ#s '".$line_data['#FRSQ']."' have beend assigned to the same participant in step3 ('PATIENT HISTORY') but match different participants in step 1! [line: $line_counter]";
-						} else if(!$participant_id) {
-							$participant_id = $new_participant_id;
-						}
-					}
-				}
-			}
+			$participant_id = isset(Config::$participant_id_from_br_nbr[$frsq_nbr])? Config::$participant_id_from_br_nbr[$frsq_nbr] : null;
 			if(!$participant_id) {
 				Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step3 ('PATIENT HISTORY') but this number is not defined in step 1! [line: $line_counter]";
 				continue;
@@ -409,66 +413,73 @@ function addPatientsHistory() {
 			$update_sql = '';
 			
 			$is_dcd = false;
-			
-			if(!empty($line_data['Statut'])) {
-				
-				if(in_array($line_data['Statut'], array('Vie', 'Vie ','vie', 'vie '))) {
-					$update_sql =  "vital_status = 'alive'";
-				} else if(in_array($line_data['Statut'], array('DCD','DCD '))) {
-					$update_sql =  "vital_status = 'deceased'";
-					$is_dcd = true;
-				} else if($line_data['Statut'] == '?DCD?') {
-					$update_sql =  "vital_status = 'deceased'";
-					$notes_to_update = 'Vital status note: Deceased to confirm.';
-					$is_dcd = true;
-				} else if(preg_match('/^vie \(.*\)/i', $line_data['Statut'], $matches)) {
-					$update_sql =  "vital_status = 'alive'";
-					$notes_to_update = 'Vital status note: '. $line_data['Statut'].'.';
-				} else {
-					Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Status unknonw'][] = "The patient status '".$line_data['Statut']."' is not supported & not imported! Please check data! [line: $line_counter]";
-				}
-			}
-			
-			if(!empty($line_data['DateStatut'])) {
-				$status_date = $line_data['DateStatut'];
-				if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-00$/', $status_date, $matches)) {
-					$update_sql .= (empty($update_sql)? '' : ', ')."chus_date_of_status = '".str_replace('-00','-01',$status_date)."', chus_date_of_status_accuracy = 'd'";			
-				} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $status_date, $matches)) {
-					$update_sql .= (empty($update_sql)? '' : ', ')."chus_date_of_status = '$status_date', chus_date_of_status_accuracy = 'c'";			
-				} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/', $status_date, $matches)) {
-					$update_sql .= (empty($update_sql)? '' : ', ')."chus_date_of_status = '$status_date-01', chus_date_of_status_accuracy = 'd'";
-				} else if(preg_match('/^([01][0-9])\-(19|20)([0-9]{2})$/', $status_date, $matches)) {
-					$update_sql .= (empty($update_sql)? '' : ', ')."chus_date_of_status = '".$matches[2].$matches[3]."-".$matches[1]."-01', chus_date_of_status_accuracy = 'd'";
-				} else if(preg_match('/^(19|20)([0-9]{2})$/',$status_date,$matches)) {
-					$update_sql .= (empty($update_sql)? '' : ', ')."chus_date_of_status = '$status_date-01-01', chus_date_of_status_accuracy = 'm'";
-				} else {
-					Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Status date format'][] = "Status date format not supported & not imported: $status_date! Please check data! [line: $line_counter]";
-				}
-			}
-			
-			if(!empty($line_data['Cause décès'])) {	
-				if(!$is_dcd) Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Cause décès'][] = "'Cause décès' defined on alive patiente! Please check data! [line: $line_counter]";
-				$update_sql .= (empty($update_sql)? '' : ', ')."chus_cause_of_death = '".str_replace("'","''",$line_data['Cause décès'])."'";
-			}
 
-			if(!empty($line_data['Mutation BRCA 1 ou 2'])) {
-				switch($line_data['Mutation BRCA 1 ou 2']) {
-					case 'BRCA 1 et 2 nég':
-						$update_sql .= (empty($update_sql)? '' : ', ')."chus_brca_1 = 'n', chus_brca_2 = 'n'";
-						break;
-					case 'BRCA1':
-					case 'BRCA1 ':
-						$update_sql .= (empty($update_sql)? '' : ', ')."chus_brca_1 = 'y'";
-						break;
-					case 'BRCA2':
-					case 'BRCA2 mut':
-						$update_sql .= (empty($update_sql)? '' : ', ')."chus_brca_2 = 'y'";
-						break;
-					default:
-						Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['BRCA Values'][] = "BRCA Value '".$line_data['Mutation BRCA 1 ou 2']."' not supported & not imported! Please check data! [line: $line_counter]";
+			$old_status = Config::$patient_history_from_id[$participant_id]['vital_status'];
+			$new_status = '';
+			$file_value = preg_replace(array('/^ /','/ $/'), array('',''),$line_data['Statut VITAL']);
+			if(!empty($file_value)) {
+				if(preg_match('/^(DCD)(, ){0,1}(.*){0,1}$/i', $file_value, $matches)) {
+					$new_status = 'deceased';
+					$is_dcd = true;
+					if(isset($matches[3])) $notes_to_update = 'Vital status note: '.$matches[3];
+				} else if(preg_match('/^vie$/i', $file_value, $matches)) {
+					$new_status = 'alive';					
+				} else {
+					die('ERR 8849884844 ['.$file_value.']');
 				}
-			}				
-			
+				$update_sql = "vital_status = '$new_status'";
+			}
+			editHistoryConflict($old_status, $new_status, $frsq_nbr, 'Statut VITAL', 'PATIENT HISTORY', $line_counter);
+						
+			$old_date = empty(Config::$patient_history_from_id[$participant_id]['chus_date_of_status'])? '' : Config::$patient_history_from_id[$participant_id]['chus_date_of_status'].' ['.Config::$patient_history_from_id[$participant_id]['chus_date_of_status_accuracy'].']';
+			$new_date = '';
+			$file_value = preg_replace(array('/^ /','/ $/'), array('',''),$line_data['DateStatut']);
+			if(!empty($file_value)) {
+				$chus_date_of_status = '';
+				$chus_date_of_status_accuracy = '';
+				if(preg_match('/^([0-9]{5})$/', $file_value, $matches)) {
+					$file_value_tmp = customGetFormatedDate($file_value,'PATIENT HISTORY', $line_counter);
+					if($file_value_tmp) $file_value = $file_value_tmp;
+				}
+				if(preg_match('/^(19|20)([0-9]{2})\-00\-00$/', $file_value, $matches)) {
+					$chus_date_of_status = str_replace('-00-00','-01-01',$file_value); 
+					$chus_date_of_status_accuracy = 'm';
+				} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-00$/', $file_value, $matches)) {
+					$chus_date_of_status = str_replace('-00','-01',$file_value); 
+					$chus_date_of_status_accuracy = 'd';
+				} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/', $file_value, $matches)) {
+					$chus_date_of_status = $file_value;
+					$chus_date_of_status_accuracy = 'c';
+				} else if(preg_match('/^([01][0-9])\-(19|20)([0-9]{2})$/', $file_value, $matches)) {
+					$chus_date_of_status = $matches[2].$matches[3].'-'.$matches[1].'-01';
+					$chus_date_of_status_accuracy = 'd';	
+				}else if(preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/', $file_value, $matches)) {
+					$chus_date_of_status = $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1];
+					$chus_date_of_status_accuracy = 'c';	
+				} else if(preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/', $file_value, $matches)) {
+					$chus_date_of_status = $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1];
+					$chus_date_of_status_accuracy = 'c';	
+				} else if($file_value == '10-07-1009') {
+					$chus_date_of_status = '2009-07-01';
+					$chus_date_of_status_accuracy = 'c';	
+				} else {
+					die("ERR 988391 [".$file_value."] line : ".$line_counter);
+				}
+				$new_date = "$chus_date_of_status [$chus_date_of_status_accuracy]" ;
+				$update_sql .= (empty($update_sql)? '': ', ')."chus_date_of_status = '$chus_date_of_status', chus_date_of_status_accuracy = '$chus_date_of_status_accuracy'"; 
+			}
+			editHistoryConflict($old_date, $new_date, $frsq_nbr, 'DateStatut', 'PATIENT HISTORY', $line_counter);
+
+			$old_cause = Config::$patient_history_from_id[$participant_id]['chus_cause_of_death'];
+			$new_cause = '';
+			$file_value = preg_replace(array('/^ /','/ $/'), array('',''),$line_data['Cause décès']);
+			if(!empty($file_value)) {
+				if(!$is_dcd) Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Cause décès'][] = "'Cause décès' defined on alive patiente! Please check data! [line: $line_counter]";
+				$update_sql .= (empty($update_sql)? '': ', ')."chus_cause_of_death = '".str_replace("'","''",$file_value)."'"; 
+				$new_cause = $file_value;
+			}		
+			editHistoryConflict($old_cause, $new_cause, $frsq_nbr, 'Cause décès', 'PATIENT HISTORY', $line_counter);
+
 			if(!empty($notes_to_update)) {
 				$update_sql .= (empty($update_sql)? '' : ', ')."notes = CONCAT('$notes_to_update', ' // ', IFNULL(notes, ''))";
 			}
@@ -526,40 +537,46 @@ function addPatientsHistory() {
 			if(!is_null($height_in_cm) && !is_null($weight_in_kg)) {
 				$bmi  = ($weight_in_kg/($height_in_cm*$height_in_cm)) * 10000;
 			}
-			
+
 			$notes = empty($line_data['Poids::Lbs'])? '' : 'Weight was defined in Lbs in source file ('.$line_data['Poids::Lbs'].').';
 			$notes .= empty($line_data['Taille::Pieds'])? '' : (empty($notes)? '' : ' // ').'Height was defined in feet in source file ('.$line_data['Taille::Pieds'].').';
 			$notes .= empty($line_data['IMC'])? '' : (empty($notes)? '' : ' // ').'IMC was defined in source file ('.$line_data['IMC'].').';
-			
+
 			if(!is_null($height_in_cm) || !is_null($weight_in_kg)) {
-				if(!isset(Config::$event_controls['clinical']['all']['followup'])) die('ERR 88998379');
-				$event_control_id = Config::$event_controls['clinical']['all']['followup']['event_control_id'];
-				$detail_tablename = Config::$event_controls['clinical']['all']['followup']['detail_tablename'];				
-				
-				$master_fields = array(
-					'participant_id' => $participant_id,
-					'event_control_id' =>  $event_control_id,
-					'event_summary' => "'".str_replace("'","''",$notes)."'"
-				);
-				$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
-				
-				$detail_fields = array('event_master_id' => $event_master_id);
-				if($height_in_cm) $detail_fields['height_in_cm'] = $height_in_cm;
-				if($weight_in_kg) $detail_fields['weight_in_kg'] = $weight_in_kg;
-				if($bmi) $detail_fields['bmi'] = $bmi;
-				customInsertChusRecord($detail_fields, $detail_tablename, true);				
+				if(!empty(Config::$patient_history_from_id[$participant_id]['fol_event_id'])) {
+					if((Config::$patient_history_from_id[$participant_id]['height_in_cm'] != $height_in_cm) || (Config::$patient_history_from_id[$participant_id]['weight_in_kg'] != $weight_in_kg)) {
+						Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Followup conflict'][] = "There are conflicts between heights and weight defined both in step2 and 3 for frsq# $frsq_nbr (height_in_cm : ".Config::$patient_history_from_id[$participant_id]['height_in_cm']."!= $height_in_cm || weight_in_kg : ".Config::$patient_history_from_id[$participant_id]['weight_in_kg']."!= $weight_in_kg)! Data won't be updated and please check data! [line: $line_counter]";
+					}
+				} else {
+					if(!isset(Config::$event_controls['clinical']['all']['followup'])) die('ERR 88998379');
+					$event_control_id = Config::$event_controls['clinical']['all']['followup']['event_control_id'];
+					$detail_tablename = Config::$event_controls['clinical']['all']['followup']['detail_tablename'];				
+					
+					$master_fields = array(
+						'participant_id' => $participant_id,
+						'event_control_id' =>  $event_control_id,
+						'event_summary' => "'".str_replace("'","''",$notes)."'"
+					);
+					$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
+					
+					$detail_fields = array('event_master_id' => $event_master_id);
+					if($height_in_cm) $detail_fields['height_in_cm'] = $height_in_cm;
+					if($weight_in_kg) $detail_fields['weight_in_kg'] = $weight_in_kg;
+					if($bmi) $detail_fields['bmi'] = $bmi;
+					customInsertChusRecord($detail_fields, $detail_tablename, true);
+				}
 			}
 			
 			// ADD lifestyle all smoking history questionnaire  ed_all_lifestyle_smokings
 		
 			$detail_fields = array();
 			
-			$smoking_history = str_replace(array('ND','-'),array('',''), $line_data['Tabac::Tabac']);
+			$smoking_history = str_replace(array('ND','-'),array('',''), $line_data['TABAC::Fumeur']);
 			if(strlen($smoking_history)) {
-				if(preg_match('/^ {0,1}non {0,1}$/', $smoking_history, $matches)) {
+				if(preg_match('/^ {0,1}non {0,1}$/i', $smoking_history, $matches)) {
 					$detail_fields['smoking_history'] = "'no'";
 				
-				} else if(preg_match('/^ {0,1}oui {0,1}$/', $smoking_history, $matches)) {
+				} else if(preg_match('/^ {0,1}oui {0,1}$/i', $smoking_history, $matches)) {
 					$detail_fields['smoking_history'] = "'yes'";
 
 				} else {
@@ -567,27 +584,27 @@ function addPatientsHistory() {
 				}
 			}	
 
-			$smoking_status = str_replace(array('ND','-'),array('',''), $line_data['Tabac::arrêt tabac?']);
+			$smoking_status = str_replace(array('ND','-'),array('',''), $line_data['TABAC::arrêt tabac?']);
 			if(strlen($smoking_status)) {
-				if(preg_match('/^ {0,1}non {0,1}$/', $smoking_status, $matches)) {
+				if(preg_match('/^ {0,1}non {0,1}$/i', $smoking_status, $matches)) {
 					$detail_fields['smoking_status'] = "'smoker'";
-				} else if(preg_match('/^ {0,1}oui {0,1}$/', $smoking_status, $matches)) {
+				} else if(preg_match('/^ {0,1}oui {0,1}$/i', $smoking_status, $matches)) {
 					$detail_fields['smoking_status'] = "'ex-smoker'";
 				} else {
 					Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['arrêt tabac'][] = "Value '$smoking_status' is not supported and won't be imported! [line: $line_counter]";
 				}
 			}	
 			
-			$years_quit_smoking = str_replace('ND','',$line_data['Tabac::Depuis combien année (An)']);
+			$years_quit_smoking = str_replace(array('ND','MD','-'),array('','',''),$line_data['TABAC::Depuis combien année (An)']);
 			if(strlen($years_quit_smoking)) {
 				if(preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $years_quit_smoking,$matches)) {
 					$detail_fields['years_quit_smoking'] = "'$years_quit_smoking'";
 				} else {
 					Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['arrêt tabac années'][] = "Value '$years_quit_smoking' is not supported and won't be imported! [line: $line_counter]";
 				}
-			}			
+			}	 
 			
-			$chus_duration_in_years = str_replace('ND','',$line_data['Tabac::Durée (an)']);
+			$chus_duration_in_years = str_replace(array('ND','-'),array('',''),$line_data['TABAC::la durée (an)']);
 			if(strlen($chus_duration_in_years)) {
 				if(preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $chus_duration_in_years,$matches)) {
 					$detail_fields['chus_duration_in_years'] = "'$chus_duration_in_years'";
@@ -596,45 +613,70 @@ function addPatientsHistory() {
 				}
 			}				
 			
-			$chus_quantity_per_day = str_replace('ND','',$line_data['Tabac::Qté / jour 1pqt = 20']);
+			$chus_quantity_per_day = str_replace(array('ND','/jour'),array('',''),$line_data['TABAC::Qté/jour 1pqt = 20']);
 			if(strlen($chus_quantity_per_day)) {
 				if(preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $chus_quantity_per_day,$matches)) {
 					$detail_fields['chus_quantity_per_day'] = "'$chus_quantity_per_day'";
 				} else {
 					Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Tabac::Qté / jour 1pqt = 20'][] = "Value '$chus_quantity_per_day' is not supported and won't be imported! [line: $line_counter]";
 				}
-			}
+			}	
 			
 			if(!empty($detail_fields)) {
-				if(!isset(Config::$event_controls['lifestyle']['all']['smoking history questionnaire'])) die('ERR 88998379');
-				$event_control_id = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['event_control_id'];
-				$detail_tablename = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['detail_tablename'];				
-				
-				$master_fields = array(
-					'participant_id' => $participant_id,
-					'event_control_id' =>  $event_control_id,
-					'event_summary' => "'".str_replace("'","''",$notes)."'"
-				);
-				$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
-				$detail_fields['event_master_id'] = $event_master_id;
-				customInsertChusRecord($detail_fields, $detail_tablename, true);				
+				if(!empty(Config::$patient_history_from_id[$participant_id]['smok_event_id'])) {
+					$diff = array();
+					$tmp_headers = array(
+						'smoking_history' => 'Tabac',
+						'smoking_status' => 'arrêt tabac',
+						'years_quit_smoking' => 'arrêt tabac années',
+						'chus_duration_in_years' => 'Tabac Durée (an)',
+						'chus_quantity_per_day' => 'Tabac::Qté / jour 1pqt = 20');
+					foreach($tmp_headers as $tmp_field => $file_field) {
+						$old_value =Config::$patient_history_from_id[$participant_id][$tmp_field];
+						$new_value = isset($detail_fields[$tmp_field])? preg_replace('/^\'(.*)\'$/', '$1', $detail_fields[$tmp_field]): '';
+						if((!empty($old_value) || !empty($new_value)) && ($new_value != $old_value)) {
+							$diff[] =  utf8_decode($file_field) . ": new [$new_value] <=> old [$old_value]";
+						}
+					}
+					if(!empty($diff)) {
+						$tmp_msg = "There are conflicts between smoking information defined both in step2 and 3 for frsq# $frsq_nbr! Data won't be updated and please check data! [line: $line_counter]";
+						foreach($diff as $new_ex) $tmp_msg .= "<br> -> ".$new_ex;
+						Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Somking conflict'][] = $tmp_msg;
+					}
+				} else {
+					if(!isset(Config::$event_controls['lifestyle']['all']['smoking history questionnaire'])) die('ERR 88998379');
+					$event_control_id = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['event_control_id'];
+					$detail_tablename = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['detail_tablename'];				
+					
+					$master_fields = array(
+						'participant_id' => $participant_id,
+						'event_control_id' =>  $event_control_id
+					);
+					$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
+					$detail_fields['event_master_id'] = $event_master_id;
+					customInsertChusRecord($detail_fields, $detail_tablename, true);				
+				}
 			}
-			
+
 			// reproductive_histories
 			
+			$headers_list = array();
 			$data_to_insert = array();
 			
+			$headers_list['Âge 1ere menstruation'] = 'age_at_menarche';
 			$age_at_menarche = str_replace('ND','',$line_data['Âge 1ere menstruation']);
 			if(strlen($age_at_menarche)) {
 				if(!preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $age_at_menarche,$matches)) die('ERR 9874994812 age_at_menarche : ' .$age_at_menarche. ' line '.$line_counter);
 				$data_to_insert['age_at_menarche'] = "'$age_at_menarche'";
 			}
-			$gravida = str_replace('ND','',$line_data['G']);
+			$headers_list['ENFANTS::G'] = 'gravida';
+			$gravida = str_replace(array('ND','-'),array('',''),$line_data['ENFANTS::G']);
 			if(strlen($gravida)) {
-				if(!preg_match('/^[0-9]+$/', $gravida,$matches)) die('ERR 987499482 gravida : '.$gravida);
+				if(!preg_match('/^[0-9]+$/', $gravida, $matches)) die('ERR 987499482 gravida : '.$gravida);
 				$data_to_insert['gravida'] = "'$gravida'";
-			}			
-			$para = str_replace('ND','',$line_data['P']);
+			}	
+			$headers_list['ENFANTS::P'] = 'para';
+			$para = str_replace(array('ND','-'),array('',''),$line_data['ENFANTS::P']);
 			if(strlen($para)) {
 				if(preg_match('/^([0-9]+) {0,1}(.*)$/', $para,$matches)) {
 					$para = $matches[1];
@@ -648,61 +690,70 @@ function addPatientsHistory() {
 					die('ERR 987499483 para : '.$para);
 				}
 				$data_to_insert['para'] = "'$para'";
-			}	
-			$chus_abortus = str_replace('ND','',$line_data['A']);
+			}
+			$headers_list['ENFANTS::A'] = 'chus_abortus';
+			$chus_abortus = str_replace(array('ND','-'),array('',''),$line_data['ENFANTS::A']);
 			if(strlen($chus_abortus)) {
 				if(!preg_match('/^[0-9]+$/', $chus_abortus, $matches)) die('ERR 9874994843 $chus_abortus : '.$chus_abortus);
 				$data_to_insert['chus_abortus'] = "'$chus_abortus'";
 			}
-			
-			$line_data['Statut ménopause::Préménopause'] = str_replace(array('ND', '-'),array('',''),$line_data['Statut ménopause::Préménopause']);
-			if(strlen($line_data['Statut ménopause::Préménopause'])) {
-				if($line_data['Statut ménopause::Préménopause'] != 'x')  {
-					die('ERR 98dds843 Préménopause : '.$line_data['Statut ménopause::Préménopause']);
+			$headers_list['Statut ménopause'] = 'menopause_status';	
+			$pre_menopause_value = str_replace(array('ND', '-'),array('',''),$line_data['Statut ménopause::Pré']);
+			if(strlen($pre_menopause_value)) {
+				if($pre_menopause_value != 'x')  {
+					die('ERR 98dds843 Préménopause : '.$pre_menopause_value);
 				} else {
 					$data_to_insert['menopause_status'] = "'pre'";
 				}
-			}			
-			if(strlen($line_data['Statut ménopause::Ménopause'])) {
-				if($line_data['Statut ménopause::Ménopause'] != 'x')  die('ERR 98dds843 Ménopause : '.$line_data['Statut ménopause::Ménopause']);
-				if(isset($data_to_insert['menopause_status'])) die('Menopause status recorded twice');
+			}
+			$menopause_value = str_replace(array('ND', '-'),array('',''),$line_data['Statut ménopause::Ménopause']);
+			if(strlen($menopause_value)) {
+				if($menopause_value != 'x')  die('ERR 98dds843 Ménopause : '.$menopause_value);
+				if(isset($data_to_insert['menopause_status'])) die('Menopause status recorded twice (1) line:'. $line_counter);
 				$data_to_insert['menopause_status'] = "'peri'";
 			}			
-			if(strlen($line_data['Statut ménopause::Post ménopause'])) {
-				if($line_data['Statut ménopause::Post ménopause'] != 'x')  die('ERR 98dds8sasas43 Post ménopause : '.$line_data['Statut ménopause::Post ménopause']);
-				if(isset($data_to_insert['menopause_status'])) die('Menopause status recorded twice');
+			$post_menopause_value = str_replace(array('ND', '-'),array('',''),$line_data['Statut ménopause::Post']);
+			if(strlen($post_menopause_value)) {
+				if($post_menopause_value != 'x')  die('ERR 98dds8sasas43 Post ménopause : '.$post_menopause_value);
+				if(isset($data_to_insert['menopause_status'])) die('Menopause status recorded twice (2) line:'. $line_counter);
 				$data_to_insert['menopause_status'] = "'post'";
 			}			
-	
-			$age_at_menopause = str_replace(array('ND', '-'),array('',''),$line_data['Âge début ménopause']);
+			$headers_list['Âge début ménopause'] = 'age_at_menopause';	
+			$age_at_menopause = str_replace(array('ND', 'nd', '-'),array('','',''),$line_data['Âge début ménopause']);
 			if(strlen($age_at_menopause)) {
-				if(!preg_match('/^[0-9]+$/', $age_at_menopause, $matches)) die('ERR 9833343');
+				if(!preg_match('/^[0-9]+$/', $age_at_menopause, $matches)) die('ERR 9833343 '.$age_at_menopause);
 				$data_to_insert['age_at_menopause'] = "'$age_at_menopause'";
 			}
 			
-			if(strlen($line_data['Cause fin menstruation::Naturelle'])) {
-				if($line_data['Cause fin menstruation::Naturelle'] != 'x')  die('ERR 98ddsssaa843 Cause fin menstruation::Naturelle : '.$line_data['Cause fin menstruation::Naturelle']);
+			$headers_list['Cause fin menstruation'] = 'menopause_onset_reason';	
+			$natural_menopause_reason = str_replace(array('ND', '-','oui'),array('','','x'),$line_data['Cause fin menstruation::Naturelle']);
+			if(strlen($natural_menopause_reason)) {
+				if($natural_menopause_reason != 'x')  die('ERR 98ddsssaa843 Cause fin menstruation::Naturelle : '.$natural_menopause_reason);
 				$data_to_insert['menopause_onset_reason'] = "'natural'";
-			}			
-			if(strlen($line_data['Cause fin menstruation::Chirurgie/Provoquée'])) {
-				if($line_data['Cause fin menstruation::Chirurgie/Provoquée'] != 'x')  die('ERR 98dds111843 Cause fin menstruation::Chirurgie/Provoquée : '.$line_data['Cause fin menstruation::Chirurgie/Provoquée']);
+			}		
+			$induced_menopause_reason = str_replace(array('ND', '-','oui'),array('','','x'),$line_data['Cause fin menstruation::Chirurgie/Provoquée']);
+			if(strlen($induced_menopause_reason)) {
+				if($induced_menopause_reason != 'x')  die('ERR 98dds111843 Cause fin menstruation::Chirurgie/Provoquée : '.$induced_menopause_reason);
 				if(isset($data_to_insert['menopause_onset_reason'])) die('ERR ssaseyue');
 				$data_to_insert['menopause_onset_reason'] = "'surgical/induced'";
-			}			
-			if(strlen($line_data['Cause fin menstruation::Chimio/Radiothérapie'])) {
-				if($line_data['Cause fin menstruation::Chimio/Radiothérapie'] != 'x')  die('ERR 98dds111843 Cause fin menstruation::Chimio/Radiothérapie : '.$line_data['Cause fin menstruation::Chimio/Radiothérapie']);
+			}	
+			$chimio_menopause_reason = str_replace(array('ND', '-','oui'),array('','','x'),$line_data['Cause fin menstruation::Chimio/Radiothérapie']);	
+			if(strlen($chimio_menopause_reason)) {
+				if($chimio_menopause_reason != 'x')  die('ERR 98dds111843 Cause fin menstruation::Chimio/Radiothérapie : '.$chimio_menopause_reason);
 				if(isset($data_to_insert['menopause_onset_reason'])) die('ERR sssaaaaaseyue');
 				$data_to_insert['menopause_onset_reason'] = "'chemo/radio'";
 			}
-			
-			$hrt_use = str_replace(array('ND', 'nd',), array('',''), $line_data['HORMONES::Hormone de remplacement Oui-Non-S.R.']);
+
+			$headers_list['Hormone de remplacement Oui-Non-S.R.'] = 'hrt_use';		
+			$headers_list['Hormone de remplacement Oui-Non-S.R. (precision)'] = 'chus_hrt_use_precision';		
+			$hrt_use = str_replace(array('ND', 'nd','-'), array('','',''), $line_data['Hormone de remplacement Oui-Non-S.R.']);
 			$empty_test = str_replace(' ', '', $hrt_use);
 			if(strlen($empty_test)) {
-				if($hrt_use == 'non') {
+				if(preg_match('/^non {0,1}$/i',$hrt_use,$matches)) {
 					$data_to_insert['hrt_use'] = "'no'";
 				} else {
 					$data_to_insert['hrt_use'] = "'yes'";
-					if(($hrt_use != 'oui') && ($hrt_use != 'oui ')) {
+					if(!preg_match('/^oui {0,1}$/i',$hrt_use,$matches)) {
 						if(preg_match('/^oui (.+)$/', $hrt_use, $matches)) {
 							$data_to_insert['chus_hrt_use_precision'] = "'".$matches[1]. "'";
 							Config::$summary_msg['PATIENT HISTORY']['@@MESSAGE@@']['Hormone de remplacement'][] = "Added precision to 'Hormone de remplacement' = 'oui': value [".$matches[1]."]! [line: $line_counter]";
@@ -713,18 +764,20 @@ function addPatientsHistory() {
 					}	
 				}				
 			}
-			$hrt_years_used = str_replace(array('ND', '-'),array('',''),$line_data['HORMONES::Durée Hormone (An)']);
+			$headers_list['Durée Hormone (An)'] = 'hrt_years_used';			
+			$hrt_years_used = str_replace(array('ND', '-'),array('',''),$line_data['Durée Hormone (An)']);
 			if(strlen($hrt_years_used)) {
 				if(!preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $hrt_years_used, $matches)) die('ERR 98334000343 Durée Hormone : '.$hrt_years_used);
 				$data_to_insert['hrt_years_used'] = "'$hrt_years_used'";
 			}
-
-			$chus_evista_use = str_replace(array('ND'),array(''), $line_data['HORMONES::Tamoxifène / Évista (Oui-Non-S.R.)']);
+			$headers_list['Tamoxifène / Évista  PRÉ OP (Oui-Non-ND)'] = 'chus_evista_use';	
+			$headers_list['Tamoxifène / Évista  PRÉ OP (Oui-Non-ND) (precision)'] = 'chus_evista_use_precision';	
+			$chus_evista_use = str_replace(array('ND','-'),array('',''), $line_data['Tamoxifène / Évista  PRÉ OP (Oui-Non-ND)']);
 			if(strlen($chus_evista_use)) {
-				if(preg_match('/^ {0,1}non {0,1}$/', $chus_evista_use, $matches)) {
+				if(preg_match('/^ {0,1}non {0,1}$/i', $chus_evista_use, $matches)) {
 					$data_to_insert['chus_evista_use'] = "'no'";
 				
-				} else if(preg_match('/^oui {0,1}(.*)$/', $chus_evista_use, $matches)) {
+				} else if(preg_match('/^oui {0,1}(.*)$/i', $chus_evista_use, $matches)) {
 					$data_to_insert['chus_evista_use'] = "'yes'";
 					if(!empty($matches[1])) $data_to_insert['chus_evista_use_precision'] = "'".$matches[1]."'";
 				
@@ -734,14 +787,76 @@ function addPatientsHistory() {
 					Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Tamoxifène / Évista'][] = "Value '$chus_evista_use' will be defined as 'Evista' = 'oui'. The value will be added to precision! [line: $line_counter]";
 				}
 			}	
-
+			
 			if(!empty($data_to_insert)) {
-				$data_to_insert['participant_id'] = $participant_id;
-				customInsertChusRecord($data_to_insert, 'reproductive_histories');	
+				if(!empty(Config::$patient_history_from_id[$participant_id]['reproduct_id'])) {
+					$diff = array();
+					foreach($headers_list as $file_field => $tmp_field) {
+						$old_value =Config::$patient_history_from_id[$participant_id][$tmp_field];
+						$new_value = isset($data_to_insert[$tmp_field])? preg_replace('/^\'(.*)\'$/', '$1', $data_to_insert[$tmp_field]): '';
+						if((!empty($old_value) || !empty($new_value)) && ($new_value != $old_value)) {
+							$diff[] =  utf8_decode($file_field) . ": new [$new_value] <=> old [$old_value]";
+						}
+					}
+					if(!empty($diff)) {
+						$tmp_msg = "There are conflicts between reproductive history defined both in step2 and 3 for frsq# $frsq_nbr! Data won't be updated and please check data! [line: $line_counter]";
+						foreach($diff as $new_ex) $tmp_msg .= "<br> -> ".$new_ex;
+						Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Reproductive history conflict'][] = $tmp_msg;
+					}
+				} else {
+					$data_to_insert['participant_id'] = $participant_id;
+					customInsertChusRecord($data_to_insert, 'reproductive_histories');	
+				}
 			}
 		}
 	}
 }
+
+function editHistoryConflict($old_value, $new_value, $frsq_nbr, $field, $worksheet, $line) {
+	if(!empty($old_value)) {
+		if(empty($new_value)) {
+//			Config::$summary_msg[$worksheet]['@@MESSAGE@@']['History Conflict #1'][] = "The value of field '$field' has been defined during step2 ($old_value) but this one is not defined in step3 (see frsq# $frsq_nbr)! Data in DB won't be updated please confirm! [line: $line]";
+		} else if($old_value != $new_value) {
+			Config::$summary_msg[$worksheet]['@@ERROR@@']['History Conflict #2'][] = "The value of field '$field' has been defined during step2 ($old_value) and step3 ($new_value) and are different (see frsq# $frsq_nbr)! Please resolve conflict! [line: $line]";
+		}
+	} else if(!empty($new_value)) {
+//		Config::$summary_msg[$worksheet]['@@MESSAGE@@']['History Conflict #3'][] = "The value of field '$field' has been defined during step3 ($new_value) but this one is not defined in step2 (see frsq# $frsq_nbr)! Data in DB will be updated please confirm! [line: $line]";
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function addFamilyHistory() {
 	global $connection;

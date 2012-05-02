@@ -554,7 +554,7 @@ function addPatientsHistory() {
 				}
 			}	
 			
-			$years_quit_smoking = str_replace('ND','',$line_data['Tabac::Depuis combien année (An)']);
+			$years_quit_smoking = str_replace(array('ND','-'),array('',''),$line_data['Tabac::Depuis combien année (An)']);
 			if(strlen($years_quit_smoking)) {
 				if(preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $years_quit_smoking,$matches)) {
 					$detail_fields['years_quit_smoking'] = "'$years_quit_smoking'";
@@ -563,7 +563,7 @@ function addPatientsHistory() {
 				}
 			}			
 			
-			$chus_duration_in_years = str_replace('ND','',$line_data['Tabac::Durée (an)']);
+			$chus_duration_in_years = str_replace(array('ND','-'),array('',''),$line_data['Tabac::Durée (an)']);
 			if(strlen($chus_duration_in_years)) {
 				if(preg_match('/^([0-9]+)(\.[0-9]+){0,1}$/', $chus_duration_in_years,$matches)) {
 					$detail_fields['chus_duration_in_years'] = "'$chus_duration_in_years'";
@@ -588,8 +588,7 @@ function addPatientsHistory() {
 				
 				$master_fields = array(
 					'participant_id' => $participant_id,
-					'event_control_id' =>  $event_control_id,
-					'event_summary' => "'".str_replace("'","''",$notes)."'"
+					'event_control_id' =>  $event_control_id
 				);
 				$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
 				$detail_fields['event_master_id'] = $event_master_id;
@@ -671,14 +670,14 @@ function addPatientsHistory() {
 				$data_to_insert['menopause_onset_reason'] = "'chemo/radio'";
 			}
 			
-			$hrt_use = str_replace(array('ND', 'nd',), array('',''), $line_data['HORMONES::Hormone de remplacement Oui-Non-S.R.']);
+			$hrt_use = str_replace(array('ND', 'nd','-'), array('','',''), $line_data['HORMONES::Hormone de remplacement Oui-Non-S.R.']);
 			$empty_test = str_replace(' ', '', $hrt_use);
 			if(strlen($empty_test)) {
-				if($hrt_use == 'non') {
+				if(preg_match('/^non {0,1}$/i',$hrt_use,$matches)) {
 					$data_to_insert['hrt_use'] = "'no'";
 				} else {
 					$data_to_insert['hrt_use'] = "'yes'";
-					if(($hrt_use != 'oui') && ($hrt_use != 'oui ')) {
+					if(!preg_match('/^oui {0,1}$/i',$hrt_use,$matches)) {
 						if(preg_match('/^oui (.+)$/', $hrt_use, $matches)) {
 							$data_to_insert['chus_hrt_use_precision'] = "'".$matches[1]. "'";
 							Config::$summary_msg['PATIENT HISTORY']['@@MESSAGE@@']['Hormone de remplacement'][] = "Added precision to 'Hormone de remplacement' = 'oui': value [".$matches[1]."]! [line: $line_counter]";
@@ -695,12 +694,12 @@ function addPatientsHistory() {
 				$data_to_insert['hrt_years_used'] = "'$hrt_years_used'";
 			}
 
-			$chus_evista_use = str_replace(array('ND'),array(''), $line_data['HORMONES::Tamoxifène / Évista (Oui-Non-S.R.)']);
+			$chus_evista_use = str_replace(array('ND','-'),array('',''), $line_data['HORMONES::Tamoxifène / Évista (Oui-Non-S.R.)']);
 			if(strlen($chus_evista_use)) {
-				if(preg_match('/^ {0,1}non {0,1}$/', $chus_evista_use, $matches)) {
+				if(preg_match('/^ {0,1}non {0,1}$/i', $chus_evista_use, $matches)) {
 					$data_to_insert['chus_evista_use'] = "'no'";
 				
-				} else if(preg_match('/^oui {0,1}(.*)$/', $chus_evista_use, $matches)) {
+				} else if(preg_match('/^oui {0,1}(.*)$/i', $chus_evista_use, $matches)) {
 					$data_to_insert['chus_evista_use'] = "'yes'";
 					if(!empty($matches[1])) $data_to_insert['chus_evista_use_precision'] = "'".$matches[1]."'";
 				

@@ -95,7 +95,8 @@ Config::$models['BreastDiagnosisMaster'] = $model;
 	
 function postBreastDiagnosesRead(Model $m){
 	global $connection;
-	
+//TODO
+//return false;	
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
 	
 	$frsq_nbr = str_replace(' ', '', utf8_encode($m->values['#FRSQ']));
@@ -462,15 +463,11 @@ function participantDataCompletion(Model $m, $participant_id, $diagnosis_master_
 	addImmuno($m, $participant_id, $diagnosis_master_id);
 	addCa153($m, $participant_id, $diagnosis_master_id);
 	addHormono($m, $participant_id, $diagnosis_master_id);
-//	addOtherTreatment('Radio::Pré op', 'radiation','pre', $m, $participant_id, $diagnosis_master_id);
-//	addOtherTreatment('Radio::Post op', 'radiation','post', $m, $participant_id, $diagnosis_master_id);
 	
-//	addOtherTreatment('Chimio::Pré op', 'chemotherapy','pre', $m, $participant_id, $diagnosis_master_id);
-//	addOtherTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
-	
-//	addEvent(array('CA125 au Dx'), 'lab', 'breast', 'CA125', $m, $participant_id, $diagnosis_master_id);
-//	addEvent(array('CTScan (+ ou -)'), 'clinical', 'all', 'ctscan', $m, $participant_id, $diagnosis_master_id);
-//	addEvent(array('Immuno (IHC)::ER','Immuno (IHC)::PR','Immuno (IHC)::P53','Immuno (IHC)::CA125'), 'lab', 'breast', 'immunohistochemistry', $m, $participant_id, $diagnosis_master_id);
+	addPrePostTreatment('Radio::Pré op', 'radiation','pre', $m, $participant_id, $diagnosis_master_id);
+	addPrePostTreatment('Radio::Post op', 'radiation','post', $m, $participant_id, $diagnosis_master_id);
+	addPrePostTreatment('Chimio::Pré op', 'chemotherapy','pre', $m, $participant_id, $diagnosis_master_id);
+	addPrePostTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
 }
 
 function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
@@ -650,19 +647,16 @@ function addCa153(Model $m, $participant_id, $diagnosis_master_id = null) {
 }
 
 function addHormono(Model $m, $participant_id, $diagnosis_master_id = null) {
-	todo valider
 	$trt_data = array('master' => array(), 'detail' => array());
 	
 	$value = preg_replace(array('/^ND$/', '/^a venir$/' , '/^non$/'), array('','',''),$m->values[utf8_decode('Hormonothérapie Post op  (oui/non)')]);
 	if(!empty($value)) {
 		$value = preg_replace(array('/^oui$/', '/^oui {0,1}\((.*)\)$/'), array('','$1'), $value);
-		$trt_data['mster']['notes'] = $value;
+		$trt_data['master']['notes'] = $value;
 		$trt_data['detail']['pre_post_surgery'] = 'post';
 	}
 
 	if(!empty($trt_data['master']) || !empty($trt_data['detail'])) {
-		$trt_data['detail']['laterality'] = $m->values['laterality'];
-		
 		foreach($trt_data['master'] as $key => $value) $trt_data['master'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
 		foreach($trt_data['detail'] as $key => $value) $trt_data['detail'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
 		
@@ -677,4 +671,118 @@ function addHormono(Model $m, $participant_id, $diagnosis_master_id = null) {
 	}
 }
 
-//TODO radiation
+function addPrePostTreatment($file_field, $treatment_type, $pre_post, Model $m, $participant_id, $diagnosis_master_id = null) {
+	global $connection;
+	
+	$trt_control = Config::$treatment_controls[$treatment_type]['breast'];
+	
+	$trt_data = array('master' => array(), 'detail' => array());
+	
+	$value = preg_replace(array('/^ {0,1}/', '/ {0,1}$/', '/^Oui(.*)$/', '/^ND$/', '/^non$/', '/^Non$/','/^a venir$/'), array('', '', 'oui$1', '','','',''),$m->values[utf8_decode($file_field)]);
+	if(!empty($value)) {
+		if(in_array($value, array('x','n'))) {
+			Config::$summary_msg[strtoupper($file_field)]['@@ERROR@@']['Unknown value'][] = "Value = '$value' for field '$file_field' is not supported! No data will be imported! [Line: ".$m->line.']';
+			return;
+		}
+		
+		if(!in_array($pre_post, array('pre','post'))) die('ERR 99849984');
+		$trt_data['detail']['pre_post_surgery'] = $pre_post;
+		
+		$start_date = null;
+		$finish_date = null;
+		$note = '';
+		
+		if($value != 'oui') {
+			if(preg_match('/^(19|20)([0-9]{2})$/',$value,$matches)) {
+				//2006
+				$start_date = $matches[1].$matches[2];
+			} else if(preg_match('/^oui {0,1}\((19|20)([0-9]{2})\)$/',$value,$matches)) {
+				//oui (2003)
+				$start_date = $matches[1].$matches[2];
+			} else if(preg_match('/^oui {0,1}(19|20)([0-9]{2})$/',$value,$matches)) {
+				//oui 2003
+				$start_date = $matches[1].$matches[2];
+			} else if(preg_match('/^oui \((19|20)([0-9]{2})(\-) {0,1}(19|20)([0-9]{2})\)$/',$value,$matches)) {
+				//oui (2003-2004)
+				//oui (1991- 2003)
+				$start_date = $matches[1].$matches[2];
+				$finish_date = $matches[4].$matches[5];
+			} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([9][0-9])\)$/',$value,$matches)) {
+				//oui (1993-94)
+				$start_date = $matches[1].$matches[2];
+				$finish_date = $matches[1].$matches[3];
+			} else if(preg_match('/^oui \((19|20)([0-9]{2})\-([01][0-9])\)$/',$value,$matches)) {
+				//oui (2005-01)
+				$start_date = $matches[1].$matches[2].'-'.$matches[3];	
+			} else if(preg_match('/^oui \((19|20)([0-9]{2})(\-[01][0-9]){0,1}(\-[0-3][0-9]){0,1} au (19|20)([0-9]{2})(\-[01][0-9]){0,1}(\-[0-3][0-9]){0,1}\)$/',$value,$matches)) {
+				//oui (2003-03-25 au 2007-11-15)
+				$start_date = $matches[1].$matches[2].$matches[3].$matches[4];	
+				$finish_date = $matches[5].$matches[6].(isset($matches[7])?$matches[7]:'').(isset($matches[8])?$matches[8]:'');	
+
+			} else if($value == "oui(2003-05 au 09) 50 Gy en 5 sem. 25 fractions"){
+				$start_date = '2003-05';
+				$finish_date = '2003-09';
+				$note = '50 Gy en 5 sem. 25 fractions';
+			} else if($value == "oui FEC-D (6 cycles 2011-04 au 2011-08)"){
+				$start_date = '2011-04';
+				$finish_date = '2011-08';
+				$note = 'FEC-D (6 cycles)';
+			} else if($value == "oui (2004) 8 cycles: 4AC, 4 taxol"){
+				$start_date = '2004';
+				$finish_date = '';
+				$note = '8 cycles: 4AC, 4 taxol';
+			} else if($value == utf8_decode("oui (Néo sein droit en 2004)")) {
+				$start_date = '2004';
+				$finish_date = '';
+				$note = 'Néo sein droit';
+			
+			} else if(preg_match('/^refus$/i',$value,$matches)) {
+				$query = "select id, notes from participants where id = $participant_id;";
+				$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+				$row = $results->fetch_assoc();
+				if(empty($row)) die('ERR7748484774');
+				$new_note = (empty($row['notes'])? '' : ' // ').$file_field . ' : Refus';			
+				$query = "UPDATE participants SET notes = CONCAT(IFNULL(notes, ''), '$new_note') WHERE id = $participant_id;";				
+				mysqli_query($connection, $query) or die("participant  notes update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				$query = str_replace('participants','participants_revs', $query);
+				mysqli_query($connection, $query) or die("participant  notes update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
+				
+				return;
+				
+			} else {
+				$note = preg_replace(array('/^oui {0,1}/', '/^\((.*)\)$/'), array('', '$1'),$value);
+			}
+		}
+	}
+		
+	if(!empty($start_date)) {
+		$date_tmp = getDateAndAccuracy($start_date);
+		$start_date = $date_tmp['date'];
+		$trt_data['master']['start_date'] = $date_tmp['date'];
+		$trt_data['master']['start_date_accuracy'] = $date_tmp['accuracy'];
+	}
+	if(!empty($finish_date)) {		
+		$date_tmp = getDateAndAccuracy($finish_date);
+		$finish_date = $date_tmp['date'];		
+		$trt_data['master']['finish_date'] = $date_tmp['date'];
+		$trt_data['master']['finish_date_accuracy'] = $date_tmp['accuracy'];
+	}	
+	if(!empty($start_date) && !empty($finish_date) && (str_replace('-','',$start_date) > str_replace('-','',$finish_date))) {
+		Config::$summary_msg[strtoupper($file_field)]['@@ERROR@@']['Date error'][$trt_data] = "Dates definition error (from $start_date to $finish_date)! [Line: ".$m->line.']';		
+	}
+	if(!empty($note)) $trt_data['master']['notes'] = $note;
+
+	if(!empty($trt_data['master']) || !empty($trt_data['detail'])) {
+		foreach($trt_data['master'] as $key => $value) $trt_data['master'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		foreach($trt_data['detail'] as $key => $value) $trt_data['detail'][$key] = utf8_encode("'".str_replace("'","''",$value)."'");
+		
+		$trt_data['master']['participant_id'] = $participant_id;
+		$trt_data['master']['treatment_control_id'] = $trt_control['treatment_control_id'];
+		
+		if($diagnosis_master_id) $trt_data['master']['diagnosis_master_id'] = $diagnosis_master_id;
+		
+		$treatment_master_id = customInsertChusRecord($trt_data['master'], 'treatment_masters');
+		$trt_data['detail']['treatment_master_id'] = $treatment_master_id;
+		customInsertChusRecord($trt_data['detail'], $trt_control['detail_tablename'], true);		
+	}
+}
