@@ -1,7 +1,7 @@
 <?php 
-$headers_were_sent = headers_sent();
-if(!$headers_were_sent){
-// 	ob_start('ob_gzhandler');
+$use_buffer = !headers_sent() && Configure::read('use_compression');
+if($use_buffer){
+	assert(ob_start('ob_gzhandler')) or die('Failed to start compression buffer. Make sure ZLIB is installed properley (http://php.net/zlib) or turn compression off via use_compression in core.php.');
 	header ('Content-type: text/html; charset=utf-8');
 	AppController::atimSetCookie(isset($skip_expiration_cookie) && $skip_expiration_cookie);
 }
@@ -115,7 +115,7 @@ if(!$headers_were_sent){
 </body>
 </html>
 <?php
-if(!$headers_were_sent){ 
-// 	ob_end_flush();
+if($use_buffer){ 
+	ob_end_flush();
 }
 ?>
