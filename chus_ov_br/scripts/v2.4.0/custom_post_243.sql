@@ -626,3 +626,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 UPDATE structure_formats SET `display_order`='45' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_txd_breast_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_fields SET  `type`='float_positive' WHERE field='chus_quantity_per_day';
+ALTER TABLE ed_all_lifestyle_smokings
+ MODIFY chus_quantity_per_day FLOAT UNSIGNED DEFAULT NULL;
+ALTER TABLE ed_all_lifestyle_smokings_revs
+ MODIFY chus_quantity_per_day FLOAT UNSIGNED DEFAULT NULL;
+
