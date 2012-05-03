@@ -634,3 +634,7 @@ ALTER TABLE ed_all_lifestyle_smokings_revs
 
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`) 
 VALUES ((SELECT id FROM structure_fields WHERE field = 'type' AND tablename = 'chus_ed_past_histories'), 'notEmpty');
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`, `use_as_input`) 
+VALUES 
+('sigmoide','Sigmoide','Sigmoïde', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1);

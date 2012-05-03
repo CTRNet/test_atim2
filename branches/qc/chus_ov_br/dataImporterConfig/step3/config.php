@@ -52,11 +52,12 @@ class Config{
 	static $event_controls = array();
 	static $storage_controls = array();
 	
-	static  $participant_id_linked_to_br_dx_in_step2 = array();
+	static $participant_id_linked_to_br_dx_in_step2 = array();
 	static $participant_id_from_br_nbr = array();
 	static $data_for_import_from_participant_id = array();
 	static $patient_history_from_id = array();
 	static $personal_past_history_from_id = array();
+	static $family_history_from_id = array();
 	
 	static $summary_msg = array();	
 	
@@ -238,7 +239,6 @@ function addonFunctionStart(){
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__."<br>$query");
 	while($row = $results->fetch_assoc()) Config::$patient_history_from_id[$row['id']] = $row;   
 
-	
 	// personal past history
 	
 	$event_control_id = Config::$event_controls['clinical']['all']['past history']['event_control_id'];
@@ -249,6 +249,14 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()) {
 		if(array_key_exists($row['participant_id'], Config::$personal_past_history_from_id) && array_key_exists($row['type'], Config::$personal_past_history_from_id[$row['participant_id']])) die('ERR 84994944');
 		Config::$personal_past_history_from_id[$row['participant_id']][$row['type']] = array('event_date' => $row['event_date'], 'event_date_accuracy' => $row['event_date_accuracy'], 'event_summary' => $row['event_summary']);
+	}
+	
+	// family history
+	
+	$query = "SELECT participant_id, relation, chus_tumor_description, chus_tumor_origin, family_domain, chus_notes, age_at_dx FROM family_histories;";	
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__."<br>$query");
+	while($row = $results->fetch_assoc()) {
+		Config::$family_history_from_id[$row['participant_id']][$row['relation'].'-'.$row['chus_tumor_description']] = $row;
 	}
 }
 
@@ -289,7 +297,7 @@ function addonFunctionEnd(){
 //	// ADD PATIENT OTHER DATA
 
  	addPatientsHistory();
-//   	addFamilyHistory();
+   	addFamilyHistory();
 //  	addCollections();
 //
 //  	// INVENTORY COMPLETION
@@ -935,38 +943,6 @@ function getAtcdDate($date_string, $line_counter) {
 	return array('date' => null, 'accuracy' => null, 'note' => null);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function addFamilyHistory() {
 	global $connection;
 
@@ -980,11 +956,14 @@ function addFamilyHistory() {
 		'ganglions' => array('tumor' => 'ganglion', 'origin' => ''),
 		'généralisé' => array('tumor' => 'generalized', 'origin' => ''),
 		'gynécologique' => array('tumor' => 'gynecological', 'origin' => ''),
+		'gynecologique' => array('tumor' => 'gynecological', 'origin' => ''),
 		'hodgkin' => array('tumor' => 'hodgkin', 'origin' => ''),
 		'intestin' => array('tumor' => 'intestine', 'origin' => ''),
 		'rein' => array('tumor' => 'kidney', 'origin' => ''),
 		'leucemie' => array('tumor' => 'leukemia', 'origin' => ''),
 		'leucémie' => array('tumor' => 'leukemia', 'origin' => ''),
+		'larynx' => array('tumor' => 'larynx', 'origin' => ''),
+		'sigmoide' => array('tumor' => 'sigmoide', 'origin' => ''),
 		'poumon' => array('tumor' => 'lung', 'origin' => ''),
 		'proumon' => array('tumor' => 'lung', 'origin' => ''),
 		'lymphome' => array('tumor' => 'lymphoma', 'origin' => ''),
@@ -999,6 +978,7 @@ function addFamilyHistory() {
 		'estomac' => array('tumor' => 'stomach', 'origin' => ''),
 		'estomas' => array('tumor' => 'stomach', 'origin' => ''),
 		'testicule' => array('tumor' => 'testicle', 'origin' => ''),
+		'testicules' => array('tumor' => 'testicle', 'origin' => ''),
 		'utérus' => array('tumor' => 'uterus', 'origin' => ''),
 		'angiosarcome' => array('tumor' => 'angiosarcoma', 'origin' => ''),
 		'col utérus' => array('tumor' => 'cervix', 'origin' => ''),
@@ -1015,7 +995,9 @@ function addFamilyHistory() {
 		'peau' => array('tumor' => 'skin', 'origin' => ''),
 		'pénis' => array('tumor' => 'penis', 'origin' => ''),
 		'oesophage' => array('tumor' => 'esophagus', 'origin' => ''),
-		'thyroide' => array('tumor' => 'thyroid', 'origin' => ''));
+		'thyroide' => array('tumor' => 'thyroid', 'origin' => ''),
+		'vulve' => array('tumor' => 'vulva', 'origin' => '')
+	);
 
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path);
@@ -1040,39 +1022,23 @@ function addFamilyHistory() {
 			$frsq_nbr = '';
 			foreach($headers as $key => $field) {
 				if(isset($new_line[$key])) {
-					$line_data[utf8_encode($field)] =  preg_replace(array('/( +)$/', '/^( +)/', '/^nd$/', '/^aucun$/'), array('','','',''), ($field == '#FRSQ')? $new_line[$key] : strtolower($new_line[$key]));
+					$line_data[utf8_encode($field)] =  preg_replace(array('/( +)$/', '/^( +)/', '/^nd$/', '/^aucun$/', '/^aucune$/', utf8_decode('/^à venir$/')), array('','','','','',''), ($field == '#FRSQ')? $new_line[$key] : strtolower($new_line[$key]));
 				} else {
 					$line_data[utf8_encode($field)] = '';
 				}
 			}
-			
+
 			// GET PARTICIPANT ID
 			
-			if(empty($line_data['#FRSQ'])) die('ERR Missing #FRSQ in Historique Familial worksheet line : '.$line_counter);
-			$frsq_nbr = utf8_encode($line_data['#FRSQ']);
+			if(empty($line_data['#FRSQ'])) die('ERR Missing #FRSQ in patient history worksheet line : '.$line_counter);
+			$frsq_nbr = str_replace(' ', '', $line_data['#FRSQ']);
 			
-			$participant_id = isset(Config::$ids_from_frsq_nbr[$frsq_nbr])? Config::$ids_from_frsq_nbr[$frsq_nbr]['participant_id'] : null;
-			if(!$participant_id)  {
-				$frsq_nbrs = preg_replace(array('/(\({0,1}voir)/i','/(\))/','/(\()/','/([A-Z]+)([0-9]+),([0-9]+)/','/([A-Z]+[0-9]+),([A-Z]+)([0-9]+)-([0-9]+)/'), array('-', '','-','$1$2-$1$3','$1-$2$3-$2$4'), $frsq_nbr);
-				$frsq_nbrs = explode('-',$frsq_nbrs);
-				foreach($frsq_nbrs as $new_frsq_nbr) {
-					$new_participant_id = isset(Config::$ids_from_frsq_nbr[$new_frsq_nbr])? Config::$ids_from_frsq_nbr[$new_frsq_nbr]['participant_id'] : null;
-					if(!$new_participant_id) {
-						Config::$summary_msg['FAMILY HISTORY']['@@WARNING@@']['Participant With Many FRSQ# #1'][] = "The FRSQ# '".$new_frsq_nbr."' is not defined in step 1! [Will try to assign data to other FRSQ# '".$line_data['#FRSQ']."'! [line: $line_counter]";
-					} else {
-						if($participant_id && ($new_participant_id != $participant_id)){
-							Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Participant With Many FRSQ# #2'][] = "The FRSQ#s '".$line_data['#FRSQ']."' have beend assigned to the same participant in step3 ('FAMILY HISTORY') but match different participants in step 1! [line: $line_counter]";
-						} else if(!$participant_id) {
-							$participant_id = $new_participant_id;
-						}
-					}
-				}
-			}
+			$participant_id = isset(Config::$participant_id_from_br_nbr[$frsq_nbr])? Config::$participant_id_from_br_nbr[$frsq_nbr] : null;
 			if(!$participant_id) {
-				Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step3 ('FAMILY HISTORY') but this number is not defined in step 1! [line: $line_counter]";
+				Config::$summary_msg['PATIENT HISTORY']['@@ERROR@@']['Unknown participant'][] = "The FRSQ# '".$line_data['#FRSQ']."' has beend assigned to a participant in step3 ('PATIENT HISTORY') but this number is not defined in step 1! [line: $line_counter]";
 				continue;
-			}
-			
+			}	
+
 			// CHECK PARTICIPANT ON MULTI ROW
 			
 			if(!isset(Config::$data_for_import_from_participant_id[$participant_id]['family_history_data'])) {
@@ -1088,22 +1054,20 @@ function addFamilyHistory() {
 				continue;
 			}
 
-			
 			$counter = 1;
-			for($counter = 1; $counter < 10; $counter++) {
+			for($counter = 1; $counter < 7; $counter++) {
 				$tumor_tmp = utf8_encode($line_data['Cancer #'.$counter]);
 				$family_link_tmp = utf8_encode($line_data['Lien parenté #'.$counter]);
 				if(empty($tumor_tmp) && empty($family_link_tmp)) continue;					
-			
-
+				
 				if(!empty($tumor_tmp) && !isset($tumors_list_matches[$tumor_tmp])) Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Tumor value unknown'][] = "The 'Cancer' [$tumor_tmp] is not supported by the migration process (replace &OElig; by oe)! [line: $line_counter]";
 //				if(!empty($relation) && !isset($relation_matches[$relation])) Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Family link value unknown'][] = "The 'Lien parenté' [$relation] is not supported by the migration process! [line: $line_counter]";
 				if((!empty($tumor_tmp) && empty($family_link_tmp)) || (empty($tumor_tmp) && !empty($family_link_tmp))) Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Missing Data'][] = "At least one of the value of the follwoing fields is missing ('Cancer #$counter' & 'Lien parenté #$counter')! [line: $line_counter]";
 				
 				if(!empty($tumor_tmp) && isset($tumors_list_matches[$tumor_tmp]) && !empty($family_link_tmp)) {
 					$tumor = $tumors_list_matches[$tumor_tmp]['tumor'];
-					$origin = $tumors_list_matches[$tumor_tmp]['origin'];	
-					
+					$origin = $tumors_list_matches[$tumor_tmp]['origin'];		
+				
 					$relation = '';
 					$family_domain = '';
 					$chus_notes = '';
@@ -1112,7 +1076,9 @@ function addFamilyHistory() {
 						$relation = 'great-grandfather';
 					} else if(preg_match('/^(grand-mère) {0,1}(.*)$/',$family_link_tmp,$matches)) {
 						$relation = 'grandmother';
-					} else  if(preg_match('/^(grand-père) {0,1}(.*)$/',$family_link_tmp,$matches)) {
+					} else if(preg_match('/^(g-mère) {0,1}(.*)$/',$family_link_tmp,$matches)) {
+						$relation = 'grandmother';
+					} else if(preg_match('/^(grand-père) {0,1}(.*)$/',$family_link_tmp,$matches)) {
 						$relation = 'grandfather';
 					
 					} else if(preg_match('/^(père) {0,1}(.*)$/',$family_link_tmp,$matches)) {
@@ -1147,10 +1113,10 @@ function addFamilyHistory() {
 					} else if(preg_match('/^(oncle) {0,1}(.*)$/',$family_link_tmp,$matches)) {
 						$relation = 'uncle';
 					} else {
-						Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unable to define relaiton'][] = "Unable to extract relation from 'Lien parenté #$counter' ($family_link_tmp) ! [line: $line_counter]";
+						Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unable to define relation'][] = "Unable to extract relation from 'Lien parenté #$counter' ($family_link_tmp) ! [line: $line_counter]";
 						continue;
 					}
-					if(isset($matches[2])) { 
+					if(isset($matches[2])) { 						
 						$chus_notes = str_replace(array('(',')'), array('',''), $matches[2]);
 						if(preg_match('/([0-9]{1,3}) {0,1}ans/', $chus_notes, $matches)) {
 							$age_at_dx = $matches[1];
@@ -1163,15 +1129,35 @@ function addFamilyHistory() {
 					}
 					
 					if(empty($relation) && empty($tumor)) die ('ERR889938933');
+					
 					$data_to_insert = array(
 						'participant_id' => $participant_id,
-						'chus_tumor_description' => "'$tumor'",
-						'relation' => "'$relation'"
+						'relation' => "'$relation'",
+						'chus_tumor_description' => "'$tumor'"
 					);
 					if(!empty($origin))  $data_to_insert['chus_tumor_origin'] = "'$origin'";
 					if(!empty($family_domain))  $data_to_insert['family_domain'] = "'$family_domain'";
 					if(!empty($chus_notes))  $data_to_insert['chus_notes'] = "'$chus_notes'";
 					if(!empty($age_at_dx))  $data_to_insert['age_at_dx'] = "'$age_at_dx'";
+					
+					if(isset(Config::$family_history_from_id[$participant_id][$relation.'-'.$tumor])) {
+						$data_for_test = array(
+							'participant_id' => '',
+							'relation' => '',
+							'chus_tumor_description' => '',
+							'chus_tumor_origin' => '',
+							'family_domain' => '',
+							'chus_notes' => '',
+							'age_at_dx' => '');
+						foreach($data_to_insert as $field => $value) $data_for_test[$field] = preg_replace('/^\'(.*)\'$/', '$1', $value);
+						$diff_data = array_diff($data_for_test, Config::$family_history_from_id[$participant_id][$relation.'-'.$tumor]);
+						if(!empty($diff_data)) {
+							$str_msg = '';
+							foreach($diff_data as $diff_field => $diff_val) $str_msg .= "$diff_field <=> $diff_val //";				
+							Config::$summary_msg['FAMILY HISTORY']['@@WARNING@@']['Fam History Conflicts'][] = "$tumor tumor of $relation has already been recorded for $frsq_nbr during step 2 but data are not exaclty the same (see $str_msg): new data won't be imported. Please clean-up data! [line: $line_counter]";					
+						}
+						continue;
+					}					
 					
 					customInsertChusRecord($data_to_insert, 'family_histories');
 				}

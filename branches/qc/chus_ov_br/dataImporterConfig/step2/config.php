@@ -1012,7 +1012,7 @@ function addFamilyHistory() {
 					} else if(preg_match('/^(oncle) {0,1}(.*)$/',$family_link_tmp,$matches)) {
 						$relation = 'uncle';
 					} else {
-						Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unable to define relaiton'][] = "Unable to extract relation from 'Lien parenté #$counter' ($family_link_tmp) ! [line: $line_counter]";
+						Config::$summary_msg['FAMILY HISTORY']['@@ERROR@@']['Unable to define relation'][] = "Unable to extract relation from 'Lien parenté #$counter' ($family_link_tmp) ! [line: $line_counter]";
 						continue;
 					}
 					if(isset($matches[2])) { 
