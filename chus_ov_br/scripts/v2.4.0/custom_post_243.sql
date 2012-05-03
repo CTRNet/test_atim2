@@ -632,3 +632,5 @@ ALTER TABLE ed_all_lifestyle_smokings
 ALTER TABLE ed_all_lifestyle_smokings_revs
  MODIFY chus_quantity_per_day FLOAT UNSIGNED DEFAULT NULL;
 
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`) 
+VALUES ((SELECT id FROM structure_fields WHERE field = 'type' AND tablename = 'chus_ed_past_histories'), 'notEmpty');

@@ -736,11 +736,11 @@ function addPatientsHistory() {
 						'master' => array(
 							'participant_id' => $participant_id,
 							'event_control_id' =>  $event_control_id,
-							'event_summary' => "'".str_replace("'","''",preg_replace(array('/^(oui )/', '/^(oui)$/', '/^\((.*)\)$/'), array('', '', '$1'), $line_data[$header]))."%%date_detail%%'"
+							'event_summary' => "'".str_replace("'","''",preg_replace(array('/^(oui {0,2})/', '/^\((.*)\)$/'), array('', '$1'), $line_data[$header]))."%%date_detail%%'"
 							),
 						'detail' => array('type' => "'$type'"));
 					
-					$event_date_data = getAtcdDate($line_data[$header.'::Date']);
+					$event_date_data = getAtcdDate($line_data[$header.'::Date'], $line_counter);
 
 					if(!empty($event_date_data['date'])) {
 						$event_data['master']['event_date'] = "'".$event_date_data['date']."'";
@@ -802,7 +802,7 @@ function addPatientsHistory() {
 	}
 }
 
-function getAtcdDate($date_string) {
+function getAtcdDate($date_string, $line_counter) {
 	$date_string = preg_replace(array('/^-$/','/^nd$/','/^ND$/'),array('','',''), $date_string);
 	if(!empty($date_string)) {
 		if(preg_match('/^(19|20)([0-9]{2})$/', $date_string, $matches)) {
@@ -819,8 +819,12 @@ function getAtcdDate($date_string) {
 			
 		} else if(preg_match('/^(Jan|Mar|Apr|May|Jun|Aug|Sep|Nov)-(19|20)([0-9]{2})$/', $date_string, $matches)) {
 			return array('date' => $matches[2].$matches[3].'-'.str_replace(array('Jan','Mar','Apr','May','Jun','Aug','Sep','Nov'), array('01','03','04','05','06','08','09','11'), $matches[1]).'-01', 'accuracy' => 'd', 'note' => null);
-						
+
+		} else if(preg_match('/^([03][0-9])-([01][0-9])-(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c', 'note' => null);				
+		
 		} else {
+			Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['ATCD date not supported'][] = "ATCD date '$date_string' is not supported and will be added to the note! [line: $line_counter]";							
 			return array('date' => null, 'accuracy' => null, 'note' => $date_string);
 		}
 	}
