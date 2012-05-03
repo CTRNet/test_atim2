@@ -56,6 +56,7 @@ class Config{
 	static $participant_id_from_br_nbr = array();
 	static $data_for_import_from_participant_id = array();
 	static $patient_history_from_id = array();
+	static $personal_past_history_from_id = array();
 	
 	static $summary_msg = array();	
 	
@@ -235,7 +236,20 @@ function addonFunctionStart(){
 	
 	LEFT JOIN reproductive_histories AS rep ON rep.participant_id = part.id AND rep.deleted != 1;";
 	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__."<br>$query");
-	while($row = $results->fetch_assoc()) Config::$patient_history_from_id[$row['id']] = $row;    
+	while($row = $results->fetch_assoc()) Config::$patient_history_from_id[$row['id']] = $row;   
+
+	
+	// personal past history
+	
+	$event_control_id = Config::$event_controls['clinical']['all']['past history']['event_control_id'];
+	$query = "SELECT em.participant_id, em.event_date,em.event_date_accuracy,em.event_summary,ed.type
+	FROM chus_ed_past_histories AS ed
+	INNER JOIN event_masters AS em ON ed.event_master_id = em.id AND em.deleted != 1 AND em.event_control_id = $event_control_id;";	
+	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__."<br>$query");
+	while($row = $results->fetch_assoc()) {
+		if(array_key_exists($row['participant_id'], Config::$personal_past_history_from_id) && array_key_exists($row['type'], Config::$personal_past_history_from_id[$row['participant_id']])) die('ERR 84994944');
+		Config::$personal_past_history_from_id[$row['participant_id']][$row['type']] = array('event_date' => $row['event_date'], 'event_date_accuracy' => $row['event_date_accuracy'], 'event_summary' => $row['event_summary']);
+	}
 }
 
 //=========================================================================================================
@@ -480,6 +494,10 @@ function addPatientsHistory() {
 			}		
 			editHistoryConflict($old_cause, $new_cause, $frsq_nbr, 'Cause décès', 'PATIENT HISTORY', $line_counter);
 
+			if(!empty($line_data['Mutation BRCA 1 ou 2'])) {
+				Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['BRCA Values'][] = "BRCA Value '".$line_data['Mutation BRCA 1 ou 2']."' not imported in step 3! Please record data manually! [line: $line_counter]";
+			}				
+			
 			if(!empty($notes_to_update)) {
 				$update_sql .= (empty($update_sql)? '' : ', ')."notes = CONCAT('$notes_to_update', ' // ', IFNULL(notes, ''))";
 			}
@@ -808,6 +826,69 @@ function addPatientsHistory() {
 					customInsertChusRecord($data_to_insert, 'reproductive_histories');	
 				}
 			}
+			
+			// ADD ATCD
+			
+			if(!isset(Config::$event_controls['clinical']['all']['past history'])) die('ERR 88998379');
+			$event_control_id = Config::$event_controls['clinical']['all']['past history']['event_control_id'];
+			$detail_tablename = Config::$event_controls['clinical']['all']['past history']['detail_tablename'];				
+			
+			$all_atcd_events = array();
+			
+			$headers_list = array(
+				'ATCD Personnel::Ovaire::Bénin' => 'ovary - benin',
+				'ATCD Personnel::Ovaire::Cancer' => 'ovary - cancer',
+				'ATCD Personnel::Sein::Bénin' => 'breast - benin',
+				'ATCD Personnel::Sein::Cancer' => 'breast - cancer',
+				'ATCD Personnel::Utérus::Bénin' => 'uterus - benin',
+				'ATCD Personnel::Utérus::Cancer' => 'uterus - cancer');	
+			foreach($headers_list as $header => $type) {			
+				if(!empty($line_data[$header])) {
+					$event_data = array(
+						'master' => array(
+							'participant_id' => $participant_id,
+							'event_control_id' =>  $event_control_id,
+							'event_summary' => "'".str_replace("'","''",preg_replace(array('/^(oui {0,2})/', '/^\((.*)\)$/'), array('', '$1'), $line_data[$header]))."%%date_detail%%'"
+							),
+						'detail' => array('type' => "'$type'"));				
+					$event_date_data = getAtcdDate($line_data[$header.'::Date'], $line_counter);
+					
+					if(!empty($event_date_data['date'])) {
+						$event_data['master']['event_date'] = "'".$event_date_data['date']."'";
+						$event_data['master']['event_date_accuracy'] = "'".$event_date_data['accuracy']."'";
+					}
+					if(!empty($event_date_data['note'])) {
+						$event_data['master']['event_summary'] = str_replace('%%date_detail%%', ((($event_data['master']['event_summary'] == "'%%date_detail%%'")? 'Date Info: ' : ' // Date Info: ').str_replace("'","''",$event_date_data['note'])), $event_data['master']['event_summary']);
+					} else {
+						$event_data['master']['event_summary'] = str_replace('%%date_detail%%', '', $event_data['master']['event_summary']);
+					}				
+					if(array_key_exists($participant_id, Config::$personal_past_history_from_id) 
+					&& array_key_exists($type, Config::$personal_past_history_from_id[$participant_id])) {
+						$old_date = empty(Config::$personal_past_history_from_id[$participant_id][$type]['event_date'])? '' : Config::$personal_past_history_from_id[$participant_id][$type]['event_date'];
+						$old_date_accuracy = empty(Config::$personal_past_history_from_id[$participant_id][$type]['event_date_accuracy'])? '' : Config::$personal_past_history_from_id[$participant_id][$type]['event_date_accuracy'];
+						$old_summary = empty(Config::$personal_past_history_from_id[$participant_id][$type]['event_summary'])? '' : Config::$personal_past_history_from_id[$participant_id][$type]['event_summary'];
+						
+						$new_date =  isset($event_data['master']['event_date'])? $event_data['master']['event_date'] : '';
+						$new_date_accuracy =  isset($event_data['master']['event_date_accuracy'])? $event_data['master']['event_date_accuracy'] : '';
+						$new_summary =  $event_data['master']['event_summary'];
+						
+						if($old_date.$old_date_accuracy != $new_date.$new_date_accuracy) {
+							Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['2 ATCD with different dates'][] = "A same type of ATCD '$type' is defined both in step2 and 3 for frsq# $frsq_nbr but event dates are different : $old_date ($old_date_accuracy) <=> $new_date ($new_date_accuracy)! 2 ATCD events will be created: please confirm! [line: $line_counter]";
+						} else if($old_summary != $new_summary) {
+							Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['Same ATCD with different summary'][] = "A same type of ATCD '$type' with ".(empty($old_date)? 'no date' : "same date ($old_date ($old_date_accuracy))")." is defined both in step2 and 3 for frsq# $frsq_nbr but summaries are different :  [$old_summary] <=> [$new_summary] ! No new ATCD event will be created: please add summary if required! [line: $line_counter]";							
+							$event_data = null;
+						}
+					}
+					
+					if(!empty($event_data)) $all_atcd_events[] = $event_data;
+				}		
+			}
+		
+			foreach($all_atcd_events as $new_atcd) {
+				$event_master_id = customInsertChusRecord($new_atcd['master'], 'event_masters');	
+				$new_atcd['detail']['event_master_id'] = $event_master_id;
+				customInsertChusRecord($new_atcd['detail'], $detail_tablename, true);	
+			}	
 		}
 	}
 }
@@ -824,7 +905,35 @@ function editHistoryConflict($old_value, $new_value, $frsq_nbr, $field, $workshe
 	}
 }
 
+function getAtcdDate($date_string, $line_counter) {
+	$date_string = preg_replace(array('/^-$/','/^nd$/','/^ND$/'),array('','',''), $date_string);
+	if(!empty($date_string)) {
+		if(preg_match('/^(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => "$date_string-01-01", 'accuracy' => 'm', 'note' => null);
+		
+		} else if(preg_match('/^(19|20)([0-9]{2})-([01][0-9])$/', $date_string, $matches)) {
+			return array('date' => "$date_string-01", 'accuracy' => 'd', 'note' => null);
+		
+		} else if(preg_match('/^([01][0-9])-(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[2].$matches[3].'-'.$matches[1].'-01', 'accuracy' => 'd', 'note' => null);
 
+		} else if(preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c', 'note' => null);
+			
+		} else if(preg_match('/^(Jan|Mar|Apr|May|Jun|Aug|Sep|Nov)-(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[2].$matches[3].'-'.str_replace(array('Jan','Mar','Apr','May','Jun','Aug','Sep','Nov'), array('01','03','04','05','06','08','09','11'), $matches[1]).'-01', 'accuracy' => 'd', 'note' => null);
+
+		} else if(preg_match('/^([03][0-9])-([01][0-9])-(19|20)([0-9]{2})$/', $date_string, $matches)) {
+			return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c', 'note' => null);				
+		
+		} else {
+			Config::$summary_msg['PATIENT HISTORY']['@@WARNING@@']['ATCD date not supported'][] = "ATCD date '$date_string' is not supported and will be added to the note! [line: $line_counter]";							
+			return array('date' => null, 'accuracy' => null, 'note' => $date_string);
+		}
+	}
+	
+	return array('date' => null, 'accuracy' => null, 'note' => null);
+}
 
 
 
