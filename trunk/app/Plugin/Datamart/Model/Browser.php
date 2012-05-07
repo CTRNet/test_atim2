@@ -87,7 +87,7 @@ class Browser extends DatamartAppModel {
 			$tmp_arr = array();
 			foreach($browsing_structures as $unit){
 				if(AppController::checkLinkPermission($unit['DatamartStructure']['index_link'])){
-					//keep links without permission
+					//keep links with permission
 					$tmp_arr[$unit['DatamartStructure']['id']] = $unit['DatamartStructure'];
 				}
 			}
@@ -855,7 +855,6 @@ class Browser extends DatamartAppModel {
 				$result[$unit['BrowsingControl']['id1']] = null;
 			}
 		}
-		
 		return array_keys($result);
 	}
 	
