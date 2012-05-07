@@ -5,6 +5,24 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("merge participant", "Merge participant", "Fusionner le participant"),
+("into participant", "Into participant", "Dans le participant"),
+("merge_part_desc",
+ "The participant from which the sub forms information is transfered. No profile information is transfered. Identifiers are merge when non conflicting. The participant is not deleted automaticaly after the process to allow an identifiers review.",
+ "Le participant à partir duquel l'information des sous formulaires sera transférée. Aucune information de profil n'est transférée. Les identifiants non conflictuels sont fusionés. Le participant n'est pas automatiquement supprimé pour permettre la validation des identifiants."),
+("merge_part_into_desc", "The participant where the data will be transfered.", "Le participant vers lequel les données seront transférées."),  
+("merge operations are not reversible", "Merge operations are not reversible.", "Les opérations de fusion ne sont pas réversibles."),
+("merge", "Merge", "Fusion"),
+("merge complete", "Merge complete", "Fusion terminée"),
+("the starting collection could not be deleted", "The starting collection could not be deleted.", "La collection de départ n'a pas pu être supprimée."),
+("merge collection", "Merge collection", "Fusionner la collection"),
+("into collection", "Into collection", "Dans la collection"),
+("merge_coll_desc", 
+ "The collection from which the content will be merged. After the operation that collection will be deleted.", 
+ "La collection dont le contenu sera déplacé. Après l'opération la collection sera supprimée."),
+("merge_coll_into_desc",
+ "The collection into which the content will be merged.",
+ "La collection dans laquelle le contenu sera fusionné."),
 ("counter", "Counter", "Compteur"),
 ("special parameters", "Special parameters", "Paramètres particuliers"),
 ("counters", "Counters", "Compteurs"),
@@ -1853,6 +1871,16 @@ INSERT INTO menus (id, parent_id, is_root, display_order, language_title, langua
 ('clin_CAN_1_3', 'clin_CAN_1', 1, 3, 'messages', '', '/ClinicalAnnotation/ParticipantMessages/search/', '', 1),
 ('inv_CAN_4', 'inv_CAN', 1, 1, 'add', '', '/InventoryManagement/Collections/add', '', 1),
 ('inv_CAN_5', 'inv_CAN', 1, 1, 'samples', '', '/InventoryManagement/SampleMasters/search/', '', 1),
-('inv_CAN_6', 'inv_CAN', 1, 1, 'aliquots', '', '/InventoryManagement/AliquotMasters/search/', '', 1);
+('inv_CAN_6', 'inv_CAN', 1, 1, 'aliquots', '', '/InventoryManagement/AliquotMasters/search/', '', 1),
+('core_CAN_41_6', 'core_CAN_41', 0, 1, 'merge', '', '/Administrate/Merge/index/', '', 1);
+
+INSERT INTO structures(`alias`) VALUES ('merge_index');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Merge', '', 'title', 'input',  NULL , '0', '', '', '', 'title', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='Merge_index'), (SELECT id FROM structure_fields WHERE `model`='Merge' AND `tablename`='' AND `field`='title' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='title' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'); 
+
+
+
 
 

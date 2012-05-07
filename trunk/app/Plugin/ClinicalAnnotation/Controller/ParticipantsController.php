@@ -80,6 +80,8 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		if($hook_link){
 			require($hook_link); 
 		}
+		
+		$this->set('is_ajax', $this->request->is('ajax'));
 	}
 	
 	function add() {

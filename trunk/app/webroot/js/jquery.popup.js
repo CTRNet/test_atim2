@@ -31,7 +31,6 @@ jQuery.fn.popup = function(options){
 		}
 		$(fmPopup.popupOuter).click(function(){
 			if(fmPopup.closePop && fmPopup.closable){
-				console.log('closing');
 				$(fmPopup.popupOuter).hide();
 			}else{
 				fmPopup.closePop = true;
@@ -63,6 +62,14 @@ jQuery.fn.popup = function(options){
 	
 	if(options == "close"){
 		fmPopup.popupOuter.hide();
+	}else if(options == "center"){
+		if(fmPopup.popupOuter.find(":first:visible")){
+			var container = $(fmPopup.popupOuter).find(".popup_container");
+			container.css({
+				left : $(window).width() / 2 - container.width() / 2 + "px",
+				top : $(window).height() / 2 - container.height() / 2 + "px"
+			});
+		}
 	}else{
 		$(this).show();
 		var container = $(fmPopup.popupOuter).find(".popup_container");

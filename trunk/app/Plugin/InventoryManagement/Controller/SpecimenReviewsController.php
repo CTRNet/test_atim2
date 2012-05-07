@@ -129,7 +129,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->request->data = NULL;
 			
 			$specimen_review_data['SpecimenReviewMaster']['specimen_review_control_id'] = $specimen_review_control_id;
-			$specimen_review_data['SpecimenReviewMaster']['review_type'] = $review_control_data['SpecimenReviewControl']['review_type'];
 			$specimen_review_data['SpecimenReviewMaster']['collection_id'] = $collection_id;
 			$specimen_review_data['SpecimenReviewMaster']['sample_master_id'] = $sample_master_id;
 
@@ -177,6 +176,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 						
 				// Set additional specimen review data and save
 				$specimen_review_data['SpecimenReviewMaster']['id'] = null;
+				$this->SpecimenReviewMaster->addWritableField(array('specimen_review_control_id', 'collection_id', 'sample_master_id'));
 				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { 
 					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
