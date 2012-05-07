@@ -26,7 +26,7 @@ if($use_buffer){
 	<link rel="shortcut icon" href="<?php echo($this->request->webroot); ?>img/favicon.ico"/>
 	<?php 
 		echo $this->Html->css('style')."\n"; 
-		echo $this->Html->css('jQuery/themes/custom-theme/jquery-ui-1.8.2.custom')."\n";
+		echo $this->Html->css('jQuery/themes/custom-theme/jquery-ui-1.8.20.custom')."\n";
 		echo $this->Html->css('jQuery/popup/popup.css');
 		echo $this->Html->css('jQuery/fg.menu.css'); 
 
@@ -85,8 +85,8 @@ if($use_buffer){
 	
 	// JS added to end of DOM tree...
 	
-	echo $this->Html->script('jquery-1.7.1.min')."\n";
-	echo $this->Html->script('jquery-ui-1.8.2.custom.min')."\n";
+	echo $this->Html->script('jquery-1.7.2.min')."\n";
+	echo $this->Html->script('jquery-ui-1.8.20.custom.min')."\n";
 	echo $this->Html->script('jquery.ui-datepicker-fr.js')."\n";
 	echo $this->Html->script('jquery.highlight.js')."\n";
 	echo $this->Html->script('jquery.popup.js')."\n";
