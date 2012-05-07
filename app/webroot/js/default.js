@@ -249,6 +249,21 @@ function initActions(){
 				$(this).datepicker('show');
 			});
 		});
+		
+		$(scope).find(".tooltip").each(function() {
+			$(this).find("input").each(function(){
+				$(this).focus(function(){
+					//fixes a datepicker issue where the calendar stays open
+					$("#ui-datepicker-div").stop(true, true);
+					$(".datepicker").datepicker('hide');
+					$(this).parent().find("div").css("display", "inline-block");
+				});
+				$(this).blur(function(){
+					$(this).parent().find("div").css("display", "none");
+				});
+			});
+			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"});
+		});
 	}
 	
 	function setFieldSpan(clickedButton, spanClassToDisplay){
@@ -368,23 +383,6 @@ function initActions(){
 				return false;
 			});
 		}
-	}
-	
-	function initTooltips(scope){
-		$(scope).find(".tooltip").each(function() {
-			$(this).find("input").each(function(){
-				$(this).focus(function(){
-					//fixes a datepicker issue where the calendar stays open
-					$("#ui-datepicker-div").stop(true, true);
-					$(".datepicker").datepicker('hide');
-					$(this).parent().find("div").css("display", "inline-block");
-				});
-				$(this).blur(function(){
-					$(this).parent().find("div").css("display", "none");
-				});
-			});
-			$(this).find("div").addClass("ui-corner-all").css({"border" : "1px solid", "padding" : "3px"});
-		});	
 	}
 	
 	/**
@@ -553,7 +551,6 @@ function initActions(){
 				initAutocomplete(newLines);
 				initDatepicker(newLines);
 				initToolPopup(newLines);
-				initTooltips(document);
 				initCheckboxes(newLines);
 				$('form').highlight('td');
 				if(window.copyControl){
@@ -723,9 +720,8 @@ function initActions(){
 	function labBookPopupAddForm(data){
 		$("#default_popup").html("<div class='wrapper'><div class='frame'>" + data + "</div></div>").popup();
 		initDatepicker("#default_popup");
-		initTooltips("#default_popup");
 		initAccuracy("#default_popup");
-		$("#default_popup a.form.submit").unbind('click').prop('onclick', '').click(function(){
+		$("#default_popup a.submit").unbind('click').prop('onclick', '').click(function(){
 			$(this).hide();
 			$.post($("#default_popup form").prop("action"), $("#default_popup form").serialize(), function(data2){
 				if(data2.length < 100){
@@ -1029,7 +1025,6 @@ function initActions(){
 		$.datepicker.setDefaults($.datepicker.regional[locale]);
 		initDatepicker(document);
 		
-		initTooltips(document);
 		initCheckAll(document);
 		initCheckboxes(document);
 		
@@ -1075,8 +1070,7 @@ function initActions(){
 			return $(this).attr("href").indexOf("javascript:") == 0;
 		}).delegate("form", "submit", function(){
 			//submitting form
-			$(this).find('a.submit span').last().addClass('fetching');
-			submitData.lastRequest = $.cookie('last_request');
+			submitChecks(this);
 			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
 			return true;
 		}).delegate(".jsApplyPreset", "click", function(){
@@ -1088,7 +1082,8 @@ function initActions(){
 		).delegate("a.warningMoreInfo", "click", warningMoreInfoClick
 		).delegate("td.checkbox input[type=checkbox]", "click", checkboxIndexFunction
 		).delegate(".lineHighlight table tbody tr", "click", checkboxIndexLineFunction
-		).delegate(".removeLineLink", "click", removeLine);
+		).delegate(".removeLineLink", "click", removeLine
+		).delegate("div.selectItemZone span.button", "click", selectedItemZonePopup);
 		
 		$(window).bind("pageshow", function(event){
 			//remove the fetching class. Otherwise hitting Firefox back button still shows the loading animation
@@ -1132,6 +1127,8 @@ function initActions(){
 				cookieWatch();
 			}
 		}
+		
+		flyOverComponents();
 	}
 	
 	function initFlyOverCells(scope){
@@ -1180,7 +1177,6 @@ function initActions(){
 		}
 		initAddLine(scope);
 		initDatepicker(scope);
-		initTooltips(scope);
 		initAutocomplete(scope);
 		initCheckAll(scope);
 		initCheckboxes(scope);
@@ -1531,6 +1527,94 @@ function initActions(){
 		$("#csvPopup").popup();
 		$("input.submit").siblings("a").find("span").removeClass('fetching');
 		return false;
+	}
+	
+	function selectedItemZonePopup(event){
+		var button = $(event.currentTarget);
+		var popup = null;
+		if(!(popup = button.data('popup'))){
+			popup = $("#default_popup").clone().attr("id", "fmlhDebug");
+			popup.appendTo("body");
+			button.data('popup', popup);
+			popup.html("<div class='wrapper'><div class='frame'>");
+			popup.frame = popup.find(".frame");
+			popup.click(function(){
+				popup.popup('center');
+			});
+		}
+		popup.frame.html("<div class='loading'>---" + STR_LOADING + "---</div>");
+		popup.popup();
+		
+		var fctLinksToAjax = function(scope){
+			$(scope).find("a:not(.detail)").click(function(){
+				if($(this).attr("href").indexOf("javascript:") == 0){
+					return true;
+				}
+				popup.frame.html("<div class='loading'>---" + STR_LOADING + "---</div>");
+				popup.popup('center');
+				$.get($(this).attr("href"), function(data){
+					if(data.indexOf("{") == 0){
+						data = $.parseJSON(data);
+						popup.frame.html(data.page);
+					}else{
+						popup.frame.html(data);					
+					}
+					popup.popup('center');
+					fctLinksToAjax(popup.frame);
+				});
+				
+				return false;
+			});
+			
+			$(scope).find("a.detail").click(function(){
+				//selection
+				popup.popup('close');
+				var targetDiv = button.parents(".selectItemZone:first").find(".selectedItem");
+				targetDiv.html("<div class='loading'>---" + STR_LOADING + "---</div>");
+				var targetHref = $(this).attr("href"); 
+				$.get(targetHref + '/type:index/noActions:/noHeader:/', function(data){
+					if(data.indexOf("{") == 0){
+						data = $.parseJSON(data);
+						targetDiv.html(data.page);
+					}else{
+						targetDiv.html(data);					
+					}
+					targetDiv.append('<input type="hidden" name="' + button.data('name') + '" value="' + targetHref + '"/>');
+				});
+				
+				return false;
+			});
+		};
+		
+		$.get(root_url + button.data('url') + '/noActions:', function(data){
+			popup.frame.html(data);
+			initAdvancedControls(popup);
+			initDatepicker(popup);
+			popup.popup('center');
+			
+			popup.find("form").submit(function(){
+				submitChecks(this);
+				$.post(popup.find("form").attr("action") + '/forSelection:/', popup.find("form").serialize(), function(data){
+					if(data.indexOf("{") == 0){
+						data = $.parseJSON(data);
+						popup.frame.html(data.page);
+					}else{
+						popup.frame.html(data);					
+					}
+					popup.popup('center');
+					fctLinksToAjax(popup.frame);
+				});
+				return false;
+			});
+		});
+		
+		
+		return false;
+	}
+	
+	function submitChecks(scope){
+		$(scope).find('a.submit span').last().addClass('fetching');
+		submitData.lastRequest = $.cookie('last_request');
 	}
 
 	

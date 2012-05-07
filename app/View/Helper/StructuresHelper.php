@@ -277,12 +277,30 @@ class StructuresHelper extends Helper {
 			$options['type'] = $this->params['action'];//no type, default to action
 		}
 		
+		$data = $this->request->data;
+		if(is_array($options['data'])){
+			$data = $options['data'];
+		}
+		if($data == null){
+			$data = array();
+		}
+		
 		$args = AppController::getInstance()->passedArgs;
 		if(isset($args['noHeader'])){
 			$options['settings']['header'] = '';
 		}
 		if(isset($args['noActions'])){
 			$options['settings']['actions'] = false;
+		}
+		if(isset($args['type'])){
+			if($args['type'] == 'index' && $options['type'] == 'detail'){
+				$options['type'] = 'index';
+				$options['settings']['pagination'] = false;
+				$data = array($data);
+			}
+		}
+		if(isset($args['forSelection'])){
+			$options['links']['index'] = array('detail' => $options['links']['index']['detail']); 
 		}
 		
 		//print warning when unknown stuff and debug is on
@@ -376,15 +394,6 @@ class StructuresHelper extends Helper {
 				<div class="extra">'.$options['extras']['start'].'</div>
 			');
 		}
-		
-		$data = $this->request->data;
-		if(is_array($options['data'])){
-			$data = $options['data'];
-		}
-		if($data == null){
-			$data = array();
-		}
-		
 		
 		$sanitized_data = Sanitize::clean($data);
 		if($options['settings']['no_sanitization']){
@@ -2544,6 +2553,15 @@ class StructuresHelper extends Helper {
 	
 	function extraAjaxLink($url){
 		return AppController::checkLinkPermission($url) ? '<div class="ajaxLoad" data-url="'.$url.'"></div>' : '<div>'.__('You are not authorized to access that location.').'</div>';
+	}
+	
+	function generateSelectItem($search_url, $name){
+		return '
+		<div class="selectItemZone">
+			<div class="selectedItem"></div>
+			<span class="button" data-url="'.$search_url.'" data-name="'.$name.'"><a href="#">'.__('search').'</a></span>
+		</div>
+		';
 	}
 }
 	

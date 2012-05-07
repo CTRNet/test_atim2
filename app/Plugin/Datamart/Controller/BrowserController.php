@@ -327,32 +327,34 @@ class BrowserController extends DatamartAppController {
 			$path = $this->BrowsingResult->getPath($node_id);
 			$current_structure_id = $browsing['DatamartStructure']['id'];
 			$counters_structure_fields = array();
-			while($parent_node = array_pop($path)){
-				if($this->BrowsingControl->find1ToN($current_structure_id, $parent_node['BrowsingResult']['browsing_structures_id'])){
-					//valid parent
-					$browsing_result = $this->BrowsingResult->findById($parent_node['BrowsingResult']['id']);
-					$counters_structure_fields[] = array(
-						'model'	=> '0',
-						'field'	=> 'counter_'.$parent_node['BrowsingResult']['id'],
-						'type'	=> 'integer_positive',
-						'flag_search'	=> 1,
-						'flag_search_readonly'	=> 0,
-						'display_column'	=> 1,
-						'display_order'	=> 1,
-						'language_label'	=> $browsing_result['DatamartStructure']['display_name'],
-						'language_heading'	=> '',
-						'tablename'	=> '',
-						'language_tag'	=> '',
-						'language_help' => '',
-						'setting' => '',
-						'default' => '',
-						'flag_confidential' => '',
-						'flag_float' => '',
-						'StructureValidation' => array()
-					);
-					$current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
-				}else{
-					break;
+			if($path){
+				while($parent_node = array_pop($path)){
+					if($this->BrowsingControl->find1ToN($current_structure_id, $parent_node['BrowsingResult']['browsing_structures_id'])){
+						//valid parent
+						$browsing_result = $this->BrowsingResult->findById($parent_node['BrowsingResult']['id']);
+						$counters_structure_fields[] = array(
+							'model'	=> '0',
+							'field'	=> 'counter_'.$parent_node['BrowsingResult']['id'],
+							'type'	=> 'integer_positive',
+							'flag_search'	=> 1,
+							'flag_search_readonly'	=> 0,
+							'display_column'	=> 1,
+							'display_order'	=> 1,
+							'language_label'	=> $browsing_result['DatamartStructure']['display_name'],
+							'language_heading'	=> '',
+							'tablename'	=> '',
+							'language_tag'	=> '',
+							'language_help' => '',
+							'setting' => '',
+							'default' => '',
+							'flag_confidential' => '',
+							'flag_float' => '',
+							'StructureValidation' => array()
+						);
+						$current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
+					}else{
+						break;
+					}
 				}
 			}
 			
