@@ -343,10 +343,113 @@ INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x
 REPLACE INTO i18n (id, en, fr) VALUES
 ("box21 1A-3I", "Box21 1A-3I", "Boîte21 1A-3I");
 
---2012-05-03
+-- -----------------------------------------------------------------------------------------------------------------
+-- 2012-05-07
+-- -----------------------------------------------------------------------------------------------------------------
+
+-- Age At Dx
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='dx_primary'),(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1'),
 ((SELECT id FROM structures WHERE alias='dx_secondary'),(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
+
+-- Add finish date to observation
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='ld_lymph_txd_observations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- Biopsy site
+
+ALTER TABLE `ld_lymph_ed_biopsies` MODIFY `site` varchar(150) DEFAULT '';
+ALTER TABLE `ld_lymph_ed_biopsies_revs` MODIFY `site` varchar(150) DEFAULT '';
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'custom_biopsy_site_list', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''biopsy sites'')');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='custom_biopsy_site_list') ,  `setting`='' WHERE model='EventDetail' AND tablename='ld_lymph_ed_biopsies' AND field='site' AND `type`='input' AND structure_value_domain  IS NULL ;
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
+VALUES ('biopsy sites', '1', '150');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('lymph node', 'Lymph node', 'Ganglion lymphatique', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'biopsy sites')),
+('spleen', 'Spleen', 'Rate', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'biopsy sites')),
+('bone marrow', 'Bone marrow', 'Moelle osseuse', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'biopsy sites')),
+('blood', 'Blood', 'Sang', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'biopsy sites')),
+('extra nodal', 'Extra nodal', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'biopsy sites'));
+
+-- lymphoma B symptoms descriptions
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('fever', 'Fever', 'Fièvre', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma B symptoms descriptions')),
+('night sweating', 'Night sweating', 'Transpiration nocturne', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma B symptoms descriptions')),
+('weight loss', 'Weight loss', 'Perte de poids', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma B symptoms descriptions'));
+
+-- Surgery
+
+INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+('surgery', 'ld lymph.', 0, 'txd_surgeries', 'treatmentmasters,ld_lymph_txd_surgeries', 'txe_surgeries', 'txe_surgeries', 0, 2, NULL, 'ld lymph.|surgery');
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_txd_surgeries');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+UPDATE treatment_controls SET flag_active = 1 WHERE tx_method = 'surgery' AND disease_site = 'ld lymph.';
+
+-- Biopsy MUM1
+
+REPLACE INTO i18n (id,en) VALUES ('immuno mum1','MUM1');
+
+-- Molecular lab : MB/ML number.
+
+ALTER TABLE `ld_lymph_ed_biopsies` MODIFY `molecular_mdl_number` varchar(50) DEFAULT '';
+ALTER TABLE `ld_lymph_ed_biopsies` MODIFY `molecular_mb_number` varchar(50) DEFAULT '';
+ALTER TABLE `ld_lymph_ed_biopsies_revs` MODIFY `molecular_mdl_number` varchar(50) DEFAULT '';
+ALTER TABLE `ld_lymph_ed_biopsies_revs` MODIFY `molecular_mb_number` varchar(50) DEFAULT '';
+
+UPDATE structure_fields SET type = 'input', setting = 'size=20' WHERE field IN ('molecular_mb_number','molecular_mdl_number');
+UPDATE structure_fields SET tablename = 'ld_lymph_ed_biopsies' WHERE tablename = 'ld_lymph_ed_patho_summary';
+
+-- Obersvation: progression date
+
+ALTER TABLE ld_lymph_txd_observations
+	ADD COLUMN `progression_date` date DEFAULT NULL AFTER `treatment_master_id`,
+	ADD COLUMN `progression_date_accuracy` char(1) NOT NULL DEFAULT '' AFTER `progression_date` ; 
+ALTER TABLE ld_lymph_txd_observations_revs
+	ADD COLUMN `progression_date` date DEFAULT NULL AFTER `treatment_master_id`,
+	ADD COLUMN `progression_date_accuracy` char(1) NOT NULL DEFAULT '' AFTER `progression_date` ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'ld_lymph_txd_observations', 'progression_date', 'date',  NULL , '0', '', '', '', 'progression_date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_txd_observations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_observations' AND `field`='progression_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='progression_date' AND `language_tag`=''), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+UPDATE structure_fields SET language_label = 'progression date' WHERE field = 'progression_date' AND tablename = 'ld_lymph_txd_observations';
+UPDATE structure_formats SET `display_column`='2', `display_order`='21', `language_heading`='observation data' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_txd_observations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ld_lymph_txd_observations' AND `field`='progression_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en) VALUES ('progression date','Progression Date'),('observation data','Observation Data');
+
+-- vital status at follow-up
+
+ALTER TABLE `participants` MODIFY `vital_status` varchar(250) DEFAULT NULL;
+ALTER TABLE `participants_revs` MODIFY `vital_status` varchar(250) DEFAULT NULL;
+
+UPDATE participants SET vital_status = '';
+UPDATE participants_revs SET vital_status = '';
+
+UPDATE structure_value_domains SET source = 'StructurePermissibleValuesCustom::getCustomDropdown(''vital status at follow-up'')'   WHERE domain_name = 'ld_lymph_status_at_last_followup';
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length)
+VALUES ('vital status at follow-up', '1', '250');
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `display_order`) 
+VALUES 
+('0- no neoplasm documented, being observed.' ,'0- No neoplasm documented, being observed.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 1),
+('1- free of disease after initial treatment.' ,'1- Free of disease after initial treatment.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 2),
+('2- receiving initial treatment.' ,'2- Receiving initial treatment.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 3),
+('3- with disease, after initial treatment.' ,'3- With disease, after initial treatment.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 4),
+('4- free of disease after treatment for first relapse.' ,'4- Free of disease after treatment for first relapse.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 5),
+('5- receiving treatment for first relapse.' ,'5- Receiving treatment for first relapse.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 6),
+('6- with disease, after treatment of first relapse.' ,'6- With disease, after treatment of first relapse.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 7),
+('7- free of disease, after of second relapse.' ,'7- Free of disease, after of second relapse.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 8),
+('8- receiving treatment for second (or greater) relapse.' ,'8- Receiving treatment for second (or greater) relapse.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 9),
+('9- with disease after treatment of second relapse.' ,'9- With disease after treatment of second relapse.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 10),
+('66- lost to follow-up.' ,'66- Lost to follow-up.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 11),
+('88- due to primary diagnosis.' ,'88- Due to primary diagnosis.', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 12),
+('T.- due to toxicity of primary treatment ( no additional qualifiers required).' ,'T.- Due to toxicity of primary treatment ( no additional qualifiers required).', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 13),
+('D.- unrelated to primary diagnosis or toxicity ( no additional qualifiers required). ' ,'D.- Unrelated to primary diagnosis or toxicity ( no additional qualifiers required). ', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 14);
+
