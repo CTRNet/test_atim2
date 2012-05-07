@@ -63,7 +63,7 @@ class MergeController extends AdministrateAppController {
 				$to = $to[1];
 				
 				//identifiers
-				$identifiers_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIentifier');
+				$identifiers_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier');
 				$identifiers = $identifiers_model->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $from)));
 				$identifiers_model->check_writable_field = false;
 				$update = array('MiscIdentifier' => array('participant_id' => $to));
@@ -89,7 +89,7 @@ class MergeController extends AdministrateAppController {
 					AppModel::getInstance('ClinicalAnnotation', 'ConsentMaster'),
 					AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster'),
 					AppModel::getInstance('ClinicalAnnotation', 'EventMaster'),
-					AppModel::getInstance('ClinicalAnnotation', 'FamilyHistories'),
+					AppModel::getInstance('ClinicalAnnotation', 'FamilyHistory'),
 					AppModel::getInstance('ClinicalAnnotation', 'ParticipantContact'),
 					AppModel::getInstance('ClinicalAnnotation', 'ParticipantMessage'),
 					AppModel::getInstance('ClinicalAnnotation', 'ReproductiveHistory'),
@@ -106,6 +106,8 @@ class MergeController extends AdministrateAppController {
 						$model->save($update, false);
 					}
 				}
+				
+				$this->atimFlash('merge complete', '/Administrate/Merge/index/');
 			}
 		}
 	}
