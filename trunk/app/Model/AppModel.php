@@ -225,6 +225,17 @@ class AppModel extends Model {
 		if($this->read()){
 			return false; 
 		}else{
+			if($this->registered_view){
+				foreach($this->registered_view as $registered_view => $foreign_keys){
+					list($plugin_name, $model_name) = explode('.', $registered_view);
+					$model = AppModel::getInstance($plugin_name, $model_name);
+					foreach($foreign_keys as $foreign_key){
+						$query = sprintf('DELETE FROM %1$s WHERE %2$s=%3$d', $model->table, $foreign_key, $this->id);
+						$this->query($query);
+					}
+				}
+			}
+			
 			return true; 
 		}
 		
@@ -1132,13 +1143,13 @@ class AppModel extends Model {
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				foreach($foreign_keys as $foreign_key){
-					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s IN(%3$d))', $model->table, $foreign_key, $this->id);  
+					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s=%3$d)', $model->table, $foreign_key, $this->id);  
 					$this->query($query);
 				}
 			}
 		}
 	}
-	
+
 	function makeTree(array &$in){
 		if(!empty($in)){
 			$starting_pkey = $in[0][$this->name][$this->primaryKey];
