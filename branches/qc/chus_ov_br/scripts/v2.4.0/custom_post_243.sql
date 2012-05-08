@@ -638,3 +638,9 @@ VALUES ((SELECT id FROM structure_fields WHERE field = 'type' AND tablename = 'c
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`, `use_as_input`) 
 VALUES 
 ('sigmoide','Sigmoide','Sigmoïde', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'family history: tumors list'), 1);
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`, `use_as_input`, `display_order`) 
+VALUES 
+('8h<','','', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'time limits of storage'), 1,5);
+
+

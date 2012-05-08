@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 //	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-30.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-05-04.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -1720,7 +1720,7 @@ function loadTissueCollection($collections_to_create) {
 					Config::$summary_msg['TISSU']['@@ERROR@@']['Empty fields'][] = "No $empty_fields: Row data won't be migrated! [line: $line_counter]";
 					continue;					
 				}
-			} else if(empty($line_data['# FRSQ']) || empty($line_data['Échantillon']) || !strlen($line_data['Volume/Qté'])) {
+			} else {
 				continue;
 			}
 			
@@ -1775,26 +1775,27 @@ function loadTissueCollection($collections_to_create) {
 			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
 			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : $collection_date_accuracy;
 			
-			if(!isset($collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime])) {
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_masters'] = array('notes' => "''");
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['aliquots'] = array();
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['derivatives'] = array();
+			$tissue_key = $reception_datetime.$line_data['Échantillon'];
+			if(!isset($collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key])) {
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_masters'] = array('notes' => "''");
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_details'] = array();
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['aliquots'] = array();
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['derivatives'] = array();
 			}
 			
 			$aliquot_label = $line_data['Échantillon'];
 			$note_to_add = utf8_encode($line_data['Note']);
 			if(!empty($note_to_add)) {
 				$note_to_add = str_replace("'", "''", $note_to_add);
-				$tmp_existing_note = substr($collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_masters']['notes'], 1, (strlen($collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_masters']['notes'])-2));
+				$tmp_existing_note = substr($collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_masters']['notes'], 1, (strlen($collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_masters']['notes'])-2));
 				$new_note = "''";
 				if(strlen($tmp_existing_note)) {
 					$new_note = "'$tmp_existing_note // $note_to_add'";
 				} else {
 					$new_note = "'$note_to_add'";
 				}
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['sample_masters']['notes'] = $new_note;
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_masters']['notes'] = $new_note;
 			}
 			
 			$storage_datetime = '';
@@ -1844,14 +1845,17 @@ function loadTissueCollection($collections_to_create) {
 					} else if(preg_match('/^([0-9]+)$/', $new_weight, $matches)) {
 						$stored_tissue_weights[] = array('value' => $matches[1], 'note' => '');
 					} else {
-						die('ERR88948399 '.$new_weight);
+						$stored_tissue_weights[] = array('value' => '', 'note' => 'Unsupported weight: '.$new_weight);
+						Config::$summary_msg['TISSU']['@@ERROR@@']['Tissue weight format error'][] = "The unit or format of weight ($new_weight) is not supported! Value will be recorded in note! [line: $line_counter]";
+						//die('ERR88948399 '.$new_weight);
 					}
 				}
 			}
-			
+						
 			$stored_tissue_positions = array();
-			$line_data['Emplacement'] = str_replace(array(' ','.'),array('',','), $line_data['Emplacement']);
-			$line_data['Emplacement'] = preg_replace('/^.*(,)$/','', $line_data['Emplacement']);
+			$tmp_intial_emplacement = $line_data['Emplacement'];
+			$line_data['Emplacement'] = str_replace(array(' ','.'),array('',','), $line_data['Emplacement']);			
+			$line_data['Emplacement'] = preg_replace('/^(.*),$/','$1', $line_data['Emplacement']);		
 			$line_data['Boite'] = str_replace(array(' '),array(''), $line_data['Boite']);
 			if(!empty($line_data['Emplacement'])) {
 				// Created stored aliquot
@@ -1900,10 +1904,11 @@ function loadTissueCollection($collections_to_create) {
 			}
 				
 			if(!empty($stored_tissue_weights) && (sizeof($stored_tissue_positions) != sizeof($stored_tissue_weights))) {
-				Config::$summary_msg['TISSU']['@@WARNING@@']['Tissue wight error'][] = "The number of stored tissues is different than the number of tissue wights defined! [line: $line_counter]";
+				Config::$summary_msg['TISSU']['@@WARNING@@']['Tissue weight error'][] = "The number of stored tissues is different than the number of tissue weights defined! [line: $line_counter]";
 			}
 			
 			$nbr_of_created_aliquot = 0;
+			$nbr_of_stored_aliquots = 0;
 			foreach($stored_tissue_positions as $key => $new_stored_aliquot) {
 				$storage_master_id = getStorageId('tissue', 'box81', $new_stored_aliquot['box']);
 				$new_pos =  $new_stored_aliquot['pos'];
@@ -1914,7 +1919,7 @@ function loadTissueCollection($collections_to_create) {
 					$weight = $stored_tissue_weights[$key]['value'];
 					$aliquot_note = $stored_tissue_weights[$key]['note'];					
 				}
-				$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['aliquots'][] = array(
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['aliquots'][] = array(
 					'aliquot_masters' => array(
 						'aliquot_label' => "'$aliquot_label'", 
 						'in_stock' => "'yes - available'",
@@ -1933,6 +1938,7 @@ function loadTissueCollection($collections_to_create) {
 				);
 
 				$nbr_of_created_aliquot++;
+				$nbr_of_stored_aliquots++;
 			}
 			
 			$shipped_aliquots = array();
@@ -2004,7 +2010,7 @@ function loadTissueCollection($collections_to_create) {
 						}
 						
 						for($i=0;$i<$shipped_aliquots_nbr;$i++) {
-							$collections_to_create[$collection_key]['inventory']['tissue'][$reception_datetime]['aliquots'][] = array(
+							$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['aliquots'][] = array(
 								'aliquot_masters' => array(
 									'aliquot_label' => "'$aliquot_label'", 
 									'in_stock' => "'no'",
@@ -2029,7 +2035,11 @@ function loadTissueCollection($collections_to_create) {
 				}
 			}
 			
+			// QUANTITY CHECK
+			
+			if($line_data['Volume/Qté'] != $nbr_of_stored_aliquots) Config::$summary_msg['TISSU']['@@ERROR@@']['Stored aliquots nbr mis-match'][] = "$nbr_of_stored_aliquots aliquots have been defined as stored by the process but the Volume/Qté defined into the file was equal to ".$line_data['Volume/Qté']. "('Emplacement' = $tmp_intial_emplacement)! [line: $line_counter]";
 			if(!$nbr_of_created_aliquot) Config::$summary_msg['TISSU']['@@ERROR@@']['No created aliquot'][] = "No aliquot has been created from this line! [line: $line_counter]";
+		
 		} // End new line
 	}
 	
@@ -2132,13 +2142,12 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 				
 				// Add DNA first
 				if(array_key_exists($frsq_value, $dnas_from_ov_nbr)) {
-					//TODO confirm following management
 					$add_to_collection = true;
 					$tmp_reception_datetime = str_replace(array(' ','-',':',"'"), array('','','',''), $reception_datetime);
 					foreach($dnas_from_ov_nbr[$frsq_value] as $new_dna) {
 						$tmp_creation_datetime = str_replace(array(' ','-',':',"'"), array('','','',''), $new_dna['derivative_details']['creation_datetime']);
 						if(empty($tmp_reception_datetime) && empty($tmp_creation_datetime)) {
-							//TODO Something to do?
+							//Nothing to do
 						} else if(empty($tmp_reception_datetime) && !empty($tmp_creation_datetime)) {
 							Config::$summary_msg['DNA']['@@WARNING@@']['DNA creation & Blood reception conflict (1)'][] = "Added a DNA sample to a collection with no reception date! See ".$frsq_value." and validate!";
 						} else if(!empty($tmp_reception_datetime) && empty($tmp_creation_datetime)) {
@@ -2207,6 +2216,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 			}
 			
 			$created_aliquots = 0;
+			$nbr_of_stored_aliquots = 0;
 			
 			$emplacement = str_replace(array(' ', utf8_decode('épuisé')),array('',''), $line_data['Emplacement']);
 			if(!empty($emplacement)) {
@@ -2296,6 +2306,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 					$storage_master_id = getStorageId('plasma', 'box100', $new_stored_aliquot['box_label']);
 					
 					$created_aliquots++;
+					$nbr_of_stored_aliquots++;
 					$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['derivatives']['plasma'][$centrifugation_date]['aliquots'][] = array(
 						'aliquot_masters' => array(
 							'aliquot_label' => "'$aliquot_label'", 
@@ -2360,6 +2371,10 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 				}
 			}
 			
+			
+			// QUANTITY CHECK
+			
+			if(($line_data['Qté'] != '-') && ($line_data['Qté'] != $nbr_of_stored_aliquots)) Config::$summary_msg['BLOOD']['@@ERROR@@']['Stored aliquots nbr mis-match'][] = "$nbr_of_stored_aliquots aliquots have been defined as stored by the process but the 'Qté' defined into the file was equal to ".$line_data['Qté']. "('Emplacement' = ".$line_data['Emplacement'].")! [line: $line_counter]";
 			if(!$created_aliquots) Config::$summary_msg['BLOOD']['@@ERROR@@']['No aliquot created'][] = "No shipped or stored aliquot has been created! [line: $line_counter]";
 
 		} // End new line
@@ -2692,7 +2707,7 @@ function getParticipantIdentifierAndDiagnosisIds($worksheet, $line_counter, $frs
 function getStorageId($aliquot_description, $storage_control_type, $selection_label) {
 	global $storage_list;
 	
-	$selection_label = preg_replace('/ +$/','',$selection_label);
+	$selection_label = str_replace(' ', '', $selection_label);
 	
 	$storage_key = $aliquot_description.$storage_control_type.$selection_label;
 	if(isset($storage_list[$storage_key])) return $storage_list[$storage_key];
@@ -2705,7 +2720,8 @@ function getStorageId($aliquot_description, $storage_control_type, $selection_la
 		"short_label"			=> "'".$selection_label."'",
 		"selection_label"		=> "'".$selection_label."'",
 		"lft"		=> "'".(($next_id*2)-1)."'",
-		"rght"		=> "'".($next_id*2)."'"
+		"rght"		=> "'".($next_id*2)."'",
+		"notes" => "'$aliquot_description'"
 	);
 	$storage_master_id = customInsertChusRecord($master_fields, 'storage_masters');	
 	customInsertChusRecord(array("storage_master_id" => $storage_master_id), Config::$storage_controls[$storage_control_type]['detail_tablename'], true);	
