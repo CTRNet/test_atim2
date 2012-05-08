@@ -369,6 +369,7 @@ function postBreastDiagnosesRead(Model $m){
 		case "risque élevé":
 			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
 		case "à venir 2012-03-01":
+		case "à venir 2012-05-04":
 			break;
 				
 		case "cancer (chimio préop)":
@@ -380,6 +381,7 @@ function postBreastDiagnosesRead(Model $m){
 		case "reprise de marge cancer":
 		case "récidive de 1998":
 		case "récidive":
+		case "récivide":
 		case "pas de cancer résiduel post chimio":
 		case "reprise de marge - absence de cancer":
 		case "reprise de marge - négative mais cancer en 2004-10":
@@ -449,7 +451,7 @@ function postBreastDiagnosesWrite(Model $m){
 	}
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$m->values['participant_id']])) die ('ERR 9988939383');
-	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['br_diagnosis_ids'][] = array('diagnosis_master_id' => $m->last_id, 'FRSQ#' => str_replace(' ', '', utf8_encode($m->values['#FRSQ'])));
+	Config::$data_for_import_from_participant_id[$m->values['participant_id']]['br_diagnosis_ids'][str_replace(' ', '', utf8_encode($m->values['#FRSQ']))][] = $m->last_id;
 
 	participantDataCompletion($m, $m->values['participant_id'], $m->last_id);
 }
