@@ -587,12 +587,12 @@ class AppModel extends Model {
 			$use_table_name = $associated[$control_class][$detail_field];
 			if($use_form_alias){
 				$plugin_name = $this->getPluginName();
-				$detail_class_instance = AppModel::getInstance($plugin_name, 'EventDetail');
+				$detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
 				if($detail_class_instance->useTable == false){
 					$detail_class_instance->useTable = $use_table_name;
 				}else if($detail_class_instance->useTable != $use_table_name){
 					ClassRegistry::removeObject($detail_class_instance->alias);
-					$detail_class_instance = AppModel::getInstance($plugin_name, 'EventDetail');
+					$detail_class_instance = AppModel::getInstance($plugin_name, $detail_class);
 					$detail_class_instance->useTable = $use_table_name;
 				}
 				assert($detail_class_instance->useTable == $use_table_name);
