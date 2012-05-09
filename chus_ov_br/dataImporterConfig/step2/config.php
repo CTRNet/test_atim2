@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 //	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-05-04.xls";
+	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-05-08.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -1782,6 +1782,18 @@ function loadTissueCollection($collections_to_create) {
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['aliquots'] = array();
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['derivatives'] = array();
+				
+				if(preg_match('/^OV(N|C)[0-9]{1,4}.*$/', $line_data['Échantillon'], $matches)) {
+					switch($matches[1]) {
+						case 'N':
+							$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_details']['tissue_nature'] = "'normal'";
+							break;
+						case 'C':
+							$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_details']['tissue_nature'] = "'tumoral'";
+							break;
+						default:							
+					}
+				}
 			}
 			
 			$aliquot_label = $line_data['Échantillon'];
@@ -1816,7 +1828,7 @@ function loadTissueCollection($collections_to_create) {
 			$remisage = strtolower(str_replace(array(' ','ND', '?'), array('','',''), $line_data['Temps au remisage']));
 			if(!empty($remisage)) {
 				if(!in_array($remisage, array('<1h','1h<<4h','4h<','<8h'))) {
-					if($remisage = '<4h') {
+					if($remisage == '<4h') {
 						$remisage = '1h<<4h';
 					} else if(preg_match('/^00:[0-5][0-9]$/',$remisage, $matches)) {
 						$remisage = '<1h';
@@ -2592,6 +2604,7 @@ function loadDNACollection() {
 				
 				$current_weight_per_aliquot = $current_weight/sizeof($aliquot_positions);
 				if(sizeof($aliquot_positions) > 1) Config::$summary_msg['DNA']['@@MESSAGE@@']["Split current weight"][] = "Split current weight ($current_weight) in ".sizeof($aliquot_positions)." => ($current_weight_per_aliquot). Please confirm! [line: $line_counter]";
+				if($current_weight_per_aliquot == '0.0') Config::$summary_msg['DNA']['@@ERROR@@']["Empty 'available' aliquot"][] = "The current weight of aliquot is equal to 0 but the status is still equal to 'yes - available'. Please confirm! [line: $line_counter]";
 				foreach($aliquot_positions as $new_stored_aliquot) {
 					$storage_master_id = getStorageId('plasma', 'box100', $new_stored_aliquot['box_label']);
 					$new_dna['aliquots'][] = array(
@@ -2605,7 +2618,10 @@ function loadDNACollection() {
 							'storage_datetime_accuracy' => "''",
 							'storage_coord_x' => "'".$new_stored_aliquot['position']."'",
 							'storage_coord_y' => "''"),				
-						'aliquot_details' => array(),
+						'aliquot_details' => array(
+							'chus_qc_ratio_260_280' => "'$ratio'",
+							'concentration' => "'$concentration'",
+							'concentration_unit' => (empty($concentration)? "''":"'ug/ml'")),
 						'aliquot_internal_uses' => array(),
 						'shippings' => array()
 					);
