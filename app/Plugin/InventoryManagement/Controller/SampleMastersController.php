@@ -712,27 +712,15 @@ class SampleMastersController extends InventoryManagementAppController {
 		if( $hook_link ) { require($hook_link); }		
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			$deletion_done = true;
-			
-			if(!$this->SampleMaster->atimDelete($sample_master_id)) { $deletion_done = false; }
-			
-			if($deletion_done) {
-				if($is_specimen) {
-					if(!$this->SpecimenDetail->atimDelete($sample_data['SpecimenDetail']['id'])) { $deletion_done = false; }
-				} else {
-					if(!$this->DerivativeDetail->atimDelete($sample_data['DerivativeDetail']['id'])) { $deletion_done = false; }
-				}	
-			}
-			
-			if($deletion_done) {
+			if($this->SampleMaster->atimDelete($sample_master_id)){
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { require($hook_link); }
 					
-				$this->atimFlash('your data has been deleted', '/InventoryManagement/SampleMasters/contentTreeView/' . $collection_id);
+				$this->atimFlash('your data has been deleted', '/InventoryManagement/Collections/detail/' . $collection_id);
 			
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/SampleMasters/contentTreeView/' . $collection_id);
+				$this->flash('error deleting data - contact administrator', '/InventoryManagement/Collections/detail/' . $collection_id);
 			}
 			
 		} else {
