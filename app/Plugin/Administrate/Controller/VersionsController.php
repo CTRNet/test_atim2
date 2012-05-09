@@ -11,7 +11,12 @@ class VersionsController extends AdministrateAppController {
 		if(empty($version_data)) {
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		}
-		$this->request->data = $version_data;		
+		$this->request->data = $version_data;
+
+		if(isset($this->passedArgs['newVersionSetup'])){
+			$this->Version->data = $this->Version->find('first', array('order' => array('Version.id DESC')));
+			AppController::newVersionSetup();
+		}
 	}
 	
 	function test(){
