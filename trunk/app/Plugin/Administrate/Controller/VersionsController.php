@@ -15,8 +15,7 @@ class VersionsController extends AdministrateAppController {
 	}
 	
 	function test(){
-		//tests all master details models, this is no a user function
-		$this->layout = "ajax";
+		//tests all master details models, this is not a user function
 		$to_test = array(
 			"Sop.Sop",
 			"StorageLayout.Storage",
@@ -49,10 +48,24 @@ class VersionsController extends AdministrateAppController {
 			echo("</ul></li>");
 		}
 		echo("</ul>");
-		echo "test completed";
+		echo "Master models test completed";
 		if($error){
 			echo " with error(s)";
 		}
+		
+		echo "<br/><br/>";
+		
+		//test all datarowser links
+		$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
+		$datamart_structures = $datamart_structure_model->find('all');
+		foreach($datamart_structures as $datamart_structure){
+			if(AppController::checkLinkPermission($datamart_structure['DatamartStructure']['index_link'])){
+				echo '<span style="color: green;">',$datamart_structure['DatamartStructure']['index_link'],'</span><br/>';
+			}else{
+				echo '<span style="color: red;">',$datamart_structure['DatamartStructure']['index_link'],' ---- INVALID LINK</span><br/>';
+			}
+		}
+		$this->layout = false;
 		$this->render(false);
 	}
 	

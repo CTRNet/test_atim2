@@ -10,7 +10,7 @@ class AliquotReviewMaster extends InventoryManagementAppModel {
 			'className'    => 'InventoryManagement.AliquotReviewControl',            
 			'foreignKey'    => 'aliquot_review_control_id'
 		), 'SpecimenReviewMaster' => array(
-			'className' => 'SpecimenReviewMaster',
+			'className' => 'InventoryManagement.SpecimenReviewMaster',
 			'foreignKey' => 'specimen_review_master_id'
 		)
 	);
