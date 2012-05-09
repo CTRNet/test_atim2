@@ -10,8 +10,8 @@ class ViewCollectionCustom extends ViewCollection {
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-
-			$label = $collection_data['ViewCollection']['bank_name']. ' ' . substr($collection_data['ViewCollection']['collection_datetime'], 0, 7);
+			
+			$label = $collection_data['ViewCollection']['frsq_number']. ' [' . substr($collection_data['ViewCollection']['collection_datetime'].']', 0, 7);
 			$return = array(
 				'menu'				=>	array( NULL, ($label) ),
 				'title'				=>	array( NULL, ($label) ),

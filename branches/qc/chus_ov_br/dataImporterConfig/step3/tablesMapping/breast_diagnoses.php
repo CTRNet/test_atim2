@@ -95,8 +95,7 @@ Config::$models['BreastDiagnosisMaster'] = $model;
 	
 function postBreastDiagnosesRead(Model $m){
 	global $connection;
-//TODO
-//return false;	
+	
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
 	
 	$frsq_nbr = str_replace(' ', '', utf8_encode($m->values['#FRSQ']));
