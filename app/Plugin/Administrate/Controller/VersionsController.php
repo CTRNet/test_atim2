@@ -15,6 +15,7 @@ class VersionsController extends AdministrateAppController {
 
 		if(isset($this->passedArgs['newVersionSetup'])){
 			$this->Version->data = $this->Version->find('first', array('order' => array('Version.id DESC')));
+			$this->Version->id = $this->Version->data['Version']['id'];
 			AppController::newVersionSetup();
 		}
 	}
