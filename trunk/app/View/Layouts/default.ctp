@@ -1,7 +1,10 @@
 <?php 
-$use_buffer = !headers_sent() && Configure::read('use_compression');
-if($use_buffer){
-	assert(ob_start('ob_gzhandler')) or die('Failed to start compression buffer. Make sure ZLIB is installed properley (http://php.net/zlib) or turn compression off via use_compression in core.php.');
+$use_buffer = false;
+if(!headers_sent()){
+	if(Configure::read('use_compression')){
+		assert(ob_start('ob_gzhandler')) or die('Failed to start compression buffer. Make sure ZLIB is installed properley (http://php.net/zlib) or turn compression off via use_compression in core.php.');
+		$use_buffer = true;
+	}
 	header ('Content-type: text/html; charset=utf-8');
 	AppController::atimSetCookie(isset($skip_expiration_cookie) && $skip_expiration_cookie);
 }
