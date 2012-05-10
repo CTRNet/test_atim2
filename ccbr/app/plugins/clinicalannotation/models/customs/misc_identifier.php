@@ -72,8 +72,8 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				break;
 				
 			case "PHN":
-				// Validate: 3 sets of 3 digits, with spaces between groups of 3 digits e.g. 111 222 333 ^([\d]{3} ){2}[\d]{3}$
-				if (preg_match("^([\d]{3} ){2}[\d]{4}$^", $identifierValue)) {
+				// Validate: DDDD DDD DDD
+				if (preg_match("^\d{4}\s{1}\d{3}\s{1}\d{3}$^", $identifierValue)) {
 					$value_validated = true;
 				} else {
 					$this->validationErrors['MiscIdentifier']['identifier_value'] = "ccbr PHN validation error";
