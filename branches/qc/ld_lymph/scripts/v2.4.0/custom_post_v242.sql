@@ -453,3 +453,45 @@ VALUES
 ('T.- due to toxicity of primary treatment ( no additional qualifiers required).' ,'T.- Due to toxicity of primary treatment ( no additional qualifiers required).', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 13),
 ('D.- unrelated to primary diagnosis or toxicity ( no additional qualifiers required). ' ,'D.- Unrelated to primary diagnosis or toxicity ( no additional qualifiers required). ', '', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'vital status at follow-up'), 14);
 
+-- -----------------------------------------------------------------------------------------------------------------
+-- 2012-05-10
+-- -----------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE ld_lymph_dx_lymphomas DROP COLUMN baseline_b_desc;
+ALTER TABLE ld_lymph_dx_lymphomas_revs DROP COLUMN baseline_b_desc;
+
+ALTER TABLE ld_lymph_dx_lymphomas
+	ADD COLUMN `baseline_b_symp_fever` char(1) DEFAULT '' AFTER baseline_b_symptoms,
+	ADD COLUMN `baseline_b_symp_night_sweating` char(1) DEFAULT '' AFTER `baseline_b_symp_fever`,
+	ADD COLUMN `baseline_b_symp_weight_loss` char(1) DEFAULT '' AFTER `baseline_b_symp_night_sweating`;
+ALTER TABLE ld_lymph_dx_lymphomas_revs
+	ADD COLUMN `baseline_b_symp_fever` char(1) DEFAULT '' AFTER baseline_b_symptoms,
+	ADD COLUMN `baseline_b_symp_night_sweating` char(1) DEFAULT '' AFTER `baseline_b_symp_fever`,
+	ADD COLUMN `baseline_b_symp_weight_loss` char(1) DEFAULT '' AFTER `baseline_b_symp_night_sweating`;
+
+DELETE FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma B symptoms descriptions');
+DELETE FROM structure_permissible_values_custom_controls WHERE name LIKE 'lymphoma B symptoms descriptions';
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'baseline_b_desc' AND tablename = 'ld_lymph_dx_lymphomas');
+DELETE FROM structure_fields WHERE field = 'baseline_b_desc' AND tablename = 'ld_lymph_dx_lymphomas';
+DELETE FROM structure_value_domains WHERE domain_name LIKE 'custom_baseline_b_desc_list';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'DiagnosisDetail', 'ld_lymph_dx_lymphomas', 'baseline_b_symp_fever', 'yes_no',  NULL , '0', '', '', '', 'b symptoms : fever', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ld_lymph_dx_lymphomas', 'baseline_b_symp_night_sweating', 'yes_no',  NULL , '0', '', '', '', 'b symptoms : night sweating', ''), 
+('Clinicalannotation', 'DiagnosisDetail', 'ld_lymph_dx_lymphomas', 'baseline_b_symp_weight_loss', 'yes_no',  NULL , '0', '', '', '', 'b symptoms : weight loss', ''); 
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field`='baseline_b_symp_fever'), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field`='baseline_b_symp_night_sweating'), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_lymphomas'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dx_lymphomas' AND `field`='baseline_b_symp_weight_loss'), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+INSERT INTO i18n (id,en) VALUES 
+('b symptoms : fever', 'B Sympt. : Fever'), 
+('b symptoms : night sweating', 'B Sympt. : Night Sweating'), 
+('b symptoms : weight loss', 'B Sympt. : Weight loss');
+
+
+
