@@ -322,10 +322,15 @@ class ShellHelper extends Helper {
 									}
 									$word = $untranslated ? '<span class="untranslated">'.$word.'</span>' : $word;
 								
-									$active_item = '
-										<span class="mainTitle">'.$menu_item['Menu']['use_summary'].'</span>
-										<br />&nbsp;&lfloor; <span class="menuSubTitle">'.$word.'</span>
-									';
+									if($is_root){
+										$class = ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
+										$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 mr5px '.$class.'" style="vertical-align: bottom;"></span><span style="display: inline-block">'.$menu_item['Menu']['use_summary'].'<br/>&nbsp;&lfloor; <span class="menuSubTitle">'.$word.'</span></span>', ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));										
+									}else{
+										$active_item = '
+											<span class="mainTitle">'.$menu_item['Menu']['use_summary'].'</span>
+											<br/>&nbsp;&lfloor; <span class="menuSubTitle">'.$word.'</span>
+										';
+									}
 									
 									$page_title[] = $menu_item['Menu']['use_summary'];
 								}else{
@@ -336,11 +341,11 @@ class ShellHelper extends Helper {
 										// $active_item = $menu_item['Menu']['allowed'] ? $this->Html->link( __($menu_item['Menu']['language_title'], true), $menu_item['Menu']['use_link'], $html_attributes ) : __($menu_item['Menu']['language_title'], true);
 										
 										if(!$menu_item['Menu']['allowed']){
-											$active_item = '<a class="icon32 mr5px not_allowed" title="'.__($menu_item['Menu']['language_title'], true).'">'.__($menu_item['Menu']['language_title'], true).'</a>';
+											$active_item = '<a class="icon32 mr5px not_allowed" title="'.__($menu_item['Menu']['language_title']).'">'.__($menu_item['Menu']['language_title']).'</a>';
 										}else {
 											//$html_attributes
 											$class = ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-											$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 mr5px '.$class.'"></span>'.__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));
+											$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 mr5px '.$class.'"></span>'.__($menu_item['Menu']['language_title']), ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));
 										}
 									}else{
 										$active_item = '<span class="mainTitle">'.__($menu_item['Menu']['language_title'], true).'</span>';
