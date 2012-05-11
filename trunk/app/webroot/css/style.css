@@ -550,13 +550,8 @@ div#menu {
 	margin: 10px 10px 0 10px;
 }
 
-div.menu.level_0 {
+div.menu.level_0, .menuSubTitle {
 	position: relative;
-
-	/*
-		z-index: 20;
-	*/
-	
 	list-style-type: none;
 	padding: 0;
 	min-height: 40px;
