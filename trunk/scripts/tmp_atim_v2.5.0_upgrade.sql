@@ -1964,3 +1964,12 @@ ALTER TABLE menus
  ADD COLUMN flag_submenu BOOLEAN NOT NULL DEFAULT true;
 
 UPDATE menus SET flag_submenu=false WHERE id IN('ord_CAN_114', 'ord_CAN_116');
+
+INSERT INTO i18n (id,en,fr) VALUES
+('starting element','Sarting Element', 'Élément de départ'),
+('print barcode','Print Barcode','Imprimer barcode'),
+('print barcodes','Print Barcodes','Imprimer les barcodes'),
+('save browsing steps','Save Browsing Steps','Sauvergarder étapes de navigation'),
+('saved browsing steps','Saved Browsing Steps','Étapes de navigation Sauvergardées'),
+('data saved','Data Saved','Données sauvegardées');
+
