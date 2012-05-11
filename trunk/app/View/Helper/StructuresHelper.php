@@ -2563,5 +2563,12 @@ class StructuresHelper extends Helper {
 		</div>
 		';
 	}
+	
+	function generateIndex($index_url){
+		return AppController::checkLinkPermission($index_url) ? '
+		<div class="indexZone" data-url="'.$index_url.'">
+		</div>
+		' : '<div>'.__('You are not authorized to access that location.').'</div>';
+	}
 }
 	

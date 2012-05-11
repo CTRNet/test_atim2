@@ -153,8 +153,6 @@ class AppController extends Controller {
 	
 	static function init(){
 		Configure::write('Config.language', 'eng');
-	
-		App::import('model','AtimAcl');
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	

@@ -28,21 +28,40 @@
 	
 	// 2- ORDER LINES
 	
-	$structure_links['index'] = array(	
-		'detail'=>'/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%/',
-		'add order line item'=>array('link'=>'/Order/OrderItems/add/%%Order.id%%/%%OrderLine.id%%/','icon'=>'add_to_order')
+	$final_atim_structure = array(); 
+	$final_options = array(
+		'links'	=> $structure_links,
+		'settings' => array(
+			'header' => __('order_order lines', null),
+			'actions'	=> false,
+		), 'extras' => array('end' => $this->Structures->generateIndex('Order/OrderLines/listall/'.$atim_menu_variables['Order.id']))
 	);
-	
-	$structure_override = array();
-
-	$final_atim_structure = $orderlines_listall_structure; 
-	$final_options = array('type'=>'index', 'links'=>$structure_links, 'override'=>$structure_override, 'data' => $order_lines_data, 'settings' => array('header' => __('order_order lines', null)));
 		
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook('order_lines');
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
+		
+	// BUILD FORM
+	$this->Structures->build( $final_atim_structure, $final_options );	
+
+	
+	// 2- SHIPMENTS
+	
+	$final_atim_structure = array(); 
+	$final_options = array(
+		'links'	=> $structure_links,
+		'settings' => array(
+			'header' => __('shipments', null),
+		), 'extras' => array('end' => $this->Structures->generateIndex('Order/shipments/listall/'.$atim_menu_variables['Order.id'])));
+		
+	// CUSTOM CODE
+	$hook_link = $this->Structures->hook('order_lines');
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
 	
-?>

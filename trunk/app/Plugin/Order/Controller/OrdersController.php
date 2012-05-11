@@ -78,15 +78,9 @@ class OrdersController extends OrderAppController {
 		$this->set('order_data', $order_data);
 		$this->request->data = array();
 		
-		// Set order lines data
-		$this->set('order_lines_data', $this->paginate($this->OrderLine, array('OrderLine.order_id'=>$order_id, 'OrderLine.deleted' => 0)));
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id) );
-		
-		// Set structure for order lines list
-		$this->Structures->set('orderlines', 'orderlines_listall_structure');
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
