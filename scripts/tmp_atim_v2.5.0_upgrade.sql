@@ -5,6 +5,8 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("there is no barcodes to print", "There is no barcodes to print.", "Il n'y a pas de code à barres à imprimer."),  
+("print barcodes", "Print Barcodes", "Imprimer Codes Barres"),
 ("add_order_items_info",
  "To add items in batch, you may use query tools batch actions.",
  "Pour ajouter des items en lot, vous pouvez utiliser les traitement par lots des outils de requêtes."),
@@ -1964,12 +1966,3 @@ ALTER TABLE menus
  ADD COLUMN flag_submenu BOOLEAN NOT NULL DEFAULT true;
 
 UPDATE menus SET flag_submenu=false WHERE id IN('ord_CAN_114', 'ord_CAN_116');
-
-INSERT INTO i18n (id,en,fr) VALUES
-('starting element','Sarting Element', 'Élément de départ'),
-('print barcode','Print Barcode','Imprimer barcode'),
-('print barcodes','Print Barcodes','Imprimer les barcodes'),
-('save browsing steps','Save Browsing Steps','Sauvergarder étapes de navigation'),
-('saved browsing steps','Saved Browsing Steps','Étapes de navigation Sauvergardées'),
-('data saved','Data Saved','Données sauvegardées');
-

@@ -6,7 +6,7 @@
 		
 	$structure_links['bottom']['edit'] = '/InventoryManagement/AliquotMasters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
 	$structure_links['bottom']['delete'] = '/InventoryManagement/AliquotMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-	$structure_links['bottom']['print barcode'] = array('link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:SampleMaster/id:'.$atim_menu_variables['AliquotMaster.id'], 'icon' => 'barcode');
+	$structure_links['bottom']['print barcode'] = array('link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:AliquotMaster/id:'.$atim_menu_variables['AliquotMaster.id'], 'icon' => 'barcode');
 	$structure_links['bottom']['storage'] = '/underdevelopment/';
 	if(!empty($aliquot_storage_data)) {
 		$structure_links['bottom']['storage'] = array(
