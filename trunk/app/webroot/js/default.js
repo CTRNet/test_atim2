@@ -457,20 +457,19 @@ function initActions(){
 	 * @param scope The scope where to look for those controls. In a popup, the scope will be the popup box
 	 */
 	function initCheckAll(scope){
-		var elem = $(scope).find(".checkAll");
-		if(elem.length > 0){
-			var elemParent = $(elem).parents("form:first");
-			$(elem).click(function(){
+		$(scope).find(".checkAll").each(function(){
+			var elemParent = $(this).parents("table:first");
+			$(this).click(function(){
 				$(elemParent).find('input[type=checkbox]').prop("checked", true);
 				$(elemParent).find('input[type=checkbox]:first').parents("tr:first").addClass("chkLine").siblings().addClass("chkLine");
 				return false;
 			});
-			$(scope).find(".uncheckAll").click(function(){
+			$(elemParent).find(".uncheckAll").click(function(){
 				$(elemParent).find('input[type=checkbox]').prop("checked", false);
 				$(elemParent).find('input[type=checkbox]:first').parents("tr:first").removeClass("chkLine").siblings().removeClass("chkLine");
 				return false;
 			});
-		}
+		});
 	}
 	
 	/**
@@ -865,11 +864,13 @@ function initActions(){
 	
 	function warningMoreInfoClick(event){
 		//only called on the first click of each element, then toggle function handles it
-		$(event.srcElement).toggle(function(){
-			$(this).html("[-]").siblings("pre.warningMoreInfo").show();
-		}, function(){
+		if($(event.target).data('opened')){
 			$(this).html("[+]").siblings("pre.warningMoreInfo").hide();
-		}).click();
+			$(event.target).data('opened', false);
+		}else{
+			$(this).html("[-]").siblings("pre.warningMoreInfo").show();
+			$(event.target).data('opened', true);
+		}
 	}
 	
 	function sessionExpired(){
@@ -922,6 +923,12 @@ function initActions(){
 	
 	
 	function initJsControls(){
+		if(history.replaceState){
+			if(!history.state){
+				history.replaceState(new Object(), "foo");
+			}
+		}
+		
 		if(window.storageLayout){
 			initStorageLayout();
 		}
@@ -1030,6 +1037,8 @@ function initActions(){
 		
 		initCheckAll(document);
 		initCheckboxes(document);
+		
+		initIndexZones();
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
@@ -1312,7 +1321,6 @@ function initActions(){
 	 * Will see if the last_request time has changed in order to stop the rotating beam. Used by CSV download.
 	 */
 	function fetchingBeamCheck(){
-		console.log(submitData.lastRequest + " - " + $.cookie('last_request'));
 		if(submitData.lastRequest != $.cookie('last_request')){
 			$(document).find('a.submit span.fetching').removeClass('fetching');
 		}else{
@@ -1618,6 +1626,63 @@ function initActions(){
 	function submitChecks(scope){
 		$(scope).find('a.submit span').last().addClass('fetching');
 		submitData.lastRequest = $.cookie('last_request');
+	}
+	
+	function initIndexZones(){
+		var fctLinksToAjax = function(scope){
+			$(scope).find("a:not(.icon16)").click(function(){
+				if($(this).attr("href").indexOf("javascript:") == 0){
+					return true;
+				}
+				scope.html("<div class='loading'>---" + STR_LOADING + "---</div>");
+				$.get($(this).attr("href"), function(data){
+					var page = null;
+					if(data.indexOf("{") == 0){
+						data = $.parseJSON(data);
+						page = data.page;
+					}else{
+						page = data;
+					}
+					scope.html(page);					
+					fctLinksToAjax(scope);
+					
+					history.state.indexZone[scope.data("url")] = page;
+					history.replaceState(history.state, "foo");
+				});
+				
+				return false;
+			});
+		};
+		
+		if(!history.state.indexZone){
+			history.state.indexZone = new Object();
+		}
+		
+		$(".indexZone").each(function(){
+			var indexZone = $(this);
+			var url = indexZone.data('url');
+			if(history.state.indexZone[url]){
+				indexZone.html(history.state.indexZone[url]);
+				fctLinksToAjax(indexZone);
+			}else{
+				indexZone.html("<div class='loading'>---" + STR_LOADING + "---</div>");
+				$.get(root_url + url + "/noActions:/?t=" + new Date().getTime(), function(data){
+					var page = null;
+					if(data.indexOf("{") == 0){
+						data = $.parseJSON(data);
+						page = data.page;
+						indexZone.html(data.page);
+					}else{
+						page = data;
+					}
+					indexZone.html(page);
+					fctLinksToAjax(indexZone);
+					
+					history.state.indexZone[url] = page;
+					history.replaceState(history.state, "foo");
+				});
+			}
+		});
 	}
 
 	
