@@ -334,7 +334,7 @@ class OrderItemsController extends OrderAppController {
 			}			
 			
 			if($submitted_data_validates){
-				
+				$this->OrderItem->addWritableField(array('order_line_id', 'status', 'aliquot_master_id'));
 				foreach($aliquot_ids_to_add as $added_aliquot_master_id) {
 					// Add order item
 					$new_order_item_data = array();

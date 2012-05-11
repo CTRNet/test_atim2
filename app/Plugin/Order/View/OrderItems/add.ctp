@@ -1,4 +1,5 @@
-<?php 
+<?php
+AppController::addInfoMsg(__('add_order_items_info')); 
 	$structure_links = array(
 		'top'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
 		'bottom'=>array(

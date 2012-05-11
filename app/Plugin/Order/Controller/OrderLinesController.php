@@ -79,6 +79,7 @@ class OrderLinesController extends OrderAppController {
 				}
 					
 				if ($submitted_data_validates) {
+					$this->OrderLine->addWritableField(array('sample_control_id', 'aliquot_control_id', 'order_id', 'status'));
 					if( $this->OrderLine->save($this->request->data) ) {
 						$hook_link = $this->hook('postsave_process');
 						if( $hook_link ) {
@@ -89,7 +90,11 @@ class OrderLinesController extends OrderAppController {
 				}
 			} 
 		}else{
-			$this->request->data = array('OrderLine' => array('study_summary_id' => $order_data['Order']['default_study_summary_id']));
+			$this->request->data = array('OrderLine' => array(
+				'study_summary_id'			=> $order_data['Order']['default_study_summary_id'],
+				'date_required'				=> $order_data['Order']['default_required_date'],
+				'date_required_accuracy'	=> $order_data['Order']['default_required_date_accuracy']
+			));
 		}
 	}
 

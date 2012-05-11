@@ -53,7 +53,6 @@ class ShipmentsController extends OrderAppController {
 	}
 
 	function add( $order_id ) {
-		if ( !$order_id ) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 
 		// MANAGE DATA
 		
@@ -83,7 +82,7 @@ class ShipmentsController extends OrderAppController {
 			if($hook_link){
 				require($hook_link);
 			}
-			
+			$this->Shipment->addWritableField('order_id');
 			if ($submitted_data_validates && $this->Shipment->save($this->request->data) ) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
@@ -189,7 +188,6 @@ class ShipmentsController extends OrderAppController {
 	/* ----------------------------- SHIPPED ITEMS ---------------------------- */
 	
 	function addToShipment($order_id, $shipment_id){
-		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		
@@ -198,7 +196,9 @@ class ShipmentsController extends OrderAppController {
 		
 		// Get available order items
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
-		if(empty($available_order_items)) { $this->flash('no new item could be actually added to the shipment', '/Order/shipments/detail/'.$order_id.'/'.$shipment_id);  }
+		if(empty($available_order_items)) { 
+			$this->flash('no new item could be actually added to the shipment', '/Order/shipments/detail/'.$order_id.'/'.$shipment_id);  
+		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -211,21 +211,30 @@ class ShipmentsController extends OrderAppController {
 			require($hook_link);
 		}
 		
-		if(empty($this->request->data)){		
-			$this->request->data = $available_order_items;
+		if(empty($this->request->data)){
+			$this->request->data = array();
+			$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
+			$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+			foreach($available_order_items as $order_item){
+				if(!isset($this->request->data[$order_item['OrderLine']['id']])){
+					$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
+					$name = __($sample_ctrl['SampleControl']['sample_type']);
+					if($order_item['OrderLine']['aliquot_control_id']){
+						$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
+						$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
+					}
+					if($order_item['OrderLine']['sample_aliquot_precision']){
+						$name .= ' - '.$order_item['OrderLine']['sample_aliquot_precision'];
+					}
+					$this->request->data[$order_item['OrderLine']['id']] = array('name' => $name, 'data' => array());
+				}
+				$this->request->data[$order_item['OrderLine']['id']]['data'][] = $order_item;
+			}
 			
 		} else {	
 			// Launch validation
 			$submitted_data_validates = true;
-			$data_to_save = array();
-			
-			foreach($this->request->data as $id => $new_studied_item) {
-				// New studied item
-				if($new_studied_item['FunctionManagement']['use']) {
-					// Item has been defined as shipped
-					$data_to_save[] = $new_studied_item;
-				}
-			}
+			$data_to_save = array_filter($this->request->data['OrderItem']['id']);
 			
 			if(empty($data_to_save)) { 
 				$this->OrderItem->validationErrors[] = 'no item has been defined as shipped';	
@@ -241,11 +250,22 @@ class ShipmentsController extends OrderAppController {
 				// Launch Save Process
 				$order_line_to_update = array();
 				
-				foreach($data_to_save as $key => $shipped_item){					
-					// Get ids
-					$order_item_id = $shipped_item['OrderItem']['id'];
-					$order_line_id = $shipped_item['OrderLine']['id'];
-					$aliquot_master_id = $shipped_item['AliquotMaster']['id'];
+				$available_order_items = AppController::defineArrayKey($available_order_items, 'OrderItem', 'id', true);
+				
+				//All coded data -> disable checks
+				$this->AliquotMaster->check_writable_fields = false;
+				$this->OrderItem->check_writable_fields = false;
+				$this->OrderLine->check_writable_fields = false;
+				
+				foreach($data_to_save as $order_item_id){
+					$order_item = isset($available_order_items[$order_item_id]) ? $available_order_items[$order_item_id] : null;
+					if($order_item == null){
+						//hack attempt
+						continue;
+					}
+					
+					// Get id
+					$aliquot_master_id = $order_item['AliquotMaster']['id'];
 					
 					// 1- Update Aliquot Master Data
 					$aliquot_master = array();
@@ -277,6 +297,7 @@ class ShipmentsController extends OrderAppController {
 					}
 					
 					// 4- Set order line to update
+					$order_line_id = $order_item['OrderLine']['id'];
 					$order_line_to_update[$order_line_id] = $order_line_id;
 				}
 				
@@ -305,8 +326,6 @@ class ShipmentsController extends OrderAppController {
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
-		if (( !$order_id ) || ( !$order_item_id ) || ( !$shipment_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
-		
 		// MANAGE DATA
 		
 		// Check item

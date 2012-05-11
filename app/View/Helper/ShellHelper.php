@@ -352,7 +352,7 @@ class ShellHelper extends Helper {
 							}
 							
 							$title = html_entity_decode(__($menu_item['Menu']['language_title'], true), ENT_QUOTES, "UTF-8");
-							if(!$menu_item['Menu']['is_root']){
+							if(!$menu_item['Menu']['is_root'] && $menu_item['Menu']['flag_submenu']){
 								if($menu_item['Menu']['allowed']){
 									$append_menu .= '
 											<!-- '.$menu_item['Menu']['id'].' -->
