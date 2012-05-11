@@ -2422,11 +2422,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->set('csv_header', true);
 		$offset = 0;
 		AppController::atimSetCookie(false);
+		$at_least_once = false;
 		while($this->request->data = $this->AliquotMaster->find('all', array('conditions' => $conditions, 'limit' => 300, 'offset' => $offset))){
 			$this->render('../../../Datamart/View/Csv/csv');
 			$this->set('csv_header', false);
 			$offset += 300;
+			$at_least_once = true;
 		}
-		$this->render(false);
+		if($at_least_once){
+			$this->render(false);
+		}else{
+			$this->flash(__('there are no barcodes to print'), 'javascript:history.back();');
+		}
 	}
 }
