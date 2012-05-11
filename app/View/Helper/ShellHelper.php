@@ -324,7 +324,7 @@ class ShellHelper extends Helper {
 								
 									if($is_root){
 										$class = ' menu '.$this->Structures->generateLinkClass( 'plugin '.$menu_item['Menu']['use_link'] );
-										$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 mr5px '.$class.'" style="vertical-align: bottom;"></span><span style="display: inline-block">'.$menu_item['Menu']['use_summary'].'<br/>&nbsp;&lfloor; <span class="menuSubTitle">'.$word.'</span></span>', ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));										
+										$active_item = $this->Html->link( html_entity_decode( '<span class="icon32 mr5px '.$class.'" style="vertical-align: bottom;"></span><span style="display: inline-block">'.$menu_item['Menu']['use_summary'].'<br/><span class="menuSubTitle">&nbsp;&lfloor; '.$word.'</span></span>', ENT_QUOTES, "UTF-8"), $menu_item['Menu']['use_link'],  array('escape' => false, 'title' => $title, 'class' => 'mainTitle'));										
 									}else{
 										$active_item = '
 											<span class="mainTitle">'.$menu_item['Menu']['use_summary'].'</span>
