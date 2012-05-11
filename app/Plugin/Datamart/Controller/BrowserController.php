@@ -78,29 +78,15 @@ class BrowserController extends DatamartAppController {
 		$last_control_id = 0;
 		$this->set('control_id', $control_id);
 		$this->set('merge_to', $merge_to);
-		if(empty($this->request->data)){
-			if($node_id == 0){
-				//new access
-				$this->set("dropdown_options", $this->Browser->getBrowserDropdownOptions($control_id, $node_id, null, null, null, null, null, array("AliquotControl" => array(0))));
-				$this->Structures->set("empty");
-				$this->set('type', "add");
-				$this->set('top', "/Datamart/Browser/browse/0/");
-			}else{
-				//direct node access
-				$this->set('node_id', $node_id);
-				$browsing = $this->BrowsingResult->getOrRedirect($node_id);
-				if($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')){
-					$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
-				}
-				$check_list = true;
-			}
-		}else{
+		
+		//data handling will redirect to a straight page
+		if($this->request->data){
 			// ->browsing access<- (search form or checklist)
 			if(isset($this->request->data['Browser']['search_for'])){
 				//search_for is taken from the dropdown
 				if(strpos($this->request->data['Browser']['search_for'], "/") > 0){
 					list($control_id, $check_list) = explode("/", $this->request->data['Browser']['search_for']);
-				}else{ 
+				}else{
 					$control_id = $this->request->data['Browser']['search_for'];
 					$check_list = false;
 				}
@@ -117,11 +103,11 @@ class BrowserController extends DatamartAppController {
 			}
 			//direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
 			$direct_id_arr = explode(Browser::$model_separator_str, $control_id);
-
+			
 			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 			if(isset($this->request->data[$parent['DatamartStructure']['model']]) && isset($this->request->data['Browser'])){
 				$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
-				//save selected subset if parent model found and from a checklist 
+				//save selected subset if parent model found and from a checklist
 				$ids = array();
 				if(is_array($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey])){
 					$ids = array_filter($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]);
@@ -133,23 +119,23 @@ class BrowserController extends DatamartAppController {
 					$id_csv = $parent['BrowsingResult']['id_csv'];
 					$ids = explode(',', $id_csv);
 				}
-				
+			
 				if(!$parent['BrowsingResult']['raw']){
 					//the parent is a drilldown, seek the next parent
 					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_id'])));
 					$node_id = $parent['BrowsingResult']['id'];
 				}
-
+			
 				$save = array('BrowsingResult' => array(
-					"user_id"						=> $this->Session->read('Auth.User.id'),
-					"parent_id"						=> $node_id,
-					"browsing_structures_id"		=> $parent['BrowsingResult']['browsing_structures_id'],
-					"browsing_structures_sub_id"	=> $parent['BrowsingResult']['browsing_structures_sub_id'],
-					"id_csv"						=> $id_csv,
-					'raw'							=> 0,
-					"browsing_type"					=> 'drilldown'
+						"user_id"						=> $this->Session->read('Auth.User.id'),
+						"parent_id"						=> $node_id,
+						"browsing_structures_id"		=> $parent['BrowsingResult']['browsing_structures_id'],
+						"browsing_structures_sub_id"	=> $parent['BrowsingResult']['browsing_structures_sub_id'],
+						"id_csv"						=> $id_csv,
+						'raw'							=> 0,
+						"browsing_type"					=> 'drilldown'
 				));
-
+			
 				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
 				if(!empty($tmp)){
 					//current set already exists, use it
@@ -162,53 +148,81 @@ class BrowserController extends DatamartAppController {
 					$this->BrowsingResult->id = null;
 				}
 			}
-			
+				
 			$last_control_id = $direct_id_arr[count($direct_id_arr) - 1];
 			if(!$check_list){
 				//going to a search screen, remove the last direct_id to avoid saving it as direct access
 				array_pop($direct_id_arr);
 			}
-			
+				
 			$created_node = null;
 			//save nodes (direct and indirect)
 			foreach($direct_id_arr as $control_id){
 				$sub_struct_ctrl_id = null;
 				if(isset($sub_structure_id)//there is a sub id
-					&& $direct_id_arr[count($direct_id_arr) - 1] == $control_id//this is the last element
-					&& $check_list//this is a checklist
+						&& $direct_id_arr[count($direct_id_arr) - 1] == $control_id//this is the last element
+						&& $check_list//this is a checklist
 				){
 					$sub_struct_ctrl_id = $sub_structure_id;
 				}
-				
+			
 				$params = array(
-					'struct_ctrl_id'		=> $control_id,
-					'sub_struct_ctrl_id'	=> $sub_struct_ctrl_id,
-					'node_id'				=> $node_id,
-					'last'					=> $last_control_id == $control_id
+						'struct_ctrl_id'		=> $control_id,
+						'sub_struct_ctrl_id'	=> $sub_struct_ctrl_id,
+						'node_id'				=> $node_id,
+						'last'					=> $last_control_id == $control_id
 				);
-				
+			
 				if(!$created_node = $this->Browser->createNode($params)){
 					//something went wrong. A flash screen has been called.
 					return;
 				}
-				
+			
 				$node_id = $created_node['browsing']['BrowsingResult']['id'];
 			}
-			
+				
 			if($created_node){
 				$result_structure = $created_node['result_struct'];
 				$browsing = $created_node['browsing'];
 				unset($created_node);
 			}
-			
+				
 			//all nodes saved, now load the proper form
 			if($check_list){
-				$node_id = $browsing['BrowsingResult']['id'];
-			}else{
-				//search screen
-				$browsing = $this->DatamartStructure->find('first', array('conditions' => array('id' => $last_control_id)));
+				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/');
 			}
-			 
+			
+			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$control_id);
+			
+			
+		}else{
+			if($node_id == 0){
+				if($control_id){
+					//search screen
+					$browsing = $this->DatamartStructure->findById($control_id);
+					$last_control_id = $control_id;
+				}else{
+					//new access
+					$this->set("dropdown_options", $this->Browser->getBrowserDropdownOptions(0, $node_id, null, null, null, null, null, array("AliquotControl" => array(0))));
+					$this->Structures->set("empty");
+					$this->set('type', "add");
+					$this->set('top', "/Datamart/Browser/browse/0/");
+				}
+			}else{
+				if($control_id){
+					//search screen
+					$browsing = $this->DatamartStructure->findById($control_id);
+					$last_control_id = $control_id;
+				}else{
+					//direct node access
+					$this->set('node_id', $node_id);
+					$browsing = $this->BrowsingResult->getOrRedirect($node_id);
+					if($browsing['BrowsingResult']['user_id'] != CakeSession::read('Auth.User.id')){
+						$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+					}
+					$check_list = true;
+				}
+			}
 		}
 		
 		//handle display data
@@ -287,10 +301,8 @@ class BrowserController extends DatamartAppController {
 			$csv_merge_data = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
 			$this->set('csv_merge_data', $csv_merge_data);
 			
-			
-			
 
-		}else if($browsing != null){
+		}else if($browsing){
 			if(!AppController::checkLinkPermission($browsing['DatamartStructure']['index_link'])){
 				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
 			}
@@ -317,6 +329,7 @@ class BrowserController extends DatamartAppController {
 			}
 			$this->set('top', "/Datamart/Browser/browse/".$node_id."/".$last_control_id."/");
 			$this->set('node_id', $node_id);
+			$this->Browser;//lazy laod
 			if($browsing['DatamartStructure']['adv_search_structure_alias']){
 				Browser::$cache['current_node_id'] = $node_id;
 				$advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
