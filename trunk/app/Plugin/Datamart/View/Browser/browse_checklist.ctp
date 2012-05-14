@@ -9,15 +9,6 @@
 		$links['bottom']['save browsing steps'] = array('link' => AppController::checkLinkPermission('/Datamart/BrowsingSteps/save/') ? 'javascript:openSaveBrowsingStepsPopup("Datamart/BrowsingSteps/save/'.$node_id.'");' : '/underdev/', 'icon' => 'disk');
 	}
 	
-	if(isset($saved_browsing_index) && $saved_browsing_index && AppController::checkLinkPermission('/Datamart/Browser/applyBrowsingSteps/')){
-		$links['bottom']['apply saved browsing steps'] = array();
-		foreach($saved_browsing_index as $item){
-			$links['bottom']['apply saved browsing steps'][$item['SavedBrowsingIndex']['name']] = '/Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$item['SavedBrowsingIndex']['id'];
-		}
-	}else{
-		$links['bottom']['apply saved browsing steps'] = '/underdev/';
-	}
-	
 	if($type == "checklist"){
 		$links['top'] = $top;
 		if(is_array($this->request->data)){
@@ -47,7 +38,7 @@
 			//overflow
 			?>
 			<ul class="warning">
-				<li><?php echo(__("the query returned too many results").". ".__("try refining the search parameters").". "
+				<li><span class="icon16 warning mr5px"></span><?php echo(__("the query returned too many results").". ".__("try refining the search parameters").". "
 				.__("for any action you take (%s, %s, csv, etc.), all matches of the current set will be used", __('browse'), __('batchset'))); ?>.</li>
 			</ul>
 			<?php

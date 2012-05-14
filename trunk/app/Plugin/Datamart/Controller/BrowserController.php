@@ -104,50 +104,7 @@ class BrowserController extends DatamartAppController {
 			//direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
 			$direct_id_arr = explode(Browser::$model_separator_str, $control_id);
 			
-			$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
-			if(isset($this->request->data[$parent['DatamartStructure']['model']]) && isset($this->request->data['Browser'])){
-				$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
-				//save selected subset if parent model found and from a checklist
-				$ids = array();
-				if(is_array($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey])){
-					$ids = array_filter($this->request->data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]);
-					$ids = array_unique($ids);
-					sort($ids);
-					$id_csv = implode(",",  $ids);
-				}else{
-					//fetch ids from the parent node
-					$id_csv = $parent['BrowsingResult']['id_csv'];
-					$ids = explode(',', $id_csv);
-				}
-			
-				if(!$parent['BrowsingResult']['raw']){
-					//the parent is a drilldown, seek the next parent
-					$parent = $this->BrowsingResult->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_id'])));
-					$node_id = $parent['BrowsingResult']['id'];
-				}
-			
-				$save = array('BrowsingResult' => array(
-						"user_id"						=> $this->Session->read('Auth.User.id'),
-						"parent_id"						=> $node_id,
-						"browsing_structures_id"		=> $parent['BrowsingResult']['browsing_structures_id'],
-						"browsing_structures_sub_id"	=> $parent['BrowsingResult']['browsing_structures_sub_id'],
-						"id_csv"						=> $id_csv,
-						'raw'							=> 0,
-						"browsing_type"					=> 'drilldown'
-				));
-			
-				$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
-				if(!empty($tmp)){
-					//current set already exists, use it
-					$node_id = $tmp['BrowsingResult']['id'];
-				}else if($parent['BrowsingResult']['id_csv'] != $id_csv){
-					//current set does not exists and no identical parent exists, save!
-					$this->BrowsingResult->id = null;
-					$this->BrowsingResult->save($save);
-					$node_id = $this->BrowsingResult->id;
-					$this->BrowsingResult->id = null;
-				}
-			}
+			$this->Browser->buildDrillDownIfNeeded($this->request->data, $node_id);
 				
 			$last_control_id = $direct_id_arr[count($direct_id_arr) - 1];
 			if(!$check_list){
@@ -303,9 +260,6 @@ class BrowserController extends DatamartAppController {
 			}
 			$this->set('merged_ids', $this->Browser->merged_ids);
 			$this->set('unused_parent', $browsing['BrowsingResult']['parent_id'] && $browsing['BrowsingResult']['raw']);
-			
-			$saved_browsing_index = $this->SavedBrowsingIndex->find('all', array('conditions' => array_merge($this->SavedBrowsingIndex->getOwnershipConditions(), array('SavedBrowsingIndex.starting_datamart_structure_id' => $browsing['DatamartStructure']['id'])), 'order' => 'SavedBrowsingIndex.name'));
-			$this->set('saved_browsing_index', $saved_browsing_index);
 			
 			$csv_merge_data = $this->BrowsingResult->getSingleLineMergeableNodes($node_id);
 			$this->set('csv_merge_data', $csv_merge_data);
@@ -679,6 +633,8 @@ class BrowserController extends DatamartAppController {
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
+		$this->Browser->buildDrillDownIfNeeded($this->request->data, $starting_node_id);
+		
 		$node_id = $starting_node_id;
 		foreach($browsing_steps['SavedBrowsingStep'] as $step){
 			$search_params = unserialize($step['serialized_search_params']);
@@ -700,8 +656,7 @@ class BrowserController extends DatamartAppController {
 		}
 
 		//done, render the proper node.
-		$this->browse($node_id);
-		$this->render('browse_checklist');
+		$this->redirect('/Datamart/Browser/browse/'.$node_id.'/');
 	}
 }
 
