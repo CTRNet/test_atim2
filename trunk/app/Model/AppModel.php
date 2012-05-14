@@ -1174,7 +1174,7 @@ class AppModel extends Model {
 	function getPluginName(){
 		$class = new ReflectionClass($this);
 		$matches = array();
-		if(preg_match('#'.AppController::getInstance()->request->webroot.'app/Plugin/([\w\d]+)/#', $class->getFileName(), $matches)){
+		if(preg_match('#'.str_replace('/','[\\\/]',AppController::getInstance()->request->webroot.'app/Plugin/([\w\d]+)/').'#', $class->getFileName(), $matches)){
 			return $matches[1];
 		}
 		return null;
