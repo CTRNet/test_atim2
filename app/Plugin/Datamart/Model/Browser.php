@@ -120,6 +120,25 @@ class Browser extends DatamartAppModel {
 			
 			$result = array_merge($result, parent::getDropdownOptions($plugin_name, $model_name, $model_pkey, null, $data_model, $data_pkey));
 			
+			if(AppController::checkLinkPermission('/Datamart/Browser/applyBrowsingSteps/')){
+				$saved_browsing_index_model = AppModel::getInstance('Datamart', 'SavedBrowsingIndex');
+				$data = $saved_browsing_index_model->find('all', array('conditions' => array_merge($saved_browsing_index_model->getOwnershipConditions(), array('SavedBrowsingIndex.starting_datamart_structure_id' => $starting_ctrl_id)), 'order' => 'SavedBrowsingIndex.name'));
+				if($data){
+					$sub_menu = array();
+					foreach($data as $data_unit){
+						$sub_menu[] = array(
+							'value'	=> '/Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$data_unit['SavedBrowsingIndex']['id'],
+							'label'	=> $data_unit['SavedBrowsingIndex']['name']
+						);
+					}
+					$result[] = array(
+						'value'	=> '',
+						'label'	=> __('apply saved browsing steps'),
+						'children'	=> $sub_menu
+					);
+				}
+			}
+			
 		}else{
 			
 			$active_structures_ids = $this->getActiveStructuresIds();
@@ -1580,6 +1599,54 @@ class Browser extends DatamartAppModel {
 			'result_struct'	=> $result_structure,
 			'browsing'		=> $browsing
 		);
+	}
+	
+	function buildDrillDownIfNeeded($data, &$node_id){
+		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult');
+		$parent = $browsing_result_model->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
+		if(isset($data[$parent['DatamartStructure']['model']]) && isset($data['Browser'])){
+			$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['model'], true);
+			//save selected subset if parent model found and from a checklist
+			$ids = array();
+			if(is_array($data[$parent['DatamartStructure']['model']][$parent_model->primaryKey])){
+				$ids = array_filter($data[$parent['DatamartStructure']['model']][$parent_model->primaryKey]);
+				$ids = array_unique($ids);
+				sort($ids);
+				$id_csv = implode(",",  $ids);
+			}else{
+				//fetch ids from the parent node
+				$id_csv = $parent['BrowsingResult']['id_csv'];
+				$ids = explode(',', $id_csv);
+			}
+				
+			if(!$parent['BrowsingResult']['raw']){
+				//the parent is a drilldown, seek the next parent
+				$parent = $browsing_result_model->find('first', array('conditions' => array("BrowsingResult.id" => $parent['BrowsingResult']['parent_id'])));
+				$node_id = $parent['BrowsingResult']['id'];
+			}
+				
+			$save = array('BrowsingResult' => array(
+					"user_id"						=> AppController::getInstance()->Session->read('Auth.User.id'),
+					"parent_id"						=> $node_id,
+					"browsing_structures_id"		=> $parent['BrowsingResult']['browsing_structures_id'],
+					"browsing_structures_sub_id"	=> $parent['BrowsingResult']['browsing_structures_sub_id'],
+					"id_csv"						=> $id_csv,
+					'raw'							=> 0,
+					"browsing_type"					=> 'drilldown'
+			));
+				
+			$tmp = $browsing_result_model->find('first', array('conditions' => AppController::getInstance()->flattenArray($save)));
+			if(!empty($tmp)){
+				//current set already exists, use it
+				$node_id = $tmp['BrowsingResult']['id'];
+			}else if($parent['BrowsingResult']['id_csv'] != $id_csv){
+				//current set does not exists and no identical parent exists, save!
+				$browsing_result_model->id = null;
+				$browsing_result_model->save($save);
+				$node_id = $browsing_result_model->id;
+				$browsing_result_model->id = null;
+			}
+		}
 	}
 }
 
