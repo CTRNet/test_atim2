@@ -30,7 +30,8 @@
 	$page = $this->Structures->build( $final_atim_structure, $final_options );
 
 	if(isset($is_ajax)){
-		echo json_encode(array('page' => $this->Shell->validationHtml().$page, 'new_search_id' => AppController::getNewSearchId()));
+		$this->layout = 'json';
+		$this->json = array('page' => $page, 'new_search_id' => AppController::getNewSearchId());
 	}else{
 		echo $page;
 	}

@@ -44,6 +44,6 @@ var labBookFields = new Array("<?php echo implode('", "', $lab_book_fields); ?>"
 if($is_ajax){
 	$display = $this->Shell->validationErrors().ob_get_contents();
 	ob_end_clean();
-	$this->validationErrors = array();
-	echo json_encode(array('goToNext' => false, 'display' => $display, 'id' => null));
+	$this->layout = 'json';
+	$this->json = array('goToNext' => false, 'page' => $display, 'id' => null);
 }

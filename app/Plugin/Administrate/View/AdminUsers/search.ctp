@@ -47,7 +47,8 @@ if(empty($this->request->data)){
 
 $form = $this->Structures->build($atim_final_structure, $final_options);
 if(isset($is_ajax)){
-	echo json_encode(array('page' => $this->Shell->validationHtml().$form, 'new_search_id' => AppController::getNewSearchId()));
+	$this->layout = 'json';
+	$this->json = array('page' => $form, 'new_search_id' => AppController::getNewSearchId());
 }else{
 	echo $form;
 }

@@ -559,7 +559,7 @@ function initActions(){
 					initLabBook(newLines);
 				}
 				initAccuracy(newLines);
-				initFlyOverCells(newLines);
+				initFlyOverCellsLines(newLines);
 				flyOverComponents();
 				
 				
@@ -1128,14 +1128,8 @@ function initActions(){
 				$(div).html(page);
 			});
 		});
-		
-		$("table").find("th.floatingCell:last").each(function(){
-			//floaintCells are headers. Make their column float for thead and tbody
-			$(this).parent().find("th.floatingCell").each(function(){
-				$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
-			});
-			initFlyOverCells($(this).parents("table:first"));
-		});
+
+		initFlyOverCells(document);
 
 		if($.cookie("session_expiration")){
 			sessionTimeout.serverOffset = new Date().getTime() - $.cookie('last_request') * 1000;
@@ -1148,6 +1142,16 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
+		$(scope).find("table").find("th.floatingCell:last").each(function(){
+			//floaintCells are headers. Make their column float for thead and tbody
+			$(this).parent().find("th.floatingCell").each(function(){
+				$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
+			});
+			initFlyOverCellsLines($(this).parents("table:first"));
+		});
+	}
+	
+	function initFlyOverCellsLines(scope){
 		var table = scope[0].nodeName == "TABLE" ? scope : $(scope).parents("table:first");
 		table.find("th.floatingCell:last").each(function(){
 			//from the last floatingCell index
@@ -1174,7 +1178,9 @@ function initActions(){
 			});
 		});
 
-		resizeFloatingBckGrnd($(table).find(".floatingBckGrnd"));
+		if($(table).find(".floatingBckGrnd").length){
+			resizeFloatingBckGrnd($(table).find(".floatingBckGrnd"));
+		}
 	}
 	
 	function resizeFloatingBckGrnd(floatingBckGrnd){
@@ -1209,6 +1215,7 @@ function initActions(){
 		initCheckboxes(scope);
 		initAccuracy(scope);
 		initAdvancedControls(scope);
+		initFlyOverCells(scope);
 
 		if(window.labBookFields){
 			initLabBook(scope);

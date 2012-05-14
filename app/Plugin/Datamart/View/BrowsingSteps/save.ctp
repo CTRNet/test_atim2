@@ -7,4 +7,5 @@ $form = $this->Structures->build($atim_structure, array(
 
 $form = $this->Shell->validationErrors().ob_get_contents().$form;
 $this->validationErrors = null;
-echo json_encode(array('type' => 'form', 'page' => $form));
+$this->layout = 'json';
+$this->json = array('type' => 'form', 'page' => $form);
