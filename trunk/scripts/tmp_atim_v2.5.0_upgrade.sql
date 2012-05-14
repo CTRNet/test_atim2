@@ -1901,12 +1901,12 @@ UPDATE datamart_structures
 ALTER TABLE orders
  ADD COLUMN institution VARCHAR(50) NOT NULL DEFAULT '' AFTER default_study_summary_id,
  ADD COLUMN contact VARCHAR(50) NOT NULL DEFAULT '' AFTER institution,
- ADD COLUMN default_required_date DATE DEFAULT NULL AFTER contact;
+ ADD COLUMN default_required_date DATE DEFAULT NULL AFTER contact,
  ADD COLUMN default_required_date_accuracy CHAR(1) DEFAULT 'c';
 ALTER TABLE orders_revs
  ADD COLUMN institution VARCHAR(50) NOT NULL DEFAULT '' AFTER default_study_summary_id,
  ADD COLUMN contact VARCHAR(50) NOT NULL DEFAULT '' AFTER institution,
- ADD COLUMN default_required_date DATE DEFAULT NULL,
+ ADD COLUMN default_required_date DATE DEFAULT NULL AFTER contact,
  ADD COLUMN default_required_date_accuracy CHAR(1) DEFAULT 'c';
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
 ('orders_institution', 1, 50),
