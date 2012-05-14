@@ -5,8 +5,12 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
-('help_csv_export_type','',''),
-('help_csv_redundancy','',''),
+("help_csv_export_type",
+ "\"Visible columns\" will only export columns visible on the screen while \"All\" will export every columns. (When using \"All\", some fields might not be user readable data.)",
+ "\"Colonnes visibles\" exportera seulement les colonnes visibles à l'écran tandis que \"Tout\" exportera toutes les colonnes. (Quand l'option \"Tout\" est utilisée, certains champs peuvent contenir des données non lisibles pour les utilisateurs.)"),
+("help_csv_redundancy",
+ "Defines how relations causing redundancy will be exported. \"Multiple line\" will generate a file the same way the display is rendered. \"Same line\" let you select nodes to export and all entries related to the primary line will be exported on the same line with incrementing labels.",
+ "Défini comment seront exportés les relations provoquant des redondances. \"Lignes multiples\" génèrera un fichier comparable à la manière dont les données sont affichées. \"Même ligne\" vous laisse choisir les noeuds à exporter et chaque élément rattaché à l'élément du noeud primaire sera exporté sur la même ligne avec des titres incrémentaux."),  
 (' of ', ' of ', ' de '),
 ('add source aliquots','Add Source Aliquots','Ajouter aliquots source'),
 ('encoding','Encoding','Codage'),
