@@ -1040,7 +1040,9 @@ function initActions(){
 		initCheckAll(document);
 		initCheckboxes(document);
 		
-		initIndexZones();
+		if(history.replaceState){
+			initIndexZones();
+		}
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
