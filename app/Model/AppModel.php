@@ -519,11 +519,11 @@ class AppModel extends Model {
 						$this->data[$this->name][$accuracy_field] = 'd';
 					}else if(empty($time)){
 						$this->data[$this->name][$accuracy_field] = 'c';
-					}else if(empty($hour) && empty($minute)){
+					}else if(!strlen($hour) && !strlen($minute)){
 						$hour = '00';
 						$minute = '00';
 						$this->data[$this->name][$accuracy_field] = 'h';
-					}else if(empty($minute)){
+					}else if(!strlen($minute)){
 						$minute = '00';
 						$this->data[$this->name][$accuracy_field] = 'i';
 					}else{
@@ -1143,7 +1143,7 @@ class AppModel extends Model {
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				foreach($foreign_keys as $foreign_key){
-					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s=%3$d)', $model->table, $foreign_key, $this->id);  
+					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s=%3$d)', $model->table, $foreign_key, $this->id);
 					$this->query($query);
 				}
 			}
