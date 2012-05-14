@@ -1551,7 +1551,6 @@ function initActions(){
 		}
 		$("#csvPopup").popup();
 		$("input.submit").siblings("a").find("span").removeClass('fetching');
-		return false;
 	}
 	
 	function selectedItemZonePopup(event){
