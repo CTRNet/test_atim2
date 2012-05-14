@@ -78,6 +78,7 @@ class BrowserController extends DatamartAppController {
 		$last_control_id = 0;
 		$this->set('control_id', $control_id);
 		$this->set('merge_to', $merge_to);
+		$this->Browser;//lazy laod
 		
 		//data handling will redirect to a straight page
 		if($this->request->data){
@@ -96,7 +97,6 @@ class BrowserController extends DatamartAppController {
 			}else{
 				$check_list = true;
 			}
-			$this->Browser;//trigger lazy load
 			$sub_structure_id = null;//control id for master/detail
 			if(strpos($control_id, Browser::$sub_model_separator_str) !== false){
 				list($control_id , $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
@@ -192,6 +192,9 @@ class BrowserController extends DatamartAppController {
 				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/');
 			}
 			
+			if($sub_structure_id){
+				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$control_id.Browser::$sub_model_separator_str.$sub_structure_id);
+			}
 			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$control_id);
 			
 			
@@ -199,6 +202,9 @@ class BrowserController extends DatamartAppController {
 			if($node_id == 0){
 				if($control_id){
 					//search screen
+					if(strpos($control_id, Browser::$sub_model_separator_str)){
+						list($control_id, $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
+					}
 					$browsing = $this->DatamartStructure->findById($control_id);
 					$last_control_id = $control_id;
 				}else{
@@ -211,6 +217,9 @@ class BrowserController extends DatamartAppController {
 			}else{
 				if($control_id){
 					//search screen
+					if(strpos($control_id, Browser::$sub_model_separator_str)){
+						list($control_id, $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
+					}
 					$browsing = $this->DatamartStructure->findById($control_id);
 					$last_control_id = $control_id;
 				}else{
@@ -329,7 +338,6 @@ class BrowserController extends DatamartAppController {
 			}
 			$this->set('top', "/Datamart/Browser/browse/".$node_id."/".$last_control_id."/");
 			$this->set('node_id', $node_id);
-			$this->Browser;//lazy laod
 			if($browsing['DatamartStructure']['adv_search_structure_alias']){
 				Browser::$cache['current_node_id'] = $node_id;
 				$advanced_structure = $this->Structures->get('form', $browsing['DatamartStructure']['adv_search_structure_alias']);
