@@ -98,7 +98,7 @@ class CollectionsController extends InventoryManagementAppController {
 		
 		if(!$this->request->is('ajax') || (isset($this->passedArgs['tree']) && $this->passedArgs['tree'])){
 			$this->Structures->set('sample_masters_for_collection_tree_view', 'sample_masters_for_collection_tree_view');
-			$sample_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'recursive' => 0));
+			$sample_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.parent_id' => null), 'recursive' => 0));
 			$ids = array();
 			foreach($sample_data as $unit){
 				$ids[] = $unit['SampleMaster']['id'];
