@@ -17,9 +17,9 @@
 		
 	$this->Structures->build($template_init_structure, $structure_build_options);
 	
-	$display = $this->Shell->validationHtml().ob_get_contents();
+	$display = ob_get_contents();
 	ob_end_clean();
 	$display = ob_get_contents().$display;
-	$this->validationErrors = array();
-	echo json_encode(array('goToNext' => isset($goToNext), 'display' => $display));
+	$this->layout = 'json';
+	$this->json = array('goToNext' => isset($goToNext), 'page' => $display);
 	

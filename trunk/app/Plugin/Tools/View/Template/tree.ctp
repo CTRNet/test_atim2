@@ -55,7 +55,8 @@ if(isset($is_ajax)){
 	$tmp = $this->Shell->validationErrors();
 	$has_errors = !empty($tmp);
 	$this->validationErrors = array();
-	echo json_encode(array('page' => $page, 'has_errors' => $has_errors));
+	$this->layout = 'json';
+	$this->json = array('page' => $page, 'has_errors' => $has_errors);
 	return;
 }else{
 	echo $page;
@@ -277,8 +278,7 @@ if(isset($is_ajax)){
 		setLoading();
 		$.get(root_url + 'InventoryManagement/Collections/templateInit/' + collectionId + '/' + wizard_id + "/noActions:/?t=" + new Date().getTime(), function(jsonData){
 			jsonData = $.parseJSON(jsonData);
-			$(".ajaxContent").html(jsonData.display);
-			$(".ajaxContent form").append("<input type='hidden' name='data[0][bogus_hidden_for_submit]' value=''/>");
+			$(".ajaxContent").html(jsonData.page);
 			globalInit(".ajaxContent");
 			templateInitId = $("input[type=hidden][name=data\\\[template_init_id\\\]]").val();
 		});
@@ -300,7 +300,7 @@ if(isset($is_ajax)){
 				nextNode();
 			}else{
 				try{
-					$(".ajaxContent").html(jsonData.display);
+					$(".ajaxContent").html(jsonData.page);
 				}catch(e){
 					//do nothing
 				}
@@ -363,11 +363,11 @@ if(isset($is_ajax)){
 				}
 				url = 'InventoryManagement/SampleMasters/add/<?php echo $collection_id; ?>/' + data.controlId + '/' + parentId + '/';
 			}
-			
+
 			$.get(root_url + url + 'noActions:/templateInitId:' + templateInitId + '/', function(jsonData){
 				jsonData = $.parseJSON(jsonData);
 				try{
-					$(".ajaxContent").html(jsonData.display);
+					$(".ajaxContent").html(jsonData.page);
 				}catch(e){
 					//do sweet nothing
 				}
