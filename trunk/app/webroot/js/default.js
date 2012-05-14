@@ -1178,22 +1178,23 @@ function initActions(){
 	}
 	
 	function resizeFloatingBckGrnd(floatingBckGrnd){
-		var table = floatingBckGrnd.parents("table:first");
-		if(floatingBckGrnd.data("initialized")){
-			floatingBckGrnd.css({
-				height: (table.find("thead").height() + table.find("tbody").height()) + "px"
-			});
-			$(".floatingBckGrnd").each(function(){
-				$(this).css('top', $(this).parents('table:first').offset().top + "px");
-			});
-		}else{
-			floatingBckGrnd.css({
-				width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + 3 + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
-				height: (table.find("thead").height() + table.find("tbody").height()) + "px",
-				top	:  table.find("th.floatingCell:first").offset().top + "px",
-				left: table.find("th.floatingCell:first").offset().left + "px"
-			}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
+		if(floatingBckGrnd){
+			var table = floatingBckGrnd.parents("table:first");
+			if(floatingBckGrnd.data("initialized")){
+				floatingBckGrnd.css({
+					height: (table.find("thead").height() + table.find("tbody").height()) + "px"
+				});
+			}else{
+				floatingBckGrnd.css({
+					width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + 3 + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
+					height: (table.find("thead").height() + table.find("tbody").height()) + "px",
+					left: table.find("th.floatingCell:first").offset().left + "px"
+				}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
+			}
 		}
+		$(".floatingBckGrnd").each(function(){
+			$(this).css('top', $(this).parents('table:first').offset().top + "px");
+		});
 	}
 	
 
@@ -1343,17 +1344,20 @@ function initActions(){
 	 */
 	
 	function sectionCtrl(event){
-		if($(event.srcElement).hasClass('delete')){
+		element = event.target;
+		if($(element).hasClass('delete')){
 			//hide the content in the button data
-			$(event.srcElement).parents(".descriptive_heading:first").nextAll(".section:first").appendTo("body").hide();
-			$(event.srcElement).data("section", $("body .section:last"));
-			$(event.srcElement).parents(".descriptive_heading:first").css("text-decoration", "line-through");
-			$(event.srcElement).removeClass('delete').addClass('redo');
+			$(element).parents(".descriptive_heading:first").nextAll(".section:first").appendTo("body").hide();
+			$(element).data("section", $("body .section:last"));
+			$(element).parents(".descriptive_heading:first").css("text-decoration", "line-through");
+			$(element).removeClass('delete').addClass('redo');
 		}else{
-			$(event.srcElement).parents(".descriptive_heading:first").after($(event.srcElement).data("section").show());
-			$(event.srcElement).parents(".descriptive_heading:first").css("text-decoration", "none");
-			$(event.srcElement).addClass('delete').removeClass('redo');
+			$(element).parents(".descriptive_heading:first").after($(element).data("section").show());
+			$(element).parents(".descriptive_heading:first").css("text-decoration", "none");
+			$(element).addClass('delete').removeClass('redo');
 		}
+		
+		resizeFloatingBckGrnd(null);
 		
 		if($(".descriptive_heading a.sectionCtrl.delete").length == 0){
 			$(".flyOverSubmit").hide();
