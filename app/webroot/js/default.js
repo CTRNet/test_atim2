@@ -624,7 +624,9 @@ function initActions(){
 	}
 	
 	function removeLine(){
+		var floatingBckGrnd = $(this).parents("table:first").find(".floatingBckGrnd");
 		$(this).parents("tr:first").remove();
+		resizeFloatingBckGrnd(floatingBckGrnd);
 		return false;
 	}
 	
@@ -1127,10 +1129,12 @@ function initActions(){
 			});
 		});
 		
-		$("th.floatingCell").each(function(){
+		$("table").find("th.floatingCell:last").each(function(){
 			//floaintCells are headers. Make their column float for thead and tbody
-			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
-			initFlyOverCells($(this).parents("table:first").find("tbody"));
+			$(this).parent().find("th.floatingCell").each(function(){
+				$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
+			});
+			initFlyOverCells($(this).parents("table:first"));
 		});
 
 		if($.cookie("session_expiration")){
@@ -1144,7 +1148,8 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
-		$(scope).parents("table:first").find("th.floatingCell:last").each(function(){
+		var table = scope[0].nodeName == "TABLE" ? scope : $(scope).parents("table:first");
+		table.find("th.floatingCell:last").each(function(){
 			//from the last floatingCell index
 			$(scope).find("td:nth-child(" + ($(this).prevAll().length + 1) + ")").each(function(){
 				//for every lines within the scope
@@ -1168,20 +1173,29 @@ function initActions(){
 				});
 			});
 		});
-		if($(".floatingBckGrnd").data("initialized")){
-			$(".floatingBckGrnd").css({
-				height: ($(scope).parents("table:first").find("thead").height() + $(scope).parents("table:first").find("tbody").height()) + "px"
+
+		resizeFloatingBckGrnd($(table).find(".floatingBckGrnd"));
+	}
+	
+	function resizeFloatingBckGrnd(floatingBckGrnd){
+		var table = floatingBckGrnd.parents("table:first");
+		if(floatingBckGrnd.data("initialized")){
+			floatingBckGrnd.css({
+				height: (table.find("thead").height() + table.find("tbody").height()) + "px"
+			});
+			$(".floatingBckGrnd").each(function(){
+				$(this).css('top', $(this).parents('table:first').offset().top + "px");
 			});
 		}else{
-			$(".floatingBckGrnd").css({
-				width : (contentMargin + $("th.floatingCell:last").offset().left + $("th.floatingCell:last").width() + 3 + parseInt($("th.floatingCell:last").css("padding-right")) - $(".floatingBckGrnd").parents("tr:first").offset().left) + "px",
-				height: ($(scope).parents("table:first").find("thead").height() + $(scope).parents("table:first").find("tbody").height()) + "px",
-				top	:  $("th.floatingCell:first").offset().top + "px",
-				left: $("th.floatingCell:first").offset().left + "px"
+			floatingBckGrnd.css({
+				width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + 3 + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
+				height: (table.find("thead").height() + table.find("tbody").height()) + "px",
+				top	:  table.find("th.floatingCell:first").offset().top + "px",
+				left: table.find("th.floatingCell:first").offset().left + "px"
 			}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
-			
 		}
 	}
+	
 
 	function globalInit(scope){
 		if(window.copyControl){
@@ -1201,10 +1215,6 @@ function initActions(){
 		
 	}
 
-	function debug(str){
-//		$("#debug").append(str + "<br/>");
-	}
-	
 	function treeViewNodeClick(event){
 		var element = event.currentTarget;
 		$(element).removeClass("notFetched").unbind('click');
