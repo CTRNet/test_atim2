@@ -5,6 +5,17 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+('help_csv_export_type','',''),
+('help_csv_redundancy','',''),
+(' of ', ' of ', ' de '),
+('add source aliquots','Add Source Aliquots','Ajouter aliquots source'),
+('encoding','Encoding','Codage'),
+('identifiers','Identifiers','Identifiants'),
+('multiple lines','Multiple Lines','Multi-lignes'),
+('redundancy display','Redundancy Display','Affichage des redondances'),
+('same line','Same Ligne','Même ligne'),
+('separator','Separator','Séparateur'),
+('visible columns','Visible Columns','Colonnes visibles'),
 ("saved browsing steps", "Saved browsing steps", "Étapes de navigation sauvegardées"),
 ("save browsing steps", "Save browsing steps", "Sauvegarder les étapes de navigation"),
 ("there is no barcodes to print", "There is no barcodes to print.", "Il n'y a pas de code à barres à imprimer."),  
