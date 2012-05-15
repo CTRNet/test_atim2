@@ -1994,5 +1994,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE datamart_structures SET adv_search_structure_alias='event_adv_search' WHERE model='EventMaster';
 
+UPDATE structure_fields SET  `model`='ViewSample',  `tablename`='view_samples',  `setting`='' WHERE model='SampleMaster' AND tablename='' AND field='coll_to_rec_spent_time_msg' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_setting`='0', `setting`='', `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_rec_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_fields SET  `setting`='' WHERE model='SampleMaster' AND tablename='' AND field='coll_to_creation_spent_time_msg' AND `type`='input' AND structure_value_domain  IS NULL ;
 
+UPDATE structure_fields SET  `model`='ViewSample',  `tablename`='view_samples' WHERE model='SampleMaster' AND tablename='' AND field='coll_to_creation_spent_time_msg' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_creation_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'); 
