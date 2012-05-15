@@ -41,28 +41,6 @@ class StudySummary extends StudyAppModel
 	}
 
 	function allowDeletion($study_summary_id) {	
-//TODO end of study summary allowDeletion()
-//ALTER TABLE `study_contacts`
-//  ADD CONSTRAINT `FK_study_contacts_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-//
-//ALTER TABLE `study_ethics_boards`
-//  ADD CONSTRAINT `FK_study_ethics_boards_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-//
-//ALTER TABLE `study_fundings`
-//  ADD CONSTRAINT `FK_study_fundings_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-//
-//ALTER TABLE `study_investigators`
-//  ADD CONSTRAINT `FK_study_investigators_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-//
-//ALTER TABLE `study_related`
-//  ADD CONSTRAINT `FK_study_related_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-//
-//ALTER TABLE `study_results`
-//  ADD CONSTRAINT `FK_study_results_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-//
-//ALTER TABLE `study_reviews`
-//  ADD CONSTRAINT `FK_study_reviews_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
-
 		$ctrl_model = AppModel::getInstance("Order", "Order", true);
 		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('Order.default_study_summary_id' => $study_summary_id), 'recursive' => '-1'));
 		if($ctrl_value > 0) { 
