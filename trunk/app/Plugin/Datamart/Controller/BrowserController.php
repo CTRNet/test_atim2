@@ -506,7 +506,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_type"					=> 'search'
 		));
 		
-		$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
+		$tmp = $this->BrowsingResult->find('first', array('conditions' => Set::flatten($save)));
 		$node_id = null;
 		if(empty($tmp)){
 			$this->BrowsingResult->check_writable_fields = false;
@@ -603,7 +603,7 @@ class BrowserController extends DatamartAppController {
 
 		$return_id = null;
 		if(!empty($save['BrowsingResult']['id_csv'])){
-			$tmp = $this->BrowsingResult->find('first', array('conditions' => $this->flattenArray($save)));
+			$tmp = $this->BrowsingResult->find('first', array('conditions' => Set::flatten($save)));
 			if(!empty($tmp)){
 				//current set already exists, use it
 				$return_id = $tmp['BrowsingResult']['id'];

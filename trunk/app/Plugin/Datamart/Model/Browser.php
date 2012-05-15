@@ -1635,7 +1635,7 @@ class Browser extends DatamartAppModel {
 					"browsing_type"					=> 'drilldown'
 			));
 				
-			$tmp = $browsing_result_model->find('first', array('conditions' => AppController::getInstance()->flattenArray($save)));
+			$tmp = $browsing_result_model->find('first', array('conditions' => Set::flatten($save)));
 			if(!empty($tmp)){
 				//current set already exists, use it
 				$node_id = $tmp['BrowsingResult']['id'];

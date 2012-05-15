@@ -913,7 +913,7 @@ class AppModel extends Model {
 	
 	static function translateDateValueAndUnit($spent_time_data, $time_unit) {
 		if(array_key_exists($time_unit, $spent_time_data)) {
-			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . __($time_unit) . ' ') : '');
+			return (((!empty($spent_time_data[$time_unit])) && ($spent_time_data[$time_unit] != '00'))? ($spent_time_data[$time_unit] . ' ' . ($spent_time_data[$time_unit] == 1 ? __(substr($time_unit, 0, -1)) : __($time_unit)) . ' ') : '');
 		} 
 		return  '#err#';
 	}
@@ -1127,7 +1127,7 @@ class AppModel extends Model {
 						$remainder = ($remainder - $time['minutes']) / 60;
 						$time['hours'] = $remainder % 24;
 						$time['days'] = ($remainder - $time['hours']) / 24; 
-						$result[$this->name][$field_name] = AppModel::translateDateValueAndUnit($time, 'days') 
+						$result[$this->name][$field_name] = AppModel::translateDateValueAndUnit($time, 'days').'' 
 								.AppModel::translateDateValueAndUnit($time, 'hours') 
 								.AppModel::translateDateValueAndUnit($time, 'minutes');
 					}
