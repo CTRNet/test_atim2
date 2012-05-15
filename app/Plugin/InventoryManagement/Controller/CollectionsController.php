@@ -249,6 +249,7 @@ class CollectionsController extends InventoryManagementAppController {
 				
 				// 4- SAVE
 				$this->Collection->id = $collection_id;
+				$this->Collection->data = array();
 				if ($this->Collection->save($this->request->data)){
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 

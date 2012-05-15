@@ -47,7 +47,7 @@
 	if($due_msg_cond || $coll_cond){
 		$atim_content['messages'] = '';
 		if($due_msg_cond){
-			$atim_content['messages'] = '<ul class="warning"><li>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
+			$atim_content['messages'] = '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('not done participant messages having reached their due date').': '.$due_messages_count.'.
 				Click <a id="goToNotDue" href="javascript:goToNotDoneDueMessages()">here</a> to see them.
 				</li></ul>
 				<form action="'.$this->request->webroot.'ClinicalAnnotation/ParticipantMessages/search/'.AppController::getNewSearchId().'" method="POST" id="doneDueMessages">
@@ -58,7 +58,7 @@
 		}
 		if($coll_cond){
 			$for_bank_part = isset($bank_filter) ? __('for your bank') : __('for all banks');
-			$atim_content['messages'] .= '<ul class="warning"><li>'.__('unlinked participant collections').' ('.$for_bank_part.'): '.$unlinked_part_coll.'.
+			$atim_content['messages'] .= '<ul class="warning"><li><span class="icon16 warning mr5px"></span>'.__('unlinked participant collections').' ('.$for_bank_part.'): '.$unlinked_part_coll.'.
 				Click <a id="goToUnlinkedColl" href="'.$this->request->webroot.'InventoryManagement/Collections/search/'.AppController::getNewSearchId().'/unlinkedParticipants:/ ">here</a> to see them.
 				</li></ul>
 			';
