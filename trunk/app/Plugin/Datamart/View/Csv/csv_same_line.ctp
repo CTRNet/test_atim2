@@ -8,5 +8,4 @@ if($csv_header){
 	$this->Structures->build( array(), array('type' => 'csv', 'settings' => array('csv_header' => $csv_header, 'all_fields' => AppController::getInstance()->csv_config['type'] == 'all')));
 }
 
-// $this->Structures->build( $result_structure, array('type' => 'csv', 'settings' => array('csv_header' => false, 'all_fields' => AppController::getInstance()->csv_config['type'] == 'all')));
 ob_flush();
