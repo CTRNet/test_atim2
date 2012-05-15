@@ -1139,16 +1139,14 @@ class StructuresHelper extends Helper {
 					$sub_line = array();
 					$this->Csv->structures[$node_id] = $structure = $this->buildStack($this->Csv->structures[$node_id], $options);
 					foreach($this->Csv->structures[$node_id] as $table_column){
-						$cols_count = 0;
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
 								$sub_line[] = $table_row_part['label'];
-								++ $cols_count;
 							}
 						}
 						
 					}
-					$this->Csv->nodes_info[$node_id]['cols_count'] = $cols_count;
+					$this->Csv->nodes_info[$node_id]['cols_count'] = count($sub_line);
 					for($i = 1; $i <= $node_info['max_length']; ++ $i){
 						foreach($sub_line as $sub_line_part){
 							$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
@@ -1161,6 +1159,7 @@ class StructuresHelper extends Helper {
 			
 			$lines = array();
 			//data = array(node => pkey => data rows => data line
+					
 			foreach($this->Csv->nodes_info as $node_id => $node_info){
 				//fill the node section of the lines array. the index is the pkey of the line
 				foreach($data[$node_id] as $pkey => $data_row){
@@ -1171,12 +1170,12 @@ class StructuresHelper extends Helper {
 					foreach($data_row as $model_data){
 						//node_data is all data of a node linked to a pkey
 						foreach($this->Csv->structures[$node_id] as $table_column){
-							foreach ( $table_column as $fm => $table_row){
+							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
 									if(isset($model_data[$table_row_part['model']][$table_row_part['field']])){
-										$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
+										$lines[$pkey][] =  trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
 									}else{
-										$lines[$pkey][] = "";
+										$lines[$pkey][] = '';
 									}
 								}
 							}
@@ -1189,6 +1188,7 @@ class StructuresHelper extends Helper {
 					}
 				}
 			}
+
 			foreach($lines as &$line){
 				$this->Csv->addRow($line);
 			}
