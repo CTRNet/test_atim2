@@ -1428,7 +1428,7 @@ class Browser extends DatamartAppModel {
 			
 			if($counters_conditions){
 				//valid conditions
-				$browsing_control_model = AppModel::getInstance('InventoryManagement', 'BrowsingControl');
+				$browsing_control_model = AppModel::getInstance('Datamart', 'BrowsingControl');
 				$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
 				$last_model_id = $browsing['DatamartStructure']['id'];
 				$counters_conditions = array_reverse($counters_conditions);
@@ -1445,7 +1445,7 @@ class Browser extends DatamartAppModel {
 					}
 					if(!$found){
 						//join on it
-						$joins[] = $browsing_control_model->getInnerJoinArray($last_model_id, $browsing_result['BrowsingResult']['browsing_structures_id'], explode(',',$browsing_result['BrowsingResult']['id_csv']));
+						$joins[] = $browsing_control_model->getInnerJoinArray($model_to_search->name, $browsing_result['BrowsingResult']['browsing_structures_id'], explode(',',$browsing_result['BrowsingResult']['id_csv']));
 					}
 					$model = $datamart_structure_model->getModel($browsing_result['BrowsingResult']['browsing_structures_id']);
 					if($val){

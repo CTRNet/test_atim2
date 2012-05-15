@@ -31,21 +31,43 @@ class BrowsingControl extends DatamartAppModel {
 		}
 	}
 	
-	function getInnerJoinArray($browsing_structure_id_a, $browsing_structure_id_b, array $ids_filter = null){
+	/**
+	 * @param String or int $val
+	 * @return If the value is a model name (string), return the id of the associated DatamartStructure. Otherwise return the value itself.
+	 */
+	private static function getBrowsingStructureId($val){
+		if((int)$val == 0){
+			$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
+			$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $val, 'DatamartStructure.control_master_model' => $val))));
+			assert($datamart_structure);
+			$val = $datamart_structure['DatamartStructure']['id'];
+		}
+		return $val;
+	}
+	
+	/**
+	 * @param mixed $a Either a DatamartStructure.id or a model name of the left part of the join.
+	 * @param mixex $b Either a DatamartStructure.id or a model name of the right part of the join.
+	 * @param array $ids_filter
+	 * @return array The join array
+	 */
+	function getInnerJoinArray($a, $b, array $ids_filter = null){
+		$browsing_structure_id_a = self::getBrowsingStructureId($a);
+		$browsing_structure_id_b = self::getBrowsingStructureId($b);
 		$data = $this->find('first', array('conditions' => array('BrowsingControl.id1' => $browsing_structure_id_a, 'BrowsingControl.id2' => $browsing_structure_id_b)));
 		if($data){
 			//n to 1
 			$this->completeData($data);
-			$model_n = AppModel::getInstance($data['DatamartStructure1']['plugin'], $data['DatamartStructure1']['model'], true);
-			$model_1 = AppModel::getInstance($data['DatamartStructure2']['plugin'], $data['DatamartStructure2']['model'], true);
+			$model_n = AppModel::getInstance($data['DatamartStructure1']['plugin'], $a == $data['DatamartStructure1']['control_master_model'] ? $a : $data['DatamartStructure1']['model']);
+			$model_1 = AppModel::getInstance($data['DatamartStructure2']['plugin'], $b == $data['DatamartStructure2']['control_master_model'] ? $b : $data['DatamartStructure2']['model']);
 			$model_b = &$model_1;
 		}else{
 			//1 to n
 			$data = $this->find('first', array('conditions' => array('BrowsingControl.id2' => $browsing_structure_id_a, 'BrowsingControl.id1' => $browsing_structure_id_b)));
 			assert($data);
 			$this->completeData($data);
-			$model_n = AppModel::getInstance($data['DatamartStructure1']['plugin'], $data['DatamartStructure1']['model'], true);
-			$model_1 = AppModel::getInstance($data['DatamartStructure2']['plugin'], $data['DatamartStructure2']['model'], true);
+			$model_n = AppModel::getInstance($data['DatamartStructure1']['plugin'], $b == $data['DatamartStructure1']['control_master_model'] ? $b : $data['DatamartStructure1']['model']);
+			$model_1 = AppModel::getInstance($data['DatamartStructure2']['plugin'], $a == $data['DatamartStructure2']['control_master_model'] ? $a : $data['DatamartStructure2']['model']);
 			$model_b = &$model_n;
 		}
 		
