@@ -1576,7 +1576,7 @@ class Browser extends DatamartAppModel {
 			return false;
 		}
 		
-		$tmp = $browsing_result_model->find('first', array('conditions' => $controller->flattenArray($save)));
+		$tmp = $node_id ? $browsing_result_model->find('first', array('conditions' => Set::flatten($save))) : array();
 		if(empty($tmp)){
 			//save fullset
 			$save = $browsing_result_model->save($save);
