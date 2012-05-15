@@ -1129,6 +1129,11 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
+		if(isset(AppController::getInstance()->csv_config)){
+			$this->csv->csv_separator = AppController::getInstance()->csv_config; 
+		}
+		
+		
 		if(isset($this->Csv->nodes_info)){
 			//same line mode
 			$this->Csv->current = array();
