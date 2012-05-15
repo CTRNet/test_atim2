@@ -150,9 +150,9 @@ class BrowserController extends DatamartAppController {
 			}
 			
 			if($sub_structure_id){
-				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$control_id.Browser::$sub_model_separator_str.$sub_structure_id);
+				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.Browser::$sub_model_separator_str.$sub_structure_id);
 			}
-			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$control_id);
+			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id);
 			
 			
 		}else{
