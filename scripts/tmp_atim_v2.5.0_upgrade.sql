@@ -10,7 +10,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "\"Colonnes visibles\" exportera seulement les colonnes visibles à l'écran tandis que \"Tout\" exportera toutes les colonnes. (Quand l'option \"Tout\" est utilisée, certains champs peuvent contenir des données non lisibles pour les utilisateurs.)"),
 ("help_csv_redundancy",
  "Defines how relations causing redundancy will be exported. \"Multiple line\" will generate a file the same way the display is rendered. \"Same line\" let you select nodes to export and all entries related to the primary line will be exported on the same line with incrementing labels.",
- "Défini comment seront exportés les relations provoquant des redondances. \"Lignes multiples\" génèrera un fichier comparable à la manière dont les données sont affichées. \"Même ligne\" vous laisse choisir les noeuds à exporter et chaque élément rattaché à l'élément du noeud primaire sera exporté sur la même ligne avec des titres incrémentaux."),  
+ "Défini comment seront exportés les relations provoquant des redondances. \"Multi-lignes\" génèrera un fichier comparable à la manière dont les données sont affichées. \"Même ligne\" vous laisse choisir les noeuds à exporter et chaque élément rattaché à l'élément du noeud primaire sera exporté sur la même ligne avec des titres incrémentaux."),  
 (' of ', ' of ', ' de '),
 ('add source aliquots','Add Source Aliquots','Ajouter aliquots source'),
 ('encoding','Encoding','Codage'),
@@ -1983,3 +1983,16 @@ ALTER TABLE menus
  ADD COLUMN flag_submenu BOOLEAN NOT NULL DEFAULT true;
 
 UPDATE menus SET flag_submenu=false WHERE id IN('ord_CAN_114', 'ord_CAN_116');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("event_filter", "", "", "ClinicalAnnotation.EventMaster::getBrowsingFilter");
+
+INSERT INTO structures(`alias`) VALUES ('event_adv_search');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', '', 'browsing_filter', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='event_filter') , '0', 'noCtrl=', '', '', 'filter', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='event_adv_search'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='' AND `field`='browsing_filter' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_filter')  AND `flag_confidential`='0' AND `setting`='noCtrl=' AND `default`='' AND `language_help`='' AND `language_label`='filter' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE datamart_structures SET adv_search_structure_alias='event_adv_search' WHERE model='EventMaster';
+
+
+
