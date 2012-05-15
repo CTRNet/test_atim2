@@ -1422,7 +1422,7 @@ function initActions(){
 	 * @param event
 	 */
 	function checkboxIndexLineFunction(event){
-		if($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey){
+		if($(event.currentTarget)[0].nodeName == "TR" && !event.originalEvent.shiftKey && event.target.nodeName != 'A'){
 			//line clicked, toggle it's checkbox (don't support shift click, as it is for text selection
 			$(event.currentTarget).find("td.checkbox:first input[type=checkbox]").trigger("click", [ event ]);
 			event.stopPropagation();
