@@ -1454,12 +1454,12 @@ class Browser extends DatamartAppModel {
 				$org_field_info = $model_to_search->schema($browsing_filter['field']);
 				$query = 'UPDATE '.$temporary_table.' SET order_field=CONCAT(SUBSTR(order_field, 1, %1$d), "%2$s"), accuracy="%3$s" WHERE LENGTH(order_field)=%4$d';
 				if($org_field_info['atim_type'] == 'date'){
-					$model_to_search->query(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
+					$model_to_search->query(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : 'B').'")!=0');
 					$model_to_search->query(sprintf($query, 4, '-01-01', 'm', 5));
 					$model_to_search->query(sprintf($query, 7, '-01', 'd', 8));
 				}else{
 					//datetime
-					$model_to_search->query(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : '9').'")!=0');
+					$model_to_search->query(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : 'B').'")!=0');
 					$model_to_search->query(sprintf($query, 4, '-01-01 00:00:00', 'm', 5));
 					$model_to_search->query(sprintf($query, 7, '-01 00:00:00', 'd', 8));
 					$model_to_search->query(sprintf($query, 10, ' 00:00:00', 'h', 11));
@@ -1477,10 +1477,11 @@ class Browser extends DatamartAppModel {
 					sprintf('TmpTable.%2$s = %1$s.%2$s', $model_to_search->name, $browsing_filter['group by'])
 				)
 			));
+			
 			if($model_to_search->schema($browsing_filter['field'].'_accuracy')){
 				$joins[0]['conditions'][] = sprintf('TmpTable.accuracy = %1$s.%2$s', $model_to_search->name, $browsing_filter['field'].'_accuracy');
 			}
-				
+			
 			$save_ids = $model_to_search->find('all', array(
 					'conditions'	=> array($model_to_search->name.'.'.$model_to_search->primaryKey => $save_ids),
 					'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
