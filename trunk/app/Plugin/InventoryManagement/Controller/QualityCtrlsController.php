@@ -249,6 +249,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 			//save
 			if(empty($errors) && !empty($qc_data_to_save)){
+				$this->QualityCtrl->addWritableField(array('sample_master_id', 'aliquot_master_id'));
 				$this->QualityCtrl->saveAll($qc_data_to_save, array('validate' => false));
 				$last_qc_id = $this->QualityCtrl->getLastInsertId();
 				
