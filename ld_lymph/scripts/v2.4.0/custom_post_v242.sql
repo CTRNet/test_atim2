@@ -494,4 +494,12 @@ INSERT INTO i18n (id,en) VALUES
 ('b symptoms : weight loss', 'B Sympt. : Weight loss');
 
 
+-- 2012-05-16
+INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x_size, coord_y_title, coord_y_type, coord_y_size, display_x_size, display_y_size, reverse_x_numbering, reverse_y_numbering, horizontal_increment, set_temperature, is_tma_block, flag_active, form_alias, detail_tablename, databrowser_label, check_conflicts) VALUES
+('box169 1A-13M', 'position', 'integer', 13, NULL, 'alphabetical', 13, 13, 13, 0, 0, 0, 0, 0, 1, 'storagemasters', 'std_boxs', 'box169 1A-13M', 1); 
+
+REPLACE INTO i18n (id, en, fr) VALUES
+("box169 1A-13M", "Box169 1A-13M", "Boîte169 1A-13M");
+
+
 
