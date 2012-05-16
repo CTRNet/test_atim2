@@ -119,7 +119,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				require($hook_link);
 			}
 
-		} else {	
+		} else{
 			// reset array
 			$specimen_review_data['SpecimenReviewMaster'] = $this->request->data['SpecimenReviewMaster'];
 			$specimen_review_data['SpecimenReviewDetail'] = array_key_exists('SpecimenReviewDetail', $this->request->data)? $this->request->data['SpecimenReviewDetail'] : array();
@@ -152,6 +152,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				$all_aliquot_review_master_errors = array();
 				foreach($aliquot_review_data as &$new_aliquot_review){
 					// Aliquot Review Master
+					unset($new_aliquot_review['AliquotReviewMaster']['id']);
 					$this->AliquotReviewMaster->set($new_aliquot_review);
 					$submitted_data_validates = ($this->AliquotReviewMaster->validates()) ? $submitted_data_validates : false;
 					$all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
@@ -162,7 +163,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					foreach($all_aliquot_review_master_errors as $field => $error_message) {
 						$this->AliquotReviewMaster->validationErrors[$field] = $error_message;					
 					}
-				}			
+				}
 			}
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
@@ -175,7 +176,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			if($submitted_data_validates) {
 						
 				// Set additional specimen review data and save
-				$specimen_review_data['SpecimenReviewMaster']['id'] = null;
+				unset($specimen_review_data['SpecimenReviewMaster']['id']);
 				$this->SpecimenReviewMaster->addWritableField(array('specimen_review_control_id', 'collection_id', 'sample_master_id'));
 				if(!$this->SpecimenReviewMaster->save($specimen_review_data, false)) { 
 					$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -184,10 +185,12 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				
 				$studied_aliquot_master_ids = array();
 				if($is_aliquot_review_defined) {
+					$this->AliquotReviewMaster->writable_fields_mode = 'addgrid';
+					$this->AliquotReviewMaster->addWritableField(array('aliquot_review_control_id', 'specimen_review_master_id'));
 					foreach($aliquot_review_data as $new_aliquot_review) {
 						// Save aliquot review
 						$this->AliquotReviewMaster->id = null;
-						$new_aliquot_review['AliquotReviewMaster']['id'] = null;
+						unset($new_aliquot_review['AliquotReviewMaster']['id']);
 						$new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
 						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -355,10 +358,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$aliquot_review_data = array_values($this->request->data);//compact the array as some key might be missing
 			$this->request->data = NULL;
 			
-			foreach($aliquot_review_data as $key => $new_aliquot_review) {
-				$aliquot_review_data[$key]['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['SpecimenReviewControl']['AliquotReviewControl']['id'];			
-			}
-			
 			$this->set('specimen_review_data', $specimen_review_data);
 			$this->set('aliquot_review_data', $aliquot_review_data);
 			
@@ -372,8 +371,19 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			// Validate aliquot review
 			if($is_aliquot_review_defined) {
 				$all_aliquot_review_master_errors = array();
-				foreach($aliquot_review_data as $key => $new_aliquot_review) {
+				foreach($aliquot_review_data as $key => &$new_aliquot_review) {
 					// Aliquot Review Master
+					if($new_aliquot_review['AliquotReviewMaster']['id']){
+						$tmp = $this->AliquotReviewMaster->getOrRedirect($new_aliquot_review['AliquotReviewMaster']['id']);
+						if(!$tmp || $tmp['AliquotReviewMaster']['specimen_review_master_id'] != $specimen_review_id){
+							//hack attempt or deleted prior to save
+							unset($aliquot_review_data[$key]);
+						}
+					}else{
+						$new_aliquot_review['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['SpecimenReviewControl']['AliquotReviewControl']['id'];
+						$new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_id;
+					}
+					$this->AliquotReviewMaster->data = array();
 					$this->AliquotReviewMaster->set($new_aliquot_review);
 					$submitted_data_validates = $this->AliquotReviewMaster->validates() && $submitted_data_validates;
 					$all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
@@ -416,6 +426,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					}
 					
 					// Launch process to update/create/delete aliquot review
+					$this->AliquotReviewMaster->writable_fields_mode = 'editgrid';
 					foreach($aliquot_review_data as $key => $submitted_aliquot_review) {
 						// Track aliquot that should be udpated
 						$studied_aliquot_master_id = $submitted_aliquot_review['AliquotReviewMaster']['aliquot_master_id'];
@@ -433,6 +444,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							$initial_aliquot_review = $initial_aliquot_review_data_from_id[$aliquot_review_id];
 							unset($initial_aliquot_review_data_from_id[$aliquot_review_id]);
 														
+							$this->AliquotReviewMaster->data = array();
 							$this->AliquotReviewMaster->id = $aliquot_review_id;
 							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { 
 								$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -445,12 +457,12 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 							//---------------------------------------------------------------------------
 							
 							$this->AliquotReviewMaster->id = null;
-							$submitted_aliquot_review['AliquotReviewMaster']['id'] = null;
-							$submitted_aliquot_review['AliquotReviewMaster']['aliquot_review_control_id'] = $review_control_data['SpecimenReviewControl']['AliquotReviewControl']['id'];
-							$submitted_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_id;					
+							unset($submitted_aliquot_review['AliquotReviewMaster']['id']);
+							$this->AliquotReviewMaster->addWritableField(array('aliquot_review_control_id', 'specimen_review_master_id'));
 							if(!$this->AliquotReviewMaster->save($submitted_aliquot_review, false)) { 
 								$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 							}
+							$this->AliquotReviewMaster->removeWritableField(array('aliquot_review_control_id', 'specimen_review_master_id'));
 						}
 					}
 					
