@@ -1154,7 +1154,13 @@ function initActions(){
 	}
 	
 	function initFlyOverCellsLines(scope){
-		var table = scope[0].nodeName == "TABLE" ? scope : $(scope).parents("table:first");
+		var table = null;
+		if(scope[0].nodeName == "TABLE"){
+			table = scope;
+			scope = $(scope).find("tbody");
+		}else{
+			table = $(scope).parents("table:first");
+		}
 		table.find("th.floatingCell:last").each(function(){
 			//from the last floatingCell index
 			$(scope).find("td:nth-child(" + ($(this).prevAll().length + 1) + ")").each(function(){
@@ -1186,7 +1192,7 @@ function initActions(){
 	}
 	
 	function resizeFloatingBckGrnd(floatingBckGrnd){
-		if(floatingBckGrnd){
+		if(floatingBckGrnd && floatingBckGrnd.length){
 			var table = floatingBckGrnd.parents("table:first");
 			if(floatingBckGrnd.data("initialized")){
 				floatingBckGrnd.css({
