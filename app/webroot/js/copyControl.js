@@ -109,10 +109,10 @@ function enableCopyCtrl(){
 
 function bindCopyCtrl(scope){
 	$(scope).find(".button.copy").click(function(){
-		copyLine(getParentRow(this));
+		copyLine($(this).parents("tr:first"));
 	});
 	$(scope).find(".button.paste").click(function(event){
-		pasteLine(getParentRow(this));
+		pasteLine($(this).parents("tr:first"));
 	});
 }
 

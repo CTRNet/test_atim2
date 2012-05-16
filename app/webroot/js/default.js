@@ -547,23 +547,25 @@ function initActions(){
 					counter --;
 				}
 				var newLines = $(tableBody).find("tr.newLine");
-				initAutocomplete(newLines);
-				initDatepicker(newLines);
-				initToolPopup(newLines);
-				initCheckboxes(newLines);
-				$('form').highlight('td');
-				if(window.copyControl){
-					bindCopyCtrl(newLines);
+				if(newLines.length){
+					initAutocomplete(newLines);
+					initDatepicker(newLines);
+					initToolPopup(newLines);
+					initCheckboxes(newLines);
+					$('form').highlight('td');
+					if(window.copyControl){
+						bindCopyCtrl(newLines);
+					}
+					if(window.labBookFields){
+						initLabBook(newLines);
+					}
+					initAccuracy(newLines);
+					initFlyOverCellsLines(newLines);
+					flyOverComponents();
+					
+					
+					$(newLines).removeClass("newLine");
 				}
-				if(window.labBookFields){
-					initLabBook(newLines);
-				}
-				initAccuracy(newLines);
-				initFlyOverCellsLines(newLines);
-				flyOverComponents();
-				
-				
-				$(newLines).removeClass("newLine");
 				return false;
 			});
 		});
