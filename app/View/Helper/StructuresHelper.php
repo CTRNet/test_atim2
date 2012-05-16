@@ -1070,7 +1070,7 @@ class StructuresHelper extends Helper {
 									<th colspan="',$header_data['count'],'">
 										
 										<span class="results">
-											',$this->Paginator->counter( array('format' => '%start%-%end% of %count%') ),'
+											',$this->Paginator->counter( array('format' => '%start%-%end%'.__(' of ').'%count%') ),'
 										</span>
 										
 										<span class="links">
