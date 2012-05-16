@@ -178,6 +178,12 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$aliquot_master_id = null;
 				if(isset($data_unit['AliquotMaster'])){
 					$studied_sample_master_id = $data_unit['AliquotMaster']['sample_master_id'];
+					
+					$aliquot_master = $this->AliquotMaster->getOrRedirect($key);
+					if($aliquot_master['AliquotMaster']['sample_master_id'] != $sample_master_id){
+						//HACK attempt
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
 					$aliquot_master_id = $key;
 					
 					$aliquot_data = array();
@@ -201,6 +207,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 							$errors[$field] = $error_msg;
 						}
 					}
+					
 					$aliquot_data['AliquotMaster']['storage_coord_x'] = $data_unit['AliquotMaster']['storage_coord_x'];
 					$aliquot_data['AliquotMaster']['storage_coord_y'] = $data_unit['AliquotMaster']['storage_coord_y'];
 					
@@ -213,6 +220,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 						$aliquot_data['AliquotMaster']['storage_coord_x'] = null;
 						$aliquot_data['AliquotMaster']['storage_coord_y'] = null;
 					}
+					
 					
 					$aliquot_data_to_save[] = $aliquot_data['AliquotMaster'];
 					
@@ -259,7 +267,10 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					array('qc_code IS NULL')
 				);
 				if(!empty($aliquot_data_to_save)){
+					$this->AliquotMaster->pkey_safeguard = false;
+					$this->AliquotMaster->addWritableField(array('storage_coord_x', 'storage_coord_y', 'storage_master_id'));
 					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
+					$this->AliquotMaster->pkey_safeguard = true;
 					foreach($aliquot_data_to_save as $aliquot_data){
 						$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_data['id'], true, true, false);
 					}
@@ -307,6 +318,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		// MANAGE DATA
 		
 		// Get Quality Control Data
+		$this->SampleMaster;//lazy load
 		$quality_ctrl_data = $this->QualityCtrl->find('first',array(
 			'fields' => array('*'),
 			'conditions'=>array('QualityCtrl.id' => $quality_ctrl_id,'SampleMaster.collection_id' => $collection_id,'SampleMaster.id' => $sample_master_id),
@@ -354,7 +366,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}		
  
 		// MANAGE DATA
-		
+		$this->SampleMaster;//lazy load
 		$qc_data = $this->QualityCtrl->find('first',array(
 			'fields' => array('*'),
 			'conditions'=>array('QualityCtrl.id'=>$quality_ctrl_id, 'SampleMaster.collection_id' => $collection_id, 'SampleMaster.id' => $sample_master_id),
