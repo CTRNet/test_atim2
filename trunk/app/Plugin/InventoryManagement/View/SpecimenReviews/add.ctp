@@ -24,7 +24,9 @@
 	$final_options = array( 'settings'=>$structure_settings, 'links'=>$structure_links, 'data' => $specimen_review_data);
 	
 	$hook_link = $this->Structures->hook('specimen_review');
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 	
 	$this->Structures->build( $final_atim_structure,  $final_options);
 
@@ -51,14 +53,15 @@
 			'form_top' => false
 		);
 		
-		$structure_override['AliquotReviewMaster.id'] = 'new';
 		$dropdown_options['AliquotReviewMaster.aliquot_master_id'] = $aliquot_list;	
 		
 		$final_atim_structure = $aliquot_review_structure;
-		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'addgrid', 'settings'=> $structure_settings, 'override' => $structure_override, 'dropdown_options' => $dropdown_options);
+		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'addgrid', 'settings'=> $structure_settings, 'dropdown_options' => $dropdown_options);
 		
 		$hook_link = $this->Structures->hook('aliquot_review');
-		if( $hook_link ) { require($hook_link); } 
+		if( $hook_link ) { 
+			require($hook_link); 
+		} 
 		
 		$this->Structures->build( $final_atim_structure,  $final_options);	
 	}
