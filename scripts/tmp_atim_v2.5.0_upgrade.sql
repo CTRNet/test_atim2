@@ -1019,7 +1019,7 @@ ALTER TABLE sopd_inventory_alls_revs DROP COLUMN id;
 ALTER TABLE specimen_details DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE specimen_details_revs DROP COLUMN id;
 ALTER TABLE spr_breast_cancer_types DROP COLUMN id, DROP COLUMN deleted, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by;
-ALTER TABLE spr_breast_cancer_types_revs DROP COLUMN id, DROP COLUMN created, DROP COLUMN modified_by;
+ALTER TABLE spr_breast_cancer_types_revs DROP COLUMN id, DROP COLUMN modified_by;
 ALTER TABLE std_boxs DROP COLUMN id, DROP COLUMN deleted;
 ALTER TABLE std_boxs_revs DROP COLUMN id;
 ALTER TABLE std_cupboards DROP COLUMN id, DROP COLUMN deleted;
@@ -2101,6 +2101,9 @@ UPDATE structure_fields SET  `type`='hidden' WHERE model='AliquotReviewMaster' A
 UPDATE structure_formats SET `display_order`='3', `flag_addgrid`='0', `flag_addgrid_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_editgrid_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_override_setting`='0', `setting`='', `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_creation_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='derivatives'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_creation_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '400', '', '1', 'collection to creation spent time (min)', '0', '', '1', '', '1', 'integer_positive', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
 
 
