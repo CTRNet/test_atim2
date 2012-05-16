@@ -35,16 +35,16 @@ class ViewSample extends InventoryManagementAppModel {
 			$this->fields_replace = array(
 				'coll_to_creation_spent_time_msg' => array(
 					'msg' => array(
-						'Err a' => 'Err a - '.__('collection date missing'),
-						'Err b' => 'Err b - '.__('spent time cannot be calculated on inaccurate dates'),
-						'Err c' => 'Err c - '.__('the collection date is after the derivative creation date')
+						-1 => __('collection date missing'),
+						-2 => __('spent time cannot be calculated on inaccurate dates'),
+						-3 => __('the collection date is after the derivative creation date')
 					), 'type' => 'spentTime'
 				), 
 				'coll_to_rec_spent_time_msg' => array(
 					'msg' => array(
-						'Err a' => 'Err a - '.__('collection date missing'),
-						'Err b' => 'Err b - '.__('spent time cannot be calculated on inaccurate dates'),
-						'Err c' => 'Err c - '.__('the collection date is after the specimen reception date')
+						-1 => __('collection date missing'),
+						-2 => __('spent time cannot be calculated on inaccurate dates'),
+						-3 => __('the collection date is after the specimen reception date')
 					), 'type' => 'spentTime'
 				)
 			); 

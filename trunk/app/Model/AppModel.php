@@ -1126,10 +1126,11 @@ class AppModel extends Model {
 						$time['minutes'] = $remainder % 60;
 						$remainder = ($remainder - $time['minutes']) / 60;
 						$time['hours'] = $remainder % 24;
-						$time['days'] = ($remainder - $time['hours']) / 24; 
-						$result[$this->name][$field_name] = AppModel::translateDateValueAndUnit($time, 'days').'' 
+						$time['days'] = ($remainder - $time['hours']) / 24;
+						$spent_time = AppModel::translateDateValueAndUnit($time, 'days').'' 
 								.AppModel::translateDateValueAndUnit($time, 'hours') 
 								.AppModel::translateDateValueAndUnit($time, 'minutes');
+						$result[$this->name][$field_name] = $spent_time ?: 0; 
 					}
 				}
 			}

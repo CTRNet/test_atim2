@@ -17,12 +17,18 @@ class SampleMaster extends InventoryManagementAppModel {
 	var $hasOne = array(
 		'SpecimenDetail' => array(
 			'className'   => 'InventoryManagement.SpecimenDetail',
-			 	'foreignKey'  => 'sample_master_id',
-			 	'dependent' => true),	 	
-		'DerivativeDetail' => array(
+		 	'foreignKey'  => 'sample_master_id',
+		 	'dependent' => true
+		),'DerivativeDetail' => array(
 			'className'   => 'InventoryManagement.DerivativeDetail',
-			 	'foreignKey'  => 'sample_master_id',
-			 	'dependent' => true));
+		 	'foreignKey'  => 'sample_master_id',
+		 	'dependent' => true
+		), 'ViewSample'	=> array(
+			'className'   => 'InventoryManagement.ViewSample',
+			'foreignKey'  => 'sample_master_id',
+			'dependent' => true
+		)
+	);
 			 				
 	var $hasMany = array(
 		'AliquotMaster' => array(
