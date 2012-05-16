@@ -364,6 +364,15 @@ function addonFunctionEnd(){
 			}
 		}
 	}
+	
+	
+	echo "<br><br><br><br><br><br><br><FONT COLOR=\"red\" >
+		=====================================================================<br><br>
+		  ALL MIGRATION PROCESS IS DONE<br>
+		  UPDATE KEYS TO CREATE NEXT OV & BR IDENTIFIERS
+		<br><br>=====================================================================
+		</FONT><br>";
+
 }
 
 function addPatientsHistory() {
