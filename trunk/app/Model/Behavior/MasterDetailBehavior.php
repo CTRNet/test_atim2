@@ -187,7 +187,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		
-		if ( $is_master_model ) {
+		if ( $is_master_model && !isset($model->base_model)) {
 			// get DETAIL table name and create DETAIL model object
 			$prev_data  = $model->data;
 			$associated = $model->read();
