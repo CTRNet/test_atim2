@@ -1097,12 +1097,16 @@ UPDATE diagnosis_controls SET flag_compare_with_cap = '0';
 
 UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='pd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-03-27 after migration
+-- ------------------------------------------------------------------------
 
+ALTER TABLE qc_hb_ed_hepatobiliary_lifestyles
+	MODIFY drugs char(1) NOT NULL DEFAULT '';
+ALTER TABLE qc_hb_ed_hepatobiliary_lifestyles_revs
+	MODIFY drugs char(1) NOT NULL DEFAULT '';
 
-
-
-
-
+UPDATE structure_fields SET type = 'yes_no',setting='' WHERE tablename = 'qc_hb_ed_hepatobiliary_lifestyles' AND field = 'drugs'; 
 
 
 
