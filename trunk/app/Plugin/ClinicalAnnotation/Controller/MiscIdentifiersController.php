@@ -31,6 +31,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	function add( $participant_id, $misc_identifier_control_id) {
 		$this->Participant->getOrRedirect($participant_id);
 		$controls = $this->MiscIdentifierControl->getOrRedirect($misc_identifier_control_id);
+		
+		if($controls['MiscIdentifierControl']['flag_confidential'] && !$this->Session->read('flag_show_confidential')){
+			AppController::getInstance()->redirect("/Pages/err_confidential");
+		}
 
 		if($controls['MiscIdentifierControl']['flag_once_per_participant']) {
 			// Check identifier has not already been created
