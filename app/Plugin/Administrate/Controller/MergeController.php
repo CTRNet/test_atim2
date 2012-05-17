@@ -98,7 +98,8 @@ class MergeController extends AdministrateAppController {
 		
 				//update 1 by 1 to trigger right behavior + view updates properly
 				foreach($to_update as $model){
-					$ids = $model->find('list', array('conditions' => array($model->name.'.participant_id' => $from)));
+					//forcing fields value or ParticipantMessage doesnt work
+					$ids = $model->find('list', array('fields' => array($model->name.'.'.$model->primaryKey), 'conditions' => array($model->name.'.participant_id' => $from)));
 					$update = array($model->name => array('participant_id' => $to));
 					$model->check_writable_fields = false;
 					foreach($ids as $id){
