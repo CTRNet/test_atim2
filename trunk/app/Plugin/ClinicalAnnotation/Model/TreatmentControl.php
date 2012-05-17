@@ -2,6 +2,8 @@
 
 class TreatmentControl extends ClinicalAnnotationAppModel {
 	
+	var $master_form_alias = 'treatmentmasters';
+	
 	/**
 	 * Get permissible values array gathering all existing treatment disease sites.
 	 *

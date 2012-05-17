@@ -1,6 +1,8 @@
 <?php
 
 class LabBookControl extends LabBookAppModel {
+	
+	var $master_form_alias = 'labbookmasters';
 
 	function getLabBookTypePermissibleValuesFromId() {
 		$result = array();
