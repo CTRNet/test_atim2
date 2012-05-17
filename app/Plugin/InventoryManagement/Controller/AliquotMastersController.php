@@ -313,7 +313,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// Reset data to get position data
-					$created_aliquots[$key] = $aliquot;
+					$created_aliquots[$key] = $this->AliquotMaster->data;
 				}
 				$this->request->data[] = array('parent' => $sample_master_data, 'children' => $created_aliquots);//prep data in case validation fails
 				if(!$new_aliquot_created){
