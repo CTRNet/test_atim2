@@ -5,6 +5,8 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("unmatched value", "Unmatched value", "Valeur sans correspondance"),
+("supported value", "Supported value", "Valeur supportée"),
 ("some identifiers were not merge because they were conflicting",
  "Some identifiers were not merge because they were conflicting.",
 ('the collection date is after the storage date','The storage date is earlier than the collection date.',"La date d'entreposage est anterieure à la date de collection."),

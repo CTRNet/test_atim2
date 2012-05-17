@@ -780,7 +780,14 @@ class StructuresHelper extends Helper {
 					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
-						$table_row_part['settings']['options'] = array_merge(array("" => ""), $table_row_part['settings']['options']); 
+						$table_row_part['settings']['options'] = array_merge(array("" => ""), $table_row_part['settings']['options']);
+						if(empty($table_row_part['settings']['options']['previously_defined'])){
+							$defined = $table_row_part['settings']['options']['defined'];
+							unset($table_row_part['settings']['options']['defined']);
+							unset($table_row_part['settings']['options']['previously_defined']);
+							$table_row_part['settings']['options'] = array_merge($table_row_part['settings']['options'], $defined);
+						}
+						
 					}else{
 						$table_row_part['settings']['options'] = array(
 								__( 'unmatched value', true ) => array($current_value => $current_value),
@@ -1924,9 +1931,10 @@ class StructuresHelper extends Helper {
 						}
 						
 						if(count($dropdown_result['defined']) == 2 
-						&& isset($sfs['flag_'.$options['type'].'_readonly']) 
-						&& $sfs['flag_'.$options['type'].'_readonly'] 
-						&& $add_blank){
+							&& isset($sfs['flag_'.$options['type'].'_readonly']) 
+							&& $sfs['flag_'.$options['type'].'_readonly'] 
+							&& $add_blank
+						){
 							//unset the blank value, the single value for a disabled field should be default
 							unset($dropdown_result['defined'][""]);
 						}
