@@ -5,6 +5,8 @@ class ViewAliquot extends InventoryManagementAppModel {
 	var $base_model = "AliquotMaster";
 	var $base_plugin = 'InventoryManagement';
 	
+	var $actsAs = array('MinMax');
+	
 	var $belongsTo = array(
 		'AliquotControl' => array(
 			'className'    => 'InventoryManagement.AliquotControl',
@@ -26,6 +28,8 @@ class ViewAliquot extends InventoryManagementAppModel {
 			'className'    => 'StorageLayout.StorageMaster',
 			'foreignKey'    => 'storage_master_id')
 	);
+	
+	static $min_value_fields = array('coll_to_stor_spent_time_msg', 'rec_to_stor_spent_time_msg', 'creat_to_stor_spent_time_msg');
 	
 	function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null) {
 		if($this->fields_replace == null){
@@ -55,4 +59,6 @@ class ViewAliquot extends InventoryManagementAppModel {
 		}
 		return parent::__construct($id, $table, $ds, $base_model_name, $detail_table, $previous_model);
 	}
+	
+	
 }

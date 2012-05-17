@@ -6,6 +6,8 @@ class ViewSample extends InventoryManagementAppModel {
 	var $base_model = "SampleMaster";
 	var $base_plugin = 'InventoryManagement';
 	
+	var $actsAs = array('MinMax');
+	
 	var $belongsTo = array(
 		'SampleControl' => array(
 			'className'		=> 'InventoryManagement.SampleControl',
@@ -29,6 +31,7 @@ class ViewSample extends InventoryManagementAppModel {
 	);
 	
 	var $fields_replace = null;
+	static $min_value_fields = array('coll_to_creation_spent_time_msg', 'coll_to_rec_spent_time_msg');
 	
 	function __construct($id = false, $table = null, $ds = null, $base_model_name = null, $detail_table = null, $previous_model = null) {
 		if($this->fields_replace == null){

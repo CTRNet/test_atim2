@@ -1,6 +1,8 @@
 <?php
 
 class AliquotMaster extends InventoryManagementAppModel {
+	
+	var $actsAs = array('MinMax');
 
 	var $belongsTo = array(       
 		'AliquotControl' => array(           
