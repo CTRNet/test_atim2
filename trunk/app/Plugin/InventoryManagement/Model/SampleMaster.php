@@ -4,6 +4,8 @@ class SampleMaster extends InventoryManagementAppModel {
 	
 	public static $derivatives_dropdown = array();
 	
+	var $actsAs = array('MinMax');
+	
 	var $belongsTo = array(       
 		'SampleControl' => array(           
 			'className'		=> 'InventoryManagement.SampleControl',            
