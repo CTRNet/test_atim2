@@ -65,8 +65,9 @@ class MergeController extends AdministrateAppController {
 				//identifiers
 				$identifiers_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier');
 				$identifiers = $identifiers_model->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $from)));
-				$identifiers_model->check_writable_field = false;
+				$identifiers_model->check_writable_fields = false;
 				$update = array('MiscIdentifier' => array('participant_id' => $to));
+				$conflicts = 0;
 				foreach($identifiers as $identifier){
 					$proceed = false;
 					if($identifier['MiscIdentifierControl']['flag_once_per_participant']){
@@ -80,7 +81,13 @@ class MergeController extends AdministrateAppController {
 					if($proceed){
 						$identifiers_model->id = $identifier['MiscIdentifier']['id'];
 						$identifiers_model->save($update);
+					}else{
+						++ $conflicts;
 					}
+				}
+				
+				if($conflicts){
+					AppController::addWarningMsg(__('some identifiers were not merge because they were conflicting').' ('.$conflicts.')');
 				}
 					 
 		

@@ -5,9 +5,11 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
-('the collection date is after the storage date','The storage date is earlier than the collection date!',"La date d'entreposage est anterieure à la date de collection!"),
-('the creation date is after the storage date','The storage date is earlier than the creation date!',"La date d'entreposage est anterieure à la date de création!"),
-('the reception date is after the storage date','The storage date is earlier than the reception date!',"La date d'entreposage est anterieure à la date de réception!"),
+("some identifiers were not merge because they were conflicting",
+ "Some identifiers were not merge because they were conflicting.",
+('the collection date is after the storage date','The storage date is earlier than the collection date.',"La date d'entreposage est anterieure à la date de collection."),
+('the creation date is after the storage date','The storage date is earlier than the creation date.',"La date d'entreposage est anterieure à la date de création."),
+('the reception date is after the storage date','The storage date is earlier than the reception date.',"La date d'entreposage est anterieure à la date de réception."),
 ("collection to storage spent time (min)", "Collection to Storage Spent Time (min)", "Temps écoulé entre le prélèvement et l'entreposage (min)"),
 ("reception to storage spent time (min)", "Reception to storage spent time (min)", "Temps écoulé entre la réception et l'entreposage (min)"),
 ("collection to reception spent time (min)", "Collection to Reception Spent Time (min)", "Temps écoulé entre le prélèvement et la réception (min)"),
