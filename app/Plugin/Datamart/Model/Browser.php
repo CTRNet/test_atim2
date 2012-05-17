@@ -1231,7 +1231,6 @@ class Browser extends DatamartAppModel {
 				
 				$cond = sprintf('%s.%s %s %s.%s', $params['browsing_model']->name, $field['field'], $adv_field['relation'], $adv_field['model'], $adv_field['field']);
 				$params['conditions'][] = $cond;
-				pr($parent_browsing);
 				$params['conditions_adv'][$field['field']] = $option_key;
 			}
 		}

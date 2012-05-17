@@ -143,7 +143,7 @@ class BrowserController extends DatamartAppController {
 				$browsing = $created_node['browsing'];
 				unset($created_node);
 			}
-				
+			
 			//all nodes saved, now load the proper form
 			if($check_list){
 				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/');

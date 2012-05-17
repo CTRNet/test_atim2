@@ -118,6 +118,7 @@ class BatchSetsController extends DatamartAppController {
 			
 			$batch_set['DatamartStructure'] = $datamart_structure['DatamartStructure'];
 		}else{
+			assert($batch_set['Adhoc']['id']);
 			$batch_set['BatchSet']['plugin'] = $batch_set['Adhoc']['plugin'];
 			$batch_set['BatchSet']['model'] = $batch_set['Adhoc']['model'];
 			$atim_structure_for_results = $this->Structures->get( 'form', $batch_set['Adhoc']['form_alias_for_results']);
