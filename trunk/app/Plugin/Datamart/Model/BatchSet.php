@@ -216,7 +216,7 @@ class BatchSet extends DatamartAppModel {
 		$batch_set_data['BatchSet']['user_id'] 			= $controller->Session->read('Auth.User.id');
 		$batch_set_data['BatchSet']['group_id']			= $controller->Session->read('Auth.User.group_id');
 		$batch_set_data['BatchSet']['sharing_status']	= 'user';
-		$this->addWritableField(array('user_id', 'group_id', 'sharing_status'));
+		$this->check_writable_fields = false;
 		if(!$this->save($batch_set_data)){
 			$this->redirect('/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[1]['line'], null, true);
 		}
