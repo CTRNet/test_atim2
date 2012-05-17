@@ -167,7 +167,9 @@ class CollectionsController extends InventoryManagementAppController {
 				}else if($copy_links_option > 1){
 					$classic_ccl_insert = false;
 					$this->request->data['Collection']['participant_id'] = $copy_src_data['Collection']['participant_id'];
+					$this->Collection->addWritableField('participant_id');
 					if($copy_links_option == 6){
+						$this->Collection->addWritableField(array('consent_master_id', 'diagnosis_master_id', 'treatment_master_id', 'event_master_id'));
 						$this->request->data['Collection'] = array_merge($this->request->data['Collection'],
 							array(
 								'consent_master_id' 	=> $copy_src_data['Collection']['consent_master_id'],
