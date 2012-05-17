@@ -115,7 +115,8 @@ class MasterDetailBehavior extends ModelBehavior {
 		
 		if($is_master_model){
 			//this is a master/detail. See if the find is made on a specific control id. If so, join the detail table
-			$base_name = str_replace("Master", "", $model->name);
+			$model_name = isset($model->base_model) ? $model->base_model : $model->name; 
+			$base_name = str_replace("Master", "", $model_name);
 			if(isset($query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])){
 				$detail_control_name = $model->belongsTo[$base_name."Control"]['className'];
 				$plugin = '';
