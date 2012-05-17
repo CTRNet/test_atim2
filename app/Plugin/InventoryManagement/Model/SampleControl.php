@@ -1,6 +1,8 @@
 <?php
 
 class SampleControl extends InventoryManagementAppModel {
+	
+	var $master_form_alias = 'sample_masters';
 
  	/**
 	 * Get permissible values array gathering all existing sample types.

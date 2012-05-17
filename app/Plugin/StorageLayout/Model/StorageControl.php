@@ -1,6 +1,8 @@
 <?php
 
 class StorageControl extends StorageLayoutAppModel {
+	
+	var $master_form_alias = 'storagemasters';
 
  	/**
 	 * Get permissible values array gathering all existing storage types.

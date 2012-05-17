@@ -2121,6 +2121,18 @@ UPDATE storage_controls SET form_alias=SUBSTR(form_alias, 16) WHERE form_alias L
 UPDATE storage_controls SET form_alias=SUBSTR(form_alias, 15) WHERE form_alias LIKE 'storagemasters%';
 UPDATE treatment_controls SET form_alias=SUBSTR(form_alias, 18) WHERE form_alias LIKE 'treatmentmasters,%';
 
+ALTER TABLE aliquot_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE aliquot_review_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE consent_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE diagnosis_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE event_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE lab_book_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE protocol_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE sample_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE sop_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE specimen_review_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE storage_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
+ALTER TABLE treatment_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
 
 
 

@@ -1,6 +1,8 @@
 <?php
 
 class AliquotControl extends InventoryManagementAppModel {
+	
+	var $master_form_alias = 'aliquot_masters';
 
  	/**
 	 * Get permissible values array gathering all existing aliquot types.
