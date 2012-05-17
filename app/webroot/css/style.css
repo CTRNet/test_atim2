@@ -2018,7 +2018,7 @@ tr.chkLine, table.columns.index tbody tr.chkLine:nth-child(even){
 
 .jqMenuInput{
 	width: 0px;
-	height: 0px;
+	height: 1px;/* if 0, does not work */
 	position: absolute;
 	left: -9000px;
 }
