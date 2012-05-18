@@ -83,6 +83,13 @@ class UsersController extends AppController {
 		if(isset($this->passedArgs['login'])){
 			AppController::addInfoMsg(__('your session has expired'));
 		}
+		
+		$matches = array();
+		if(preg_match('/MSIE ([\d]+)/', $_SERVER['HTTP_USER_AGENT'], $matches)){
+			if($matches[1] < 8){
+				$this->User->validationErrors[] = __('bad internet explorer version msg');
+			}
+		}
 	}
 	
 	function logout() {
