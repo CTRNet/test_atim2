@@ -83,9 +83,9 @@
 	if(isset($aliquot_source)){
 		$final_atim_structure = $aliquot_source_struct;
 		$structure_links['index'] = array(
-			'detail' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
-			'edit'	=> '/InventoryManagement/AliquotMasters/edit/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
-			'delete' => '/InventoryManagement/AliquotMasters/deleteSourceAliquot/%%SourceAliquot.sample_master_id%%/%%SourceAliquot.aliquot_master_id%%/sample_derivative/'
+			'source aliquot detail' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
+			'edit link'	=> '/InventoryManagement/AliquotMasters/edit/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%',
+			'delete link' => '/InventoryManagement/AliquotMasters/deleteSourceAliquot/%%SourceAliquot.sample_master_id%%/%%SourceAliquot.aliquot_master_id%%/sample_derivative/'
 		);
 		$structure_links['bottom']['add source aliquots'] = '/InventoryManagement/AliquotMasters/addSourceAliquots/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'].'/';
 		$final_options = array(
