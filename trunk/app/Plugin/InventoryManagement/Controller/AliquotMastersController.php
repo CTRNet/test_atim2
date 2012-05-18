@@ -2287,45 +2287,61 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('aliquot_masters,used_aliq_in_stock_details');
 		
 		if(isset($this->request->data['aliquot_ids'])){
-			//batch edit
+			$validates = true;
 			$to_update['AliquotMaster'] = array_filter($this->request->data['AliquotMaster']);
-			if($this->request->data['FunctionManagement']['remove_from_storage'] == 1){
+			if($this->request->data['FunctionManagement']['recorded_storage_selection_label']){
+				//validate storage
+				$to_update['FunctionManagement']['recorded_storage_selection_label'] = $this->request->data['FunctionManagement']['recorded_storage_selection_label'];
+				$to_update['AliquotMaster']['storage_coord_x'] = null;
+				$to_update['AliquotMaster']['storage_coord_y'] = null;
+				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
+				
+				$this->AliquotMaster->set($to_update);
+				if($this->AliquotMaster->validates()){
+					$to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
+				}else{
+					$validates = false;
+				}
+				unset($to_update['AliquotMaster']['aliquot_control_id']);
+				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+			}else if($this->request->data['FunctionManagement']['remove_from_storage'] == 1){
+				//batch edit
 				$to_update['AliquotMaster']['storage_master_id'] = null;
 				$to_update['AliquotMaster']['storage_coord_x'] = null;
 				$to_update['AliquotMaster']['storage_coord_y'] = null;
 				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
 			}
 
-			$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
-			
-			if($to_update['AliquotMaster']){
-				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
-				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+			if($validates){
+				$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
 				
-				foreach($aliquot_ids as $aliquot_id){
-					$this->AliquotMaster->id = $aliquot_id;
-					$this->AliquotMaster->data = null;
-					$this->AliquotMaster->save($to_update);
+				if($to_update['AliquotMaster']){
+					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+					
+					foreach($aliquot_ids as $aliquot_id){
+						$this->AliquotMaster->id = $aliquot_id;
+						$this->AliquotMaster->data = null;
+						$this->AliquotMaster->save($to_update);
+					}
+					
+					
+					$batch_set_data = array('BatchSet' => array(
+							'datamart_structure_id'	=> $datamart_structure->getIdByModelName('ViewAliquot'),
+							'flag_tmp'				=> true
+					));		
+					
+					$batch_set_model->check_writable_fields = false;
+					$batch_set_model->saveWithIds($batch_set_data, $aliquot_ids);
+					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+				}else{
+					$this->AliquotMaster->validationErrors[] = 'you need to at least update a value';
+					$this->request->data['ViewAliquot']['aliquot_master_id'] = $aliquot_ids;
+					$this->set('cancel_link', $this->request->data['cancel_link']);
 				}
-				
-				
-				$batch_set_data = array('BatchSet' => array(
-						'datamart_structure_id'	=> $datamart_structure->getIdByModelName('ViewAliquot'),
-						'flag_tmp'				=> true
-				));		
-				
-				$batch_set_model->check_writable_fields = false;
-				$batch_set_model->saveWithIds($batch_set_data, $aliquot_ids);
-				$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
-			}else{
-				$this->AliquotMaster->validationErrors[] = 'you need to at least update a value';
-				$this->request->data['ViewAliquot']['aliquot_master_id'] = $aliquot_ids;
-				$this->set('cancel_link', $this->request->data['cancel_link']);
 			}
-		}else{
-			//first access
-			$this->set('cancel_link', AppController::getCancelLink($this->request->data));
 		}
+		$this->set('cancel_link', AppController::getCancelLink($this->request->data));
 	}
 	
 	function editRealiquoting($realiquoting_id){
