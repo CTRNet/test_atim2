@@ -36,11 +36,14 @@
 		);
 		
 		if(isset($extended_data_import_process)){
-			$structure_links['bottom']['import from associated protocol'] = '/ClinicalAnnotation/TreatmentExtends/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'];
+			$structure_links['bottom']['import precisions from associated protocol'] = array(
+				'link' => '/ClinicalAnnotation/TreatmentExtends/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+				'icon' => 'add');
 		}
 		
 		$structure_links['index'] = array(
-			'detail' => '/ClinicalAnnotation/TreatmentExtends/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%/'
+			'edit'=>'/ClinicalAnnotation/TreatmentExtends/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%',
+			'delete'=>'/ClinicalAnnotation/TreatmentExtends/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%'
 		);
 		
 		$final_options = array('data' => $tx_extend_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);

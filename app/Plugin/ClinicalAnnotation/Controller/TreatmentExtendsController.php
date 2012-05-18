@@ -11,35 +11,6 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		'Protocol.ProtocolExtend');
 		
 	var $paginate = array('TreatmentExtend'=>array('limit' => pagination_amount,'order'=>'TreatmentExtend.id ASC'));
-	
-	function detail($participant_id, $tx_master_id, $tx_extend_id) {
-		// Get treatment data
-		$tx_master_data = $this->TreatmentMaster->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id, 'TreatmentMaster.participant_id'=>$participant_id)));
-		if(empty($tx_master_data)) {
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}else if(empty($tx_master_data['TreatmentControl']['extend_tablename']) || empty($tx_master_data['TreatmentControl']['extend_form_alias'])){
-			$this->flash( 'no additional data has to be defined for this type of treatment', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
-			return;
-		}		
-
-		// Set Extend tablename to use
-		$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $tx_master_data['TreatmentControl']['extend_tablename']);
-		
-		// Get extend data
-		$tx_extend_data = $this->TreatmentExtend->find('first',array('conditions'=>array('TreatmentExtend.id'=>$tx_extend_id, 'TreatmentExtend.treatment_master_id'=>$tx_master_id)));
-		if(empty($tx_extend_data)) { 
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}		
-		$this->request->data = $tx_extend_data;
-		
-		// Set form alias and alias
-		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
-	    $this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
-		
-		// CUSTOM CODE: FORMAT DISPLAY DATA
-		$hook_link = $this->hook('format');
-		if( $hook_link ) { require($hook_link); }			
-	}
 
 	function add($participant_id, $tx_master_id) {
 		// Get treatment data
@@ -58,28 +29,72 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
+		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/detail/%%Participant.id%%/%%TreatmentMaster.id%%'));
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		
-		if ( !empty($this->request->data) ) {
-			$this->request->data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;
-			echo $this->TreatmentExtend->addWritableField('treatment_master_id');
+		
+		if ( empty($this->request->data) ) {
+			$this->request->data[] = array();
 			
-			$submitted_data_validates = true;
+		} else {
+			
+			$errors = array();
+			$line_counter = 0;
+			foreach($this->request->data as $key => $new_row) {
+				$line_counter++;
+				$this->TreatmentExtend->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$this->TreatmentExtend->set($new_row);
+				if(!$this->TreatmentExtend->validates()){
+					foreach($this->TreatmentExtend->validationErrors as $field => $msg) {				
+						$errors[$field][is_array($msg) ? $msg[0] : $msg][] = $line_counter;
+						$submitted_data_validates = false;
+					}
+				}				
+			}
+			
+			echo $this->TreatmentExtend->addWritableField('treatment_master_id');
+			$this->TreatmentExtend->writable_fields_mode = 'addgrid';
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
-			}
+			}			
 			
-			if ($submitted_data_validates && $this->TreatmentExtend->save( $this->request->data ) ) {
+			if(empty($errors)) {
+				foreach($this->request->data as $new_data) {
+						$new_data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;
+						pr($new_data);				
+					$this->TreatmentExtend->id = null;
+					$this->TreatmentExtend->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+					if(!$this->TreatmentExtend->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
 					require($hook_link);
 				}
+				
 				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
+
+			} else  {
+				$this->TreatmentExtend->validationErrors = array();
+				foreach($errors as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$msg = __($msg);
+						$lines_strg = implode(",", array_unique($lines));
+						if(!empty($lines_strg)) {
+							$msg .= ' - ' . str_replace('%s', $lines_strg, __('see line %s'));
+						}
+//TODO see issue #2209		$this->TreatmentExtend->validationErrors[$field][] = $msg;
+						$this->TreatmentMaster->validationErrors[$field][] = $msg;
+					}
+				}	
+				
+				
 			}
 		} 
 	}
@@ -108,6 +123,8 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 		$this->Structures->set($tx_master_data['TreatmentControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtend.id'=>$tx_extend_id));
 		
+		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/detail/%%Participant.id%%/%%TreatmentMaster.id%%'));
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 		
@@ -127,7 +144,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/TreatmentExtends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+				$this->atimFlash( 'your data has been updated', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			}
 		}
 	}
@@ -168,7 +185,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			}	
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/TreatmentExtends/detail/'.$participant_id.'/'.$tx_master_id.'/'.$tx_extend_id);
+			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 		}
 	}
 	

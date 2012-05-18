@@ -2,14 +2,16 @@
 	$structure_links = array(
 		'top'=>'/ClinicalAnnotation/TreatmentExtends/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/'.$atim_menu_variables['TreatmentExtend.id'],
 		'bottom'=>array(
-			'cancel'=>'/ClinicalAnnotation/TreatmentExtends/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/'.$atim_menu_variables['TreatmentExtend.id']
+			'cancel'=>'/ClinicalAnnotation/TreatmentMasters/detail/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id']
 		)
 	);
 	
 	$structure_override = array();
 	
+	$structure_settings = array('header' => __('precision'));	
+	
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links,'override'=>$structure_override);
+	$final_options = array('links'=>$structure_links,'override'=>$structure_override, 'settings' => $structure_settings);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
