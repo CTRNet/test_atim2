@@ -804,9 +804,9 @@ class Browser extends DatamartAppModel {
 				'group'			=> array('SampleMaster.sample_control_id'),
 				'recursive'		=> -1)
 			);
-			if(count($sm_data) == 1){
+			if($sm_data){
 				$ac = AppModel::getInstance("InventoryManagement", "AliquotControl", true);
-				$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => $sm_data[0]['SampleMaster']['sample_control_id'], "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
+				$data = $ac->find('all', array('conditions' => array("AliquotControl.sample_control_id" => array_keys(AppController::defineArrayKey($sm_data, 'SampleMaster', 'sample_control_id', true)), "AliquotControl.flag_active" => 1), 'fields' => 'AliquotControl.id', 'recursive' => -1));
 				if(empty($data)){
 					$sub_models_id_filter['AliquotControl'][] = 0;
 				}else{
@@ -841,8 +841,23 @@ class Browser extends DatamartAppModel {
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}else{
-			//only sub filter aliquots if the user is on a sample node
-			$sub_models_id_filter['AliquotControl'][] = 0;
+			$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
+			$sample_controls = $sample_control_model->getPermissibleSamplesArray(null);
+			$sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
+			$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+			$aliquot_controls = $aliquot_control_model->find('all', array(
+				'fields' => array('*'),
+				'conditions' => array('AliquotControl.flag_active' => 1, 'AliquotControl.sample_control_id' => array_keys($sample_controls)),
+		 		'joins' => array(
+				array(
+					'table'	=> 'sample_controls',
+					'alias'	=> 'SampleControl',
+					'type'	=> 'INNER',
+					'conditions' => 'AliquotControl.sample_control_id = SampleControl.id'		
+				)	
+			)));
+			$sub_models_id_filter['AliquotControl'] = array_keys(AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true));
+			
 		}
 		
 		return $sub_models_id_filter;
