@@ -48,7 +48,9 @@ class StructuresHelper extends Helper {
 				'no_sanitization'	=> array(),//model => fields to avoid sanitizing
 				
 				'section_start'	=> false,
-				'section_end'	=> false
+				'section_end'	=> false,
+					
+				'confirmation_msg'	=> null
 			),
 			
 			'links'		=> array(
@@ -463,13 +465,20 @@ class StructuresHelper extends Helper {
 				$link_label = __("submit", null);
 				$exact_search = "";
 			}
+			$link_params = array('tabindex' => StructuresHelper::$last_tabindex + 1, 'escape' => false, 'class' => 'submit');
+			$confirmation_msg = '';
+			if($options['settings']['confirmation_msg']){
+				$link_params['data-confirmation-msg'] = 1;
+				$confirmation_msg = '<span class="confirmationMsg hidden">'.$options['settings']['confirmation_msg'].'</span>';
+			}
 			echo('
 				<div class="submitBar">
 					<div class="flyOverSubmit">
 						'.$exact_search.'
 						<div class="bottom_button">
 							<input class="submit" type="submit" value="Submit" style="display: none;"/>'
-							.$this->Html->link('<span class="icon16 '.$link_class.'"></span>'.$link_label, "", array('tabindex' => StructuresHelper::$last_tabindex + 1, 'escape' => false, 'class' => 'submit'))
+							.$confirmation_msg
+							.$this->Html->link('<span class="icon16 '.$link_class.'"></span>'.$link_label, "", $link_params)
 						.'</div>
 					</div>
 				</div>
