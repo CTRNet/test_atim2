@@ -2082,3 +2082,7 @@ div.floatingCell{
 select{
 	max-width: 250px;
 }
+
+div.descriptive_heading:not(:first-child){
+	margin-top: 20px;
+}
