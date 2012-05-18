@@ -5,6 +5,9 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("merge_confirmation_msg",
+ "Merge actions cannot be undone. Do you want to continue?",
+ "Les fusions ne peuvent pas être annulées. Souhaitez-vous continuer?"),
 ('import precisions from associated protocol','Import Precisions From Protocol','Importer précisions du protocole'),
 ("bad internet explorer version msg",
  "You need to use Internet Explorer 8+. If you already have such a version, make sure Compatibility View is turned off.",
@@ -2143,9 +2146,10 @@ UPDATE structure_formats SET `flag_batchedit`='1' WHERE structure_id=(SELECT id 
 UPDATE structure_permissible_values SET value = 'common-law partner', language_alias = 'common-law partner' WHERE value = 'common-law spouse' AND language_alias = 'common-law spouse'; 
 UPDATE participant_contacts SET relationship = 'common-law partner' WHERE relationship = 'common-law spouse';
 
+UPDATE aliquot_controls AS ac 
+INNER JOIN sample_controls AS sc ON sc.id=ac.sample_control_id
+SET ac.databrowser_label=CONCAT(sc.databrowser_label, '|', ac.databrowser_label);
+
 UPDATE structure_formats sf, structures str, treatment_controls tc SET sf.flag_addgrid = sf.flag_add, sf.flag_addgrid_readonly = sf.flag_add_readonly, sf.flag_index = sf.flag_detail WHERE sf.structure_id = str.id AND tc.extend_form_alias = str.alias;
 UPDATE structure_formats sf, structures str, treatment_controls tc SET sf.flag_add = 0, sf.flag_add_readonly = 0, sf.flag_detail = 0 WHERE sf.structure_id = str.id AND tc.extend_form_alias = str.alias;
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/TreatmentExtends/%';
-
-
-

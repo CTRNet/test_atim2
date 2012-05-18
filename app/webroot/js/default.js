@@ -1078,20 +1078,9 @@ function initActions(){
 			return false;
 		});
 		
-		$(document).delegate("a.submit", 'click', function(){
-			//Search button loading animation
-			if(!$(this).find('span').hasClass('fetching')){
-				//trigger submit form (will go through validations)
-				$(this).siblings("input.submit").click();
-				
-			}
-			return $(this).attr("href").indexOf("javascript:") == 0;
-		}).delegate("form", "submit", function(){
-			//submitting form
-			submitChecks(this);
-			submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
-			return true;
-		}).delegate(".jsApplyPreset", "click", function(){
+		$(document).delegate("a.submit", 'click', function(){ $(this).siblings("input.submit").click(); return false;}
+		).delegate("form", "submit", standardSubmit
+		).delegate(".jsApplyPreset", "click", function(){
 			applyPreset($(this).data("json"));
 			return false;
 		}).delegate("a.delete:not(.noPrompt)", "click", openDeleteConfirmPopup
@@ -1574,7 +1563,7 @@ function initActions(){
 		var button = $(event.currentTarget);
 		var popup = null;
 		if(!(popup = button.data('popup'))){
-			popup = $("#default_popup").clone().attr("id", "fmlhDebug");
+			popup = $("#default_popup").clone().attr("id", null);
 			popup.appendTo("body");
 			button.data('popup', popup);
 			popup.html("<div class='wrapper'><div class='frame'>");
@@ -1713,6 +1702,76 @@ function initActions(){
 				});
 			}
 		});
+	}
+	
+	/**
+	 * Will popup a confirmation message if defined. If the message is opened
+	 * or if no message is defined, will submit and replace the disk icon with
+	 * a rotating beam. Submiting is blocked when the rotating icon is present.
+	 * @returns {Boolean}
+	 */
+	function standardSubmit(){
+		//submitting form
+		var submitButton = $(this).find("a.submit");
+		var form = $(this);
+		if(!$(submitButton).find('span').hasClass('fetching')){
+			if($(submitButton).data('confirmation-msg') && (!$(form).data('confirmation-popup') || $(form).data('confirmation-popup').find(":visible:first").length == 0)){
+				if($(form).data('confirmation-popup')){
+					$(form).data('confirmation-popup').popup();
+				}else{
+					//function buildConfirmDialog(id, question, buttons){
+					var yes_action = function(){
+						form.submit();
+						form.data('confirmation-popup').popup('close');
+						return false;
+					};
+					var no_action = function(){
+						form.data('confirmation-popup').popup('close');
+						return false;
+					};
+					buildConfirmDialog('tmp', $(submitButton).siblings("span.confirmationMsg").html(), [{label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}]);
+					var popup = $("#tmp").attr("id", null);
+					$(form).data('confirmation-popup', popup);
+					popup.popup();
+				}
+			}else{
+				submitChecks(this);
+				submitData.callBack = setTimeout(fetchingBeamCheck, 1000);//check every second (needed for CSV download)
+				return true;
+			}
+		}
+		return false;
+		//TODO: check links having javascript commands
+	}
+		
+	function toto(){
+		if(!$(this).find('span').hasClass('fetching')){
+			if($(this).data('confirmation-msg') && (!$(this).data('confirmation-popup') || $(this).data('confirmation-popup').find(":visible:first").length == 0)){
+				if($(this).data('confirmation-popup')){
+					$(this).data('confirmation-popup').popup();
+				}else{
+					//function buildConfirmDialog(id, question, buttons){
+					var button = $(this);
+					var yes_action = function(){
+						button.click();
+						button.data('confirmation-popup').popup('close');
+						return false;
+					};
+					var no_action = function(){
+						button.data('confirmation-popup').popup('close');
+						return false;
+					};
+					buildConfirmDialog('tmp', $(this).siblings("span.confirmationMsg").html(), [{label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}]);
+					var popup = $("#tmp").attr("id", null);
+					$(this).data('confirmation-popup', popup);
+					popup.popup();
+				}
+			}else{
+				//trigger submit form (will go through validations)
+				$(this).siblings("input.submit").click();
+			}
+		}
+		return $(this).attr("href").indexOf("javascript:") == 0;
 	}
 
 	
