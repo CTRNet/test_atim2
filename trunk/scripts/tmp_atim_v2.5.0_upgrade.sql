@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+('import precisions from associated protocol','Import Precisions From Protocol','Importer précisions du protocole'),
 ("bad internet explorer version msg",
  "You need to use Internet Explorer 8+. If you already have such a version, make sure Compatibility View is turned off.",
  "Vous devez utiliser Internet Explorer 8+. Si vous avez déjà une telle version, assurez-vous que le mode de compatibilité est désactivé."),
@@ -2141,3 +2142,10 @@ ALTER TABLE treatment_controls CHANGE form_alias detail_form_alias VARCHAR(255) 
 UPDATE structure_formats SET `flag_batchedit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_permissible_values SET value = 'common-law partner', language_alias = 'common-law partner' WHERE value = 'common-law spouse' AND language_alias = 'common-law spouse'; 
 UPDATE participant_contacts SET relationship = 'common-law partner' WHERE relationship = 'common-law spouse';
+
+UPDATE structure_formats sf, structures str, treatment_controls tc SET sf.flag_addgrid = sf.flag_add, sf.flag_addgrid_readonly = sf.flag_add_readonly, sf.flag_index = sf.flag_detail WHERE sf.structure_id = str.id AND tc.extend_form_alias = str.alias;
+UPDATE structure_formats sf, structures str, treatment_controls tc SET sf.flag_add = 0, sf.flag_add_readonly = 0, sf.flag_detail = 0 WHERE sf.structure_id = str.id AND tc.extend_form_alias = str.alias;
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/TreatmentExtends/%';
+
+
+
