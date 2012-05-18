@@ -49,7 +49,7 @@ class MasterDetailBehavior extends ModelBehavior {
 				//for control models, add a virtual field with the full form alias
 				$schema = $model->schema();
 				if(isset($schema['detail_form_alias'])){
-					$model->virtualFields['form_alias'] = isset($model->master_form_alias) ?  'CONCAT("'.$model->master_form_alias.',",'.$model->name.'.detail_form_alias)' : $model->name.'.detail_form_alias';
+					$model->virtualFields['form_alias'] = isset($model->master_form_alias) ?  'CONCAT("'.$model->master_form_alias.',",'.$model->alias.'.detail_form_alias)' : $model->alias.'.detail_form_alias';
 				}
 			}
 		
