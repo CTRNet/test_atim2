@@ -526,10 +526,11 @@ class AliquotMaster extends InventoryManagementAppModel {
 	function getDefaultRealiquotingDate($aliquot_data_for_selection) {
 		// Get first found storage datetime
 		foreach($aliquot_data_for_selection as $aliquot) {
-			if(!empty($aliquot['AliquotMaster']['storage_datetime'])) { return $aliquot['AliquotMaster']['storage_datetime']; }
+			if(!empty($aliquot['AliquotMaster']['storage_datetime'])) { 
+				return $aliquot['AliquotMaster']['storage_datetime']; 
+			}
 		}
-
-		return date('Y-m-d G:i');
+		return null;
 	}
 	
 	
