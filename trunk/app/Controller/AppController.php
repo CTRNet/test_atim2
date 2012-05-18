@@ -848,6 +848,8 @@ class AppController extends Controller {
 			$result = '/Datamart/Browser/browse/'.$data['node']['id'];
 		}else if(isset($data['BatchSet']['id'])){
 			$result = '/Datamart/BatchSets/listall/'.$data['BatchSet']['id'];
+		}else if(isset($data['cancel_link'])){
+			$result = $data['cancel_link'];
 		}
 		
 		return $result;

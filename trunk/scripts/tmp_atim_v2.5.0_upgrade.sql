@@ -5,6 +5,9 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("bad internet explorer version msg",
+ "You need to use Internet Explorer 8+. If you already have such a version, make sure Compatibility View is turned off.",
+ "Vous devez utiliser Internet Explorer 8+. Si vous avez déjà une telle version, assurez-vous que le mode de compatibilité est désactivé."),
 ("common-law partner", "Common-Law Partner", "Conjoint de fait"),
 ("unmatched value", "Unmatched value", "Valeur sans correspondance"),
 ("supported value", "Supported value", "Valeur supportée"),
@@ -2135,6 +2138,6 @@ ALTER TABLE specimen_review_controls CHANGE form_alias detail_form_alias VARCHAR
 ALTER TABLE storage_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
 ALTER TABLE treatment_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
 
+UPDATE structure_formats SET `flag_batchedit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_permissible_values SET value = 'common-law partner', language_alias = 'common-law partner' WHERE value = 'common-law spouse' AND language_alias = 'common-law spouse'; 
 UPDATE participant_contacts SET relationship = 'common-law partner' WHERE relationship = 'common-law spouse';
-
