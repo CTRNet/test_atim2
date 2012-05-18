@@ -45,7 +45,6 @@ class MasterDetailBehavior extends ModelBehavior {
 				'is_master_model'		=> $is_master_model,
 				'is_control_model'	=> $is_control_model
 			); 
-			
 			if($is_control_model){
 				//for control models, add a virtual field with the full form alias
 				$schema = $model->schema();
@@ -226,12 +225,27 @@ class MasterDetailBehavior extends ModelBehavior {
 		return isset($this->__settings[$model->alias]['control_class']) ? $this->__settings[$model->alias]['control_class'] : null;
 	}
 	
-	function getControlForeign($model){
+	function getControlForeign(Model $model){
 		if(isset($model->base_model)){
 			$model = AppModel::getInstance($model->base_plugin, $model->base_model, true);
 		}
 		return isset($this->__settings[$model->alias]['control_foreign']) ? $this->__settings[$model->alias]['control_foreign'] : null;
 	}
+	
+	/**
+	 * Meant to counter the fact that behavior afterFind is NOT called for non primary models
+	 * and to manually add the form_alias since virutalFields do not work for associated
+	 * models.
+	 * @param Model $model
+	 * @param unknown_type $results
+	 * @param unknown_type $primary
+	 */
+	function applyMasterFormAlias(Model $model, $results, $primary){
+		if(!$primary){
+			foreach($results as &$row){
+				$row[$model->alias]['form_alias'] = $model->master_form_alias.','.$row[$model->alias]['detail_form_alias'];
+			}
+		}
+		return $results;
+	}
 }
-
-?>

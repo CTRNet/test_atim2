@@ -16,7 +16,9 @@ class LabBookControl extends LabBookAppModel {
 		
 		return $result;
 	}
+	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
  
 }
-
-?>

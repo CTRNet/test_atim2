@@ -30,6 +30,8 @@ class SopControl extends SopAppModel
 		return $result;
 	}
 	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
+	
 }
-
-?>

@@ -82,6 +82,8 @@ class StorageControl extends StorageLayoutAppModel {
 		
 		return (empty($description)? 'n/a' : $description);
 	}
+	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
 }
-
-?>
