@@ -127,6 +127,9 @@ class AliquotControl extends InventoryManagementAppModel {
 		
 		return $working_array;
 	}
+	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
+	
 }
-
-?>

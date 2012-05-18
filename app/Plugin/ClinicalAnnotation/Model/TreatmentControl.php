@@ -52,6 +52,8 @@ class TreatmentControl extends ClinicalAnnotationAppModel {
 		return $add_links;
 	}
 	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
+	
 }
-
-?>

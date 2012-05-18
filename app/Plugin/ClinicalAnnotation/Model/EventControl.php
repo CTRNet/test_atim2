@@ -66,6 +66,8 @@ class EventControl extends ClinicalAnnotationAppModel {
 		AppController::buildBottomMenuOptions($links);
 		return $links;
 	}
+	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
 }
-
-?>

@@ -122,6 +122,8 @@ class SampleControl extends InventoryManagementAppModel {
 		return $specimen_sample_controls_list;
 	}
 	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
+	
 }
-
-?>
