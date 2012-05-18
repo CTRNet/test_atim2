@@ -20,7 +20,7 @@
 				),
 				'access to all data' => array(
 					'link'=> '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' ,
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			)
 		),

@@ -31,7 +31,7 @@
 					'icon' => 'storage'),
 				'access to all data' => array(
 					'link' => '/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			),
 			'AliquotMaster' => array(
@@ -40,7 +40,7 @@
 					'icon' => 'aliquot'),
 				'access to all data' => array(
 					'link'=> '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			),
 			'TmaSlide' => array(
@@ -49,7 +49,7 @@
 					'icon' => 'slide'),
 				'access to all data' => array(
 					'link'=> '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			)
 		),

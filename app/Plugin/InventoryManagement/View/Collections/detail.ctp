@@ -62,7 +62,7 @@
 					'icon' => 'flask'
 				), 'access to all data' => array(
 					'link'=> '/InventoryManagement/SampleMasters/detail/%%SampleMaster.collection_id%%/%%SampleMaster.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			)
 		);
