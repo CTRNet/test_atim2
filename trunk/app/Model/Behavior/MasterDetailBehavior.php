@@ -241,7 +241,7 @@ class MasterDetailBehavior extends ModelBehavior {
 	 * @param unknown_type $primary
 	 */
 	function applyMasterFormAlias(Model $model, $results, $primary){
-		if(!$primary){
+		if(!$primary && isset($results[0][$model->alias]['detail_form_alias'])){
 			foreach($results as &$row){
 				$row[$model->alias]['form_alias'] = $model->master_form_alias.','.$row[$model->alias]['detail_form_alias'];
 			}
