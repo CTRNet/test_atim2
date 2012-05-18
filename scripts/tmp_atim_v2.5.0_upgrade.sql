@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("common-law partner", "Common-Law Partner", "Conjoint de fait"),
 ("unmatched value", "Unmatched value", "Valeur sans correspondance"),
 ("supported value", "Supported value", "Valeur supportée"),
 ("some identifiers were not merge because they were conflicting",
@@ -2134,10 +2135,6 @@ ALTER TABLE specimen_review_controls CHANGE form_alias detail_form_alias VARCHAR
 ALTER TABLE storage_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
 ALTER TABLE treatment_controls CHANGE form_alias detail_form_alias VARCHAR(255) NOT NULL DEFAULT '';
 
-
-
-
-
-
-
+UPDATE structure_permissible_values SET value = 'common-law partner', language_alias = 'common-law partner' WHERE value = 'common-law spouse' AND language_alias = 'common-law spouse'; 
+UPDATE participant_contacts SET relationship = 'common-law partner' WHERE relationship = 'common-law spouse';
 
