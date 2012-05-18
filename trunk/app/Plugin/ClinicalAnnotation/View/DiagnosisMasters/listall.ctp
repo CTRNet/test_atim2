@@ -15,7 +15,7 @@
 					'icon' => 'diagnosis'
 				), 'access to all data' => array(
 					'link' => '/ClinicalAnnotation/DiagnosisMasters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
  				), 'add' => AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/add/') && $primary_can_add ? 'javascript:addPopup(%%DiagnosisMaster.id%%);' : 'javascript:addPopup(0)'
 			), 'TreatmentMaster' => array(
 				'see treatment summary' => array(
@@ -23,7 +23,7 @@
 					'icon' => 'treatments'
 				), 'access to all data' => array(
 					'link' => '/ClinicalAnnotation/TreatmentMasters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
  				)
 			
 			), 'EventMaster' => array(
@@ -32,7 +32,7 @@
 					'icon' => 'annotation'
 				), 'access to all data' => array(
 					'link' => '/ClinicalAnnotation/EventMasters/detail/%%EventMaster.participant_id%%/%%EventMaster.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			)
 		),'ajax' => array(

@@ -18,7 +18,7 @@
 				),
 				'access to all data' => array(
 					'link'=> '/InventoryManagement/collections/detail/%%Collection.id%%/',
-					'icon' => 'access_to_data'
+					'icon' => 'detail'
 				)
 			)
 		),
