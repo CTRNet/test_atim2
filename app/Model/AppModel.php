@@ -648,6 +648,7 @@ class AppModel extends Model {
 	 * @return The instantiated class
 	 */
 	static function atimInstantiateExtend($class, $table_name){
+		ClassRegistry::removeObject($class->name);
 		$extend = new $class(false, $table_name);
 		$extend->Behaviors->Revision->setup($extend);//activate shadow model
 		return $extend;

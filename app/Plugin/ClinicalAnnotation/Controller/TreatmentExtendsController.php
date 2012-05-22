@@ -89,8 +89,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 						if(!empty($lines_strg)) {
 							$msg .= ' - ' . str_replace('%s', $lines_strg, __('see line %s'));
 						}
-//TODO see issue #2209		$this->TreatmentExtend->validationErrors[$field][] = $msg;
-						$this->TreatmentMaster->validationErrors[$field][] = $msg;
+						$this->TreatmentExtend->validationErrors[$field][] = $msg;
 					}
 				}	
 				
