@@ -1078,7 +1078,7 @@ function initActions(){
 			return false;
 		});
 		
-		$(document).delegate("a.submit", 'click', function(){ $(this).siblings("input.submit").click(); return false;}
+		$(document).delegate("a.submit", 'click', clickSubmitButton
 		).delegate("form", "submit", standardSubmit
 		).delegate(".jsApplyPreset", "click", function(){
 			applyPreset($(this).data("json"));
@@ -1741,37 +1741,14 @@ function initActions(){
 			}
 		}
 		return false;
-		//TODO: check links having javascript commands
 	}
 		
-	function toto(){
-		if(!$(this).find('span').hasClass('fetching')){
-			if($(this).data('confirmation-msg') && (!$(this).data('confirmation-popup') || $(this).data('confirmation-popup').find(":visible:first").length == 0)){
-				if($(this).data('confirmation-popup')){
-					$(this).data('confirmation-popup').popup();
-				}else{
-					//function buildConfirmDialog(id, question, buttons){
-					var button = $(this);
-					var yes_action = function(){
-						button.click();
-						button.data('confirmation-popup').popup('close');
-						return false;
-					};
-					var no_action = function(){
-						button.data('confirmation-popup').popup('close');
-						return false;
-					};
-					buildConfirmDialog('tmp', $(this).siblings("span.confirmationMsg").html(), [{label : STR_YES, action: yes_action, icon: "detail"}, {label : STR_NO, action: no_action, icon: "delete noPrompt"}]);
-					var popup = $("#tmp").attr("id", null);
-					$(this).data('confirmation-popup', popup);
-					popup.popup();
-				}
-			}else{
-				//trigger submit form (will go through validations)
-				$(this).siblings("input.submit").click();
-			}
+	function clickSubmitButton(){
+		if($(this).attr("href").indexOf("javascript:") == 0){
+			return true;
 		}
-		return $(this).attr("href").indexOf("javascript:") == 0;
+		
+		$(this).siblings("input.submit").click(); 
+		return false;
 	}
-
 	

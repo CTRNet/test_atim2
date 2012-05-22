@@ -94,11 +94,13 @@ function savePresetPopup(){
 			$("#savePresetPopup").find("div").first().html(data);
 			if(isOpened){
 				$("#savePresetPopup").popup();
+				$("#savePresetPopup input:first").focus();
 			}
 		});
 	}
 
 	$("#savePresetPopup").popup();
+	$("#savePresetPopup input:first").focus();
 }
 
 function savePreset(){
