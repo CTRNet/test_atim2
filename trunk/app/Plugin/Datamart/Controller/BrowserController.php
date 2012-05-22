@@ -432,6 +432,7 @@ class BrowserController extends DatamartAppController {
 					foreach($joins[$key] as $join){
 						unset($models[$key]->belongsTo[$join['alias']]);
 					}
+					$models[$key]->find('first');
 					$data = $models[$key]->find('all', array(
 						'fields'	=> array('*'),
 						'joins'	=> $joins[$key],

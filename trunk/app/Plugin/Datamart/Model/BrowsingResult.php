@@ -199,23 +199,25 @@ class BrowsingResult extends DatamartAppModel {
 		}
 		
 		$browsing_control_model = AppModel::getInstance('Datamart', 'BrowsingControl', true);
-		$current_structure_id = $base_browsing_result['DatamartStructure']['id'];
+		$current_model = $this->getModelAndStructureForNode($base_browsing_result);
+		$current_model = $current_model['model']->name;
 		$joins = array();
 		foreach($merge_on as $merge_unit){
-			$joins[] = $browsing_control_model->getInnerJoinArray($current_structure_id, $merge_unit['DatamartStructure']['id'], explode(',', $merge_unit['BrowsingResult']['id_csv']));
-			$current_structure_id = $merge_unit['DatamartStructure']['id'];
+			$to_model = $this->getModelAndStructureForNode($merge_unit);
+			$to_model = $to_model['model']->name;
+			$joins[] = $browsing_control_model->getInnerJoinArray($current_model, $to_model, explode(',', $merge_unit['BrowsingResult']['id_csv']));
+			$current_model = $to_model;
 		}
-		
 		return $joins;
 	}
 	
 	function countMaxDuplicates($base_node_id, $target_node_id){
 		$joins = $this->getJoins($base_node_id, $target_node_id);
-		$base_browsing_result = $this->getOrRedirect($base_node_id);
-		$target_browsing_result = $this->getOrRedirect($target_node_id);
 
-		$base_model = AppModel::getInstance($base_browsing_result['DatamartStructure']['plugin'], $base_browsing_result['DatamartStructure']['model'], true);
-		$final_model = AppModel::getInstance($target_browsing_result['DatamartStructure']['plugin'], $target_browsing_result['DatamartStructure']['model'], true);
+		$base_model = $this->getModelAndStructureForNode((int)$base_node_id);
+		$base_model = $base_model['model'];
+		$final_model = $this->getModelAndStructureForNode((int)$target_node_id);
+		$final_model = $final_model['model'];
 		$data = $base_model->find('first', array(
 			'fields'	=> array('COUNT('.$final_model->name.'.'.$final_model->primaryKey.') AS c'),
 			'conditions'=> array(),
