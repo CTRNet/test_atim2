@@ -22,6 +22,12 @@ class ClinicalAnnotationAppModel extends AppModel {
 	function afterSave($created){
 		if($this->name != 'Participant'){
 			//manages Participant.last_modification and Participant.last_modification_ds_id
+			if(isset($this->data[$this->name]['deleted']) && $this->data[$this->name]['deleted']){
+				//retrieve participant after a delete operation
+				assert($this->id);
+				$this->data = $this->find('first', array('conditions' => array($this->name.'.'.$this->primaryKey => $this->id, $this->name.'.deleted' => 1)));
+			}
+			
 			$participant_id = null;
 			$name = $this->name;
 			if(isset($this->data[$this->name]['participant_id'])){
