@@ -1146,7 +1146,7 @@ class StructuresHelper extends Helper {
 	 */
 	private function buildCsv($atim_structure, $options, $data){
 		if(isset(AppController::getInstance()->csv_config)){
-			$this->csv->csv_separator = AppController::getInstance()->csv_config; 
+			$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
 		}
 		
 		
@@ -1221,10 +1221,6 @@ class StructuresHelper extends Helper {
 			$options['type'] = 'csv';//go back to csv
 			
 			if(is_array($table_structure) && count($data)){
-				if(isset(AppController::getInstance()->csv_config)){
-					$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
-				}
-				
 				//header line
 				$line = array();
 				if($options['settings']['csv_header']){
