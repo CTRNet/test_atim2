@@ -132,8 +132,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		if(isset($this->request->data['Collection']['consent_master_id'])){
 			$consent_found = $this->setForRadiolist($consent_data, 'ConsentMaster', 'id', $this->request->data, 'Collection', 'consent_master_id');
 		}
-		$this->set( 'consent_found', $consent_found);
-		$this->set( 'consent_data', $consent_data);
+		$this->set('consent_found', $consent_found);
+		$this->set('consent_data', $consent_data);
 	
 		// Set diagnoses list
 		$diagnosis_data = $this->DiagnosisMaster->find('threaded', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id)));
@@ -141,31 +141,26 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		if(isset($this->request->data['Collection']['diagnosis_master_id'])){
 			$found_dx = $this->DiagnosisMaster->arrangeThreadedDataForView($diagnosis_data, $this->request->data['Collection']['diagnosis_master_id'], 'Collection');
 		}
-		$this->set( 'diagnosis_data', $diagnosis_data );
-		$this->set( 'found_dx', $found_dx );
+		$this->set('diagnosis_data', $diagnosis_data );
+		$this->set('found_dx', $found_dx );
 		
 		//set tx list
-		$this->TreatmentMaster->virtualFields['tx_or_event_id'] = 'CONCAT("tx_", TreatmentMaster.id)';
 		$tx_data = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentControl.flag_use_for_ccl' => true)));
-		$tx_or_event_found = false;
-		$tx_or_event = null;
-		$tx_or_event_id = null;
-		if(isset($this->request->data['Collection']['tx_or_event_id']) && $this->request->data['Collection']['tx_or_event_id']){
-			list($tx_or_event, $tx_or_event_id) = explode('_', $this->request->data['Collection']['tx_or_event_id']);
-		}
-		if($tx_or_event == 'tx'){
-			$tx_or_event_found = $this->setForRadiolist($tx_data, 'TreatmentMaster', 'tx_or_event_id', $this->request->data, 'Collection', 'tx_or_event_id');
+		$found_tx = false;
+		if(isset($this->request->data['Collection']['treatment_master_id'])){
+			$found_tx = $this->setForRadiolist($tx_data, 'TreatmentMaster', 'id', $this->request->data, 'Collection', 'treatment_master_id');
 		}
 		$this->set('tx_data', $tx_data);
+		$this->set('found_tx', $found_tx);
 		
 		//set event list
-		$this->EventMaster->virtualFields['tx_or_event_id'] = 'CONCAT("ev_", EventMaster.id)';
 		$event_data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventControl.flag_use_for_ccl' => true)));
-		if($tx_or_event == 'ev'){
-			$tx_or_event_found = $this->setForRadiolist($event_data, 'EventMaster', 'tx_or_event_id', $this->request->data, 'Collection', 'tx_or_event_id');
+		$found_event = false;
+		if(isset($this->request->data['Collection']['treatment_master_id'])){
+			$found_event = $this->setForRadiolist($event_data, 'EventMaster', 'id', $this->request->data, 'Collection', 'event_master_id');
 		}
 		$this->set('event_data', $event_data);
-		$this->set('tx_or_event_found', $tx_or_event_found);
+		$this->set('found_event', $found_event);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -201,13 +196,9 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			$this->Collection->id = $this->request->data['Collection']['id'] ?: null;
 			unset($this->request->data['Collection']['id']); 
 			
-			$this->request->data['Collection']['treatment_master_id'] = null;
-			$this->request->data['Collection']['event_master_id'] = null;
-			if($tx_or_event == 'tx'){
-				$this->request->data['Collection']['treatment_master_id'] = $tx_or_event_id; 
-			}else if($tx_or_event == 'ev'){
-				$this->request->data['Collection']['event_master_id'] = $tx_or_event_id;
-			}
+			
+			
+			
 			$this->Collection->addWritableField($fields);
 			
 			$submitted_data_validates = true;
@@ -264,27 +255,16 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		$this->set('found_dx', $found_dx);
 		
 		//set tx list
-		$this->TreatmentMaster->virtualFields['tx_or_event_id'] = 'CONCAT("tx_", TreatmentMaster.id)';
 		$tx_data = $this->TreatmentMaster->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentControl.flag_use_for_ccl' => true)));
-		$tx_or_event_found = false;
-		$tx_or_event = null;
-		$tx_or_event_id = null;
-		if(isset($data_for_form['Collection']['tx_or_event_id']) && $data_for_form['Collection']['tx_or_event_id']){
-			list($tx_or_event, $tx_or_event_id) = explode('_', $data_for_form['Collection']['tx_or_event_id']);
-		}
-		if($tx_or_event == 'tx'){
-			$tx_or_event_found = $this->setForRadiolist($tx_data, 'TreatmentMaster', 'tx_or_event_id', $data_for_form, 'Collection', 'tx_or_event_id');
-		}
+		$found_tx = $this->setForRadiolist($tx_data, 'TreatmentMaster', 'id', $data_for_form, 'Collection', 'treatment_master_id');
 		$this->set('tx_data', $tx_data);
+		$this->set('found_tx', $found_tx);
 		
 		//set event list
-		$this->EventMaster->virtualFields['tx_or_event_id'] = 'CONCAT("ev_", EventMaster.id)';
 		$event_data = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id, 'EventControl.flag_use_for_ccl' => true)));
-		if($tx_or_event == 'ev'){
-			$tx_or_event_found = $this->setForRadiolist($event_data, 'EventMaster', 'tx_or_event_id', $data_for_form, 'Collection', 'tx_or_event_id');
-		}
+		$found_event = $this->setForRadiolist($event_data, 'EventMaster', 'id', $data_for_form, 'Collection', 'event_master_id');
 		$this->set('event_data', $event_data);
-		$this->set('tx_or_event_found', $tx_or_event_found);
+		$this->set('found_event', $found_event);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/listall/') );
@@ -312,14 +292,6 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
-			}
-			
-			$this->request->data['Collection']['treatment_master_id'] = null;
-			$this->request->data['Collection']['event_master_id'] = null;
-			if($tx_or_event == 'tx'){
-				$this->request->data['Collection']['treatment_master_id'] = $tx_or_event_id;
-			}else if($tx_or_event == 'ev'){
-				$this->request->data['Collection']['event_master_id'] = $tx_or_event_id;
 			}
 			
 			$this->Collection->id = $collection_id;
