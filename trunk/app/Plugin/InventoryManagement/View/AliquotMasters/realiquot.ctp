@@ -38,6 +38,8 @@
 		if(count($this->request->data) == 0){
 			$final_options_children['settings']['form_bottom'] = true;
 			$final_options_children['settings']['actions'] = true;
+			$final_options_children['settings']['actions'] = true;
+			$final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
 			$final_options_children['extras'] = 
 				'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
 				<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
