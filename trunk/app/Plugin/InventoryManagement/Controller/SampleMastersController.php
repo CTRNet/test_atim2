@@ -596,7 +596,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		if($lab_book_ctrl_id != 0){
 			$structure_name .= ",derivative_lab_book";
 		}
-		$this->Structures->set($structure_name);
+		$this->Structures->set($structure_name, 'atim_structure', array('model_table_assoc' => array('SampleDetail' => $sample_data['SampleControl']['detail_tablename'])));
 		
 		// MANAGE DATA RECORD
 		
