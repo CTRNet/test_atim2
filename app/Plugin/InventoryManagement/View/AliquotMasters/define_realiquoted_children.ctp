@@ -43,6 +43,7 @@
 		if($element_nbr == $counter){
 			$final_children_options['settings']['form_bottom'] = true;
 			$final_children_options['settings']['actions'] = true;
+			$final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
 			$final_children_options['extras'] = 
 				'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
 				<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
