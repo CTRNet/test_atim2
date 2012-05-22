@@ -39,6 +39,8 @@ function initCcl(){
 				popupLoaded = true;
 			});
 		}
+		
+		return false;
 	});
 	
 	//Init the collections with an empty search
