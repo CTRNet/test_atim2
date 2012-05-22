@@ -55,11 +55,10 @@ if( $hook_link ) {
 $this->Structures->build( $final_atim_structure, $final_options );
 
 //tx----------------
-$structure_links['radiolist'] = array('Collection.tx_or_event_id' => '%%TreatmentMaster.tx_or_event_id%%');
+$structure_links['radiolist'] = array('Collection.treatment_master_id' => '%%TreatmentMaster.id%%');
 unset($structure_links['tree']);
 
-$structure_settings['header'] = __('treatments').' / '.__('annotation');
-$structure_settings['language_heading'] = __('treatments');
+$structure_settings['header'] = __('treatments');
 unset($structure_settings['tree']);
 
 $final_atim_structure = $atim_structure_tx;
@@ -67,7 +66,8 @@ $final_options = array(
 		'type'		=> 'index',
 		'data'		=> $tx_data,
 		'settings'	=> $structure_settings,
-		'links'		=> $structure_links
+		'links'		=> $structure_links,
+		'extras'	=> array('end' => '<input type="radio" name="data[Collection][treatment_master_id]"  '.($found_tx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
 
 // CUSTOM CODE
@@ -82,12 +82,11 @@ $this->Structures->build( $final_atim_structure, $final_options );
 
 
 //event----------------
-$structure_links['radiolist'] = array('Collection.tx_or_event_id' => '%%EventMaster.tx_or_event_id%%');
+$structure_links['radiolist'] = array('Collection.event_master_id' => '%%EventMaster.id%%');
 
-$structure_settings['language_heading'] = __('annotation');
+$structure_settings['header'] = __('annotation');
 $structure_settings['form_bottom'] = true;
 $structure_settings['actions'] = true;
-unset($structure_settings['header']);
 
 $final_atim_structure = $atim_structure_event;
 $final_options = array(
@@ -95,7 +94,7 @@ $final_options = array(
 		'data'		=> $event_data,
 		'settings'	=> $structure_settings,
 		'links'		=> $structure_links,
-		'extras'	=> array('end' => '<input type="radio" name="data[Collection][tx_or_event_id]"  '.($tx_or_event_found ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
+		'extras'	=> array('end' => '<input type="radio" name="data[Collection][event_master_id]"  '.($found_event ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
 
 // CUSTOM CODE

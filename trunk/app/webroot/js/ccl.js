@@ -34,7 +34,7 @@ function initCcl(){
 				initDatepicker("#popup");
 				initAdvancedControls("#popup");
 				$("#popup form").submit(popupSearch);
-				$("#popup .form.search").unbind('click').prop("onclick", null).click(popupSearch);
+				$("#popup a.submit").unbind('click').prop("onclick", null).click(popupSearch);
 				$("#popup").popup();
 				popupLoaded = true;
 			});

@@ -52,8 +52,7 @@
 
 
 	// ************** 4 - Tx/Event **************
-	$final_options['settings']['header'] = __('treatment').' / '.__('annotation'); 
-	$final_options['settings']['language_heading'] = __('treatment');
+	$final_options['settings']['header'] = __('treatment'); 
 	$final_options['extras'] = $collection_data['treatment_master_id'] ? $this->Structures->extraAjaxLink('ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id'].'/noActions:/noHeader:/') : $no_data_available;
 	
 	$hook_link = $this->Structures->hook('treatment_detail');
@@ -63,10 +62,9 @@
 	$this->Structures->build( $final_atim_structure,  $final_options);
 
 
-	$final_options['settings']['language_heading'] = __('annotation');
+	$final_options['settings']['header'] = __('annotation');
 	$final_options['settings']['actions'] = true;
 	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->extraAjaxLink('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/noActions:/noHeader:/') : $no_data_available;
-	unset($final_options['settings']['header']);
 	
 	$structure_bottom_links = array(
 		'edit'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
