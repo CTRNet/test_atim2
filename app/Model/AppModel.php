@@ -108,27 +108,8 @@ class AppModel extends Model {
 		
 		$this->setTrackability();
 		
-		foreach($this->_schema as $field_name => $field_properties) {
-			$tmp_type = $field_properties['type'];
-			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
-				// Manage float record
-				if(isset($this->data[$this->name][$field_name])) {
-					$this->data[$this->name][$field_name] = str_replace(",", ".", $this->data[$this->name][$field_name]);
-					$this->data[$this->name][$field_name] = str_replace(" ", "", $this->data[$this->name][$field_name]);
-					$this->data[$this->name][$field_name] = str_replace("+", "", $this->data[$this->name][$field_name]);
-					if(is_numeric($this->data[$this->name][$field_name])) {
-						if(strpos($this->data[$this->name][$field_name], ".") === 0) $this->data[$this->name][$field_name] = "0".$this->data[$this->name][$field_name];
-						if(strpos($this->data[$this->name][$field_name], "-.") === 0) $this->data[$this->name][$field_name] = "-0".substr($this->data[$this->name][$field_name], 1);
-					} 
-				}
-			}else if(($tmp_type == "datetime" || $tmp_type == "date" || $tmp_type == "time") 
-				&& isset($this->data[$this->name][$field_name]) && empty($this->data[$this->name][$field_name])
-			){
-				//manage date so that the generated query contains NULL instead of an empty string
-				unset($this->data[$this->name][$field_name]);
-			}
-		}
-
+		$this->checkFloats();
+		
 		return true;
 	}
 	
@@ -624,6 +605,8 @@ class AppModel extends Model {
 				}
 			}
 		}
+		
+		$this->checkFloats();
 		
 		parent::validates($options);
 		return count($this->validationErrors) == 0;
@@ -1179,5 +1162,30 @@ class AppModel extends Model {
 			return $matches[1];
 		}
 		return null;
+	}
+	
+	/**
+	 * Updates floats to make them db friendly, based on their db field type.
+	 * -commas become dots
+	 * -plus signs are removed
+	 * -0 is appened to a direct float (eg.: ".52 => 0.52", "-.42 => -0.42")
+	 * -white spaces are trimmed
+	 */
+	function checkFloats(){
+		foreach($this->_schema as $field_name => $field_properties) {
+			$tmp_type = $field_properties['type'];
+			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
+				// Manage float record
+				if(isset($this->data[$this->name][$field_name])) {
+					$this->data[$this->name][$field_name] = str_replace(",", ".", $this->data[$this->name][$field_name]);
+					$this->data[$this->name][$field_name] = str_replace(" ", "", $this->data[$this->name][$field_name]);
+					$this->data[$this->name][$field_name] = str_replace("+", "", $this->data[$this->name][$field_name]);
+					if(is_numeric($this->data[$this->name][$field_name])) {
+						if(strpos($this->data[$this->name][$field_name], ".") === 0) $this->data[$this->name][$field_name] = "0".$this->data[$this->name][$field_name];
+						if(strpos($this->data[$this->name][$field_name], "-.") === 0) $this->data[$this->name][$field_name] = "-0".substr($this->data[$this->name][$field_name], 1);
+					}
+				}
+			}
+		}
 	}
 }
