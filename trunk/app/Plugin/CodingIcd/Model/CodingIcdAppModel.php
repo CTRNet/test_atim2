@@ -24,7 +24,7 @@ class CodingIcdAppModel extends AppModel {
 		return strlen($id) > 0 ? strlen($this->getDescription($id)) > 0 : true;
 	}
 
-	protected function globalSearch(array $terms, $exact_search, $search_on_id, $limit){
+	function globalSearch(array $terms, $exact_search, $search_on_id, $limit){
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 		$search_fields = array();
 		$conditions = array();
