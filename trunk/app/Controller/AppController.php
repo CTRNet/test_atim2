@@ -820,9 +820,10 @@ class AppController extends Controller {
 	}
 	
 	function resetPermissions(){
-		$group_model = AppModel::getInstance('', 'Group', true);
-		$group = $group_model->findById($this->Session->read('Auth.User.group_id'));
-		$this->Session->write('flag_show_confidential', $group['Group']['flag_show_confidential']);
+		$user_model = AppModel::getInstance('', 'User', true);
+		$user = $user_model->findById($this->Session->read('Auth.User.id'));
+		$this->Session->write('Auth.User.group_id', $user['User']['group_id']);
+		$this->Session->write('flag_show_confidential', $user['Group']['flag_show_confidential']);
 		$this->Session->write('permission_timestamp', time());
 		$this->SessionAcl->flushCache();
 	}

@@ -155,5 +155,28 @@ class AdminUsersController extends AdministrateAppController {
 			require($hook_link);
 		}
 	}
+	
+	function changeGroup($group_id, $user_id){
+		$user = $this->User->getOrRedirect($user_id);
+		if($user['Group']['id'] != $group_id){
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$this->set( 'atim_menu_variables', array('Group.id' => $user['Group']['id'], 'User.id' => $user_id) );
+		
+		$this->Structures->set('group_select');
+		
+		if($this->request->data){
+			$this->Group->getOrRedirect($this->request->data['Group']['id']);
+			$this->User->id = $user_id;
+			$this->User->data = array();
+			$this->User->addWritableField('group_id');
+			$this->User->save(array('User' => array('group_id' => $this->request->data['Group']['id'])), false);
+			$this->SystemVar->setVar('permission_timestamp', time());
+			$this->atimFlash('your data has been saved', '/Administrate/AdminUsers/detail/'.$this->request->data['Group']['id'].'/'.$user_id.'/');
+		}else{
+			$this->request->data = $user;
+		}
+	}
 }
 

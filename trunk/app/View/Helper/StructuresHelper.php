@@ -342,20 +342,22 @@ class StructuresHelper extends Helper {
 			$options['extras'] = array('end' => $options['extras']);
 		}
 		
-		reset($atim_structure['Structure']);
-		if(is_array(current($atim_structure['Structure']))){
-			//iterate over sub structures
-			foreach($atim_structure['Structure'] as $sub_structure){
-				if(isset($sub_structure['CodingIcdCheck']) && $sub_structure['CodingIcdCheck']){
-					$options['CodingIcdCheck'] = true;
-					break;
+		if(isset($atim_structure['Structure'])){
+			reset($atim_structure['Structure']);
+			if(is_array(current($atim_structure['Structure']))){
+				//iterate over sub structures
+				foreach($atim_structure['Structure'] as $sub_structure){
+					if(isset($sub_structure['CodingIcdCheck']) && $sub_structure['CodingIcdCheck']){
+						$options['CodingIcdCheck'] = true;
+						break;
+					}
 				}
+				if(!isset($options['CodingIcdCheck'])){
+					$options['CodingIcdCheck'] = false;
+				}
+			}else{
+				$options['CodingIcdCheck'] = isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck'];
 			}
-			if(!isset($options['CodingIcdCheck'])){
-				$options['CodingIcdCheck'] = false;
-			}
-		}else{
-			$options['CodingIcdCheck'] = isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck'];
 		}
 		
 		if($options['settings']['return']){
