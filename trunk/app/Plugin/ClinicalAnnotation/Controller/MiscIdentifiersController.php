@@ -209,12 +209,14 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			if(empty($misc_identifier_data['MiscIdentifierControl']['autoincrement_name'])){
 				//real delete
 				$this->MiscIdentifier->addWritableField(array('deleted', 'flag_unique'));
+				$this->MiscIdentifier->data = array();
 				$deletion_worked = $this->MiscIdentifier->save(array('MiscIdentifier' => array('deleted' => 1, 'flag_unique' => null)));
 
 			}else{
 				//tmp delete to be able to reuse it
 				$mi = array('participant_id' => null, 'tmp_deleted' => 1, 'deleted' => 1);
 				$this->MiscIdentifier->addWritableField(array('deleted', 'tmp_deleted', 'participant_id'));
+				$this->MiscIdentifier->data = array();
 				$deletion_worked = $this->MiscIdentifier->save($mi);
 			}
 			
