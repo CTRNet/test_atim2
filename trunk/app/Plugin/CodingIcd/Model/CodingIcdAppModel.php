@@ -24,13 +24,14 @@ class CodingIcdAppModel extends AppModel {
 		return strlen($id) > 0 ? strlen($this->getDescription($id)) > 0 : true;
 	}
 
-	function globalSearch(array $terms, $exact_search, $search_fields_suffix, $search_on_id, $limit){
+	protected function globalSearch(array $terms, $exact_search, $search_on_id, $limit){
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 		$search_fields = array();
 		$conditions = array();
-		foreach($search_fields_suffix as $sfs){
-			$search_fields[] = $lang.$sfs;
-		}
+		$search_fields = array_keys($this->schema());
+		$filter_key = $lang.'_';
+		$search_fields = array_filter($search_fields, function($in) use ($filter_key){return strpos($in, $filter_key) === 0;});
+
 		if($search_on_id){
 			$search_fields[] = "id";
 		}
@@ -49,14 +50,12 @@ class CodingIcdAppModel extends AppModel {
 			$term = $db->value($term);
 			$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST (".$term." IN BOOLEAN MODE)";
 		}
-		var_dump($limit);
+		
 		if($limit != null){
-			echo 'FINCH';
 			$data = $this->find('all', array(
 				'conditions' => array(implode(" OR ", $conditions)),
 				'limit' => $limit));
 		}else{
-			echo 'NUTELLA';
 			$data = $this->find('all', array(
 				'conditions' => array(implode(" OR ", $conditions))));
 		}
@@ -82,7 +81,7 @@ class CodingIcdAppModel extends AppModel {
 	}
 	
 	function getCastedSearchParams(array $terms, $exact_search){
-		$search_result = $this->globalSearch($terms, $exact_search);
+		$search_result = $this->globalSearch($terms, $exact_search, true, false);
 		$data = array();
 		if(count($search_result) > 0){
 			foreach($search_result as $unit){

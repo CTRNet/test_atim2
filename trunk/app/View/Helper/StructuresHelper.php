@@ -342,7 +342,21 @@ class StructuresHelper extends Helper {
 			$options['extras'] = array('end' => $options['extras']);
 		}
 		
-		$options['CodingIcdCheck'] = isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck'];
+		reset($atim_structure['Structure']);
+		if(is_array(current($atim_structure['Structure']))){
+			//iterate over sub structures
+			foreach($atim_structure['Structure'] as $sub_structure){
+				if(isset($sub_structure['CodingIcdCheck']) && $sub_structure['CodingIcdCheck']){
+					$options['CodingIcdCheck'] = true;
+					break;
+				}
+			}
+			if(!isset($options['CodingIcdCheck'])){
+				$options['CodingIcdCheck'] = false;
+			}
+		}else{
+			$options['CodingIcdCheck'] = isset($atim_structure['Structure']['CodingIcdCheck']) && $atim_structure['Structure']['CodingIcdCheck'];
+		}
 		
 		if($options['settings']['return']){
 			//the result needs to be returned as a string, turn output buffering on
@@ -2524,7 +2538,7 @@ class StructuresHelper extends Helper {
 		foreach($raw_radiolist as $radiobutton_name => $radiobutton_value){
 			list($tmp_model, $tmp_field) = split("\.", $radiobutton_name);
 			$radiobutton_value = $this->strReplaceLink($radiobutton_value, $data);
-			$tmp_attributes = array('legend' => false, 'value' => false);
+			$tmp_attributes = array('legend' => false, 'value' => false, 'id' => $radiobutton_name);
 			if(isset($data[$tmp_model][$tmp_field]) && $data[$tmp_model][$tmp_field] == $radiobutton_value){
 				$tmp_attributes['checked'] = 'checked';
 			}
