@@ -213,7 +213,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 
 			}else{
 				//tmp delete to be able to reuse it
-				$mi = array("id" => $misc_identifier_id, 'participant_id' => null, 'tmp_deleted' => 1, 'deleted' => 1);
+				$mi = array('participant_id' => null, 'tmp_deleted' => 1, 'deleted' => 1);
+				$this->MiscIdentifier->addWritableField(array('deleted', 'tmp_deleted', 'participant_id'));
 				$deletion_worked = $this->MiscIdentifier->save($mi);
 			}
 			
@@ -235,6 +236,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 	function reuse($participant_id, $misc_identifier_ctrl_id, $submited = false){
 		$this->Participant->getOrRedirect($participant_id);
 		$this->MiscIdentifierControl->getOrRedirect($misc_identifier_ctrl_id);
+		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/profile'));
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'MiscIdentifierControl.id'=>$misc_identifier_ctrl_id) );
 		$this->Structures->set('misc_identifier_value');
 		
@@ -246,12 +248,9 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		$this->set('title', $mi_control['MiscIdentifierControl']['misc_identifier_name']);
 		$data_to_display = $this->MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifierControl.id' => $misc_identifier_ctrl_id), 'recursive' => 0));
 		
-		//LOCKING TABLE - Make sure to have unlock at all exit points
-		$this->MiscIdentifier->query('LOCK TABLE misc_identifiers AS MiscIdentifier WRITE, participants AS Participant WRITE, misc_identifier_controls AS MiscIdentifierControl WRITE, misc_identifiers WRITE, misc_identifiers_revs WRITE');
 		if($mi_control['MiscIdentifierControl']['flag_once_per_participant']){
 			$count = $this->MiscIdentifier->find('count', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id), 'recursive' => -1));
 			if($count > 0){
-				$this->MiscIdentifier->query('UNLOCK TABLES');
 				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				return;
 			}
@@ -271,21 +270,21 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 				}
 					
 				if($submitted_data_validates) {
-					$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id, 'MiscIdentifier.id' => $this->request->data['MiscIdentifier']['selected_id']), 'recursive' => -1));
+					$conditions = array('MiscIdentifier.participant_id' => null, 'MiscIdentifier.deleted' => 1, 'MiscIdentifier.tmp_deleted' => 1, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id, 'MiscIdentifier.id' => $this->request->data['MiscIdentifier']['selected_id']);
+					$mi = $this->MiscIdentifier->find('first', array('conditions' => $conditions, 'recursive' => -1));
 					
 					if(!empty($mi)){
-						$mi['MiscIdentifier']['tmp_deleted'] = 0;
-						$mi['MiscIdentifier']['deleted'] = 0;
-						$mi['MiscIdentifier']['participant_id'] = $participant_id;
-						$this->MiscIdentifier->save($mi, array('fieldList' => array('tmp_deleted', 'deleted', 'participant_id')));
+						$this->MiscIdentifier->id = $participant_id;
+						$this->MiscIdentifier->updateAll(array('tmp_deleted' => 0, 'deleted' => 0, 'participant_id' => $participant_id), $conditions);//will only update if conditions are still ok (hence if no one else took it)
 					}
-					
-					$this->MiscIdentifier->query('UNLOCK TABLES');
 					
 					$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.id' => $this->request->data['MiscIdentifier']['selected_id'])));
 					if(empty($mi)){
 						$this->MiscIdentifier->validationErrors[] = 'by the time you submited your selection, the identifier was either used or removed from the system';
 					}else{
+						$this->Participant->id = $participant_id;
+						$this->Participant->data = array();
+						$this->Participant->save(array('Participant.modified' => now()));//trigger last modification
 						$hook_link = $this->hook('postsave_process');
 						if( $hook_link ) {
 							require($hook_link);
@@ -294,11 +293,9 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 					}
 				}
 			}else{
-				$this->MiscIdentifier->query('UNLOCK TABLES');
 				$this->MiscIdentifier->validationErrors[] = 'you need to select an identifier value';
 			}
 		}
-		$this->MiscIdentifier->query('UNLOCK TABLES');
 		$this->request->data = $data_to_display;
 		
 		if(empty($this->request->data)){
