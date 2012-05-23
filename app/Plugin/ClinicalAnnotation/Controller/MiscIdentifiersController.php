@@ -214,10 +214,15 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 
 			}else{
 				//tmp delete to be able to reuse it
-				$mi = array('participant_id' => null, 'tmp_deleted' => 1, 'deleted' => 1);
-				$this->MiscIdentifier->addWritableField(array('deleted', 'tmp_deleted', 'participant_id'));
-				$this->MiscIdentifier->data = array();
-				$deletion_worked = $this->MiscIdentifier->save($mi);
+				//use update to avoid trigerring Participant last mod with a null participant_id.
+				$deletion_worked = true;
+				$this->MiscIdentifier->id = $misc_identifier_id;
+				$this->MiscIdentifier->beforeDelete();
+				$this->MiscIdentifier->updateAll(array('participant_id' => null, 'tmp_deleted' => 1, 'deleted' => 1), array('MiscIdentifier.id' => $misc_identifier_id));
+				$this->MiscIdentifier->afterDelete();
+				$this->Participant->id = $participant_id;
+				$this->Participant->data = array();
+				$this->Participant->save(array('Participant.modified' => now()));//trigger last modification
 			}
 			
 			if($deletion_worked){
@@ -276,7 +281,6 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 					$mi = $this->MiscIdentifier->find('first', array('conditions' => $conditions, 'recursive' => -1));
 					
 					if(!empty($mi)){
-						$this->MiscIdentifier->id = $participant_id;
 						$this->MiscIdentifier->updateAll(array('tmp_deleted' => 0, 'deleted' => 0, 'participant_id' => $participant_id), $conditions);//will only update if conditions are still ok (hence if no one else took it)
 					}
 					
@@ -284,6 +288,8 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 					if(empty($mi)){
 						$this->MiscIdentifier->validationErrors[] = 'by the time you submited your selection, the identifier was either used or removed from the system';
 					}else{
+						$this->MiscIdentifier->id = $this->request->data['MiscIdentifier']['selected_id'];
+						$this->MiscIdentifier->createRevision();
 						$this->Participant->id = $participant_id;
 						$this->Participant->data = array();
 						$this->Participant->save(array('Participant.modified' => now()));//trigger last modification
