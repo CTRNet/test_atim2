@@ -1108,13 +1108,59 @@ ALTER TABLE qc_hb_ed_hepatobiliary_lifestyles_revs
 
 UPDATE structure_fields SET type = 'yes_no',setting='' WHERE tablename = 'qc_hb_ed_hepatobiliary_lifestyles' AND field = 'drugs'; 
 
+-- ------------------------------------------------------------------------
+-- Following lines executed on server on 2012-05-23 after migration
+-- ------------------------------------------------------------------------
 
+ALTER TABLE qc_hb_ed_medical_imaging_record_summaries CHANGE `colonoscopy` `endoscopy` varchar(5) DEFAULT NULL;
+ALTER TABLE qc_hb_ed_medical_imaging_record_summaries_revs CHANGE `colonoscopy` `endoscopy` varchar(5) DEFAULT NULL;
+UPDATE structure_fields SET field = 'endoscopy', language_label = 'medical imaging endoscopy' WHERE tablename = 'qc_hb_ed_medical_imaging_record_summaries' AND field = 'colonoscopy';
+UPDATE event_controls SET event_type = 'medical imaging endoscopy', databrowser_label = 'clinical|medical imaging endoscopy' WHERE event_type = 'medical imaging colonoscopy';
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES ('medical imaging endoscopy', 'Endoscopy', 'Endoscopie');
 
+ALTER TABLE participants ADD COLUMN qc_hb_cancer_death char(1) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs ADD COLUMN qc_hb_cancer_death char(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'Participant', 'participants', 'qc_hb_cancer_death', 'yes_no',  NULL , '0', '', '', '', 'cancer death', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='qc_hb_cancer_death'), '3', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+UPDATE structure_fields SET language_label = 'cause of death precision' WHERE field = 'cod_icd10_code' AND tablename = 'participants';
+INSERT IGNORE INTO `i18n` (`id`, `en`, `fr`) VALUES 
+('cancer death', 'Cancer Death', 'Mort du cancer'),
+('cause of death precision', 'Cause of Death - Precision', 'Cause du décès - Précision');
+ 	
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_others` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `treatment_master_id` int(11) NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `qc_hb_txd_others_revs` (
+  `id` int(11) NOT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_hb_txd_others`
+  ADD CONSTRAINT `qc_hb_txd_others_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`) VALUES
+(null, 'chemotherapy', 'other', 1, 'qc_hb_txd_others', 'treatmentmasters,qc_hb_txd_others', NULL, NULL, 0, NULL, NULL, 'other|chemotherapy'),
+(null, 'surgery', 'other', 1, 'qc_hb_txd_others', 'treatmentmasters,qc_hb_txd_others', NULL, NULL, 0, NULL, NULL, 'other|surgery'),
+(null, 'treatment', 'other', 1, 'qc_hb_txd_others', 'treatmentmasters,qc_hb_txd_others', NULL, NULL, 0, NULL, NULL, 'other|treatment');
+INSERT INTO structures(`alias`) VALUES ('qc_hb_txd_others');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_others'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `field`='finish_date'), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='qc_hb_txd_others'), 
+(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `field`='notes'), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0');
+ 
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
+('metastasis > 5cm', 'Metastasis > 5cm', 'Métastase > 5cm'),
+('metastatic lymph nodes', 'Metastatic Lymph Nodes', 'Ganglions Lymphatiques Métastatiques');  
 
-
-
-
-
-
-
-  
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases CHANGE `viable_cells_perc` `necrosis_perc_list` varchar(50) DEFAULT NULL;
+ALTER TABLE qc_hb_ed_lab_report_liver_metastases_revs CHANGE `viable_cells_perc` `necrosis_perc_list` varchar(50) DEFAULT NULL;
+UPDATE structure_fields SET field = 'necrosis_perc_list', language_label = 'necrosis percentage list' WHERE tablename = 'qc_hb_ed_lab_report_liver_metastases' AND field = 'viable_cells_perc';
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES ('necrosis percentage', 'Necrosis %', 'Nécrose %'),('necrosis percentage list', 'Necrosis % (List)', 'Nécrose % (liste)');
