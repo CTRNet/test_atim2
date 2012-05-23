@@ -2224,7 +2224,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$flash_url = '/InventoryManagement/AliquotMasters/detail/' . $realiquoting_data['AliquotMaster']['collection_id'] . '/' . $realiquoting_data['AliquotMaster']['sample_master_id'] . '/' . $realiquoting_data['AliquotMaster']['id'];
 				break;
 			case 'child':
-				$flash_url = '/InventoryManagement/AliquotMasters/listAllRealiquotedParents/' . $realiquoting_data['AliquotMasterChildren']['collection_id'] . '/' . $realiquoting_data['AliquotMasterChildren']['sample_master_id'] . '/' . $realiquoting_data['AliquotMasterChildren']['id'];
+				$flash_url = '/InventoryManagement/AliquotMasters/detail/' . $realiquoting_data['AliquotMasterChildren']['collection_id'] . '/' . $realiquoting_data['AliquotMasterChildren']['sample_master_id'] . '/' . $realiquoting_data['AliquotMasterChildren']['id'];
 				break;
 			default:
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
