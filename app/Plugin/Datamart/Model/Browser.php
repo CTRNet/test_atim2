@@ -719,7 +719,7 @@ class Browser extends DatamartAppModel {
 			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>";
 			if(count($values) > 6){
 				$result .= '<span class="databrowserShort">'.stripslashes(implode(", ", array_slice($values, 0, 6))).'</span>'
-					.'<span class="databrowserAll hidden">'.stripslashes(implode(", ", array_slice($values, 6))).'</span>'
+					.'<span class="databrowserAll hidden">, '.stripslashes(implode(", ", array_slice($values, 6))).'</span>'
 					.'<br/><a href="#" class="databrowserMore">'.__('and %d more', count($values) - 6).'</a>';
 			}else{
 				$result .= stripslashes(implode(", ", $values));
@@ -1268,6 +1268,7 @@ class Browser extends DatamartAppModel {
 		}
 		$model_to_search = AppModel::getInstance($browsing['DatamartStructure']['plugin'], $browsing['DatamartStructure']['model'], true);
 		$use_sub_model = null;
+		$joins = array();
 		
 		if($params['sub_struct_ctrl_id'] && $ctrl_model = $model_to_search->getControlName()){
 			//sub structure
@@ -1283,6 +1284,14 @@ class Browser extends DatamartAppModel {
 			if($detail_model_name == $model_to_import){
 				AppController::addWarningMsg('The replacement to get the detail model name failed');
 			}else{
+				$ctrl_model = AppModel::getInstance($model_to_search->getPluginName(), $ctrl_model);
+				$ctrl_data = $ctrl_model->findById($params['sub_struct_ctrl_id']);
+				$joins[] = array(
+					'alias'			=> $detail_model_name,
+					'table'			=> $ctrl_data[$ctrl_model->name]['detail_tablename'],
+					'conditions'	=> array($model_to_search->name.'.'.$model_to_search->primaryKey.' = '.$detail_model_name.'.'.Inflector::underscore($model_to_search->name).'_id'),
+					'type'			=> 'INNER'	
+				);
 				foreach($result_structure['Sfs'] as &$field){
 					if($field['model'] == $detail_model_name && $field['tablename'] != $alternate_info['detail_tablename']){
 						if(Config::read('debug') > 0 && !empty($field['tablename']) && $field['tablename'] != $alternate_info['detail_tablename']){
@@ -1324,8 +1333,6 @@ class Browser extends DatamartAppModel {
 			$advanced_data = $controller->request->data;
 		}
 
-		$joins = array();
-		
 		if($params['node_id'] != 0){
 			//this is not the first node, search based on parents
 			$parent = $browsing_result_model->find('first', array('conditions' => array("BrowsingResult.id" => $params['node_id'])));

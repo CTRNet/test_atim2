@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("this user name is already in use", "This user name is already in use.", "Ce nom d'utilisateur est déjà utilisé."),
 ("multi_entry_form_confirmation_msg",
  "You are about to submit a form with multiple entries. Do you want to continue?",
  "Vous êtes sur le point de soumettre un formulaire contenant des entrées multiples. Souhaitez-vous continuer?"),
@@ -51,7 +52,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('identifiers','Identifiers','Identifiants'),
 ('multiple lines','Multiple Lines','Multi-lignes'),
 ('redundancy display','Redundancy Display','Affichage des redondances'),
-('same line','Same Ligne','Même ligne'),
+('same line','Same Line','Même ligne'),
 ('separator','Separator','Séparateur'),
 ('visible columns','Visible Columns','Colonnes visibles'),
 ("saved browsing steps", "Saved browsing steps", "Étapes de navigation sauvegardées"),
@@ -2174,5 +2175,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='parent_used_volume' AND `language_label`='parent used volume' AND `language_tag`='' AND `type`='float_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='parent_used_volume_help' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquotedparent') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `language_label`='' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+UPDATE event_controls SET flag_use_for_ccl=0 WHERE event_group != 'lab';
+UPDATE event_controls SET flag_use_for_ccl=1 WHERE event_group = 'lab';
 
 

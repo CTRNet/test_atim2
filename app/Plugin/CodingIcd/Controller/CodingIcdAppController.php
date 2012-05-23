@@ -12,7 +12,7 @@ class CodingIcdAppController extends AppController {
 	 * @param AppModel $model_to_use The model to base the search on
 	 * @param $search_fields_prefix array The fields prefix to base the search on
 	 */
-	function globalSearch($is_tool, $model_to_use, array $search_fields_suffix = array("_title", "_sub_title", "_description")){
+	function globalSearch($is_tool, $model_to_use){
 		if($is_tool){
 			$model_name_to_use = $model_to_use->name;
 			$this->layout = 'ajax';
@@ -24,7 +24,7 @@ class CodingIcdAppController extends AppController {
 				return false;
 			}
 
-			$this->request->data = $model_to_use->globalSearch(array($this->request->data[0]['term']), isset($this->request->data['exact_search']) && $this->request->data['exact_search'], $search_fields_suffix, false, $limit + 1);
+			$this->request->data = $model_to_use->globalSearch(array($this->request->data[0]['term']), isset($this->request->data['exact_search']) && $this->request->data['exact_search'], false, $limit + 1);
 			
 			if(count($this->request->data) > $limit){
 				unset($this->request->data[$limit]);

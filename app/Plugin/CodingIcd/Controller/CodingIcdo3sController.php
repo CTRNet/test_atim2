@@ -15,11 +15,7 @@ class CodingIcdo3sController extends CodingIcdAppController{
 	
 	function search($use_icd_type = "topo", $is_tool = true){
 		$model_to_use = $this->getIcdo3Type($use_icd_type);
-		if($use_icd_type == "morpho"){
-			parent::globalSearch($is_tool, $model_to_use, array("_description"));
-		}else{
-			parent::globalSearch($is_tool, $model_to_use);
-		}
+		parent::globalSearch($is_tool, $model_to_use);
 		$this->set("use_icd_type", $use_icd_type);
 	}
 	

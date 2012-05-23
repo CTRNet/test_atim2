@@ -1074,7 +1074,7 @@ function initActions(){
 			initPage();
 		}
 		$("a.databrowserMore").click(function(){
-			$(this).parent().find("span, a").toggle();
+			$(this).parent().find("span:not(:visible), a").toggle();
 			return false;
 		});
 		

@@ -29,9 +29,5 @@ class CodingIcdo3Morpho extends CodingIcdAppModel{
 	static function getSingleton(){
 		return self::$singleton;
 	}
-	
-	function globalSearch(array $terms, $exact_search, $search_fields_suffix, $search_on_id, $limit){
-		return parent::globalSearch($terms, $exact_search, array("_description"), $search_on_id, $limit);
-	}
 }
 
