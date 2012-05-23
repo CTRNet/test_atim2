@@ -1752,3 +1752,11 @@ function initActions(){
 		return false;
 	}
 	
+	function miscIdPopup(participant_id, ctrl_id){
+		buildConfirmDialog('miscIdPopup', STR_MISC_IDENTIFIER_REUSE, new Array(
+			{label : STR_NEW, action: function(){document.location = root_url + "ClinicalAnnotation/MiscIdentifiers/add/" + participant_id + "/" + ctrl_id + "/"; return false;}, icon: "add"}, 
+			{label : STR_REUSE, action: function(){document.location = root_url + "ClinicalAnnotation/MiscIdentifiers/reuse/" + participant_id + "/" + ctrl_id + "/"; return false;}, icon: "redo"})
+		);
+		$("#miscIdPopup").popup();
+	}
+	

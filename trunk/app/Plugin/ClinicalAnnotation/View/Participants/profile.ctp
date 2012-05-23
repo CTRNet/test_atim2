@@ -1,8 +1,24 @@
 <?php
 	$identifiers_menu = array();
-	foreach($identifier_controls_list as $identifier_ctrl){
-		$identifiers_menu[$identifier_ctrl['MiscIdentifierControl']['misc_identifier_name']] = '/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$identifier_ctrl['MiscIdentifierControl']['id'];
+// 	foreach($identifier_controls_list as $identifier_ctrl){
+// 		$identifiers_menu[$identifier_ctrl['MiscIdentifierControl']['misc_identifier_name']] = '/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$identifier_ctrl['MiscIdentifierControl']['id'];
+// 	}
+	
+	$link_availability = AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/reuse/');
+	foreach($identifier_controls_list as $option){
+		$identifiers_menu[__($option['MiscIdentifierControl']['misc_identifier_name'], true)] =
+		isset($option['reusable']) && $link_availability ?
+		'javascript:miscIdPopup('.$atim_menu_variables['Participant.id'].' ,'.$option['MiscIdentifierControl']['id'].');' :
+		'/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$option['MiscIdentifierControl']['id'].'/';
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 	if(empty($identifiers_menu)){
 		$identifiers_menu = '/underdev/';
 	}
@@ -68,3 +84,9 @@ if(!$is_ajax){
 	$this->Structures->build( $final_atim_structure, $final_options );	
 
 }
+?>
+<script>
+var STR_MISC_IDENTIFIER_REUSE = "<?php echo __('misc_identifier_reuse'); ?>";
+var STR_NEW = "<?php echo __('new'); ?>";
+var STR_REUSE = "<?php echo __('reuse'); ?>";
+</script>
