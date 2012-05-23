@@ -5,6 +5,8 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("group", "Group", "Groupe"),
+("change group", "Change group", "Changement de groupe"),
 ("this user name is already in use", "This user name is already in use.", "Ce nom d'utilisateur est déjà utilisé."),
 ("multi_entry_form_confirmation_msg",
  "You are about to submit a form with multiple entries. Do you want to continue?",
@@ -2178,5 +2180,19 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 UPDATE event_controls SET flag_use_for_ccl=0 WHERE event_group != 'lab';
 UPDATE event_controls SET flag_use_for_ccl=1 WHERE event_group = 'lab';
+
+INSERT INTO menus (id, parent_id, is_root, display_order, language_title, language_description, use_link, use_summary, flag_active) VALUES
+('core_CAN_41_1_3_6', 'core_CAN_41_1_3', 0, 6, 'change group', '', '/Administrate/AdminUsers/changeGroup/%%Group.id%%/%%User.id%%', '', 1);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("group_select", "", "", "Group::getList");
+INSERT INTO structures(`alias`) VALUES ('group_select');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Group', 'groups', 'id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='group_select') , '0', '', '', '', 'group', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='group_select'), (SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='id' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='group_select')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='group' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'); 
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='id' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='group_select')), 'notEmpty');
+
+
 
 

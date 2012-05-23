@@ -69,5 +69,8 @@ class Group extends AppModel {
 		));
 		return !empty($data);
 	}
+	
+	function getList(){
+		return $this->find('list', array('fields' => array('Group.name'), 'order' => array('Group.name')));
+	}
 }
-?>
