@@ -1028,8 +1028,9 @@ class SampleMastersController extends InventoryManagementAppController {
 					unset($children['AliquotMaster']['storage_coord_y']);
 					$this->AliquotMaster->set($children['AliquotMaster']);
 					$this->AliquotMaster->validates();
-					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-						$errors[$field][$msg][] = $record_counter;
+					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 					}
 					
 					unset($children['AliquotMaster'], $children['FunctionManagement'], $children['AliquotControl'], $children['StorageMaster']);
@@ -1057,9 +1058,10 @@ class SampleMastersController extends InventoryManagementAppController {
 							$validation_model = $this->{$validation_model_name}; 
 							$validation_model->data = array();
 							$validation_model->set($child);
-							if(!$validation_model->validates()){
-								foreach($validation_model->validationErrors as $field => $msg) {
-									$errors[$field][$msg][] = $record_counter;
+							if(!$validation_model->validates()){								
+								foreach($validation_model->validationErrors as $field => $msgs) {
+									$msgs = is_array($msgs)? $msgs : array($msgs);
+									foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 								}
 							}
 							$child = $validation_model->data;
@@ -1114,7 +1116,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						}
 
 						// Save derivative detail
-						$this->DerivativeDetail->id = null;
+						$this->DerivativeDetail->id = $child_id;
 						$child['DerivativeDetail']['sample_master_id'] = $child_id;
 						if(!$this->DerivativeDetail->save($child, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -1171,8 +1173,12 @@ class SampleMastersController extends InventoryManagementAppController {
 				}
 				
 			}else{
-				$this->SampleMaster->validationErrors = array();
-				$this->DerivativeDetail->validationErrors = array();
+				$this->SampleMaster->validationErrors = array();				
+				$this->SampleDetail->validationErrors = array();				
+				$this->DerivativeDetail->validationErrors = array();				
+				$this->AliquotMaster->validationErrors = array();				
+				$this->SourceAliquot->validationErrors = array();				
+				
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
 						$this->SampleMaster->validationErrors[$field][] = __($msg) . ' - ' . str_replace('%s', implode(",", $lines), __('see # %s'));					

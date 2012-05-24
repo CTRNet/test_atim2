@@ -22,7 +22,7 @@ if(isset($this->request->data[0]['parent']['AliquotMaster'])){
 	}
 	
 	//merging parent structures		
-	if(is_array(current($child_structure_to_use['Structure']))){
+	if(!empty($this->request->data[0]['parent']['AliquotControl']['volume_unit'])){
 		//volume structure
 		$sample_info['Structure'] = array_merge(array($sample_info['Structure']), $child_structure_to_use['Structure']);
 		$derivative_structure = $derivative_volume_structure;
