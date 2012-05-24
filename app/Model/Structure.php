@@ -6,8 +6,8 @@ class Structure extends AppModel {
 	var $actsAs = array('Containable');
 
 	var $hasMany = array(
-		'StructureFormat' => array('order' => 'StructureFormat.display_column ASC, StructureFormat.display_order ASC'), 
-		'Sfs' => array('order' => 'Sfs.display_column ASC, Sfs.display_order ASC')
+		'StructureFormat' => array('order' => 'StructureFormat.flag_float DESC', 'StructureFormat.display_column ASC, StructureFormat.display_order ASC'), 
+		'Sfs' => array('order' => 'Sfs.flag_float DESC', 'Sfs.display_column ASC, Sfs.display_order ASC')
 	);
 	
 	private $simple = true;
