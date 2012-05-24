@@ -939,7 +939,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		$children_control_data = $this->SampleControl->findById($this->request->data['SampleMaster']['sample_control_id']);
 		
 		$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
-		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']), 'derivative_structure');
+		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']), 'derivative_structure', array('model_table_assoc' => array('SampleDetail' => $children_control_data['SampleControl']['detail_tablename'])));		
 		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']).",sourcealiquots_volume_for_batchderivative", 'derivative_volume_structure');
 		$this->Structures->set('used_aliq_in_stock_details', 'sourcealiquots');
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'aliquots_volume_structure');
@@ -1092,9 +1092,13 @@ class SampleMastersController extends InventoryManagementAppController {
 				
 				//save
 				$child_ids = array();
+				
 				$this->SampleMaster->addWritableField(array('parent_id', 'sample_control_id', 'collection_id', 'initial_specimen_sample_id', 'initial_specimen_sample_type', 'parent_sample_type'));
+				$this->SampleMaster->addWritableField(array('sample_master_id'), $children_control_data['SampleControl']['detail_tablename']);
+				$this->SampleMaster->addWritableField(array('sample_master_id'), 'derivative_details');				
 				$this->DerivativeDetail->addWritableField(array('sync_with_lab_book', 'lab_book_master_id', 'sample_master_id'));
 				$this->SourceAliquot->addWritableField(array('sample_master_id', 'aliquot_master_id', 'used_volume'));
+				
 				foreach($prev_data as $parent_id => &$children){
 					unset($children['ViewSample']);
 					unset($children['StorageMaster']);
