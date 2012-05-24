@@ -91,8 +91,10 @@
 				'detail' => '/InventoryManagement/AliquotMasters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%',
 				'delete' => '/InventoryManagement/AliquotMasters/delete/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%');
 			
-			$is_first = true;
+			$counter = 0;
+			$nb_of_aliquots = sizeof($aliquots_data);
 			foreach($aliquots_data as $aliquot_control_id => $aliquots){
+				$counter++;
 				$final_atim_structure = $aliquots_structures[$aliquot_control_id];
 				$final_options = array(
 					'type'				=> 'index', 
@@ -101,8 +103,8 @@
 					'data' 				=> $aliquots, 
 					'settings' 			=> array(
 						'language_heading'	=> __($aliquots[0]['AliquotControl']['aliquot_type']),
-						'header'			=> $is_first? __('aliquots', null) : array(),
-						'actions'			=> empty($parent_sample_master_id)? true : false,
+						'header'			=> ($counter == 1)? __('aliquots', null) : array(),
+						'actions'			=> (empty($parent_sample_master_id) && ($counter == $nb_of_aliquots))? true : false,
 						'pagination'		=> false
 					)		
 				);
