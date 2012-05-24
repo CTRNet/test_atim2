@@ -245,6 +245,8 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		$this->Structures->set($structure_name);	
 		if(!$is_from_tree_view) {
+			$this->Structures->set('aliquot_masters', 'aliquot_masters_structure');
+			
 			//parse each group to load the required detailed aliquot structures 
 			$aliquots_structures = array();
 			foreach($aliquots_data as $aliquot_control_id => $aliquots){
@@ -262,7 +264,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		// Get all aliquot control types to build the add to selected button
 		$this->set('allowed_aliquot_type', $this->AliquotControl->getPermissibleAliquotsArray($sample_data['SampleControl']['id']));
 		
-		if(!$is_specimen){
+		if(!$is_specimen && !$is_from_tree_view) {
 			//derivative aliquot source
 			
 			$joins = array(array(
