@@ -32,6 +32,9 @@ class CollectionsController extends InventoryManagementAppController {
 			$limit = 20;
 			$conditions[] = "ViewCollection.participant_id IS NULL";
 			$this->request->data = $this->ViewCollection->find('all', array('conditions' => $conditions, 'limit' => $limit + 1));
+			foreach($this->request->data as &$d){
+				unset($d['Collection']['id']);//to avoid auto selection
+			}
 			if(count($this->request->data) > $limit){
 				unset($this->request->data[$limit]);
 				$this->set("overflow", true);
