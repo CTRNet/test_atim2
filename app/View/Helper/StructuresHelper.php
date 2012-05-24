@@ -1802,7 +1802,8 @@ class StructuresHelper extends Helper {
 											$current['tool'] = $this->Form->input($field_name."_with_file_upload", array_merge($settings, array("type" => "file", "class" => null, "value" => null)));
 										}
 									}else{
-										$current['tool'] = '<a href="'.$this->request->webroot.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))).'" class="tool_popup"></a>';
+										$href = preg_replace("#(\/){2,}#", "/", $this->request->webroot.str_replace( ' ', '_', trim(str_replace( '.', ' ', $setting[1]))));//webroot bug otherwise
+										$current['tool'] = '<a href="'.$href.'" class="tool_popup"></a>';
 									}
 								}else{
 									$settings[$setting[0]] = $setting[1];
