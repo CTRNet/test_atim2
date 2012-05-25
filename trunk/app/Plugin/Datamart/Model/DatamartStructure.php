@@ -24,8 +24,14 @@ class DatamartStructure extends DatamartAppModel {
 		return $result;		
 	}
 	
-	function getModel($id){
+	/**
+	 * Retrieves the model associated to the id
+	 * @param int $id
+	 * @param string $model_name If null, the model defined in the db will be used. If not, $model_name will be. 
+	 * @return AppModel
+	 */
+	function getModel($id, $model_name = null){
 		$d = $this->findById($id);
-		return AppModel::getInstance($d['DatamartStructure']['plugin'], $d['DatamartStructure']['model']);
+		return AppModel::getInstance($d['DatamartStructure']['plugin'], $model_name ?: $d['DatamartStructure']['model']);
 	}
 }

@@ -313,7 +313,43 @@ class BatchSetsController extends DatamartAppController {
 					//create a generic from a generic
 					$this->request->data['BatchSet']['datamart_structure_id'] = $batch_set_tmp['BatchSet']['datamart_structure_id'];
 				}
-			} else {
+			}else if(isset($this->request->params['_data'])){
+				//creation via the "add to tmp batchset button"
+				$data = $this->request->params['_data'];
+				$model_name = key($data[0]);
+				$datamart_structure_id = $this->DatamartStructure->getIdByModelName($model_name);
+				$model = $this->DatamartStructure->getModel($datamart_structure_id, $model_name);
+				$data = AppController::defineArrayKey($data, $model->name, $model->primaryKey, true);
+				$ids = array_keys($data);
+				
+				$this->request->data['BatchSet']['flag_tmp'] = true;
+				$this->request->data['BatchSet']['datamart_structure_id'] = $datamart_structure_id;
+				$this->request->data['BatchSet']['user_id'] = $this->Session->read('Auth.User.id');
+				$this->request->data['BatchSet']['group_id'] = $this->Session->read('Auth.User.group_id');
+				$this->request->data['BatchSet']['sharing_status'] = 'user';
+				$this->BatchSet->addWritableField(array('title', 'user_id', 'group_id', 'sharing_status', 'datamart_structure_id', 'flag_tmp'));
+				$this->BatchSet->save( $this->request->data['BatchSet'] );
+					
+				// get new SET id, and save
+				$target_batch_set_id = $this->BatchSet->getLastInsertId();
+				$ids = array_unique($ids);
+				$ids = array_filter($ids);
+				
+				foreach($ids as $id){
+					// setup ARRAY for ADDING/SAVING
+					$save_array[] = array(
+						'set_id'	=> $target_batch_set_id,
+						'lookup_id'	=> $id
+					);
+				}
+					
+				//saving
+				$this->BatchId->check_writable_fields = false;
+				$this->BatchId->saveAll($save_array);
+				
+				//done
+				$this->redirect('/Datamart/BatchSets/listall/'.$target_batch_set_id);
+			}else{
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			

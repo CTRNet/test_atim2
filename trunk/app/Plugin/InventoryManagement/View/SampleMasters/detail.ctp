@@ -105,13 +105,16 @@
 						'language_heading'	=> __($aliquots[0]['AliquotControl']['aliquot_type']),
 						'header'			=> ($counter == 1)? __('aliquots', null) : array(),
 						'actions'			=> (empty($parent_sample_master_id) && ($counter == $nb_of_aliquots))? true : false,
-						'pagination'		=> false
-					)		
+						'pagination'		=> false,
+						'batchset'			=> array('link' => '/InventoryManagement/SampleMasters/detail/'.$atim_menu_variables['Collection.id'].'/'.$atim_menu_variables['SampleMaster.id'], 'var' => 'aliquots_data', 'ctrl' => $aliquot_control_id)
+					)
 				);
 				$is_first = false;
 				
 				// CUSTOM CODE
-				if($hook_link) require($hook_link); 
+				if($hook_link){
+					require($hook_link); 
+				}
 					
 				// BUILD FORM
 				$this->Structures->build( $final_atim_structure, $final_options );

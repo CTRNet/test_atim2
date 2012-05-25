@@ -5,6 +5,8 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("there is no data to add to a temporary batchset", "There is no data to add to a temporary batchset.", "Il n'y a pas de données à ajouter à un lot de données temporaire."),
+("add to temporary batchset", "Add to temporary batchset", "Ajouter à un lot de données temporaire"),
 ("group", "Group", "Groupe"),
 ("change group", "Change group", "Changement de groupe"),
 ("this user name is already in use", "This user name is already in use.", "Ce nom d'utilisateur est déjà utilisé."),

@@ -93,12 +93,16 @@ class AppController extends Controller {
 		
 		if(isset($this->passedArgs['batchsetVar'])){
 			//batchset handling
-			pr($this->passedArgs);
 			$data = $this->viewVars[$this->passedArgs['batchsetVar']];
+			if(empty($data)){
+				unset($this->passedArgs['batchsetVar']);
+				$this->flash('there is no data to add to a temporary batchset', 'javascript:history.back()');
+				return false;
+			}
 			if(isset($this->passedArgs['batchsetCtrl'])){
 				$data = $data[$this->passedArgs['batchsetCtrl']];
 			}
-			die('d');
+			$this->requestAction('/Datamart/BatchSets/add/0', array('_data' => $data));
 		}
 	}
 	
