@@ -88,7 +88,7 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved','/Order/shipments/listall/'.$order_id.'/' );
+				$this->atimFlash( 'your data has been saved','/Order/Orders/detail/'.$order_id.'/' );
 			}
 		}	
 	}
@@ -178,9 +178,9 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atimDelete( $shipment_id )) {
-				$this->atimFlash('your data has been deleted', '/Order/shipments/listall/'.$order_id);
+				$this->atimFlash('your data has been deleted', '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/shipments/listall/'.$order_id);
+				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/Order/shipments/detail/'.$order_id.'/'.$shipment_id);
