@@ -90,6 +90,16 @@ class AppController extends Controller {
 		//Fix an issue where cakephp 2.0 puts the first loaded model with the key model in the registry.
 		//Causes issues on validation messages
 		ClassRegistry::removeObject('model');
+		
+		if(isset($this->passedArgs['batchsetVar'])){
+			//batchset handling
+			pr($this->passedArgs);
+			$data = $this->viewVars[$this->passedArgs['batchsetVar']];
+			if(isset($this->passedArgs['batchsetCtrl'])){
+				$data = $data[$this->passedArgs['batchsetCtrl']];
+			}
+			die('d');
+		}
 	}
 	
 	function afterFilter(){
@@ -820,12 +830,14 @@ class AppController extends Controller {
 	}
 	
 	function resetPermissions(){
-		$user_model = AppModel::getInstance('', 'User', true);
-		$user = $user_model->findById($this->Session->read('Auth.User.id'));
-		$this->Session->write('Auth.User.group_id', $user['User']['group_id']);
-		$this->Session->write('flag_show_confidential', $user['Group']['flag_show_confidential']);
-		$this->Session->write('permission_timestamp', time());
-		$this->SessionAcl->flushCache();
+		if($this->Auth->user()){
+			$user_model = AppModel::getInstance('', 'User', true);
+			$user = $user_model->findById($this->Session->read('Auth.User.id'));
+			$this->Session->write('Auth.User.group_id', $user['User']['group_id']);
+			$this->Session->write('flag_show_confidential', $user['Group']['flag_show_confidential']);
+			$this->Session->write('permission_timestamp', time());
+			$this->SessionAcl->flushCache();
+		}
 	}
 	
 	function setForRadiolist(array &$list, $l_model, $l_key, array $data, $d_model, $d_key){
