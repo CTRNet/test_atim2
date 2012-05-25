@@ -1137,8 +1137,9 @@ function initActions(){
 	function initFlyOverCells(scope){
 		$(scope).find("table").find("th.floatingCell:last").each(function(){
 			//floaintCells are headers. Make their column float for thead and tbody
-			$(this).parent().find("th.floatingCell").each(function(){
-				$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
+			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
+			$(this).prevAll().each(function(){
+				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>');
 			});
 			initFlyOverCellsLines($(this).parents("table:first"));
 		});
@@ -1154,7 +1155,14 @@ function initActions(){
 		}
 		table.find("th.floatingCell:last").each(function(){
 			//from the last floatingCell index
-			$(scope).find("td:nth-child(" + ($(this).prevAll().length + 1) + ")").each(function(){
+			var prevNodes = $(this).prevAll();
+			var length = prevNodes.length + 1;
+			console.log($(prevNodes[prevNodes.length - 1]));
+			console.log($(prevNodes[prevNodes.length - 1]).attr("colspan"));
+			if(prevNodes.length > 0 && $(prevNodes[prevNodes.length - 1]).attr("colspan") > 1){
+				length += $(prevNodes[prevNodes.length - 1]).attr("colspan") - 1;
+			}
+			$(scope).find("td:nth-child(" + length + ")").each(function(){
 				//for every lines within the scope
 				
 				//apply the rule to self and previous cells

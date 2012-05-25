@@ -50,7 +50,9 @@ class StructuresHelper extends Helper {
 				'section_start'	=> false,
 				'section_end'	=> false,
 					
-				'confirmation_msg'	=> null
+				'confirmation_msg'	=> null,
+				
+				'batchset'		=> null
 			),
 			
 			'links'		=> array(
@@ -1548,26 +1550,28 @@ class StructuresHelper extends Helper {
 		$language_header = '';
 		$language_header_string = "";
 		$language_header_count = 0;
-		if(count($options['links']['checklist'])){
-			$return_string .= '
-				<th class="checkbox">&nbsp;</th>
-			';
-			$column_count ++;
-			$language_header_count ++;
+		$colspan = 0;
+		
+		foreach(array('checklist', 'radiolist', 'index') as $key){
+			if(count($options['links'][$key])){
+				++ $colspan;
+				$column_count ++;
+				$language_header_count ++;
+			}
 		}
-		if(count($options['links']['radiolist'])){
-			$return_string .= '
-					<th class="radiobutton">&nbsp;</th>
-			';
-			$column_count ++;
-			$language_header_count ++;
+		
+		$batchset = '';
+		if($options['settings']['batchset'] && $options['settings']['batchset']['link'] && $options['settings']['batchset']['var'] && AppController::checkLinkPermission('/Datamart/BatchSets/add/')){
+			$link = preg_replace('#(/){2,}#', '/', $this->request->webroot.$options['settings']['batchset']['link'].'/batchsetVar:'.$options['settings']['batchset']['var']);
+			if(isset($options['settings']['batchset']['ctrl'])){
+				$link .= '/batchsetCtrl:'.$options['settings']['batchset']['ctrl'];
+			}
+			$batchset = '<a href="'.$link.'" title="'.__('add to temporary batchset').'"><span class="icon16 batchset"></span></a>';
 		}
-		if(count($options['links']['index'])){
-			$return_string .= '
-					<th class="id">&nbsp;</th>
-			';
-			$column_count ++;
-			$language_header_count ++;
+		
+		if($colspan){
+			$return_string .= $colspan > 1 ? ('<th colspan="'.$colspan.'">'.$batchset.'</th>') : '<th>'.$batchset.'</th>';
+			$batchset = '';
 		}
 		
 		// each column/row in table 
@@ -1619,12 +1623,13 @@ class StructuresHelper extends Helper {
 							if($table_row_part['flag_float']){
 								$return_string .= '
 									<th class="floatingCell">
-								';
+								'.$batchset;
 							}else{
 								$return_string .= '
 									<th>
-								';
+								'.$batchset;
 							}
+							$batchset = '';
 
 							if($table_row_part['heading']){
 								$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>'; 

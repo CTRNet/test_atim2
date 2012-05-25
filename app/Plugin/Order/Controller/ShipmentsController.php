@@ -136,7 +136,6 @@ class ShipmentsController extends OrderAppController {
 	}
   
 	function detail( $order_id=null, $shipment_id=null ) {
-		if (( !$order_id ) || ( !$shipment_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
 		
 		// MANAGE DATA
 		
@@ -145,8 +144,11 @@ class ShipmentsController extends OrderAppController {
 		$this->request->data = $shipment_data;
 		
 		// Shipped items
-		$shipped_items = $this->paginate($this->OrderItem, array('OrderItem.shipment_id'=>$shipment_id));
+		$conditions = array('OrderItem.shipment_id' => $shipment_id);
+		$shipped_items = $this->paginate($this->OrderItem, $conditions);
+		$aliquots_for_batchset = $this->OrderItem->find('all', array('fields' => array('AliquotMaster.id'), 'conditions' => $conditions));
 		$this->set('shipped_items', $shipped_items);
+		$this->set('aliquots_for_batchset', $aliquots_for_batchset);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		

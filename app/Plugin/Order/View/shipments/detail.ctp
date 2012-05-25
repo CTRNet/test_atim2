@@ -8,7 +8,9 @@
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
@@ -29,14 +31,22 @@
 		'delete' => '/Order/shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
 	);
 	
-	$structure_override = array();
-
 	$final_atim_structure = $atim_structure_for_shipped_items; 
-	$final_options = array('type'=>'index', 'data' => $shipped_items, 'links'=>$structure_links, 'override' => $structure_override, 'settings' => array('header' => __('order_shipment items', null)));
+	$final_options = array(
+		'type'		=>'index', 
+		'data'		=> $shipped_items, 
+		'links'		=> $structure_links, 
+		'settings'	=> array(
+			'header'	=> __('order_shipment items', null),
+			'batchset'	=> array('link' => '/Order/Shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'], 'var' => 'aliquots_for_batchset')
+		)
+	);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook('items');
-	if( $hook_link ) { require($hook_link); }
+	if( $hook_link ) { 
+		require($hook_link); 
+	}
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
