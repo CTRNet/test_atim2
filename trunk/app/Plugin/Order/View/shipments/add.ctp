@@ -3,7 +3,7 @@
 $structure_links = array(
 	'top'=>'/Order/shipments/add/'.$atim_menu_variables['Order.id'].'/',
 	'bottom'=>array(
-		'cancel'=>'/Order/shipments/listall/'.$atim_menu_variables['Order.id'].'/',
+		'cancel'=>'/Order/Orders/detail/'.$atim_menu_variables['Order.id'].'/',
 		'manage recipients' => array(
 			'select recipient' => array('icon' => 'detail', 'link' => AppController::checkLinkPermission('/Order/shipments/manageContact') ? 'javascript:manageContacts();' : '/notallowed/'),
 			'save recipient' => array('icon' => 'disk', 'link' => AppController::checkLinkPermission('/Order/shipments/saveContact/') ? 'javascript:saveContact();' : '/notallowed/')
