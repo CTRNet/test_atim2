@@ -393,7 +393,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		if(empty($barcode)) {
 			// Not studied
 		} else if(isset($this->barcodes[$barcode])) {
-			$this->validationErrors['barcode'] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
+			$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
 		} else {
 			$this->barcodes[$barcode] = '';
 		}
@@ -404,7 +404,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		if(!empty($aliquots_having_duplicated_barcode)) {
 			foreach($aliquots_having_duplicated_barcode as $duplicate) {
 				if((!array_key_exists('id', $aliquot_data['AliquotMaster'])) || ($duplicate['AliquotMaster']['id'] != $aliquot_data['AliquotMaster']['id'])) {
-					$this->validationErrors['barcode'] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded'));
+					$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('the barcode [%s] has already been recorded'));
 				}
 			}			
 		}
