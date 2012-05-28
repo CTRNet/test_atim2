@@ -7,7 +7,8 @@ class PermissionsController extends AdministrateAppController {
 		'Aro', 
 		'ExternalLink', 
 		'Group',
-		'Administrate.PermissionsPreset'
+		'Administrate.PermissionsPreset',
+		'Permission'
 	);
 
 	function beforeFilter() {
@@ -142,6 +143,26 @@ class PermissionsController extends AdministrateAppController {
 				}
 			}
 			
+			//check structure functions dependencies
+			$dm_struct_fct_model = AppModel::getInstance('Datamart', 'DatamartStructureFunction');
+			$dependent_fcts = $dm_struct_fct_model->find('all', array('conditions' => array('NOT' => array('DatamartStructureFunction.ref_single_fct_link' => ''))));
+			$aro_str = "Group::".$group_id;
+			$changed = false;
+			$this->Permission->pkey_safeguard = false;
+			$this->Permission->check_writable_fields = false;
+			foreach($dependent_fcts as $dependent_fct){
+				$batch = 'Controller'.$dependent_fct['DatamartStructureFunction']['link'];
+				$unit = 'Controller'.$dependent_fct['DatamartStructureFunction']['ref_single_fct_link'];
+				if(!$this->SessionAcl->check($aro_str, $unit) && $this->SessionAcl->check($aro_str, $batch)){
+					$this->SessionAcl->deny($aro_str, $batch);
+					$changed = true;
+				}
+			}
+			
+			if($changed){
+				AppController::addWarningMsg(__('batch_alter_msg'));
+			}
+			
 			$this->SystemVar->setVar('permission_timestamp', time());
 			Cache::clear(false, "menus");
 			//straight flash because we redirect to the edit screen
@@ -201,7 +222,7 @@ class PermissionsController extends AdministrateAppController {
 	
 	function addPermissionStateToThreadedData( $threaded_data=array() ) {
 		foreach ( $threaded_data as $k=>$v ) {
-			if ( isset($v['Aro'][0]) && isset($v['Aro'][0]['ArosAco']) && isset($v['Aro'][0]['ArosAco']['_create']) ) {
+			if ( isset($v['Aro'][0]) && isset($v['Aro'][0]['ArosAco']) && isset($v['Aro'][0]['ArosAco']['_create']) && $v['Aro'][0]['ArosAco']['_create'] != 0) {
 				$threaded_data[$k]['Aco']['state'] = $v['Aro'][0]['ArosAco']['_create'];
 			}
 			

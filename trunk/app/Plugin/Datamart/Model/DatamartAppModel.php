@@ -41,17 +41,21 @@ class DatamartAppModel extends AppModel {
 		if(count($functions)){
 			$functions_menu = array();
 			foreach($functions as $function){
-				$functions_menu[] = array(
-					'value' 	=> '0',
-					'label' 	=> __($function['DatamartStructureFunction']['label']),
-					'value'	=> $function['DatamartStructureFunction']['link']
+				if(AppController::checkLinkPermission($function['DatamartStructureFunction']['link'])){
+					$functions_menu[] = array(
+						'value' 	=> '0',
+						'label' 	=> __($function['DatamartStructureFunction']['label']),
+						'value'		=> $function['DatamartStructureFunction']['link']
+					);
+				}
+			}
+			if($functions_menu){
+				$result[] = array(
+					'value' => '0',
+					'label' => __('batch actions'),
+					'children' => $functions_menu
 				);
 			}
-			$result[] = array(
-				'value' => '0',
-				'label' => __('batch actions'),
-				'children' => $functions_menu
-			);
 		}
 		$csv_action = 'Datamart/csv/csv/%d/plugin:'.$plugin_name.'/model:'.$model_name.'/modelPkey:'.$model_pkey.'/structure:'.$structure_name.'/';
 		if(strlen($data_model)){

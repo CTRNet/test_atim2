@@ -520,7 +520,6 @@ class AppModel extends Model {
 	}
 	
 	function validates($options = array()){
-		$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
 		if(!$this->_schema){
 			$this->schema();
 		}
@@ -537,8 +536,9 @@ class AppModel extends Model {
 		}
 		$this->setDataAccuracy();
 		
-		if($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
+		if(isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']){
 			//master detail, validate the details part
+			$settings = $this->Behaviors->MasterDetail->__settings[$this->name];
 			$master_class		= $settings['master_class'];
 			$control_foreign 	= $settings['control_foreign'];
 			$control_class 		= $settings['control_class'];

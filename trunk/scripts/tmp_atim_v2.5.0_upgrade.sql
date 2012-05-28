@@ -5,6 +5,12 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("batch_alter_msg", 
+ "Some batch functions permissions were altered based on their unit counterpart.",
+ "Les permissions de certaines fonctions en lot on été altérées étant donné l'était de leur contrepartie unitaire."), 
+("recurrent", "Recurrent", "Récurrent"),
+("collection to creation spent time (min)", "Collection to creation spent time (min)", "Temps écoulé entre la collection et la création (min)"),
+("creation to storage spent time (min)", "Creation to storage spent time (min)", "Temps écoulé entre la création et l'entreposage (min)"),  
 ("there is no data to add to a temporary batchset", "There is no data to add to a temporary batchset.", "Il n'y a pas de données à ajouter à un lot de données temporaire."),
 ("add to temporary batchset", "Add to temporary batchset", "Ajouter à un lot de données temporaire"),
 ("group", "Group", "Groupe"),
@@ -2195,6 +2201,20 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_validations(structure_field_id, rule) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='Group' AND `tablename`='groups' AND `field`='id' AND `type`='select' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='group_select')), 'notEmpty');
 
+UPDATE structure_formats SET flag_override_label=1, language_label='identifier value'
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`=0 AND language_label='identifier value') AND flag_override_label=0; 
+UPDATE structure_formats SET structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`=0 AND language_label='value')
+WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`=0 AND language_label='identifier value');
+DELETE FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`=0 AND language_label='identifier value'; 
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=range file' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE event_controls SET databrowser_label=REPLACE(databrowser_label, '|all|', '|general|');
 
+UPDATE structure_fields SET tablename='treatment_controls' WHERE tablename='tx_controls';
+UPDATE structure_fields SET tablename='shipment_contacts' WHERE tablename='shipments_contacts';
 
+ALTER TABLE datamart_structure_functions
+ ADD COLUMN ref_single_fct_link VARCHAR(200) NOT NULL DEFAULT '';
+UPDATE datamart_structure_functions SET link=CONCAT('/', link) WHERE LOCATE('/', link) != 1;
+UPDATE datamart_structure_functions SET ref_single_fct_link='/ClinicalAnnotation/Participants/edit/' WHERE link='/ClinicalAnnotation/Participants/batchEdit/';
+UPDATE datamart_structure_functions SET ref_single_fct_link='/InventoryManagement/AliquotMasters/edit/' WHERE link='/InventoryManagement/AliquotMasters/editInBatch/';
