@@ -81,40 +81,6 @@ class SessionAclComponent extends AclComponent
     } 
 
     /** 
-     * Grant method. 
-     * 
-     * This method overrides and uses the original 
-     * method. It only adds cache to it. 
-     * 
-     * @param string $aro ARO 
-     * @param string $aco ACO 
-     * @param string $action Action (defaults to *) 
-     * @access public 
-     */ 
-    function grant($aro, $aco, $action = "*") 
-    { 
-        parent::grant($aro, $aco, $action); 
-        $this->__delete($aro, $aco, $action); 
-    } 
-
-    /** 
-     * Revoke method. 
-     * 
-     * This method overrides and uses the original 
-     * method. It only adds cache to it. 
-     * 
-     * @param string $aro ARO 
-     * @param string $aco ACO 
-     * @param string $action Action (defaults to *) 
-     * @access public 
-     */ 
-    function revoke($aro, $aco, $action = "*") 
-    { 
-        parent::revoke($aro, $aco, $action); 
-        $this->__delete($aro, $aco, $action); 
-    } 
-
-    /** 
      * Returns a unique, dot separated path to use as the cache key. Copied from CachedAcl. 
      * 
      * @param string $aro ARO 
@@ -197,7 +163,7 @@ class SessionAclComponent extends AclComponent
       
      /** 
       * Returns an array of booleans for each $aco-$aro pair 
-      */ 
+      */
      function can($aro, $pairs) { 
          $can = array(); 
          $i = 0; 
@@ -207,6 +173,6 @@ class SessionAclComponent extends AclComponent
              $i++; 
          } 
          return $can; 
-     } 
+     }
 } 
 ?>
