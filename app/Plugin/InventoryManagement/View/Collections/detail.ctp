@@ -8,7 +8,9 @@
 	}
 	ksort($add_links);
 	
-	$settings = array('header' => __('collection details'));
+	$settings = array();
+	if($is_ajax) $settings['header'] = __('collection');
+	
 	$bottom_links = array(
 		'edit'						=> '/InventoryManagement/collections/edit/' . $atim_menu_variables['Collection.id'],
 		'delete'					=> '/InventoryManagement/collections/delete/' . $atim_menu_variables['Collection.id'],

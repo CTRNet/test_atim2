@@ -5,7 +5,7 @@
 			.$atim_menu_variables['Collection.id'].'/'
 			.$atim_menu_variables['SampleMaster.id'].'/',
 		'bottom'=>array(
-			'cancel'=>'/InventoryManagement/AliquotMasters/listAllSourceAliquots/'
+			'cancel'=>'/InventoryManagement/SampleMasters/detail/'
 				.$atim_menu_variables['Collection.id'].'/'
 				.$atim_menu_variables['SampleMaster.id'].'/'
 		)
@@ -21,6 +21,7 @@
 		'override' 	=> $structure_override, 
 		'type' 		=> 'editgrid', 
 		'settings'	=> array(
+			'header'		=> __('listall source aliquots'),
 			'pagination' 	=> false,
 			'form_bottom'	=> false,
 			'actions'		=> false,

@@ -1080,7 +1080,6 @@ class SampleMastersController extends InventoryManagementAppController {
 				}
 			}
 			$this->SourceAliquot->validationErrors = null;
-			$this->AliquotMaster->addWritableField(array('storage_master_id','storage_coord_x', 'storage_coord_y', 'current_volume', 'sample_master_id'));
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
@@ -1151,7 +1150,11 @@ class SampleMastersController extends InventoryManagementAppController {
 						$aliquot['AliquotMaster']['storage_master_id'] = null;
 						$aliquot['AliquotMaster']['storage_coord_x'] = null;
 						$aliquot['AliquotMaster']['storage_coord_y'] = null;
-					}
+						$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					} else {
+						$this->AliquotMaster->removeWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					}								
+					$this->AliquotMaster->id = $aliquot['AliquotMaster']['id'];
 					$this->AliquotMaster->save($aliquot, false);
 					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot['AliquotMaster']['id'], true, true, false);
 				}
@@ -1191,10 +1194,6 @@ class SampleMastersController extends InventoryManagementAppController {
 					} 
 				}
 			}
-		}
-		
-		if(isset($this->request->data[0]['parent']['AliquotMaster']) && empty($this->request->data[0]['parent']['AliquotControl']['volume_unit'])){
-			 $this->Structures->set('sourcealiquots', 'sourcealiquots');//overwrite, we do not need the volume
 		}
 	}
 	
