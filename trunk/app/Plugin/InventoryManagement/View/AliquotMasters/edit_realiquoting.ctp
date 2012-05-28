@@ -8,6 +8,7 @@ $final_atim_structure = $atim_structure;
 $final_options =  array(
 	'type'		=> 'edit', 
 	'links'		=> $structure_links,
+	'settings'	=> array('header' => __('realiquoted parent'))
 );
 
 // CUSTOM CODE

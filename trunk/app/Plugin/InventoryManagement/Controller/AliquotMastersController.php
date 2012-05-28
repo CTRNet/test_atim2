@@ -1031,8 +1031,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/SampleMasters/listAllDerivatives/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%'));	
-		
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%'));	
+	
 		// Get the current menu object.
 		$this->set( 'atim_menu_variables', 
 			array('Collection.id' => $sample_data['SampleMaster']['collection_id'], 
@@ -1149,9 +1149,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else {
 				// Launch save process
 				// Parse records to save
-				$this->AliquotMaster->addWritableField('current_volume');
+				
+				$this->AliquotMaster->writable_fields_mode = 'editgrid';
+				
 				$this->SourceAliquot->addWritableField(array('aliquot_master_id', 'sample_master_id'));
-				$this->SourceAliquot->writable_fields_mode = 'addgrid';
+				$this->SourceAliquot->writable_fields_mode = 'editgrid';
+				
 				foreach($aliquots_defined_as_source_pointers as $source_aliquot_pointer) {
 					// Get Source Aliquot Master Id
 					$aliquot_master_id = $source_aliquot_pointer['AliquotMaster']['id'];
@@ -1201,8 +1204,67 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 	}
 	
-	function deleteSourceAliquot($sample_master_id, $aliquot_master_id, $source) {
-		if((!$sample_master_id) || (!$aliquot_master_id) || (!$source)) { $this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
+	function editSourceAliquot($sample_master_id, $aliquot_master_id){
+		// Get the realiquoting data
+		$source_data = $this->SourceAliquot->find('first', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id, 'SourceAliquot.aliquot_master_id' => $aliquot_master_id)));
+		if(empty($source_data)) {
+			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		$source_data['AliquotControl'] = $this->AliquotControl->getOrRedirect($source_data['AliquotMaster']['aliquot_control_id']);
+		$source_data['AliquotControl'] = $source_data['AliquotControl']['AliquotControl'];
+	
+		$flash_url = '/InventoryManagement/SampleMasters/detail/' . $source_data['SampleMaster']['collection_id'] . '/' . $source_data['SampleMaster']['id'];
+		
+		$show_submit_button = true;
+		if(empty($source_data['AliquotControl']['volume_unit'])) {
+			$this->Structures->set('sourcealiquots');
+			$show_submit_button = false; //To allow custom code to display page
+		} else {
+			$this->Structures->set('sourcealiquots,sourcealiquots_volume');
+		}
+		$this->set('show_submit_button', $show_submit_button);
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
+		if(!$show_submit_button) AppController::addWarningMsg(__('no source aliquot data has to be updated'));
+		
+		if($this->request->data){		
+			$this->SourceAliquot->id = $source_data['SourceAliquot']['id'];
+			$this->SourceAliquot->data = array();
+			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+			
+			if($this->SourceAliquot->save($this->request->data)){
+				$this->AliquotMaster->updateAliquotUseAndVolume($source_data['AliquotMaster']['id'], true, false, false);
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}				
+				
+				$this->atimFlash('your data has been saved', '/InventoryManagement/SampleMasters/detail/'.$source_data['SampleMaster']['collection_id'].'/'.$source_data['SampleMaster']['id']);
+			}
+		}else{
+			$this->request->data = $source_data;
+		}
+		
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/SampleMasters/detail/%%Collection.id%%/%%SampleMaster.id%%'));
+		$this->set('atim_menu_variables', array(
+				'Collection.id' => $source_data['SampleMaster']['collection_id'],
+				'SampleMaster.id' => $source_data['SampleMaster']['id'],
+				'SampleMaster.initial_specimen_sample_id' => $source_data['SampleMaster']['initial_specimen_sample_id'],
+				'AliquotMaster.id' => $source_data['AliquotMaster']['id'])
+		);
+	}
+	
+	function deleteSourceAliquot($sample_master_id, $aliquot_master_id) {
+		if((!$sample_master_id) || (!$aliquot_master_id)) { $this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); }	
 
  		// MANAGE DATA
 		
@@ -1212,19 +1274,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}				
 			
-		$flash_url = '';
-		switch($source) {
-			case 'aliquot_source':
-				$flash_url = '/InventoryManagement/AliquotMasters/detail/' . $source_data['AliquotMaster']['collection_id'] . '/' . $source_data['AliquotMaster']['sample_master_id'] . '/' . $source_data['AliquotMaster']['id'];
-				break;
-			case 'sample_derivative':
-				$flash_url = '/InventoryManagement/SampleMasters/detail/' . $source_data['SampleMaster']['collection_id'] . '/' . $source_data['SampleMaster']['id'];
-				break;
-			default:
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		
-		
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { 
 			require($hook_link); 
@@ -1239,6 +1288,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$deletion_done = $this->AliquotMaster->updateAliquotUseAndVolume($source_data['AliquotMaster']['id'], true, true);
 		}
 		
+		$flash_url = '/InventoryManagement/SampleMasters/detail/' . $source_data['SampleMaster']['collection_id'] . '/' . $source_data['SampleMaster']['id'];
 		if($deletion_done) {
 			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
@@ -2189,12 +2239,29 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$data['AliquotControl'] = $data['AliquotControl']['AliquotControl'];
 	
 		$this->Structures->set(empty($data['AliquotControl']['volume_unit'])? 'realiquotedparent': 'realiquotedparent,realiquotedparent_vol');
-	
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		if($this->request->data){
 			$this->Realiquoting->id = $realiquoting_id;
 			$this->Realiquoting->data = array();
+			
+			$hook_link = $this->hook('presave_process');
+			if($hook_link){
+				require($hook_link);
+			}
+			
 			if($this->Realiquoting->save($this->request->data)){
 				$this->AliquotMaster->updateAliquotUseAndVolume($data['AliquotMaster']['id'], true, false, false);
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
 				$this->atimFlash('your data has been saved', '/InventoryManagement/AliquotMasters/detail/'.$data['AliquotMasterChildren']['collection_id'].'/'.$data['AliquotMasterChildren']['sample_master_id'].'/'.$data['AliquotMasterChildren']['id']);
 			}
 		}else{
