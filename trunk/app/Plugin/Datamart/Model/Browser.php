@@ -92,7 +92,7 @@ class Browser extends DatamartAppModel {
 				}
 			}
 			$browsing_structures = $tmp_arr;
-			$rez = Browser::buildBrowsableOptions($options, array(), $starting_ctrl_id, $browsing_structures, $sub_models_id_filter);
+			$rez = Browser::buildBrowsableOptions($options, $starting_ctrl_id, $browsing_structures, $sub_models_id_filter);
 			$sorted_rez = array();
 			if($rez != null){
 				foreach($rez['children'] as $k => $v){
@@ -173,16 +173,7 @@ class Browser extends DatamartAppModel {
 		return $result;
 	}
 	
-	/**
-	 * Builds the browsable part of the array for action menu
-	 * @param array $from_to An array containing the possible destinations for each keys
-	 * @param array $stack An array of the elements already fetched by the current recursion
-	 * @param Int $current_id The current not control id
-	 * @param array $browsing_structures An array containing data about all available browsing structures. Used to get the displayed value
-	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id 
-	 * @return An array representing the browsable portion of the action menu
-	 */
-	function buildBrowsableOptions(array $from_to, array $stack, $current_id, array $browsing_structures, array $sub_models_id_filter = null){
+	function buildBrowsableOptionsRecur(array $from_to, $current_id, array $browsing_structures, array $sub_models_id_filter = null, array $stack){
 		$result = null;
 		if(isset($from_to[$current_id]) && isset($browsing_structures[$current_id])){
 			$result = array();
@@ -194,45 +185,94 @@ class Browser extends DatamartAppModel {
 			$result['value'] = implode(self::$model_separator_str, $stack);
 			array_unshift($stack, $tmp);
 			if(count($stack) > 1){
-				$result['children'] = array(
-								array(
-									'value' => $result['value'],
-									'label' => __('filter')),
-								array(
-									'value' => $result['value']."/true/",
-									'label' => __('no filter'))
-								);
-				$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
-				if($control_name = $browsing_model->getControlName()){
-					$id_filter = isset($sub_models_id_filter[$control_name]) ? $sub_models_id_filter[$control_name] : null;
-					$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
-				}
+				$this->buildItemOptions($result, $browsing_structures, $current_id, $sub_models_id_filter);
 			}
-			foreach($to_arr as $to){
-				if(Browser::$hierarchical_dropdown){
-					$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
+			if(Browser::$hierarchical_dropdown){
+				foreach($to_arr as $to){
+					$tmp_result = $this->buildBrowsableOptions($from_to, $to, $browsing_structures, $sub_models_id_filter, $stack);
 					if($tmp_result != null){
-						$result['children'][] = $tmp_result;
-					} 
-				}else{
-					$tmp_result = $this->buildBrowsableOptions($from_to, $stack, $to, $browsing_structures, $sub_models_id_filter);
-					if($tmp_result != null){
-						if(isset($tmp_result['children'])){
-							foreach($tmp_result['children'] as $key => $child){
-								if(isset($child['children'])){
-									$result['children'][] = $child;
-									unset($tmp_result['children'][$key]);
-								}
-							}
-						}
 						$result['children'][] = $tmp_result;
 					}
 				}
+				array_pop($stack);
 			}
-			array_pop($stack); 
 		}
 		return $result;
 	}
+	
+	/**
+	 * Builds the browsable part of the array for action menu
+	 * @param array $from_to An array containing the possible destinations for each keys
+	 * @param Int $current_id The current not control id
+	 * @param array $browsing_structures An array containing data about all available browsing structures. Used to get the displayed value
+	 * @param array $sub_models_id_filter An array with ControlModel => array(ids) to filter the sub models id 
+	 * @return An array representing the browsable portion of the action menu
+	 */
+	function buildBrowsableOptions(array $from_to, $current_id, array $browsing_structures, array $sub_models_id_filter = null){
+		if(Browser::$hierarchical_dropdown){
+			return $this->buildBrowsableOptionsRecur($from_to, $current_id, $browsing_structures, $sub_models_id_filter, array());
+		}
+		
+		$result = null;
+		if(isset($from_to[$current_id]) && isset($browsing_structures[$current_id])){
+			$to_arr = $from_to[$current_id];
+			foreach($to_arr as &$to){
+				$to = array(
+					'path'	=> array(),
+					'val'	=> $to	
+				);
+			}
+			unset($to);
+			$stack = array();
+			$stack[$current_id] = null;
+			while($to_arr){
+				$next_to_arr = array();
+				foreach($to_arr as $to){
+					$to_val = $to['val'];
+					$to_path = $to['path'];
+					$to_path[] = $to_val;
+					if(array_key_exists($to_val, $stack)){
+						//already treated that
+						continue;
+					}
+					$stack[$to_val] = null;
+					$tmp_result = array(
+						'label' => __($browsing_structures[$to_val]['display_name']),
+						'style'	=> $browsing_structures[$to_val]['display_name'],
+						'value'	=> implode(self::$model_separator_str, $to_path)
+					);
+					$this->buildItemOptions($tmp_result, $browsing_structures, $to_val, $sub_models_id_filter);
+					$result[] = $tmp_result;
+					
+					foreach($from_to[$to_val] as $next){
+						$next_to_arr[] = array(
+							'path'	=> $to_path,
+							'val'	=> $next
+						);
+					}
+				}
+				$to_arr = $next_to_arr;
+			}
+			$result['children'] = $result;
+		}
+		return $result;
+	}
+	
+	function buildItemOptions(array &$result, array &$browsing_structures, &$current_id, array &$sub_models_id_filter){
+		$result['children'] = array(
+			array(
+				'value' => $result['value'],
+				'label' => __('filter')),
+			array(
+				'value' => $result['value']."/true/",
+				'label' => __('no filter'))
+		);
+		$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
+		if($control_name = $browsing_model->getControlName()){
+			$id_filter = isset($sub_models_id_filter[$control_name]) ? $sub_models_id_filter[$control_name] : null;
+			$result['children'] = array_merge($result['children'], self::getSubModels(array("DatamartStructure" => $browsing_structures[$current_id]), $result['value'], $id_filter));
+		}
+	} 
 	
 	/**
 	 * @param array $main_model_info A DatamartStructure model data array of the node to fetch the submodels of

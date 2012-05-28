@@ -455,7 +455,7 @@ INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, c
 
 
 DROP VIEW view_collections;
-CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
+CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`col`.`treatment_master_id` AS `treatment_master_id`,`col`.`event_master_id` AS `event_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
 left join `participants` `part` on `col`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
 left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 where `col`.`deleted` <> 1;
 
@@ -1384,6 +1384,8 @@ ALTER TABLE view_collections
  ADD KEY(participant_id),
  ADD KEY(diagnosis_master_id),
  ADD KEY(consent_master_id),
+ ADD KEY(treatment_master_id),
+ ADD KEY(event_master_id),
  ADD KEY(participant_identifier),
  ADD KEY(acquisition_label),
  ADD KEY(collection_site),
@@ -2218,3 +2220,11 @@ ALTER TABLE datamart_structure_functions
 UPDATE datamart_structure_functions SET link=CONCAT('/', link) WHERE LOCATE('/', link) != 1;
 UPDATE datamart_structure_functions SET ref_single_fct_link='/ClinicalAnnotation/Participants/edit/' WHERE link='/ClinicalAnnotation/Participants/batchEdit/';
 UPDATE datamart_structure_functions SET ref_single_fct_link='/InventoryManagement/AliquotMasters/edit/' WHERE link='/InventoryManagement/AliquotMasters/editInBatch/';
+
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
+((SELECT id FROM datamart_structures WHERE model='ViewCollection'), (SELECT id FROM datamart_structures WHERE model='DiagnosisMaster'), 1, 1, 'diagnosis_master_id'),
+((SELECT id FROM datamart_structures WHERE model='ViewCollection'), (SELECT id FROM datamart_structures WHERE model='EventMaster'), 1, 1, 'event_master_id'),
+((SELECT id FROM datamart_structures WHERE model='ViewCollection'), (SELECT id FROM datamart_structures WHERE model='ConsentMaster'), 1, 1, 'consent_master_id'),
+((SELECT id FROM datamart_structures WHERE model='ViewCollection'), (SELECT id FROM datamart_structures WHERE model='TreatmentMaster'), 1, 1, 'treatment_master_id'),
+((SELECT id FROM datamart_structures WHERE model='DiagnosisMaster'), (SELECT id FROM datamart_structures WHERE model='TreatmentMaster'), 1, 1, 'diagnosis_master_id'),
+((SELECT id FROM datamart_structures WHERE model='DiagnosisMaster'), (SELECT id FROM datamart_structures WHERE model='EventMaster'), 1, 1, 'event_master_id');
