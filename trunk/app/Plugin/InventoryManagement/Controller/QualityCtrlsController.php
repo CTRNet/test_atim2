@@ -164,12 +164,14 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$sample_data = null;
 			$aliquot_data = null;
 			$remove_from_storage = null;
-			$line = 0;
+			$record_counter = 0;
 			$errors = array();
 			$aliquot_data_to_save = array();
 			$qc_data_to_save = array();
 			
 			foreach($this->request->data as $key => $data_unit){
+				$record_counter++;
+				
 				//validate
 				$studied_sample_master_id = null;
 				$sample_data = $data_unit['ViewSample'];
@@ -203,8 +205,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					unset($aliquot_data['AliquotMaster']['storage_coord_y']);
 					$this->AliquotMaster->set($aliquot_data);
 					if(!$this->AliquotMaster->validates()){
-						foreach($this->AliquotMaster->validationErrors as $field => $error_msg){
-							$errors[$field] = $error_msg;
+						foreach($this->AliquotMaster->validationErrors as $field => $msgs){						
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 						}
 					}
 					
@@ -231,15 +234,15 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				}
 				
 				if(empty($data_unit)){
-					$errors[] = 'at least one quality control has to be created for each item';
+					$errors['']['at least one quality control has to be created for each item'][] = $record_counter;
 				}else{
 					foreach($data_unit as $quality_control){
 						$this->QualityCtrl->data = null;
 						$this->QualityCtrl->set($quality_control);
 						if(!$this->QualityCtrl->validates()){
-							foreach($this->QualityCtrl->validationErrors as $field => $error_msg){
-								++ $line;
-								$errors[$field] = $error_msg . " ".__('line').": ".$line;
+							foreach($this->QualityCtrl->validationErrors as $field => $msgs){
+								$msgs = is_array($msgs)? $msgs : array($msgs);
+								foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 							}
 						}
 						$quality_control = $this->QualityCtrl->data; 
@@ -250,6 +253,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				}
 			}
 	
+			$is_batch_process = ($record_counter > 1)? true : false;
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -300,8 +305,23 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				
 				$this->atimFlash( 'your data has been saved', $target);
 				return;
+			
 			}else{
-				$this->QualityCtrl->validationErrors = $errors;
+				$this->AliquotMaster->validationErrors = array();
+				$this->QualityCtrl->validationErrors = array();
+				if(!empty($errors)) {
+					foreach($errors as $field => $msg_and_lines) {
+						foreach($msg_and_lines as $msg => $lines) {
+							$msg = __($msg);
+							$lines_strg = implode(",", array_unique($lines));
+							if(!empty($lines_strg) && $is_batch_process) {
+								$msg .= ' - ' . str_replace('%s', $lines_strg, __('see # %s'));
+							}
+							$this->QualityCtrl->validationErrors[$field][] = $msg;
+						}
+					}
+				}
+				
 				$this->request->data = $display_data;
 			}
 		}else{

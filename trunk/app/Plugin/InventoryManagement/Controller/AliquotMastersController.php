@@ -305,10 +305,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$aliquot['AliquotMaster']['aliquot_control_id'] = $aliquot_control['AliquotControl']['id'];
 					
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
-					$this->AliquotMaster->set($aliquot);
+					$this->AliquotMaster->set($aliquot);				
 					if(!$this->AliquotMaster->validates()){
-						foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-								$errors[$field][is_array($msg) ? $msg[0] : $msg][] = ($is_batch_process? $record_counter : $line_counter);
+						foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg) $errors[$field][$msg][] = ($is_batch_process? $record_counter : $line_counter);
 						}
 					}
 					
@@ -386,6 +387,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 			}else{
 				$this->AliquotMaster->validationErrors = array();
+				$this->AliquotDetail->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
 						$msg = __($msg);
@@ -1665,8 +1667,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 						$this->AliquotMaster->set($child);
 						if(!$this->AliquotMaster->validates()){
-							foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-								$errors[$field][$msg][] = $record_counter;
+							foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+								$msgs = is_array($msgs)? $msgs : array($msgs);
+								foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 							}
 						}
 						// Reset data to get position data
@@ -1675,8 +1678,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 						// ** Realiquoting **					
 						$this->Realiquoting->set(array('Realiquoting' =>  $child['Realiquoting']));
 						if(!$this->Realiquoting->validates()){
-							foreach($this->Realiquoting->validationErrors as $field => $msg) {
-								$errors[$field][$msg][] = $record_counter;
+							foreach($this->Realiquoting->validationErrors as $field => $msgs) {
+								$msgs = is_array($msgs)? $msgs : array($msgs);
+								foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 							}
 						}
 						$child['Realiquoting'] = $this->Realiquoting->data['Realiquoting'];
@@ -1819,6 +1823,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 			} else {
 				$this->AliquotMaster->validationErrors = array();
+				$this->AliquotDetail->validationErrors = array();
 				$this->Realiquoting->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
@@ -1992,7 +1997,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$msg = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)').': ['.implode(",", $tmp_barcode).']';
 				
 				if(empty($this->request->data)) {
-					$this->flash($msg, $url_to_cancel);
+					$this->flash($msg, "javascript:history.back()", 5);
 					return;
 				} else {
 					AppController::addWarningMsg($msg);
@@ -2068,8 +2073,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 							
 							$this->Realiquoting->set(array('Realiquoting' => $children_aliquot['Realiquoting']));
 							if(!$this->Realiquoting->validates()){
-								foreach($this->Realiquoting->validationErrors as $field => $msg) {
-									$errors[$field][$msg][] = $record_counter;
+								foreach($this->Realiquoting->validationErrors as $field => $msgs) {
+									$msgs = is_array($msgs)? $msgs : array($msgs);
+									foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 								}
 							}
 							$children_aliquot['Realiquoting'] = $this->Realiquoting->data['Realiquoting']; 
@@ -2182,6 +2188,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else {
 				// Errors have been detected => rebuild form data
 				$this->AliquotMaster->validationErrors = array();
+				$this->AliquotDetail->validationErrors = array();
 				$this->Realiquoting->validationErrors = array();
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
