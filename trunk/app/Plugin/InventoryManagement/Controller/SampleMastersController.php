@@ -452,7 +452,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				$this->DerivativeDetail->addWritableField('lab_book_master_id');
 				
 				if(strlen($msg) > 0){
-					$this->DerivativeDetail->validationErrors['lab_book_master_code'] = $msg;
+					$this->DerivativeDetail->validationErrors['lab_book_master_code'][] = $msg;
 					$submitted_data_validates = false;
 				}
 			}
@@ -643,7 +643,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				if(array_key_exists('sync_with_lab_book_now', $this->request->data)){
 					$msg = $this->SampleMaster->validateLabBook($this->request->data, $lab_book, $lab_book_ctrl_id, $this->request->data[0]['sync_with_lab_book_now']);
 					if(strlen($msg) > 0){
-						$this->DerivativeDetail->validationErrors['lab_book_master_code'] = $msg;
+						$this->DerivativeDetail->validationErrors['lab_book_master_code'][]  = $msg;
 						$submitted_data_validates = false;
 					}
 				}

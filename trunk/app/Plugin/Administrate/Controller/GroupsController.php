@@ -43,7 +43,7 @@ class GroupsController extends AdministrateAppController {
 					$this->flash('The Group could not be saved. Please, try again.', '/Administrate/Groups/add/');
 				}
 			}else{
-				$this->Group->validationErrors['name'] = 'this name is already in use';
+				$this->Group->validationErrors['name'][] = 'this name is already in use';
 			}
 		}
 	}

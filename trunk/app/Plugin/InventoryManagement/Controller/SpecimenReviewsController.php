@@ -37,7 +37,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		$review_controls = $this->SpecimenReviewControl->find('all', array('conditions'=>array('SpecimenReviewControl.sample_control_id' => $sample_data['SampleMaster']['sample_control_id'], 'SpecimenReviewControl.flag_active' => '1' )));
 		$this->set( 'review_controls', $review_controls );
 		if(empty($review_controls)) { 
-			$this->SpecimenReviewControl->validationErrors[]	= 'no path review exists for this type of sample'; 
+			$this->SpecimenReviewControl->validationErrors[][]	= 'no path review exists for this type of sample'; 
 		}
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -161,7 +161,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if(!empty($all_aliquot_review_master_errors)) {
 					$this->AliquotReviewMaster->validationErrors = array();
 					foreach($all_aliquot_review_master_errors as $field => $error_message) {
-						$this->AliquotReviewMaster->validationErrors[$field] = $error_message;					
+						$this->AliquotReviewMaster->validationErrors[$field][]  = $error_message;					
 					}
 				}
 			}
@@ -391,7 +391,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if(!empty($all_aliquot_review_master_errors)) {
 					$this->AliquotReviewMaster->validationErrors = array();
 					foreach($all_aliquot_review_master_errors as $field => $error_message) {
-						$this->AliquotReviewMaster->validationErrors[$field] = $error_message;					
+						$this->AliquotReviewMaster->validationErrors[$field][]  = $error_message;					
 					}
 				}			
 			}

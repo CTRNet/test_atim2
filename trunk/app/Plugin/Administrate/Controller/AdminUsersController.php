@@ -39,7 +39,7 @@ class AdminUsersController extends AdministrateAppController {
 			if(!empty($this->request->data)){
 				$tmp_data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username']))); 
 				if(!empty($tmp_data)){
-					$this->User->validationErrors[] = __('this user name is already in use');
+					$this->User->validationErrors[][] = __('this user name is already in use');
 				}
 				
 				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);

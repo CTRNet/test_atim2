@@ -115,7 +115,7 @@ class Collection extends InventoryManagementAppModel {
 				$model = AppModel::getInstance('ClinicalAnnotation', $model_name, true);
 				$model_data = $model->getOrRedirect($this->data['Collection'][$model_key]);
 				if(empty($model_data) || $model_data[$model_name]['participant_id'] != $this->data['Collection']['participant_id']){
-					$this->validationErrors[] = 'ERROR: data owned by another partcipant for model ['.$model_name.']';
+					$this->validationErrors[][] = 'ERROR: data owned by another partcipant for model ['.$model_name.']';
 				}
 			}
 		}

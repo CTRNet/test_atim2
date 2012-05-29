@@ -54,13 +54,13 @@ class TmaSlide extends StorageLayoutAppModel {
 			
 			// Set error
 			if(!empty($arr_storage_selection_results['storage_definition_error'])){
-				$this->validationErrors['recorded_storage_selection_label'] = $arr_storage_selection_results['storage_definition_error'];
+				$this->validationErrors['recorded_storage_selection_label'][] = $arr_storage_selection_results['storage_definition_error'];
 			}
 			if(!empty($arr_storage_selection_results['position_x_error'])){
-				$this->validationErrors['storage_coord_x'] = $arr_storage_selection_results['position_x_error'];
+				$this->validationErrors['storage_coord_x'][] = $arr_storage_selection_results['position_x_error'];
 			}
 			if(!empty($arr_storage_selection_results['position_y_error'])){
-				$this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
+				$this->validationErrors['storage_coord_y'][] = $arr_storage_selection_results['position_y_error'];
 			}
 			
 			if(empty($this->validationErrors['recorded_storage_selection_label'])
@@ -94,7 +94,7 @@ class TmaSlide extends StorageLayoutAppModel {
 					if($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1){
 						AppController::addWarningMsg($msg);
 					}else{
-						$this->validationErrors['parent_storage_coord_x'] = $msg;
+						$this->validationErrors['parent_storage_coord_x'][] = $msg;
 					}
 				}
 			}
@@ -113,7 +113,7 @@ class TmaSlide extends StorageLayoutAppModel {
 		if(!empty($slides_having_duplicated_barcode)) {
 			foreach($slides_having_duplicated_barcode as $duplicate) {
 				if((!array_key_exists('id', $tma_slide_data['TmaSlide'])) || ($duplicate['TmaSlide']['id'] != $tma_slide_data['TmaSlide']['id'])) {
-					$this->validationErrors['barcode'] = 'barcode must be unique';
+					$this->validationErrors['barcode'][] = 'barcode must be unique';
 				}
 				
 			}			

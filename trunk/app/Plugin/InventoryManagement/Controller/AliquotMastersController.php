@@ -926,7 +926,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if((!empty($this->request->data['AliquotInternalUse']['used_volume'])) && empty($use_data['AliquotControl']['volume_unit'])) {
 				// No volume has to be recored for this aliquot type				
-				$this->AliquotInternalUse->validationErrors['used_volume'] = 'no volume has to be recorded for this aliquot type';	
+				$this->AliquotInternalUse->validationErrors['used_volume'][] = 'no volume has to be recorded for this aliquot type';	
 				$submitted_data_validates = false;			
 			} else if(empty($this->request->data['AliquotInternalUse']['used_volume'])) {
 				// Change '0' to null
@@ -1128,7 +1128,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 			
 			if(empty($aliquots_defined_as_source_pointers)) { 
-				$this->SourceAliquot->validationErrors['use'] = 'no aliquot has been defined as source aliquot';	
+				$this->SourceAliquot->validationErrors['use'][] = 'no aliquot has been defined as source aliquot';	
 				$submitted_data_validates = false;			
 			}
 
@@ -2433,7 +2433,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$batch_set_model->saveWithIds($batch_set_data, $aliquot_ids);
 					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				}else{
-					$this->AliquotMaster->validationErrors[] = 'you need to at least update a value';
+					$this->AliquotMaster->validationErrors[][] = 'you need to at least update a value';
 					$this->request->data['ViewAliquot']['aliquot_master_id'] = $aliquot_ids;
 					$this->set('cancel_link', $this->request->data['cancel_link']);
 				}

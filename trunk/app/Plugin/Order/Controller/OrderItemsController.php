@@ -96,7 +96,7 @@ class OrderItemsController extends OrderAppController {
 			// Check aliquot exists
 			$aliquot_data = $this->AliquotMaster->find('first', array('conditions' => array('AliquotMaster.barcode' => $this->request->data['AliquotMaster']['barcode']), 'recursive' => '-1'));
 			if(empty($aliquot_data)) {
-				$this->AliquotMaster->validationErrors['barcode'] = 'barcode is required and should exist';
+				$this->AliquotMaster->validationErrors['barcode'][] = 'barcode is required and should exist';
 				$submitted_data_validates = false;
 			}
 			
@@ -104,7 +104,7 @@ class OrderItemsController extends OrderAppController {
 			if($submitted_data_validates) {
 				$is_aliquot_into_order = $this->OrderItem->find('count', array('conditions' => array('OrderItem.aliquot_master_id' => $aliquot_data['AliquotMaster']['id']), 'recursive' => '-1'));
 				if($is_aliquot_into_order)	{
-					$this->AliquotMaster->validationErrors['barcode'] = 'an aliquot can only be added once to an order';
+					$this->AliquotMaster->validationErrors['barcode'][] = 'an aliquot can only be added once to an order';
 					$submitted_data_validates = false;					
 				}	
 			}
@@ -320,7 +320,7 @@ class OrderItemsController extends OrderAppController {
 			}
 			if(empty($selected_order_line_data)) {
 				$submitted_data_validates = false;
-				$this->OrderItem->validationErrors[] = __("invalid order line");
+				$this->OrderItem->validationErrors[][] = __("invalid order line");
 			}
 			$order_id = $selected_order_line_data['OrderLine']['order_id'];		
 			
@@ -448,9 +448,9 @@ class OrderItemsController extends OrderAppController {
 					foreach($field_messages as $field => $messages) {
 						foreach($messages as $message => $tmp) {
 							if(!array_key_exists($field, $this->{$model}->validationErrors)) {
-								$this->{$model}->validationErrors[$field] = $message;
+								$this->{$model}->validationErrors[$field][] = $message;
 							} else {
-								$this->{$model}->validationErrors[] = $message;
+								$this->{$model}->validationErrors[][] = $message;
 							}
 						}
 					}

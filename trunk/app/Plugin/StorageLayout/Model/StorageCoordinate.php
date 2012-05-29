@@ -61,7 +61,7 @@ class StorageCoordinate extends StorageLayoutAppModel {
 		}
 
 		// The value already exists: Set the errors
-		$this->StorageCoordinate->validationErrors['coordinate_value']	= 'coordinate must be unique for the storage';
+		$this->StorageCoordinate->validationErrors['coordinate_value'][]	= 'coordinate must be unique for the storage';
 
 		return true;		
 	}
@@ -86,7 +86,7 @@ class StorageCoordinate extends StorageLayoutAppModel {
 		}
 
 		// The value already exists: Set the errors
-		$this->StorageCoordinate->validationErrors['order']	= 'coordinate order must be unique for the storage';
+		$this->StorageCoordinate->validationErrors['order'][]	= 'coordinate order must be unique for the storage';
 
 		return true;		
 	}	
