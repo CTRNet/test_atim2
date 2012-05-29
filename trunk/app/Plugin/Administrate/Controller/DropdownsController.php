@@ -111,8 +111,9 @@ class DropdownsController extends AdministrateAppController {
 				$data_unit['StructurePermissibleValuesCustom']['control_id'] = $control_id;
 				$this->StructurePermissibleValuesCustom->set($data_unit);
 				if(!$this->StructurePermissibleValuesCustom->validates()){
-					foreach($this->StructurePermissibleValuesCustom->validationErrors as $field => $msg) {
-						$errors_tracking[$field][$msg][] = $row_counter;
+					foreach($this->StructurePermissibleValuesCustom->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg)$errors_tracking[$field][$msg][] = $row_counter;
 					}
 				}
 			}
