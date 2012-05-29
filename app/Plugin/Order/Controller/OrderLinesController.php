@@ -58,7 +58,7 @@ class OrderLinesController extends OrderAppController {
 				$this->OrderLine->set($this->request->data);
 				$this->OrderLine->validates();
 				//manual error on custom field
-				$this->OrderLine->validationErrors['sample_aliquot_control_id'] = __('this field is required')." (".__('product type').")";
+				$this->OrderLine->validationErrors['sample_aliquot_control_id'][] = __('this field is required')." (".__('product type').")";
 			}else{
 				$product_controls = explode("|", $this->request->data['FunctionManagement']['sample_aliquot_control_id']);
 				if(sizeof($product_controls) != 2)  { 

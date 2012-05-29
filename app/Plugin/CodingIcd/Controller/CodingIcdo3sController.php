@@ -30,7 +30,7 @@ class CodingIcdo3sController extends CodingIcdAppController{
 		}else if($icd_type_name == "morpho"){
 			$model_to_use = $this->CodingIcdo3Morpho;
 		}else{
-			$this->CodingIcdo3Topos->validationErrors[] = __("invalid model for icdo3 search [".$icd_type_name."]");
+			$this->CodingIcdo3Topos->validationErrors[][] = __("invalid model for icdo3 search [".$icd_type_name."]");
 			$model_to_use = $this->CodingIcdo3Topo;
 		}
 		return $model_to_use;

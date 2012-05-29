@@ -91,7 +91,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			if($controls['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value'])){
 				if($this->MiscIdentifier->find('first', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'identifier_value' => $this->request->data['MiscIdentifier']['identifier_value'])))){
 					$submitted_data_validates = false;
-					$this->MiscIdentifier->validationErrors['identifier_value'] = __('this field must be unique').' ('.__('value').')';
+					$this->MiscIdentifier->validationErrors['identifier_value'][] = __('this field must be unique').' ('.__('value').')';
 				}
 			}
 			
@@ -286,7 +286,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 					
 					$mi = $this->MiscIdentifier->find('first', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.id' => $this->request->data['MiscIdentifier']['selected_id'])));
 					if(empty($mi)){
-						$this->MiscIdentifier->validationErrors[] = 'by the time you submited your selection, the identifier was either used or removed from the system';
+						$this->MiscIdentifier->validationErrors[][] = 'by the time you submited your selection, the identifier was either used or removed from the system';
 					}else{
 						$this->MiscIdentifier->id = $this->request->data['MiscIdentifier']['selected_id'];
 						$this->MiscIdentifier->createRevision();
@@ -301,7 +301,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 					}
 				}
 			}else{
-				$this->MiscIdentifier->validationErrors[] = 'you need to select an identifier value';
+				$this->MiscIdentifier->validationErrors[][] = 'you need to select an identifier value';
 			}
 		}
 		$this->request->data = $data_to_display;

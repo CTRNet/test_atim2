@@ -29,7 +29,7 @@ class CodingIcd10sController extends CodingIcdAppController{
 		}else if($icd_type_name == "ca"){
 			$model_to_use = $this->CodingIcd10Ca;
 		}else{
-			$this->CodingIcd10->validationErrors[] = __("invalid model for icd10 search [".$icd_type_name."]");
+			$this->CodingIcd10->validationErrors[][] = __("invalid model for icd10 search [".$icd_type_name."]");
 			$model_to_use = $this->CodingIcd10Who;
 		}
 		return $model_to_use;

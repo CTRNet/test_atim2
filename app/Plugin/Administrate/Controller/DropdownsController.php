@@ -170,11 +170,11 @@ class DropdownsController extends AdministrateAppController {
 			|| ($this->request->data['StructurePermissibleValuesCustom']['en'] == $value_data['StructurePermissibleValuesCustom']['en']))) {
 				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.en' => $this->request->data['StructurePermissibleValuesCustom']['en'], 'StructurePermissibleValuesCustom.id != '.$value_id, 'StructurePermissibleValuesCustom.control_id' => $control_id))); 
 				if(!empty($tmp)){
-					$this->StructurePermissibleValuesCustom->validationErrors['en'] = __('a specified %s already exists for that dropdown', __("english translation"));
+					$this->StructurePermissibleValuesCustom->validationErrors['en'][] = __('a specified %s already exists for that dropdown', __("english translation"));
 					$skip_save = true;
 				}
 				if(strlen($this->request->data['StructurePermissibleValuesCustom']['en']) > $this->StructurePermissibleValuesCustom->_schema['en']['length']){
-					$this->StructurePermissibleValuesCustom->validationErrors['en'] = __('%s cannot exceed %d characters', __("english translation"), $this->StructurePermissibleValuesCustom->_schema['en']['length']);
+					$this->StructurePermissibleValuesCustom->validationErrors['en'][] = __('%s cannot exceed %d characters', __("english translation"), $this->StructurePermissibleValuesCustom->_schema['en']['length']);
 					$skip_save = true;
 				}
 			}
@@ -186,11 +186,11 @@ class DropdownsController extends AdministrateAppController {
 			|| ($this->request->data['StructurePermissibleValuesCustom']['fr'] == $value_data['StructurePermissibleValuesCustom']['fr']))) {
 				$tmp = $this->StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustom.fr' => $this->request->data['StructurePermissibleValuesCustom']['fr'], 'StructurePermissibleValuesCustom.id != '.$value_id, 'StructurePermissibleValuesCustom.control_id' => $control_id)));
 				if(!empty($tmp)){
-					$this->StructurePermissibleValuesCustom->validationErrors['fr'] = __('a specified %s already exists for that dropdown', __("french translation"));
+					$this->StructurePermissibleValuesCustom->validationErrors['fr'][] = __('a specified %s already exists for that dropdown', __("french translation"));
 					$skip_save = true;
 				}
 				if(strlen($this->request->data['StructurePermissibleValuesCustom']['fr']) > $this->StructurePermissibleValuesCustom->_schema['fr']['length']){
-					$this->StructurePermissibleValuesCustom->validationErrors['fr'] = __('%s cannot exceed %d characters', __("french translation"), $this->StructurePermissibleValuesCustom->_schema['fr']['length']);
+					$this->StructurePermissibleValuesCustom->validationErrors['fr'][] = __('%s cannot exceed %d characters', __("french translation"), $this->StructurePermissibleValuesCustom->_schema['fr']['length']);
 					$skip_save = true;
 				}
 			}

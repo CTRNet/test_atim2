@@ -246,7 +246,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	function validates($options = array()){
 		if(isset($this->data['AliquotMaster']['in_stock']) && $this->data['AliquotMaster']['in_stock'] == 'no' 
 		&& (!empty($this->data['AliquotMaster']['storage_master_id']) || !empty($this->data['FunctionManagement']['recorded_storage_selection_label']))){
-			$this->validationErrors['in_stock'] = 'an aliquot being not in stock can not be linked to a storage';
+			$this->validationErrors['in_stock'][] = 'an aliquot being not in stock can not be linked to a storage';
 		}
 		
 		$this->validateAndUpdateAliquotStorageData();
@@ -303,13 +303,13 @@ class AliquotMaster extends InventoryManagementAppModel {
 				
 				// Set error
 				if(!empty($arr_storage_selection_results['storage_definition_error'])){
-					$this->validationErrors['recorded_storage_selection_label'] = $arr_storage_selection_results['storage_definition_error'];
+					$this->validationErrors['recorded_storage_selection_label'][] = $arr_storage_selection_results['storage_definition_error'];
 				}
 				if(!empty($arr_storage_selection_results['position_x_error'])){
-					$this->validationErrors['storage_coord_x'] = $arr_storage_selection_results['position_x_error'];
+					$this->validationErrors['storage_coord_x'][] = $arr_storage_selection_results['position_x_error'];
 				}
 				if(!empty($arr_storage_selection_results['position_y_error'])){
-					$this->validationErrors['storage_coord_y'] = $arr_storage_selection_results['position_y_error'];
+					$this->validationErrors['storage_coord_y'][] = $arr_storage_selection_results['position_y_error'];
 				}
 				
 				if(empty($this->validationErrors['storage_coord_x']) 
@@ -342,7 +342,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 						if($arr_storage_selection_results['storage_data']['StorageControl']['check_conflicts'] == 1){
 							AppController::addWarningMsg($msg);
 						}else{
-							$this->validationErrors['storage_coord_x'] = $msg;
+							$this->validationErrors['storage_coord_x'][] = $msg;
 						}
 					}
 				}

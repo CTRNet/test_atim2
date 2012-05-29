@@ -67,7 +67,7 @@ class ReportsController extends DatamartAppController {
 				$this->Structures->set('empty', 'result_form_structure');
 				$this->set('result_form_type', 'index');
 				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
-				$this->Report->validationErrors[] = $data_returned_by_fct['error_msg'];
+				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 				$csv_creation = false;
 			} else {
 				// Set data for display
