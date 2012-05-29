@@ -709,8 +709,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($aliquot_data as $key => $data) {
 				$sorted_aliquot_data[$data['AliquotMaster']['id']] = $data;
 			}
-			
+				
+			$record_counter = 0;
 			foreach($previous_data as $key_aliquot_master_id => $data_unit){
+				$record_counter++;
+				
 				if(!array_key_exists($key_aliquot_master_id, $sorted_aliquot_data)){
 					$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
@@ -723,22 +726,19 @@ class AliquotMastersController extends InventoryManagementAppController {
 				unset($aliquot_data['AliquotMaster']['storage_coord_y']);
 				$this->AliquotMaster->set($aliquot_data);
 				if(!$this->AliquotMaster->validates()){
-					$error_msg = array_merge($error_msg, $this->AliquotMaster->validationError);
+					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;						
+					}
 				}		
-				$aliquot_data_to_save_tmp = array(
+				$aliquot_data_to_save[] = array(
 					'id'				=> $key_aliquot_master_id,
 					'aliquot_control_id'=> $aliquot_data['AliquotControl']['id'],
 					'in_stock'			=> $data_unit['AliquotMaster']['in_stock'],
-					'in_stock_detail'	=> $data_unit['AliquotMaster']['in_stock_detail']
+					'in_stock_detail'	=> $data_unit['AliquotMaster']['in_stock_detail'],
+					
+					'tmp_remove_from_storage' => $data_unit['FunctionManagement']['remove_from_storage']
 				);
-				if($data_unit['FunctionManagement']['remove_from_storage']  || ($data_unit['AliquotMaster']['in_stock'] == 'no')){
-					$aliquot_data_to_save_tmp += array(
-						'storage_master_id' => null,
-						'storage_coord_x' => '',
-						'storage_coord_y' => ''
-					);
-				}
-				$aliquot_data_to_save[] = $aliquot_data_to_save_tmp;
 				
 				$parent = array(
 					'AliquotMaster' => $data_unit['AliquotMaster'],
@@ -753,21 +753,24 @@ class AliquotMastersController extends InventoryManagementAppController {
 				unset($data_unit['AliquotControl']);
 				
 				if(empty($data_unit)){
-					$errors[''] = __('you must define at least one use for each aliquot');
+					$errors['']['you must define at least one use for each aliquot'][] = $record_counter;
 				}
 				foreach($data_unit as &$use_data_unit){
-					++$line;
 					$use_data_unit['AliquotInternalUse']['aliquot_master_id'] = $key_aliquot_master_id;
 					$this->AliquotInternalUse->data = null;
 					$this->AliquotInternalUse->set($use_data_unit);
 					if(!$this->AliquotInternalUse->validates()){
-						$errors = array_merge($errors, $this->AliquotInternalUse->validationErrors);
+						foreach($this->AliquotInternalUse->validationErrors as $field => $msgs) {
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+						}
 					}
 					$use_data_unit = $this->AliquotInternalUse->data;
 				}
 				$uses_to_save = array_merge($uses_to_save, $data_unit);
 				$this->request->data[] = array('parent' => $parent, 'children' => $data_unit);
 			}
+			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -776,14 +779,29 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(empty($errors)){
 
 				//saving
+				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id'));
+				$this->AliquotInternalUse->writable_fields_mode = 'addgrid';
 				$this->AliquotInternalUse->saveAll($uses_to_save, array('validate' => false));
-				
-				if(!empty($aliquot_data_to_save)){
-					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
+					
+				foreach($aliquot_data_to_save as $new_aliquot_to_save) {
+					if($new_aliquot_to_save['tmp_remove_from_storage']  || ($new_aliquot_to_save['in_stock'] == 'no')){
+						$new_aliquot_to_save += array(
+								'storage_master_id' => null,
+								'storage_coord_x' => '',
+								'storage_coord_y' => ''
+						);
+						$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					} else {
+						$this->AliquotMaster->removeWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					}
+					unset($new_aliquot_to_save['tmp_remove_from_storage']);
+					
+					$this->AliquotMaster->id = $new_aliquot_to_save['id'];
+					if(!$this->AliquotMaster->save($new_aliquot_to_save, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
 				
-				foreach($uses_to_save as $use){
-					$this->AliquotMaster->updateAliquotUseAndVolume($use['AliquotInternalUse']['aliquot_master_id'], true, true, false);
+				foreach($aliquot_ids as $aliquot_master_id){
+					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true, false);
 				}
 				
 				$hook_link = $this->hook('post_process');
@@ -817,7 +835,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 				}
 			}else{
-				$this->AliquotInternalUse->validationErrors = $errors;
+				$this->AliquotMaster->validationErrors = array();
+				$this->AliquotInternalUse->validationErrors = array();
+				foreach($errors as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$this->AliquotMaster->validationErrors[$field][] = __($msg) .(($record_counter != 1)? ' - ' . str_replace('%s', implode(",", $lines), __('see # %s')) : '');
+					}
+				}
 			}
 		}
 	}
@@ -830,6 +854,8 @@ class AliquotMastersController extends InventoryManagementAppController {
  		// MANAGE DATA
 
 		// Get the use data
+		
+		$this->AliquotMaster;//lazy load
 		$use_data = $this->AliquotInternalUse->find('first', array(
 			'fields' => array('*'),
 			'conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id, 'AliquotInternalUse.id' => $aliquot_use_id),
@@ -875,6 +901,7 @@ class AliquotMastersController extends InventoryManagementAppController {
  		// MANAGE DATA
 
 		// Get the use data
+		$this->AliquotMaster;//lazy load
 		$use_data = $this->AliquotInternalUse->find('first', array(
 			'fields' => array('*'),
 			'conditions' => array('AliquotInternalUse.aliquot_master_id' => $aliquot_master_id, 'AliquotInternalUse.id' => $aliquot_use_id),
@@ -1103,11 +1130,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->set($studied_aliquot_pointer);
 					$this->AliquotMaster->id = $studied_aliquot_pointer['AliquotMaster']['id'];
 					
-					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;
-					foreach($this->AliquotMaster->invalidFields() as $field => $error) { 
-						$errors['AliquotMaster'][$field][$error][] = $line_counter; 
-					}					
-					
+					$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates : false;				
+					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors['AliquotMaster'][$field][$msg][] = $line_counter;
+					}
+										
 					// Reset data to get position data (not really required for this function)
 					$studied_aliquot_pointer = $this->AliquotMaster->data;	
 					
@@ -1117,9 +1145,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					// Launch Aliquot Source validation
 					$this->SourceAliquot->set($studied_aliquot_pointer);
-					$submitted_data_validates = ($this->SourceAliquot->validates()) ? $submitted_data_validates : false;
-					foreach($this->SourceAliquot->invalidFields() as $field => $error) { 
-						$errors['SourceAliquot'][$field][$error][] = $line_counter; 
+					$submitted_data_validates = ($this->SourceAliquot->validates()) ? $submitted_data_validates : false;	
+					foreach($this->SourceAliquot->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors['SourceAliquot'][$field][$msg][] = $line_counter;
 					}
 					
 					// Add record to array of tested aliquots
@@ -1619,8 +1648,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
 				if(!$this->AliquotMaster->validates()){
-					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-						$errors[$field][$msg][] = $record_counter;
+					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 					}
 				}
 				
@@ -2041,8 +2071,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$this->AliquotMaster->set(array("AliquotMaster" => $parent_aliquot_data));
 				if(!$this->AliquotMaster->validates()){
-					foreach($this->AliquotMaster->validationErrors as $field => $msg) {
-						$errors[$field][$msg][] = $record_counter;
+					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;						
 					}
 				}
 			

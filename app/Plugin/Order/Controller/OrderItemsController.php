@@ -426,8 +426,11 @@ class OrderItemsController extends OrderAppController {
 				// Launch Order Item validation
 				$this->OrderItem->set($new_studied_item);
 				$submitted_data_validates = ($this->OrderItem->validates())? $submitted_data_validates: false;
-				foreach($this->OrderItem->invalidFields() as $field => $error) { $errors['OrderItem'][$field][$error] = '-'; }
-			
+				foreach($this->OrderItem->validationErrors as $field => $msgs) {
+					$msgs = is_array($msgs)? $msgs : array($msgs);
+					foreach($msgs as $msg) $errors['OrderItem'][$field][$msg]= '-';
+				}
+				
 				// Get order item id
 				if(!isset($order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']])) { $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); }
 				$new_studied_item['OrderItem']['id'] = $order_item_id_by_barcode[$new_studied_item['AliquotMaster']['barcode']];

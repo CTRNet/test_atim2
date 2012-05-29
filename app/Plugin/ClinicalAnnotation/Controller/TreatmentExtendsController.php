@@ -49,8 +49,9 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 				$this->TreatmentExtend->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->TreatmentExtend->set($new_row);
 				if(!$this->TreatmentExtend->validates()){
-					foreach($this->TreatmentExtend->validationErrors as $field => $msg) {				
-						$errors[$field][is_array($msg) ? $msg[0] : $msg][] = $line_counter;
+					foreach($this->TreatmentExtend->validationErrors as $field => $msgs) {	
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors[$field][$msg][] = $line_counter;
 						$submitted_data_validates = false;
 					}
 				}				
