@@ -787,7 +787,9 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->set("aliquot_ids", implode(",", $aliquot_ids));
 			
 		} else {
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#126)'), "javascript:history.back();", 5);
+			return;
+			//$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		// Set url to redirect
@@ -888,7 +890,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		){
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		} else if($this->request->data['SampleMaster']['sample_control_id'] == ''){
-			$this->flash(__("you must select a derivative type"), "javascript:history.back();", 5);
+			$this->flash(__("you must select a derivative type"), "javascript:history.go(-2);", 5);
 			return;
 		}
 		
@@ -911,7 +913,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			if(is_numeric($result)){
 				$lab_book_id = $result;
 			}else{
-				$this->flash($result, "javascript:history.back()", 5);
+				$this->flash($result, "javascript:history.go(-2)", 5);
 				return;
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);

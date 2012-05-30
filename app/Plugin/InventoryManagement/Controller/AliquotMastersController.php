@@ -78,7 +78,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		} else {
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#127)'), "javascript:history.back();", 5);
+			return;
+			//$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}	
 		
 		// Set url to redirect
@@ -1344,7 +1346,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else if(isset($this->request->data['ViewAliquot'])) {
 				$ids = $this->request->data['ViewAliquot']['aliquot_master_id'];
 			} else {
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				$this->flash((__('you have been redirected automatically').' (#127)'), "javascript:history.back();", 5);
+				return;
+				//$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			if(!is_array($ids) && strpos($ids, ',')){
 				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
@@ -1373,7 +1377,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(count($aliquots) > 1){
 			foreach($aliquots as $aliquot){
 				if(($aliquot['AliquotMaster']['aliquot_control_id'] != $aliquot_ctrl_id) || ($aliquot['SampleMaster']['sample_control_id'] != $sample_ctrl_id)) {
-					$this->flash(__("you cannot realiquot those elements together because they are of different types"), $url_to_cancel);
+					$this->flash(__("you cannot realiquot those elements together because they are of different types"), "javascript:history.back();");
 					return;
 				}
 			}
