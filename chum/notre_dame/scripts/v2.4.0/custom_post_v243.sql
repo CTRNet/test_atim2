@@ -1136,3 +1136,13 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("ctx", "
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ct"), (SELECT id FROM structure_permissible_values WHERE value="ctx" AND language_alias="cTx"), "23", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("ptx", "pTx");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_pt"), (SELECT id FROM structure_permissible_values WHERE value="ptx" AND language_alias="pTx"), "23", "1");
+
+-- 2012-05-30
+
+INSERT INTO structure_value_domains_permissible_values 
+(`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_ascit_cell_storage_solution"), 
+(SELECT id FROM structure_permissible_values WHERE value="DMSO + serum" AND language_alias="DMSO + serum"), "3", "1");
+
+
