@@ -182,7 +182,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					$studied_sample_master_id = $data_unit['AliquotMaster']['sample_master_id'];
 					
 					$aliquot_master = $this->AliquotMaster->getOrRedirect($key);
-					if($aliquot_master['AliquotMaster']['sample_master_id'] != $sample_master_id){
+					if($aliquot_master['AliquotMaster']['sample_master_id'] != $studied_sample_master_id){
 						//HACK attempt
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
