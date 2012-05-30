@@ -235,6 +235,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($is_batch_process) {
 			$this->Structures->set('view_sample_joined_to_collection', 'sample_info');
 		}
+		$this->Structures->set('empty', 'empty_structure');
 		
 		// set data for initial data to allow bank to override data
 		$override_data = array(
@@ -802,8 +803,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->AliquotMaster->save($new_aliquot_to_save, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
 				
-				foreach($aliquot_ids as $aliquot_master_id){
-					$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true, false);
+				foreach($aliquot_ids as $tmp_aliquot_master_id){
+					$this->AliquotMaster->updateAliquotUseAndVolume($tmp_aliquot_master_id, true, true, false);
 				}
 				
 				$hook_link = $this->hook('post_process');
@@ -1495,7 +1496,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$initial_display = false;
 		$parent_aliquots_ids = array();
 		if(empty($this->request->data)){ 
-			$this->redirect("/Pages/err_no_data", null, true); 
+			$this->redirect("/Pages/err_no_data?method='.__METHOD__.',line='.__LINE__", null, true); 
 		} else if(isset($this->request->data[0]) && isset($this->request->data[0]['ids'])){ 
 			if($this->request->data[0]['realiquot_into'] == ''){
 				$this->flash(__("you must select an aliquot type"), "javascript:history.back();", 5);
@@ -1507,7 +1508,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$initial_display = false;
 			$parent_aliquots_ids = $this->request->data['ids'];			
 		} else {
-			$this->redirect("/Pages/err_no_data", null, true); 
+			$this->redirect("/Pages/err_no_data?method='.__METHOD__.',line='.__LINE__", null, true); 
 		}
 		$this->set('parent_aliquots_ids', $parent_aliquots_ids);
 		
@@ -1574,6 +1575,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$child_writable_fields = AppModel::$writable_fields;
 		AppModel::$writable_fields = array();
 		$this->setUrlToCancel();
+		
+		$this->Structures->set('empty', 'empty_structure');
 		
 		// set data for initial data to allow bank to override data
 		$created_aliquot_override_data = array(
@@ -1947,7 +1950,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'in_stock_detail');
 			$this->Structures->set('children_aliquots_selection,children_aliquots_selection_volume', 'atim_structure_for_children_aliquots_selection');
 		}
-		
+		$this->Structures->set('empty', 'empty_structure');
+				
 		$this->setUrlToCancel();
 		
 		$hook_link = $this->hook('format');

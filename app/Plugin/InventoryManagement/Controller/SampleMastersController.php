@@ -947,7 +947,8 @@ class SampleMastersController extends InventoryManagementAppController {
 		$this->Structures->set(str_replace(",derivative_lab_book", "", $children_control_data['SampleControl']['form_alias']).",sourcealiquots_volume_for_batchderivative", 'derivative_volume_structure');
 		$this->Structures->set('used_aliq_in_stock_details', 'sourcealiquots');
 		$this->Structures->set('used_aliq_in_stock_details,used_aliq_in_stock_detail_volume', 'aliquots_volume_structure');
-
+		$this->Structures->set('empty', 'empty_structure');
+		
 		$this->set('children_sample_control_id', $this->request->data['SampleMaster']['sample_control_id']);
 		$this->set('created_sample_override_data', array(
 			'SampleControl.sample_type'		=> $children_control_data['SampleControl']['sample_type'],

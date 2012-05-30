@@ -27,26 +27,28 @@
 		require($hook_link); 
 	}
 	
+	// Display empty structure with hidden fields to fix issue#2243 : Derivative in batch: control id not posted when last record is hidden
+	$empty_structure_options = $options_parent;
+	$empty_structure_options['settings']['form_top'] = true;
+	$empty_structure_options['data'] = array();
+	$empty_structure_options['extras'] =
+		'<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
+		<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
+	
+	$this->Structures->build($empty_structure, $empty_structure_options);
+	
+	//print the layout	
 	$hook_link = $this->Structures->hook('loop');
-		
-	$first = true;
 	$counter = 0;
 	while($data = array_shift($this->request->data)){
 		$counter++;
 		$parent = $data['parent'];
 		$final_options_parent = $options_parent;
 		$final_options_children = $options_children;
-		if($first){
-			$final_options_parent['settings']['form_top'] = true;
-			if(!$is_batch_process) {
-				$final_options_children['settings']['form_top'] = true;
-			}
-			$first = false;
-		}
 		if(count($this->request->data) == 0){
 			$final_options_children['settings']['form_bottom'] = true;
 			$final_options_children['settings']['actions'] = true;
-			$final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
+			if($is_batch_process) $final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
 			$final_options_children['extras'] = 
 				'<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
 				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
