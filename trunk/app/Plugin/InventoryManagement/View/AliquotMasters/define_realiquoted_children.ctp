@@ -27,8 +27,22 @@
 		require($hook_link); 
 	}
 	
+	// Display empty structure with hidden fields to fix issue#2243 : Derivative in batch: control id not posted when last record is hidden
+	$empty_structure_options = $options;
+	$empty_structure_options['type'] = "edit";
+	$empty_structure_options['settings']['form_top'] = true;
+	$empty_structure_options['data'] = array();
+	$empty_structure_options['extras'] =
+		'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
+		<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
+		<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
+		<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
+		<input type="hidden" name="data[Realiquoting][lab_book_master_code]" value="'.$lab_book_code.'"/>
+		<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
+		<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
+	$this->Structures->build($empty_structure, $empty_structure_options);
+	
 	//BUILD FORM
-	$first = true;
 	$counter = 0;
 	$element_nbr = sizeof($this->request->data);
 	foreach($this->request->data as $aliquot) {
@@ -36,22 +50,10 @@
 		
 		$final_parent_options = $parent_options;
 		$final_children_options = $children_options;
-		if($first){
-			$final_parent_options['settings']['form_top'] = true;
-			$first = false;
-		}
 		if($element_nbr == $counter){
 			$final_children_options['settings']['form_bottom'] = true;
 			$final_children_options['settings']['actions'] = true;
-			$final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
-			$final_children_options['extras'] = 
-				'<input type="hidden" name="data[ids]" value="'.$parent_aliquots_ids.'"/>
-				<input type="hidden" name="data[sample_ctrl_id]" value="'.$sample_ctrl_id.'"/>
-				<input type="hidden" name="data[realiquot_from]" value="'.$realiquot_from.'"/>
-				<input type="hidden" name="data[realiquot_into]" value="'.$realiquot_into.'"/>
-				<input type="hidden" name="data[Realiquoting][lab_book_master_code]" value="'.$lab_book_code.'"/>
-				<input type="hidden" name="data[Realiquoting][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
-				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
+			if(empty($aliquot_id)) $final_children_options['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
 		}
 		$final_parent_options['settings']['header'] = __('realiquoting process') . ' - ' . __('children selection') . (empty($aliquot_id)? " #".$counter : '');
 		$final_parent_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
