@@ -46,11 +46,7 @@ class StructuresComponent extends Component {
 				
 				if(isset($struct_unit['structure']['Sfs'])){
 					foreach($struct_unit['structure']['Sfs'] as $sfs){
-						$tablename = $sfs['tablename'];
-						if(empty($tablename) && isset($parameters['model_table_assoc'][$sfs['model']])){
-							$tablename = $parameters['model_table_assoc'][$sfs['model']];
-						}
-						
+						$tablename = isset($parameters['model_table_assoc'][$sfs['model']]) ? $parameters['model_table_assoc'][$sfs['model']] : $sfs['tablename'];
 						if($tablename){
 							foreach(array('add', 'edit', 'addgrid', 'editgrid', 'batchedit') as $flag){
 								if($sfs['flag_'.$flag] && !$sfs['flag_'.$flag.'_readonly'] && $sfs['type'] != 'hidden'){
