@@ -524,11 +524,14 @@ class BrowserController extends DatamartAppController {
 	}
 	
 	function save($index_id){
+		$this->BrowsingResult;//lazy load
 		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 		if(empty($this->request->data)){
 			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
 		}else{
 			$this->request->data['BrowsingIndex']['temporary'] = false;
+			$this->BrowsingIndex->pkey_safeguard = false;
+			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingIndex->save($this->request->data);
 			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
 		}
