@@ -123,7 +123,7 @@ class AppModel extends Model {
 		if(isset(AppModel::$writable_fields[$this->table])){
 			$writable_fields = null;
 			if($this->writable_fields_mode){
-				$writable_fields = AppModel::$writable_fields[$this->table][$this->writable_fields_mode];
+				$writable_fields = isset(AppModel::$writable_fields[$this->table][$this->writable_fields_mode]) ? AppModel::$writable_fields[$this->table][$this->writable_fields_mode] : array();
 			}else if($this->id){
 				$writable_fields = isset(AppModel::$writable_fields[$this->table]['edit']) ? AppModel::$writable_fields[$this->table]['edit'] : array();
 			}else{
