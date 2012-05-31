@@ -1146,3 +1146,9 @@ VALUES
 (SELECT id FROM structure_permissible_values WHERE value="DMSO + serum" AND language_alias="DMSO + serum"), "3", "1");
 
 
+-- 2012-05-31
+INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x_size, coord_y_title, coord_y_type, coord_y_size, display_x_size, display_y_size, reverse_x_numbering, reverse_y_numbering, horizontal_increment, set_temperature, is_tma_block, flag_active, form_alias, detail_tablename, databrowser_label, check_conflicts) VALUES
+('box16 1-16', 'position', 'integer', 16, NULL, '', NULL, 4, 4, 0, 0, 1, 0, 0, 1, 'storagemasters', 'std_boxs', 'box16 1-16', 1); 
+
+REPLACE INTO i18n (id, en, fr) VALUES
+("box16 1-16", "Box16 1-16", "Boîte16 1-16");
