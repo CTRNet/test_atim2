@@ -52,15 +52,17 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='5' WHERE str
 INSERT INTO structure_validations(`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES
 ((SELECT id FROM structure_fields where field = 'participant_identifier' and plugin = 'Clinicalannotation' AND tablename = 'participants'), '/^[A-Z][A-Z][0-9][0-9][0-9][0-9]$/', '', 'npttb error participant identifier' );
 
--- =============================================================================== -- 
+-- ===============================================================================
 -- 								CONSENT
--- =============================================================================== --
+-- ===============================================================================
 
 -- Language Updates
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	('npttb baker v2 25-mar-2003', 'NPTTB - Baker v2 (25-Mar-2003)', ''),
 	('npttb baker v3 15-oct-2007', 'NPTTB - Baker v3 (15-Oct-2007)', ''),
 	('npttb consent brain bank', 'NPTTB - Brain Bank', ''),
+	('npttb autopsy', 'NPTTB - Autopsy', ''),
+	('npttb sno calgary', 'NPTTB - SNO Calgary', ''),
 	('npttb further contact', 'Further Information', ''),
 	('npttb full name', 'Full Name', ''),
 	('npttb relationship', 'Relationship', ''),
@@ -108,7 +110,28 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	('npttb brain contact details', 'Contact Details', ''),
 	('npttb help npttb_4_contact_name', 'Enter name of family member or representative', ''),
 	('npttb help npttb_4_contact_relationship', 'Enter relationship to the contact', ''),
-	('npttb help npttb_4_contact_details', 'Enter contact information', '');		
+	('npttb help npttb_4_contact_details', 'Enter contact information', '');
+	
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb part 2 autopsy consent', 'Part II - Consent for Autopsy', ''),
+	('npttb part 3 retention', 'Part III - Consent Retention of Organs/Tissue for Research', ''),
+	('npttb autopsy consent', 'Permission For', ''),
+	('npttb autopsy consent instructions', 'Specify Limitations', ''),
+	('npttb autopsy retention', 'Consent for Education/Research', ''),
+	('npttb autopsy retention instructions', 'Special Instructions or Limitations', ''),
+	('npttb complete', 'Complete', ''),
+	('npttb limited', 'Limited', ''),
+	('npttb help autopsy consent', 'Indicate autopsy type permission was given for', ''),
+	('npttb help autopsy instructions', 'If limited autopsy, specify limitations', ''),
+	('npttb help autopsy retention', 'Indicate if consent given for research', ''),
+	('npttb help retention instructions', 'Specify any special instructions or limitations', '');
+	
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb form type', 'Form Type', ''),
+	('npttb main', 'Main', ''),
+	('npttb pediatric', 'Pediatric', ''),
+	('npttb surrogate', 'Surrogate', ''),
+	('npttb help form type', 'Indicate the type of form', '');				
 	
 	
 -- Disable default consent form
@@ -116,14 +139,18 @@ UPDATE `consent_controls` SET `flag_active`=0 WHERE `controls_type` = 'Consent N
 
 -- Add control rows for bank consent forms
 INSERT INTO `consent_controls` (`controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-('npttb baker v2 25-mar-2003', 1, 'consent_masters,cd_npttb_consent_baker_v2', 'cd_npttb_consent_baker_v2', 1, 'npttb consent baker v2'),
-('npttb baker v3 15-oct-2007', 1, 'consent_masters,cd_npttb_consent_baker_v3', 'cd_npttb_consent_baker_v3', 2, 'npttb consent baker v3'),
-('npttb consent brain bank', 1, 'consent_masters,cd_npttb_consent_brain_bank', 'cd_npttb_consent_brain_bank', 3, 'npttb consent brain bank');
+('npttb baker v2 25-mar-2003', 1, 'consent_masters,cd_npttb_consent_baker_v2', 'cd_npttb_consent_baker_v2', 3, 'npttb consent baker v2'),
+('npttb baker v3 15-oct-2007', 1, 'consent_masters,cd_npttb_consent_baker_v3', 'cd_npttb_consent_baker_v3', 4, 'npttb consent baker v3'),
+('npttb consent brain bank', 1, 'consent_masters,cd_npttb_consent_brain_bank', 'cd_npttb_consent_brain_bank', 5, 'npttb consent brain bank'),
+('npttb autopsy', 1, 'consent_masters,cd_npttb_autopsy', 'cd_npttb_autopsy', 1, 'npttb consent autopsy'),
+('npttb sno calgary', 1, 'consent_masters,cd_npttb_consent_sno_calgary', 'cd_npttb_consent_sno_calgary', 2, 'npttb consent sno calgary');
 
 -- Structures
 INSERT INTO `structures` (`alias`) VALUES ('cd_npttb_consent_baker_v2');
 INSERT INTO `structures` (`alias`) VALUES ('cd_npttb_consent_baker_v3');
 INSERT INTO `structures` (`alias`) VALUES ('cd_npttb_consent_brain_bank');
+INSERT INTO `structures` (`alias`) VALUES ('cd_npttb_autopsy');
+INSERT INTO `structures` (`alias`) VALUES ('cd_npttb_consent_sno_calgary');
 
 -- Detail Tables Baker v2
 CREATE TABLE `cd_npttb_consent_baker_v2` (
@@ -136,7 +163,7 @@ CREATE TABLE `cd_npttb_consent_baker_v2` (
   `npttb_6_share_other_disease` VARCHAR(10) DEFAULT '' ,
   `npttb_7_provide_family` VARCHAR(10) DEFAULT '' ,
   `npttb_8_list_desires_constraints` VARCHAR(255) DEFAULT '' ,
-  `consent_master_id` INT(11) NULL ,
+  `consent_master_id` INT(11) NOT NULL ,
   `deleted` TINYINT(3) DEFAULT 0 ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
@@ -167,7 +194,7 @@ CREATE TABLE `cd_npttb_consent_baker_v3` (
   `npttb_5_contact_family` VARCHAR(10) DEFAULT '' ,
   `npttb_6_provide_family_tissue` VARCHAR(10) DEFAULT '' ,
   `npttb_7_list_wishes_restrictions` VARCHAR(255) DEFAULT '' ,
-  `consent_master_id` INT(11) NULL ,
+  `consent_master_id` INT(11) NOT NULL ,
   `deleted` TINYINT(3) DEFAULT 0 ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
@@ -197,7 +224,8 @@ CREATE TABLE `cd_npttb_consent_brain_bank` (
   `npttb_4_contact_name` VARCHAR(100) NULL ,
   `npttb_4_contact_relationship` VARCHAR(100) NULL ,
   `npttb_4_contact_details` TEXT NULL ,
-  `consent_master_id` INT(11) NULL ,
+  `npttb_form_type` VARCHAR(45) NULL,
+  `consent_master_id` INT(11) NOT NULL ,
   `deleted` TINYINT(3) DEFAULT 0 ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
@@ -210,11 +238,77 @@ CREATE TABLE `cd_npttb_consent_brain_bank_revs` (
   `npttb_4_contact_name` VARCHAR(100) NULL ,
   `npttb_4_contact_relationship` VARCHAR(100) NULL ,
   `npttb_4_contact_details` TEXT NULL ,
+  `npttb_form_type` VARCHAR(45) NULL,
   `consent_master_id` INT(11) NOT NULL ,
   `version_id` INT(11) DEFAULT 0 ,
   `version_created` DATETIME NOT NULL,
   PRIMARY KEY (`version_id`) )
 ENGINE = InnoDB;
+
+-- Autopsy Consent
+CREATE TABLE `cd_npttb_autopsy` (
+  `id` INT NOT NULL ,
+  `npttb_autopsy_consent` VARCHAR(10) DEFAULT '',
+  `npttb_autopsy_consent_instructions` VARCHAR(255) DEFAULT '',
+  `npttb_autopsy_retention` VARCHAR(10) DEFAULT '',
+  `npttb_autopsy_retention_instructions` VARCHAR(255) DEFAULT '',	
+  `consent_master_id` INT(11) NOT NULL ,
+  `deleted` TINYINT(3) DEFAULT 0 ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB;
+
+CREATE TABLE `cd_npttb_autopsy_revs` (
+  `id` INT(11) NOT NULL ,
+  `npttb_autopsy_consent` VARCHAR(10) DEFAULT '',
+  `npttb_autopsy_consent_instructions` VARCHAR(255) DEFAULT '',
+  `npttb_autopsy_retention` VARCHAR(10) DEFAULT '',
+  `npttb_autopsy_retention_instructions` VARCHAR(255) DEFAULT '',
+  `consent_master_id` INT(11) NOT NULL ,
+  `version_id` INT(11) DEFAULT 0 ,
+  `version_created` DATETIME NOT NULL,
+  PRIMARY KEY (`version_id`) )
+ENGINE = InnoDB;
+
+-- SNO Calgary Consent
+CREATE TABLE `cd_npttb_consent_sno_calgary` (
+  `id` INT NOT NULL ,
+  `npttb_1_conduct_genetic` VARCHAR(10) DEFAULT '' ,
+  `npttb_2_conduct_genetic_mgmt` VARCHAR(10) DEFAULT '' ,
+  `npttb_3_conduct_genetic_other_disorders` VARCHAR(10) DEFAULT '' ,
+  `npttb_4_share_material_information` VARCHAR(10) DEFAULT '' ,
+  `npttb_5_share_material_information_other` VARCHAR(10) DEFAULT '' ,
+  `npttb_6_contact_family` VARCHAR(10) DEFAULT '' ,
+  `npttb_7_provide_other_family` VARCHAR(10) DEFAULT '' ,
+  `npttb_8_list_wishes_restrictions` VARCHAR(255) DEFAULT '' ,
+  `consent_master_id` INT(11) NOT NULL ,
+  `deleted` TINYINT(3) DEFAULT 0 ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB;
+
+CREATE TABLE `cd_npttb_consent_sno_calgary_revs` (
+  `id` INT(11) NOT NULL ,
+  `npttb_1_conduct_genetic` VARCHAR(10) DEFAULT '' ,
+  `npttb_2_conduct_genetic_mgmt` VARCHAR(10) DEFAULT '' ,
+  `npttb_3_conduct_genetic_other_disorders` VARCHAR(10) DEFAULT '' ,
+  `npttb_4_share_material_information` VARCHAR(10) DEFAULT '' ,
+  `npttb_5_share_material_information_other` VARCHAR(10) DEFAULT '' ,
+  `npttb_6_contact_family` VARCHAR(10) DEFAULT '' ,
+  `npttb_7_provide_other_family` VARCHAR(10) DEFAULT '' ,
+  `npttb_8_list_wishes_restrictions` VARCHAR(255) DEFAULT '' ,
+  `consent_master_id` INT(11) NOT NULL ,
+  `version_id` INT(11) DEFAULT 0 ,
+  `version_created` DATETIME NOT NULL,
+  PRIMARY KEY (`version_id`) )
+ENGINE = InnoDB;
+
+-- Value domain for form type
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_form_type", "", "", "");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("main", "npttb main");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_form_type"), (SELECT id FROM structure_permissible_values WHERE value="main" AND language_alias="npttb main"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("pediatric", "npttb pediatric");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_form_type"), (SELECT id FROM structure_permissible_values WHERE value="pediatric" AND language_alias="npttb pediatric"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("surrogate", "npttb surrogate");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_form_type"), (SELECT id FROM structure_permissible_values WHERE value="surrogate" AND language_alias="npttb surrogate"), "3", "1");
 
 
 -- Add Surgeon/Operation Datetime to master form
@@ -271,7 +365,9 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_3_share_samples_healthinfo', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help npttb_3_share_samples_healthinfo', 'npttb brain share samples healthinfo', ''),
 ('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_4_contact_name', 'input', NULL , '0', 'size=20', '', 'npttb help npttb_4_contact_name', 'npttb brain contact name', ''), 
 ('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_4_contact_relationship', 'input', NULL , '0', 'size=20', '', 'npttb help npttb_4_contact_relationship', 'npttb brain contact relationship', ''), 
-('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_4_contact_details', 'textarea', NULL , '0', '', '', 'npttb help npttb_4_contact_details', 'npttb brain contact details', ''); 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_4_contact_details', 'textarea', NULL , '0', '', '', 'npttb help npttb_4_contact_details', 'npttb brain contact details', ''),
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_form_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_form_type') , '0', '', '', 'npttb help form type', 'npttb form type', ''); 
+
 
 -- Link to form
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
@@ -280,17 +376,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_3_share_samples_healthinfo' AND `type`='select' AND `language_label`='npttb brain share samples healthinfo'), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_4_contact_name' AND `type`='input' AND `language_label`='npttb brain contact name'), '2', '115', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
 ((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_4_contact_relationship' AND `type`='input' AND `language_label`='npttb brain contact relationship'), '2', '120', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
-((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_4_contact_details' AND `type`='textarea' AND `language_label`='npttb brain contact details'), '2', '125', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_4_contact_details' AND `type`='textarea' AND `language_label`='npttb brain contact details'), '2', '125', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'),
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_form_type' AND `type`='select' AND `language_label`='npttb form type'), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
 -- Custom lookup values for form version
-
 INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`) VALUES
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'baker v2 25-mar-2003', 'Baker v2 25-Mar-2003', '', 1, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'baker v3 15-oct-2007', 'Baker v3 15-Oct-2007', '', 2, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v3 06-may-2011 ', 'v3 06-May-2011', '', 3, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v4 21-nov-2011', 'v4 21-Nov-2011', '', 4, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v4 21-nov-2011 (surrogate)', 'v4 21-Nov-2011 (Surrogate)', '', 5, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v4 21-nov-2011 (pediatric)', 'v4 21-Nov-2011 (Pediatric)', '', 6, 1);
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'autopsy', 'Autopsy', '', 1, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'sno calgary', 'SNO Calgary', '', 2, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'baker v2 25-mar-2003', 'Baker v2 25-Mar-2003', '', 3, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'baker v3 15-oct-2007', 'Baker v3 15-Oct-2007', '', 4, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v1.0 aug-5-2008', 'v1.0 Aug-5-2008', '', 5, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v2.0 nov-19-2010', 'v2.0 Nov-19-2010', '', 6, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v3.0 may-6-2011', 'v3.0 May-6-2011', '', 7, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v4.0 nov-21-2011', 'v4.0 Nov-21-2011', '', 8, 1);
 
 -- Custom lookup for person consenting
 INSERT INTO `structure_value_domains` (`domain_name`, `source`) VALUES
@@ -393,6 +491,65 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`f
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgeon'), 'dr omahen', 'Dr. Omahen', '', 98, 0),
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgeon'), 'dr parney', 'Dr. Parney', '', 99, 0),
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgeon'), 'dr yeung', 'Dr. Yeung', '', 100, 0);
+
+-- Value domain for Autopsy Form
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_autopsy_consent", "", "", "");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("complete", "npttb complete");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_autopsy_consent"), (SELECT id FROM structure_permissible_values WHERE value="complete" AND language_alias="npttb complete"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("limited", "npttb limited");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_autopsy_consent"), (SELECT id FROM structure_permissible_values WHERE value="limited" AND language_alias="npttb limited"), "2", "1");
+
+-- Build autopsy form
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_autopsy', 'npttb_autopsy_consent', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_autopsy_consent') , '0', '', '', 'npttb help autopsy consent', 'npttb autopsy consent', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_autopsy', 'npttb_autopsy_consent_instructions', 'textarea',  NULL , '0', '', '', 'npttb help autopsy instructions', 'npttb autopsy consent instructions', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_autopsy', 'npttb_autopsy_retention', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help autopsy retention', 'npttb autopsy retention', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_autopsy', 'npttb_autopsy_retention_instructions', 'textarea',  NULL , '0', '', '', 'npttb help retention instructions', 'npttb autopsy retention instructions', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_npttb_autopsy'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_autopsy' AND `field`='npttb_autopsy_consent' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_autopsy_consent')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help autopsy consent' AND `language_label`='npttb autopsy consent' AND `language_tag`=''), '2', '1', 'npttb part 2 autopsy consent', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_autopsy'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_autopsy' AND `field`='npttb_autopsy_consent_instructions' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help autopsy instructions' AND `language_label`='npttb autopsy consent instructions' AND `language_tag`=''), '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_autopsy'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_autopsy' AND `field`='npttb_autopsy_retention' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help autopsy retention' AND `language_label`='npttb autopsy retention' AND `language_tag`=''), '2', '3', 'npttb part 3 retention', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_autopsy'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_autopsy' AND `field`='npttb_autopsy_retention_instructions' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help retention instructions' AND `language_label`='npttb autopsy retention instructions' AND `language_tag`=''), '2', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+		
+-- Build SNO form
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_1_conduct_genetic', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 1 conduct genetic', 'npttb 1 conduct genetic', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_2_conduct_genetic_mgmt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 2 conduct genetic mgmt', 'npttb 2 conduct genetic mgmt', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_3_conduct_genetic_other_disorders', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 3 conduct genetic other disorders', 'npttb 3 conduct genetic other disorders', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_4_share_material_information', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 4 share material information', 'npttb 4 share material information', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_5_share_material_information_other', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 5 share material information other', 'npttb 5 share material information other', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_6_contact_family', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 6 contact family', 'npttb 6 contact family', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_7_provide_other_family', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', 'npttb help 7 provide other family', 'npttb 7 provide other family', ''), 
+('Clinicalannotation', 'ConsentDetail', 'cd_npttb_consent_sno_calgary', 'npttb_8_list_wishes_restrictions', 'textarea',  NULL , '0', '', '', 'npttb help 8 list wishes restrictions', 'npttb 8 list wishes restrictions', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_1_conduct_genetic' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 1 conduct genetic' AND `language_label`='npttb 1 conduct genetic' AND `language_tag`=''), '2', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_2_conduct_genetic_mgmt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 2 conduct genetic mgmt' AND `language_label`='npttb 2 conduct genetic mgmt' AND `language_tag`=''), '2', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_3_conduct_genetic_other_disorders' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 3 conduct genetic other disorders' AND `language_label`='npttb 3 conduct genetic other disorders' AND `language_tag`=''), '2', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_4_share_material_information' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 4 share material information' AND `language_label`='npttb 4 share material information' AND `language_tag`=''), '2', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_5_share_material_information_other' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 5 share material information other' AND `language_label`='npttb 5 share material information other' AND `language_tag`=''), '2', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_6_contact_family' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 6 contact family' AND `language_label`='npttb 6 contact family' AND `language_tag`=''), '2', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_7_provide_other_family' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 7 provide other family' AND `language_label`='npttb 7 provide other family' AND `language_tag`=''), '2', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_sno_calgary'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_sno_calgary' AND `field`='npttb_8_list_wishes_restrictions' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='npttb help 8 list wishes restrictions' AND `language_label`='npttb 8 list wishes restrictions' AND `language_tag`=''), '2', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb 1 conduct genetic', '1 - Conduct Genetic Research', ''),
+	('npttb 2 conduct genetic mgmt', '2 - Conduct Genetic Research for MGMT', ''),
+	('npttb 3 conduct genetic other disorders', '3 - Conduct Genetic Research Other Disorders', ''),
+	('npttb 4 share material information', '4 - Share DNA and Health Info for Brain Research', ''),
+	('npttb 5 share material information other', '5 - Share DNA and Health Info Other Disorders', ''),
+	('npttb 6 contact family', '6 - Contact Family Member', ''),
+	('npttb 7 provide other family', '7 - Provide Tissue for Family Use', ''),
+	('npttb 8 list wishes restrictions', '8 - List Specific Wishes or Restrictions', ''),
+	('npttb help 1 conduct genetic', 'Conduct genetic research with your DNA and/or tissue, and review your health records for research on brain tumours at one of the U of C affiliated teaching institutions while maintaining your confidentiality.', ''),
+	('npttb help 2 conduct genetic mgmt', 'Conduct genetic research with your DNA for MGMT tissue analysis.', ''),
+	('npttb help 3 conduct genetic other disorders', 'Conduct genetic research with your DNA and/or tissue and review your health records for research on disorders other than brain tumours at one of the U of C affiliated teaching institutions while maintaining your confidentiality.', ''),
+	('npttb help 4 share material information', 'Share your DNA and/or tissue and your relevant health information with other researchers for research on disorders other than yours, while maintaining your confidentiality.', ''),
+	('npttb help 5 share material information other', 'Share your DNA and/or tissue and your relevant health information with other researchers for research on disorders other than yours, while maintaining your confidentiality.', ''),
+	('npttb help 6 contact family', 'Contact a family member in the future for research purposes if you are unavailable or unable to do so.', ''),
+	('npttb help 7 provide other family', 'Provide tissue for use by other family members if they require it to do their own genetic studies.', ''),
+	('npttb help 8 list wishes restrictions', 'List any specific wishes or restrictions you have regarding the use of your tissue or records. Be as specific as possible. You may wish to discuss this with Drs. Forsyth or Hamilton.', '');	
+						
 
 
 -- =============================================================================== -- 
@@ -628,7 +785,7 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("Meningi
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_final_diagnosis"), (SELECT id FROM structure_permissible_values WHERE value="Meningioma, papillary (III)" AND language_alias="npttb Meningioma, papillary (III)"), "42", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("Meningioma, rhabdoid (III)", "npttb Meningioma, rhabdoid (III)");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_final_diagnosis"), (SELECT id FROM structure_permissible_values WHERE value="Meningioma, rhabdoid (III)" AND language_alias="npttb Meningioma, rhabdoid (III)"), "43", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("Mixed Germ Cell Tumor ", "npttb Mixed Germ Cell Tumor ");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Mixed Germ Cell Tumor", "npttb Mixed Germ Cell Tumor");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_final_diagnosis"), (SELECT id FROM structure_permissible_values WHERE value="Mixed Germ Cell Tumor" AND language_alias="npttb Mixed Germ Cell Tumor"), "44", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("Neuroblastoma", "npttb Neuroblastoma");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_final_diagnosis"), (SELECT id FROM structure_permissible_values WHERE value="Neuroblastoma" AND language_alias="npttb Neuroblastoma"), "45", "1");
