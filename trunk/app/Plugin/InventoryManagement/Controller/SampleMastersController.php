@@ -1035,7 +1035,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->validates();
 					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
 						$msgs = is_array($msgs)? $msgs : array($msgs);
-						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+						foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 					}
 					
 					unset($children['AliquotMaster'], $children['FunctionManagement'], $children['AliquotControl'], $children['StorageMaster']);
@@ -1066,7 +1066,7 @@ class SampleMastersController extends InventoryManagementAppController {
 							if(!$validation_model->validates()){								
 								foreach($validation_model->validationErrors as $field => $msgs) {
 									$msgs = is_array($msgs)? $msgs : array($msgs);
-									foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+									foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 								}
 							}
 							$child = $validation_model->data;
@@ -1079,7 +1079,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				}
 				$this->request->data[] = array('parent' => $parent, 'children' => $children);//prep data in case validation fails
 				if(!$new_derivative_created){
-					$errors[]['at least one child has to be created'][] = $record_counter;
+					$errors[]['at least one child has to be created'][$record_counter] = $record_counter;
 				}
 			}
 			$this->SourceAliquot->validationErrors = null;
