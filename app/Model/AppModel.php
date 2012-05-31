@@ -472,8 +472,17 @@ class AppModel extends Model {
 					$plus_minus = true;
 					$year = substr($year, 2);
 				}
+				
+				$empty_found = false;
 				foreach(array($year, $month, $day, $hour, $minute) as $field){
 					if(!empty($field) && !is_numeric($field)){
+						$go_to_next_field = true;
+						break;
+					}
+					if(strlen($field) == 0){
+						$empty_found = true;
+					}else if($empty_found){
+						//example: Entered 2010--02 -> Invalid date is skiped here and get caught at validation level
 						$go_to_next_field = true;
 						break;
 					}
