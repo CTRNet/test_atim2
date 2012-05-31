@@ -1748,8 +1748,8 @@ class StructuresHelper extends Helper {
 	private function buildStack(array $atim_structure, array $options){
 		//TODO: WARNING ON paste_disabled if field mentioned in the view is not found here
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
-		$empty_help_bullet = '<span class="icon16 help error">&nbsp;</span>';
-		$help_bullet = '<span class="icon16 help">&nbsp;<div>%s</div></span> ';
+		$empty_help_bullet = '<span class="icon16 help error">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+		$help_bullet = '<span class="icon16 help">&nbsp;&nbsp;&nbsp;&nbsp;<div>%s</div></span> ';
 		$independent_types = array("select" => null, "radio" => null, "checkbox" => null, "date" => null, "datetime" => null, "time" => null, "yes_no" => null, "y_n_u" => null);
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";

@@ -801,7 +801,6 @@ span.help {
 	color: #99c;
 	text-indent: -9999px;
 	cursor: help;
-	width: 20px;
 	line-height: 20px;
 }
 	span.help.error,
@@ -975,13 +974,12 @@ span.help {
 				text-decoration: underline; 
 			}
 			div.wrapper table.structure table.columns th span.help {
-				position: relative;
 				display: inline;
 				text-indent: -9999px;
 				cursor: help;
 				line-height: 20px;
 				margin-left: 0.5em;
-				padding: 2px 7px;
+				max-width: 16px;
 			}
 			div.wrapper table.structure table.columns td {
 				vertical-align: top;
