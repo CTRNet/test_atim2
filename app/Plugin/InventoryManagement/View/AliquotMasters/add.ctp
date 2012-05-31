@@ -32,7 +32,8 @@
 	$empty_structure_options['settings']['form_top'] = true;
 	$empty_structure_options['data'] = array();
 	$empty_structure_options['extras'] =
-		'<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
+		'
+		<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
 		<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 	
 	$this->Structures->build($empty_structure, $empty_structure_options);
@@ -49,9 +50,6 @@
 			$final_options_children['settings']['form_bottom'] = true;
 			$final_options_children['settings']['actions'] = true;
 			if($is_batch_process) $final_options_children['settings']['confirmation_msg'] = __('multi_entry_form_confirmation_msg');
-			$final_options_children['extras'] = 
-				'<input type="hidden" name="data[0][realiquot_into]" value="'.$aliquot_control_id.'"/>
-				<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';
 		}
 		if($is_batch_process) $final_options_parent['settings']['header'] = __('aliquot creation batch process') . ' - ' . __('creation') ." #".$counter;
 		$final_options_parent['settings']['name_prefix'] = $parent['ViewSample']['sample_master_id'];

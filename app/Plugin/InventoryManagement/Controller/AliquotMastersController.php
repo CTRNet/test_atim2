@@ -155,11 +155,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		// GET URL TO CANCEL
 		
-		$url_to_cancel = null;
+		$url_to_cancel = "javascript:history.go(-2);";
 		if(isset($this->request->data['url_to_cancel'])) {
 			$url_to_cancel =  $this->request->data['url_to_cancel'];
 			unset($this->request->data['url_to_cancel']);	
 		}
+
 		$template_init_id = null;
 		if(isset($this->request->data['template_init_id'])){
 			$template_init_id = $this->request->data['template_init_id'];
@@ -253,9 +254,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// User just click on add aliquot button from sample detail form
 			$url_to_cancel = '/InventoryManagement/SampleMasters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id;
 		}		
-		if(empty($url_to_cancel)){
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		$hook_link = $this->hook('format');

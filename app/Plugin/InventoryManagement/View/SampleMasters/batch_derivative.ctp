@@ -63,13 +63,13 @@ $empty_structure_options = $options_parent;
 $empty_structure_options['settings']['form_top'] = true;
 $empty_structure_options['data'] = array();
 $empty_structure_options['extras'] =
-'
-<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>
-<input type="hidden" name="data[DerivativeDetail][lab_book_master_code]" value="'.$lab_book_master_code.'"/>
-<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
-<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>
-<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>
-<input type="hidden" name="data[sample_master_ids]" value="'.$sample_master_ids.'"/>';
+	'
+	<input type="hidden" name="data[SampleMaster][sample_control_id]" value="'.$children_sample_control_id.'"/>
+	<input type="hidden" name="data[DerivativeDetail][lab_book_master_code]" value="'.$lab_book_master_code.'"/>
+	<input type="hidden" name="data[DerivativeDetail][sync_with_lab_book]" value="'.$sync_with_lab_book.'"/>
+	<input type="hidden" name="data[ParentToDerivativeSampleControl][parent_sample_control_id]" value="'.$parent_sample_control_id.'"/>
+	<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>
+	<input type="hidden" name="data[sample_master_ids]" value="'.$sample_master_ids.'"/>';
 
 $this->Structures->build($empty_structure, $empty_structure_options);
 
