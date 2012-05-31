@@ -676,9 +676,12 @@ ALTER TABLE misc_identifiers_revs
  ADD COLUMN flag_unique TINYINT DEFAULT NULL;
 ALTER TABLE misc_identifier_controls
  ADD COLUMN flag_unique BOOLEAN NOT NULL DEFAULT true;
-UPDATE misc_identifiers mi
-INNER JOIN misc_identifier_controls mic ON mi.misc_identifier_control_id=mic.id
-SET mi.flag_unique=1 WHERE mic.flag_unique=true AND mi.deleted=0;
+
+SELECT IF(COUNT(*) > 0, "Identifiers error. Run the following query to find duplicated identifiers (or remove flag_unique on their control id if it's fine). [SELECT participant_id, identifier_value, misc_identifier_name FROM misc_identifiers AS mi INNER JOIN misc_identifier_controls AS mic ON mi.misc_identifier_control_id=mic.id WHERE deleted=0 GROUP BY identifier_value, misc_identifier_control_id HAVING COUNT(*) > 1;]", '') AS msg FROM misc_identifiers AS mi
+INNER JOIN misc_identifier_controls AS mic ON mi.misc_identifier_control_id=mic.id
+WHERE deleted=0 GROUP BY identifier_value, misc_identifier_control_id HAVING COUNT(*) > 1 LIMIT 1;
+
+SELECT "If there are no misc_identifiers errors or when they are resolved, run the following query. [UPDATE misc_identifiers mi INNER JOIN misc_identifier_controls mic ON mi.misc_identifier_control_id=mic.id SET mi.flag_unique=1 WHERE mic.flag_unique=true AND mi.deleted=0;]" AS msg;
  
 ALTER TABLE participants 
  ADD COLUMN last_modification DATETIME NOT NULL DEFAULT '2001-01-01 00:00:00' AFTER last_chart_checked_date_accuracy,
