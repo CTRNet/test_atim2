@@ -262,10 +262,12 @@ class Browser extends DatamartAppModel {
 		$result['children'] = array(
 			array(
 				'value' => $result['value'],
-				'label' => __('filter')),
+				'label' => __('filter'),
+				'style'	=> 'filter'),
 			array(
 				'value' => $result['value']."/true/",
-				'label' => __('no filter'))
+				'label' => __('no filter'),
+				'style' => 'no_filter')
 		);
 		$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
 		if($control_name = $browsing_model->getControlName()){
