@@ -5,6 +5,10 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value', 'Data conflict: At least one updated aliquot is defined as not in stock. Please update in stock value.', "Conflit de données : Au moins un aliquot mis à jour est défini comme 'non stocké'. Veuillez mettre a jour la valeur 'En Stock'."),
+('aliquots positions have been deleted', 'Aliquots positions have been deleted', 'Les positions des aliquots ont été supprimées'),
+('data conflict: you can not remove aliquot and set a storage','Data conflict: You can not remove aliquot and set a storage', ' Conflit de données : Vous ne pouvez pas enlever l''aliquot et lui associer un entreposage'),
+('the aliquot with barcode [%s] has reached a volume below 0','The aliquot with barcode [%s] has reached a volume below 0.',"L'aliquot avec le code à barres [%s] a atteint un volume inférieur à 0."),
 ('starting element','Starting Element','Élément de départ'),
 ('you have been redirected automatically','you have been redirected automatically','Vous avez été redirigé automatiquement'),
 ('no source aliquot data has to be updated','No data has to be updated!','Aucune donnée n''a a être mise à jour!'),

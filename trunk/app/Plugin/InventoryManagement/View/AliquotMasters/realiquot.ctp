@@ -22,6 +22,7 @@
 	
 	// Display empty structure with hidden fields to fix issue#2243 : Derivative in batch: control id not posted when last record is hidden
 	$empty_structure_options = $options_parent;
+	$empty_structure_options['settings']['language_heading'] = '';
 	$empty_structure_options['settings']['form_top'] = true;
 	$empty_structure_options['data'] = array();
 	$empty_structure_options['extras'] =

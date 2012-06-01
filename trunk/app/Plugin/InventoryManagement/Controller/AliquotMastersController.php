@@ -64,6 +64,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function addInit(){
+		$url_to_cancel = 'javascript:history.go(-1)';
+		
 		// Get Data
 		$model = null;
 		$key = null;
@@ -78,13 +80,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		} else {
-			$this->flash((__('you have been redirected automatically').' (#127)'), "javascript:history.back();", 5);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
-			//$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}	
 		
 		// Set url to redirect
-		$url_to_cancel = 'javascript:history.back()';
+		if(isset($this->request->data['BatchSet']['id'])) {
+			$url_to_cancel = '/Datamart/BatchSets/listall/' . $this->request->data['BatchSet']['id'];
+		} else if(isset($this->request->data['node']['id'])) {
+			$url_to_cancel = '/Datamart/Browser/browse/' . $this->request->data['node']['id'];
+		}
 		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
@@ -98,7 +103,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'sample_control_id',
 			'you cannot create aliquots with this sample type');
 		if(array_key_exists('error', $init_data)) {
-			$this->flash(__($init_data['error']), "javascript:history.back();", 5);
+			$this->flash(__($init_data['error']), $url_to_cancel, 5);
 			return;
 		}		
 		
@@ -124,6 +129,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->layout = 'ajax';
 			ob_start();
 		}
+		
+		$url_to_cancel = isset($this->request->data['url_to_cancel'])? $this->request->data['url_to_cancel'] : 'javascript:history.go(-1)';
+		unset($this->request->data['url_to_cancel']);
 					
 		// CHECK PARAMETERS
 		if(!empty($sample_master_id) && !empty($aliquot_control_id)) {
@@ -132,7 +140,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->request->data[0]['ids'] = $sample_master_id;
 			$this->request->data[0]['realiquot_into'] = $aliquot_control_id;
 		} else if(empty($this->request->data)){ 
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			$this->flash(__('you have been redirected automatically').' (#'.__LINE__.')', $url_to_cancel, 5);
+			return;
 		}
 
 		$is_intial_display = isset($this->request->data[0]['ids'])? true : false;
@@ -142,7 +151,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		// GET ALIQUOT CONTROL DATA
 		
 		if($this->request->data[0]['realiquot_into'] == ""){
-			$this->flash(__('you need to select an aliquot type'), "javascript:history.back(1);");
+			$this->flash(__('you need to select an aliquot type'), $url_to_cancel);
 			return;
 		}
 		
@@ -152,14 +161,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		$this->set('aliquot_control_id',$aliquot_control['AliquotControl']['id']);
-		
-		// GET URL TO CANCEL
-		
-		$url_to_cancel = "javascript:history.go(-2);";
-		if(isset($this->request->data['url_to_cancel'])) {
-			$url_to_cancel =  $this->request->data['url_to_cancel'];
-			unset($this->request->data['url_to_cancel']);	
-		}
 
 		$template_init_id = null;
 		if(isset($this->request->data['template_init_id'])){
@@ -580,6 +581,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			'storage_coord_x' => '',
 			'storage_coord_y' => ''
 		));
+		$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
 		if(!$this->AliquotMaster->save($aliquot_data_to_save, false)) {
 			$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
@@ -644,7 +646,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		$aliquot_data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $aliquot_ids)));		
 		if(empty($aliquot_data)){
-			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
+			return;	
 		}
 		
 		// SET MENU AND STRUCTURE DATA
@@ -729,7 +732,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if(!$this->AliquotMaster->validates()){
 					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
 						$msgs = is_array($msgs)? $msgs : array($msgs);
-						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;						
+						foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;						
 					}
 				}		
 				$aliquot_data_to_save[] = array(
@@ -754,7 +757,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				unset($data_unit['AliquotControl']);
 				
 				if(empty($data_unit)){
-					$errors['']['you must define at least one use for each aliquot'][] = $record_counter;
+					$errors['']['you must define at least one use for each aliquot'][$record_counter] = $record_counter;
 				}
 				foreach($data_unit as &$use_data_unit){
 					$use_data_unit['AliquotInternalUse']['aliquot_master_id'] = $key_aliquot_master_id;
@@ -763,7 +766,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->AliquotInternalUse->validates()){
 						foreach($this->AliquotInternalUse->validationErrors as $field => $msgs) {
 							$msgs = is_array($msgs)? $msgs : array($msgs);
-							foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+							foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 						}
 					}
 					$use_data_unit = $this->AliquotInternalUse->data;
@@ -1345,9 +1348,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else if(isset($this->request->data['ViewAliquot'])) {
 				$ids = $this->request->data['ViewAliquot']['aliquot_master_id'];
 			} else {
-				$this->flash((__('you have been redirected automatically').' (#127)'), "javascript:history.back();", 5);
+				$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
 				return;
-				//$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 			if(!is_array($ids) && strpos($ids, ',')){
 				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
@@ -1494,7 +1496,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$initial_display = false;
 		$parent_aliquots_ids = array();
 		if(empty($this->request->data)){ 
-			$this->redirect("/Pages/err_no_data?method='.__METHOD__.',line='.__LINE__", null, true); 
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;
 		} else if(isset($this->request->data[0]) && isset($this->request->data[0]['ids'])){ 
 			if($this->request->data[0]['realiquot_into'] == ''){
 				$this->flash(__("you must select an aliquot type"), "javascript:history.back();", 5);
@@ -1655,7 +1658,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if(!$this->AliquotMaster->validates()){
 					foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
 						$msgs = is_array($msgs)? $msgs : array($msgs);
-						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+						foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 					}
 				}
 				
@@ -1704,7 +1707,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						if(!$this->AliquotMaster->validates()){
 							foreach($this->AliquotMaster->validationErrors as $field => $msgs) {
 								$msgs = is_array($msgs)? $msgs : array($msgs);
-								foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+								foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 							}
 						}
 						// Reset data to get position data
@@ -1715,7 +1718,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						if(!$this->Realiquoting->validates()){
 							foreach($this->Realiquoting->validationErrors as $field => $msgs) {
 								$msgs = is_array($msgs)? $msgs : array($msgs);
-								foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
+								foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 							}
 						}
 						$child['Realiquoting'] = $this->Realiquoting->data['Realiquoting'];
@@ -1723,7 +1726,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						// Check volume can be completed
 						if((!empty($child['Realiquoting']['parent_used_volume'])) && empty($child['GeneratedParentAliquot']['aliquot_volume_unit'])) {
 							// No volume has to be recored for this aliquot type				
-							$errors['parent_used_volume']['no volume has to be recorded when the volume unit field is empty'][] = $record_counter;
+							$errors['parent_used_volume']['no volume has to be recorded when the volume unit field is empty'][$record_counter] = $record_counter;
 						}
 						
 						// Set child data to $validated_data
@@ -1732,7 +1735,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				if(!$new_aliquot_created){
-					$errors[]['at least one child has to be created'][] = $record_counter;
+					$errors[]['at least one child has to be created'][$record_counter] = $record_counter;
 				}
 			}
 			
@@ -1769,16 +1772,21 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$this->AliquotMaster->id = $parent_id;
 					
 					$parent_data = $parent_and_children['parent'];
+					$storage_writable_fields = array();
 					if($parent_data['FunctionManagement']['remove_from_storage'] || ($parent_data['AliquotMaster']['in_stock'] == 'no')) {
 						// Delete storage data
 						$parent_data['AliquotMaster']['storage_master_id'] = null;
 						$parent_data['AliquotMaster']['storage_coord_x'] = '';
 						$parent_data['AliquotMaster']['storage_coord_y'] = '';
+						$storage_writable_fields = array('storage_master_id', 'storage_coord_x', 'storage_coord_y');
 					}
 					
 					$parent_data['AliquotMaster']['id'] = $parent_id;
 					$org_parent_data = $this->AliquotMaster->getOrRedirect($parent_id);
 					AppModel::$writable_fields = $org_parent_data['AliquotControl']['volume_unit'] ? $parent_vol_writable_fields : $parent_no_vol_writable_fields;
+					
+					foreach($storage_writable_fields as $new_writable_field) AppModel::$writable_fields['aliquot_masters']['edit'][] = $new_writable_field;		
+					
 					if(isset(AppModel::$writable_fields['tmp_detail_table'])){
 						AppModel::$writable_fields[$org_parent_data['AliquotControl']['detail_tablename']] = AppModel::$writable_fields['tmp_detail_table'];
 					} 
@@ -1874,7 +1882,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$initial_display = false;
 		$parent_aliquots_ids = array();
 		if(empty($this->request->data)){ 
-			$this->redirect("/Pages/err_no_data", null, true); 
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;
 		} else if(isset($this->request->data[0]) && isset($this->request->data[0]['ids'])){ 
 			if($this->request->data[0]['realiquot_into'] == ''){
 				$this->flash(__("you must select an aliquot type"), "javascript:history.back();", 5);
@@ -1886,7 +1895,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$initial_display = false;
 			$parent_aliquots_ids = $this->request->data['ids'];			
 		} else {
-			$this->redirect("/Pages/err_no_data", null, true); 
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;
 		}
 		$this->set('parent_aliquots_ids', $parent_aliquots_ids);
 
@@ -2423,44 +2433,68 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->Structures->set('aliquot_masters,used_aliq_in_stock_details');
 		
 		if(isset($this->request->data['aliquot_ids'])){
+			$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
+			
+			$warning_messages = null;
 			$validates = true;
 			$to_update['AliquotMaster'] = array_filter($this->request->data['AliquotMaster']);
-			if($this->request->data['FunctionManagement']['recorded_storage_selection_label']){
-				//validate storage
+			
+ 			if($this->request->data['FunctionManagement']['recorded_storage_selection_label'] 
+ 			&& (($this->request->data['FunctionManagement']['remove_from_storage'] == 1) || ($this->request->data['AliquotMaster']['in_stock'] == 'no'))) {
+ 				$validates = false;
+ 				$this->AliquotMaster->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
+ 					
+ 			} else if($this->request->data['FunctionManagement']['recorded_storage_selection_label']){
 				$to_update['FunctionManagement']['recorded_storage_selection_label'] = $this->request->data['FunctionManagement']['recorded_storage_selection_label'];
 				$to_update['AliquotMaster']['storage_coord_x'] = null;
 				$to_update['AliquotMaster']['storage_coord_y'] = null;
-				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
-				
-				$this->AliquotMaster->set($to_update);
-				if($this->AliquotMaster->validates()){
-					$to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
-				}else{
-					$validates = false;
-				}
-				unset($to_update['AliquotMaster']['aliquot_control_id']);
 				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
-			}else if($this->request->data['FunctionManagement']['remove_from_storage'] == 1){
+				
+				$warning_messages = 'aliquots positions have been deleted';
+				
+				$condtions = array('AliquotMaster.id' => $aliquot_ids, 'AliquotMaster.in_stock' => 'no');
+				$aliquot_not_in_stock = $this->AliquotMaster->find('count', array('conditions' => $condtions, 'recursive' => '-1'));
+				if($aliquot_not_in_stock) {
+					$validates = false;
+					$this->AliquotMaster->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');					
+				}
+				
+			} else if(($this->request->data['FunctionManagement']['remove_from_storage'] == 1) || ($this->request->data['AliquotMaster']['in_stock'] == 'no')) {
 				//batch edit
 				$to_update['AliquotMaster']['storage_master_id'] = null;
 				$to_update['AliquotMaster']['storage_coord_x'] = null;
 				$to_update['AliquotMaster']['storage_coord_y'] = null;
 				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
 			}
+			
+			// Validation
 
 			if($validates){
-				$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
-				
+				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
+				$this->AliquotMaster->set($to_update);
+				if($this->AliquotMaster->validates()){
+					$to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
+				}else{
+					$validates = false;
+				}
+				unset($to_update['AliquotMaster']['aliquot_control_id']);				
+			}
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+		
+			if($validates){
 				if($to_update['AliquotMaster']){
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
-					
+										
 					foreach($aliquot_ids as $aliquot_id){
 						$this->AliquotMaster->id = $aliquot_id;
 						$this->AliquotMaster->data = null;
 						$this->AliquotMaster->save($to_update);
 					}
-					
 					
 					$batch_set_data = array('BatchSet' => array(
 							'datamart_structure_id'	=> $datamart_structure->getIdByModelName('ViewAliquot'),
@@ -2469,15 +2503,33 @@ class AliquotMastersController extends InventoryManagementAppController {
 					
 					$batch_set_model->check_writable_fields = false;
 					$batch_set_model->saveWithIds($batch_set_data, $aliquot_ids);
-					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					
+					if($warning_messages) AppController::addWarningMsg(__($warning_messages));
+					
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					
+ 					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				}else{
 					$this->AliquotMaster->validationErrors[][] = 'you need to at least update a value';
 					$this->request->data['ViewAliquot']['aliquot_master_id'] = $aliquot_ids;
 					$this->set('cancel_link', $this->request->data['cancel_link']);
 				}
 			}
+		
+		} else if(!isset($this->request->data['ViewAliquot']['aliquot_master_id'])){
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;			
 		}
+		
 		$this->set('cancel_link', AppController::getCancelLink($this->request->data));
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
 	}
 	
 	/**

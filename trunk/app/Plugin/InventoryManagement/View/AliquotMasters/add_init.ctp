@@ -7,7 +7,9 @@
 		'links' => array(
 			'top' => '/InventoryManagement/AliquotMasters/add/',
 			'bottom' => array('cancel' => $url_to_cancel)),
-		'extras' => '<input type="hidden" name="data[0][ids]" value="'.$ids.'"/>'
+		'extras' => '
+			<input type="hidden" name="data[0][ids]" value="'.$ids.'"/>
+			<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>'
 	);
 	
 	// CUSTOM CODE
