@@ -819,6 +819,7 @@ function initActions(){
 		if(l_pos < header_total_width){
 			r_pos -= header_total_width - l_pos;
 		}
+		
 		$(".root_menu_for_header, .main_menu_for_header").css("right", r_pos);
 		
 		//cells
@@ -981,6 +982,7 @@ function initActions(){
 					$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 					$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 					$(".ajax_search_results").parent().show();
+					flyOverComponents();
 					successFct = function(data){
 						try{
 							data = $.parseJSON(data);
@@ -991,6 +993,7 @@ function initActions(){
 							handleSearchResultLinks();
 							//stop submit button animation
 							$(submit_button).siblings("a").find("span").removeClass('fetching');
+							flyOverComponents();
 						}catch(exception){
 							//simply submit the form then
 							$("form").submit();
