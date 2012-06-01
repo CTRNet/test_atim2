@@ -2098,7 +2098,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				//B- Validate realiquoting data
 				
 				$children_has_been_defined = false;
-				foreach($parent_and_children as $tmp_id => $children_aliquot){
+				foreach($parent_and_children as $tmp_id => &$children_aliquot){
 					if(is_numeric($tmp_id)) {
 						if($children_aliquot['FunctionManagement']['use']) {
 							$children_has_been_defined = true;
@@ -2187,7 +2187,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 		 					$children_aliquot['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
 			 					
 							$this->Realiquoting->id = NULL;
-			  				if(!$this->Realiquoting->save(array('Realiquoting' => $children_aliquot['Realiquoting'], false))){
+							$this->Realiquoting->data = null;
+			  				if(!$this->Realiquoting->save(array('Realiquoting' => $children_aliquot['Realiquoting']), false)){
 								$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 							}
 								
