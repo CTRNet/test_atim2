@@ -58,18 +58,26 @@ class User extends AppModel {
 	}
 	
 	function savePassword(array $data, $error_flash_link, $success_flash_link){
-		
+		assert($this->id);
 		$this->validatePassword($data, $error_flash_link);
 		
-		//all good! save
-		$data['User']['password'] = Security::hash($data['User']['new_password'], null, true);
-
-		unset($data['User']['new_password'], $data['User']['confirm_password']);
-		
-		$this->read();
-		$data['User']['group_id'] = $this->data['User']['group_id'];//otherwise aros table is altered
-		if ( $this->save( $data ) ) {
-			AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
+		if($this->validationErrors){
+			AppController::getInstance()->flash($this->validationErrors['password'][0], $error_flash_link);
+		}else{
+	
+			$this->read();
+			
+			//all good! save
+			$data_to_save = array('User' => array(
+				'group_id' => $this->data['User']['group_id'],
+				'password' => Security::hash($data['User']['new_password'], null, true))
+			);
+			
+			$this->data = null;
+			$this->check_writable_fields = false;
+			if ( $this->save( $data_to_save ) ) {
+				AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
+			}
 		}
 	}
 	
@@ -80,7 +88,7 @@ class User extends AppModel {
 	function validatePassword(array $data){
 		if ( !isset($data['User']['new_password'], $data['User']['confirm_password']) ) {
 			//do nothing
-
+			$this->validationErrors['password'][] = 'internal error';
 		}else{
 			if ($data['User']['new_password'] !== $data['User']['confirm_password']){
 				$this->validationErrors['password'][] = 'passwords do not match'; 
