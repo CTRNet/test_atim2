@@ -195,11 +195,11 @@ class SampleMaster extends InventoryManagementAppModel {
 		// Verify that no parent sample aliquot is attached to the sample list  
 		// 'used aliquot' that allows to display all source aliquots used to create 
 		// the studied sample.
-		$source_aliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
-		$returned_nbr = $source_aliquot_model->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot'); 
-		}
+// 		$source_aliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+// 		$returned_nbr = $source_aliquot_model->find('count', array('conditions' => array('SourceAliquot.sample_master_id' => $sample_master_id), 'recursive' => '-1'));
+// 		if($returned_nbr > 0) { 
+// 			return array('allow_deletion' => false, 'msg' => 'an aliquot of the parent sample is defined as source aliquot'); 
+// 		}
 
 		// Check sample is not linked to qc
 		$quality_ctrl_model = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);	
@@ -236,6 +236,28 @@ class SampleMaster extends InventoryManagementAppModel {
 		}
 		
 		return $formatted_data;
+	}
+	
+	function atimDelete($model_id, $cascade = true){
+		if(parent::atimDelete($model_id, $cascade)){
+			//delete source_aliquots
+			
+			$source_aliquot_model = AppModel::getInstance('InventoryManagement', 'SourceAliquot', true);
+			$aliquot_master = AppModel::getInstance('InventoryManagement', 'AliquotMaster', true);
+			
+			$source_aliquots = $source_aliquot_model->find('all', array('conditions' => array('SourceAliquot.sample_master_id' => $model_id)));
+			$sources = array();
+			foreach($source_aliquots as $new_source){
+				$sources[] = $new_source['SourceAliquot']['aliquot_master_id'];
+				$source_aliquot_model->atimDelete($new_source['SourceAliquot']['id']);
+			}
+			$sources = array_unique($sources);
+			foreach($sources as $source_id){
+				$aliquot_master->updateAliquotUseAndVolume($source_id, true, true, false);
+			}
+			return true;
+		}
+		return false;
 	}
 	
 	static function joinOnSampleDup($on_field){
