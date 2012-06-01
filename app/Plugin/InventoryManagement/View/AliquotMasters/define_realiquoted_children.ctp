@@ -43,6 +43,7 @@
 	$this->Structures->build($empty_structure, $empty_structure_options);
 	
 	//BUILD FORM
+	$hook_link = $this->Structures->hook('loop');
 	$counter = 0;
 	$element_nbr = sizeof($this->request->data);
 	foreach($this->request->data as $aliquot) {
@@ -60,6 +61,11 @@
 		$final_parent_options['data'] = $aliquot['parent'];
 		$final_children_options['settings']['name_prefix'] = $aliquot['parent']['AliquotMaster']['id'];
 		$final_children_options['data'] = $aliquot['children'];
+		
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
 		$this->Structures->build( $in_stock_detail, $final_parent_options );
 		$this->Structures->build( $final_atim_structure, $final_children_options );
 	}	

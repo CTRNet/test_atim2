@@ -734,7 +734,13 @@ class SampleMastersController extends InventoryManagementAppController {
 		// Get Data
 		$model = null;
 		$key = null;
-		$url_to_cancel = null;
+		
+		$url_to_cancel = 'javascript:history.go(-1)';
+		if(isset($this->request->data['BatchSet']['id'])) {
+			$url_to_cancel = '/Datamart/BatchSets/listall/' . $this->request->data['BatchSet']['id'];
+		} else if(isset($this->request->data['node']['id'])) {
+			$url_to_cancel = '/Datamart/Browser/browse/' . $this->request->data['node']['id'];
+		} 		
 		
 		$this->set('aliquot_master_id', $aliquot_master_id);
 		
@@ -763,7 +769,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			//aliquot init case
 			$aliquot_ids = array_filter(isset($this->request->data['ViewAliquot']) ? $this->request->data['ViewAliquot']['aliquot_master_id'] : $this->request->data['AliquotMaster']['id']);
 			if(empty($aliquot_ids)){
-				$this->flash(__("batch init no data"), "javascript:history.back();", 5);
+				$this->flash(__("batch init no data"), $url_to_cancel, 5);
 			}
 			$aliquot_data = $this->AliquotMaster->find('all', array(
 				'fields' => array('AliquotMaster.aliquot_control_id', 'AliquotMaster.sample_master_id'),
@@ -777,7 +783,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			$expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
 			foreach($aliquot_data as $aliquot_unit){
 				if($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id){
-					$this->flash(__("you must select elements with a common type"), "javascript:history.back();", 5);
+					$this->flash(__("you must select elements with a common type"), $url_to_cancel, 5);
 				}
 				$ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
 			}
@@ -787,17 +793,12 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->set("aliquot_ids", implode(",", $aliquot_ids));
 			
 		} else {
-			$this->flash((__('you have been redirected automatically').' (#126)'), "javascript:history.back();", 5);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
-			//$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
 		// Set url to redirect
-		if($url_to_cancel == null){
-			$this->setUrlToCancel();
-		}else{
-			$this->set('url_to_cancel', $url_to_cancel);
-		}
+		$this->set('url_to_cancel', $url_to_cancel);
 		
 		// Manage data	
 		$init_data = $this->batchInit(
@@ -809,7 +810,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			"parent_sample_control_id",
 			"you cannot create derivatives for this sample type");
 		if(array_key_exists('error', $init_data)) {
-			$this->flash(__($init_data['error']), "javascript:history.back();", 5);
+			$this->flash(__($init_data['error']), $url_to_cancel, 5);
 			return;
 		}	
 		
@@ -885,12 +886,25 @@ class SampleMastersController extends InventoryManagementAppController {
 	}
 	
 	function batchDerivative($aliquot_master_id = null){
+		$url_to_cancel = isset($this->request->data['url_to_cancel'])? $this->request->data['url_to_cancel'] : 'javascript:history.go(-1)';
+				
+		$unique_aliquot_master_data = null;
+		if(!is_null($aliquot_master_id)) {
+			$unique_aliquot_master_data = $this->AliquotMaster->findById($aliquot_master_id);
+			if(empty($unique_aliquot_master_data)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$url_to_cancel = '/InventoryManagement/AliquotMasters/detail/'.$unique_aliquot_master_data['AliquotMaster']['collection_id'].'/'.$unique_aliquot_master_data['AliquotMaster']['sample_master_id'].'/'.$aliquot_master_id;				
+		}
+		
+		$this->set('url_to_cancel', $url_to_cancel);
+		unset($this->request->data['url_to_cancel']);
+		
 		if(!isset($this->request->data['SampleMaster']['sample_control_id'])
 			|| !isset($this->request->data['ParentToDerivativeSampleControl']['parent_sample_control_id'])
 		){
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
+			return;
 		} else if($this->request->data['SampleMaster']['sample_control_id'] == ''){
-			$this->flash(__("you must select a derivative type"), "javascript:history.go(-2);", 5);
+			$this->flash(__("you must select a derivative type"), $url_to_cancel, 5);
 			return;
 		}
 		
@@ -913,7 +927,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			if(is_numeric($result)){
 				$lab_book_id = $result;
 			}else{
-				$this->flash($result, "javascript:history.go(-2)", 5);
+				$this->flash($result, $url_to_cancel, 5);
 				return;
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
@@ -929,14 +943,9 @@ class SampleMastersController extends InventoryManagementAppController {
 		$this->set('sample_master_ids', $ids);
 		unset($this->request->data['sample_master_ids']);
 
-		$unique_aliquot_master_data = null;
 		if(is_null($aliquot_master_id)) {
 			$this->setBatchMenu(array('SampleMaster' => $ids));
 		} else {
-			$unique_aliquot_master_data = $this->AliquotMaster->findById($aliquot_master_id);
-			if(empty($unique_aliquot_master_data)){
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			}
 			$this->setAliquotMenu($unique_aliquot_master_data);
 		}
 		
@@ -955,9 +964,6 @@ class SampleMastersController extends InventoryManagementAppController {
 			'SampleControl.sample_category'	=> $children_control_data['SampleControl']['sample_category']
 		));
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
-		
-		$this->setUrlToCancel();
-		unset($this->request->data['url_to_cancel']);
 		
 		$joins = array(array(
 				'table' => 'view_samples',
@@ -1197,64 +1203,6 @@ class SampleMastersController extends InventoryManagementAppController {
 					} 
 				}
 			}
-		}
-	}
-	
-	function batchDerivativeFromAliquotsInit(){
-		if(!isset($this->request->data['ViewAliquot']['aliquot_master_id'])){
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		$id = isset($this->request->data['BatchSet']['id']) ? $this->request->data['BatchSet']['id'] : 0;
-		$this->set('url_to_cancel', isset($this->request->data['BatchSet'])?'/Datamart/BatchSets/listall/' . $id : '/Datamart/Browser/browse/' . $this->request->data['node']['id']);
-		
-		$aliquot_ids = array_filter($this->request->data['ViewAliquot']['aliquot_master_id']);
-		if(empty($aliquot_ids)){
-			$this->flash(__("batch init no data"), "javascript:history.back();", 5);
-		}
-		$aliquot_data = $this->AliquotMaster->find('all', array(
-			'fields' => array('AliquotMaster.aliquot_control_id', 'AliquotMaster.sample_master_id'),
-			'conditions' => array('AliquotMaster.id' => $aliquot_ids)));
-		
-		if(empty($aliquot_data)){
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		
-		$ids = array();
-		$expected_ctrl_id = $aliquot_data[0]['AliquotMaster']['aliquot_control_id'];
-		foreach($aliquot_data as $aliquot_unit){
-			if($aliquot_unit['AliquotMaster']['aliquot_control_id'] != $expected_ctrl_id){
-				$this->flash(__("you must select elements with a common type"), "javascript:history.back();", 5);
-			}
-			$ids[] = $aliquot_unit['AliquotMaster']['sample_master_id'];
-		}
-		$this->request->data = array('SampleMaster' => array('id' => $ids));
-		
-		$init_data = $this->batchInit(
-			$this->SampleMaster,
-			'SampleMaster',
-			'id',
-			"sample_control_id", 
-			$this->ParentToDerivativeSampleControl,
-			"parent_sample_control_id",
-			"you cannot create derivatives for this aliquot type");
-		if(array_key_exists('error', $init_data)) {
-			$this->flash(__($init_data['error']), "javascript:history.back();", 5);
-			return;
-		}
-		
-		foreach($init_data['possibilities'] as $possibility){
-			SampleMaster::$derivatives_dropdown[$possibility['DerivativeControl']['id']] = __($possibility['DerivativeControl']['sample_type']);
-		}
-		
-		$this->set('ids', $ids);
-		
-		$this->Structures->set('derivative_init');
-		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/'));
-		$this->set('parent_sample_control_id', $init_data['control_id']);
-		
-		$hook_link = $this->hook('format');
-		if($hook_link){
-			require($hook_link);
 		}
 	}
 }
