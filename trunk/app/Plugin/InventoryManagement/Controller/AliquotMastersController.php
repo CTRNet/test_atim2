@@ -2430,50 +2430,75 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	function editInBatch(){
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
-		$this->Structures->set('aliquot_masters,used_aliq_in_stock_details');
+		$this->Structures->set('aliquot_master_edit_in_batchs');
 		
 		if(isset($this->request->data['aliquot_ids'])){
 			$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
+			$to_update['AliquotMaster'] = array_filter($this->request->data['AliquotMaster']);
 			
 			$warning_messages = null;
 			$validates = true;
-			$to_update['AliquotMaster'] = array_filter($this->request->data['AliquotMaster']);
 			
- 			if($this->request->data['FunctionManagement']['recorded_storage_selection_label'] 
- 			&& (($this->request->data['FunctionManagement']['remove_from_storage'] == 1) || ($this->request->data['AliquotMaster']['in_stock'] == 'no'))) {
- 				$validates = false;
- 				$this->AliquotMaster->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
- 					
- 			} else if($this->request->data['FunctionManagement']['recorded_storage_selection_label']){
-				$to_update['FunctionManagement']['recorded_storage_selection_label'] = $this->request->data['FunctionManagement']['recorded_storage_selection_label'];
-				$to_update['AliquotMaster']['storage_coord_x'] = null;
-				$to_update['AliquotMaster']['storage_coord_y'] = null;
-				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
-				
-				$warning_messages = 'aliquots positions have been deleted';
-				
-				$condtions = array('AliquotMaster.id' => $aliquot_ids, 'AliquotMaster.in_stock' => 'no');
-				$aliquot_not_in_stock = $this->AliquotMaster->find('count', array('conditions' => $condtions, 'recursive' => '-1'));
-				if($aliquot_not_in_stock) {
+			// Check data conflict
+			
+			if($this->request->data['FunctionManagement']['recorded_storage_selection_label'] && (($this->request->data['FunctionManagement']['remove_from_storage'] == 'y') || ($this->request->data['AliquotMaster']['in_stock'] == 'no'))) {
+				$validates = false;
+				$this->AliquotMaster->validationErrors['recorded_storage_selection_label'][] = __('data conflict: you can not remove aliquot and set a storage');
+				if($this->request->data['AliquotMaster']['in_stock'] == 'no') $this->AliquotMaster->validationErrors['in_stock'][] = __('data conflict: you can not remove aliquot and set a storage');
+			}
+
+			foreach($this->request->data['AliquotMaster'] as $key => $value) {
+				if(strlen($this->request->data['AliquotMaster'][$key]) && array_key_exists('remove_'.$key, $this->request->data['FunctionManagement']) && $this->request->data['FunctionManagement']['remove_'.$key] == 'y') {
 					$validates = false;
-					$this->AliquotMaster->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');					
+					$this->AliquotMaster->validationErrors[$key][] = __('data conflict: you can not delete data and set a new one');
 				}
-				
-			} else if(($this->request->data['FunctionManagement']['remove_from_storage'] == 1) || ($this->request->data['AliquotMaster']['in_stock'] == 'no')) {
-				//batch edit
-				$to_update['AliquotMaster']['storage_master_id'] = null;
-				$to_update['AliquotMaster']['storage_coord_x'] = null;
-				$to_update['AliquotMaster']['storage_coord_y'] = null;
-				$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
 			}
 			
-			// Validation
+			// Manage FunctionManagement
+			
+			if($validates){			
+				// Storage
+				if($this->request->data['FunctionManagement']['recorded_storage_selection_label']){
+					$to_update['FunctionManagement']['recorded_storage_selection_label'] = $this->request->data['FunctionManagement']['recorded_storage_selection_label'];
+					$to_update['AliquotMaster']['storage_coord_x'] = null;
+					$to_update['AliquotMaster']['storage_coord_y'] = null;
+					$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+					
+					$warning_messages = 'aliquots positions have been deleted';
+					
+					if(empty($this->request->data['AliquotMaster']['in_stock'])) {
+						$condtions = array('AliquotMaster.id' => $aliquot_ids, 'AliquotMaster.in_stock' => 'no');
+						$aliquot_not_in_stock = $this->AliquotMaster->find('count', array('conditions' => $condtions, 'recursive' => '-1'));
+						if($aliquot_not_in_stock) {
+							$validates = false;
+							$warning_messages = '';
+							$this->AliquotMaster->validationErrors['recorded_storage_selection_label'][] = __('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value');					
+						}
+					}
+					
+				} else if(($this->request->data['FunctionManagement']['remove_from_storage'] == 'y') || ($this->request->data['AliquotMaster']['in_stock'] == 'no')) {
+					//batch edit
+					$to_update['AliquotMaster']['storage_master_id'] = null;
+					$to_update['AliquotMaster']['storage_coord_x'] = null;
+					$to_update['AliquotMaster']['storage_coord_y'] = null;
+					$this->AliquotMaster->addWritableField(array('storage_master_id', 'storage_coord_x', 'storage_coord_y'));
+				}
+				
+				// Other data
+				foreach($this->request->data['AliquotMaster'] as $key => $value) {
+					if(array_key_exists('remove_'.$key, $this->request->data['FunctionManagement']) && $this->request->data['FunctionManagement']['remove_'.$key] == 'y') {
+						$to_update['AliquotMaster'][$key] = null;
+					}
+				}			
+			}	
+
+		// Validation
 
 			if($validates){
 				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
 				$this->AliquotMaster->set($to_update);
 				if($this->AliquotMaster->validates()){
-					$to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
+					if(!empty($to_update['AliquotMaster']['storage_master_id'])) $to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
 				}else{
 					$validates = false;
 				}
@@ -2484,8 +2509,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if( $hook_link ) {
 				require($hook_link);
 			}
-		
-			if($validates){
+
+			if($validates){		
 				if($to_update['AliquotMaster']){
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
