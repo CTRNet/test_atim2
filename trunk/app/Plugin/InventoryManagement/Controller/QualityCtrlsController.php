@@ -104,7 +104,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				}
 			}
 		}else{
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $cancel_button, 5);
+			return;
 		}
 		$this->setBatchMenu(array('SampleMaster' => $menu_data));
 		$this->set('cancel_button', $cancel_button);
@@ -264,6 +265,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			//save
 			if(empty($errors) && !empty($qc_data_to_save)){
 				$this->QualityCtrl->addWritableField(array('sample_master_id', 'aliquot_master_id'));
+				$this->QualityCtrl->writable_fields_mode = 'addgrid';
 				$this->QualityCtrl->saveAll($qc_data_to_save, array('validate' => false));
 				$last_qc_id = $this->QualityCtrl->getLastInsertId();
 				
@@ -458,6 +460,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 			// Save data
 			$this->QualityCtrl->id = $quality_ctrl_id;
+			$this->QualityCtrl->addWritableField(array('aliquot_master_id'));
 			if ($submitted_data_validates && $this->QualityCtrl->save( $this->request->data )) {
 				if($update_new_aliquot_id != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($update_new_aliquot_id, true, true, false);
