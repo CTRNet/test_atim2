@@ -2279,4 +2279,7 @@ VALUES
 ('new storage selection label','New (selection label)','Nouveau (Identifiant de sélection)'),
 ('data conflict: you can not delete data and set a new one', 'Data conflict: You can not delete data and set a new one', ' Conflit de données : Vous ne pouvez supprimer la données et en définir une nouvelle');
 
-
+DELETE FROM datamart_reports WHERE function = 'aliquotSpentTimesCalulations';
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('aliquot_spent_times_report', 'report_aliquot_spent_times_defintion'));
+DELETE FROM structures WHERE alias IN ('aliquot_spent_times_report', 'report_aliquot_spent_times_defintion');
+DELETE FROM datamart_structure_functions WHERE label = 'generate aliquots spent times summary';
