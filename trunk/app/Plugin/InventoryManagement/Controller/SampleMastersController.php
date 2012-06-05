@@ -1112,10 +1112,10 @@ class SampleMastersController extends InventoryManagementAppController {
 				foreach($prev_data as $parent_id => &$children){
 					unset($children['ViewSample']);
 					unset($children['StorageMaster']);
-					foreach($children as &$child){
+					foreach($children as &$child_to_save){
 						// save sample master
 						$this->SampleMaster->id = null;
-						if(!$this->SampleMaster->save($child, false)){ 
+						if(!$this->SampleMaster->save($child_to_save, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 							
 						$child_id = $this->SampleMaster->getLastInsertId();
@@ -1131,8 +1131,8 @@ class SampleMastersController extends InventoryManagementAppController {
 
 						// Save derivative detail
 						$this->DerivativeDetail->id = $child_id;
-						$child['DerivativeDetail']['sample_master_id'] = $child_id;
-						if(!$this->DerivativeDetail->save($child, false)){ 
+						$child_to_save['DerivativeDetail']['sample_master_id'] = $child_id;
+						if(!$this->DerivativeDetail->save($child_to_save, false)){ 
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 
@@ -1143,7 +1143,7 @@ class SampleMastersController extends InventoryManagementAppController {
 							$this->SourceAliquot->save(array('SourceAliquot' => array(
 								'sample_master_id'	=> $child_id,
 								'aliquot_master_id'	=> $parent_id,
-								'used_volume'		=> isset($child['SourceAliquot']['used_volume']) ? $child['SourceAliquot']['used_volume'] : null,
+								'used_volume'		=> isset($child_to_save['SourceAliquot']['used_volume']) ? $child_to_save['SourceAliquot']['used_volume'] : null,
 							)));
 						}
 													
