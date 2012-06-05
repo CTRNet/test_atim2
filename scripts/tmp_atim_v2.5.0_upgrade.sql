@@ -2286,3 +2286,12 @@ DELETE FROM datamart_structure_functions WHERE label = 'generate aliquots spent 
 
 ALTER TABLE	 ar_breast_tissue_slides DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by;
 ALTER TABLE	 ar_breast_tissue_slides_revs DROP COLUMN modified_by;
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('edit all order line items','Edit All Items','Modifier Articles'),
+('order item','Order Item','Article de commande'),
+('line items','Line Items','Articles de la ligne'),
+('line item','Line Item','Article de la ligne'),
+('no item has been defined as shipped','No item has been defined as shipped','Aucun article n''a été défini comme envoyé');
+
+UPDATE menus SET flag_active = 0 WHERE  use_link = '/Order/OrderItems/listall/%%Order.id%%/%%OrderLine.id%%/';

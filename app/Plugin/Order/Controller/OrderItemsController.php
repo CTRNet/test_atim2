@@ -78,7 +78,7 @@ class OrderItemsController extends OrderAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderItems/listall/%%Order.id%%/%%OrderLine.id%%/'));
+		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
 		$hook_link = $this->hook('format');
@@ -122,11 +122,15 @@ class OrderItemsController extends OrderAppController {
 				$new_order_item_data['OrderItem']['order_line_id'] = $order_line_id;
 				$new_order_item_data['OrderItem']['aliquot_master_id'] = $aliquot_data['AliquotMaster']['id'];
 				
+				$this->OrderItem->addWritableField(array('status', 'order_line_id', 'aliquot_master_id'));
+					
 				$this->OrderItem->id = null;
 				if($this->OrderItem->save($new_order_item_data)) {
 					// Update Order Line status
 					$new_order_line_data = array();
 					$new_order_line_data['OrderLine']['status'] = 'pending';
+					
+					$this->OrderLine->addWritableField(array('status'));
 					
 					$this->OrderLine->id = $order_line_data['OrderLine']['id'];
 					if(!$this->OrderLine->save($new_order_line_data)) { 
@@ -137,6 +141,8 @@ class OrderItemsController extends OrderAppController {
 					$new_aliquot_master_data = array();
 					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
+					
+					$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
 					
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_data['AliquotMaster']['id'];
@@ -149,7 +155,7 @@ class OrderItemsController extends OrderAppController {
 						require($hook_link);
 					}
 					// Redirect
-					$this->atimFlash('your data has been saved', '/Order/OrderItems/listall/'.$order_id.'/'.$order_line_id.'/');
+					$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
 				}
 			}
 		}
@@ -404,7 +410,7 @@ class OrderItemsController extends OrderAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderItems/listall/%%Order.id%%/%%OrderLine.id%%/'));
+		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
 		
 		$hook_link = $this->hook('format');
@@ -473,7 +479,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/Order/OrderItems/listall/'.$order_id.'/'.$order_line_id.'/');
+				$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
 			}
 		}
 	}
@@ -499,7 +505,7 @@ class OrderItemsController extends OrderAppController {
 			require($hook_link); 
 		}		
 		
-		$url = '/Order/OrderItems/listall/'.$order_id.'/'.$order_line_id.'/';
+		$url = '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/';
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Launch deletion
@@ -510,6 +516,8 @@ class OrderItemsController extends OrderAppController {
 				$new_aliquot_master_data = array();
 				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - available';
 				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = '';
+				
+				$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
 				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $order_item_data['OrderItem']['aliquot_master_id'];
@@ -528,6 +536,8 @@ class OrderItemsController extends OrderAppController {
 				}
 				$order_line_data = array();
 				$order_line_data['OrderLine']['status'] = $new_status;
+				
+				$this->OrderLine->addWritableField(array('status'));
 				
 				$this->OrderLine->id = $order_line_id;
 				if(!$this->OrderLine->save($order_line_data)) { 

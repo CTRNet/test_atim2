@@ -146,9 +146,9 @@ class OrdersController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Order->atimDelete($order_id)) {
-				$this->atimFlash('your data has been deleted', '/Order/orders/index/');
+				$this->atimFlash('your data has been deleted', '/Order/orders/search/');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/orders/index/');
+				$this->flash('error deleting data - contact administrator', '/Order/orders/search/');
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/Order/orders/detail/' . $order_id);
