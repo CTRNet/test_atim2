@@ -2283,3 +2283,6 @@ DELETE FROM datamart_reports WHERE function = 'aliquotSpentTimesCalulations';
 DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('aliquot_spent_times_report', 'report_aliquot_spent_times_defintion'));
 DELETE FROM structures WHERE alias IN ('aliquot_spent_times_report', 'report_aliquot_spent_times_defintion');
 DELETE FROM datamart_structure_functions WHERE label = 'generate aliquots spent times summary';
+
+ALTER TABLE	 ar_breast_tissue_slides DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by;
+ALTER TABLE	 ar_breast_tissue_slides_revs DROP COLUMN modified_by;

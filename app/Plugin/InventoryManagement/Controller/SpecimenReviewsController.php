@@ -160,9 +160,10 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				}
 				if(!empty($all_aliquot_review_master_errors)) {
 					$this->AliquotReviewMaster->validationErrors = array();
-					foreach($all_aliquot_review_master_errors as $field => $error_message) {
-						$this->AliquotReviewMaster->validationErrors[$field][]  = $error_message;					
-					}
+					foreach($all_aliquot_review_master_errors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $error_message) $this->AliquotReviewMaster->validationErrors[$field][]  = $error_message;
+					}					
 				}
 			}
 			
@@ -187,18 +188,18 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if($is_aliquot_review_defined) {
 					$this->AliquotReviewMaster->writable_fields_mode = 'addgrid';
 					$this->AliquotReviewMaster->addWritableField(array('aliquot_review_control_id', 'specimen_review_master_id'));
-					foreach($aliquot_review_data as $new_aliquot_review) {
+					foreach($aliquot_review_data as $new_aliquot_review_to_save) {
 						// Save aliquot review
 						$this->AliquotReviewMaster->id = null;
-						unset($new_aliquot_review['AliquotReviewMaster']['id']);
-						$new_aliquot_review['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
-						if(!$this->AliquotReviewMaster->save($new_aliquot_review, false)) { 
+						unset($new_aliquot_review_to_save['AliquotReviewMaster']['id']);
+						$new_aliquot_review_to_save['AliquotReviewMaster']['specimen_review_master_id'] = $specimen_review_master_id;
+						if(!$this->AliquotReviewMaster->save($new_aliquot_review_to_save, false)) { 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						}
 
 						//Track aliquot to update
-						if(!empty($new_aliquot_review['AliquotReviewMaster']['aliquot_master_id'])) { 
-							$studied_aliquot_master_ids[] = $new_aliquot_review['AliquotReviewMaster']['aliquot_master_id']; 
+						if(!empty($new_aliquot_review_to_save['AliquotReviewMaster']['aliquot_master_id'])) { 
+							$studied_aliquot_master_ids[] = $new_aliquot_review_to_save['AliquotReviewMaster']['aliquot_master_id']; 
 						}						
 					}
 				}
@@ -390,9 +391,10 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				}
 				if(!empty($all_aliquot_review_master_errors)) {
 					$this->AliquotReviewMaster->validationErrors = array();
-					foreach($all_aliquot_review_master_errors as $field => $error_message) {
-						$this->AliquotReviewMaster->validationErrors[$field][]  = $error_message;					
-					}
+					foreach($all_aliquot_review_master_errors as $field => $msgs) {
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $error_message) $this->AliquotReviewMaster->validationErrors[$field][]  = $error_message;
+					}	
 				}			
 			}
 			
