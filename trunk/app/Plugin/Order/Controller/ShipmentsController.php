@@ -214,40 +214,25 @@ class ShipmentsController extends OrderAppController {
 		}
 		
 		if(empty($this->request->data)){
-			$this->request->data = array();
-			$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
-			$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
-			foreach($available_order_items as $order_item){
-				if(!isset($this->request->data[$order_item['OrderLine']['id']])){
-					$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
-					$name = __($sample_ctrl['SampleControl']['sample_type']);
-					if($order_item['OrderLine']['aliquot_control_id']){
-						$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
-						$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
-					}
-					if($order_item['OrderLine']['sample_aliquot_precision']){
-						$name .= ' - '.$order_item['OrderLine']['sample_aliquot_precision'];
-					}
-					$this->request->data[$order_item['OrderLine']['id']] = array('name' => $name, 'data' => array());
-				}
-				$this->request->data[$order_item['OrderLine']['id']]['data'][] = $order_item;
-			}
-			
+			$this->request->data = $this->formatDataForShippedItemsSelection($available_order_items);
+		
 		} else {	
+				
 			// Launch validation
 			$submitted_data_validates = true;
 			$data_to_save = array_filter($this->request->data['OrderItem']['id']);
 			
 			if(empty($data_to_save)) { 
 				$this->OrderItem->validationErrors[] = 'no item has been defined as shipped';	
-				$submitted_data_validates = false;			
+				$submitted_data_validates = false;	
+				$this->request->data = $this->formatDataForShippedItemsSelection($available_order_items);
 			}
 			
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link); 
 			}
-			
+					
 			if ($submitted_data_validates) {	
 				// Launch Save Process
 				$order_line_to_update = array();
@@ -325,6 +310,28 @@ class ShipmentsController extends OrderAppController {
 					'/Order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		
 		}	
+	}
+	
+	function formatDataForShippedItemsSelection($order_items) {
+		$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
+		$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
+		foreach($order_items as $order_item){
+			if(!isset($data[$order_item['OrderLine']['id']])){
+				$sample_ctrl = $sample_control_model->findById($order_item['OrderLine']['sample_control_id']);
+				$name = __($sample_ctrl['SampleControl']['sample_type']);
+				if($order_item['OrderLine']['aliquot_control_id']){
+					$aliquot_ctrl = $aliquot_control_model->findById($order_item['OrderLine']['aliquot_control_id']);
+					$name .= ' - '.$aliquot_ctrl['AliquotControl']['aliquot_type'];
+				}
+				if($order_item['OrderLine']['sample_aliquot_precision']){
+					$name .= ' - '.$order_item['OrderLine']['sample_aliquot_precision'];
+				}
+				$data[$order_item['OrderLine']['id']] = array('name' => $name, 'data' => array());
+			}
+			$data[$order_item['OrderLine']['id']]['data'][] = $order_item;
+		}
+		
+		return $data;
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){

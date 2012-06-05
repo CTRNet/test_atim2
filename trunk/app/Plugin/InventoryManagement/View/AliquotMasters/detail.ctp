@@ -15,7 +15,7 @@
 	}
 	
 	if(isset($order_line_id) && isset($order_id)){
-		$structure_links['bottom']['access to order'] = array("link" => '/Order/OrderItems/listall/'.$order_id.'/'.$order_line_id.'/', "icon" => "order");
+		$structure_links['bottom']['access to order'] = array("link" => '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/', "icon" => "order");
 	}else{
 		$structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "order");
 	}		

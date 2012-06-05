@@ -134,6 +134,8 @@ class OrderLinesController extends OrderAppController {
 			$this->request->data['OrderLine']['sample_control_id'] = $product_controls[0];
 			$this->request->data['OrderLine']['aliquot_control_id'] = $product_controls[1];
 				
+			$this->OrderLine->addWritableField(array('sample_control_id', 'aliquot_control_id'));
+			
 			$submitted_data_validates = true;
 			
 			$hook_link = $this->hook('presave_process');
@@ -195,9 +197,9 @@ class OrderLinesController extends OrderAppController {
 			
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->OrderLine->atimDelete($order_line_id)) {
-				$this->atimFlash('your data has been deleted', '/Order/OrderLines/listall/'.$order_id);
+				$this->atimFlash('your data has been deleted', '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/OrderLines/listall/'.$order_id);
+				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/Order/OrderLines/detail/' . $order_id . '/' . $order_line_id);
