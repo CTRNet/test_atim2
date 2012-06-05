@@ -2188,22 +2188,22 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// Save realiquoting data
-					foreach($parent_and_children['children'] as $children_aliquot) {
-						if($children_aliquot['FunctionManagement']['use']){
+					foreach($parent_and_children['children'] as $children_aliquot_to_save) {		
+						if($children_aliquot_to_save['FunctionManagement']['use']){
 			  				//save realiquoting
-			  				$children_aliquot['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
-			 				$children_aliquot['Realiquoting']['child_aliquot_master_id'] = $children_aliquot['AliquotMaster']['id'];
-		  					$children_aliquot['Realiquoting']['lab_book_master_id'] = $lab_book_id;
-		 					$children_aliquot['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
+			  				$children_aliquot_to_save['Realiquoting']['parent_aliquot_master_id'] = $parent_id;
+			 				$children_aliquot_to_save['Realiquoting']['child_aliquot_master_id'] = $children_aliquot_to_save['AliquotMaster']['id'];
+		  					$children_aliquot_to_save['Realiquoting']['lab_book_master_id'] = $lab_book_id;
+		 					$children_aliquot_to_save['Realiquoting']['sync_with_lab_book'] = $sync_with_lab_book;
 			 					
 							$this->Realiquoting->id = NULL;
 							$this->Realiquoting->data = null;
-			  				if(!$this->Realiquoting->save(array('Realiquoting' => $children_aliquot['Realiquoting']), false)){
+			  				if(!$this->Realiquoting->save(array('Realiquoting' => $children_aliquot_to_save['Realiquoting']), false)){
 								$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 							}
 								
 							// Set data for batchset
-							$new_aliquot_ids[] = $children_aliquot['AliquotMaster']['id'];	
+							$new_aliquot_ids[] = $children_aliquot_to_save['AliquotMaster']['id'];	
 						}
 					}
 					
