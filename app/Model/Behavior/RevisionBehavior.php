@@ -940,6 +940,13 @@ class RevisionBehavior extends ModelBehavior {
             return true;
 		}   
 		$model->ShadowModel->create();
+		
+		//ATiM start-------
+		//saveAll fix
+		if(isset($model->version_id)){
+			$model->version_id = null;
+		}
+		//ATiM end---------
 		if (!isset($model->data[$model->alias][$model->primaryKey]) && !$model->id) {
 			return true;
 		}
