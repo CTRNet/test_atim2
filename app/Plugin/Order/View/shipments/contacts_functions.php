@@ -48,6 +48,8 @@ function saveContact(){
 }
 
 function deleteContact(id){
+	$("#deleteConfirmPopup").popup('close');
+	$("div.popup_outer:not(:visible)").remove();
 	$("#manageContactPopup").popup('close');
 	$("#manageContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$("#manageContactPopup").popup();
