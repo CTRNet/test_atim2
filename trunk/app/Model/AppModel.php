@@ -685,9 +685,14 @@ class AppModel extends Model {
 						);
 						break;
 					case 'float':
-						list($m, $d) = explode(',', $field_data['length']);
-						$max = str_repeat('9', $m - $d).".".str_repeat('9', $d);
-						$min = -1 * $max;
+						if($field_data['length']){
+							list($m, $d) = explode(',', $field_data['length']);
+							$max = str_repeat('9', $m - $d).".".str_repeat('9', $d);
+							$min = -1 * $max;
+						}else if($field_data['atim_type'] == 'float unsigned'){
+							$min = "0";
+							$max = "1000000000000";//arbitrary limit
+						}
 						$auto_validation[$field_name][] = array(
 							'rule' => array('range', (int)$min - 1, (int)$max + 1),
 							'allowEmpty' => true,
