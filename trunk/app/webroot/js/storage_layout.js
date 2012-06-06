@@ -286,6 +286,7 @@ function preparePost(){
 			cells = cells.substr(0, cells.length - 1);
 		}
 		var form = $("#firstStorageRow").parents("form:first");
+		$("input.submit").first().siblings("a").find('span').removeClass("fetching");
 		$(form).append("<input type='hidden' name='data' value='[" + cells + "]'/>").submit();
 		
 	}
