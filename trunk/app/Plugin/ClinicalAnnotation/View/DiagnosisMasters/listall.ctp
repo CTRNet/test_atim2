@@ -1,12 +1,4 @@
 <?php 
-	$primary_can_add = false;
-	foreach($diagnosis_controls_list as $dx_ctrl){
-		if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
-			$primary_can_add = true;
-			break;
-		}
-	}	
-	
 	$structure_links = array(
 		'tree'=>array(
 			'DiagnosisMaster' => array(
@@ -16,7 +8,7 @@
 				), 'access to all data' => array(
 					'link' => '/ClinicalAnnotation/DiagnosisMasters/detail/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 					'icon' => 'detail'
- 				), 'add' => AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/add/') && $primary_can_add ? 'javascript:addPopup(%%DiagnosisMaster.id%%);' : 'javascript:addPopup(0)'
+ 				), 'add' => AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/add/') ? 'javascript:addPopup(%%DiagnosisMaster.id%%, %%DiagnosisControl.id%%);' : 'javascript:addPopup(0)'
 			), 'TreatmentMaster' => array(
 				'see treatment summary' => array(
 					'link' => '/ClinicalAnnotation/TreatmentMasters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/1',

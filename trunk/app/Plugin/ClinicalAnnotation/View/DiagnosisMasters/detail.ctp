@@ -4,10 +4,12 @@
 			'edit'=>'/ClinicalAnnotation/DiagnosisMasters/edit/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'delete'=>'/ClinicalAnnotation/DiagnosisMasters/delete/%%DiagnosisMaster.participant_id%%/%%DiagnosisMaster.id%%/',
 			'list'=>'/ClinicalAnnotation/DiagnosisMasters/listall/%%DiagnosisMaster.participant_id%%/',
-			'redefine unknown primary' => '/underdevelopment/',
-			'add'	=> 'javascript:addPopup('.$diagnosis_master_id.', '.($is_secondary ? '1' : '0').');'
+			'redefine unknown primary' => '/underdevelopment/'
 		)
 	);
+	if(in_array($this->data['DiagnosisControl']['category'], array('primary', 'secondary'))){
+		$structure_links['bottom']['add'] = 'javascript:addPopup('.$this->data['DiagnosisMaster']['id'].', '.$this->data['DiagnosisControl']['id'].');';
+	}
 	
 	if(isset($primary_ctrl_to_redefine_unknown) && !empty($primary_ctrl_to_redefine_unknown)) {
 		$redefine_links = array();
