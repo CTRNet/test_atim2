@@ -380,8 +380,6 @@ class OrderItemsController extends OrderAppController {
 	}
 	
 	function edit( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
-		
 		// MANAGE DATA
 	
 		// Check order line
@@ -425,7 +423,8 @@ class OrderItemsController extends OrderAppController {
 			foreach($this->request->data as $key => $new_studied_item){
 				// Launch Order Item validation
 				$this->OrderItem->set($new_studied_item);
-				$submitted_data_validates = ($this->OrderItem->validates())? $submitted_data_validates: false;
+				$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;
+				$new_studied_item = $this->OrderItem->data;
 				foreach($this->OrderItem->validationErrors as $field => $msgs) {
 					$msgs = is_array($msgs)? $msgs : array($msgs);
 					foreach($msgs as $msg) $errors['OrderItem'][$field][$msg]= '-';
