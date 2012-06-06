@@ -20,7 +20,7 @@ class StructuresComponent extends Component {
 	 */
 	function set($alias = NULL, $structure_name = 'atim_structure', array $parameters = array()){
 		if(!is_array($alias)){
-			$alias = explode(",", $alias);			
+			$alias = array_filter(explode(",", $alias));			
 		}
 		$parameters = array_merge(
 			array(
