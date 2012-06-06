@@ -835,10 +835,10 @@ function initActions(){
 	
 	function initAutoHideVolume(){
 		$("input[type=radio]").click(function(){
-			if(jQuery.inArray($(this).val(), volumeIds) > -1){
-				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").prop("disabled", false);
+			if($.inArray($(this).val(), volumeIds) > -1){
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", false);
 			}else{
-				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").prop("disabled", true).val("");
+				$("input[name=data\\[QualityCtrl\\]\\[used_volume\\]]").attr("disabled", true).val("");
 			}
 		});
 		$("input[type=radio]:checked").click();
@@ -1138,14 +1138,20 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
+		$("body").append('<div class="hidden" id="initFlyOverCells"></div>');
+		var tmpDiv = $("#initFlyOverCells");
 		$(scope).find("table").find("th.floatingCell:last").each(function(){
 			//floaintCells are headers. Make their column float for thead and tbody
+			$(this).children().appendTo(tmpDiv);
 			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
+			var lastDiv = $(this).find("div:last");
+			$(tmpDiv).children().appendTo(lastDiv);
 			$(this).prevAll().each(function(){
 				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>');
 			});
 			initFlyOverCellsLines($(this).parents("table:first"));
 		});
+		$("#tmpDiv").remove();
 	}
 	
 	function initFlyOverCellsLines(scope){
@@ -1160,31 +1166,31 @@ function initActions(){
 			//from the last floatingCell index
 			var prevNodes = $(this).prevAll();
 			var length = prevNodes.length + 1;
-			console.log($(prevNodes[prevNodes.length - 1]));
-			console.log($(prevNodes[prevNodes.length - 1]).attr("colspan"));
 			if(prevNodes.length > 0 && $(prevNodes[prevNodes.length - 1]).attr("colspan") > 1){
 				length += $(prevNodes[prevNodes.length - 1]).attr("colspan") - 1;
 			}
+			
+			$("body").append('<div id="initFlyOverCellsLines" class="hidden"></div>');
+			var tmpDiv = $("#initFlyOverCellsLines");
 			$(scope).find("td:nth-child(" + length + ")").each(function(){
 				//for every lines within the scope
 				
 				//apply the rule to self and previous cells
-				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>').find(".floatingCell").css({ 
-					"padding-top" : $(this).css("padding-top"), 
-					"padding-right" : $(this).css("padding-right"),
-					"padding-bottom" : $(this).css("padding-bottom"),
-					"padding-left" : $(this).css("padding-left")
-				});
-				$(this).css("padding", 0);
-				$(this).prevAll().each(function(){
-					$(this).html('<div class="floatingCell">' + $(this).html() + '</div>').find(".floatingCell").css({ 
-						"padding-top" : $(this).css("padding-top"), 
-						"padding-right" : $(this).css("padding-right"),
-						"padding-bottom" : $(this).css("padding-bottom"),
-						"padding-left" : $(this).css("padding-left")
+				var targets = new Array();
+				targets = [this];
+				targets = targets.concat($(this).prevAll());
+				for(i in targets){
+					$(targets[i]).children().appendTo(tmpDiv);
+					$(targets[i]).html('<div class="floatingCell">' + $(targets[i]).html() + '</div>').find(".floatingCell").css({ 
+						"padding-top" : $(targets[i]).css("padding-top"), 
+						"padding-right" : $(targets[i]).css("padding-right"),
+						"padding-bottom" : $(targets[i]).css("padding-bottom"),
+						"padding-left" : $(targets[i]).css("padding-left")
 					});
-					$(this).css("padding", 0);
-				});
+					$(targets[i]).css("padding", 0);
+					var returnTo = $(targets[i]).find(".floatingCell");
+					$(tmpDiv).children().appendTo(returnTo);
+				}
 			});
 		});
 
