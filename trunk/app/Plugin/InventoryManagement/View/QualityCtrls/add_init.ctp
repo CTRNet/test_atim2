@@ -36,6 +36,11 @@
 			array('value' => '')
 	), "</div>";
 	
+	foreach($aliquot_data_vol as &$aliquot_data_unit){
+		unset($aliquot_data_unit['ViewAliquot']['aliquot_master_id']);
+	}
+	unset($aliquot_data_unit);
+	
 	$final_atim_structure = $aliquot_structure_vol;
 	$final_options = array(
 		'type' 	=> 'index',
@@ -61,7 +66,10 @@
 	
 	
 	
-	
+	foreach($aliquot_data_no_vol as &$aliquot_data_unit){
+		unset($aliquot_data_unit['ViewAliquot']['aliquot_master_id']);
+	}
+	unset($aliquot_data_unit);
 	$final_atim_structure = $aliquot_structure_no_vol;
 	$final_options = array(
 			'type' 	=> 'index',
