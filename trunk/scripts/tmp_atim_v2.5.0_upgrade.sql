@@ -2288,6 +2288,7 @@ ALTER TABLE	 ar_breast_tissue_slides DROP COLUMN created, DROP COLUMN created_by
 ALTER TABLE	 ar_breast_tissue_slides_revs DROP COLUMN modified_by;
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+("a valid order line has to be selected", "A valid order line has to be selected", "Une ligne de commande valide doit être sélectionnée"),
 ('edit all order line items','Edit All Items','Modifier Articles'),
 ('order item','Order Item','Article de commande'),
 ('line items','Line Items','Articles de la ligne'),

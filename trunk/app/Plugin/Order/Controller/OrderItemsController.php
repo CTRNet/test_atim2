@@ -158,7 +158,7 @@ class OrderItemsController extends OrderAppController {
   		
   		// MANAGE SET OF ALIQUOT IDS TO WORK ON
 		$aliquot_ids_to_add = null;
-		$url_to_redirect = '/menus';
+		$url_to_redirect = 'javascript:history.go(-1)';
 		$launch_save_process = false;
 		
 			
@@ -188,18 +188,19 @@ class OrderItemsController extends OrderAppController {
 					
 			} else {
 				// Add aliquots from batchset
-						
+				
 				// Build redirect url
 				$this->setUrlToCancel();
 				$url_to_redirect = $this->request->data['url_to_cancel'];
-			
+
 				$studied_aliquot_master_ids = array();
 				if(isset($this->request->data['AliquotMaster'])) {
 					$studied_aliquot_master_ids = $this->request->data['AliquotMaster']['id'];
 				} else if(isset($this->request->data['ViewAliquot'])) {
 					$studied_aliquot_master_ids = $this->request->data['ViewAliquot']['aliquot_master_id'];
 				} else {
-					$this->redirect('/Pages/err_order_system_errors', null, true); 
+					$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_redirect, 5);
+					return;
 				}
 				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
 					//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
@@ -319,7 +320,7 @@ class OrderItemsController extends OrderAppController {
 			}
 			if(empty($selected_order_line_data)) {
 				$submitted_data_validates = false;
-				$this->OrderItem->validationErrors[][] = __("invalid order line");
+				$this->OrderItem->validationErrors[][] = __("a valid order line has to be selected");
 			}
 			$order_id = $selected_order_line_data['OrderLine']['order_id'];		
 			
@@ -340,7 +341,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem']['status'] = 'pending';
 					$new_order_item_data['OrderItem']['aliquot_master_id'] = $added_aliquot_master_id;
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->request->data['OrderItem']);
-					
+					$this->OrderItem->addWritableField(array('status', 'aliquot_master_id'));
 					$this->OrderItem->id = null;
 					if(!$this->OrderItem->save($new_order_item_data)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
@@ -350,7 +351,7 @@ class OrderItemsController extends OrderAppController {
 					$new_aliquot_master_data = array();
 					$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 					$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
-					
+					$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $added_aliquot_master_id;
 					if(!$this->AliquotMaster->save($new_aliquot_master_data)) { 
@@ -361,7 +362,7 @@ class OrderItemsController extends OrderAppController {
 				// Update Order Line status
 				$new_order_line_data = array();
 				$new_order_line_data['OrderLine']['status'] = 'pending';
-				
+				$this->OrderLine->addWritableField(array('status'));
 				$this->OrderLine->id = $this->request->data['OrderItem']['order_line_id'];
 				if(!$this->OrderLine->save($new_order_line_data)) { 
 					$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
