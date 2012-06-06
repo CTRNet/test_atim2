@@ -33,7 +33,7 @@ class StorageCoordinate extends StorageLayoutAppModel {
 
 		// Verify storage contains no aliquots
 		$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
-		$nbr_storage_aliquots = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x ' =>  $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
+		$nbr_storage_aliquots = $aliquot_master_model->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x ' =>  $storage_coordinate_data['StorageCoordinate']['coordinate_value']), 'recursive' => '-1'));
 		if($nbr_storage_aliquots > 0) { 
 			return array('allow_deletion' => false, 'msg' => 'aliquot is stored within the storage at this position'); 
 		}
@@ -61,7 +61,7 @@ class StorageCoordinate extends StorageLayoutAppModel {
 		}
 
 		// The value already exists: Set the errors
-		$this->StorageCoordinate->validationErrors['coordinate_value'][]	= 'coordinate must be unique for the storage';
+		$this->validationErrors['coordinate_value'][]	= 'coordinate must be unique for the storage';
 
 		return true;		
 	}
@@ -86,7 +86,7 @@ class StorageCoordinate extends StorageLayoutAppModel {
 		}
 
 		// The value already exists: Set the errors
-		$this->StorageCoordinate->validationErrors['order'][]	= 'coordinate order must be unique for the storage';
+		$this->validationErrors['order'][]	= 'coordinate order must be unique for the storage';
 
 		return true;		
 	}	
