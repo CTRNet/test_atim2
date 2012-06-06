@@ -91,6 +91,7 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 			
 			if($submitted_data_validates) {
 				// Save data		
+				$this->StorageCoordinate->addWritableField(array('dimension','storage_master_id'));
 				if ($this->StorageCoordinate->save($this->request->data['StorageCoordinate'])) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {

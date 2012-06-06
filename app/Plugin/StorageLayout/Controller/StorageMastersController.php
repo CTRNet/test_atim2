@@ -141,6 +141,10 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('storage_control_id', $storage_control_data['StorageControl']['id']);
 		$this->set('layout_description', $this->StorageControl->getStorageLayoutDescription($storage_control_data));
 		
+		$url_to_cancel = '/StorageLayout/StorageMasters/search/';
+		if(isset($this->request->data['url_to_cancel'])) $url_to_cancel = $this->request->data['url_to_cancel'];
+		unset($this->request->data['url_to_cancel']);
+		
 		// Set predefined parent storage
 		if(!is_null($predefined_parent_storage_id)) {
 			$predefined_parent_storage_data = $this->StorageMaster->find('first', array('conditions' => array('StorageMaster.id' => $predefined_parent_storage_id, 'StorageControl.is_tma_block' => '0')));
@@ -148,7 +152,10 @@ class StorageMastersController extends StorageLayoutAppController {
 				$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}		
 			$this->set('predefined_parent_storage_selection_label', $this->StorageMaster->getStorageLabelAndCodeForDisplay($predefined_parent_storage_data));	
+			$url_to_cancel = '/StorageLayout/StorageMasters/detail/'.$predefined_parent_storage_id;
 		}
+		
+		$this->set('url_to_cancel',$url_to_cancel);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
@@ -313,6 +320,8 @@ class StorageMastersController extends StorageLayoutAppController {
 			}		
 			
 			if($submitted_data_validates) {
+				$this->StorageMaster->addWritableField(array('storage_control_id', 'parent_id', 'selection_label', 'temperature', 'temp_unit'));
+				
 				// Save storage data
 				$this->StorageMaster->id = $storage_master_id;		
 				if($this->StorageMaster->save($this->request->data, false)) {
@@ -352,11 +361,12 @@ class StorageMastersController extends StorageLayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// First remove storage from tree
 			$this->StorageMaster->id = $storage_master_id;	
+			$this->StorageMaster->data = array();	
 			$cleaned_storage_data = array('StorageMaster' => array('parent_id' => ''));
+			$this->StorageMaster->addWritableField(array('parent_id'));
 			if(!$this->StorageMaster->save($cleaned_storage_data, false)) { 
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
-			
 			
 			// Create has many relation to delete the storage coordinate
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate' => array('className' => 'StorageCoordinate', 'foreignKey' => 'storage_master_id', 'dependent' => true))), false);	
@@ -377,7 +387,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				$this->flash('error deleting data - contact administrator', '/StorageLayout/StorageMasters/search/');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/StorageLayout/StorageMasters/search/' . $storage_master_id);
+			$this->flash($arr_allow_deletion['msg'], '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
 		}		
 	}
 	

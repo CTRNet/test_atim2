@@ -2,7 +2,7 @@
 	
 	$structure_links = array(
 		'top' => '/StorageLayout/StorageMasters/add/' . $atim_menu_variables['StorageControl.id'],
-		'bottom' => array('cancel' => '/StorageLayout/StorageMasters/search/')
+		'bottom' => array('cancel' => $url_to_cancel)
 	);
 
 	$structure_override = array();
@@ -14,6 +14,7 @@
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links' => $structure_links, 'override' => $structure_override);
+	$final_options['extras'] = '<input type="hidden" name="data[url_to_cancel]" value="'.$url_to_cancel.'"/>';	
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
