@@ -239,11 +239,6 @@ class ShipmentsController extends OrderAppController {
 				
 				$available_order_items = AppController::defineArrayKey($available_order_items, 'OrderItem', 'id', true);
 				
-				//All coded data -> disable checks
-				$this->AliquotMaster->check_writable_fields = false;
-				$this->OrderItem->check_writable_fields = false;
-				$this->OrderLine->check_writable_fields = false;
-				
 				foreach($data_to_save as $order_item_id){
 					$order_item = isset($available_order_items[$order_item_id]) ? $available_order_items[$order_item_id] : null;
 					if($order_item == null){
@@ -262,6 +257,8 @@ class ShipmentsController extends OrderAppController {
 					$aliquot_master['AliquotMaster']['storage_coord_x'] = '';
 					$aliquot_master['AliquotMaster']['storage_coord_y'] = '';
 		
+					$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail', 'storage_master_id','storage_coord_x','storage_coord_y'));
+					
 					$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					$this->AliquotMaster->id = $aliquot_master_id;
 					if(!$this->AliquotMaster->save($aliquot_master, false)) {
@@ -273,6 +270,8 @@ class ShipmentsController extends OrderAppController {
 					$order_item_data['OrderItem']['shipment_id'] = $shipment_data['Shipment']['id'];
 					$order_item_data['OrderItem']['status'] = 'shipped';
 
+					$this->OrderItem->addWritableField(array('shipment_id', 'status'));
+					
 					$this->OrderItem->id = $order_item_id;
 					if(!$this->OrderItem->save($order_item_data, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -295,6 +294,7 @@ class ShipmentsController extends OrderAppController {
 						//update if everything is shipped
 						$order_line = array();
 						$order_line['OrderLine']['status'] = "shipped";
+						$this->OrderLine->addWritableField(array('status'));
 						$this->OrderLine->id = $order_line_id;
 						if(!$this->OrderLine->save($order_line, false)) { 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
@@ -367,6 +367,7 @@ class ShipmentsController extends OrderAppController {
 			$order_item['OrderItem']['shipment_id'] = null;
 			$order_item['OrderItem']['aliquot_use_id'] = null;
 			$order_item['OrderItem']['status'] = 'pending';
+			$this->OrderItem->addWritableField(array('shipment_id', 'status','aliquot_use_id'));
 			$this->OrderItem->id = $order_item_id;
 			if(!$this->OrderItem->save($order_item, false)) { 
 				$remove_done = false; 
@@ -377,7 +378,7 @@ class ShipmentsController extends OrderAppController {
 				$new_aliquot_master_data = array();
 				$new_aliquot_master_data['AliquotMaster']['in_stock'] = 'yes - not available';
 				$new_aliquot_master_data['AliquotMaster']['in_stock_detail'] = 'reserved for order';
-				
+				$this->AliquotMaster->addWritableField(array('in_stock', 'in_stock_detail'));
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				if(!$this->AliquotMaster->save($new_aliquot_master_data, false)) { 
@@ -392,6 +393,7 @@ class ShipmentsController extends OrderAppController {
 			if($remove_done) {			
 				$order_line = array();
 				$order_line['OrderLine']['status'] = "pending";
+				$this->OrderLine->addWritableField(array('status'));
 				$this->OrderLine->id = $order_line_id;
 				if(!$this->OrderLine->save($order_line, false)) { 
 					$remove_done = false; 

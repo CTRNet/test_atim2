@@ -3,7 +3,7 @@ function manageContacts(){
 	if($("#manageContactPopup").length == 0){
 		buildDialog("manageContactPopup", null, null, null);
 		$("#manageContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
-		$.get(root_url + "order/shipments/manageContact/", function(data){
+		$.get(root_url + "Order/Shipments/manageContact/", function(data){
 			var isVisible = $("#manageContactPopup:visible").length == 1;
 			$("#manageContactPopup").popup('close');
 			$("#manageContactPopup").find("div").first().html(data);
@@ -36,7 +36,7 @@ function saveContact(){
 	buildDialog("saveContactPopup", null, null, null);
 	$("#saveContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$("#saveContactPopup").popup();
-	$.post(root_url + "order/shipments/saveContact/", $("form").serialize(), function(data){
+	$.post(root_url + "Order/Shipments/saveContact/", $("form").serialize(), function(data){
 		var isVisible = $("#saveContactPopup:visible").length == 1;
 		$("#saveContactPopup").popup('close');
 		buildDialog("saveContactPopup", data, null, new Array({ "label" : STR_OK, "icon" : "detail", "action" : function(){$('#saveContactPopup').popup('close');} }));
@@ -51,7 +51,7 @@ function deleteContact(id){
 	$("#manageContactPopup").popup('close');
 	$("#manageContactPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 	$("#manageContactPopup").popup();
-	$.get(root_url + "order/shipments/deleteContact/" + id, function(){
+	$.get(root_url + "Order/Shipments/deleteContact/" + id, function(){
 		var isVisible = $("#manageContactPopup:visible").length == 1;
 		$("#manageContactPopup").popup('close');
 		$("#manageContactPopup").remove();
