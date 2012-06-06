@@ -27,7 +27,7 @@ class OrderItem extends OrderAppModel {
 	 * @author N. Luc
 	 * @since 2007-10-16
 	 */
-	function allowOrderItemDeletion($order_line_data){
+	function allowDeletion($order_line_data){
 		// Check aliquot is not gel matrix used to create either core
 		if(!empty($order_line_data['Shipment']['id'])) { 
 			return array('allow_deletion' => false, 'msg' => 'this item cannot be deleted because it was already shipped'); 

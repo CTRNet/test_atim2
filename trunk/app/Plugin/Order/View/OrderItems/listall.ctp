@@ -16,7 +16,6 @@
 		'delete' => '/Order/OrderItems/delete/%%OrderLine.order_id%%/%%OrderLine.id%%/%%OrderItem.id%%/');
 	
 	$structure_override = array();
-	$structure_override['OrderItem.shipment_id'] = $order_shipment_list;
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('type'=>'index','links'=>$structure_links, 'override'=>$structure_override);
