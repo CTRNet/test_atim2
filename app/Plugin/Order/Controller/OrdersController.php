@@ -117,6 +117,7 @@ class OrdersController extends OrderAppController {
 			
 			if($submitted_data_validates) {
 				$this->Order->id = $order_id;
+				$this->Order->data = array();
 				if ($this->Order->save($this->request->data) ) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
