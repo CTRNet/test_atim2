@@ -43,7 +43,7 @@ class ShipmentsController extends OrderAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/shipments/listall'));
+		$this->set('atim_menu', $this->Menus->get('/Order/shipments/detail/%%Order.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
 		$hook_link = $this->hook('format');
@@ -61,7 +61,7 @@ class ShipmentsController extends OrderAppController {
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/shipments/listall'));
+		$this->set('atim_menu', $this->Menus->get('/Order/shipments/detail/%%Order.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
 		// SAVE PROCESS

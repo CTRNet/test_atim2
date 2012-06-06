@@ -19,7 +19,7 @@ class Order extends OrderAppModel {
 			$result = $this->find('first', array('conditions'=>array('Order.id'=>$variables['Order.id'])));
 			
 			$return = array(
-				'menu'			=>	array( 'order', ': ' . $result['Order']['order_number']),
+				'menu'			=>	array( __('order'), ': ' . $result['Order']['order_number']),
 				'title'			=>	array( null, __('order') . ': ' . $result['Order']['order_number']),
 				'data'			=> $result,
 				'structure alias'=>'orders'

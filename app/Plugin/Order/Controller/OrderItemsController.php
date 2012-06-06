@@ -45,16 +45,9 @@ class OrderItemsController extends OrderAppController {
 		// Set data
 		$this->request->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 		
-		// Get order shipment list
-		$order_shipment_list = array();
-		foreach($this->Shipment->getShipmentPermissibleValues($order_id) as $new_record) {
-			$order_shipment_list[$new_record['value']] = $new_record['default'];
-		}
-		$this->set('order_shipment_list', $order_shipment_list);		
-		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderItems/listall/%%Order.id%%/%%OrderLine.id%%/'));		
+		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%/'));		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
 		$hook_link = $this->hook('format');
@@ -380,7 +373,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/Order/OrderItems/listall/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
+				$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
 			}
 		}
 	}
@@ -400,7 +393,7 @@ class OrderItemsController extends OrderAppController {
 		$criteria = array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending');
 		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 
-		if(empty($items_data)) { $this->flash('no unshipped item exists into this order line', '/Order/OrderItems/listall/'.$order_id.'/'.$order_line_id.'/'); }
+		if(empty($items_data)) { $this->flash('no unshipped item exists into this order line', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); }
 
 		// Set array to get id from barcode
 		$order_item_id_by_barcode = array();

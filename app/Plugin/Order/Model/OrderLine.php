@@ -30,7 +30,7 @@ class OrderLine extends OrderAppModel {
 				
 			$line_title = __($result['SampleControl']['sample_type']) . (empty($result['AliquotControl']['aliquot_type'])? '': ' '.__($result['AliquotControl']['aliquot_type']));			
 			$return = array(
-				'menu'			=>	array('line', ':' . $line_title),
+				'menu'			=>	array(null, $line_title),
 				'title'			=>	array(null, __('order line', null). ' : '.$line_title),
 				'data'			=> $result,
 				'structure alias'=>'orderlines'

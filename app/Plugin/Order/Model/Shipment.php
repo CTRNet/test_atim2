@@ -13,7 +13,7 @@ class Shipment extends OrderAppModel
 			$result = $this->find('first', array('conditions'=>array('Shipment.id'=>$variables['Shipment.id'])));
 						
 			$return = array(
-				'menu'			=>	array( null, __('shipment') . ' : ' . $result['Shipment']['shipment_code']),
+				'menu'			=>	array( null, $result['Shipment']['shipment_code']),
 				'title'			=>	array( null, __('shipment') . ' : ' . $result['Shipment']['shipment_code']),
 				'data'			=> $result,
 				'structure alias'=>'shipments'

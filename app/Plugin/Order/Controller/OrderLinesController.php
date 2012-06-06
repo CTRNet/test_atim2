@@ -6,6 +6,7 @@ class OrderLinesController extends OrderAppController {
 		'Order.Order', 
 		'Order.OrderLine', 
 		'Order.OrderItem', 
+		'Order.Shipment' 
 	);
 	
 	var $paginate = array('OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
@@ -19,7 +20,7 @@ class OrderLinesController extends OrderAppController {
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/OrderLines/listall/%%Order.id%%/'));
+		$this->set('atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%Order.id%%/'));
 
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 
@@ -41,7 +42,7 @@ class OrderLinesController extends OrderAppController {
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/OrderLines/listall/%%Order.id%%/'));
+		$this->set('atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%Order.id%%/'));
 
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 
@@ -167,6 +168,9 @@ class OrderLinesController extends OrderAppController {
 		}
 		$this->request->data = $order_line_data;
 
+		$shipments_list = $this->Shipment->find('all', array('conditions'=>array('Shipment.order_id'=>$order_id), 'recursive' => '-1'));
+		$this->set('shipments_list',$shipments_list);
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id) );
