@@ -36,6 +36,7 @@ class SopMastersController extends SopAppController {
 		if ( !empty($this->request->data) ) {
 			
 			$this->request->data['SopMaster']['sop_control_id'] = $sop_control_id;
+			$this->SopMaster->addWritableField('sop_control_id');
 			
 			$submitted_data_validates = true;
 			
