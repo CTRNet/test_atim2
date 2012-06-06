@@ -471,6 +471,7 @@ class AppModel extends Model {
 				if(strpos($year, '±') === 0){
 					$plus_minus = true;
 					$year = substr($year, 2);
+					$month = $day = $hour = $minute = null;
 				}
 				
 				$empty_found = false;
