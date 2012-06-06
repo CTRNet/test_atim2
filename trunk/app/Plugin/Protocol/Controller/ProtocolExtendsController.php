@@ -80,6 +80,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 
 		if ( !empty($this->request->data) ) {
 			$this->request->data['ProtocolExtend']['protocol_master_id'] = $protocol_master_id;
+			$this->ProtocolExtend->addWritableField('protocol_master_id');
 				
 			$submitted_data_validates = true;
 			
