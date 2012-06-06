@@ -80,7 +80,7 @@ class MasterDetailBehavior extends ModelBehavior {
 						$detail_model_cache_key = $detail_class.".".$result[$control_class][$detail_field];
 						if(!isset($grouping[$detail_model_cache_key])){
 							//caching model (its rougly as fast as grouping queries by detail, see eventum 1120)
-							$grouping[$detail_model_cache_key]['model'] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class, 'alias' => $detail_class.'_'.$result[$control_class][$detail_field]));
+							$grouping[$detail_model_cache_key]['model'] = new AppModel(array('table' => $result[$control_class][$detail_field], 'name' => $detail_class, 'alias' => $detail_class.'_'.$result[$control_class][$detail_field]));
 							$grouping[$detail_model_cache_key]['id_to_index'] = array();
 						}
 						$grouping[$detail_model_cache_key]['id_to_index'][$result[$model->alias][$model->primaryKey]] = $key;
@@ -147,7 +147,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id, $master_class.'.deleted' => array('0', '1')), 'recursive' => 0));
 			assert($associated) or die('MasterDetailBehavior afterSave failed to fetch control details');
 			$table = $associated[$control_class][$detail_field];
-			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $detail_class, 'primaryKey' => $master_foreign) );
+			$detail_model = new AppModel( array('table' => $table, 'name' => $detail_class, 'alias' => $detail_class.'_'.$table, 'primaryKey' => $master_foreign) );
 			$detail_model->writable_fields_mode = $model->writable_fields_mode;
 			$detail_model->check_writable_fields = $model->check_writable_fields;
 			$detail_model->primaryKey = $master_foreign;
@@ -160,18 +160,6 @@ class MasterDetailBehavior extends ModelBehavior {
 					$config = null;
 				}
 				$detail_model->Behaviors->load($behavior, $config);
-				$detail_model->Behaviors->$behavior->setup($detail_model,$config);
-			}
-			
-			foreach($detail_model->actsAs as $key => $data){
-				if(is_array($data)){
-					$behavior = $key;
-					$config = $data;
-				}else{
-					$behavior = $data;
-					$config = null;
-				}
-				$detail_model->Behaviors->attach($behavior, $config);
 				$detail_model->Behaviors->$behavior->setup($detail_model,$config);
 			}
 			
@@ -247,5 +235,9 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 		}
 		return $results;
+	}
+	
+	public function fmlh(&$Model) {
+		echo "MD\n";
 	}
 }

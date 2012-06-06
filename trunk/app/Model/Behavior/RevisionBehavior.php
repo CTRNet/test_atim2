@@ -800,6 +800,7 @@ class RevisionBehavior extends ModelBehavior {
 		if (!$model->ShadowModel) {
             return true;
 		}   
+		
 		if ($created) {
 			$model->ShadowModel->create($model->data,true);
 			$model->ShadowModel->set('id',$model->id);
@@ -824,7 +825,13 @@ class RevisionBehavior extends ModelBehavior {
 			}
 			//ATiM end---------
 			return $success;
-		}  	
+		}else{
+			//ATiM start-------
+			if($model->version_id){
+				$model->ShadowModel->set('version_id', $model->version_id);
+			}
+			//ATiM end---------
+		}
 			
 		$habtm = array();
 		foreach ($model->getAssociated('hasAndBelongsToMany') as $assocAlias) {
@@ -836,7 +843,7 @@ class RevisionBehavior extends ModelBehavior {
 	       		'contain'=> $habtm,
 	       		'conditions'=>array($model->alias.'.'.$model->primaryKey => $model->id)));
 
-		$changeDetected = false;
+		$changeDetected = true;//ATiM - always true to always create a revision
 		foreach ($data[$model->alias] as $key => $value) {
    			if ( isset($data[$model->alias][$model->primaryKey]) 
    					&& !empty($this->oldData[$model->alias]) 
@@ -871,6 +878,7 @@ class RevisionBehavior extends ModelBehavior {
    		}
    		unset($this->oldData[$model->alias]); 		
    		if (!$changeDetected) {
+   			echo $model->name,'<br/>';
    			return true;
    		}
 		$model->ShadowModel->set('version_created', date('Y-m-d H:i:s'));
@@ -988,6 +996,11 @@ class RevisionBehavior extends ModelBehavior {
 		$Model->ShadowModel->alias = $Model->alias;
 		$Model->ShadowModel->primaryKey = 'version_id';
 		$Model->ShadowModel->order = 'version_created DESC, version_id DESC';
+		return true;
+	}
+	
+	public function fmlh(&$Model) {
+		echo "Rev\n";
 		return true;
 	}
 
