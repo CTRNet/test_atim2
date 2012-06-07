@@ -513,7 +513,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			
 			$second_storage_id = null;
 			foreach($json as $element){
-				if(is_int((int)$element->s) && $element->s != $storage_master_id){
+				if((int)$element->s && $element->s != $storage_master_id){
 					if($second_storage_id == null){
 						$second_storage_id = $element->s; 
 					}else if($second_storage_id != $element->s){
