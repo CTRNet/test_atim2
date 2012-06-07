@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("passwords do not match", "Passwords do not match.", "Les mots de passe ne correspondent pas."),
 ('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value', 'Data conflict: At least one updated aliquot is defined as not in stock. Please update in stock value.', "Conflit de données : Au moins un aliquot mis à jour est défini comme 'non stocké'. Veuillez mettre a jour la valeur 'En Stock'."),
 ('aliquots positions have been deleted', 'Aliquots positions have been deleted', 'Les positions des aliquots ont été supprimées'),
 ('data conflict: you can not remove aliquot and set a storage','Data conflict: You can not remove aliquot and set a storage', ' Conflit de données : Vous ne pouvez pas enlever l''aliquot et lui associer un entreposage'),
@@ -693,7 +694,7 @@ ALTER TABLE participants
  ADD FOREIGN KEY (last_modification_ds_id) REFERENCES datamart_structures(id);
 ALTER TABLE participants_revs 
  ADD COLUMN last_modification DATETIME NOT NULL DEFAULT '2001-01-01 00:00:00' AFTER last_chart_checked_date_accuracy,
- ADD COLUMN last_modification_ds_is INT UNSIGNED NOT NULL DEFAULT 1 AFTER last_modification;
+ ADD COLUMN last_modification_ds_id INT UNSIGNED NOT NULL DEFAULT 1 AFTER last_modification;
  
 ALTER TABLE datamart_structures
  DROP COLUMN use_key,
@@ -2315,8 +2316,16 @@ UPDATE datamart_structures SET index_link = '/Order/OrderLines/detail/%%OrderLin
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='orderitems'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='facility' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=40' AND `default`='' AND `language_help`='' AND `language_label`='facility' AND `language_tag`=''), '0', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
-
-
+ALTER TABLE lbd_dna_extractions
+ DROP COLUMN id,
+ ADD PRIMARY KEY(lab_book_master_id);
+ALTER TABLE lbd_dna_extractions_revs
+ DROP COLUMN id;
+ALTER TABLE lbd_slide_creations
+ DROP COLUMN id,
+ ADD PRIMARY KEY(lab_book_master_id);
+ALTER TABLE lbd_slide_creations_revs
+ DROP COLUMN id;
 
 
 
