@@ -95,6 +95,9 @@ function initStorageLayout(){
 	$("#btnPickStorage").click(function(){
 		$("#default_popup").popup();
 	});
+	
+	//IE9 fix
+	//$("a[href='#']").click(function (e) { e.preventDefault(); });
 }
 
 function initRow(row, data){
@@ -105,7 +108,7 @@ function initRow(row, data){
 	for(var i = jsonOrgItems.length - 1; i >= 0; -- i){
 		var appendString = "<li class='dragme " + jsonOrgItems[i].type + "' data-json='{ \"id\" : \"" + jsonOrgItems[i].id + "\", \"type\" : \"" + jsonOrgItems[i].type + "\"}'>"
 			//ajax view button
-			+ '<a href="javascript:showInPopup(\'' + jsonOrgItems[i].link + '\');" title="' + detailString + '" class="icon16 ' + jsonOrgItems[i].icon_name + '" style="text-decoration: none;">&nbsp;</a>'
+			+ '<a href="#" data-popup-link="' + jsonOrgItems[i].link + '\" title="' + detailString + '" class="icon16 ' + jsonOrgItems[i].icon_name + ' popupLink" style="text-decoration: none;">&nbsp;</a>'
 			//DO NOT ADD A DETAIL BUTTON! It's too dangerous to edit and click it by mistake
 			+ '<span class="handle">' + jsonOrgItems[i].label + '</span></li>';
 		if(jsonOrgItems[i].x.length > 0){
@@ -171,6 +174,11 @@ function initRow(row, data){
 		if(secondRow){
 			$("#btnPickStorage").hide();
 		}
+	});
+	
+	row.find(".popupLink").click(function(){
+		showInPopup($(this).data("popup-link"));
+		return false;
 	});
 }
 
