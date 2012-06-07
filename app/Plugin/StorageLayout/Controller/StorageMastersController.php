@@ -560,6 +560,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			$err = $this->StorageMaster->validationErrors;
 			
 			//update StorageMaster
+			$this->StorageMaster->check_writable_fields = false;
 			$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data);
 			
 			//Update AliquotMaster
