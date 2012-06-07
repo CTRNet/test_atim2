@@ -435,7 +435,7 @@ class ShipmentsController extends OrderAppController {
 			
 			$contacts_model->save($shipment_data);
 			
-			__('your data has been saved');
+			echo __('your data has been saved');
 			exit;
 		} 
 	}
