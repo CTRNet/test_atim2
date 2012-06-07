@@ -1871,7 +1871,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				foreach($errors as $field => $msg_and_lines) {
 					foreach($msg_and_lines as $msg => $lines) {
 						//Counter cake2 issue and use AliquotDetail model for validationErrors
-						$this->AliquotDetail->validationErrors[$field][] = __($msg) .(empty($aliquot_id)? ' - ' . str_replace('%s', implode(",", $lines), __('see # %s')) : '');					
+						$this->AliquotMaster->validationErrors[$field][] = __($msg) .(empty($aliquot_id)? ' - ' . str_replace('%s', implode(",", $lines), __('see # %s')) : '');					
 					} 
 				}
 			}
