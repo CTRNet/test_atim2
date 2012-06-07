@@ -2327,6 +2327,12 @@ ALTER TABLE lbd_slide_creations
 ALTER TABLE lbd_slide_creations_revs
  DROP COLUMN id;
 
+DELETE FROM menus WHERE use_link IN ('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/0/TMA','/StorageLayout/TmaSlides/listAll/%%StorageMaster.id%%');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('TMA-blc','TMA-Block','TMA-Bloc');
+
+ALTER TABLE `std_tma_blocks` CHANGE `sop_master_id` `sop_master_id` INT( 11 ) NULL ;
+ALTER TABLE `std_tma_blocks_revs` CHANGE `sop_master_id` `sop_master_id` INT( 11 ) NULL ;
 
 
 

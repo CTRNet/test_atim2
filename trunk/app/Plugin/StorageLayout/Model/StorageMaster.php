@@ -29,10 +29,11 @@ class StorageMaster extends StorageLayoutAppModel {
 		
 		if (isset($variables['StorageMaster.id'])) {
 			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
+			$title = __(($result['StorageControl']['is_tma_block']? 'TMA-blc' : $result['StorageControl']['storage_type']));
 			
 			$return = array(
-				'menu' => array(null, (__($result['StorageControl']['storage_type']) . ' : ' . $result['StorageMaster']['short_label'])),
-				'title' => array(null, (__($result['StorageControl']['storage_type']) . ' : ' . $result['StorageMaster']['short_label'])),
+				'menu' => array(null, ($title . ' : ' . $result['StorageMaster']['short_label'])),
+				'title' => array(null, ($title . ' : ' . $result['StorageMaster']['short_label'])),
 				'data'				=> $result,
 				'structure alias'	=> 'storagemasters'
 			);

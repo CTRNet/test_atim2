@@ -90,16 +90,8 @@ class StorageMastersController extends StorageLayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = null;
-		$is_tma = false;
-		if($data['StorageControl']['is_tma_block']) {
-			// TMA menu
-			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/0/TMA');
-			$is_tma = true;
-		} else {
-			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
-		}
 		
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
 		if(!$this->StorageControl->allowCustomCoordinates($data['StorageControl']['id'], array('StorageControl' => $data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
@@ -117,7 +109,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->Structures->set($data['StorageControl']['form_alias']);
 
 		// Set boolean
-		$this->set('is_tma', $is_tma);		
+		$this->set('is_tma', $data['StorageControl']['is_tma_block']? true : false);		
 
 		// Define if this detail form is displayed into the children storage tree view, storage layout, etc
 		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
@@ -429,6 +421,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
 		}
 		$ids = array();
+				
 		foreach($tree_data as $data_unit){
 			if(isset($data_unit['StorageMaster'])){
 				$ids[] = $data_unit['StorageMaster']['id'];
@@ -437,8 +430,9 @@ class StorageMastersController extends StorageLayoutAppController {
 		$ids = array_flip($this->StorageMaster->hasChild($ids));//array_key_exists is faster than in_array
 		foreach($tree_data as &$data_unit){
 			//only storages child interrests us here
-			$data_unit['children'] = isset($data_unit['StorageMaster']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
+			$data_unit['children'] = isset($data_unit['StorageMaster']) && !isset($data_unit['TmaSlide']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
 		}
+			
 		$this->request->data = $tree_data;
 						
 		// MANAGE FORM, MENU AND ACTION BUTTONS
