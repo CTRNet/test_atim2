@@ -516,17 +516,39 @@ class StorageMastersController extends StorageLayoutAppController {
 			$unclassified = array();
 			
 			$json = (json_decode($this->request->data));
+			
+			$second_storage_id = null;
+			foreach($json as $element){
+				if(is_int((int)$element->s) && $element->s != $storage_master_id){
+					if($second_storage_id == null){
+						$second_storage_id = $element->s; 
+					}else if($second_storage_id != $element->s){
+						//more than 2 storages
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
+				}
+			}
+			
+			$storage_data = array($storage_data);
+			if($second_storage_id){
+				$storage_data[] = $this->StorageMaster->getOrRedirect($second_storage_id);
+			}
+			$storage_data = AppController::defineArrayKey($storage_data, 'StorageMaster', 'id', true);
+			
+			
 			//have cells with id as key
 			for($i = sizeof($json) - 1; $i >= 0; -- $i){
 				//builds a $cell[type][id] array
 				$data[$json[$i]->{'type'}][$json[$i]->{'id'}] = (array)$json[$i]; 
 			}
-					
-			if($storage_data['StorageControl']['coord_x_type'] == "list"){
-				foreach($data as &$data_model){
-					foreach($data_model as &$value){
-						if(is_numeric($value['x'])){
-							$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+
+			foreach($storage_data as $storage_id => $storage_data_unit){
+				if($storage_data_unit['StorageControl']['coord_x_type'] == "list"){
+					foreach($data as &$data_model){
+						foreach($data_model as &$value){
+							if(is_numeric($value['x']) && $value['s'] = $storage_id){
+								$value['x'] = $coordinate_list[$value['x']]['StorageCoordinate']['coordinate_value'];
+							}
 						}
 					}
 				}
@@ -544,20 +566,21 @@ class StorageMastersController extends StorageLayoutAppController {
 			$err = $this->StorageMaster->validationErrors;
 			
 			//update StorageMaster
-			$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data['StorageControl']);
+			$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data);
 			
 			//Update AliquotMaster
 			$this->AliquotMaster->check_writable_fields = false;
-			$this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data['StorageControl']);
+			$this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data);
 			
 			//Update TmaSlide
-			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data['StorageControl']);
+			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
 
 			if($conflicts_found ){
 				AppController::addWarningMsg(__('your data has been saved'), true);
 				$this->StorageMaster->validationErrors = $err;
 			}else{
 				$this->atimFlash('your data has been saved', '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
+				return;
 			}
 		}
 		$this->request->data = array();
