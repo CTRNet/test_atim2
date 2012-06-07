@@ -11,6 +11,7 @@
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('links'=>$structure_links, 'override'=>$structure_override);
+	$final_options['settings']['no_sanitization']['StorageMaster'] = array('layout_description');
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
