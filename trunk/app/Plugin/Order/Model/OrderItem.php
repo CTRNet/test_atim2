@@ -5,13 +5,20 @@ class OrderItem extends OrderAppModel {
 	var $belongsTo = array(       
 		'OrderLine' => array(           
 			'className'    => 'Order.OrderLine',            
-			'foreignKey'    => 'order_line_id'),      
+			'foreignKey'    => 'order_line_id',
+			'type'			=> 'INNER'),      
 		'Shipment' => array(           
 			'className'    => 'Order.Shipment',            
 			'foreignKey'    => 'shipment_id'),       
 		'AliquotMaster' => array(           
 			'className'    => 'InventoryManagement.AliquotMaster',            
-			'foreignKey'    => 'aliquot_master_id'));
+			'foreignKey'    => 'aliquot_master_id',
+			'type'			=> 'INNER'),
+		'ViewAliquot' => array(           
+			'className'    => 'InventoryManagement.ViewAliquot',            
+			'foreignKey'    => 'aliquot_master_id',
+			'type'			=> 'INNER')
+	);
 	
 	
 
