@@ -17,7 +17,7 @@
 	);
 	
 	$settings = array(
-			'header' => array('title' => __('temporary batch sets'), 'description' => __('unsaved batch sets that are automatically deleted when there are more than %d', BatchSetsController::$tmp_batch_set_limit)),
+			'header' => array('title' => __('temporary batch sets'). ' ('.__($filter_value).')', 'description' => __('unsaved batch sets that are automatically deleted when there are more than %d', BatchSetsController::$tmp_batch_set_limit)),
 			'actions' => false,
 			'pagination' => false
 	);
@@ -25,7 +25,7 @@
 
 	unset($structure_links['index']['save']);
 	$settings = array(
-		'header' => __('saved batch sets'),
+		'header' => __('saved batch sets'). ' ('.__($filter_value).')',
 		'actions' => true,
 		'pagination' => true
 	);

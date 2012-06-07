@@ -74,7 +74,7 @@ REPLACE INTO i18n (id, en, fr) VALUES
 ('same line','Same Line','Même ligne'),
 ('separator','Separator','Séparateur'),
 ('visible columns','Visible Columns','Colonnes visibles'),
-("saved browsing steps", "Saved browsing steps", "Étapes de navigation sauvegardées"),
+("saved browsing steps", "Saved Browsing Steps", "Étapes de navigation sauvegardées"),
 ("save browsing steps", "Save browsing steps", "Sauvegarder les étapes de navigation"),
 ("there is no barcodes to print", "There is no barcodes to print.", "Il n'y a pas de code à barres à imprimer."),  
 ("print barcodes", "Print Barcodes", "Imprimer Codes Barres"),
@@ -2355,6 +2355,14 @@ UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_order`='41' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='datetime_shipped' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='42' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='facility' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO i18n (id,en,fr) VALUES ('are you sure you want to reset?','Are you sure you want to reset?','Êtes-vous sûr de vouloir réinitialiser?');
+
+UPDATE menus SET language_title = 'browsing' WHERE id = 'qry-CAN-1-1-1';
+DELETE FROM menus WHERE id IN ('qry-CAN-1-2-1','qry-CAN-3-1');
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('qry-CAN-1-2-1', 'qry-CAN-1-2', 0, 1, 'details', '', '/Datamart/Reports/manageReport/%%Report.id%%/', 'Datamart.Report::summary', 1, 1),
+('qry-CAN-3-1', 'qry-CAN-3', 0, 1, 'details', '', '/Datamart/BatchSets/listall/%%BatchSet.id%%/', 'Datamart.BatchSet::summary', 1, 1);
+UPDATE menus SET use_summary = '' WHERE id IN ('qry-CAN-1-2','qry-CAN-3');
 
 
 

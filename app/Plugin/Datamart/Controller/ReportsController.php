@@ -33,7 +33,8 @@ class ReportsController extends DatamartAppController {
 		
 		// Set menu variables
 		$this->set( 'atim_menu_variables', array('Report.id' => $report_id));
-
+		$this->set('atim_menu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
+		
 		$display_search_form = false;
 		if(empty($this->request->data) && (!empty($report['Report']['form_alias_for_search'])) && (!$csv_creation)) {
 			// User just launched the report process & the search form should be displayed
