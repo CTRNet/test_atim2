@@ -47,6 +47,7 @@ class OrderItemsController extends OrderAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
+		$this->Structures->set('orderitems,orderitems_plus');
 		$this->set( 'atim_menu', $this->Menus->get('/Order/OrderLines/detail/%%Order.id%%/%%OrderLine.id%%/'));		
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'OrderLine.id'=>$order_line_id));
 		
