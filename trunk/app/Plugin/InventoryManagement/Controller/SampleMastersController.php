@@ -626,6 +626,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			$this->SampleMaster->set($this->request->data);
 			$this->SampleMaster->id = $sample_master_id;
 			$submitted_data_validates = ($this->SampleMaster->validates())? $submitted_data_validates: false;
+			$this->request->data = $this->SampleMaster->data;
 			
 			//for error field highlight in detail
 			$this->SampleDetail->validationErrors = $this->SampleMaster->validationErrors;
