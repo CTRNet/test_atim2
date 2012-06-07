@@ -126,12 +126,11 @@ class ReportsController extends DatamartAppController {
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$new_collections_nbr = $this->Report->query(
 			"SELECT COUNT(*) FROM (
-				SELECT DISTINCT link.participant_id 
+				SELECT DISTINCT col.participant_id 
 				FROM sample_masters AS sm 
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
-				WHERE link.participant_id IS NOT NULL 
-				AND link.participant_id != '0'
+				WHERE col.participant_id IS NOT NULL 
+				AND col.participant_id != '0'
 				AND ($conditions)
 				AND col.deleted != '1'
 			) AS res;");
@@ -183,13 +182,12 @@ class ReportsController extends DatamartAppController {
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), participant_id, res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sc.sample_type  
+				SELECT DISTINCT col.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
 				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
-				WHERE link.participant_id IS NOT NULL 
-				AND link.participant_id != '0'
+				WHERE col.participant_id IS NOT NULL 
+				AND col.participant_id != '0'
 				AND sc.sample_category = 'specimen'
 				AND ($conditions)
 				AND sm.deleted != '1'
@@ -202,14 +200,13 @@ class ReportsController extends DatamartAppController {
 		// Work on derivative
 		$res_2 = $this->Report->query(
 			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT link.participant_id, sc.sample_type  
+				SELECT DISTINCT col.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
 				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
 				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
-				WHERE link.participant_id IS NOT NULL 
-				AND link.participant_id != '0'
+				WHERE col.participant_id IS NOT NULL 
+				AND col.participant_id != '0'
 				AND sc.sample_category = 'derivative'
 				AND ($conditions)
 				AND sm.deleted != '1'
@@ -310,12 +307,11 @@ class ReportsController extends DatamartAppController {
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		$collection_res = $this->Report->query(
 			"SELECT COUNT(*), res.collection_year".($month_period? ", res.collection_month": "")." FROM (
-				SELECT DISTINCT link.participant_id, YEAR(col.collection_datetime) AS collection_year".($month_period? ", MONTH(col.collection_datetime) AS collection_month": "").
+				SELECT DISTINCT col.participant_id, YEAR(col.collection_datetime) AS collection_year".($month_period? ", MONTH(col.collection_datetime) AS collection_month": "").
 				" FROM sample_masters AS sm 
 				INNER JOIN collections AS col ON col.id = sm.collection_id 
-				INNER JOIN clinical_collection_links AS link ON link.collection_id = col.id 
-				WHERE link.participant_id IS NOT NULL 
-				AND link.participant_id != '0'
+				WHERE col.participant_id IS NOT NULL 
+				AND col.participant_id != '0'
 				AND ($conditions)
 				AND col.deleted != '1'
 			) AS res
