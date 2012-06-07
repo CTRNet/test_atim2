@@ -2,7 +2,7 @@
 	
 	$structure_links = array(
 		'top' => '/StorageLayout/StorageCoordinates/add/' . $atim_menu_variables['StorageMaster.id'],
-		'bottom' => array('cancel' => '/StorageLayout/StorageCoordinates/listall/' . $atim_menu_variables['StorageMaster.id'])
+		'bottom' => array('cancel' => '/StorageLayout/StorageCoordinates/listAll/' . $atim_menu_variables['StorageMaster.id'])
 	);
 	
 	$final_atim_structure = $atim_structure; 

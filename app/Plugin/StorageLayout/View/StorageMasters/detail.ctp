@@ -1,6 +1,6 @@
 <?php
 	
-	// DISPLAY STORAGE FORM
+	// 1 ** DISPLAY STORAGE FORM **
 	
 	// Set links and settings
 	$structure_links = array();
@@ -27,16 +27,19 @@
 
 	//Clean up based on form type 
 	if($is_from_tree_view_or_layout == 1) {
-		// Tree view
+		// Display Detail From Tree view
 		unset($structure_links['bottom']['see parent storage']);
 		unset($structure_links['bottom']['search']);
-		$settings = array('header' => __('storage'));
+		$settings = array('header' => __($is_tma?'TMA-blc':'storage'));
 	
 	} else if($is_from_tree_view_or_layout == 2) {
-		// Storage Layout
+		// Display Detail From Storage Layout
 		$structure_links = array();
 		$structure_links['bottom']['access to all data'] = '/StorageLayout/StorageMasters/detail/'.$atim_menu_variables['StorageMaster.id'];
-		$settings = array('header' => __('storage'));
+		$settings = array('header' => __($is_tma?'TMA-blc':'storage'));
+	} else if($is_tma) {
+		// Main TMA Display
+		$settings = array('actions' => false);
 	}
 	
 	$settings['no_sanitization']['StorageMaster'] = array('layout_description');
@@ -53,4 +56,26 @@
 		
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
+	
+	if(!$is_from_tree_view_or_layout && $is_tma) {
+
+		// 2 ** DISPLAY TMA SLIDES **	
+		
+		$final_atim_structure = array();
+		$final_options = array(
+				'links' => $structure_links,
+				'settings' => array('header' => __('slides', null)),
+				'extras' => array('end' => $this->Structures->generateIndex('/StorageLayout/TmaSlides/listAll/' . $atim_menu_variables['StorageMaster.id'].'/')));
+		
+		// CUSTOM CODE
+		$hook_link = $this->Structures->hook();
+		if( $hook_link ) {
+			require($hook_link);
+		}
+		
+		// BUILD FORM
+		$this->Structures->build( $final_atim_structure, $final_options );	
+	
+	}
+
 ?>

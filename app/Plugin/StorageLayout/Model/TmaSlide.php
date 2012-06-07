@@ -14,8 +14,6 @@ class TmaSlide extends StorageLayoutAppModel {
 	public static $storage = null;
 		
 	function validates($options = array()){
-		pr('WARNING!!: tma slide data can be updated into TmaSlide->validates() function: be sure to reset data into controller using $this->TmaSlide->data!');
-						
 		$this->validateAndUpdateTmaSlideStorageData();
 			
 		if(isset($this->data['TmaSlide']['barcode'])){

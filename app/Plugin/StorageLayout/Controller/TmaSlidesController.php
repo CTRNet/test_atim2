@@ -33,7 +33,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object. Needed to disable menu options based on storage type		
-		$atim_menu = $this->Menus->get('/StorageLayout/TmaSlides/listAll/%%StorageMaster.id%%');
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
 		
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
@@ -66,7 +66,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 
 		// Get the current menu object. Needed to disable menu options based on storage type		
-		$atim_menu = $this->Menus->get('/StorageLayout/TmaSlides/listAll/%%StorageMaster.id%%');
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
 		
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
@@ -106,12 +106,13 @@ class TmaSlidesController extends StorageLayoutAppController {
 			
 			if($submitted_data_validates) {
 				// Save data	
+				$this->TmaSlide->addWritableField(array('tma_block_storage_master_id','storage_master_id'));
 				if ($this->TmaSlide->save($this->request->data, false)) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash('your data has been saved', '/StorageLayout/TmaSlides/listAll/' . $tma_block_storage_master_id);				
+					$this->atimFlash('your data has been saved', '/StorageLayout/StorageMasters/detail/' . $tma_block_storage_master_id);				
 				}
 			}
 		}
@@ -143,7 +144,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type		
-		$atim_menu = $this->Menus->get('/StorageLayout/TmaSlides/listAll/%%StorageMaster.id%%');
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
 		
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
@@ -184,7 +185,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type		
-		$atim_menu = $this->Menus->get('/StorageLayout/TmaSlides/listAll/%%StorageMaster.id%%');
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
 		
 		// Inactivate Storage Coordinate Menu (unpossible for TMA type)
 		$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
@@ -232,6 +233,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 
 			if($submitted_data_validates) {
 				// Save tma slide data
+				$this->TmaSlide->addWritableField(array('storage_master_id'));
 				$this->TmaSlide->id = $tma_slide_id;		
 				if($this->TmaSlide->save($this->request->data, false)) {
 					$hook_link = $this->hook('postsave_process');
@@ -262,7 +264,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		}
 
 		// Check deletion is allowed
-		$arr_allow_deletion = $this->allowDeletion($tma_slide_id);
+		$arr_allow_deletion = $this->TmaSlide->allowDeletion($tma_slide_id);
 		
 		// CUSTOM CODE
 		
@@ -272,7 +274,7 @@ class TmaSlidesController extends StorageLayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete tma slide
 			if($this->TmaSlide->atimDelete($tma_slide_id)) {
-				$this->atimFlash('your data has been deleted', '/StorageLayout/TmaSlides/listAll/' . $tma_block_storage_master_id);
+				$this->atimFlash('your data has been deleted', '/StorageLayout/StorageMasters/detail/' . $tma_block_storage_master_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 			}		
