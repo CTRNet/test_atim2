@@ -38,6 +38,8 @@
 		$structure_links['bottom']['access to all data'] = '/StorageLayout/StorageMasters/detail/'.$atim_menu_variables['StorageMaster.id'];
 		$settings = array('header' => __('storage'));
 	}
+	
+	$settings['no_sanitization']['StorageMaster'] = array('layout_description');
 
 	// Set override
 	$structure_override = array();
