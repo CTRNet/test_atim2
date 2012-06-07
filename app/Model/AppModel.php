@@ -93,6 +93,10 @@ class AppModel extends Model {
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			return false;
 		}
+		
+		if(!$validate && !isset($this->data[$this->alias]['__validated__']) && Configure::read('debug') > 0){
+			AppController::addWarningMsg('saving unvalidated data ['.$this->name,']');
+		}
 	
 		return parent::save($data, $validate, $fieldList);
 	}
