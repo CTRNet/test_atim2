@@ -9,9 +9,13 @@ class Report extends DatamartAppModel {
 			$report_data = $this->find('first', array('conditions'=>array('Report.id' => $variables['Report.id']), 'recursive' => '-1'));
 					
 			if(!empty($report_data)) {
-				$return['menu'] = array(null, __($report_data['Report']['name']));
+				$return = array(
+						'menu'				=> array(null, __($report_data['Report']['name'])),
+						'title'				=>	array(null, __($report_data['Report']['name'])),
+						'structure alias' 	=> 'reports',
+						'data'				=> $report_data
+				);
 			}
-		
 		}
 		
 		return $return;

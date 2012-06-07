@@ -29,21 +29,6 @@ class BatchSet extends DatamartAppModel {
 	function summary( $variables=array() ) {
 		$return = array('menu' => array(null));
 					
-		if(isset($variables['Param.Type_Of_List']) && empty($variables['BatchSet.id'])) {
-			switch($variables['Param.Type_Of_List']) {
-				case 'group':
-					$return['menu'] = array(__('group batch sets'));
-					break;
-				case 'user':
-					$return['menu'] = array(__('my batch sets'));
-					break;
-				case 'all':
-					$return['menu'] = array(__('all batch sets'));
-					break;
-				default:	
-			}	
-		}
-						
 		if ( isset($variables['BatchSet.id'])) {
 			if(isset($variables['BatchSet.temporary_batchset']) && $variables['BatchSet.temporary_batchset']){
 				$return['menu'] = array(null, __('temporary batch set'));		

@@ -31,10 +31,10 @@ class BatchSetsController extends DatamartAppController {
 		
 		
 		$batch_set_filter = array();
-		$this->set( 'atim_menu_variables',  array("Param.Type_Of_List" => $type_of_list));
-		
+		$filter_value = $type_of_list;
 		switch($type_of_list){
 			case 'user':
+				$filter_value = 'my batch sets';
 				$batch_set_filter['BatchSet.user_id'] = $_SESSION['Auth']['User']['id'];
 				break;
 			case 'group':
@@ -51,6 +51,7 @@ class BatchSetsController extends DatamartAppController {
 			default:
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
+		$this->set('filter_value', $filter_value);
 		
 		$this->Structures->set('querytool_batch_set');
 		$this->Adhoc;//activate lazy loader
