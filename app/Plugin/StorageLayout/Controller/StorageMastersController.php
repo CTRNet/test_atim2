@@ -575,9 +575,10 @@ class StorageMastersController extends StorageLayoutAppController {
 			//Update TmaSlide
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
 
-			if($conflicts_found ){
-				AppController::addWarningMsg(__('your data has been saved'), true);
+			if($conflicts_found){
+				AppController::addWarningMsg(__('your data has been saved'));
 				$this->StorageMaster->validationErrors = $err;
+				$storage_data = $storage_data[$storage_master_id];
 			}else{
 				$this->atimFlash('your data has been saved', '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
 				return;
