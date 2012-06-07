@@ -567,6 +567,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			$this->StorageMaster->updateAndSaveDataArray($aliquots_initial_data, "AliquotMaster", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->AliquotMaster, $storage_data);
 			
 			//Update TmaSlide
+			$this->TmaSlide->check_writable_fields = false;
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
 
 			if($conflicts_found){
