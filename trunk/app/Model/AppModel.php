@@ -619,7 +619,11 @@ class AppModel extends Model {
 		$this->checkFloats();
 		
 		parent::validates($options);
-		return count($this->validationErrors) == 0;
+		if(count($this->validationErrors) == 0){
+			$this->data[$this->alias]['__validated__'] = true;
+			return true;
+		}
+		return false;
 	}
 	
 	static function getInstance($plugin_name, $class_name, $error_view_on_null = true){
@@ -1192,13 +1196,13 @@ class AppModel extends Model {
 			$tmp_type = $field_properties['type'];
 			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
 				// Manage float record
-				if(isset($this->data[$this->name][$field_name])) {
-					$this->data[$this->name][$field_name] = str_replace(",", ".", $this->data[$this->name][$field_name]);
-					$this->data[$this->name][$field_name] = str_replace(" ", "", $this->data[$this->name][$field_name]);
-					$this->data[$this->name][$field_name] = str_replace("+", "", $this->data[$this->name][$field_name]);
-					if(is_numeric($this->data[$this->name][$field_name])) {
-						if(strpos($this->data[$this->name][$field_name], ".") === 0) $this->data[$this->name][$field_name] = "0".$this->data[$this->name][$field_name];
-						if(strpos($this->data[$this->name][$field_name], "-.") === 0) $this->data[$this->name][$field_name] = "-0".substr($this->data[$this->name][$field_name], 1);
+				if(isset($this->data[$this->alias][$field_name])) {
+					$this->data[$this->alias][$field_name] = str_replace(",", ".", $this->data[$this->alias][$field_name]);
+					$this->data[$this->alias][$field_name] = str_replace(" ", "", $this->data[$this->alias][$field_name]);
+					$this->data[$this->alias][$field_name] = str_replace("+", "", $this->data[$this->alias][$field_name]);
+					if(is_numeric($this->data[$this->alias][$field_name])) {
+						if(strpos($this->data[$this->alias][$field_name], ".") === 0) $this->data[$this->alias][$field_name] = "0".$this->data[$this->alias][$field_name];
+						if(strpos($this->data[$this->alias][$field_name], "-.") === 0) $this->data[$this->alias][$field_name] = "-0".substr($this->data[$this->alias][$field_name], 1);
 					}
 				}
 			}
