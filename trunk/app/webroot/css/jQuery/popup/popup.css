@@ -23,8 +23,7 @@
 	top: -8px;
 	width: 16px;
 	height: 16px;
-	-moz-border-radius: 17px;
-	-webkit-border-radius: 17px;
+	border-radius: 17px;
 	text-align: center;
 	cursor: pointer;
 }
