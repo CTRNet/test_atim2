@@ -727,7 +727,7 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @param updater_model The model to use to update the data
 	 * @param storage_control
 	 */
-	function updateAndSaveDataArray($data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $updater_model, $storage_control){
+	function updateAndSaveDataArray($data_array, $type, $x_key, $y_key, $storage_parent_key, $rcv_data, $updater_model, array $storage_controls){
 		foreach($data_array as &$init_data_unit){
 			$init_data_id = $init_data_unit[$type]['id'];
 			if(($init_data_unit[$type][$x_key] != $rcv_data[$type][$init_data_id]['x'] && !(in_array($rcv_data[$type][$init_data_id]['x'], array('u', 't')) && $init_data_unit[$type][$x_key] == ''))  
@@ -762,6 +762,7 @@ class StorageMaster extends StorageLayoutAppModel {
 					
 				}else{
 					//positioned
+					$storage_control = $storage_controls[$rcv_data[$type][$init_data_id]['s']]['StorageControl'];
 					$init_data_unit[$type][$x_key] = ($storage_control['coord_x_size'] == null && $storage_control['coord_x_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['x']); 
 					$init_data_unit[$type][$y_key] = ($storage_control['coord_y_size'] == null && $storage_control['coord_y_type'] != 'list' ? '' : $rcv_data[$type][$init_data_id]['y']);
 					$init_data_unit[$type][$storage_parent_key] = $rcv_data[$type][$init_data_id]['s'];
