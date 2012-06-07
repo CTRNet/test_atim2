@@ -910,7 +910,7 @@ class StorageMaster extends StorageLayoutAppModel {
 		if(isset($data[$model_name])){
 			foreach($data[$model_name] as &$model_data){
 				$storage_id = $model_data['s'];
-				if($storage_id == 'u' || $storage_id == 't'){
+				if($model_data['x'] == 'u' || $model_data['x'] == 't'){
 					continue;
 				}
 				if(!array_key_exists($storage_id, $cumul_storage_data)){
