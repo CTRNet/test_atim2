@@ -2365,6 +2365,16 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 UPDATE menus SET use_summary = '' WHERE id IN ('qry-CAN-1-2','qry-CAN-3');
 
 
+INSERT INTO structures(`alias`) VALUES ('template_disabled');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='template_disabled'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='name' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template_disabled'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='owner' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template_disabled'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='template_disabled'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='' AND `language_label`='active' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+
+
+
 
 
 
