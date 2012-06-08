@@ -1,6 +1,6 @@
 <?php 
 
-	// 1- ORDER DETAIL	
+	// ----- ORDER DETAIL -----	
 	
 	$structure_links = array(
 		'index'=>array(),
@@ -25,8 +25,7 @@
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
 	
-	
-	// 2- ORDER LINES
+	// ----- ORDER LINES -----
 	
 	$final_atim_structure = array(); 
 	$final_options = array(
@@ -46,22 +45,40 @@
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
 
+	// ----- SHIPMENTS -----
 	
-	// 2- SHIPMENTS
-	
-	$final_atim_structure = array(); 
+	$final_atim_structure = array();
 	$final_options = array(
-		'links'	=> $structure_links,
-		'settings' => array(
-			'header' => __('shipments', null),
-		), 'extras' => array('end' => $this->Structures->generateIndex('Order/shipments/listall/'.$atim_menu_variables['Order.id'])));
-		
+			'links'	=> $structure_links,
+			'settings' => array(
+					'header' => __('shipments', null),
+					'actions'	=> false,
+			), 'extras' => array('end' => $this->Structures->generateIndex('Order/shipments/listall/'.$atim_menu_variables['Order.id'])));
+	
 	// CUSTOM CODE
-	$hook_link = $this->Structures->hook('order_lines');
-	if( $hook_link ) { 
-		require($hook_link); 
+	$hook_link = $this->Structures->hook('shipments');
+	if( $hook_link ) {
+		require($hook_link);
 	}
-		
+	
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );	
 	
+	// ----- ORDER ITEMS -----
+	
+	$final_atim_structure = array();
+	$final_options = array(
+			'links'	=> $structure_links,
+			'settings' => array(
+					'header' => __('order items', null)
+			), 'extras' => array('end' => $this->Structures->generateIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id']))
+	);
+	
+	// CUSTOM CODE
+	$hook_link = $this->Structures->hook('order_items');
+	if( $hook_link ) {
+		require($hook_link);
+	}
+	
+	// BUILD FORM
+	$this->Structures->build( $final_atim_structure, $final_options );	
