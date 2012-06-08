@@ -27,7 +27,7 @@
 		'define realiquoted children' => array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
-	
+	$structure_links['bottom']['event'] = '/InventoryManagement/AliquotEvents/add/'.$atim_menu_variables['AliquotMaster.id'];
 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
@@ -116,11 +116,29 @@
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'links'		=> $structure_links,
-			'settings'	=> array('header' => __('realiquoted parent')),
+			'settings'	=> array('header' => __('realiquoted parent'), 'actions' => false),
 			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
 		);
 		
 		$hook_link = $this->Structures->hook('realiquoted_parent');
+		if($hook_link){
+			require($hook_link);
+		}
+		
+		$this->Structures->build($final_atim_structure, $final_options);
+		
+		
+		
+		// 5 - REALIQUOTED PARENTS
+		$data_url = sprintf('InventoryManagement/AliquotEvents/index/%d/%d/%d/', $atim_menu_variables['Collection.id'], $atim_menu_variables['SampleMaster.id'], $atim_menu_variables['AliquotMaster.id']);
+		$final_atim_structure = $empty_structure;
+		$final_options = array(
+				'links'		=> $structure_links,
+				'settings'	=> array('header' => __('events')),
+				'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
+		);
+		
+		$hook_link = $this->Structures->hook('aliquot_events');
 		if($hook_link){
 			require($hook_link);
 		}

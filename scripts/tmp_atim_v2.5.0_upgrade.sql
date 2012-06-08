@@ -5,6 +5,9 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+('aliquot details', 'Aliquot Details', 'Détails aliquot'),
+('order line details', 'Order Line Details', 'Détails ligne commande'),
+('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage')
 ("has notes", "Has notes", "A des notes"),
 ("nodes selection", "Nodes selection", "Sélection des noeuds"),
 ("passwords do not match", "Passwords do not match.", "Les mots de passe ne correspondent pas."),
@@ -2384,17 +2387,34 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `display_order`='28' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET  `model`='ViewAliquot' WHERE model='AliquotMaster' AND tablename='' AND field='has_notes' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
 
-INSERT INTO i18n (id,en,fr) VALUES ('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage');
+CREATE TABLE aliquot_events(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ aliquot_master_id INT NOT NULL,
+ event_date DATETIME NOT NULL,
+ event_date_accuracy DATETIME NOT NULL,
+ event_type VARCHAR(50) NOT NULL DEFAULT '',
+ detail TEXT,
+ created DATETIME NOT NULL,
+ created_by INT NOT NULL,
+ modified DATETIME NOT NULL,
+ modified_by DATETIME NOT NULL,
+ deleted BOOLEAN NOT NULL DEFAULT false,
+ FOREIGN KEY (aliquot_master_id) REFERENCES aliquot_masters(id)
+)Engine=InnoDb;
 
-REPLACE INTO i18n (id,en,fr) VALUES 
-('aliquot details', 'Aliquot Details', 'Détails aliquot'),
-('order line details', 'Order Line Details', 'Détails ligne commande');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("aliquot_event", "", "", "StructurePermissibleValuesCustom::getCustomDropdown('aliquot_event')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
+('aliquot_event', 1, 50); 
 
-
-
-
-
-
+INSERT INTO structures(`alias`) VALUES ('aliquot_event');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotEvent', 'aliquot_events', 'event_date', 'datetime',  NULL , '0', '', '', '', 'date', ''), 
+('InventoryManagement', 'AliquotEvent', 'aliquot_events', 'event_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event') , '0', '', '', '', 'type', ''), 
+('InventoryManagement', 'AliquotEvent', 'aliquot_events', 'detail', 'textarea', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event') , '0', '', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='detail' AND `type`='textarea' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 
 
