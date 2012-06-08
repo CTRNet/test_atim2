@@ -54,40 +54,48 @@ class TemplateController extends AppController {
 		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type');
  		//-----------------------------
 
-		$this->Structures->set('template');
+		if($this->Template->data['Template']['owning_entity_id'] == $this->Session->read('Auth.User.id')){
+			$this->Structures->set('template');
+		}else{
+			$this->Structures->set('template_disabled');
+		}
+		
+		
 		if(!empty($this->request->data)){
 			//correct owner/visibility if needed
-			if(Template::$sharing[$this->request->data['Template']['visibility']] < Template::$sharing[$this->request->data['Template']['owner']]){
-				$this->request->data['Template']['owner'] = $this->request->data['Template']['visibility'];
-				AppController::addWarningMsg(__('visibility reduced to owner level')); 
-			}
-			
-			//update entities----------
-			$this->request->data['Template']['owning_entity_id'] = null;
-			$this->request->data['Template']['visible_entity_id'] = null;
-			$tmp = array(
-				'owner' => array($this->request->data['Template']['owner'] => &$this->request->data['Template']['owning_entity_id']),
-				'visibility' => array($this->request->data['Template']['visibility'] => &$this->request->data['Template']['visible_entity_id'])
-			);
-			
-			foreach($tmp as $level){
-				foreach($level as $sharing => &$value){
-					switch($sharing){
-						case "user":
-							$value = $_SESSION['Auth']['User']['id'];
-							break;
-						case "bank":
-							$group_data = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
-							$value = $group_data['Group']['bank_id'];
-							break;
-						default:
-							$value = null;
+			if(isset($this->request->data['Template'])){
+				if(Template::$sharing[$this->request->data['Template']['visibility']] < Template::$sharing[$this->request->data['Template']['owner']]){
+					$this->request->data['Template']['owner'] = $this->request->data['Template']['visibility'];
+					AppController::addWarningMsg(__('visibility reduced to owner level')); 
+				}
+				
+				//update entities----------
+				$this->request->data['Template']['owning_entity_id'] = null;
+				$this->request->data['Template']['visible_entity_id'] = null;
+				$tmp = array(
+					'owner' => array($this->request->data['Template']['owner'] => &$this->request->data['Template']['owning_entity_id']),
+					'visibility' => array($this->request->data['Template']['visibility'] => &$this->request->data['Template']['visible_entity_id'])
+				);
+				
+				foreach($tmp as $level){
+					foreach($level as $sharing => &$value){
+						switch($sharing){
+							case "user":
+								$value = $_SESSION['Auth']['User']['id'];
+								break;
+							case "bank":
+								$group_data = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
+								$value = $group_data['Group']['bank_id'];
+								break;
+							default:
+								$value = null;
+						}
 					}
 				}
+				unset($value);
+				unset($tmp);
+				//-------------------------
 			}
-			unset($value);
-			unset($tmp);
-			//-------------------------
 
 			//record the tree
 			if($this->request->is('ajax')){
@@ -98,7 +106,6 @@ class TemplateController extends AppController {
 				}
 				$this->Template->addWritableField(array('owning_entity_id', 'visible_entity_id'));
 				if($this->Template->save($this->request->data)){
-					print_r($this->Template->data);
 					if($template_id == 0){
 						$template_id = $this->Template->getLastInsertId();
 					}
