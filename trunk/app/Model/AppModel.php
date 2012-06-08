@@ -94,8 +94,8 @@ class AppModel extends Model {
 			return false;
 		}
 		
-		if(!$validate && !isset($this->data[$this->alias]['__validated__']) && Configure::read('debug') > 0){
-			AppController::addWarningMsg('saving unvalidated data ['.$this->name.']');
+		if(!$validate && !isset($data[$this->alias]['__validated__']) && !isset($data['__validated__']) && Configure::read('debug') > 0){
+			AppController::addWarningMsg('saving unvalidated data ['.$this->name.']', true);
 		}
 	
 		return parent::save($data, $validate, $fieldList);

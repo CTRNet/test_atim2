@@ -902,9 +902,15 @@ span.help {
 			border-top: 1px solid #eaedf2;
 		}
 		
+				.descriptive_heading h4, .descriptive_heading p{
+					background-color: #DDE8F2;
+				}
+				.std_popup.question h4,.std_popup.question p{
+					background-color: #f2f2f2;
+				}
+				
 				.descriptive_heading h4,
 				.std_popup.question h4 { 
-					background-color: #f2f2f2;
 					margin: 0 0 0 0;
 					padding: 1em 1em 0.25em 1em;
 				
@@ -913,10 +919,8 @@ span.help {
 					color: #2d5069;
 				}
 			
-				
 				.descriptive_heading p,
 				.std_popup.question p { 
-					background-color: #f2f2f2;
 					margin: 0 0 0 0;
 					padding: 0 1em 1em 1em;
 				
