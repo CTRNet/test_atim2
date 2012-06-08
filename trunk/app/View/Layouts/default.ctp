@@ -62,6 +62,7 @@ if(!headers_sent()){
 			var STR_CANCEL = "<?php echo __('cancel'); ?>";
 			var STR_LOADING = "<?php echo __('loading'); ?>";
 			var STR_BACK = "<?php echo __('back'); ?>";
+			var STR_NODE_SELECTION = "<?php echo __('nodes selection'); ?>";
 						
 		</script>
 	<!--[if IE 7]>

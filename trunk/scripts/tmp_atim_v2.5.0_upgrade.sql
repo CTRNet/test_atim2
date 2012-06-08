@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("nodes selection", "Nodes selection", "Sélection des noeuds"),
 ("passwords do not match", "Passwords do not match.", "Les mots de passe ne correspondent pas."),
 ('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value', 'Data conflict: At least one updated aliquot is defined as not in stock. Please update in stock value.', "Conflit de données : Au moins un aliquot mis à jour est défini comme 'non stocké'. Veuillez mettre a jour la valeur 'En Stock'."),
 ('aliquots positions have been deleted', 'Aliquots positions have been deleted', 'Les positions des aliquots ont été supprimées'),
