@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("has notes", "Has notes", "A des notes"),
 ("nodes selection", "Nodes selection", "Sélection des noeuds"),
 ("passwords do not match", "Passwords do not match.", "Les mots de passe ne correspondent pas."),
 ('data conflict: at least one updated aliquot is defined as not in stock - please update in stock value', 'Data conflict: At least one updated aliquot is defined as not in stock. Please update in stock value.', "Conflit de données : Au moins un aliquot mis à jour est défini comme 'non stocké'. Veuillez mettre a jour la valeur 'En Stock'."),
@@ -1261,7 +1262,9 @@ IF(al.storage_datetime IS NULL, NULL,
  IF(derivative_details.creation_datetime IS NULL, -1,
  IF(derivative_details.creation_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
  IF(derivative_details.creation_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, derivative_details.creation_datetime, al.storage_datetime))))) AS creat_to_stor_spent_time_msg
+ TIMESTAMPDIFF(MINUTE, derivative_details.creation_datetime, al.storage_datetime))))) AS creat_to_stor_spent_time_msg,
+ 
+IF(LENGTH(al.notes) > 0, "y", "n") AS has_notes
 
 
 FROM aliquot_masters AS al
@@ -1387,7 +1390,8 @@ ALTER TABLE view_aliquots
  ADD KEY(selection_label),
  ADD KEY(temperature),
  ADD KEY(temp_unit),
- ADD KEY(created);
+ ADD KEY(created),
+ ADD KEY(has_notes);
 
 CREATE TABLE view_collections (SELECT * FROM view_collections_view);
 ALTER TABLE view_collections
@@ -2373,6 +2377,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='template_disabled'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing')  AND `flag_confidential`='0' AND `setting`='' AND `default`='user' AND `language_help`='' AND `language_label`='visibility' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='template_disabled'), (SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='flag_active' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='1' AND `language_help`='' AND `language_label`='active' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', '', 'has_notes', 'yes_no',  NULL , '0', '', '', '', 'has notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='' AND `field`='has_notes' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='has notes' AND `language_tag`=''), '0', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='28' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `model`='ViewAliquot' WHERE model='AliquotMaster' AND tablename='' AND field='has_notes' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
 
 
 
