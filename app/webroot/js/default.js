@@ -1472,7 +1472,7 @@ function initActions(){
 				//option to select some browsing tree nodes
 				if($(".databrowser").length == 1){
 					//keep the single line option + bind command
-					$("#csvPopup table:last").append("<tr><td colspan=3></td></tr>");
+					$("#csvPopup table:last").append("<tr><td colspan=3><span style='padding-bottom: 5px; display: inline-block;'>" + STR_NODE_SELECTION + "</span></td></tr>");
 					var lastLine = $("#csvPopup table:last tr:last").hide();
 					$(".databrowser").clone(false).appendTo($("#csvPopup table:last td:last"));
 					
