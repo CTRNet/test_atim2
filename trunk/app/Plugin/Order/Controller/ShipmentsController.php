@@ -178,12 +178,12 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atimDelete( $shipment_id )) {
-				$this->atimFlash('your data has been deleted', '/Order/Orders/detail/'.$order_id);
+				$this->atimFlash('your data has been deleted', 'javascript:history.go(-1)');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
+				$this->flash('error deleting data - contact administrator', 'javascript:history.go(-1)');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/Order/shipments/detail/'.$order_id.'/'.$shipment_id);
+			$this->flash($arr_allow_deletion['msg'], 'javascript:history.go(-1)');
 		}
 	}
 	

@@ -34,17 +34,27 @@ class OrderItemsController extends OrderAppController {
 		}
 	}	
 	
-	function listall( $order_id, $order_line_id ) {
+	function listall( $order_id, $order_line_id = null) {
 		// MANAGE DATA
-	
-		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
-		if(empty($order_line_data)) {
-			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}		
-
-		// Set data
-		$this->request->data = $this->paginate($this->OrderItem, array('OrderItem.order_line_id'=>$order_line_id));
 		
+		if(!$order_line_id) {
+			$order_data = $this->Order->find('first',array('conditions'=>array('Order.id'=>$order_id), 'recursive' => '-1'));
+			if(empty($order_data)) {
+				$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
+		} else {
+			$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id), 'recursive' => '-1'));
+			if(empty($order_line_data)) {
+				$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
+			}	
+		}		
+		
+		// Set data
+		$conditions = array('OrderLine.order_id'=>$order_id);
+		if($order_line_id) $conditions['OrderItem.order_line_id'] = $order_line_id;
+		$this->request->data = $this->paginate($this->OrderItem, $conditions);
+		$aliquots_for_batchset = $this->OrderItem->find('all', array('fields' => array('AliquotMaster.id'), 'conditions' => $conditions));
+				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->Structures->set('orderitems,orderitems_plus');
@@ -499,7 +509,7 @@ class OrderItemsController extends OrderAppController {
 			require($hook_link); 
 		}		
 		
-		$url = '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/';
+		$url = 'javascript:history.go(-1)';
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Launch deletion

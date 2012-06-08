@@ -2384,6 +2384,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `display_order`='28' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET  `model`='ViewAliquot' WHERE model='AliquotMaster' AND tablename='' AND field='has_notes' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
 
+INSERT INTO i18n (id,en,fr) VALUES ('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage');
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('aliquot details', 'Aliquot Details', 'Détails aliquot'),
+('order line details', 'Order Line Details', 'Détails ligne commande');
 
 
 

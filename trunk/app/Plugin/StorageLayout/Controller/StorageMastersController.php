@@ -97,7 +97,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
 					
-		if(empty($this->request->data['StorageControl']['coord_x_type'])) {
+		if(empty($data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
 			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
 		}
@@ -250,13 +250,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		// Get the current menu object. Needed to disable menu options based on storage type
-		$atim_menu = null;
-		if($storage_data['StorageControl']['is_tma_block']) {
-			// TMA menu
-			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/0/TMA');
-		} else {
-			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
-		}
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
 		
 		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
@@ -501,7 +495,8 @@ class StorageMastersController extends StorageLayoutAppController {
 				echo json_encode(array('valid' => 0));
 				exit;	
 			}else{
-				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				$this->flash('no storage layout is defined for this storage type', '/StorageLayout/StorageMasters/detail/' . $storage_master_id);	
+				return;
 			} 
 		}
 		if(!empty($this->request->data)){	
