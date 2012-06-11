@@ -80,15 +80,15 @@ class EventMaster extends ClinicalAnnotationAppModel {
 	}
 	
 	function calculatedDetailFields(array &$data){
-		if($data['EventControl']['detail_tablename'] == 'ed_all_lifestyle_smokings'){
+		if(($data['EventControl']['detail_tablename'] == 'ed_all_lifestyle_smokings') && array_key_exists('started_on', $data['EventDetail']) && array_key_exists('stopped_on', $data['EventDetail'])){		
 			//for smoking, smoked for and stopped since fields
-			if($data['EventDetail']['started_on_accuracy'] == 'c' && $data['EventDetail']['stopped_on_accuracy'] == 'c'){
+			if(!empty($data['EventDetail']['started_on']) && $data['EventDetail']['started_on_accuracy'] == 'c' && !empty($data['EventDetail']['stopped_on']) && $data['EventDetail']['stopped_on_accuracy'] == 'c'){
 				$data['EventDetail']['smoked_for'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($data['EventDetail']['started_on'].' 00:00:00', $data['EventDetail']['stopped_on'].' 00:00:00'), false);
 				
 			}else{
 				$data['EventDetail']['smoked_for'] = __('cannot calculate on incomplete date');
 			}
-			if($data['EventDetail']['stopped_on_accuracy'] == 'c'){
+			if(!empty($data['EventDetail']['stopped_on']) && $data['EventDetail']['stopped_on_accuracy'] == 'c'){
 				$data['EventDetail']['stopped_since'] = AppModel::manageSpentTimeDataDisplay(AppModel::getSpentTime($data['EventDetail']['stopped_on'].' 00:00:00', now()), false);
 			}else{
 				$data['EventDetail']['stopped_since'] = __('cannot calculate on incomplete date');

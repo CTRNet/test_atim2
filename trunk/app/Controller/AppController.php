@@ -77,7 +77,7 @@ class AppController extends Controller {
 			$hook_extension = '_'.$hook_extension;
 		}
 	
-		$hook_file = APP . ($this->request->params['plugin'] ? 'Plugin' . DS . $this->request->params['plugin'] . DS : '') . 'Controller' . DS . 'hooks' . DS . $this->request->params['controller'].'_'.$this->request->params['action'].$hook_extension.'.php';
+		$hook_file = APP . ($this->request->params['plugin'] ? 'Plugin' . DS . $this->request->params['plugin'] . DS : '') . 'Controller' . DS . 'Hook' . DS . $this->request->params['controller'].'_'.$this->request->params['action'].$hook_extension.'.php';
 		
 		if(!file_exists($hook_file)){
 			$hook_file=false;
