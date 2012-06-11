@@ -42,7 +42,7 @@
 		$final_atim_structure = array();
 		$final_options['settings']['header'] = __('links to collections');
 		$final_options['settings']['actions'] = true;
-		$final_options['extras'] = $this->Structures->extraAjaxLink('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:DiagnosisMaster/filterId:'.$atim_menu_variables['DiagnosisMaster.id']);
+		$final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:DiagnosisMaster/filterId:'.$atim_menu_variables['DiagnosisMaster.id']);
 		
 		$hook_link = $this->Structures->hook('ccl');
 		if( $hook_link ) {

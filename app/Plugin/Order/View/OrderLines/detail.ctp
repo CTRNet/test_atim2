@@ -38,7 +38,7 @@
 	$final_options = array(
 		'links' => $structure_links, 
 		'settings' => array('header' => __('line items', null)),
-		'extras' => array('end' => $this->Structures->generateIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')));
+		'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/')));
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();

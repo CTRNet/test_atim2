@@ -65,7 +65,7 @@
 		$final_options = array(
 				'links' => $structure_links,
 				'settings' => array('header' => __('slides', null)),
-				'extras' => array('end' => $this->Structures->generateIndex('/StorageLayout/TmaSlides/listAll/' . $atim_menu_variables['StorageMaster.id'].'/')));
+				'extras' => array('end' => $this->Structures->ajaxIndex('/StorageLayout/TmaSlides/listAll/' . $atim_menu_variables['StorageMaster.id'].'/')));
 		
 		// CUSTOM CODE
 		$hook_link = $this->Structures->hook();

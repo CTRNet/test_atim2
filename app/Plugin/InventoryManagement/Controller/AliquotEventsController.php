@@ -32,7 +32,9 @@ class AliquotEventsController extends InventoryManagementAppController {
 	}
 	
 	function index($collection_id, $sample_master_id, $aliquot_master_id){
-		$this->request->data = $this->AliquotEvent->find('all', array('conditions' => array('AliquotEvent.aliquot_master_id' => $aliquot_master_id)));
+		$this->request->data = $this->AliquotEvent->find('all', array(
+			'conditions' => array('AliquotEvent.aliquot_master_id' => $aliquot_master_id),
+			'order' => array('AliquotEvent.event_date')));
 	}
 
 	function add($collection_id, $sample_master_id, $aliquot_master_id){
