@@ -182,8 +182,6 @@ class OrderLinesController extends OrderAppController {
 	}
 
 	function delete( $order_id, $order_line_id ) {
-		if (( !$order_id ) || ( !$order_line_id )) { $this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true ); }
-
 		// MANAGE DATA
 		
 		$order_line_data = $this->OrderLine->find('first',array('conditions'=>array('OrderLine.id'=>$order_line_id, 'OrderLine.order_id'=>$order_id)));
@@ -201,7 +199,7 @@ class OrderLinesController extends OrderAppController {
 			
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->OrderLine->atimDelete($order_line_id)) {
-				$this->atimFlash('your data has been deleted', 'javascript:history.go(-1)');
+				$this->atimFlash('your data has been deleted', '/Order/Orders/detail/'.$order_id);
 			} else {
 				$this->flash('error deleting data - contact administrator', 'javascript:history.go(-1)');
 			}
