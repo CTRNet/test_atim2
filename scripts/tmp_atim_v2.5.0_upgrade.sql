@@ -7,7 +7,7 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sampl
 REPLACE INTO i18n (id, en, fr) VALUES
 ('aliquot details', 'Aliquot Details', 'Détails aliquot'),
 ('order line details', 'Order Line Details', 'Détails ligne commande'),
-('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage')
+('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage'),
 ("has notes", "Has notes", "A des notes"),
 ("nodes selection", "Nodes selection", "Sélection des noeuds"),
 ("passwords do not match", "Passwords do not match.", "Les mots de passe ne correspondent pas."),
