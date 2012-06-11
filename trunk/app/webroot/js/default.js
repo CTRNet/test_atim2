@@ -1009,16 +1009,26 @@ function initActions(){
 					return false;
 				});
 			}
-			
+		}
+		
+		if(history.replaceState){
 			window.onpopstate = function(event) {
 				//retrieving result from history
 				//try html5 storage? http://diveintohtml5.org/storage.html
-				if(event.state != null){
+				if(event.state == null){
+					//new / reload
+					initIndexZones(false);
+				}else{
+					//back/forward
 					$(".ajax_search_results").html(event.state);
 					$(".ajax_search_results").parent().show();
 					handleSearchResultLinks();
+					initIndexZones(true);
 				}
 			};
+		}else{
+			//unknown, always consider new
+			initIndexZones(false);
 		}
 		
 		if(window.realiquotInit){
@@ -1044,10 +1054,6 @@ function initActions(){
 		
 		initCheckAll(document);
 		initCheckboxes(document);
-		
-		if(history.replaceState){
-			initIndexZones();
-		}
 		
 		$(document).ajaxError(function(event, xhr, settings, exception){
 			if(xhr.status == 403){
@@ -1117,14 +1123,6 @@ function initActions(){
 			}
 		});
 		
-		$(".ajaxLoad").each(function(){
-			$(this).html('<div class="loading">---' + STR_LOADING + '---</div>');
-			var div = $(this);
-			$.get(root_url + $(this).data('url'), function(page){
-				$(div).html(page);
-			});
-		});
-
 		initFlyOverCells(document);
 
 		if($.cookie("session_expiration")){
@@ -1664,7 +1662,7 @@ function initActions(){
 		submitData.lastRequest = $.cookie('last_request');
 	}
 	
-	function initIndexZones(){
+	function initIndexZones(useCache){
 		var fctLinksToAjax = function(scope){
 			$(scope).find("a:not(.icon16)").click(function(){
 				if($(this).attr("href").indexOf("javascript:") == 0){
@@ -1697,7 +1695,7 @@ function initActions(){
 		$(".indexZone").each(function(){
 			var indexZone = $(this);
 			var url = indexZone.data('url');
-			if(history.state.indexZone[url]){
+			if(useCache && history.state.indexZone[url]){
 				indexZone.html(history.state.indexZone[url]);
 				fctLinksToAjax(indexZone);
 			}else{

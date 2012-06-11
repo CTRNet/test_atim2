@@ -79,7 +79,7 @@
 		$final_options = array(
 			'data' => array(), 
 			'settings' => array('header' => __('uses'), 'actions' => false),
-			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
+			'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 
 		// CUSTOM CODE
@@ -98,7 +98,7 @@
 		$final_options = array(
 			'links'		=> $structure_links,
 			'settings'	=> array('header' => __('storage history'), 'actions' => false),
-			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
+			'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 		
 		$hook_link = $this->Structures->hook('storage_history');
@@ -117,7 +117,7 @@
 		$final_options = array(
 			'links'		=> $structure_links,
 			'settings'	=> array('header' => __('realiquoted parent'), 'actions' => false),
-			'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
+			'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 		
 		$hook_link = $this->Structures->hook('realiquoted_parent');
@@ -135,7 +135,7 @@
 		$final_options = array(
 				'links'		=> $structure_links,
 				'settings'	=> array('header' => __('events')),
-				'extras'	=> AppController::checkLinkPermission($data_url) ? '<div class="ajaxLoad" data-url="'.$data_url.'"></div>' : '<div>'.__('You are not authorized to access that location.', true).'</div>'
+				'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 		
 		$hook_link = $this->Structures->hook('aliquot_events');

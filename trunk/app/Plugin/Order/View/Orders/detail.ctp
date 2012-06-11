@@ -33,7 +33,7 @@
 		'settings' => array(
 			'header' => __('order_order lines', null),
 			'actions'	=> false,
-		), 'extras' => array('end' => $this->Structures->generateIndex('Order/OrderLines/listall/'.$atim_menu_variables['Order.id']))
+		), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderLines/listall/'.$atim_menu_variables['Order.id']))
 	);
 		
 	// CUSTOM CODE
@@ -53,7 +53,7 @@
 			'settings' => array(
 					'header' => __('shipments', null),
 					'actions'	=> false,
-			), 'extras' => array('end' => $this->Structures->generateIndex('Order/shipments/listall/'.$atim_menu_variables['Order.id'])));
+			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/shipments/listall/'.$atim_menu_variables['Order.id'])));
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook('shipments');
@@ -71,7 +71,7 @@
 			'links'	=> $structure_links,
 			'settings' => array(
 					'header' => __('order items', null)
-			), 'extras' => array('end' => $this->Structures->generateIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id']))
+			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/OrderItems/listall/'.$atim_menu_variables['Order.id']))
 	);
 	
 	// CUSTOM CODE

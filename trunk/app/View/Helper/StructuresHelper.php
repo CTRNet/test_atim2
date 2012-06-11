@@ -2591,10 +2591,6 @@ class StructuresHelper extends Helper {
 		}
 	}
 	
-	function extraAjaxLink($url){
-		return AppController::checkLinkPermission($url) ? '<div class="ajaxLoad" data-url="'.$url.'"></div>' : '<div>'.__('You are not authorized to access that location.').'</div>';
-	}
-	
 	function generateSelectItem($search_url, $name){
 		return '
 		<div class="selectItemZone">
@@ -2604,7 +2600,7 @@ class StructuresHelper extends Helper {
 		';
 	}
 	
-	function generateIndex($index_url){
+	function ajaxIndex($index_url){
 		return AppController::checkLinkPermission($index_url) ? '
 		<div class="indexZone" data-url="'.$index_url.'">
 		</div>
