@@ -1176,7 +1176,7 @@ function initActions(){
 				//apply the rule to self and previous cells
 				var targets = new Array();
 				targets = [this];
-				targets = targets.concat($(this).prevAll());
+				targets = targets.concat($.makeArray($(this).prevAll()));
 				for(i in targets){
 					$(targets[i]).children().appendTo(tmpDiv);
 					$(targets[i]).html('<div class="floatingCell">' + $(targets[i]).html() + '</div>').find(".floatingCell").css({ 
