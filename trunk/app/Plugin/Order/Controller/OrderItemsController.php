@@ -51,9 +51,12 @@ class OrderItemsController extends OrderAppController {
 		
 		// Set data
 		$conditions = array('OrderLine.order_id'=>$order_id);
-		if($order_line_id) $conditions['OrderItem.order_line_id'] = $order_line_id;
+		if($order_line_id){
+			$conditions['OrderItem.order_line_id'] = $order_line_id;
+		}
 		$this->request->data = $this->paginate($this->OrderItem, $conditions);
 		$aliquots_for_batchset = $this->OrderItem->find('all', array('fields' => array('AliquotMaster.id'), 'conditions' => $conditions));
+		$this->set('aliquots_for_batchset', $aliquots_for_batchset);
 				
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
