@@ -3,15 +3,15 @@
 		
 	// Set links
 	$structure_links = array('index' => array(), 'bottom' => array());
-		
-	$structure_links['bottom']['edit'] = '/InventoryManagement/AliquotMasters/edit/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-	$structure_links['bottom']['delete'] = '/InventoryManagement/AliquotMasters/delete/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
+	$col_id_samp_id_al_id = $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id']; 	
+	$structure_links['bottom']['edit'] = '/InventoryManagement/AliquotMasters/edit/' . $col_id_samp_id_al_id;
+	$structure_links['bottom']['delete'] = '/InventoryManagement/AliquotMasters/delete/' . $col_id_samp_id_al_id;
 	$structure_links['bottom']['print barcode'] = array('link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:AliquotMaster/id:'.$atim_menu_variables['AliquotMaster.id'], 'icon' => 'barcode');
 	$structure_links['bottom']['storage'] = '/underdevelopment/';
 	if(!empty($aliquot_storage_data)) {
 		$structure_links['bottom']['storage'] = array(
 			'plugin storagelayout access to storage' => array("link" => '/StorageLayout/StorageMasters/detail/' . $aliquot_storage_data['StorageMaster']['id'], "icon" => "storage"),
-			'remove from storage' => array("link" => '/InventoryManagement/AliquotMasters/removeAliquotFromStorage/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "storage"));
+			'remove from storage' => array("link" => '/InventoryManagement/AliquotMasters/removeAliquotFromStorage/' . $col_id_samp_id_al_id, "icon" => "storage"));
 	}
 	
 	if(isset($order_line_id) && isset($order_id)){
@@ -27,7 +27,7 @@
 		'define realiquoted children' => array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
-	$structure_links['bottom']['event'] = '/InventoryManagement/AliquotEvents/add/'.$atim_menu_variables['AliquotMaster.id'];
+	$structure_links['bottom']['event'] = '/InventoryManagement/AliquotEvents/add/'.$col_id_samp_id_al_id;
 
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
