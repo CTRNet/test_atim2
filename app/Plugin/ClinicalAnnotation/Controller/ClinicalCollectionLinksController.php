@@ -57,24 +57,33 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}
 		}
 		
+		$order = 'Collection.acquisition_label ASC';
+		
+		$joins = array(
+			DiagnosisMaster::joinOnDiagnosisDup('Collection.diagnosis_master_id'), 
+			DiagnosisMaster::$join_diagnosis_control_on_dup,
+			ConsentMaster::joinOnConsentDup('Collection.consent_master_id'), 
+			ConsentMaster::$join_consent_control_on_dup,
+			array('table' => 'treatment_masters', 'alias' => 'treatment_masters_dup', 'type' => 'LEFT', 'conditions' => array('Collection.treatment_master_id = treatment_masters_dup.id')),
+			array('table' => 'treatment_controls', 'alias' => 'TreatmentControl', 'type' => 'LEFT', 'conditions' => array('treatment_masters_dup.treatment_control_id = TreatmentControl.id')),
+			array('table' => 'event_masters', 'alias' => 'event_masters_dup', 'type' => 'LEFT', 'conditions' => array('Collection.event_master_id = event_masters_dup.id')),
+			array('table' => 'event_controls', 'alias' => 'EventControl', 'type' => 'LEFT', 'conditions' => array('event_masters_dup.event_control_id = EventControl.id'))
+		);			
+		
+		$hook_link = $this->hook('before_find');
+		if( $hook_link ) {
+			require($hook_link);
+		}		
+		
 		// MANAGE DATA
 		$this->request->data = $this->Collection->find('all', array(
 			'conditions' => $conditions,
-			'order' => 'Collection.acquisition_label ASC',
+			'order' => $order,
 			'limit' => pagination_amount,
-			'joins' => array(
-				DiagnosisMaster::joinOnDiagnosisDup('Collection.diagnosis_master_id'), 
-				DiagnosisMaster::$join_diagnosis_control_on_dup,
-				ConsentMaster::joinOnConsentDup('Collection.consent_master_id'), 
-				ConsentMaster::$join_consent_control_on_dup,
-				array('table' => 'treatment_masters', 'alias' => 'treatment_masters_dup', 'type' => 'LEFT', 'conditions' => array('Collection.treatment_master_id = treatment_masters_dup.id')),
-				array('table' => 'treatment_controls', 'alias' => 'TreatmentControl', 'type' => 'LEFT', 'conditions' => array('treatment_masters_dup.treatment_control_id = TreatmentControl.id')),
-				array('table' => 'event_masters', 'alias' => 'event_masters_dup', 'type' => 'LEFT', 'conditions' => array('Collection.event_master_id = event_masters_dup.id')),
-				array('table' => 'event_controls', 'alias' => 'EventControl', 'type' => 'LEFT', 'conditions' => array('event_masters_dup.event_control_id = EventControl.id'))
-			), 'fields' => array('*')
+			'joins' => $joins, 
+			'fields' => array('*')
 		));
 		
-
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
