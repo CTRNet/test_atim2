@@ -166,12 +166,23 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 				$this->request->data['MiscIdentifier']['identifier_value'] = str_pad($this->request->data['MiscIdentifier']['identifier_value'], $misc_identifier_data['MiscIdentifierControl']['pad_to_length'], '0', STR_PAD_LEFT);
 			}
 			
+			// ... special validations
+						
+			$this->MiscIdentifier->set($this->request->data);
+			$submitted_data_validates = $this->MiscIdentifier->validates() ? $submitted_data_validates : false;
+			if($misc_identifier_data['MiscIdentifierControl']['flag_unique'] && isset($this->request->data['MiscIdentifier']['identifier_value']) && $this->request->data['MiscIdentifier']['identifier_value'] != $misc_identifier_data['MiscIdentifier']['identifier_value']){
+				if($this->MiscIdentifier->find('first', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_data['MiscIdentifierControl']['id'], 'identifier_value' => $this->request->data['MiscIdentifier']['identifier_value'])))){
+					$submitted_data_validates = false;
+					$this->MiscIdentifier->validationErrors['identifier_value'][] = __('this field must be unique').' ('.__('value').')';
+				}
+			}
+			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
-			}	
-			
+			}
+
 			if($submitted_data_validates) {
 				$this->MiscIdentifier->id = $misc_identifier_id;
 				$this->MiscIdentifier->data = null;
