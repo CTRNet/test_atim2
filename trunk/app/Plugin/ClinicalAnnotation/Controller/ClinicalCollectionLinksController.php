@@ -288,6 +288,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			// Launch Save Process
 			
 			$submitted_data_validates = true;
+			$fields = array('consent_master_id', 'diagnosis_master_id', 'treatment_master_id', 'event_master_id');
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
@@ -295,8 +296,8 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}
 			
 			$this->Collection->id = $collection_id;
-			$this->Collection->check_writable_fields = false;//checked with the filter array in the save command
-			if ($submitted_data_validates && $this->Collection->save($this->request->data, true, array('consent_master_id', 'diagnosis_master_id', 'treatment_master_id', 'event_master_id'))) {
+			$this->Collection->addWritableField($fields);
+			if ($submitted_data_validates && $this->Collection->save($this->request->data, true, $fields)) {
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
