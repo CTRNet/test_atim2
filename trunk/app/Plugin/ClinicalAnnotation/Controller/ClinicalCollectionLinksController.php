@@ -99,18 +99,24 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		if($collection_data['Collection']['participant_id'] != $participant_id){
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
+		if($collection_data['Collection']['consent_master_id']){
+			$tmp_data = $this->ConsentMaster->getOrRedirect($collection_data['Collection']['consent_master_id']); 
+			$collection_data['ConsentControl'] = $tmp_data['ConsentControl'];
+		}
 		if($collection_data['Collection']['treatment_master_id']){
-			$collection_data['TreatmentMaster'] = $this->TreatmentMaster->getOrRedirect($collection_data['Collection']['treatment_master_id']);
+			$tmp_data = $this->TreatmentMaster->getOrRedirect($collection_data['Collection']['treatment_master_id']); 
+			$collection_data['TreatmentControl'] = $tmp_data['TreatmentControl'];
 		}
 		if($collection_data['Collection']['event_master_id']){
-			$collection_data['EventMaster'] = $this->EventMaster->getOrRedirect($collection_data['Collection']['event_master_id']);
+			$tmp_data = $this->EventMaster->getOrRedirect($collection_data['Collection']['event_master_id']);
+			$collection_data['EventControl'] = $tmp_data['EventControl'];
 		}
-
-		// MANAGE DATA
-		$diagnosis_data = $this->DiagnosisMaster->getRelatedDiagnosisEvents($collection_data['Collection']['diagnosis_master_id']);
+		if($collection_data['Collection']['diagnosis_master_id']){
+			$tmp_data = $this->DiagnosisMaster->getOrRedirect($collection_data['Collection']['diagnosis_master_id']);
+			$collection_data['DiagnosisControl'] = $tmp_data['DiagnosisControl'];
+		}		
 		
 		$this->set( 'collection_data', $collection_data );
-		$this->set( 'diagnosis_data', $diagnosis_data );
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
