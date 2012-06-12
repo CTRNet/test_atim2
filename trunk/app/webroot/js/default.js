@@ -5,7 +5,6 @@ var orgAction = null;
 var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
-var popState = false;
 
 
 jQuery.fn.fullWidth = function(){
@@ -1014,11 +1013,9 @@ function initActions(){
 		
 		if(history.replaceState){
 			window.onpopstate = function(event) {
-				console.log('popState');
-				popState = true;
 				//retrieving result from history
 				if(event.state == null){
-					//new / reload
+					//new / refresh
 					initIndexZones(false);
 				}else{
 					//back/forward
