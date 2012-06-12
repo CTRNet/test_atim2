@@ -5,6 +5,7 @@ var orgAction = null;
 var removeConfirmed = false;
 var contentMargin = parseInt($("#wrapper").css("border-left-width")) + parseInt($("#wrapper").css("margin-left"));
 var sessionTimeout = new Object();
+var popState = false;
 
 
 jQuery.fn.fullWidth = function(){
@@ -1013,8 +1014,9 @@ function initActions(){
 		
 		if(history.replaceState){
 			window.onpopstate = function(event) {
+				console.log('popState');
+				popState = true;
 				//retrieving result from history
-				//try html5 storage? http://diveintohtml5.org/storage.html
 				if(event.state == null){
 					//new / reload
 					initIndexZones(false);
@@ -1026,6 +1028,19 @@ function initActions(){
 					initIndexZones(true);
 				}
 			};
+			
+			if(navigator.userAgent.indexOf("Firefox") != -1){
+				//firefox doesnt do the first popstate
+				if(history.state && window.sessionStorage.getItem("lastLocation") != document.location){
+					window.sessionStorage.setItem("lastLocation", document.location);
+					initIndexZones(true);
+					$(".ajax_search_results").html(history.state);
+					$(".ajax_search_results").parent().show();
+					handleSearchResultLinks();
+				}else{
+					initIndexZones(false);
+				}
+			}
 		}else{
 			//unknown, always consider new
 			initIndexZones(false);
