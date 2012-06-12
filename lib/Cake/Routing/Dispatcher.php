@@ -171,6 +171,10 @@ class Dispatcher {
 			$file = APP . 'Plugin' . DS . $request->params['plugin'] . DS . 'Controller' . DS . 'Custom' . DS . $request->params['controller'].'Controller.php';
 			if(file_exists($file)){
 				require_once($file);
+				$reflection_custom = new ReflectionClass($ctrlClass.'Custom');
+				if (!$reflection_custom->isAbstract() && !$reflection_custom->isInterface()){
+					return $reflection_custom->newInstance($request, $response);
+				}
 			}
 		}
 		//ATIM end--------
