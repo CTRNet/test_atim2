@@ -13,7 +13,7 @@
 			'radiolist' => array(
 							'MiscIdentifier.selected_id'=>'%%MiscIdentifier.id%%'
 			), 'bottom' => array(
-				'cancel' => '/ClinicalAnnotation/MiscIdentifiers/listall/'.$atim_menu_variables['Participant.id']
+				'cancel' => '/ClinicalAnnotation/Participants/profile/'.$atim_menu_variables['Participant.id']
 			), 'top' => '/ClinicalAnnotation/MiscIdentifiers/reuse/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['MiscIdentifierControl.id'].'/1/'
 		)
 	);
