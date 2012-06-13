@@ -1,7 +1,7 @@
 <?php
 	$structure_links = array(
 		'top' => '/InventoryManagement/collections/add/'.$atim_variables['Collection.id'].'/'.$copy_source,
-		'bottom' => array('cancel' => '/InventoryManagement/collections/search')
+		'bottom' => array('cancel' => 'javascript:history.go(-1)')
 	);
 	
 	$final_atim_structure = $atim_structure; 
