@@ -10,7 +10,7 @@
 	if($is_ajax){
 		$structure_links['top'] .= '/1';
 	}else{
-		$structure_links['bottom'] = array('cancel' => '/InventoryManagement/SampleMasters/contentTreeView/'.$atim_menu_variables['Collection.id']); 
+		$structure_links['bottom'] = array('cancel' => empty($parent_sample_master_id)? '/InventoryManagement/Collections/detail/'.$atim_menu_variables['Collection.id'] : '/InventoryManagement/SampleMasters/detail/'.$atim_menu_variables['Collection.id'].'/'.$parent_sample_master_id.'/'); 
 	}
 	
 	$sample_parent_id = (isset($parent_sample_data_for_display) && (!empty($parent_sample_data_for_display)))? $parent_sample_data_for_display: array('' => '');
