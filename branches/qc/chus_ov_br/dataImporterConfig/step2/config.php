@@ -19,8 +19,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-//	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-05-11.xls";
+//	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-14_revised.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atim DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-06-04.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -77,11 +77,11 @@ class Config{
 Config::$parent_models[] = "OvaryDiagnosisMaster";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step2/tablesMapping/ovary_diagnoses.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step2/tablesMapping/ovary_diagnoses.php'; 
 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/ovary_bank_identifiers.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/breast_bank_identifiers.php'; 
+//Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
+//Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/ovary_bank_identifiers.php'; 
+//Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/breast_bank_identifiers.php'; 
 
 //=========================================================================================================
 // START functions
@@ -2602,7 +2602,8 @@ function loadDNACollection() {
 					$aliquot_positions[] = array('box_label' => $boite, 'position' => '');
 				}
 				
-				$current_weight_per_aliquot = $current_weight/sizeof($aliquot_positions);
+				$div_val = sizeof($aliquot_positions)? sizeof($aliquot_positions) : 1;
+				$current_weight_per_aliquot = $current_weight/$div_val;
 				if(sizeof($aliquot_positions) > 1) Config::$summary_msg['DNA']['@@MESSAGE@@']["Split current weight"][] = "Split current weight ($current_weight) in ".sizeof($aliquot_positions)." => ($current_weight_per_aliquot). Please confirm! [line: $line_counter]";
 				if($current_weight_per_aliquot == '0.0') Config::$summary_msg['DNA']['@@ERROR@@']["Empty 'available' aliquot"][] = "The current weight of aliquot is equal to 0 but the status is still equal to 'yes - available'. Please confirm! [line: $line_counter]";
 				foreach($aliquot_positions as $new_stored_aliquot) {

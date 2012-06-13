@@ -1,0 +1,175 @@
+2012-06-11 18:56:27 Error: [MissingTableException] <span class='untranslated'>Table system_vars for model SystemVar was not found in datasource default.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(3398): Model->setSource('system_vars')
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(2653): Model->getDataSource()
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\SystemVar.php(13): Model->find('first', Array)
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Controller\AppController.php(28): SystemVar->getVar('permission_time...')
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Controller\UsersController.php(8): AppController->beforeFilter()
+#5 [internal function]: UsersController->beforeFilter(Object(CakeEvent))
+#6 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Event\CakeEventManager.php(246): call_user_func(Array, Object(CakeEvent))
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(678): CakeEventManager->dispatch(Object(CakeEvent))
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(100): Controller->startupProcess()
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(UsersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 14:57:48 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '1-BR578-1' for key 'misc_identifier_control_id'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('INSERT INTO `ch...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(991): DboSource->execute('INSERT INTO `ch...')
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(1703): DboSource->create(Object(MiscIdentifier), Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\AppModel.php(101): Model->save(Array, true, Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\MiscIdentifiersController.php(115): AppModel->save(Array)
+#6 [internal function]: MiscIdentifiersController->add('6', '1')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(MiscIdentifiersController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 14:58:25 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '4-10005-1' for key 'misc_identifier_control_id'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('UPDATE `chusovb...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\Database\Mysql.php(378): DboSource->execute('UPDATE `chusovb...')
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(1688): Mysql->update(Object(MiscIdentifier), Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\AppModel.php(101): Model->save(Array, true, Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\MiscIdentifiersController.php(178): AppModel->save(Array)
+#6 [internal function]: MiscIdentifiersController->edit('6', '11')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(MiscIdentifiersController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 15:17:03 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '4-100ee06-1' for key 'misc_identifier_control_id'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('UPDATE `chusovb...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\Database\Mysql.php(378): DboSource->execute('UPDATE `chusovb...')
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(1688): Mysql->update(Object(MiscIdentifier), Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\AppModel.php(101): Model->save(Array, true, Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\MiscIdentifiersController.php(178): AppModel->save(Array)
+#6 [internal function]: MiscIdentifiersController->edit('7', '13')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(MiscIdentifiersController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 18:18:00 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '1-BR579-1' for key 'misc_identifier_control_id'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('INSERT INTO `ch...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(991): DboSource->execute('INSERT INTO `ch...')
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(1703): DboSource->create(Object(MiscIdentifierCustom), Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\AppModel.php(101): Model->save(Array, true, Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\MiscIdentifiersController.php(115): AppModel->save(Array)
+#6 [internal function]: MiscIdentifiersController->add('2126', '1')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(MiscIdentifiersController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 18:19:38 Error: [MissingActionException] <span class='untranslated'>Action MiscIdentifiersController::lstall() could not be found.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#3 {main}
+2012-06-12 18:20:36 Error: [MissingViewException] <span class='untranslated'>View file "C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\View\MiscIdentifiers\listall.ctp" is missing.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\View\View.php(460): View->_getViewFileName(NULL)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(967): View->render(NULL, NULL)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(110): Controller->render()
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#5 {main}
+2012-06-12 18:21:18 Error: [MissingViewException] <span class='untranslated'>View file "C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\View\MiscIdentifiers\listall.ctp" is missing.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\View\View.php(460): View->_getViewFileName(NULL)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(967): View->render(NULL, NULL)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(110): Controller->render()
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#5 {main}
+2012-06-12 18:23:04 Error: [MissingActionException] <span class='untranslated'>Action MiscIdentifiersController::lstall() could not be found.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#3 {main}
+2012-06-12 18:38:57 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '1-BR1124-1' for key 'misc_identifier_control_id'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('INSERT INTO `ch...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(991): DboSource->execute('INSERT INTO `ch...')
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(1703): DboSource->create(Object(MiscIdentifierCustom), Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\AppModel.php(101): Model->save(Array, true, Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\MiscIdentifiersController.php(115): AppModel->save(Array)
+#6 [internal function]: MiscIdentifiersController->add('2126', '1')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(MiscIdentifiersController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 18:39:41 Error: [PDOException] SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '2-OV1029-1' for key 'misc_identifier_control_id'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('INSERT INTO `ch...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(991): DboSource->execute('INSERT INTO `ch...')
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(1703): DboSource->create(Object(MiscIdentifierCustom), Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Model\AppModel.php(101): Model->save(Array, true, Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\MiscIdentifiersController.php(115): AppModel->save(Array)
+#6 [internal function]: MiscIdentifiersController->add('2126', '2')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(MiscIdentifiersController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(MiscIdentifiersController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-12 19:39:20 Error: [PDOException] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'ClinicalCollectionLink.misc_identifier_id' in 'on clause'
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('SELECT *, `Coll...', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(653): DboSource->execute('SELECT *, `Coll...', Array, Array)
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(1064): DboSource->fetchAll('SELECT *, `Coll...', false)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(2653): DboSource->read(Object(Collection), Array)
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\ClinicalAnnotation\Controller\ClinicalCollectionLinksController.php(85): Model->find('all', Array)
+#6 [internal function]: ClinicalCollectionLinksController->listall('2126')
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(ClinicalCollectionLinksController), Array)
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#9 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(ClinicalCollectionLinksController), Object(CakeRequest), Object(CakeResponse))
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#11 {main}
+2012-06-13 15:29:50 Error: [MissingActionException] <span class='untranslated'>Action PagesController::err_plugin_system_error() could not be found.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(PagesController), Object(CakeRequest), Object(CakeResponse))
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#3 {main}
+2012-06-13 15:32:18 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'redirect' at line 1
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('redirect', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(653): DboSource->execute('redirect', Array, Array)
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(595): DboSource->fetchAll('redirect', Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(775): DboSource->query('redirect', Array, Object(AliquotMasterCustom))
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Model\Custom\AliquotMaster.php(70): Model->__call('redirect', Array)
+#6 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Model\Custom\AliquotMaster.php(70): AliquotMasterCustom->redirect('/pages/err_plug...', NULL, true)
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Controller\Hook\AliquotMasters_add_postsave_process.php(3): AliquotMasterCustom->regenerateAliquotBarcode()
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Controller\AliquotMastersController.php(367): require('C:\_My_Director...')
+#9 [internal function]: AliquotMastersController->add('8658', '0')
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(AliquotMastersController), Array)
+#11 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(AliquotMastersController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2012-06-13 16:42:01 Error: [MissingActionException] <span class='untranslated'>Action PagesController::err_plugin_system_error() could not be found.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(PagesController), Object(CakeRequest), Object(CakeResponse))
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#3 {main}
+2012-06-13 16:42:17 Error: [MissingActionException] <span class='untranslated'>Action PagesController::err_plugin_system_error() could not be found.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(PagesController), Object(CakeRequest), Object(CakeResponse))
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#3 {main}
+2012-06-13 17:39:37 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'redirect' at line 1
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(443): PDOStatement->execute(Array)
+#1 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(409): DboSource->_execute('redirect', Array)
+#2 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(653): DboSource->execute('redirect', Array, Array)
+#3 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Datasource\DboSource.php(595): DboSource->fetchAll('redirect', Array, Array)
+#4 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Model\Model.php(775): DboSource->query('redirect', Array, Object(AliquotMasterCustom))
+#5 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Model\Custom\AliquotMaster.php(72): Model->__call('redirect', Array)
+#6 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Model\Custom\AliquotMaster.php(72): AliquotMasterCustom->redirect('/Pages/err_plug...', NULL, true)
+#7 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Controller\Hook\AliquotMasters_add_postsave_process.php(3): AliquotMasterCustom->regenerateAliquotBarcode()
+#8 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\Plugin\InventoryManagement\Controller\AliquotMastersController.php(367): require('C:\_My_Director...')
+#9 [internal function]: AliquotMastersController->add('8660', '0')
+#10 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Controller\Controller.php(493): ReflectionMethod->invokeArgs(Object(AliquotMastersController), Array)
+#11 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(AliquotMastersController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}

@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/DONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-05-08.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atimDONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-06-04.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -70,7 +70,7 @@ class Config{
 Config::$parent_models[] = "BreastDiagnosisMaster";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step3/tablesMapping/breast_diagnoses.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step3/tablesMapping/breast_diagnoses.php'; 
 
 //=========================================================================================================
 // START functions
@@ -489,6 +489,9 @@ function addPatientsHistory() {
 				} else if($file_value == '10-07-1009') {
 					$chus_date_of_status = '2009-07-01';
 					$chus_date_of_status_accuracy = 'c';	
+				} else if($file_value == '2010-04') {
+					$chus_date_of_status = '2010-04-01';
+					$chus_date_of_status_accuracy = 'd';	
 				} else {
 					die("ERR 988391 [".$file_value."] line : ".$line_counter);
 				}

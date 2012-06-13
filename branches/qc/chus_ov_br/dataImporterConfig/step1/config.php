@@ -19,8 +19,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	//static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-denominalise 2012-05-08.xls";
+	//static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-2012-03-14_revised.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-denominalise 2012-06-01.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -71,10 +71,10 @@ class Config{
 Config::$parent_models[] = "Participant";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/participants.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/participants.php'; 
 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/bank_identifiers.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/no_dossier_chus_identifiers.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/bank_identifiers.php'; 
 
 function addonFunctionStart(){
 	global $connection;
