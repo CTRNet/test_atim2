@@ -77,6 +77,12 @@
 		$final_options = array('data' => $diagnosis_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
 		$final_atim_structure = $diagnosis_structure;
 		
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')){
+			$final_options['type'] = 'detail';
+			$final_atim_structure = array();
+			$final_options['extras'] = '<div>'.__('You are not authorized to access that location.').'</div>';
+		}
+		
 		$hook_link = $this->Structures->hook('dx_list');
 		if( $hook_link ) { 
 			require($hook_link); 
