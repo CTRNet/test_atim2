@@ -136,7 +136,7 @@ class AdhocsController extends DatamartAppController {
 			
 			$final_query = $sql_query_without_search_terms;
 			list( $sql_query_with_search_terms, $sql_query_without_search_terms ) = $this->Structures->parse_sql_conditions( $adhoc['Adhoc']['sql_query_for_results'], $conditions );
-			$ids = $this->ModelToSearch->query( $sql_query_with_search_terms );
+			$ids = $this->ModelToSearch->tryCatchQuery( $sql_query_with_search_terms );
 			$criteria = array();
 			foreach ( $ids as $array ) {
 				foreach ( $array as $id_model=>$id_fields ) {
@@ -288,7 +288,11 @@ class AdhocsController extends DatamartAppController {
 				$query_to_use = str_replace('WHERE', 'WHERE ('.$criteria.') AND ', $query_to_use);
 			}
 			
-			$results = $this->ModelToSearch->query($query_to_use);
+			try{
+				$results = $this->ModelToSearch->tryCatchQuery($query_to_use);
+			}catch(Exception $e){
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
     	}else{
 			$results = $this->ModelToSearch->find('all', array('conditions' => $criteria, 'recursive' => 3));
 		}

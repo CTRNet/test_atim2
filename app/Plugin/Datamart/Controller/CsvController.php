@@ -59,7 +59,7 @@ class CsvController extends DatamartAppController {
 					if(strpos($adhoc['Adhoc']['sql_query_for_results'], "WHERE TRUE") !== false){
 						$query = str_replace("WHERE TRUE", "WHERE ".$model_name.".".$model_pkey." IN ('".implode("', '", $ids)."')", $adhoc['Adhoc']['sql_query_for_results']);
 						list( , $query) = $this->Structures->parse_sql_conditions( $query, array() );
-						$this->request->data = $this->ModelToSearch->query($query);
+						$this->request->data = $this->ModelToSearch->tryCatchQuery($query);
 						$use_find = false;
 					}else{
 						require_once('customs/custom_adhoc_functions.php');

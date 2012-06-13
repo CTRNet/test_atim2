@@ -268,12 +268,8 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 					if($parent_id == 0){
 						// Set primary_id of a Primary
 						$query_to_update = "UPDATE diagnosis_masters SET diagnosis_masters.primary_id = diagnosis_masters.id WHERE diagnosis_masters.id = $diagnosis_master_id;";
-						try{
-							$this->DiagnosisMaster->query($query_to_update); 
-							$this->DiagnosisMaster->query(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update));
-						}catch(Exception $e){
-							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
+						$this->DiagnosisMaster->tryCatchQuery($query_to_update);
+						$this->DiagnosisMaster->tryCatchQuery(str_replace("diagnosis_masters", "diagnosis_masters_revs", $query_to_update));
 					}
 					
 					$hook_link = $this->hook('postsave_process');
@@ -309,10 +305,14 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			|| ($new_primary_ctrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			
 			if($dx_master_data['DiagnosisControl']['detail_tablename'] != $new_primary_ctrl['DiagnosisControl']['detail_tablename']) {
-				if(!$this->DiagnosisMaster->atimDelete($diagnosis_master_id)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				$this->DiagnosisMaster->query("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']." (`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
+				if(!$this->DiagnosisMaster->atimDelete($diagnosis_master_id)){
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				
+				$this->DiagnosisMaster->tryCatchQuery("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']." (`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
 			}
-			$this->DiagnosisMaster->query("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
+			
+			$this->DiagnosisMaster->tryCatchQuery("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
 			
 			$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 			if(empty($dx_master_data)){

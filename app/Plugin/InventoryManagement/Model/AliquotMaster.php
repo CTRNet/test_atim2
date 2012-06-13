@@ -81,7 +81,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 					(am.version_created < smn.version_created OR smn.version_created IS NULL)) OR 
 					(sm.version_created > am.version_created AND (sm.version_created <= amn.version_created OR amn.version_created IS NULL)) 
 					OR am.storage_master_id IS NULL)";
-		$storage_data_tmp = $this->query($qry);
+		$storage_data_tmp = $this->tryCatchQuery($qry);
 		
 		$previous = array_shift($storage_data_tmp);
 		while($current = array_shift($storage_data_tmp)){

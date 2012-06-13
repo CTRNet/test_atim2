@@ -81,7 +81,7 @@ class PermissionsController extends AdministrateAppController {
 			';
 		}
 		
-		$this->Aro->query($sql);
+		$this->Aro->tryCatchQuery($sql);
 		
 	}
 	
@@ -170,7 +170,7 @@ class PermissionsController extends AdministrateAppController {
 			return;
 		}
 		
-		$depth = $this->Aco->query('
+		$depth = $this->Aco->tryCatchQuery('
 			SELECT node.id, (COUNT(parent.id) - 1) AS depth
 			FROM acos AS node, acos AS parent
 			WHERE node.lft BETWEEN parent.lft AND parent.rght
