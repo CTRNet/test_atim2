@@ -415,6 +415,14 @@ class StructuresHelper extends Helper {
 			');
 		}
 		
+		//no sanitization on select
+		$flag = 'flag_'.$options['type'];
+		foreach($atim_structure['Sfs'] as $sfs){
+			if($sfs[$flag] && $sfs['type'] == 'select'){
+				$options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+			}
+		}
+		
 		$sanitized_data = Sanitize::clean($data);
 		if($options['settings']['no_sanitization']){
 			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
@@ -804,6 +812,7 @@ class StructuresHelper extends Helper {
 					&& !array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])
 					&& count($table_row_part['settings']['options']) > 1
 				){
+					//TODO FMLHHHHHH
 					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
@@ -1746,7 +1755,6 @@ class StructuresHelper extends Helper {
 	 * @return array The representation of the display where $result = arry(x => array(y => array(field data))
 	 */
 	private function buildStack(array $atim_structure, array $options){
-		//TODO: WARNING ON paste_disabled if field mentioned in the view is not found here
 		$stack = array();//the stack array represents the display x => array(y => array(field data))
 		$empty_help_bullet = '<span class="icon16 help error">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 		$help_bullet = '<span class="icon16 help">&nbsp;&nbsp;&nbsp;&nbsp;<div>%s</div></span> ';
