@@ -76,7 +76,7 @@
 	$final_options['settings']['header'] = array('title' => __('annotation'), 'description' => null);
 	if(!is_null($event_control_data)) $final_options['settings']['header']['description'] = __($event_control_data['event_group']). ' - '.__($event_control_data['disease_site']). ' - '.__($event_control_data['event_type']);	
 	$final_options['settings']['actions'] = true;
-	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/noActions:/noHeader:/') : $no_data_available;
+	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/1/noActions:/noHeader:/') : $no_data_available;
 	
 	$structure_bottom_links = array(
 		'edit'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
