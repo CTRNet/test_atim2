@@ -225,6 +225,11 @@ CREATE TABLE `cd_npttb_consent_brain_bank` (
   `npttb_4_contact_relationship` VARCHAR(100) NULL ,
   `npttb_4_contact_details` TEXT NULL ,
   `npttb_form_type` VARCHAR(45) NULL,
+  `npttb_use_tissue` VARCHAR(45) NULL,
+  `npttb_use_blood` VARCHAR(45) NULL,
+  `npttb_use_urine` VARCHAR(45) NULL,  
+  `npttb_use_csf` VARCHAR(45) NULL,
+  `npttb_use_bone_marrow` VARCHAR(45) NULL, 
   `consent_master_id` INT(11) NOT NULL ,
   `deleted` TINYINT(3) DEFAULT 0 ,
   PRIMARY KEY (`id`) )
@@ -239,6 +244,11 @@ CREATE TABLE `cd_npttb_consent_brain_bank_revs` (
   `npttb_4_contact_relationship` VARCHAR(100) NULL ,
   `npttb_4_contact_details` TEXT NULL ,
   `npttb_form_type` VARCHAR(45) NULL,
+  `npttb_use_tissue` VARCHAR(45) NULL,
+  `npttb_use_blood` VARCHAR(45) NULL,
+  `npttb_use_urine` VARCHAR(45) NULL,  
+  `npttb_use_csf` VARCHAR(45) NULL,
+  `npttb_use_bone_marrow` VARCHAR(45) NULL,   
   `consent_master_id` INT(11) NOT NULL ,
   `version_id` INT(11) DEFAULT 0 ,
   `version_created` DATETIME NOT NULL,
@@ -381,14 +391,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 -- Custom lookup values for form version
 INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`) VALUES
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'autopsy', 'Autopsy', '', 1, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'sno calgary', 'SNO Calgary', '', 2, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'baker v2 25-mar-2003', 'Baker v2 25-Mar-2003', '', 3, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'baker v3 15-oct-2007', 'Baker v3 15-Oct-2007', '', 4, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v1.0 aug-5-2008', 'v1.0 Aug-5-2008', '', 5, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v2.0 nov-19-2010', 'v2.0 Nov-19-2010', '', 6, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v3.0 may-6-2011', 'v3.0 May-6-2011', '', 7, 1),
-((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v4.0 nov-21-2011', 'v4.0 Nov-21-2011', '', 8, 1);
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'n/a', 'n/a', '', 1, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v1.0 aug-5-2008', 'v1.0 Aug-5-2008', '', 2, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v2.0 nov-19-2010', 'v2.0 Nov-19-2010', '', 3, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v3.0 may-6-2011', 'v3.0 May-6-2011', '', 4, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'consent form versions'), 'v4.0 nov-21-2011', 'v4.0 Nov-21-2011', '', 5, 1);
 
 -- Custom lookup for person consenting
 INSERT INTO `structure_value_domains` (`domain_name`, `source`) VALUES
