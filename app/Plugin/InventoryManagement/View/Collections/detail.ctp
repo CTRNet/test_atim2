@@ -28,8 +28,8 @@
 				'link'	=> '/ClinicalAnnotation/Participants/profile/' . $participant_id),
 			'participant inventory'	=> array(
 				'icon'	=> 'participant',
-				'link'	=> '/ClinicalAnnotation/ProductMasters/productsTreeView/' . $participant_id
-				) 
+				'link'	=> '/ClinicalAnnotation/ClinicalCollectionLinks/detail/' . $participant_id . '/' . $atim_menu_variables['Collection.id']
+			) 
 		);
 	}
 			
