@@ -125,7 +125,7 @@ class ReportsController extends DatamartAppController {
 		
 		// Get new collections
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$new_collections_nbr = $this->Report->query(
+		$new_collections_nbr = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*) FROM (
 				SELECT DISTINCT col.participant_id 
 				FROM sample_masters AS sm 
@@ -181,7 +181,7 @@ class ReportsController extends DatamartAppController {
 		}
 
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_2 = $this->Report->query(
+		$res_2 = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), participant_id, res.sample_type FROM (
 				SELECT DISTINCT col.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
@@ -199,7 +199,7 @@ class ReportsController extends DatamartAppController {
 		}
 		
 		// Work on derivative
-		$res_2 = $this->Report->query(
+		$res_2 = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), res.sample_type FROM (
 				SELECT DISTINCT col.participant_id, sc.sample_type  
 				FROM sample_masters AS sm 
@@ -258,7 +258,7 @@ class ReportsController extends DatamartAppController {
 		
 		// Get new participant
 		$conditions = $search_on_date_range? "Participant.created >= '$start_date_for_sql' AND Participant.created <= '$end_date_for_sql'" : 'TRUE';
-		$participant_res = $this->Report->query(
+		$participant_res = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), YEAR(Participant.created) AS created_year".($month_period? ", MONTH(Participant.created) AS created_month": "").
 			" FROM participants AS Participant 
 			WHERE ($conditions) AND Participant.deleted != 1 
@@ -282,7 +282,7 @@ class ReportsController extends DatamartAppController {
 
 		// Get new consents obtained
 		$conditions = $search_on_date_range? "ConsentMaster.consent_signed_date >= '$start_date_for_sql' AND ConsentMaster.consent_signed_date <= '$end_date_for_sql'" : 'TRUE';
-		$consent_res = $this->Report->query(
+		$consent_res = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), YEAR(ConsentMaster.consent_signed_date) AS signed_year".($month_period? ", MONTH(ConsentMaster.consent_signed_date) AS signed_month": "").
 			" FROM consent_masters AS ConsentMaster
 			WHERE ($conditions) AND ConsentMaster.deleted != 1 
@@ -306,7 +306,7 @@ class ReportsController extends DatamartAppController {
 		
 		// Get new collections
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$collection_res = $this->Report->query(
+		$collection_res = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), res.collection_year".($month_period? ", res.collection_month": "")." FROM (
 				SELECT DISTINCT col.participant_id, YEAR(col.collection_datetime) AS collection_year".($month_period? ", MONTH(col.collection_datetime) AS collection_month": "").
 				" FROM sample_masters AS sm 

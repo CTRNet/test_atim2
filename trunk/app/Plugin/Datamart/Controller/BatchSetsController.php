@@ -147,7 +147,7 @@ class BatchSetsController extends DatamartAppController {
 				// add restrictions to query, inserting BATCH SET IDs to WHERE statement
 	    		list( , $query_to_use) = $this->Structures->parse_sql_conditions( $batch_set['Adhoc']['sql_query_for_results'], array() );
 				$query_to_use = str_replace( 'WHERE TRUE', 'WHERE ('.$criteria.')', $query_to_use );
-				$results = $this->ModelToSearch->query( $query_to_use );
+				$results = $this->ModelToSearch->tryCatchQuery( $query_to_use );
 				
     		}else{
     			//function to call

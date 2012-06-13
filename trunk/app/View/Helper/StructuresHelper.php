@@ -1566,7 +1566,7 @@ class StructuresHelper extends Helper {
 			if(isset($options['settings']['batchset']['ctrl'])){
 				$link .= '/batchsetCtrl:'.$options['settings']['batchset']['ctrl'];
 			}
-			$batchset = '<a href="'.$link.'" title="'.__('add to temporary batchset').'"><span class="icon16 batchset"></span></a>';
+			$batchset = '<a href="'.$link.'" title="'.__('add to temporary batchset').'" class="icon16 batchset"></a>';
 		}
 		
 		if($colspan){

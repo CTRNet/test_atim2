@@ -70,7 +70,7 @@ class Browser extends DatamartAppModel {
 				$app_controller->redirect( '/Pages/err_internal?p[]=missing parameter for getBrowserDropdownOptions', null, true);
 			}
 			//the query contains a useless CONCAT to counter a cakephp behavior
-			$data = $this->query(
+			$data = $this->tryCatchQuery(
 				"SELECT CONCAT(main_id, '') AS main_id, GROUP_CONCAT(to_id SEPARATOR ',') AS to_id FROM( "
 				."SELECT id1 AS main_id, id2 AS to_id FROM `datamart_browsing_controls` AS dbc "
 				."WHERE dbc.flag_active_1_to_2=1 "
@@ -1502,7 +1502,7 @@ class Browser extends DatamartAppModel {
 				$select_field = $browsing_filter['attribute'].'('.$browsing_filter['field'].')';
 			}
 			$save_ids = array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids));
-			$model_to_search->query('DROP TEMPORARY TABLE IF EXISTS '.$temporary_table);
+			$model_to_search->tryCatchQuery('DROP TEMPORARY TABLE IF EXISTS '.$temporary_table);
 			$query = sprintf('CREATE TEMPORARY TABLE %1$s (SELECT %2$s, %3$s AS order_field, " " AS accuracy FROM %4$s WHERE %5$s GROUP BY %2$s)',
 					$temporary_table,
 					$browsing_filter['group by'],
@@ -1510,25 +1510,25 @@ class Browser extends DatamartAppModel {
 					$model_to_search->table,
 					$model_to_search->primaryKey.' IN('.implode(', ', $save_ids).')'
 			);
-			$model_to_search->query($query);
+			$model_to_search->tryCatchQuery($query);
 				
 			if($model_to_search->schema($browsing_filter['field'].'_accuracy')){
 				//update the table to restore values regarding accuracy
 				$org_field_info = $model_to_search->schema($browsing_filter['field']);
 				$query = 'UPDATE '.$temporary_table.' SET order_field=CONCAT(SUBSTR(order_field, 1, %1$d), "%2$s"), accuracy="%3$s" WHERE LENGTH(order_field)=%4$d';
 				if($org_field_info['atim_type'] == 'date'){
-					$model_to_search->query(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : 'B').'")!=0');
-					$model_to_search->query(sprintf($query, 4, '-01-01', 'm', 5));
-					$model_to_search->query(sprintf($query, 7, '-01', 'd', 8));
+					$model_to_search->tryCatchQuery(sprintf($query, 4, '-01-01', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : 'B').'")!=0');
+					$model_to_search->tryCatchQuery(sprintf($query, 4, '-01-01', 'm', 5));
+					$model_to_search->tryCatchQuery(sprintf($query, 7, '-01', 'd', 8));
 				}else{
 					//datetime
-					$model_to_search->query(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : 'B').'")!=0');
-					$model_to_search->query(sprintf($query, 4, '-01-01 00:00:00', 'm', 5));
-					$model_to_search->query(sprintf($query, 7, '-01 00:00:00', 'd', 8));
-					$model_to_search->query(sprintf($query, 10, ' 00:00:00', 'h', 11));
-					$model_to_search->query(sprintf($query, 13, '00:00', 'i', 14));
+					$model_to_search->tryCatchQuery(sprintf($query, 4, '-01-01 00:00:00', 'y', 5).' AND INSTR(order_field, "'.($browsing_filter['attribute'] == 'MAX' ? '\t' : 'B').'")!=0');
+					$model_to_search->tryCatchQuery(sprintf($query, 4, '-01-01 00:00:00', 'm', 5));
+					$model_to_search->tryCatchQuery(sprintf($query, 7, '-01 00:00:00', 'd', 8));
+					$model_to_search->tryCatchQuery(sprintf($query, 10, ' 00:00:00', 'h', 11));
+					$model_to_search->tryCatchQuery(sprintf($query, 13, '00:00', 'i', 14));
 				}
-				$model_to_search->query('UPDATE '.$temporary_table.' SET accuracy="c" WHERE accuracy=" "');
+				$model_to_search->tryCatchQuery('UPDATE '.$temporary_table.' SET accuracy="c" WHERE accuracy=" "');
 			}
 				
 			$joins = array(array(
@@ -1552,7 +1552,7 @@ class Browser extends DatamartAppModel {
 					'joins'			=> $joins,
 					'order'			=> array($model_to_search->name.'.'.$model_to_search->primaryKey)
 			));
-			$model_to_search->query('DROP TEMPORARY TABLE '.$temporary_table);
+			$model_to_search->tryCatchQuery('DROP TEMPORARY TABLE '.$temporary_table);
 				
 			$org_search_conditions['adv_search_conditions']['browsing_filter'] = $advanced_data[$model_to_search->name]['browsing_filter'];
 		}

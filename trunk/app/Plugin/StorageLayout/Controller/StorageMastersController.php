@@ -212,12 +212,8 @@ class StorageMastersController extends StorageLayoutAppController {
 				
 				// Create storage code
 				if($bool_save_done) {
-					try{
-						$this->StorageMaster->query("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;"); 
-						$this->StorageMaster->query("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;");
-					}catch(Exeption $e){
-						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-					}
+					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters SET storage_masters.code = storage_masters.id WHERE storage_masters.id = $storage_master_id;"); 
+					$this->StorageMaster->tryCatchQuery("UPDATE storage_masters_revs SET storage_masters_revs.code = storage_masters_revs.id WHERE storage_masters_revs.id = $storage_master_id;");
 				}
 				
 				$hook_link = $this->hook('postsave_process');

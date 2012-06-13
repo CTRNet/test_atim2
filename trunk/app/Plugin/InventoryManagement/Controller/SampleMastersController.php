@@ -482,12 +482,8 @@ class SampleMastersController extends InventoryManagementAppController {
 						$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id WHERE sample_masters.id = $sample_master_id;";
 					}
 
-					try{
-						$this->SampleMaster->query($query_to_update);
-						$this->SampleMaster->query(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
-					}catch(Exception $e){
-						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-					}
+					$this->SampleMaster->tryCatchQuery($query_to_update);
+					$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
 					
 					// Save either specimen or derivative detail
 					if($is_specimen){
@@ -1123,12 +1119,8 @@ class SampleMastersController extends InventoryManagementAppController {
 						
 						// Update sample code
 						$query_to_update = "UPDATE sample_masters SET sample_masters.sample_code = sample_masters.id WHERE sample_masters.id = $child_id;";
-						try{
-							$this->SampleMaster->query($query_to_update); 
-							$this->SampleMaster->query(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
-						}catch(Exception $e){
-							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-						}
+						$this->SampleMaster->tryCatchQuery($query_to_update); 
+						$this->SampleMaster->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
 
 						// Save derivative detail
 						$this->DerivativeDetail->id = $child_id;

@@ -216,7 +216,7 @@ class AppModel extends Model {
 					$model = AppModel::getInstance($plugin_name, $model_name);
 					foreach($foreign_keys as $foreign_key){
 						$query = sprintf('DELETE FROM %1$s WHERE %2$s=%3$d', $model->table, $foreign_key, $this->id);
-						$this->query($query);
+						$this->tryCatchquery($query);
 					}
 				}
 			}
@@ -1152,7 +1152,7 @@ class AppModel extends Model {
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				foreach($foreign_keys as $foreign_key){
 					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s=%3$d)', $model->table, $foreign_key, $this->id);
-					$this->query($query);
+					$this->tryCatchquery($query);
 				}
 			}
 		}
@@ -1210,6 +1210,15 @@ class AppModel extends Model {
 					}
 				}
 			}
+		}
+	}
+	
+	function tryCatchQuery($sql){
+		try{
+			return parent::query($sql);
+		}catch(Exception $e){
+			$bt = debug_backtrace();
+			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
 		}
 	}
 }
