@@ -463,9 +463,9 @@ class StructuresHelper extends Helper {
 		}
 		
 		if(isset($options['extras']['end'])){
-			echo('
+			echo'
 				<div class="extra">'.$options['extras']['end'].'</div>
-			');
+			';
 		}
 		
 		if($options['settings']['section_end']){
@@ -1754,7 +1754,27 @@ class StructuresHelper extends Helper {
 		$my_default_settings_arr = self::$default_settings_arr;
 		$my_default_settings_arr['value'] = "%s";
 		self::$last_tabindex = max(self::$last_tabindex, $options['settings']['tabindex']);
+		
 		if(isset($atim_structure['Sfs'])){
+			//float fields must bear the column number of the first real field
+			$column = null;
+			foreach($atim_structure['Sfs'] as $sfs){
+				if($sfs['flag_float'] == 0){
+					$column = $sfs['display_column'];
+					break;
+				}
+			}
+			if($column != null){
+				foreach($atim_structure['Sfs'] as &$sfs){
+					if($sfs['flag_float']){
+						$sfs['display_column'] = $column;
+					}else{
+						break;
+					}
+				}
+				unset($sfs);
+			}
+			
 			$paste_disabled = array();
 			foreach($atim_structure['Sfs'] AS $sfs){
 				$model_dot_field = $sfs['model'].'.'.$sfs['field'];
