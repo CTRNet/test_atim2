@@ -80,7 +80,26 @@ class MiscIdentifierCustom extends MiscIdentifier {
 					$value_validated = false;
 				}				
 				break;
-				
+
+			case "Medical Record Number":
+				// Validate: 12 digits
+				if (preg_match("^\A\d{12}$^", $identifierValue)) {
+					$value_validated = true;
+				} else {
+					$this->validationErrors['MiscIdentifier']['identifier_value'] = "npbttb MRN validation error";
+					$value_validated = false;
+				}				
+				break;
+
+			case "MRN (Pre-2008)":
+				// Validate: No validation
+				if (preg_match("^[0-9]+$^", $identifierValue)) {
+					$value_validated = true;
+				} else {
+					$this->validationErrors['MiscIdentifier']['identifier_value'] = "npbttb MRN (Pre-2008) validation error";
+					$value_validated = false;
+				}				
+				break;								
 			default:
 				echo "DEFAULT";
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
