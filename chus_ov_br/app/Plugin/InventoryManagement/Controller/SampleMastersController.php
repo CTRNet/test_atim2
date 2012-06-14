@@ -1175,12 +1175,12 @@ class SampleMastersController extends InventoryManagementAppController {
 					));
 					$batch_set_model->check_writable_fields = false;
 					$batch_set_model->saveWithIds($batch_set_data, $child_ids);
-					$this->flash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
 					if(!isset($unique_aliquot_master_data['AliquotMaster'])){
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
-					$this->flash('your data has been saved','/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
+					$this->atimFlash('your data has been saved','/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
 				}
 				
 			}else{
