@@ -138,6 +138,11 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 				require($hook_link); 
 			}			
 			
+			//To allow particiant Last Modification update
+			$this->request->data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;
+			$this->TreatmentExtend->addWritableField('treatment_master_id');
+			$this->TreatmentExtend->writable_fields_mode = 'addgrid';
+			
 			$this->TreatmentExtend->id = $tx_extend_id;
 			if ($submitted_data_validates && $this->TreatmentExtend->save($this->request->data)) {
 				$hook_link = $this->hook('postsave_process');
