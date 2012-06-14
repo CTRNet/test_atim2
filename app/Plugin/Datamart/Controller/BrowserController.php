@@ -362,9 +362,11 @@ class BrowserController extends DatamartAppController {
 			return;
 		}
 		
-		$ids = current(current($this->request->data));
-		if(is_string($ids)){
-			$ids = explode(",", $ids);
+		$ids = null;
+		if($this->request->data){
+			$ids = current(current($this->request->data));
+		}else{
+			$ids = explode(",", $browsing['BrowsingResult']['id_csv']);
 		}
 		
 		$this->layout = false;
@@ -442,6 +444,7 @@ class BrowserController extends DatamartAppController {
 				}
 				$offset += $base_fetch_limit;
 				$this->render('../csv/csv_same_line');
+				$this->set('csv_header', false);
 			}
 			
 		}else{
