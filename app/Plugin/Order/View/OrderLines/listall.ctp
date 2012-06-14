@@ -8,7 +8,7 @@
 		),
 		'bottom'=>array(
 			'add order line'=>'/Order/OrderLines/add/'.$atim_menu_variables['Order.id'].'/',
-			'add shipment'=>array('link'=>'/Order/shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment')
+			'add shipment'=>array('link'=>'/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment')
 		)
 	);
 	

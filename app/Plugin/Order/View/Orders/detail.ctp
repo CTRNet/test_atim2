@@ -8,7 +8,7 @@
 			'new search' => OrderAppController::$search_links,
 			'edit'=>'/Order/orders/edit/' . $atim_menu_variables['Order.id'] . '/',
 			'add order line'=>'/Order/OrderLines/add/' . $atim_menu_variables['Order.id'] . '/',
-			'add shipment'=>array('link'=> '/Order/shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
+			'add shipment'=>array('link'=> '/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
 			'delete'=>'/Order/orders/delete/' . $atim_menu_variables['Order.id'] . '/'
 		)
 	);
@@ -53,7 +53,7 @@
 			'settings' => array(
 					'header' => __('shipments', null),
 					'actions'	=> false,
-			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/shipments/listall/'.$atim_menu_variables['Order.id'])));
+			), 'extras' => array('end' => $this->Structures->ajaxIndex('Order/Shipments/listall/'.$atim_menu_variables['Order.id'])));
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook('shipments');
