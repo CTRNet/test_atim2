@@ -7,6 +7,8 @@ class CsvHelper extends AppHelper {
     var $line = array(); 
     var $buffer; 
     var $csv_separator = csv_separator;
+    static $nodes_info = null;
+    static $structures = null;
      
     function CsvHelper() { 
         $this->clear(); 
