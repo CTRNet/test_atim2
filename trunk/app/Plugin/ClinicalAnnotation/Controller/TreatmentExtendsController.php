@@ -67,8 +67,7 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 			
 			if(empty($errors)) {
 				foreach($this->request->data as $new_data) {
-						$new_data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;
-						pr($new_data);				
+					$new_data['TreatmentExtend']['treatment_master_id'] = $tx_master_id;				
 					$this->TreatmentExtend->id = null;
 					$this->TreatmentExtend->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 					if(!$this->TreatmentExtend->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
