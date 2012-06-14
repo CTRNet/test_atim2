@@ -103,7 +103,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 					self::USE_DATETIME_ACCU	=> 'Shipment.datetime_shipped_accuracy',
 					self::USE_BY			=> 'Shipment.shipped_by',
 					self::CREATED			=> 'Shipment.created',
-					self::DETAIL_URL		=> 'CONCAT("/Order/shipments/detail/",Shipment.order_id,"/",Shipment.id)',
+					self::DETAIL_URL		=> 'CONCAT("/Order/Shipments/detail/",Shipment.order_id,"/",Shipment.id)',
 					self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
 					self::COLLECTION_ID		=> 'SampleMaster.collection_id'
 				), "AliquotReviewMaster" => array(

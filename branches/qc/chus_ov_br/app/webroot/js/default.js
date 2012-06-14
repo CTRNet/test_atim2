@@ -1218,7 +1218,7 @@ function initActions(){
 				});
 			}else{
 				floatingBckGrnd.css({
-					width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + 3 + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
+					width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
 					height: (table.find("thead").height() + table.find("tbody").height()) + "px",
 					left: table.find("th.floatingCell:first").offset().left + "px"
 				}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
@@ -1692,15 +1692,17 @@ function initActions(){
 					scope.html(page);					
 					fctLinksToAjax(scope);
 					
-					history.state.indexZone[scope.data("url")] = page;
-					history.replaceState(history.state, "foo");
+					if(history.state){
+						history.state.indexZone[scope.data("url")] = page;
+						history.replaceState(history.state, "foo");
+					}
 				});
 				
 				return false;
 			});
 		};
 		
-		if(!history.state.indexZone){
+		if(history.state && !history.state.indexZone){
 			history.state.indexZone = new Object();
 		}
 		

@@ -415,11 +415,13 @@ class StructuresHelper extends Helper {
 			');
 		}
 		
-		//no sanitization on select
-		$flag = 'flag_'.$options['type'];
-		foreach($atim_structure['Sfs'] as $sfs){
-			if($sfs[$flag] && $sfs['type'] == 'select'){
-				$options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+		if(isset($atim_structure['Sfs'])){
+			//no sanitization on select
+			$flag = 'flag_'.$options['type'];
+			foreach($atim_structure['Sfs'] as $sfs){
+				if($sfs[$flag] && $sfs['type'] == 'select'){
+					$options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+				}
 			}
 		}
 		
