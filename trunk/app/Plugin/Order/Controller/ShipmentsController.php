@@ -16,7 +16,7 @@ class ShipmentsController extends OrderAppController {
 
 	function search($search_id = 0){
 		$this->set('atim_menu', $this->Menus->get('/Order/orders/search'));
-		$this->searchHandler($search_id, $this->Shipment, 'shipments', '/InventoryManagement/shipments/search');
+		$this->searchHandler($search_id, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -43,7 +43,7 @@ class ShipmentsController extends OrderAppController {
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/shipments/detail/%%Order.id%%/'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Shipments/detail/%%Order.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
 		$hook_link = $this->hook('format');
@@ -61,7 +61,7 @@ class ShipmentsController extends OrderAppController {
 	
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/shipments/detail/%%Order.id%%/'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Shipments/detail/%%Order.id%%/'));
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id));
 		
 		// SAVE PROCESS
@@ -130,7 +130,7 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated', '/Order/shipments/detail/'.$order_id.'/'.$shipment_id );
+				$this->atimFlash( 'your data has been updated', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} 
 	}
@@ -199,7 +199,7 @@ class ShipmentsController extends OrderAppController {
 		// Get available order items
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
 		if(empty($available_order_items)) { 
-			$this->flash('no new item could be actually added to the shipment', '/Order/shipments/detail/'.$order_id.'/'.$shipment_id);  
+			$this->flash('no new item could be actually added to the shipment', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -307,7 +307,7 @@ class ShipmentsController extends OrderAppController {
 					require($hook_link);
 				}
 				$this->atimFlash(__('your data has been saved').'<br>'.__('aliquot storage data were deleted (if required)'), 
-					'/Order/shipments/detail/'.$order_id.'/'.$shipment_id.'/');
+					'/Order/Shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		
 		}	
 	}
@@ -357,7 +357,7 @@ class ShipmentsController extends OrderAppController {
 		
 		// LAUNCH DELETION
 		
-		$url = '/Order/shipments/detail/'.$order_id.'/'.$shipment_id;
+		$url = '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id;
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			$remove_done = true;

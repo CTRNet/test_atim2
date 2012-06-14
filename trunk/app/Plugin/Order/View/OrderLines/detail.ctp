@@ -3,7 +3,7 @@
 	$add_to_shipment_links = array();
 	foreach ($shipments_list as $shipment) {	
 		$add_to_shipment_links[$shipment['Shipment']['shipment_code']] = array(
-			'link'=> '/Order/shipments/addToShipment/' . $shipment['Shipment']['order_id'] . '/' . $shipment['Shipment']['id'],
+			'link'=> '/Order/Shipments/addToShipment/' . $shipment['Shipment']['order_id'] . '/' . $shipment['Shipment']['id'],
 			'icon' => 'add_to_shipment');
 	}
 	ksort($add_to_shipment_links);
@@ -14,7 +14,7 @@
 			'edit'=>'/Order/OrderLines/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
 			'add order line item'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
 			'edit all order line items' => '/Order/OrderItems/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
-			'add shipment'=>array('link'=>'/Order/shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment'),
+			'add shipment'=>array('link'=>'/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment'),
 			'add items to shipment' => $add_to_shipment_links,
 			'delete'=>'/Order/OrderLines/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id']
 		)
