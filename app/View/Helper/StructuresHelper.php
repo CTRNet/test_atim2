@@ -1174,21 +1174,21 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
+		$csv = $this->Csv;
 		if(isset(AppController::getInstance()->csv_config)){
 			$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
 		}
 		
-		
-		if(isset($this->Csv->nodes_info)){
+		if(isset($csv::$nodes_info)){
 			//same line mode
 			$this->Csv->current = array();
 			if($options['settings']['csv_header']){
 				//first call, build all structures
 				$options['type'] = 'index';
-				foreach($this->Csv->nodes_info as $node_id => $node_info){
+				foreach($csv::$nodes_info as $node_id => $node_info){
 					$sub_line = array();
-					$this->Csv->structures[$node_id] = $structure = $this->buildStack($this->Csv->structures[$node_id], $options);
-					foreach($this->Csv->structures[$node_id] as $table_column){
+					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
+					foreach($csv::$structures[$node_id] as $table_column){
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
 								$sub_line[] = $table_row_part['label'];
@@ -1196,7 +1196,7 @@ class StructuresHelper extends Helper {
 						}
 						
 					}
-					$this->Csv->nodes_info[$node_id]['cols_count'] = count($sub_line);
+					$csv::$nodes_info[$node_id]['cols_count'] = count($sub_line);
 					for($i = 1; $i <= $node_info['max_length']; ++ $i){
 						foreach($sub_line as $sub_line_part){
 							$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
@@ -1210,7 +1210,7 @@ class StructuresHelper extends Helper {
 			$lines = array();
 			//data = array(node => pkey => data rows => data line
 					
-			foreach($this->Csv->nodes_info as $node_id => $node_info){
+			foreach($csv::$nodes_info as $node_id => $node_info){
 				//fill the node section of the lines array. the index is the pkey of the line
 				foreach($data[$node_id] as $pkey => $data_row){
 					if(!isset($lines[$pkey])){
@@ -1219,7 +1219,7 @@ class StructuresHelper extends Helper {
 					$instances = 0;
 					foreach($data_row as $model_data){
 						//node_data is all data of a node linked to a pkey
-						foreach($this->Csv->structures[$node_id] as $table_column){
+						foreach($csv::$structures[$node_id] as $table_column){
 							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
 									if(isset($model_data[$table_row_part['model']][$table_row_part['field']])){
@@ -1232,9 +1232,9 @@ class StructuresHelper extends Helper {
 						}
 						++ $instances;
 					}
-					if($instances < $this->Csv->nodes_info[$node_id]['max_length']){
+					if($instances < $csv::$nodes_info[$node_id]['max_length']){
 						//padding
-						$lines[$pkey] = array_merge($lines[$pkey], array_fill(0, $this->Csv->nodes_info[$node_id]['cols_count'], ""));
+						$lines[$pkey] = array_merge($lines[$pkey], array_fill(0, $csv::$nodes_info[$node_id]['cols_count'], ""));
 					}
 				}
 			}
