@@ -2416,7 +2416,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='detail' AND `type`='textarea' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-
+SELECT 'Remove persmissions on adhoc query tool (custom query) for all groups. Feature has not been tested in v2.5.' TODO;
 
 
 
