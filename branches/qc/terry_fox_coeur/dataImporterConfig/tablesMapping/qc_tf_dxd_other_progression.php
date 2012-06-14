@@ -30,7 +30,7 @@ function otherProgressionPostRead(Model $m){
 	if(empty($m->values['Date of Progression/Recurrence Date'])){
 		return false;
 	}
-	
+
 	if(empty($m->values['Site of Tumor Progression (metastasis)  If Applicable'])){
 		$m->values['Site of Tumor Progression (metastasis)  If Applicable'] = 'unknown';
 	}else{
