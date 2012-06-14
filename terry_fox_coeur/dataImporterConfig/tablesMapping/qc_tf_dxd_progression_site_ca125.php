@@ -20,7 +20,7 @@ $detail_fields = array(
 $model = new MasterDetailModel(1, $pkey, array(), false, null, $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_progression_and_recurrences', 'diagnosis_master_id', array());
 $model->custom_data = array("date_fields" => array(
 	$fields["dx_date"] => current(array_keys($fields["dx_date_accuracy"])),
-	'Date of Progression/Recurrence Date'						=> null,
+	'Date of Progression/Recurrence Date'	=> 'Date of Progression/Recurrence Accuracy',
 	'Date of EOC Diagnosis Date' => 'Date of EOC Diagnosis Accuracy')
 );
 
@@ -34,13 +34,11 @@ function progressionSiteCa125PostRead(Model $m){
 	
 	if(empty($m->values['Date of Progression of CA125 Date'])){
 		return false;
-	}else if(strtoupper($m->values['Site 1 of Primary Tumor Progression (metastasis)  If Applicable']) == 'CA125' || strtoupper($m->values['Site 2 of Primary Tumor Progression (metastasis)  If applicable']) == 'CA125'){
-		if($m->values['Date of Progression of CA125 Date'] != $m->values['Date of Progression/Recurrence Date']){
-			//Already inserted, skip
-			echo "ERROR: Different [Date of Progression of CA125 Date] AND [Date of Progression/Recurrence Date] found in file [",$m->file,"] at line [",$m->line,"]\n";
-			global $insert;
-			$insert = false;
-		}
+	}else if(
+		(strtoupper($m->values['Site 1 of Primary Tumor Progression (metastasis)  If Applicable']) == 'CA125' 
+			|| strtoupper($m->values['Site 2 of Primary Tumor Progression (metastasis)  If applicable']) == 'CA125'
+		) && $m->values['Date of Progression of CA125 Date'] == $m->values['Date of Progression/Recurrence Date']
+	){
 		//already inserted
 		return false;
 	}

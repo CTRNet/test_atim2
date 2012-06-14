@@ -157,6 +157,11 @@ function postCollectionWrite(Model $m){
 	
 		if(strlen($m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']) > 0){
 			$volume = is_numeric($m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']) ? $m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)'] : "NULL";
+			$matches = array();
+			if(preg_match('#([\d]+)x([\d]+)x([\d]+)#', $m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)'], $matches)){
+				$volume = $matches[1] * $matches[2] * $matches[3];
+				echo "WARNING: Provided volume for [Tissue Precision OCT Frozen Tissues Volume (mm3)] was [".$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']."] Replacing with [".$volume."] at line [".$m->line."]\n";
+			}
 			if($volume == "NULL") echo "WARNING: Wrong numeric value for volume [",$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)'],"] at line [".$m->line."]\n";
 			
 			$insert = array(
@@ -185,6 +190,11 @@ function postCollectionWrite(Model $m){
 		//	*** TISSUE : Paraffin block ***
 	
 		if(strlen($m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"]) > 0) {
+			$matches = array();
+			if(preg_match('#([\d]+)x([\d]+)x([\d]+)mm#', $m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"], $matches)){
+				echo 'WARNING: [Tissue Precision Formalin Fixed Paraffin Embedded Tissues Volume (nbr blocks)] was a volume. Replacing with value 1 at line ['.$m->line."]\n";
+				$m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"] = 1;
+			}
 			if(is_numeric($m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"])){
 				for($i = $m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"]; $i > 0; -- $i){
 					$insert = array(

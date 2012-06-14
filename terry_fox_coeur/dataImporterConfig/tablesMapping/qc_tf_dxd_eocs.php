@@ -71,7 +71,11 @@ function dxdEocsPostRead(Model $m){
 		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
 			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]\n";
 		}
-	}	
+	}
+	
+	if($m->values[$m->fields['qc_tf_tumor_site']] == 'ascite'){
+		$m->values[$m->fields['qc_tf_tumor_site']] = 'Ascites';
+	}
 	
 	$m->custom_data['last_csv_pkey'] = $m->values[$m->csv_pkey];
 	$m->custom_data['last_dx_values'] = $m->values;
@@ -119,9 +123,8 @@ function isSameEocDxData($m_current, $m_reference, $m) {
 		if(!empty($tmp_current_field) && $field!= 'Progression status') $all_current_fields_empty = false;
 	}
 	if($all_current_fields_empty) return true;
-	if($diff_nbr == 1) echo "WARNING: 2 EOC dx for same patient are defined as different because only values for field $diff_field are different [",$m->file,"] at line [", $m->line,"]\n";
 	
-	return ($diff_nbr == 0)? true : false;
+	return $diff_nbr == 0;
 }
 
 function mainDxPostWrite(Model $m){

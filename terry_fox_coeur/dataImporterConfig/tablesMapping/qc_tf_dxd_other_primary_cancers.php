@@ -62,6 +62,7 @@ function otherProgressionSiteInsertNow(Model $m){
 	
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
 	$m->values['parent_id'] = $m->parent_model->last_id;
+	$m->values['primary_id'] = $m->parent_model->last_id;
 		
 	return true;
 }
