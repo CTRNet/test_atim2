@@ -1,4 +1,5 @@
 <?php
+App::uses('Controller', 'Controller');//required for console
 class AppController extends Controller {
 	
 	private static $missing_translations = array();
