@@ -4,7 +4,11 @@
 		'bottom'=>array('cancel'=>'/ClinicalAnnotation/Participants/profile/'.$atim_menu_variables['Participant.id'].'/')
 	);
 	
-	$structure_override = array();	
+	$structure_override = array();
+	
+	if(isset($this->request->data['MiscIdentifierControl']['misc_identifier_format']) && $this->request->data['MiscIdentifierControl']['misc_identifier_format']){
+		$structure_override['MiscIdentifier.identifier_value'] = $this->request->data['MiscIdentifierControl']['misc_identifier_format']; 
+	}
 
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 
