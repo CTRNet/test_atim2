@@ -26,6 +26,8 @@ class PermissionsController extends AdministrateAppController {
 	function regenerate(){
 		$this->PermissionManager->buildAcl();
 		$this->set('log', $this->PermissionManager->log);
+		$this->SystemVar->setVar('permission_timestamp', time());
+		Cache::clear(false, "menus");
 	}
 	
 	function update($aro_id, $aco_id, $state){
