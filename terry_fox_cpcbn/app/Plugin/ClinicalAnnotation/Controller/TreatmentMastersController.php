@@ -112,6 +112,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 						
 			if($submitted_data_validates) {
 				$this->TreatmentMaster->id = $tx_master_id;
+				$this->TreatmentMaster->addWritableField(array('diagnosis_master_id'));
 				if ($this->TreatmentMaster->save($this->request->data)) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
