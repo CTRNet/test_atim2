@@ -469,9 +469,14 @@ INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, c
 
 
 DROP VIEW view_collections;
-CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`col`.`treatment_master_id` AS `treatment_master_id`,`col`.`event_master_id` AS `event_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
+CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`col`.`treatment_master_id` AS `treatment_master_id`,`col`.`event_master_id` AS `event_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created`, 
+mic.misc_identifier_name, ident.identifier_value, col.visit_label
+from `collections` `col` 
 left join `participants` `part` on `col`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
-left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 where `col`.`deleted` <> 1;
+left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1
+left join `misc_identifiers` `ident` on (((`ident`.`misc_identifier_control_id` = `banks`.`misc_identifier_control_id`) and (`ident`.`participant_id` = `part`.`id`) and (`ident`.`deleted` <> 1))) 
+left join `misc_identifier_controls` `mic` on((`ident`.`misc_identifier_control_id` = `mic`.`id`))
+where `col`.`deleted` <> 1;
 
 ALTER TABLE specimen_details MODIFY sample_master_id INT NOT NULL;
 ALTER TABLE specimen_details_revs MODIFY sample_master_id INT NOT NULL;
@@ -1267,7 +1272,10 @@ IF(al.storage_datetime IS NULL, NULL,
  IF(derivative_details.creation_datetime > al.storage_datetime, -3,
  TIMESTAMPDIFF(MINUTE, derivative_details.creation_datetime, al.storage_datetime))))) AS creat_to_stor_spent_time_msg,
  
-IF(LENGTH(al.notes) > 0, "y", "n") AS has_notes
+IF(LENGTH(al.notes) > 0, "y", "n") AS has_notes,
+
+col.diagnosis_master_id, col.consent_master_id, ident.identifier_value, mic.misc_identifier_name,
+col.visit_label, samp.sample_label, al.in_stock_detail, al.study_summary_id
 
 
 FROM aliquot_masters AS al
@@ -1283,7 +1291,12 @@ LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted 
 LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
 LEFT JOIN specimen_details ON al.sample_master_id=specimen_details.sample_master_id
 LEFT JOIN derivative_details ON al.sample_master_id=derivative_details.sample_master_id
+left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))
+left join `misc_identifiers` `ident` on(((`ident`.`misc_identifier_control_id` = `banks`.`misc_identifier_control_id`) and (`ident`.`participant_id` = `part`.`id`) and (`ident`.`deleted` <> 1))) 
+left join `misc_identifier_controls` `mic` on((`ident`.`misc_identifier_control_id` = `mic`.`id`))
 WHERE al.deleted != 1;
+
+
 
 DROP VIEW view_samples;
 CREATE VIEW view_samples_view AS 
@@ -1292,10 +1305,14 @@ samp.id AS sample_master_id,
 samp.parent_id AS parent_sample_id,
 samp.initial_specimen_sample_id,
 samp.collection_id AS collection_id,
+samp.sample_label,
 
 col.bank_id, 
 col.sop_master_id, 
-col.participant_id, 
+col.participant_id,
+col.visit_label, 
+col.diagnosis_master_id,
+col.consent_master_id,
 
 part.participant_identifier, 
 
@@ -1309,6 +1326,9 @@ sampc.sample_type,
 samp.sample_control_id,
 samp.sample_code,
 sampc.sample_category,
+
+ident.identifier_value,
+mic.misc_identifier_name,
 
 IF(specimen_details.reception_datetime IS NULL, NULL,
  IF(col.collection_datetime IS NULL, -1,
@@ -1332,12 +1352,20 @@ LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc
 LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
 LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
 LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
+left join `banks` on(((`col`.`bank_id` = `banks`.`id`) and (`banks`.`deleted` <> 1)))
+left join `misc_identifiers` `ident` on(((`ident`.`misc_identifier_control_id` = `banks`.`misc_identifier_control_id`) and (`ident`.`participant_id` = `part`.`id`) and (`ident`.`deleted` <> 1))) 
+left join `misc_identifier_controls` `mic` on((`ident`.`misc_identifier_control_id` = `mic`.`id`))
 WHERE samp.deleted != 1;
 
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 -- Delete obsolete structure fields and validations
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (model='EventControl' AND tablename='event_masters' AND field='event_date' AND `type`='date' AND structure_value_domain IS NULL ));
 DELETE FROM structure_fields WHERE (model='EventControl' AND tablename='event_masters' AND field='event_date' AND `type`='date' AND structure_value_domain IS NULL );
+
+-- CUSTOM START ---
+UPDATE structure_fields SET structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list'), type='select' WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site';
+UPDATE structure_fields SET `type`='select', `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type';
+-- CUSTOM END ---
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='event_form_type' AND `language_tag`=''), '1', '400', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
@@ -2400,6 +2428,17 @@ CREATE TABLE aliquot_events(
  modified_by DATETIME NOT NULL,
  deleted BOOLEAN NOT NULL DEFAULT false,
  FOREIGN KEY (aliquot_master_id) REFERENCES aliquot_masters(id)
+)Engine=InnoDb;
+CREATE TABLE aliquot_events_revs(
+ id INT UNSIGNED NOT NULL,
+ aliquot_master_id INT NOT NULL,
+ event_date DATETIME NOT NULL,
+ event_date_accuracy DATETIME NOT NULL,
+ event_type VARCHAR(50) NOT NULL DEFAULT '',
+ detail TEXT,
+ modified_by DATETIME NOT NULL,
+ version_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
 )Engine=InnoDb;
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("aliquot_event", "", "", "StructurePermissibleValuesCustom::getCustomDropdown('aliquot_event')");
