@@ -28,7 +28,12 @@ class ParticipantCustom extends Participant {
 		$result = parent::validates($options);
 		
 		if(array_key_exists('qc_tf_bank_id', $this->data['Participant'])) {
-			$count = $this->find('count', array('conditions'=>array('Participant.qc_tf_bank_id'=> $this->data['Participant']['qc_tf_bank_id'], 'Participant.qc_tf_bank_participant_identifier'=> $this->data['Participant']['qc_tf_bank_participant_identifier'])));
+			$conditions = array(
+				'Participant.qc_tf_bank_id'=> $this->data['Participant']['qc_tf_bank_id'], 
+				'Participant.qc_tf_bank_participant_identifier'=> $this->data['Participant']['qc_tf_bank_participant_identifier']);
+			if($this->id) $conditions[] = 'Participant.id != '.$this->id;
+			
+			$count = $this->find('count', array('conditions'=> $conditions));
 			if($count) {
 				$this->validationErrors['qc_tf_bank_participant_identifier'][] = 'this bank participant identifier has already been assigned to a patient of this bank';
 				$result = false;
@@ -37,13 +42,7 @@ class ParticipantCustom extends Participant {
 		
 		return $result;
 	}
-	
-	
-	
-	
-	
-	
-	
+
 }
 
 ?>

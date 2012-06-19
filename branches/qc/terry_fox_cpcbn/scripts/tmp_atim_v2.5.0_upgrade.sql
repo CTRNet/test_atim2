@@ -2418,7 +2418,13 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 SELECT 'Remove persmissions on adhoc query tool (custom query) for all groups. Feature has not been tested in v2.5.' TODO;
 
+UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getCategoryPermissibleValues';
+UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getTypePermissibleValues';
 
+
+ALTER TABLE misc_identifier_controls
+ ADD COLUMN reg_exp_validation VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN user_readable_format VARCHAR(50) NOT NULL DEFAULT '';
 
 
 
