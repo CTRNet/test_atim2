@@ -24,7 +24,7 @@ class EventMaster extends ClinicalAnnotationAppModel {
 			$result = $this->find('first', array('conditions'=>array('EventMaster.id'=>$variables['EventMaster.id'])));
 				
 			$return = array(
-				'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+				'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE).' - '.__($result['EventControl']['disease_site'], TRUE) ),
 				'title'			=>	array( NULL, __('annotation', TRUE) ),
 				'data'				=> $result,
 				'structure alias'	=> 'eventmasters'
@@ -33,7 +33,7 @@ class EventMaster extends ClinicalAnnotationAppModel {
 			$event_control_model = AppModel::getInstance('ClinicalAnnotation', 'EventControl');
 			$result = $event_control_model->findById($variables['EventControl.id']);
 			$return = array(
-				'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+				'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE).' - '.__($result['EventControl']['disease_site'], TRUE) ),
 				'title'			=>	array( NULL, __('annotation', TRUE) )
 			);
 		}

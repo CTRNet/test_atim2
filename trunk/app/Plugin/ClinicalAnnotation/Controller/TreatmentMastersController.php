@@ -155,7 +155,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/listall/%%Participant.id%%'));
 		
 		// Set trt header
-		$this->set('tx_header', __($tx_control_data['TreatmentControl']['disease_site']) . ' - ' . __($tx_control_data['TreatmentControl']['tx_method']));
+		$this->set('tx_header', __($tx_control_data['TreatmentControl']['tx_method']) . ' - ' . __($tx_control_data['TreatmentControl']['disease_site']));
 		
 		// set DIAGANOSES radio list form
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
