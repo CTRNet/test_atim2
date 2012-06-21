@@ -2421,12 +2421,11 @@ SELECT 'Remove persmissions on adhoc query tool (custom query) for all groups. F
 UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getCategoryPermissibleValues';
 UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getTypePermissibleValues';
 
-
 ALTER TABLE misc_identifier_controls
  ADD COLUMN reg_exp_validation VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN user_readable_format VARCHAR(50) NOT NULL DEFAULT '';
 
-
+INSERT INTO i18n (id,en,fr) VALUES ('events','Events','Événements');
 
 
 
