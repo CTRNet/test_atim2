@@ -199,39 +199,7 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='number_of_biopsies' AND `language_label`='number of biopsies' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='number_of_biopsies' AND `language_label`='number of biopsies' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
-CREATE TABLE IF NOT EXISTS `qc_tf_dxd_others` (
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
-  `type` varchar(250) NOT NULL DEFAULT '',
-  KEY `diagnosis_master_id` (`diagnosis_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-ALTER TABLE `qc_tf_dxd_others`
-  ADD CONSTRAINT `FK_qc_tf_dxd_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
-
-CREATE TABLE IF NOT EXISTS `qc_tf_dxd_others_revs` (
-  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
-  `type` varchar(250) NOT NULL DEFAULT '',
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  PRIMARY KEY (`version_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
-INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
-(null, 'primary', 'other', 1, 'dx_primary,qc_tf_dxd_others', 'qc_tf_dxd_others', 0, 'primary|other', 1);
-
-INSERT INTO structures(`alias`) VALUES ('qc_tf_dxd_others');
-
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_others', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') , '0', '', '', '', 'type', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_tf_dxd_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_others' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
-
 UPDATE diagnosis_controls SET flag_active = 0  WHERE id = 2;
-
-UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site") AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value="other - primary unknown");
-
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_tf_dxd_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '4', '', '1', 'age at diagnosis', '0', '', '1', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 UPDATE structure_formats SET `display_column`='1',`display_order`='20', `language_heading`=''  WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_unknown_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
@@ -359,17 +327,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE event_controls SET flag_use_for_ccl = 0 WHERE detail_form_alias = 'qc_tf_ed_psa';
 
-ALTER TABLE qc_tf_ed_psa
-  ADD COLUMN first_biochemical_recurrence tinyint(1) unsigned NOT NULL DEFAULT '0';
-ALTER TABLE qc_tf_ed_psa_revs
-  ADD COLUMN first_biochemical_recurrence tinyint(1) unsigned NOT NULL DEFAULT '0'; 
-
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'EventDetail', 'qc_tf_ed_psa', 'first_biochemical_recurrence', 'checkbox',  NULL , '0', '', '', '', 'first biochemical recurrence', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_tf_ed_psa'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_tf_ed_psa' AND `field`='first_biochemical_recurrence' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='first biochemical recurrence' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
-
-REPLACE INTO i18n (id,en,fr) VALUES ('first biochemical recurrence','First BCR','1ère RBC');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ("a treatment or biopsy has already been defined as the 'disease free survival start event' for this cancer",
@@ -382,8 +339,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('TURP','TURP','TURP'),
 ('hormonotherapy','Hormonotherapy','Hormonothérapie'),
 ('hormonotherapy','Hormonotherapy','Hormonothérapie'),
-('treatment & biopsy', 'Treatment & Biopsy', 'Traitement & Biopsie'),
-("a psa event has already been defined as first bcr for this cancer", "A psa event has already been defined as first biochemical relapse for this cancer.","Une mesure de PSA a déjà été défini comme première rechute biochimique pour ce cancer.");
+('treatment & biopsy', 'Treatment & Biopsy', 'Traitement & Biopsie');
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/FamilyHistories%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantMessages/%';
@@ -400,5 +356,126 @@ ALTER TABLE participants_revs DROP COLUMN qc_tf_follow_up_months;
 
 DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'qc_tf_follow_up_months');
 DELETE FROM structure_fields WHERE field = 'qc_tf_follow_up_months';
+
+UPDATE diagnosis_controls SET flag_active = 0 WHERE category IN ('recurrence','remission','progression','secondary') AND controls_type = 'undetailed';
+UPDATE diagnosis_controls SET controls_type = 'biochemical recurrence' WHERE controls_type = 'biochemical' AND category = 'recurrence';
+UPDATE diagnosis_controls SET flag_active = 0 WHERE category IN ('secondary') AND controls_type = 'undetailed';
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('biochemical recurrence','BCR','RBC'),
+('a bcr has already been defined as first bcr for this cancer', 'A bcr has already been defined as first bcr for this cancer.', 'Une RBC a déjà été définie comme première RBC pour ce cancer.'),
+('first biochemical recurrence','1st BCR','1ere RBC');
+
+UPDATE diagnosis_controls SET controls_type = 'undetailed' WHERE controls_type = 'metastasis' AND category = 'secondary';
+
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_metastasis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_metastasis' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_metastasis_type') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_biochemical') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_recurrence_bio' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_date_biochemical_recurrence_definition') AND `flag_confidential`='0');
+
+ALTER TABLE qc_tf_dxd_recurrence_bio
+  ADD COLUMN first_biochemical_recurrence tinyint(1) unsigned NOT NULL DEFAULT '0';
+ALTER TABLE qc_tf_dxd_recurrence_bio_revs
+  ADD COLUMN first_biochemical_recurrence tinyint(1) unsigned NOT NULL DEFAULT '0'; 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_recurrence_bio', 'first_biochemical_recurrence', 'checkbox',  NULL , '0', '', '', '', 'first biochemical recurrence', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_biochemical'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_recurrence_bio' AND `field`='first_biochemical_recurrence' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='first biochemical recurrence' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+UPDATE `i18n` SET `en` = 'First PSA of at least 0.3 followed by another increase' WHERE `id` = 'qc_tf_first_psa_3';
+
+ALTER TABLE qc_tf_dxd_cpcbn
+	ADD COLUMN survival_in_months int(5),
+	ADD COLUMN bcr_in_months int(5);	
+ALTER TABLE qc_tf_dxd_cpcbn_revs
+	ADD COLUMN survival_in_months int(5),
+	ADD COLUMN bcr_in_months int(5);
+
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='hormonorefractory_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_hormonorefractory_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='hormonorefractory_date_hr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_cpcbn', 'survival_in_months', 'integer',  NULL , '0', '', '', '', 'survival in months', ''),
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_cpcbn', 'bcr_in_months', 'integer',  NULL , '0', '', '', '', 'bcr in months', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='survival_in_months'), '2', '13', 'survival and bcr', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='bcr_in_months'), '2', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('survival and bcr','Survival & BCR', 'Survie & RBC'),
+('survival in months','Survival (months)', 'Survie (mois)'),
+('bcr in months','BCR (months)', 'RBC (mois)'),
+('survival cannot be calculated on inaccurate dates','Survival cannot be calculated on inaccurate dates.',"La survie ne peut pas être calculée sur des dates inexactes"),
+('survival cannot be calculated because dates are not chronological','Survival cannot be calculated because dates are not chronological.','La survie ne peut pas être calculée sur des dates non chronologiques.');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('biochemical recurrence','BCR','RBC');
+
+CREATE TABLE IF NOT EXISTS `qc_tf_dxd_others` (
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `type` varchar(250) NOT NULL DEFAULT '',
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `qc_tf_dxd_others`
+  ADD CONSTRAINT `FK_qc_tf_dxd_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
+
+CREATE TABLE IF NOT EXISTS `qc_tf_dxd_others_revs` (
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `type` varchar(250) NOT NULL DEFAULT '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+(null, 'primary', 'other', 1, 'dx_primary,qc_tf_dxd_others', 'qc_tf_dxd_others', 0, 'primary|other', 1);
+
+INSERT INTO structures(`alias`) VALUES ('qc_tf_dxd_others');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_others', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_others' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site") AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value="other - primary unknown");
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '4', '', '1', 'age at diagnosis', '0', '', '1', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+ALTER TABLE txd_radiations CHANGE qc_tf_dose qc_tf_dose_cg int(6);
+ALTER TABLE txd_radiations_revs CHANGE qc_tf_dose c_tf_dose_cg int(6);
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_radiations', 'qc_tf_dose_cg', 'input',  NULL , '0', 'size=6', '', '', 'dose cg', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_txd_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='qc_tf_dose_cg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='dose cg' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_tf_disease_free_survival_start_events' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET type = 'integer_positive' WHERE field = 'qc_tf_dose_cg';
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qc_tf_disease_free_survival_start_events' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en,fr) VALUES ('dose cg', 'Dose (cg)','Dose (cg)'); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
