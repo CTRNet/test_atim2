@@ -1152,3 +1152,20 @@ INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x
 
 REPLACE INTO i18n (id, en, fr) VALUES
 ("box16 1-16", "Box16 1-16", "Boîte16 1-16");
+
+-- 2012-06-26
+ALTER TABLE aliquot_controls
+ MODIFY aliquot_type enum('block','cell gel matrix','core','slide','tube','whatman paper', 'flask') NOT NULL; 
+INSERT INTO aliquot_controls (sample_control_id, aliquot_type, aliquot_type_precision, form_alias, detail_tablename, volume_unit, flag_active, comment, display_order, databrowser_label) VALUES
+(11, 'flask', '', '', '', '', 1, '', 0, '');
+
+INSERT INTO pages (id, error_flag, language_title, language_body, use_link, created, created_by, modified, modified_by) VALUES
+('qc_nd_no_flask', 1, 'no flask', 'qc_nd_no_flask_msg', '', NOW(), 1, NOW(), 1);
+
+REPLACE INTO i18n (id, en, fr) VALUES
+('no flask', 'No flasks', 'Pas de flasques'),
+('flask', 'Flask', 'Flasque'),
+('qc_nd_no_flask_msg',
+ "The flasks aliquot type only exists to complete the product menu in shipments. You cannot record flasks into the system.",
+ "Le type d'aliquot flasque existe pour compléter le menu de produits du module d'envois. Vous ne pouvez pas enregistrer de flasques dans le système.");
+
