@@ -74,7 +74,7 @@
 
 	// ************** 5 - Event **************
 	$final_options['settings']['header'] = array('title' => __('annotation'), 'description' => null);
-	if(!is_null($event_control_data)) $final_options['settings']['header']['description'] = __($event_control_data['event_group']). ' - '.__($event_control_data['disease_site']). ' - '.__($event_control_data['event_type']);	
+	if(!is_null($event_control_data)) $final_options['settings']['header']['description'] = __($event_control_data['event_group']). ' - '.__($event_control_data['event_type']). ' - '.__($event_control_data['disease_site']);	
 	$final_options['settings']['actions'] = true;
 	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/1/noActions:/noHeader:/') : $no_data_available;
 	
