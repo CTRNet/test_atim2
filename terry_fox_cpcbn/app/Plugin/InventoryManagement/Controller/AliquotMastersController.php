@@ -351,7 +351,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 						unset($new_aliquot['AliquotMaster']['id']);
 						$new_aliquot['AliquotMaster']['collection_id'] = $created_aliquots['parent']['ViewSample']['collection_id'];
 						$new_aliquot['AliquotMaster']['sample_master_id'] = $created_aliquots['parent']['ViewSample']['sample_master_id'];
-						$new_aliquot['AliquotMaster']['aliquot_type'] = $aliquot_control['AliquotControl']['aliquot_type'];
 						if(!$this->AliquotMaster->save($new_aliquot, false)){ 
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 
@@ -1699,7 +1698,6 @@ class AliquotMastersController extends InventoryManagementAppController {
 						
 						$child['AliquotMaster']['id'] = null;
 						$child['AliquotMaster']['aliquot_control_id'] = $child_aliquot_ctrl_id;
-						$child['AliquotMaster']['aliquot_type'] = $child_aliquot_ctrl['AliquotControl']['aliquot_type'];
 						$child['AliquotMaster']['sample_master_id'] = $validated_data[$parent_id]['parent']['AliquotMaster']['sample_master_id'];
 						$child['AliquotMaster']['collection_id'] = $validated_data[$parent_id]['parent']['AliquotMaster']['collection_id'];
 						
@@ -2496,13 +2494,17 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 			if($validates){
 				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
+				$not_core_nbr = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.id' => $aliquot_ids, "AliquotControl.aliquot_type != 'core'")));
+				$to_update['AliquotControl']['aliquot_type'] = $not_core_nbr? 'not core' : 'core';//to allow tma storage check, remove afterward
+								
 				$this->AliquotMaster->set($to_update);
 				if($this->AliquotMaster->validates()){
-					if(!empty($to_update['AliquotMaster']['storage_master_id'])) $to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
+					if(!empty($this->AliquotMaster->data['AliquotMaster']['storage_master_id'])) $to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
 				}else{
 					$validates = false;
 				}
-				unset($to_update['AliquotMaster']['aliquot_control_id']);				
+				unset($to_update['AliquotMaster']['aliquot_control_id']);	
+				unset($to_update['AliquotControl']['aliquot_type']);				
 			}
 			
 			$hook_link = $this->hook('presave_process');
@@ -2518,7 +2520,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					foreach($aliquot_ids as $aliquot_id){
 						$this->AliquotMaster->id = $aliquot_id;
 						$this->AliquotMaster->data = null;
-						$this->AliquotMaster->save($to_update);
+						$this->AliquotMaster->save($to_update, false);
 					}
 					
 					$batch_set_data = array('BatchSet' => array(
