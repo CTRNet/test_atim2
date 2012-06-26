@@ -503,3 +503,38 @@ REPLACE INTO i18n (id, en, fr) VALUES
 
 
 
+-- 2012-06-26
+INSERT INTO sample_controls (sample_type, sample_category, form_alias, detail_tablename, display_order, databrowser_label) VALUES
+('cell pellets', 'derivative', 'sample_masters,ld_lymph_sd_der_cell_pellets,derivatives', 'ld_lymph_sd_der_cell_pellets', 0, 'cell pellets');
+
+CREATE TABLE ld_lymph_sd_der_cell_pellets(
+ id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ sample_master_id INT NOT NULL,
+ lysed CHAR(1) NOT NULL DEFAULT '',
+ remained_as_part CHAR(1) NOT NULL DEFAULT '',
+ deleted BOOLEAN DEFAULT false,
+ FOREIGN KEY (sample_master_id) REFERENCES sample_masters(id)
+)Engine=InnoDb;
+CREATE TABLE ld_lymph_sd_der_cell_pellets_revs(
+ id INT UNSIGNED NOT NULL,
+ sample_master_id INT NOT NULL,
+ lysed CHAR(1) NOT NULL DEFAULT '',
+ remained_as_part CHAR(1) NOT NULL DEFAULT '',
+ version_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ version_created DATETIME NOT NULL
+)Engine=InnoDb;
+
+INSERT INTO parent_to_derivative_sample_controls (parent_sample_control_id, derivative_sample_control_id, flag_active, lab_book_control_id) VALUES
+((SELECT id FROM sample_controls WHERE sample_type='blood' AND sample_category='specimen'), (SELECT id FROM sample_controls WHERE sample_type='cell pellets' AND sample_category='derivative'), 1, NULL); 
+
+INSERT INTO structures(`alias`) VALUES ('ld_lymph_sd_der_cell_pellets');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Inventorymanagement', 'SampleDetail', 'ld_lymph_sd_der_cell_pellets', 'lysed', 'yes_no',  NULL , '0', '', '', '', 'lysed', ''), 
+('Inventorymanagement', 'SampleDetail', 'ld_lymph_sd_der_cell_pellets', 'remainded_as_part', 'yes_no',  NULL , '0', '', '', '', 'remained as part of the pellet', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_sd_der_cell_pellets'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='ld_lymph_sd_der_cell_pellets' AND `field`='lysed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lysed' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ld_lymph_sd_der_cell_pellets'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='ld_lymph_sd_der_cell_pellets' AND `field`='remainded_as_part' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='remained as part of the pellet' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+
+UPDATE storage_controls SET check_conflicts = 2;
+
