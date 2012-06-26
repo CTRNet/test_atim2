@@ -4,3 +4,14 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 UPDATE diagnosis_controls SET form_alias=CONCAT('diagnosismasters,',form_alias) WHERE id IN(14,15,16); 
 
+-- 2012-06-14
+UPDATE qc_tf_dxd_eocs SET presence_of_precursor_of_benign_lesions="benign or borderline tumours" WHERE presence_of_precursor_of_benign_lesions="benign  or borderline tumours";
+UPDATE structure_permissible_values SET value="benign or borderline tumours" WHERE value="benign  or borderline tumours";
+ALTER TABLE qc_tf_tx_empty_revs
+ CHANGE COLUMN tx_master_id treatment_master_id INT NOT NULL;
+UPDATE structure_permissible_values SET value="Ascites" WHERE value="ascite";
+
+-- 2012-06-26
+UPDATE banks SET misc_identifier_control_id=9 WHERE id=9;
+UPDATE banks SET misc_identifier_control_id=10 WHERE id=10;
+
