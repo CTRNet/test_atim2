@@ -10,15 +10,19 @@ $fields = array(
 );
 
 $detail_fields = array(
-	'type'	=> array('Date of biochemical recurrence Definition' => array(
-		'Phoenix definition' => 'Phoenix definition', 
-		'first PSA of at least 0.2 and rising' => 'qc_tf_first_psa_2',
-		'first PSA of at least 0.3 followed by another increase' => 'qc_tf_first_psa_3',
-		'PSA follow by a  treatment' => 'PSA follow by a treatment',
-		'' => ''))
+	'type'	=> array('Date of biochemical recurrence Definition' => new ValueDomain('qc_tf_date_biochemical_recurrence_definition', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
 );
 
+$model = new MasterDetailModel(1, $pkey, $child, false, 'parent_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_recurrence_bio', 'diagnosis_master_id', $detail_fields);
+$model->custom_data = array(
+	'date_fields' => array(
+		$fields["dx_date"]		=> key($fields['dx_date_accuracy'])
+	)
+);
 
+$model->post_read_function = 'dxRecurrencePostRead';
+$model->insert_condition_function = 'dxRecurrenceInsertCondition';
+Config::addModel($model, 'dx_recurrence');
 
 function dxRecurrencePostRead(Model $m){
 	if(in_array($m->values['Date of biochemical recurrence Date'], array('', 'none', 'unknown'))){
@@ -33,14 +37,3 @@ function dxRecurrenceInsertCondition(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
 	return true;
 }
-
-$model = new MasterDetailModel(1, $pkey, $child, false, 'parent_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_recurrence_bio', 'diagnosis_master_id', $detail_fields);
-$model->custom_data = array(
-	'date_fields' => array(
-		$fields["dx_date"]		=> key($fields['dx_date_accuracy'])
-	)
-);
-
-$model->post_read_function = 'dxRecurrencePostRead';
-$model->insert_condition_function = 'dxRecurrenceInsertCondition';
-Config::addModel($model, 'dx_recurrence');
