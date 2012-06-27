@@ -11,6 +11,8 @@ class StructuresHelper extends Helper {
 	
 	private $my_validation_errors = null;
 	
+	private static $write_modes = array('add', 'edit', 'search', 'addgrid', 'editgrid', 'batchedit');
+	
 	//default options
 	private static $defaults = array(
 			'type'		=>	NULL, 
@@ -436,7 +438,7 @@ class StructuresHelper extends Helper {
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
-		if(in_array($type, array('add', 'edit', 'search', 'addgrid', 'editgrid', 'batchedit'))){
+		if(in_array($type, self::$write_modes)){
 			//editable types, convert validation errors
 			$this->my_validation_errors = array();
 			foreach($this->Form->validationErrors as $validation_error_arr){
@@ -662,6 +664,11 @@ class StructuresHelper extends Helper {
 								}
 								
 								if($table_row_part['type'] == 'textarea'){
+									$current_value = htmlspecialchars($current_value);
+									$current_value = str_replace('\\\\', '&dbs;', $current_value);
+									$current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
+									$current_value = str_replace('&dbs;', '\\', $current_value);
+									$current_value = html_entity_decode($current_value);
 									$display[0] .= '<span>'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix);
 								}else{
 									$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
@@ -742,7 +749,11 @@ class StructuresHelper extends Helper {
 						$first_line = false;
 					}
 					if(array_key_exists($table_row_part['model'], $data_unit) && array_key_exists($table_row_part['field'], $data_unit[$table_row_part['model']])){
-						echo $this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null), " ";
+						$value = $data_unit[$table_row_part['model']][$table_row_part['field']];
+						if($table_row_part['type'] == 'textarea'){
+							$value = str_replace('\n', '<br/>', $value);
+						}
+						echo $this->getPrintableField($table_row_part, $options, $value, null, null), " ";
 					}else if(Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
 						AppController::addWarningMsg(__("no data for [%s.%s]", $table_row_part['model'], $table_row_part['field']));
 					}
