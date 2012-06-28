@@ -3,10 +3,10 @@ $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
 	'participant_id' 		=> '#participant_id',
-	'treatment_control_id'	=> '@8', //TURP or RP
+	'treatment_control_id'	=> '#treatment_control_id', //biopsy
 	'diagnosis_master_id'	=> $pkey,
 	'start_date' 			=> 'Surgery/Biopsy Date of surgery/biopsy',
-	'start_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'start_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "", " " => "")),
 );
 $detail_fields = array(		
 	'samples_number'	=> 'number of biospies (optional)'
@@ -27,9 +27,10 @@ function txBiopsyPostRead(Model $m){
 		case 'RP':
 			return false;
 		case 'biopsy':
+			$m->values['treatment_control_id'] = Config::$tx_controls['biopsy']['general']['id'];
 			break;
 		default:
-			printf("WARNING: Invalid Surgery/Biopsy Type of surgery value [%s] for dx at line [%d]\n", $m->values['Surgery/Biopsy Type of surgery'], $m->line);
+			printf("WARNING: Invalid Surgery/Biopsy Type of surgery value [%s] for dx at line [%d]".Config::$line_break_tag, $m->values['Surgery/Biopsy Type of surgery'], $m->line);
 			return false;
 	}
 

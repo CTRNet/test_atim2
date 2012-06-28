@@ -3,7 +3,7 @@ $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
 	'participant_id' 		=> '#participant_id',
-	'diagnosis_control_id'	=> '@21', //Secondary - Metastasis
+	'diagnosis_control_id'	=> '#diagnosis_control_id', //Secondary - Metastasis
 	'parent_id'				=> $pkey
 );
 $detail_fields = array(
@@ -18,9 +18,11 @@ $model->insert_condition_function = 'dxMetastasisInsertCondition';
 Config::addModel($model, 'dx_metastasis');
 
 function dxMetastasisPostRead(Model $m){
-	if(empty($m->values['Development of metastasis Type of metastasis']) || $m->values['Development of metastasis Type of metastasis'] == 'no'){
+	if(empty($m->values['Development of metastasis Type of metastasis']) || in_array($m->values['Development of metastasis Type of metastasis'], array('no ', 'no'))) {
 		return false;
 	} 
+	
+	$m->values['diagnosis_control_id'] = Config::$dx_controls['secondary']['undetailed']['id'];
 	
 	excelDateFix($m);
 	return true;

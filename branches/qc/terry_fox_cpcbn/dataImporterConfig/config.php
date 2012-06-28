@@ -20,6 +20,9 @@ class Config{
 	
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
+	//Date format
+	static $use_windows_xls_offset = false;
+	
 	//if reading excel file
 	
  	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim.xls';
@@ -33,6 +36,10 @@ class Config{
 	
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
+	
+	//for display
+	static $line_break_tag = '<br>';
+	
 	//--------------------------------------
 	
 	
@@ -52,7 +59,7 @@ class Config{
 	
 	static function addModel(Model $m, $ref_name){
 		if(array_key_exists($ref_name, Config::$models)){
-			die("Defining model ref name [".$ref_name."] more than once\n");
+			die("Defining model ref name [".$ref_name."] more than once".Config::$line_break_tag);
 		}
 		Config::$models[$ref_name] = $m;
 	}
@@ -71,22 +78,13 @@ class Config{
 	
 	static $summary_msg = array();
 	static $banks = array();
+	static $drugs = array();
+	
+	static $dx_controls = array();
+	static $event_controls = array();
+	static $tx_controls = array();
+	
 	static $existing_patient_unique_keys = array();
-	
-	static $prostate_dx_fields = array('dx_date' => 'Date of diagnostics Date',
-		'dx_date_accuracy' => 'Date of diagnostics Accuracy',
-		'age_at_dx' => 'Age at Time of Diagnosis (yr)',
-	
-		'tool' => 'Date of diagnostics  diagnostic tool',
-		'gleason_score_biopsy' => 'Gleason score at biopsy',
-		'ptnm' => 'pTNM', 
-		'gleason_score_rp' => 'Gleason sum RP', 
-		'presence_of_lymph_node_invasion' => 'Presence of lymph node invasion',
-		'presence_of_capsular_penetration' => 'Presence of capsular penetration', 
-		'presence_of_seminal_vesicle_invasion' => 'Presence of seminal vesicle invasion', 
-		'margin' => 'Margin', 
-	
-		'hormonorefractory_status' => 'hormonorefractory status status'); 
 	
 }
 
@@ -110,13 +108,14 @@ Config::$config_files[] = $relative_path.'dx_metastasis.php';
 Config::$config_files[] = $relative_path.'tx_surgery.php';
 Config::$config_files[] = $relative_path.'tx_biopsy.php';
 Config::$config_files[] = $relative_path.'dx_recurrence.php';
+Config::$config_files[] = $relative_path.'tx_radiotherapy.php';
+Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
+Config::$config_files[] = $relative_path.'tx_chemotherapy.php';
+Config::$config_files[] = $relative_path.'event_psa.php';
+Config::$config_files[] = $relative_path.'dx_other_primary.php';
 
 //*Config::$config_files[] = $relative_path.'inventory.php';
-//*Config::$config_files[] = $relative_path.'event_psa.php';
-//*Config::$config_files[] = $relative_path.'tx_radiotherapy.php';
-//*Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
-//*Config::$config_files[] = $relative_path.'tx_chemotherapy.php';
-
+//*
 
 function mainDxCondition(Model $m){
 	pr('TODO : mainDxCondition');exit;
@@ -131,12 +130,12 @@ function mainDxCondition(Model $m){
 function addonFunctionStart(){
 	
 	$file_path = Config::$xls_file_path;
-	echo "<br><FONT COLOR=\"green\" >
-	=====================================================================<br>
-	DATA EXPORT PROCESS : CPCBN TFRI<br>
-	source_file = $file_path<br>
-	<br>=====================================================================
-	</FONT><br>";	
+	echo "".Config::$line_break_tag."<FONT COLOR=\"green\" >
+	=====================================================================".Config::$line_break_tag."
+	DATA EXPORT PROCESS : CPCBN TFRI".Config::$line_break_tag."
+	source_file = $file_path".Config::$line_break_tag."
+	".Config::$line_break_tag."=====================================================================
+	</FONT>".Config::$line_break_tag."";	
 	
 	$query = "SELECT id, name FROM banks";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -150,9 +149,34 @@ function addonFunctionStart(){
 		Config::$existing_patient_unique_keys[] = $row['qc_tf_bank_id'].'-'.$row['qc_tf_bank_participant_identifier'];
 	}	
 	
+	$query = "SELECT id, disease_site, event_group, event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$event_controls[$row['event_group']][$row['event_type']][$row['disease_site']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
+	}		
 	
+	$query = "SELECT id, category, controls_type, detail_tablename FROM diagnosis_controls WHERE flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$dx_controls[$row['category']][$row['controls_type']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
+	}	
 	
+	$query = "SELECT id, tx_method, disease_site, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$tx_controls[$row['tx_method']][$row['disease_site']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
+	}	
+	
+	$query = "SELECT id, generic_name FROM drugs WHERE type = 'chemotherapy';";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$drugs[strtolower($row['generic_name'])] = $row['id'];
+	}
+		
 
+	
+	
+	
 	
 // 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
 // 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -202,20 +226,53 @@ function addonFunctionStart(){
 
 function addonFunctionEnd(){
 	
-	// CLean up participants table dates empty
-	$queries = array("UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
+	// Clean-up PARTICIPANTS
+	$queries = array(
+		"UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
 		"UPDATE participants SET date_of_death = NULL WHERE date_of_death LIKE '0000-00-00';",
 		"UPDATE participants SET qc_tf_suspected_date_of_death = NULL WHERE qc_tf_suspected_date_of_death LIKE '0000-00-00';",
 		"UPDATE participants SET qc_tf_last_contact = NULL WHERE qc_tf_last_contact LIKE '0000-00-00';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-		if(Config::$print_queries) echo $query."\n";
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query(Config::$db_connection, str_replace('participants','participants_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}
+	// Clean-up DIAGNOSIS_MASTERS
+	$queries = array(
+		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL;",
+		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';");
+	foreach($queries as $query)	{
+		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query(Config::$db_connection, str_replace('diagnosis_masters','diagnosis_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}	
+	
+	// Clean-up TREAMTENT_MASTERS
+	$queries = array(
+		"UPDATE treatment_masters SET start_date = NULL WHERE start_date LIKE '0000-00-00';",
+		"UPDATE treatment_masters SET finish_date = NULL WHERE finish_date LIKE '0000-00-00';");
+	foreach($queries as $query)	{
+		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}	
+	
+	// Clean-up EVENT_MASTERS
+	$queries = array("UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';");
+	foreach($queries as $query)	{
+		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query(Config::$db_connection, str_replace('event_masters','event_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
-	//Update diagnosis_masters
-	$query = "UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL;";
-	mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-	if(Config::$print_queries) echo $query."\n";
+	
+	
+	
+	
+	
+	
+	
+	
 	
 pr('TODO:
 	- DFS Start  	
@@ -235,7 +292,7 @@ pr('TODO:
 // 	mysqli_free_result($result);
 	
 // 	if(!empty($ids)){
-// 		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one primary dx.\n";
+// 		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one primary dx.".Config::$line_break_tag;
 // 	}
 	
 // 	$ids[] = 0;
@@ -322,36 +379,36 @@ pr('TODO:
 
 
 
-
-	
+	global $insert;
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
-		echo "<br><br><FONT COLOR=\"blue\" >
-		=====================================================================<br><br>
+		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
+		=====================================================================".Config::$line_break_tag."".Config::$line_break_tag."
 		PROCESS SUMMARY: $data_type
-		<br><br>=====================================================================
-		</FONT><br>";
+		".Config::$line_break_tag."".Config::$line_break_tag."=====================================================================
+		</FONT>".Config::$line_break_tag."";
 			
 		if(!empty($msg_arr['@@ERROR@@'])) {
-			echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> </FONT><br>";
+//TODO			$insert = false;
+			echo "".Config::$line_break_tag."<FONT COLOR=\"red\" ><b> ** Errors summary ** </b> </FONT>".Config::$line_break_tag."";
 			foreach($msg_arr['@@ERROR@@'] as $type => $msgs) {
-				echo "<br> --> <FONT COLOR=\"red\" >". utf8_decode($type) . "</FONT><br>";
-				foreach($msgs as $msg) echo "$msg<br>";
+				echo "".Config::$line_break_tag." --> <FONT COLOR=\"red\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
+				foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
 			}
 		}
 	
 		if(!empty($msg_arr['@@WARNING@@'])) {
-			echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> </FONT><br>";
+			echo "".Config::$line_break_tag."<FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> </FONT>".Config::$line_break_tag."";
 			foreach($msg_arr['@@WARNING@@'] as $type => $msgs) {
-				echo "<br> --> <FONT COLOR=\"orange\" >". utf8_decode($type) . "</FONT><br>";
-				foreach($msgs as $msg) echo "$msg<br>";
+				echo "".Config::$line_break_tag." --> <FONT COLOR=\"orange\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
+				foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
 			}
 		}
 	
 		if(!empty($msg_arr['@@MESSAGE@@'])) {
-		echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> </FONT><br>";
+		echo "".Config::$line_break_tag."<FONT COLOR=\"green\" ><b> ** Message ** </b> </FONT>".Config::$line_break_tag."";
 		foreach($msg_arr['@@MESSAGE@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"green\" >". utf8_decode($type) . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
+			echo "".Config::$line_break_tag." --> <FONT COLOR=\"green\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
+			foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
 			}
 		}
 	}

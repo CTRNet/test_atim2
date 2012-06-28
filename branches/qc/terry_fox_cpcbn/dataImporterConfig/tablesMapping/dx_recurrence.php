@@ -29,7 +29,13 @@ function dxRecurrencePostRead(Model $m){
 		return false;
 	}
 	
+	$m->values['Date of biochemical recurrence Definition'] = str_replace(
+		array('first PSA of at least 0.2 and rising','first PSA of at least 0.3 followed by another increase','PSA follow by a  treatment'),
+		array('qc_tf_first_psa_2','qc_tf_first_psa_3','PSA follow by a treatment'),
+		$m->values['Date of biochemical recurrence Definition']);
+	$m->values['diagnosis_control_id'] = Config::$dx_controls['recurrence']['biochemical recurrence']['id'];
 	excelDateFix($m);
+	
 	return true;
 }
 

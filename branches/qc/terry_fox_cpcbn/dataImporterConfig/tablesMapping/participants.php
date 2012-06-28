@@ -3,12 +3,7 @@
 $pkey = "Patient # in biobank";
 $child = array(
  	'dx_primary',
-// 	'dx_biopsy',
-// 	'event_psa',
-// 	'tx_radiotherapy',
-// 	'tx_hormonotherapy',
-// 	'tx_chemotherapy',
-// 	'tx_surgery'
+	'dx_other_primary'
 );
 $fields = array(
 	"participant_identifier" 					=> "@tmp_id",
@@ -70,7 +65,7 @@ function postParticipantWrite(Model $m){
 
 	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id.";";
 	mysqli_query($connection, $query) or die("postParticipantWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	if(Config::$print_queries) echo $query."\n";
+	if(Config::$print_queries) echo $query.Config::$line_break_tag;
 }
 
 
