@@ -5,6 +5,7 @@ $fields = array(
 	'participant_id' 		=> '#participant_id',
 	'treatment_control_id'	=> '#treatment_control_id', //TURP or RP
 	'diagnosis_master_id'	=> $pkey,
+		
 	'start_date' 			=> 'Surgery/Biopsy Date of surgery/biopsy',
 	'start_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 );
@@ -23,13 +24,13 @@ function txSurgeryPostRead(Model $m){
 		case 'biopsy':
 			return false;
 		case 'TURP':
-			$m->values['treatment_control_id'] = '7';
+			$m->values['treatment_control_id'] = Config::$tx_controls['surgery']['TURP']['id'];
 			break;
 		case 'RP':
-			$m->values['treatment_control_id'] = '6';
+			$m->values['treatment_control_id'] = Config::$tx_controls['surgery']['RP']['id'];
 			break;
 		default:
-			printf("WARNING: Invalid Surgery/Biopsy Type of surgery value [%s] for dx at line [%d]\n", $m->values['Surgery/Biopsy Type of surgery'], $m->line);
+			printf("WARNING: Invalid Surgery/Biopsy Type of surgery value [%s] for dx at line [%d]".Config::$line_break_tag, $m->values['Surgery/Biopsy Type of surgery'], $m->line);
 			return false;
 	}
 

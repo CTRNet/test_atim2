@@ -17,7 +17,7 @@ function postInventoryWrite(Model $m){
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	
 	if(!$m->custom_data['specimen_type_value_domain']->isValidValue($m->values['Collected Specimen Type'])){
-		echo 'WARNING: Invalid value ['.$m->values['Collected Specimen Type'].'] for Collected Specimen Type on line '.$m->line."\n";
+		echo 'WARNING: Invalid value ['.$m->values['Collected Specimen Type'].'] for Collected Specimen Type on line '.$m->line.Config::$line_break_tag;
 	}
 	Database::insertRevForLastRow('sample_masters');
 	
