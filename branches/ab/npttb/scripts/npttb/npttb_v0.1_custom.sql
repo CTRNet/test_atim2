@@ -599,7 +599,7 @@ UPDATE `treatment_controls` SET `flag_active`=0 WHERE `tx_method`='surgery witho
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('npttb tissue', 'NPTTB Tissue', ''),
- ('npttn ttb diagnosis', 'TTB Diagnosis', ''),
+ ('npttb ttb diagnosis', 'TTB Diagnosis', ''),
  ('npttb path final dx', 'Final Path Report', '');
  
 REPLACE INTO `i18n` (`en`, `id`) VALUES
@@ -687,7 +687,7 @@ CREATE TABLE `dxd_npttb_tissue` (
 	`id` INT NOT NULL AUTO_INCREMENT ,
 	`diagnosis_master_id` INT NOT NULL ,
 	`npttb_path_final_dx` VARCHAR(100),
-	`npttn_ttb_diagnosis` VARCHAR(100),
+	`npttb_ttb_diagnosis` VARCHAR(100),
 	`deleted` TINYINT NOT NULL DEFAULT 0 ,
 	PRIMARY KEY (`id`) 
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -696,7 +696,7 @@ CREATE TABLE `dxd_npttb_tissue_revs` (
   `id` int(11) NOT NULL,
   `diagnosis_master_id` INT NOT NULL ,
   `npttb_path_final_dx` VARCHAR(100),
-  `npttn_ttb_diagnosis` VARCHAR(100),
+  `npttb_ttb_diagnosis` VARCHAR(100),
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
@@ -840,7 +840,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 -- Add fields to dx detail form
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Clinicalannotation', 'DiagnosisDetail', 'dxd_npttb_tissue', 'npttb_path_final_dx', 'input',  NULL , '0', 'size=50', '', 'npttb help path final', 'npttb path final dx', ''), 
-('Clinicalannotation', 'DiagnosisDetail', 'dxd_npttb_tissue', 'npttn_ttb_diagnosis', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_final_diagnosis') , '0', '', '', '', 'npttn ttb diagnosis', '');
+('Clinicalannotation', 'DiagnosisDetail', 'dxd_npttb_tissue', 'npttb_ttb_diagnosis', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_final_diagnosis') , '0', '', '', '', 'npttb ttb diagnosis', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
 ((SELECT id FROM structures WHERE alias='dx_npttb_tissue'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_npttb_tissue' AND `field`='npttb_path_final_dx' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=50' AND `default`='' AND `language_help`='npttb help path final' AND `language_label`='npttb path final dx' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='dx_npttb_tissue'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_npttb_tissue' AND `field`='npttn_ttb_diagnosis' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_final_diagnosis')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttn ttb diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='dx_npttb_tissue'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_npttb_tissue' AND `field`='npttb_ttb_diagnosis' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_final_diagnosis')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb ttb diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0');
