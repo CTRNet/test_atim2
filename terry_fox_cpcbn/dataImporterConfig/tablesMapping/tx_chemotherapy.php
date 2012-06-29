@@ -10,6 +10,8 @@ $fields = array(
 	'start_date_accuracy' 	=> array('Dates of event Accuracy (beginning)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	'finish_date' 			=> 'Dates of event Date of event (end)',
 	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+		
+	'notes' 				=> 'note'
 );
 $detail_fields = array();
 
@@ -36,6 +38,7 @@ function txChemotherapyPostRead(Model $m){
 	if($m->values['chemiotherapy'] != 'yes'){
 		echo 'WARNING: Unknwon value ['.$m->values['chemiotherapy'].'] for chemiotherapy in event at line ['.$m->line."]".Config::$line_break_tag;
 	}
+	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: chemotherapy']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	
 	excelDateFix($m);
 	

@@ -8,6 +8,8 @@ $fields = array(
 
 	'event_date' 			=> 'Dates of event Date of event (beginning)',
 	'event_date_accuracy' 	=> array('Dates of event Accuracy (beginning)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+		
+	'event_summary'			=> 'note'
 );
 $detail_fields = array(
 	'psa_ng_per_ml'	=> 'PSA (ng/ml)'
@@ -30,9 +32,10 @@ function eventPsaPostRead(Model $m){
 		return false;
 	}
 	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['PSA (ng/ml)'], $matches)) {
-		Config::$summary_msg['event: PSA']['@@WARNING@@']['value error'][] = "See value [".$m->values['PSA (ng/ml)']."] at line ".$m->line.".";
+		Config::$summary_msg['event: PSA']['@@WARNING@@']['value error'][] = "Decimal expected. See value [".$m->values['PSA (ng/ml)']."] at line ".$m->line.".";
 		$m->values['PSA (ng/ml)'] = '';
 	}
+	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: PSA']['@@WARNING@@']['date missing'][] = "PSA date is missing. See line ".$m->line.".";
 	
 	excelDateFix($m);
 	

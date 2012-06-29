@@ -9,7 +9,9 @@ $fields = array(
 	'start_date' 			=> 'Dates of event Date of event (beginning)',
 	'start_date_accuracy' 	=> array('Dates of event Accuracy (beginning)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	'finish_date' 			=> 'Dates of event Date of event (end)',
-	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
+	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+		
+	'notes' 				=> 'note'
 );
 $detail_fields = array();
 
@@ -31,6 +33,7 @@ function txHormonotherapyPostRead(Model $m){
 	if($m->values['hormonotherapy'] != 'yes'){
 		echo 'WARNING: Unknwon value ['.$m->values['hormonotherapy'].'] for hormonotherapy in event at line ['.$m->line."]".Config::$line_break_tag;
 	}
+	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: hormonotherapy']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	
 	excelDateFix($m);
 

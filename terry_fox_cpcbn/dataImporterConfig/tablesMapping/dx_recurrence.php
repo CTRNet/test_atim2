@@ -26,6 +26,7 @@ Config::addModel($model, 'dx_recurrence');
 
 function dxRecurrencePostRead(Model $m){
 	if(in_array($m->values['Date of biochemical recurrence Date'], array('', 'none', 'unknown'))){
+		if(!empty($m->values['Date of biochemical recurrence Definition'])) Config::$summary_msg['diagnosis: BCR']['@@WARNING@@']['no date'][] = "A BCR definition has been recorded without a date`data won't be imported. See line ".$m->line.".";
 		return false;
 	}
 	

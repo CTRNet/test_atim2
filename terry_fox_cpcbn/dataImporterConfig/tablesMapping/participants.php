@@ -63,6 +63,8 @@ function postParticipantRead(Model $m){
 function postParticipantWrite(Model $m){
 	global $connection;
 
+	Config::$create_participant_ids[] = $m->last_id;
+	
 	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id.";";
 	mysqli_query($connection, $query) or die("postParticipantWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
