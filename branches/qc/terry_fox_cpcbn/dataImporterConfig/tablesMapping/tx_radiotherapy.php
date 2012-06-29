@@ -9,7 +9,9 @@ $fields = array(
 	'start_date' 			=> 'Dates of event Date of event (beginning)',
 	'start_date_accuracy' 	=> array('Dates of event Accuracy (beginning)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 	'finish_date' 			=> 'Dates of event Date of event (end)',
-	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
+	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+		
+	'notes' 				=> 'note'
 );
 $detail_fields = array(
 	'qc_tf_dose_cg' => 'radiotherapy dose'
@@ -44,9 +46,10 @@ function txRadiotherapyPostRead(Model $m){
 		echo 'WARNING: Unknwon value ['.$m->values['radiotherapy'].'] for radiotherapy in event at line ['.$m->line."]".Config::$line_break_tag;
 	}
 	if(!preg_match('/^([0-9]*)$/', $m->values['radiotherapy dose'], $matches)) {
-		Config::$summary_msg['event: radiotherapy']['@@WARNING@@']['value error'][] = "See value [".$m->values['radiotherapy dose']."] at line ".$m->line.".";
+		Config::$summary_msg['event: radiotherapy']['@@WARNING@@']['value error'][] = "Integer expected. See value [".$m->values['radiotherapy dose']."] at line ".$m->line.".";
 		$m->values['radiotherapy dose'] = '';
 	}	
+	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: radiotherapy']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	excelDateFix($m);
 	
 	return true;

@@ -40,7 +40,7 @@ function postOtherDxRead(Model $m){
 	excelDateFix($m);
 	
 	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['Age at Time of Diagnosis (yr)'], $matches)) {
-		Config::$summary_msg['other cancer']['@@WARNING@@']['Age at Time of Diagnosis: wrong format'][] = "See value [".$m->values['Age at Time of Diagnosis (yr)']."] at line ".$m->line.".";
+		Config::$summary_msg['other cancer']['@@WARNING@@']['Age at Time of Diagnosis: wrong format'][] = "Decimal expected. See value [".$m->values['Age at Time of Diagnosis (yr)']."] at line ".$m->line.".";
 		$m->values['Age at Time of Diagnosis (yr)'] = '';
 	} else if(isset($matches[2])) {
 		Config::$summary_msg['other cancer']['@@MESSAGE@@']['Age at Time of Diagnosis: decimal'][] = "See value [".$m->values['Age at Time of Diagnosis (yr)']."] changed to [".$matches[1]."] at line ".$m->line.".";

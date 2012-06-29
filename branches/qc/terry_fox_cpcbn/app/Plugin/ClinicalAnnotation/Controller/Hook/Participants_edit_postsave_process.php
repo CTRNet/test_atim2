@@ -10,7 +10,6 @@
 				'DiagnosisMaster.deleted != 1',
 				'DiagnosisControl.category' => 'primary',
 				'DiagnosisControl.controls_type' => 'prostate');
-		$all_prostat_primaries = $this->DiagnosisMaster->find('all', array('conditions'=>$conditions));
-pr($all_prostat_primaries);		
+		$all_prostat_primaries = $this->DiagnosisMaster->find('all', array('conditions'=>$conditions));	
 		foreach($all_prostat_primaries as $new_primary) $this->DiagnosisMaster->calculateSurvivalAndBcr($new_primary['DiagnosisMaster']['id']);
 	}

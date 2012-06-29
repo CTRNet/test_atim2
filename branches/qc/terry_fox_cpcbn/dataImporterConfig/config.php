@@ -86,6 +86,8 @@ class Config{
 	
 	static $existing_patient_unique_keys = array();
 	
+	static $create_participant_ids = array();
+	
 }
 
 //add you start queries here
@@ -173,7 +175,8 @@ function addonFunctionStart(){
 		Config::$drugs[strtolower($row['generic_name'])] = $row['id'];
 	}
 		
-
+	Config::$create_participant_ids = array();
+	
 	
 	
 	
@@ -227,7 +230,9 @@ function addonFunctionStart(){
 function addonFunctionEnd(){
 	
 	// Clean-up PARTICIPANTS
+
 	$queries = array(
+		"UPDATE participants SET last_modification = NOW() WHERE id IN (".implode(',', Config::$create_participant_ids).");",
 		"UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
 		"UPDATE participants SET date_of_death = NULL WHERE date_of_death LIKE '0000-00-00';",
 		"UPDATE participants SET qc_tf_suspected_date_of_death = NULL WHERE qc_tf_suspected_date_of_death LIKE '0000-00-00';",
@@ -258,18 +263,83 @@ function addonFunctionEnd(){
 	}	
 	
 	// Clean-up EVENT_MASTERS
-	$queries = array("UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';");
+	$queries = array(
+		"UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';",
+		"UPDATE event_masters ev, diagnosis_masters rec
+		SET ev.diagnosis_master_id = rec.id
+		WHERE rec.diagnosis_control_id = ".Config::$dx_controls['recurrence']['biochemical recurrence']['id']."
+		AND ev.event_control_id = ".Config::$event_controls['lab']['psa']['general']['id']."
+		AND ev.diagnosis_master_id = rec.parent_id
+		AND ev.event_date = rec.dx_date
+		AND rec.dx_date IS NOT NULL
+		AND rec.participant_id IN (".implode(',', Config::$create_participant_ids).");");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query(Config::$db_connection, str_replace('event_masters','event_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		mysqli_query(Config::$db_connection, str_replace(array('event_masters', 'diagnosis_masters'),array('event_masters_revs','diagnosis_masters_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
+	// Set all treatments defined as DFS Start
+	$tx_methode_sorted_for_dfs = array(
+		'1' => 'surgery-RP',
+		'2' => 'surgery-TURP',
+		'3' => 'hormonotherapy-general',
+		'4' => 'radiation-general',
+		'5' => 'chemotherapy-general',
+		'6' => 'biopsy-general');
+	
+	$query = "SELECT tm.id, tm.participant_id, tm.start_date, tc.tx_method, tc.disease_site
+		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id
+		WHERE tm.participant_id IN (".implode(',', Config::$create_participant_ids).") AND tm.start_date IS NOT NULL
+		ORDER BY tm.participant_id, tm.start_date ASC";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	
+	$participant_id = '-1';
+	$first_tx_list_per_method = array();
+	$dfs_tx_ids = array();
+	while($row = $results->fetch_assoc()){
+		if($participant_id != $row['participant_id']) {
+			if($participant_id != '-1') {
+				// TODO update dfs if found
+				$dfs_tx_id = null;			
+				foreach($tx_methode_sorted_for_dfs as $next_tx_method) {					
+					if(isset($first_tx_list_per_method[$next_tx_method])) {
+						$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
+						break;
+					}
+				}
+			}
+			$first_tx_list_per_method = array();
+			$participant_id = $row['participant_id'];
+		}
+		
+		// Set first tx if this one has not already been set for this method
+		$tx_method = $row['tx_method'].'-'.$row['disease_site'];	
+		if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
+		if(!isset($first_tx_list_per_method[$tx_method])) $first_tx_list_per_method[$tx_method] = $row['id'];
+	}
+	
+	if(!empty($dfs_tx_ids)) {
+		$query = "UPDATE treatment_masters SET qc_tf_disease_free_survival_start_events = '1' WHERE id IN (".implode(',', $dfs_tx_ids).");";
+		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}
+		
+	
+	//TODO definir premeiere recurrence et faire le calcul de la survie, etc
+
+		
+		
+
 	
 	
 	
 	
 	
+	
+	
+	 	
 	
 	
 	
@@ -413,8 +483,139 @@ pr('TODO:
 		}
 	}
 	
+	
+// 	chir
+// 	apres radio
+// 	apres..
+	
+	
+// 	'DiagnosisMaster.primary_id'=> $primary_id,
+// 	'DiagnosisMaster.deleted != 1',
+// 	'DiagnosisDetail.first_biochemical_recurrence'=> '1',	
+	
+// 	'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagnoses_ids,
+// 	'TreatmentMaster.deleted != 1',
+// 	'TreatmentMaster.qc_tf_disease_free_survival_start_events'=> '1');
+
+	
+	
 //pr('addonFunctionEnd exit');	exit;
 
+}
+
+
+function calculateSurvivalAndBcr($studied_diagnosis_id) {
+	if(empty($studied_diagnosis_id)) return;
+
+	$all_linked_diagnoses_ids = $this->getAllTumorDiagnosesIds($studied_diagnosis_id);
+	$conditions = array(
+			'DiagnosisMaster.id' => $all_linked_diagnoses_ids,
+			'DiagnosisMaster.deleted != 1',
+			'DiagnosisControl.category' => 'primary',
+			'DiagnosisControl.controls_type' => 'prostate');
+	$prostate_dx = $this->find('first', array('conditions'=>$conditions));
+
+	if(!empty($prostate_dx)) {
+		$participant_id = $prostate_dx['DiagnosisMaster']['participant_id'];
+		$primary_id = $prostate_dx['DiagnosisMaster']['id'];
+		$primary_diagnosis_control_id = $prostate_dx['DiagnosisMaster']['diagnosis_control_id'];
+			
+		$previous_survival = $prostate_dx['DiagnosisDetail']['survival_in_months'];
+		$previous_bcr = $prostate_dx['DiagnosisDetail']['bcr_in_months'];
+			
+		// Get 1st BCR
+			
+		$conditions = array(
+				'DiagnosisMaster.primary_id'=> $primary_id,
+				'DiagnosisMaster.deleted != 1',
+				'DiagnosisDetail.first_biochemical_recurrence'=> '1',
+		);
+		$joins = array(array(
+				'table' => 'qc_tf_dxd_recurrence_bio',
+				'alias' => 'DiagnosisDetail',
+				'type' => 'INNER',
+				'conditions'=> array('DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id')));
+		$bcr = $this->find('first', array('conditions'=>$conditions, 'joins' => $joins));
+			
+		$bcr_date = $bcr['DiagnosisMaster']['dx_date'];
+		$bcr_accuracy = $bcr['DiagnosisMaster']['dx_date_accuracy'];
+			
+		// Get 1st DFS
+			
+		$treatment_master_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentMaster', true);
+		$conditions = array(
+				'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagnoses_ids,
+				'TreatmentMaster.deleted != 1',
+				'TreatmentMaster.qc_tf_disease_free_survival_start_events'=> '1');
+		$dfs = $treatment_master_model->find('first', array('conditions' => $conditions));
+			
+		$dfs_date = $dfs['TreatmentMaster']['start_date'];
+		$dfs_accuracy = $dfs['TreatmentMaster']['start_date_accuracy'];
+			
+		// Get survival end date
+			
+		$participant_model = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+		$participant = $participant_model->find('first', array('conditions' => array('Participant.id' => $participant_id)));
+			
+		$survival_end_date = '';
+		$survival_end_date_accuracy = '';
+		if(!empty($participant['Participant']['date_of_death'])) {
+			$survival_end_date = $participant['Participant']['date_of_death'];
+			$survival_end_date_accuracy = $participant['Participant']['date_of_death_accuracy'];
+		} else if(!empty($participant['Participant']['qc_tf_last_contact'])) {
+			$survival_end_date = $participant['Participant']['qc_tf_last_contact'];
+			$survival_end_date_accuracy = $participant['Participant']['qc_tf_last_contact_accuracy'];
+		}
+			
+		// Calculate Survival
+			
+		$new_survival = '';
+		if(!empty($dfs_date) && !empty($survival_end_date)) {
+			if($survival_end_date_accuracy.$dfs_accuracy == 'cc') {
+				$dfs_date_ob = new DateTime($dfs_date);
+				$survival_end_date_ob = new DateTime($survival_end_date);
+				$interval = $dfs_date_ob->diff($survival_end_date_ob);
+				if($interval->invert) {
+					AppController::getInstance()->addWarningMsg(__('survival cannot be calculated because dates are not chronological'));
+				} else {
+					$new_survival = $interval->y*12 + $interval->m;
+				}
+			} else {
+				AppController::getInstance()->addWarningMsg(__('survival cannot be calculated on inaccurate dates'));
+			}
+		}
+
+		// Calculate bcr
+			
+		$new_bcr = '';
+		if(!empty($dfs_date) && !empty($bcr_date)) {
+			if($dfs_accuracy.$bcr_accuracy == 'cc') {
+				$dfs_date_ob = new DateTime($dfs_date);
+				$bcr_date_ob = new DateTime($bcr_date);
+				$interval = $dfs_date_ob->diff($bcr_date_ob);
+				if($interval->invert) {
+					AppController::getInstance()->addWarningMsg(__('bcr cannot be calculated because dates are not chronological'));
+				} else {
+					$new_bcr = $interval->y*12 + $interval->m;
+				}
+			} else {
+				AppController::getInstance()->addWarningMsg(__('bcr cannot be calculated on inaccurate dates'));
+			}
+		} else {
+			$new_bcr = $new_survival;
+		}
+			
+		// Data to update
+			
+		$data_to_update = array('DiagnosisMaster' => array('diagnosis_control_id' => $primary_diagnosis_control_id));
+		if($new_bcr != $previous_bcr) $data_to_update['DiagnosisDetail']['bcr_in_months'] = $new_bcr;
+		if($new_survival != $previous_survival) $data_to_update['DiagnosisDetail']['survival_in_months'] = $new_survival;
+		if(sizeof($data_to_update) != 1) {
+			$thid->data = array();
+			$this->id = $primary_id;
+			if(!$this->save($data_to_update)) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+		}
+	}
 }
 
 //=========================================================================================================
