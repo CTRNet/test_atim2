@@ -1202,17 +1202,19 @@ class AppModel extends Model {
 	 * -white spaces are trimmed
 	 */
 	function checkFloats(){
-		foreach($this->_schema as $field_name => $field_properties) {
-			$tmp_type = $field_properties['type'];
-			if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
-				// Manage float record
-				if(isset($this->data[$this->alias][$field_name])) {
-					$this->data[$this->alias][$field_name] = str_replace(",", ".", $this->data[$this->alias][$field_name]);
-					$this->data[$this->alias][$field_name] = str_replace(" ", "", $this->data[$this->alias][$field_name]);
-					$this->data[$this->alias][$field_name] = str_replace("+", "", $this->data[$this->alias][$field_name]);
-					if(is_numeric($this->data[$this->alias][$field_name])) {
-						if(strpos($this->data[$this->alias][$field_name], ".") === 0) $this->data[$this->alias][$field_name] = "0".$this->data[$this->alias][$field_name];
-						if(strpos($this->data[$this->alias][$field_name], "-.") === 0) $this->data[$this->alias][$field_name] = "-0".substr($this->data[$this->alias][$field_name], 1);
+		if($this->_schema){
+			foreach($this->_schema as $field_name => $field_properties) {
+				$tmp_type = $field_properties['type'];
+				if($tmp_type == "float" || $tmp_type == "number" || $tmp_type == "float_positive"){
+					// Manage float record
+					if(isset($this->data[$this->alias][$field_name])) {
+						$this->data[$this->alias][$field_name] = str_replace(",", ".", $this->data[$this->alias][$field_name]);
+						$this->data[$this->alias][$field_name] = str_replace(" ", "", $this->data[$this->alias][$field_name]);
+						$this->data[$this->alias][$field_name] = str_replace("+", "", $this->data[$this->alias][$field_name]);
+						if(is_numeric($this->data[$this->alias][$field_name])) {
+							if(strpos($this->data[$this->alias][$field_name], ".") === 0) $this->data[$this->alias][$field_name] = "0".$this->data[$this->alias][$field_name];
+							if(strpos($this->data[$this->alias][$field_name], "-.") === 0) $this->data[$this->alias][$field_name] = "-0".substr($this->data[$this->alias][$field_name], 1);
+						}
 					}
 				}
 			}
