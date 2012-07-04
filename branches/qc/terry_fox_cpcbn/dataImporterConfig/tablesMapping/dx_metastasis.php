@@ -4,7 +4,9 @@ $child = array();
 $fields = array(
 	'participant_id' 		=> '#participant_id',
 	'diagnosis_control_id'	=> '#diagnosis_control_id', //Secondary - Metastasis
-	'parent_id'				=> $pkey
+	'parent_id'				=> $pkey,
+	'dx_date' 				=> 'Development of metastasis Date',
+	'dx_date_accuracy'		=> array('Development of metastasis Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
 );
 $detail_fields = array(
 	'type'	=> array('Development of metastasis Type of metastasis' => new ValueDomain('qc_tf_metastasis_type', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))

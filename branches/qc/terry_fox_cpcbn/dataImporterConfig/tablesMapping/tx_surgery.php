@@ -33,8 +33,9 @@ function txSurgeryPostRead(Model $m){
 			printf("WARNING: Invalid Surgery/Biopsy Type of surgery value [%s] for dx at line [%d]".Config::$line_break_tag, $m->values['Surgery/Biopsy Type of surgery'], $m->line);
 			return false;
 	}
-
+	if(empty($m->values['Surgery/Biopsy Date of surgery/biopsy'])) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	excelDateFix($m);
+	
 	return true;
 }
 

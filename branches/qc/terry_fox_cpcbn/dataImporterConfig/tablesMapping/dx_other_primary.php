@@ -29,6 +29,7 @@ function postOtherDxRead(Model $m){
 	global $connection;
 	
 	if(!is_null($m->custom_data['previous_line']) && $m->custom_data['previous_line'] != ($m->line - 1)) {
+		pr("postOtherDxRead: Check patient # is set or data exists. See line ".($m->line-1).".");
 		pr($m->values);
 		pr($m->line - 1);
 		exit;
@@ -47,9 +48,7 @@ function postOtherDxRead(Model $m){
 		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
 	}
 	
-	
-	
-	
+	if(in_array($m->values['cancer type'], array('prostate','Other-Primary Unknown'))) die("TODO: to support other cancer like 'prostate','Other-Primary Unknown'");
 	$m->values['cancer type'] = strtolower(str_replace('-',' - ', $m->values['cancer type']));
 	
 	return true;
