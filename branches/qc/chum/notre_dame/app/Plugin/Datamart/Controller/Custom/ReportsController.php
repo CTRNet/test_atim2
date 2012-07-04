@@ -160,7 +160,7 @@ class ReportsControllerCustom extends ReportsController {
 			}
 			
 			$aliquot_master_ids[] = 0;
-			$aliquots = $this->Report->query(
+			$aliquots = $this->Report->tryCatchQuery(
 				"SELECT al.barcode, al.aliquot_label, samp_control.sample_type, al_control.aliquot_type,
 				col.collection_datetime, spec_det.reception_datetime, der_det.creation_datetime, al.storage_datetime
 				FROM aliquot_masters AS al 
@@ -217,7 +217,7 @@ class ReportsControllerCustom extends ReportsController {
 		$description = '';
 		if(!empty($parameters['Collection']['bank_id'][0])) {
 			// find bank	
-			$res_1 = $this->Report->query("SELECT name FROM banks WHERE id = '".$parameters['Collection']['bank_id'][0]."' AND deleted != '1';");
+			$res_1 = $this->Report->tryCatchQuery("SELECT name FROM banks WHERE id = '".$parameters['Collection']['bank_id'][0]."' AND deleted != '1';");
 			if(empty($res_1)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			$title .= $res_1['0']['banks']['name'];
 		} else {
@@ -264,7 +264,7 @@ class ReportsControllerCustom extends ReportsController {
 				AND bk.id = '".$parameters['Collection']['bank_id'][0]."'";
 		}	
 		
-		$new_participants_nbr = $this->Report->query("SELECT COUNT(*) FROM ($participant_sql) AS res");
+		$new_participants_nbr = $this->Report->tryCatchQuery("SELECT COUNT(*) FROM ($participant_sql) AS res");
 		$data['0']['new_participants_nbr'] = $new_participants_nbr[0][0]['COUNT(*)'];
 
 		// NEW CONSENTS
@@ -286,7 +286,7 @@ class ReportsControllerCustom extends ReportsController {
 				AND bk.id = '".$parameters['Collection']['bank_id'][0]."'";
 		}	
 		
-		$new_consents_nbr = $this->Report->query("SELECT COUNT(*) FROM ($consent_sql) AS res");
+		$new_consents_nbr = $this->Report->tryCatchQuery("SELECT COUNT(*) FROM ($consent_sql) AS res");
 		$data['0']['obtained_consents_nbr'] = $new_consents_nbr[0][0]['COUNT(*)'];		
 		
 		// NEW COLLECTIONS
@@ -294,7 +294,7 @@ class ReportsControllerCustom extends ReportsController {
 		$bank_conditions = empty($parameters['Collection']['bank_id'][0])? 'TRUE' : "col.bank_id = '".$parameters['Collection']['bank_id'][0]."'";
 				
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$new_collections_nbr = $this->Report->query(
+		$new_collections_nbr = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*) FROM (
 				SELECT DISTINCT col.participant_id 
 				FROM sample_masters AS sm 
@@ -324,7 +324,7 @@ class ReportsControllerCustom extends ReportsController {
 		$description = '';
 		if(!empty($parameters['Collection']['bank_id'][0])) {
 			// find bank	
-			$res_1 = $this->Report->query("SELECT name FROM banks WHERE id = '".$parameters['Collection']['bank_id'][0]."' AND deleted != '1';");
+			$res_1 = $this->Report->tryCatchQuery("SELECT name FROM banks WHERE id = '".$parameters['Collection']['bank_id'][0]."' AND deleted != '1';");
 			if(empty($res_1)) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			$title .= $res_1['0']['banks']['name'];
 		} else {
@@ -357,7 +357,7 @@ class ReportsControllerCustom extends ReportsController {
 			
 		// Work on specimen
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
+		$res_1 = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), sm_control.sample_type
 			FROM sample_masters AS sm
 			INNER JOIN sample_controls AS sm_control ON sm.sample_control_id=sm_control.id 
@@ -372,7 +372,7 @@ class ReportsControllerCustom extends ReportsController {
 				'SampleControl' => array('sample_category' => 'specimen', 'sample_type'=> $data['sm_control']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
 		}	
-		$res_2 = $this->Report->query(
+		$res_2 = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), res.sample_type FROM (
 				SELECT DISTINCT col.participant_id, sm_control.sample_type  
 				FROM sample_masters AS sm 
@@ -390,7 +390,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// Work on derivative
 		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_1 = $this->Report->query(
+		$res_1 = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), sm_control.sample_type
 			FROM sample_masters AS sm 
 			INNER JOIN sample_controls AS sm_control ON sm.sample_control_id=sm_control.id
@@ -406,7 +406,7 @@ class ReportsControllerCustom extends ReportsController {
 				'SampleControl' => array('sample_category' => 'derivative', 'sample_type'=> $data['sm_control']['sample_type']),
 				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
 		}
-		$res_2 = $this->Report->query(
+		$res_2 = $this->Report->tryCatchQuery(
 			"SELECT COUNT(*), res.sample_type FROM (
 				SELECT DISTINCT col.participant_id, sm_control.sample_type  
 				FROM sample_masters AS sm 
@@ -483,7 +483,7 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($banks as $bank){
 			$bank_id = $bank['Bank']['id'];
 			
-			$sample_data =$sample_model->query(
+			$sample_data =$sample_model->tryCatchQuery(
 				"SELECT SUM(IF(SpecimenDetail.type_code = 'NOV', 1, 0)) AS nov, SUM(IF(SpecimenDetail.type_code = 'TOV', 1, 0)) AS tov,
 				SUM(IF(SpecimenDetail.type_code = 'BOV', 1, 0)) AS bov, SUM(IF(SpecimenDetail.type_code = 'OV', 1, 0)) AS ov,
 				SUM(IF(SampleDetail.blood_type = 'EDTA', 1, 0)) AS edta, SUM(IF(SampleDetail.blood_type = 'gel SST', 1, 0)) AS sst,

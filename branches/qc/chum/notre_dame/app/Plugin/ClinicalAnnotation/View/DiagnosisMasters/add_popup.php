@@ -74,6 +74,9 @@ if( $hook_link ) {
 				}
 			}else{
 				for(i in dropdownOptions){
+					if(i == 0 && $.inArray(diagnosisMasterId, canHaveChild) == -1){
+						continue;
+					}
 					options += "<optgroup label='" + dropdownOptions[i].grpName + "'>";
 					for(j in dropdownOptions[i].data){
 						options += "<option value='" + dropdownOptions[i].link + j + "'>" + dropdownOptions[i].data[j] + "</option>";
@@ -91,7 +94,7 @@ if( $hook_link ) {
 					//remove add button for "unknown" nodes
 					var id = $(this).prop("href").substr(20, $(this).prop("href").length - 22);
 					if($.inArray(parseInt(id), canHaveChild) == -1){
-						$(this).hide();
+						//$(this).hide();
 					}
 				}
 			});
