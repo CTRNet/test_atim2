@@ -25,10 +25,12 @@ class Config{
 	
 	//if reading excel file
 	
- 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim.xls';
- 	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim.xls';
- 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012.xls';
- 	
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_20120629_revised.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_revised.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_20120629_revised.xls';
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_20120629_revised.xls';
+	
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//whether to output the dataImporter generated queries
@@ -129,11 +131,10 @@ function mainDxCondition(Model $m){
 	return true;
 }
 
-function addonFunctionStart(){
-	
-	$file_path = Config::$xls_file_path;
-	echo "".Config::$line_break_tag."<FONT COLOR=\"green\" >
-	=====================================================================".Config::$line_break_tag."
+function addonFunctionStart(){	
+	$file_path = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
+	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
+	"=====================================================================".Config::$line_break_tag."
 	DATA EXPORT PROCESS : CPCBN TFRI".Config::$line_break_tag."
 	source_file = $file_path".Config::$line_break_tag."
 	".Config::$line_break_tag."=====================================================================
@@ -229,8 +230,7 @@ function addonFunctionStart(){
 
 function addonFunctionEnd(){
 	
-	// Clean-up PARTICIPANTS
-
+	// ** Clean-up PARTICIPANTS ** 
 	$queries = array(
 		"UPDATE participants SET last_modification = NOW() WHERE id IN (".implode(',', Config::$create_participant_ids).");",
 		"UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
@@ -242,9 +242,11 @@ function addonFunctionEnd(){
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
 		mysqli_query(Config::$db_connection, str_replace('participants','participants_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
-	// Clean-up DIAGNOSIS_MASTERS
+	
+	//  ** Clean-up DIAGNOSIS_MASTERS ** 
 	$queries = array(
-		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL;",
+		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL AND parent_id IS NULL;",
+		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
 		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
@@ -252,9 +254,10 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, str_replace('diagnosis_masters','diagnosis_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}	
 	
-	// Clean-up TREAMTENT_MASTERS
+	//  ** Clean-up TREAMTENT_MASTERS ** 
 	$queries = array(
 		"UPDATE treatment_masters SET start_date = NULL WHERE start_date LIKE '0000-00-00';",
+		"UPDATE treatment_masters SET start_date_accuracy = 'c' WHERE start_date IS NOT NULL AND start_date_accuracy LIKE '';",
 		"UPDATE treatment_masters SET finish_date = NULL WHERE finish_date LIKE '0000-00-00';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
@@ -262,7 +265,7 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}	
 	
-	// Clean-up EVENT_MASTERS
+	//  ** Clean-up EVENT_MASTERS ** 
 	$queries = array(
 		"UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';",
 		"UPDATE event_masters ev, diagnosis_masters rec
@@ -279,7 +282,18 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, str_replace(array('event_masters', 'diagnosis_masters'),array('event_masters_revs','diagnosis_masters_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
+	// ** SURVIVAL & BCR **
+	
 	// Set all treatments defined as DFS Start
+	$query = "SELECT participant_id FROM treatment_masters WHERE (start_date IS NULL OR start_date LIKE '') AND participant_id IN (".implode(',', Config::$create_participant_ids).");";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	$participant_ids_to_remove = array();
+	while($row = $results->fetch_assoc()){
+		//added to allow process to continue when dates are missing
+		$participant_ids_to_remove[] = $row['participant_id'];
+	}
+	if(!empty($participant_ids_to_remove)) Config::$summary_msg['SURVIVAL & BCR']['@@ERROR@@']['free survival start event defintion'][] = "Following patient won't be studied because treatment start date is missing. See patient ids ".implode(',', $participant_ids_to_remove).".";
+		
 	$tx_methode_sorted_for_dfs = array(
 		'1' => 'surgery-RP',
 		'2' => 'surgery-TURP',
@@ -288,35 +302,48 @@ function addonFunctionEnd(){
 		'5' => 'chemotherapy-general',
 		'6' => 'biopsy-general');
 	
-	$query = "SELECT tm.id, tm.participant_id, tm.start_date, tc.tx_method, tc.disease_site
-		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id
-		WHERE tm.participant_id IN (".implode(',', Config::$create_participant_ids).") AND tm.start_date IS NOT NULL
+	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
+		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id
+		WHERE tm.participant_id IN (".implode(',', Config::$create_participant_ids).")
 		ORDER BY tm.participant_id, tm.start_date ASC";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-	
+
+	$dfs_tx_ids = array();
 	$participant_id = '-1';
 	$first_tx_list_per_method = array();
-	$dfs_tx_ids = array();
+	$accuracy_warning = false;
+	$qc_tf_bank_participant_identifier = null;
 	while($row = $results->fetch_assoc()){
-		if($participant_id != $row['participant_id']) {
-			if($participant_id != '-1') {
-				// TODO update dfs if found
-				$dfs_tx_id = null;			
-				foreach($tx_methode_sorted_for_dfs as $next_tx_method) {					
-					if(isset($first_tx_list_per_method[$next_tx_method])) {
-						$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
-						break;
+		if(!in_array($row['participant_id'], $participant_ids_to_remove)) {
+			if($participant_id != $row['participant_id']) {
+				if($participant_id != '-1') {
+					foreach($tx_methode_sorted_for_dfs as $next_tx_method) {					
+						if(isset($first_tx_list_per_method[$next_tx_method])) {
+							$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
+							if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined based on treatments with at least one unaccracy date. See patient # $qc_tf_bank_participant_identifier.";
+							break;
+						}
 					}
 				}
+				$participant_id = $row['participant_id'];
+				$first_tx_list_per_method = array();
+				$accuracy_warning = false;
+				$qc_tf_bank_participant_identifier = null;
 			}
-			$first_tx_list_per_method = array();
-			$participant_id = $row['participant_id'];
+			
+			$tx_method = $row['tx_method'].'-'.$row['disease_site'];	
+			if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
+			if(!isset($first_tx_list_per_method[$tx_method])) $first_tx_list_per_method[$tx_method] = $row['id'];
+			if($row['start_date_accuracy'] != 'c') $accuracy_warning = true;
+			$qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];
 		}
-		
-		// Set first tx if this one has not already been set for this method
-		$tx_method = $row['tx_method'].'-'.$row['disease_site'];	
-		if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
-		if(!isset($first_tx_list_per_method[$tx_method])) $first_tx_list_per_method[$tx_method] = $row['id'];
+	}
+	foreach($tx_methode_sorted_for_dfs as $next_tx_method) {
+		if(isset($first_tx_list_per_method[$next_tx_method])) {
+			$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
+			if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined based on treatments with at least one unaccracy date. See patient # $qc_tf_bank_participant_identifier.";
+			break;
+		}
 	}
 	
 	if(!empty($dfs_tx_ids)) {
@@ -325,130 +352,139 @@ function addonFunctionEnd(){
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
 		mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
+	
+	// Set first BCR
+	$query = "SELECT dm.participant_id FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_recurrence_bio rec ON dm.id = rec.diagnosis_master_id WHERE (dm.dx_date IS NULL OR dm.dx_date LIKE '') AND dm.participant_id IN (".implode(',', Config::$create_participant_ids).");";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	$participant_ids_to_remove = array();
+	while($row = $results->fetch_assoc()){
+		//added to allow process to continue when dates are missing
+		$participant_ids_to_remove[] = $row['participant_id'];
+	}
+	if(!empty($participant_ids_to_remove)) Config::$summary_msg['SURVIVAL & BCR']['@@ERROR@@']['first bcr defintion'][] = "Following patient won't be studied because dx date is missing. See patient ids ".implode(',', $participant_ids_to_remove).".";
+	
+	$query = "SELECT dm.id, dm.participant_id, part.qc_tf_bank_participant_identifier, dm.dx_date, dm.dx_date_accuracy
+		FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_recurrence_bio rec ON dm.id = rec.diagnosis_master_id AND dm.deleted != 1 INNER JOIN participants part ON part.id = dm.participant_id
+		WHERE dm.participant_id IN (".implode(',', Config::$create_participant_ids).") AND dm.dx_date IS NOT NULL
+		ORDER BY dm.participant_id, dm.dx_date ASC";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	
+	$participant_id = '-1';
+	$first_bcr_dx_ids = array();
+	$accuracy_warning = false;
+	$previous_qc_tf_bank_participant_identifier = null;
+	while($row = $results->fetch_assoc()) {
+		if(!in_array($row['participant_id'], $participant_ids_to_remove)) {
+			if($participant_id != $row['participant_id']) {
+				$participant_id = $row['participant_id'];
+				$first_bcr_dx_ids[$participant_id] = $row['id'];
+				
+				if($accuracy_warning) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['first bcr defintion'][] = "Fisrt BCR has been defined based on bcrs with at least one unaccracy date. See patient # $previous_qc_tf_bank_participant_identifier.";
+				$accuracy_warning = false;
+				$previous_qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];;
+			}
+			if($row['dx_date_accuracy'] != 'c') $accuracy_warning = true;
+		}
+	}
+	if($accuracy_warning) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['first bcr defintion'][] = "Fisrt BCR has been defined based on bcrs with at least one unaccracy date. See patient # $previous_qc_tf_bank_participant_identifier.";
 		
+	if(!empty($first_bcr_dx_ids)) {
+		$query = "UPDATE qc_tf_dxd_recurrence_bio SET first_biochemical_recurrence = '1' WHERE diagnosis_master_id IN (".implode(',', $first_bcr_dx_ids).");";
+		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+echo $query.Config::$line_break_tag;		
+		mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_recurrence_bio','qc_tf_dxd_recurrence_bio_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}	
 	
-	//TODO definir premeiere recurrence et faire le calcul de la survie, etc
+	// Calculate survival and bcr
+	$query = "SELECT dm.id as diagnosis_master_id, dm.participant_id, 
+		part.qc_tf_bank_participant_identifier, part.date_of_death, part.date_of_death_accuracy, part.qc_tf_last_contact, part.qc_tf_last_contact_accuracy,
+		bcr.bcr_date,
+		bcr.bcr_date_accuracy,
+		trt.start_date as dfs_date,
+		trt.start_date_accuracy as dfs_date_accuracy	
+		FROM diagnosis_masters dm 
+		INNER JOIN diagnosis_controls dc ON dc.category = 'primary' AND dc.controls_type = 'prostate' 
+		INNER JOIN participants part ON part.id = dm.participant_id
+		INNER JOIN treatment_masters trt ON trt.diagnosis_master_id = dm.id AND trt.qc_tf_disease_free_survival_start_events = 1
+		LEFT JOIN (
+			SELECT dmr.primary_id, dmr.dx_date bcr_date, dmr.dx_date_accuracy bcr_date_accuracy
+			FROM diagnosis_masters dmr INNER JOIN qc_tf_dxd_recurrence_bio rec ON dmr.id = rec.diagnosis_master_id AND dmr.deleted != 1
+			WHERE rec.first_biochemical_recurrence = 1 AND dmr.participant_id IN (".implode(',', Config::$create_participant_ids).")
+		) bcr ON bcr.primary_id = dm.id
+		WHERE part.id IN (".implode(',', Config::$create_participant_ids).")
+		ORDER BY dm.participant_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	
+	$participant_id = '-1';
+	while($row = $results->fetch_assoc()) {
+		if($participant_id == $row['participant_id']) die('ERR889930303');
 
+		$bcr_date = $row['bcr_date'];
+		$bcr_accuracy = $row['bcr_date_accuracy'];
+			
+		$dfs_date = $row['dfs_date'];
+		$dfs_accuracy = $row['dfs_date_accuracy'];
+			
+		$survival_end_date = '';
+		$survival_end_date_accuracy = '';
+		if(!empty($row['date_of_death'])) {
+			$survival_end_date = $row['date_of_death'];
+			$survival_end_date_accuracy = $row['date_of_death_accuracy'];
+		} else if(!empty($row['qc_tf_last_contact'])) {
+			$survival_end_date = $row['qc_tf_last_contact'];
+			$survival_end_date_accuracy = $row['qc_tf_last_contact_accuracy'];
+		}
+			
+		// Calculate Survival	
+		$new_survival = '';
+		if(!empty($dfs_date) && !empty($survival_end_date)) {
+			if($survival_end_date_accuracy.$dfs_accuracy == 'cc') {
+				$dfs_date_ob = new DateTime($dfs_date);
+				$survival_end_date_ob = new DateTime($survival_end_date);
+				$interval = $dfs_date_ob->diff($survival_end_date_ob);
+				if($interval->invert) {
+					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival cannot be calculated because dates are not chronological. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+				} else {
+					$new_survival = $interval->y*12 + $interval->m;
+				}
+			} else {
+					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival cannot be calculated on inaccurate dates. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+			}
+		}
+	
+		// Calculate bcr
+			
+		$new_bcr = '';
+		if(!empty($dfs_date) && !empty($bcr_date)) {
+			if($dfs_accuracy.$bcr_accuracy == 'cc') {
+				$dfs_date_ob = new DateTime($dfs_date);
+				$bcr_date_ob = new DateTime($bcr_date);
+				$interval = $dfs_date_ob->diff($bcr_date_ob);
+				if($interval->invert) {
+					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['BCR'][] = "BCR cannot be calculated because dates are not chronological. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+				} else {
+					$new_bcr = $interval->y*12 + $interval->m;
+				}
+			} else {
+				Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['BCR'][] = "BCR cannot be calculated  on inaccurate dates. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+			}
+		} else {
+			$new_bcr = $new_survival;
+		}
 		
-		
+		// Data to update
+			
+		if(strlen($new_survival) || strlen($new_bcr)) {
+			$query = "UPDATE qc_tf_dxd_cpcbn SET bcr_in_months = '$new_bcr', survival_in_months = '$new_survival' WHERE diagnosis_master_id = ".$row['diagnosis_master_id'].";";
+			mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+			if(Config::$print_queries) echo $query.Config::$line_break_tag;
+			mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
+		}
+	}
 
+	// MESSAGES
 	
-	
-	
-	
-	
-	
-	
-	 	
-	
-	
-	
-	
-pr('TODO:
-	- DFS Start  	
-	- qc_tf_dxd_cpcbn
-	- survival_in_months
-	- and bcr_in_months');
-	
-		
-// 	// DIAGNOSIS / TRT / EVENT LINKS CREATION
-	
-// 	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) AND parent_id IS NULL GROUP BY participant_id HAVING c > 1";
-// 	$result = mysqli_query(Config::$db_connection, $query) or die("reading in addonFunctionEnd failed");
-// 	$ids = array();
-// 	while($row = $result->fetch_assoc()){
-// 		$ids[] = $row['participant_id'];
-// 	}
-// 	mysqli_free_result($result);
-	
-// 	if(!empty($ids)){
-// 		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one primary dx.".Config::$line_break_tag;
-// 	}
-	
-// 	$ids[] = 0;
-// 	$query = "UPDATE event_masters "
-// 		."LEFT JOIN diagnosis_masters ON event_masters.participant_id=diagnosis_masters.participant_id AND diagnosis_masters.parent_id IS NULL "
-// 		."SET event_masters.diagnosis_master_id=diagnosis_masters.id "
-// 		."WHERE event_masters.created >= (SELECT start_time FROM start_time) AND event_masters.participant_id NOT IN(".implode(", ", $ids).")";
-// 	mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed");
-	
-// 	if(Config::$insert_revs){
-// 		$query = "UPDATE event_masters_revs INNER JOIN event_masters ON event_masters.id = event_masters_revs.id SET event_masters_revs.diagnosis_master_id = event_masters.diagnosis_master_id";
-// 		mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed (revs table)");
-// 	}	
-
-// 	$query = "UPDATE treatment_masters "
-// 		."LEFT JOIN diagnosis_masters ON treatment_masters.participant_id=diagnosis_masters.participant_id AND diagnosis_masters.parent_id IS NULL "
-// 		."SET treatment_masters.diagnosis_master_id=diagnosis_masters.id "
-// 		."WHERE treatment_masters.created >= (SELECT start_time FROM start_time) AND treatment_masters.participant_id NOT IN(".implode(", ", $ids).")";
-// 	mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed");
-
-// 	if(Config::$insert_revs){
-// 		$query = "UPDATE treatment_masters_revs INNER JOIN txreatment_masters ON treatment_masters.id = treatment_masters_revs.id SET treatment_masters_revs.diagnosis_master_id = treatment_masters.diagnosis_master_id";
-// 		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
-// 	}	
-	
-// 	// COLLECTION / PARTICIPANTS LINKS CREATION
-	
-// 	$query = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
-// 		(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
-// 		FROM id_linking AS p 
-// 		INNER JOIN id_linking AS c ON c.csv_reference='inventory' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
-// 	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
-// 	if(Config::$insert_revs){
-// 		$query = "INSERT INTO clinical_collection_links_revs (id, participant_id, collection_id, modified_by, version_created) "
-// 			."(SELECT id, participant_id, collection_id, modified_by, NOW() FROM clinical_collection_links WHERE collection_id IN (SELECT c.mysql_id FROM id_linking AS c WHERE c.csv_reference='collections'))";
-// 		mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-// 	}
-	
-// 	$query = "DELETE FROM id_linking";
-// 	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
-// 	// EMPTY DATES CLEAN UP
-	
-// 	$date_times_to_check = array(
-// 		'collections.collection_datetime',
-// 		'diagnosis_masters.dx_date',
-// 		'event_masters.event_date',
-// 		'participants.date_of_birth',
-// 		'participants.date_of_death',
-// 		'participants.qc_tf_suspected_date_of_death',
-// 		'participants.qc_tf_last_contact',
-// 		'treatment_masters.start_date',
-// 		'treatment_masters.finish_date');
-
-// 	foreach($date_times_to_check as $table_field) {
-// 		$names = explode(".", $table_field);
-		
-// 		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-// 		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
-		
-// 		if(Config::$insert_revs){
-// 			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-// 			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");			
-// 		}
-// 	}
-	
-// 	// LAST DATA UPDATE
-	
-// 	$query = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
-// 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
-// 	if(Config::$insert_revs){
-// 		$query = "UPDATE participants_revs SET vital_status='deceased' WHERE vital_status='dead'";
-// 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
-// 	}
-	
-// 	$query = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
-// 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
-// 	if(Config::$insert_revs){
-// 		$query = "UPDATE aliquot_masters_revs SET barcode=CONCAT('', id) WHERE barcode=''";
-// 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
-// 	}
-
-
-
-
 	global $insert;
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
@@ -480,140 +516,6 @@ pr('TODO:
 			echo "".Config::$line_break_tag." --> <FONT COLOR=\"green\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
 			foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
 			}
-		}
-	}
-	
-	
-// 	chir
-// 	apres radio
-// 	apres..
-	
-	
-// 	'DiagnosisMaster.primary_id'=> $primary_id,
-// 	'DiagnosisMaster.deleted != 1',
-// 	'DiagnosisDetail.first_biochemical_recurrence'=> '1',	
-	
-// 	'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagnoses_ids,
-// 	'TreatmentMaster.deleted != 1',
-// 	'TreatmentMaster.qc_tf_disease_free_survival_start_events'=> '1');
-
-	
-	
-//pr('addonFunctionEnd exit');	exit;
-
-}
-
-
-function calculateSurvivalAndBcr($studied_diagnosis_id) {
-	if(empty($studied_diagnosis_id)) return;
-
-	$all_linked_diagnoses_ids = $this->getAllTumorDiagnosesIds($studied_diagnosis_id);
-	$conditions = array(
-			'DiagnosisMaster.id' => $all_linked_diagnoses_ids,
-			'DiagnosisMaster.deleted != 1',
-			'DiagnosisControl.category' => 'primary',
-			'DiagnosisControl.controls_type' => 'prostate');
-	$prostate_dx = $this->find('first', array('conditions'=>$conditions));
-
-	if(!empty($prostate_dx)) {
-		$participant_id = $prostate_dx['DiagnosisMaster']['participant_id'];
-		$primary_id = $prostate_dx['DiagnosisMaster']['id'];
-		$primary_diagnosis_control_id = $prostate_dx['DiagnosisMaster']['diagnosis_control_id'];
-			
-		$previous_survival = $prostate_dx['DiagnosisDetail']['survival_in_months'];
-		$previous_bcr = $prostate_dx['DiagnosisDetail']['bcr_in_months'];
-			
-		// Get 1st BCR
-			
-		$conditions = array(
-				'DiagnosisMaster.primary_id'=> $primary_id,
-				'DiagnosisMaster.deleted != 1',
-				'DiagnosisDetail.first_biochemical_recurrence'=> '1',
-		);
-		$joins = array(array(
-				'table' => 'qc_tf_dxd_recurrence_bio',
-				'alias' => 'DiagnosisDetail',
-				'type' => 'INNER',
-				'conditions'=> array('DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id')));
-		$bcr = $this->find('first', array('conditions'=>$conditions, 'joins' => $joins));
-			
-		$bcr_date = $bcr['DiagnosisMaster']['dx_date'];
-		$bcr_accuracy = $bcr['DiagnosisMaster']['dx_date_accuracy'];
-			
-		// Get 1st DFS
-			
-		$treatment_master_model = AppModel::getInstance('ClinicalAnnotation', 'TreatmentMaster', true);
-		$conditions = array(
-				'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagnoses_ids,
-				'TreatmentMaster.deleted != 1',
-				'TreatmentMaster.qc_tf_disease_free_survival_start_events'=> '1');
-		$dfs = $treatment_master_model->find('first', array('conditions' => $conditions));
-			
-		$dfs_date = $dfs['TreatmentMaster']['start_date'];
-		$dfs_accuracy = $dfs['TreatmentMaster']['start_date_accuracy'];
-			
-		// Get survival end date
-			
-		$participant_model = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
-		$participant = $participant_model->find('first', array('conditions' => array('Participant.id' => $participant_id)));
-			
-		$survival_end_date = '';
-		$survival_end_date_accuracy = '';
-		if(!empty($participant['Participant']['date_of_death'])) {
-			$survival_end_date = $participant['Participant']['date_of_death'];
-			$survival_end_date_accuracy = $participant['Participant']['date_of_death_accuracy'];
-		} else if(!empty($participant['Participant']['qc_tf_last_contact'])) {
-			$survival_end_date = $participant['Participant']['qc_tf_last_contact'];
-			$survival_end_date_accuracy = $participant['Participant']['qc_tf_last_contact_accuracy'];
-		}
-			
-		// Calculate Survival
-			
-		$new_survival = '';
-		if(!empty($dfs_date) && !empty($survival_end_date)) {
-			if($survival_end_date_accuracy.$dfs_accuracy == 'cc') {
-				$dfs_date_ob = new DateTime($dfs_date);
-				$survival_end_date_ob = new DateTime($survival_end_date);
-				$interval = $dfs_date_ob->diff($survival_end_date_ob);
-				if($interval->invert) {
-					AppController::getInstance()->addWarningMsg(__('survival cannot be calculated because dates are not chronological'));
-				} else {
-					$new_survival = $interval->y*12 + $interval->m;
-				}
-			} else {
-				AppController::getInstance()->addWarningMsg(__('survival cannot be calculated on inaccurate dates'));
-			}
-		}
-
-		// Calculate bcr
-			
-		$new_bcr = '';
-		if(!empty($dfs_date) && !empty($bcr_date)) {
-			if($dfs_accuracy.$bcr_accuracy == 'cc') {
-				$dfs_date_ob = new DateTime($dfs_date);
-				$bcr_date_ob = new DateTime($bcr_date);
-				$interval = $dfs_date_ob->diff($bcr_date_ob);
-				if($interval->invert) {
-					AppController::getInstance()->addWarningMsg(__('bcr cannot be calculated because dates are not chronological'));
-				} else {
-					$new_bcr = $interval->y*12 + $interval->m;
-				}
-			} else {
-				AppController::getInstance()->addWarningMsg(__('bcr cannot be calculated on inaccurate dates'));
-			}
-		} else {
-			$new_bcr = $new_survival;
-		}
-			
-		// Data to update
-			
-		$data_to_update = array('DiagnosisMaster' => array('diagnosis_control_id' => $primary_diagnosis_control_id));
-		if($new_bcr != $previous_bcr) $data_to_update['DiagnosisDetail']['bcr_in_months'] = $new_bcr;
-		if($new_survival != $previous_survival) $data_to_update['DiagnosisDetail']['survival_in_months'] = $new_survival;
-		if(sizeof($data_to_update) != 1) {
-			$thid->data = array();
-			$this->id = $primary_id;
-			if(!$this->save($data_to_update)) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
 	}
 }

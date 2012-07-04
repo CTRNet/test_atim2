@@ -480,13 +480,38 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_tf_ed_psa'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '100', '', '1', 'notes', '0', '', '0', '', '0', '', '1', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site") 
+AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value LIKE "male genital%");
 
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("male genital", "male genital");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"), (SELECT id FROM structure_permissible_values WHERE value="male genital" AND language_alias="male genital"), "", "1");
 
+INSERT INTO i18n (id,en,fr) VALUES ('male genital','Male Genital','Appareil génital masculin');
 
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site") 
+AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value IN ('',);
 
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site") 
+AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value LIKE "Female Genital%");
 
+UPDATE structure_value_domains_permissible_values SET flag_active = 0 
+WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site") 
+AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value IN ("Other - Gross Metastatic Disease",'Digestive - Colorectal'));
 
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("digestive - colonic", "digestive - colonic");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"), (SELECT id FROM structure_permissible_values WHERE value="digestive - colonic" AND language_alias="digestive - colonic"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('digestive - colonic','Digestive - Colonic','Digestif - Colonic');
 
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("digestive - rectal", "digestive - rectal");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ctrnet_submission_disease_site"), (SELECT id FROM structure_permissible_values WHERE value="digestive - rectal" AND language_alias="digestive - rectal"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('digestive - rectal','Digestive - Rectal','Digestif - Rectal');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list') AND `flag_confidential`='0');
+
+  
 
 
 
