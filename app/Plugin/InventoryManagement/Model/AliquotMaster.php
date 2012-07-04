@@ -2,7 +2,7 @@
 
 class AliquotMaster extends InventoryManagementAppModel {
 	
-	var $actsAs = array('MinMax');
+	var $actsAs = array('MinMax', 'StoredItem');
 
 	var $belongsTo = array(       
 		'AliquotControl' => array(           
