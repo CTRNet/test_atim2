@@ -50,12 +50,13 @@ class SampleMasterCustom extends SampleMaster {
 	}
 	
 	function createSampleLabel($collection_id, $sample_data, $bank_participant_identifier = null, $initial_specimen_label = null) {
-							
 		// Check parameters
 	 	if(empty($collection_id) || empty($sample_data) 
 	 	|| (!isset($sample_data['SampleMaster'])) || (!isset($sample_data['SampleControl']))) { 
 	 		AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 	 	}
+	 	
+	 	$prev_id = $this->id;
 
 		// ** Set Data **
 
@@ -200,8 +201,10 @@ class SampleMasterCustom extends SampleMaster {
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__.'type='.$sample_type, null, true);
 		}
 		
+		$this->id = $prev_id;
+		
 		return $new_sample_label;
-	}	 
+	}
 	 
 	private function validateLabTypeCodeAndLaterality(&$data_to_validate) {	
 		
