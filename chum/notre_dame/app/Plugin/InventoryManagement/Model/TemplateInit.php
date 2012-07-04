@@ -3,6 +3,7 @@ class TemplateInit extends InventoryManagementAppModel {
 	var $useTable = false;
 	
 	function validates($options = array()) {
+		$this->_schema = array();
 		$result = parent::validates($options);
 		
 		//Note that a model validate array is empty if it's not created at the controller array

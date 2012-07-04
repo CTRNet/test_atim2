@@ -47,5 +47,6 @@ class CollectionCustom extends Collection{
 		if(!$created){
 			$this->updateCollectionSampleLabels($this->id);
 		}
+		parent::afterSave($created);
 	}
 }

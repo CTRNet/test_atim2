@@ -139,10 +139,8 @@ class AliquotMasterCustom extends AliquotMaster {
 	
 	function regenerateAliquotBarcode() {
 		$query_to_update = "UPDATE aliquot_masters SET aliquot_masters.barcode = aliquot_masters.id WHERE aliquot_masters.barcode = '';";
-		if(!$this->query($query_to_update) 
-		|| !$this->query(str_replace("aliquot_masters", "aliquot_masters_revs", $query_to_update))) {
-			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-		}		
+		$this->tryCatchQuery($query_to_update);
+		$this->tryCatchquery(str_replace("aliquot_masters", "aliquot_masters_revs", $query_to_update));
 	}
 }
 
