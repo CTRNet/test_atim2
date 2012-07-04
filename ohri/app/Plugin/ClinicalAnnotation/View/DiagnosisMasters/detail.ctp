@@ -7,8 +7,8 @@
 			'redefine unknown primary' => '/underdevelopment/'
 		)
 	);
-	if(in_array($this->data['DiagnosisControl']['category'], array('primary', 'secondary'))){
-		$structure_links['bottom']['add'] = 'javascript:addPopup('.$this->data['DiagnosisMaster']['id'].', '.$this->data['DiagnosisControl']['id'].');';
+	if(in_array($this->request->data['DiagnosisControl']['category'], array('primary', 'secondary'))){
+		$structure_links['bottom']['add'] = 'javascript:addPopup('.$this->request->data['DiagnosisMaster']['id'].', '.$this->request->data['DiagnosisControl']['id'].');';
 	}
 	
 	if(isset($primary_ctrl_to_redefine_unknown) && !empty($primary_ctrl_to_redefine_unknown)) {
