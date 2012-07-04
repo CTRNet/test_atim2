@@ -664,11 +664,6 @@ class StructuresHelper extends Helper {
 								}
 								
 								if($table_row_part['type'] == 'textarea'){
-									$current_value = htmlspecialchars($current_value);
-									$current_value = str_replace('\\\\', '&dbs;', $current_value);
-									$current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
-									$current_value = str_replace('&dbs;', '\\', $current_value);
-									$current_value = html_entity_decode($current_value);
 									$display[0] .= '<span>'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix);
 								}else{
 									$display[0] .= '<span><span class="nowrap">'.$this->getPrintableField($table_row_part,  $options, $current_value, null, $suffix).'</span>';
@@ -921,6 +916,12 @@ class StructuresHelper extends Helper {
 				}
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$display = str_replace('.', ',', $current_value);
+			}else if($table_row_part['type'] == 'textarea'){
+				$current_value = htmlspecialchars($current_value);
+				$current_value = str_replace('\\\\', '&dbs;', $current_value);
+				$current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
+				$current_value = str_replace('&dbs;', '\\', $current_value);
+				$display = html_entity_decode($current_value);
 			}else{
 				$display = $current_value;
 			}
@@ -2647,5 +2648,6 @@ class StructuresHelper extends Helper {
 		</div>
 		' : '<div>'.__('You are not authorized to access that location.').'</div>';
 	}
+	
 }
 	
