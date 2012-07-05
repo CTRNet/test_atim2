@@ -8,7 +8,8 @@ $child = array(
  	'tx_radiotherapy',
  	'tx_hormonotherapy',
  	'tx_chemotherapy',
- 	'event_psa'
+ 	'event_psa',
+	'collection'
 );
 $fields = array(
 	'participant_id' 		=> $pkey,
