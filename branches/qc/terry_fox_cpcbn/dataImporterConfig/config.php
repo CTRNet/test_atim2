@@ -26,10 +26,10 @@ class Config{
 	//if reading excel file
 	
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_20120629_revised.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_revised.xls';
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_20120629_revised.xls';
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_20120629_revised.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_20120629_revised.xls';
 	
 	static $xls_header_rows = 2;
 
@@ -69,7 +69,7 @@ class Config{
 //*	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chemotherapy', 'radiotherapy');
 //*	static $opc_file_event_types	= array('biopsy', 'surgery', 'chemotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
 	
-//*	static $sample_aliquot_controls = array();
+	static $sample_aliquot_controls = array();
 //*	static $banks = array();
 //*	static $drugs	= array();
 //*	static $tissue_source = array();
@@ -90,6 +90,7 @@ class Config{
 	
 	static $create_participant_ids = array();
 	
+	static $collection_sites = array();
 }
 
 //add you start queries here
@@ -117,19 +118,7 @@ Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
 Config::$config_files[] = $relative_path.'tx_chemotherapy.php';
 Config::$config_files[] = $relative_path.'event_psa.php';
 Config::$config_files[] = $relative_path.'dx_other_primary.php';
-
-//*Config::$config_files[] = $relative_path.'inventory.php';
-//*
-
-function mainDxCondition(Model $m){
-	pr('TODO : mainDxCondition');exit;
-	//used as pre insert, not a real test
-	global $primary_number;
-	$m->values['primary_number'] = $primary_number ++;
-	
-	$m->custom_data['last_participant_id'] = $m->parent_model->last_id;
-	return true;
-}
+Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){	
 	$file_path = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
@@ -178,10 +167,13 @@ function addonFunctionStart(){
 		
 	Config::$create_participant_ids = array();
 	
+	$query = "SELECT `value`, `en`, `fr` FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'specimen collection sites');";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$collection_sites[strtolower($row['value'])] = $row['value'];
+	}
 	
-	
-	
-	
+
 // 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
 // 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 // 	while($row = $results->fetch_assoc()){
@@ -203,20 +195,20 @@ function addonFunctionStart(){
 // 		Config::$drugs[] = $row['generic_name'];
 // 	}	
 	
-// 	$query = "select id,sample_type from sample_controls where sample_type in ('tissue','blood', 'ascite', 'serum', 'plasma', 'dna', 'blood cell')";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'aliquots' => array());
-// 	}	
-// 	if(sizeof(Config::$sample_aliquot_controls) != 7) die("get sample controls failed");
+	$query = "select id,sample_type from sample_controls where sample_type in ('tissue');";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'aliquots' => array());
+	}	
+	if(sizeof(Config::$sample_aliquot_controls) != 1) die("get sample controls failed");
 	
-// 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
-// 		$query = "select id,aliquot_type,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
-// 		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 		while($row = $results->fetch_assoc()){
-// 			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'volume_unit' => $row['volume_unit']);
-// 		}	
-// 	}
+	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
+		$query = "select id,aliquot_type,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
+		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'volume_unit' => $row['volume_unit']);
+		}	
+	}
 
 // 	$query = "SELECT value FROM structure_permissible_values_customs INNEr JOIN structure_permissible_values_custom_controls "
 // 		."ON structure_permissible_values_custom_controls.id = structure_permissible_values_customs.control_id "
@@ -391,8 +383,7 @@ function addonFunctionEnd(){
 	if(!empty($first_bcr_dx_ids)) {
 		$query = "UPDATE qc_tf_dxd_recurrence_bio SET first_biochemical_recurrence = '1' WHERE diagnosis_master_id IN (".implode(',', $first_bcr_dx_ids).");";
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-echo $query.Config::$line_break_tag;		
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;	
 		mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_recurrence_bio','qc_tf_dxd_recurrence_bio_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}	
 	
@@ -518,6 +509,8 @@ echo $query.Config::$line_break_tag;
 			}
 		}
 	}
+	
+	echo Config::$line_break_tag."Don't forget to rebuild view : \app>..\lib\Cake\Console\cake view".Config::$line_break_tag;
 }
 
 //=========================================================================================================
