@@ -61,8 +61,6 @@ $model->post_write_function = 'postDxWrite';
 Config::addModel($model, 'dx_primary');
 
 function postDxRead(Model $m){
-	global $connection;
-	
 	if(!is_null($m->custom_data['previous_line']) && $m->custom_data['previous_line'] != ($m->line - 1)) {
 		pr("postDxRead: Check patient # is set or data exists. See line ".($m->line-1).".");
 		pr($m->values);
@@ -108,8 +106,6 @@ function postDxWrite(Model $m){
 }
 
 function manageManyRows(Model $m){
-	global $connection;
-	
 	$db_participant_id = $m->parent_model->last_id;
 	
 	$value_to_add = array('diagnsosis_masters' => array(), 'qc_tf_dxd_cpcbn' => array());
@@ -174,10 +170,10 @@ function manageManyRows(Model $m){
 				(($table == 'diagnosis_masters')? 
 					"participant_id = $db_participant_id AND diagnosis_control_id = 14;" :
 					"diagnosis_master_id=(SELECT id FROM diagnosis_masters WHERE participant_id = $db_participant_id AND diagnosis_control_id = ".Config::$dx_controls['primary']['prostate']['id'].");");		
-			mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 			if(Config::$print_queries) echo $query.Config::$line_break_tag;
 			$query = str_replace($table, $table.'_revs',$query);
-			if(Config::$insert_revs) mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		}
 	}
 }
