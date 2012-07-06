@@ -64,11 +64,10 @@ class DATABASE_CONFIG {
 		'persistent' => true,
 		'host' => '127.0.0.1',
 		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_new',
+		'password' => '',
+		'database' => 'procure',
 		'prefix' => '',
-		'encoding' => 'utf8',
-		'port'		=> 8889
+		'encoding' => 'utf8'
 	);
 
 }
