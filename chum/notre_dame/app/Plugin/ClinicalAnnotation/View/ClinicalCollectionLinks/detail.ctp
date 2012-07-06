@@ -37,6 +37,8 @@
 	if(!is_null($consent_control_data)) $final_options['settings']['header']['description'] = __($consent_control_data['controls_type']);	
 	$final_options['extras'] = $collection_data['consent_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/ConsentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['consent_master_id'].'/noActions:/noHeader:/') : $no_data_available;
 
+	$display_next_sub_form = true;
+	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook('consent_detail');
 	if( $hook_link ) { 
@@ -44,7 +46,7 @@
 	}
 		
 	// BUILD FORM
-	$this->Structures->build( $final_atim_structure, $final_options ); 
+	if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options ); 
 
 
 	// ************** 3- DIAGNOSIS **************
@@ -52,12 +54,14 @@
 	if(!is_null($diagnosis_control_data)) $final_options['settings']['header']['description'] = __($diagnosis_control_data['category']). ' - '.__($diagnosis_control_data['controls_type']);	
 	$final_options['extras'] = $collection_data['diagnosis_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/DiagnosisMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['diagnosis_master_id'].'/noActions:/noHeader:/') : $no_data_available;
 	
+	$display_next_sub_form = true;
+	
 	$hook_link = $this->Structures->hook('diagnosis_detail');
 	if( $hook_link ) { 
 		require($hook_link); 
 	}
 	 
-	$this->Structures->build( $final_atim_structure,  $final_options);
+	if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
 
 
 	// ************** 4 - Tx **************
@@ -65,11 +69,13 @@
 	if(!is_null($treatment_control_data)) $final_options['settings']['header']['description'] = __($treatment_control_data['tx_method']). ' - '.__($treatment_control_data['disease_site']);	
 	$final_options['extras'] = $collection_data['treatment_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id'].'/noActions:/noHeader:/') : $no_data_available;
 	
+	$display_next_sub_form = true;
+	
 	$hook_link = $this->Structures->hook('treatment_detail');
 	if( $hook_link ) { 
 		require($hook_link); 
 	}
-	$this->Structures->build( $final_atim_structure,  $final_options);
+	if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
 
 
 	// ************** 5 - Event **************
@@ -100,10 +106,12 @@
 	}
 	$final_options['links'] = array('bottom' => $structure_bottom_links);
 	
+	$display_next_sub_form = true;
+	
 	$hook_link = $this->Structures->hook('event_detail');
 	if( $hook_link ) { 
 		require($hook_link); 
 	}
 	 
-	$this->Structures->build( $final_atim_structure,  $final_options);
+	if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
 

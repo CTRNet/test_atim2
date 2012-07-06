@@ -430,7 +430,7 @@ class ShipmentsController extends OrderAppController {
 		
 		if(!empty($this->request->data) && isset($this->request->data['Shipment'])){
 			$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
-			$shipment_contact_keys = array_fill_keys(array("recipient", "facility", "delivery_street_address", "delivery_city", "delivery_province", "delivery_postal_code", "delivery_country"), null);
+			$shipment_contact_keys = array_fill_keys(array("recipient", "facility", "delivery_street_address", "delivery_city", "delivery_province", "delivery_postal_code", "delivery_country", "delivery_phone_number", "delivery_notes", "delivery_department_or_door"), null);
 			$shipment_data = array_intersect_key($this->request->data['Shipment'], $shipment_contact_keys);
 			
 			$contacts_model->save($shipment_data);
