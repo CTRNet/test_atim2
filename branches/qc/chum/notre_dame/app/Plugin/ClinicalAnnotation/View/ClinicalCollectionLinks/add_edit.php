@@ -15,6 +15,8 @@ $final_options = array(
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][consent_master_id]" '.($consent_found ? '' : 'checked="checked"').'" value=""/>'.__('n/a'))
 );
 
+$display_next_sub_form = true;
+
 // CUSTOM CODE
 $hook_link = $this->Structures->hook('consent_detail');
 if( $hook_link ) {
@@ -22,7 +24,7 @@ if( $hook_link ) {
 }
 
 // BUILD FORM
-$this->Structures->build($final_atim_structure, $final_options );
+if($display_next_sub_form) $this->Structures->build($final_atim_structure, $final_options );
 
 
 //Dx---------------------
@@ -45,6 +47,8 @@ $final_options = array(
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][diagnosis_master_id]"  '.($found_dx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
 
+$display_next_sub_form = true;
+
 // CUSTOM CODE
 $hook_link = $this->Structures->hook('diagnosis_detail');
 if( $hook_link ) {
@@ -52,7 +56,8 @@ if( $hook_link ) {
 }
 
 // BUILD FORM
-$this->Structures->build( $final_atim_structure, $final_options );
+if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options );
+
 
 //tx----------------
 $structure_links['radiolist'] = array('Collection.treatment_master_id' => '%%TreatmentMaster.id%%');
@@ -70,6 +75,8 @@ $final_options = array(
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][treatment_master_id]"  '.($found_tx ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
 
+$display_next_sub_form = true;
+
 // CUSTOM CODE
 $hook_link = $this->Structures->hook('event_detail');
 if( $hook_link ) {
@@ -77,7 +84,7 @@ if( $hook_link ) {
 }
 
 // BUILD FORM
-$this->Structures->build( $final_atim_structure, $final_options );
+if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options );
 
 
 
@@ -97,6 +104,8 @@ $final_options = array(
 		'extras'	=> array('end' => '<input type="radio" name="data[Collection][event_master_id]"  '.($found_event ? '' : 'checked="checked"').' value=""/>'.__('n/a'))
 );
 
+$display_next_sub_form = true;
+
 // CUSTOM CODE
 $hook_link = $this->Structures->hook('event_detail');
 if( $hook_link ) {
@@ -104,4 +113,4 @@ if( $hook_link ) {
 }
 
 // BUILD FORM
-$this->Structures->build( $final_atim_structure, $final_options );
+if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options );
