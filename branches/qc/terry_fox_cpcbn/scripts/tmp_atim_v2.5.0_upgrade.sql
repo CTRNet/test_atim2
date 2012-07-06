@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+('events','Events','Événements'),
 ('aliquot details', 'Aliquot Details', 'Détails aliquot'),
 ('order line details', 'Order Line Details', 'Détails ligne commande'),
 ('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage'),
@@ -199,7 +200,11 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Tout (participant, Consentement, Diagnotic, Traitement/Annotation)"),
 ("the value must be between %g and %g", "The value must be between %g and %g", "La valeur doit être entre %g et %g"),
 ("invalid primary disease code", "Invalid primary disease code", "Code de maladie primaire invalide");
- 
+
+UPDATE collections SET collection_datetime_accuracy='c' WHERE collection_datetime IS NOT NULL AND collection_datetime_accuracy='';
+UPDATE aliquot_masters SET storage_datetime_accuracy='c' WHERE storage_datetime IS NOT NULL AND storage_datetime_accuracy='';
+UPDATE specimen_details SET reception_datetime_accuracy='c' WHERE reception_datetime IS NOT NULL AND reception_datetime_accuracy='';
+UPDATE derivative_details SET creation_datetime_accuracy='c' WHERE creation_datetime IS NOT NULL AND creation_datetime_accuracy='';
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -779,12 +784,16 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE storage_controls SET form_alias=CONCAT(form_alias, ',storage_w_spaces') WHERE coord_x_size IS NOT NULL OR coord_y_size IS NOT NULL;
 
-CREATE VIEW view_storage_masters AS SELECT sm.*, IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(am.id) - COUNT(ts.id) - COUNT(smc.id)) AS empty_spaces FROM storage_masters AS sm
+CREATE VIEW view_storage_masters_view AS SELECT sm.*, IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(am.id) - COUNT(ts.id) - COUNT(smc.id)) AS empty_spaces FROM storage_masters AS sm
 INNER JOIN storage_controls AS sc ON sm.storage_control_id=sc.id
 LEFT JOIN aliquot_masters AS am ON am.storage_master_id=sm.id AND am.deleted=0
 LEFT JOIN tma_slides AS ts ON ts.storage_master_id=sm.id AND ts.deleted=0
 LEFT JOIN storage_masters AS smc ON smc.parent_id=sm.id AND smc.deleted=0
 WHERE sm.deleted=0 GROUP BY sm.id;
+
+CREATE TABLE view_storage_masters (SELECT * FROM view_storage_masters_view);
+
+ 
 
 ALTER TABLE datamart_structures
  ADD COLUMN adv_search_structure_alias VARCHAR(255) DEFAULT NULL AFTER structure_id, 
@@ -2416,16 +2425,16 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='detail' AND `type`='textarea' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-SELECT 'Remove persmissions on adhoc query tool (custom query) for all groups. Feature has not been tested in v2.5.' TODO;
-
 UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getCategoryPermissibleValues';
 UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getTypePermissibleValues';
+UPDATE structure_value_domains SET source=REPLACE(source, 'Clinicalannotation', 'ClinicalAnnotation');
+UPDATE structure_value_domains SET source=REPLACE(source, 'Inventorymanagement', 'InventoryManagement');
 
 ALTER TABLE misc_identifier_controls
  ADD COLUMN reg_exp_validation VARCHAR(50) NOT NULL DEFAULT '',
  ADD COLUMN user_readable_format VARCHAR(50) NOT NULL DEFAULT '';
 
-INSERT INTO i18n (id,en,fr) VALUES ('events','Events','Événements');
+UPDATE acos SET alias='Controller' WHERE id=1;
 
 UPDATE structure_fields SET language_label = '', language_tag = '-' WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site';
 UPDATE structure_fields SET language_label = 'event_form_type', language_tag = '' WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type';
@@ -2446,4 +2455,53 @@ DELETE FROM structure_fields WHERE model = 'TreatmentControl' AND field = 'tx_me
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site'), '1', '301', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 UPDATE structure_formats SET `display_order`='302' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE shipments
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door; 
+ALTER TABLE shipments_revs
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door; 
+ALTER TABLE shipment_contacts
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door; 
+ALTER TABLE shipment_contacts_revs
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door; 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Shipment', 'shipments', 'delivery_department_or_door', 'input',  NULL , '0', '', '', '', 'department/door', ''), 
+('Order', 'Shipment', 'shipments', 'delivery_phone_number', 'input',  NULL , '0', '', '', '', 'phone #', ''),
+('Order', 'Shipment', 'shipments', 'delivery_notes', 'textarea',  NULL , '0', '', '', '', 'notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_department_or_door' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='department/door' AND `language_tag`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_phone_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='phone #' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_street_address' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_city' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='17' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_province' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='18' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_postal_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='19' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_country' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='facility' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_phone_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'ShipmentContact', 'shipment_contacts', 'delivery_phone_number', 'input',  NULL , '0', '', '', '', 'delivery phone #', ''), 
+('Order', 'ShipmentContact', 'shipment_contacts', 'delivery_department_or_door', 'input',  NULL , '0', '', '', '', 'delivery department or door', ''), 
+('Order', 'ShipmentContact', 'shipment_contacts', 'delivery_notes', 'textarea',  NULL , '0', '', '', '', 'delivery notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_phone_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery phone #' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_department_or_door' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery department or door' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery notes' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='facility' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_street_address' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_city' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_province' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_postal_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_country' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 
