@@ -42,8 +42,8 @@ class SampleMaster extends InventoryManagementAppModel {
 	static public $join_sample_control_on_dup = array('table' => 'sample_controls', 'alias' => 'SampleControl', 'type' => 'LEFT', 'conditions' => array('sample_masters_dup.sample_control_id =SampleControl.id'));
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewSample' => array('sample_master_id', 'parent_sample_id', 'initial_specimen_sample_id'),
-		'InventoryManagement.ViewAliquot' => array('sample_master_id')
+		'InventoryManagement.ViewSample' => array('SampleMaster.id', 'SampleMaster.parent_id', 'SampleMaster.initial_specimen_sample_id'),
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.sample_master_id')
 	);
 	
 	function specimenSummary($variables=array()) {

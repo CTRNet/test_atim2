@@ -935,6 +935,31 @@ class AppController extends Controller {
 		fclose($filef);
 			
 		AppController::addWarningMsg(__('language files have been rebuilt'));
+		
+		//rebuild views
+		$view_models = array(
+				AppModel::getInstance('InventoryManagement', 'ViewCollection'),
+				AppModel::getInstance('InventoryManagement', 'ViewSample'),
+				AppModel::getInstance('InventoryManagement', 'ViewAliquot'),
+				AppModel::getInstance('StorageLayout', 'ViewStorageMaster')
+		);
+		foreach($view_models as $view_model){
+			$this->Version->query('DROP TABLE IF EXISTS '.$view_model->table);
+			$this->Version->query('DROP VIEW IF EXISTS '.$view_model->table);
+			$this->Version->query('CREATE TABLE '.$view_model->table. '('.str_replace('%%WHERE%%', '', $view_model::$table_query).')');
+			$desc = $this->Version->query('DESC '.$view_model->table);
+			$fields = array();
+			$field = array_shift($desc);
+			$pkey = $field['COLUMNS']['Field'];
+			foreach($desc as $field){
+				if($field['COLUMNS']['Type'] != 'text'){
+					$fields[] = $field['COLUMNS']['Field'];
+				}
+			}
+			$view_model->query('ALTER TABLE '.$view_model->table.' ADD PRIMARY KEY('.$pkey.'), ADD KEY ('.implode('), ADD KEY (', $fields).')');
+		}
+		
+		AppController::addWarningMsg(__('views have been rebuilt'));
 			
 		//clear cache
 		Cache::clear(false);

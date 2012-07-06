@@ -475,12 +475,6 @@ SET c.participant_id=ccl.participant_id, c.diagnosis_master_id=ccl.diagnosis_mas
 INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, version_created)
 (SELECT id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, NOW() FROM collections);
 
-
-DROP VIEW view_collections;
-CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`col`.`treatment_master_id` AS `treatment_master_id`,`col`.`event_master_id` AS `event_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
-left join `participants` `part` on `col`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
-left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 where `col`.`deleted` <> 1;
-
 ALTER TABLE specimen_details MODIFY sample_master_id INT NOT NULL;
 ALTER TABLE specimen_details_revs MODIFY sample_master_id INT NOT NULL;
 ALTER TABLE derivative_details MODIFY sample_master_id INT NOT NULL;
@@ -786,17 +780,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='storage_w_spaces'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='empty_spaces' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='empty spaces' AND `language_tag`=''), '0', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
 UPDATE storage_controls SET form_alias=CONCAT(form_alias, ',storage_w_spaces') WHERE coord_x_size IS NOT NULL OR coord_y_size IS NOT NULL;
-
-CREATE VIEW view_storage_masters_view AS SELECT sm.*, IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(am.id) - COUNT(ts.id) - COUNT(smc.id)) AS empty_spaces FROM storage_masters AS sm
-INNER JOIN storage_controls AS sc ON sm.storage_control_id=sc.id
-LEFT JOIN aliquot_masters AS am ON am.storage_master_id=sm.id AND am.deleted=0
-LEFT JOIN tma_slides AS ts ON ts.storage_master_id=sm.id AND ts.deleted=0
-LEFT JOIN storage_masters AS smc ON smc.parent_id=sm.id AND smc.deleted=0
-WHERE sm.deleted=0 GROUP BY sm.id;
-
-CREATE TABLE view_storage_masters (SELECT * FROM view_storage_masters_view);
-
- 
 
 ALTER TABLE datamart_structures
  ADD COLUMN adv_search_structure_alias VARCHAR(255) DEFAULT NULL AFTER structure_id, 
@@ -1121,38 +1104,6 @@ ALTER TABLE datamart_batch_ids
  ADD FOREIGN KEY (set_id) REFERENCES datamart_batch_sets(id);
 
 DROP VIEW view_aliquot_uses;
-CREATE VIEW `view_aliquot_uses` AS select concat(`source`.`id`,1) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'sample derivative creation' AS `use_definition`,`samp`.`sample_code` AS `use_code`,'' AS `use_details`,`source`.`used_volume` AS `used_volume`,`aliqc`.`volume_unit` AS `aliquot_volume_unit`,`der`.`creation_datetime` AS `use_datetime`,`der`.`creation_datetime_accuracy` AS `use_datetime_accuracy`,`der`.`creation_by` AS `used_by`,`source`.`created` AS `created`,concat('inventorymanagement/aliquot_masters/listAllSourceAliquots/',`samp`.`collection_id`,'/',`samp`.`id`) AS `detail_url`,`samp2`.`id` AS `sample_master_id`,`samp2`.`collection_id` AS `collection_id` from (((((`source_aliquots` `source` 
-join `sample_masters` `samp` on(((`samp`.`id` = `source`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) 
-join `derivative_details` `der` on((`samp`.`id` = `der`.`sample_master_id`))) 
-join `aliquot_masters` `aliq` on(((`aliq`.`id` = `source`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) 
-join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
-join `sample_masters` `samp2` on(((`samp2`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`source`.`deleted` <> 1) 
-union all 
-select concat(`realiq`.`id`,2) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'realiquoted to' AS `use_definition`,`child`.`barcode` AS `use_code`,'' AS `use_details`,`realiq`.`parent_used_volume` AS `used_volume`,`aliqc`.`volume_unit` AS `aliquot_volume_unit`,`realiq`.`realiquoting_datetime` AS `use_datetime`,`realiq`.`realiquoting_datetime_accuracy` AS `use_datetime_accuracy`,`realiq`.`realiquoted_by` AS `used_by`,`realiq`.`created` AS `created`,concat('/inventorymanagement/aliquot_masters/listAllRealiquotedParents/',`child`.`collection_id`,'/',`child`.`sample_master_id`,'/',`child`.`id`) AS `detail_url`,`samp`.`id` AS `sample_master_id`,`samp`.`collection_id` AS `collection_id` from ((((`realiquotings` `realiq` 
-join `aliquot_masters` `aliq` on(((`aliq`.`id` = `realiq`.`parent_aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) 
-join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
-join `aliquot_masters` `child` on(((`child`.`id` = `realiq`.`child_aliquot_master_id`) and (`child`.`deleted` <> 1)))) 
-join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`realiq`.`deleted` <> 1) 
-union all 
-select concat(`qc`.`id`,3) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'quality control' AS `use_definition`,`qc`.`qc_code` AS `use_code`,'' AS `use_details`,`qc`.`used_volume` AS `used_volume`,`aliqc`.`volume_unit` AS `aliquot_volume_unit`,`qc`.`date` AS `use_datetime`,`qc`.`date_accuracy` AS `use_datetime_accuracy`,`qc`.`run_by` AS `used_by`,`qc`.`created` AS `created`,concat('/inventorymanagement/quality_ctrls/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`qc`.`id`) AS `detail_url`,`samp`.`id` AS `sample_master_id`,`samp`.`collection_id` AS `collection_id` from (((`quality_ctrls` `qc` 
-join `aliquot_masters` `aliq` on(((`aliq`.`id` = `qc`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) 
-join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
-join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`qc`.`deleted` <> 1)
-union all 
-select concat(`item`.`id`,4) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'aliquot shipment' AS `use_definition`,`sh`.`shipment_code` AS `use_code`,'' AS `use_details`,'' AS `used_volume`,'' AS `aliquot_volume_unit`,`sh`.`datetime_shipped` AS `use_datetime`,`sh`.`datetime_shipped_accuracy` AS `use_datetime_accuracy`,`sh`.`shipped_by` AS `used_by`,`sh`.`created` AS `created`,concat('/order/shipments/detail/',`sh`.`order_id`,'/',`sh`.`id`) AS `detail_url`,`samp`.`id` AS `sample_master_id`,`samp`.`collection_id` AS `collection_id` from (((`order_items` `item` 
-join `aliquot_masters` `aliq` on(((`aliq`.`id` = `item`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) 
-join `shipments` `sh` on(((`sh`.`id` = `item`.`shipment_id`) and (`sh`.`deleted` <> 1)))) 
-join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`item`.`deleted` <> 1) 
-union all 
-select concat(`alr`.`id`,5) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'specimen review' AS `use_definition`,`spr`.`review_code` AS `use_code`,'' AS `use_details`,'' AS `used_volume`,'' AS `aliquot_volume_unit`,`spr`.`review_date` AS `use_datetime`,`spr`.`review_date_accuracy` AS `use_datetime_accuracy`,'' AS `used_by`,`alr`.`created` AS `created`,concat('/inventorymanagement/specimen_reviews/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`spr`.`id`) AS `detail_url`,`samp`.`id` AS `sample_master_id`,`samp`.`collection_id` AS `collection_id` from (((`aliquot_review_masters` `alr` 
-join `aliquot_masters` `aliq` on(((`aliq`.`id` = `alr`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) 
-join `specimen_review_masters` `spr` on(((`spr`.`id` = `alr`.`specimen_review_master_id`) and (`spr`.`deleted` <> 1)))) 
-join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`alr`.`deleted` <> 1) 
-union all 
-select concat(`aluse`.`id`,6) AS `id`,`aliq`.`id` AS `aliquot_master_id`,'internal use' AS `use_definition`,`aluse`.`use_code` AS `use_code`,`aluse`.`use_details` AS `use_details`,`aluse`.`used_volume` AS `used_volume`,`aliqc`.`volume_unit` AS `aliquot_volume_unit`,`aluse`.`use_datetime` AS `use_datetime`,`aluse`.`use_datetime_accuracy` AS `use_datetime_accuracy`,`aluse`.`used_by` AS `used_by`,`aluse`.`created` AS `created`,concat('/inventorymanagement/aliquot_masters/detailAliquotInternalUse/',`aliq`.`id`,'/',`aluse`.`id`) AS `detail_url`,`samp`.`id` AS `sample_master_id`,`samp`.`collection_id` AS `collection_id` from (((`aliquot_internal_uses` `aluse` 
-join `aliquot_masters` `aliq` on(((`aliq`.`id` = `aluse`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) 
-join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
-join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`aluse`.`deleted` <> 1);
 
 UPDATE menus SET flag_active=false WHERE id IN('inv_CAN_2233');
 
@@ -1227,124 +1178,7 @@ UPDATE menus SET use_summary='' WHERE id='clin_CAN_67';
 
 
 DROP VIEW view_aliquots;
-CREATE VIEW view_aliquots_view AS 
-SELECT 
-al.id AS aliquot_master_id,
-al.sample_master_id AS sample_master_id,
-al.collection_id AS collection_id, 
-col.bank_id, 
-al.storage_master_id AS storage_master_id,
-col.participant_id, 
-
-part.participant_identifier, 
-
-col.acquisition_label, 
-
-specimenc.sample_type AS initial_specimen_sample_type,
-specimen.sample_control_id AS initial_specimen_sample_control_id,
-parent_sampc.sample_type AS parent_sample_type,
-parent_samp.sample_control_id AS parent_sample_control_id,
-sampc.sample_type,
-samp.sample_control_id,
-
-al.barcode,
-al.aliquot_label,
-alc.aliquot_type,
-al.aliquot_control_id,
-al.in_stock,
-
-stor.code,
-stor.selection_label,
-al.storage_coord_x,
-al.storage_coord_y,
-
-stor.temperature,
-stor.temp_unit,
-
-al.created,
-
-IF(al.storage_datetime IS NULL, NULL,
- IF(col.collection_datetime IS NULL, -1,
- IF(col.collection_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
- IF(col.collection_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, col.collection_datetime, al.storage_datetime))))) AS coll_to_stor_spent_time_msg,
-IF(al.storage_datetime IS NULL, NULL,
- IF(specimen_details.reception_datetime IS NULL, -1,
- IF(specimen_details.reception_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
- IF(specimen_details.reception_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, specimen_details.reception_datetime, al.storage_datetime))))) AS rec_to_stor_spent_time_msg,
-IF(al.storage_datetime IS NULL, NULL,
- IF(derivative_details.creation_datetime IS NULL, -1,
- IF(derivative_details.creation_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
- IF(derivative_details.creation_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, derivative_details.creation_datetime, al.storage_datetime))))) AS creat_to_stor_spent_time_msg,
- 
-IF(LENGTH(al.notes) > 0, "y", "n") AS has_notes
-
-
-FROM aliquot_masters AS al
-INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
-INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
-INNER JOIN sample_controls AS sampc ON samp.sample_control_id = sampc.id
-INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
-LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
-LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
-LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id=parent_sampc.id
-LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
-LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
-LEFT JOIN specimen_details ON al.sample_master_id=specimen_details.sample_master_id
-LEFT JOIN derivative_details ON al.sample_master_id=derivative_details.sample_master_id
-WHERE al.deleted != 1;
-
 DROP VIEW view_samples;
-CREATE VIEW view_samples_view AS 
-SELECT 
-samp.id AS sample_master_id,
-samp.parent_id AS parent_sample_id,
-samp.initial_specimen_sample_id,
-samp.collection_id AS collection_id,
-
-col.bank_id, 
-col.sop_master_id, 
-col.participant_id, 
-
-part.participant_identifier, 
-
-col.acquisition_label, 
-
-specimenc.sample_type AS initial_specimen_sample_type,
-specimen.sample_control_id AS initial_specimen_sample_control_id,
-parent_sampc.sample_type AS parent_sample_type,
-parent_samp.sample_control_id AS parent_sample_control_id,
-sampc.sample_type,
-samp.sample_control_id,
-samp.sample_code,
-sampc.sample_category,
-
-IF(specimen_details.reception_datetime IS NULL, NULL,
- IF(col.collection_datetime IS NULL, -1,
- IF(col.collection_datetime_accuracy != 'c' OR specimen_details.reception_datetime_accuracy != 'c', -2,
- IF(col.collection_datetime > specimen_details.reception_datetime, -3,
- TIMESTAMPDIFF(MINUTE, col.collection_datetime, specimen_details.reception_datetime))))) AS coll_to_rec_spent_time_msg,
- 
-IF(derivative_details.creation_datetime IS NULL, NULL,
- IF(col.collection_datetime IS NULL, -1,
- IF(col.collection_datetime_accuracy != 'c' OR derivative_details.creation_datetime_accuracy != 'c', -2,
- IF(col.collection_datetime > derivative_details.creation_datetime, -3,
- TIMESTAMPDIFF(MINUTE, col.collection_datetime, derivative_details.creation_datetime))))) AS coll_to_creation_spent_time_msg 
-
-FROM sample_masters as samp
-INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
-INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN specimen_details ON specimen_details.sample_master_id=samp.id
-LEFT JOIN derivative_details ON derivative_details.sample_master_id=samp.id
-LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
-LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
-LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
-LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
-LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
-WHERE samp.deleted != 1;
 
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 -- Delete obsolete structure fields and validations
@@ -1382,71 +1216,6 @@ DELETE FROM structure_permissible_values WHERE value="partial" AND language_alia
 UPDATE structure_fields SET model='SampleMaster' WHERE model='Generated' AND field='coll_to_creation_spent_time_msg';
 UPDATE structure_fields SET model='SampleMaster' WHERE model='Generated' AND field='coll_to_rec_spent_time_msg';
 
-CREATE TABLE view_aliquots (SELECT * FROM view_aliquots_view);
-ALTER TABLE view_aliquots
- ADD PRIMARY KEY(aliquot_master_id),
- ADD KEY(sample_master_id),
- ADD KEY(collection_id),
- ADD KEY(bank_id),
- ADD KEY(storage_master_id),
- ADD KEY(participant_id),
- ADD KEY(participant_identifier),
- ADD KEY(acquisition_label),
- ADD KEY(initial_specimen_sample_type),
- ADD KEY(initial_specimen_sample_control_id),
- ADD KEY(parent_sample_type),
- ADD KEY(parent_sample_control_id),
- ADD KEY(barcode),
- ADD KEY(aliquot_label),
- ADD KEY(aliquot_type),
- ADD KEY(aliquot_control_id),
- ADD KEY(in_stock),
- ADD KEY(code),
- ADD KEY(selection_label),
- ADD KEY(temperature),
- ADD KEY(temp_unit),
- ADD KEY(created),
- ADD KEY(has_notes);
-
-CREATE TABLE view_collections (SELECT * FROM view_collections_view);
-ALTER TABLE view_collections
- ADD PRIMARY KEY(collection_id),
- ADD KEY(bank_id),
- ADD KEY(sop_master_id),
- ADD KEY(participant_id),
- ADD KEY(diagnosis_master_id),
- ADD KEY(consent_master_id),
- ADD KEY(treatment_master_id),
- ADD KEY(event_master_id),
- ADD KEY(participant_identifier),
- ADD KEY(acquisition_label),
- ADD KEY(collection_site),
- ADD KEY(collection_datetime),
- ADD KEY(collection_property),
- ADD KEY(created);
-
-CREATE TABLE view_samples (SELECT * FROM view_samples_view);
-ALTER TABLE view_samples
- ADD PRIMARY KEY(sample_master_id),
- ADD KEY(parent_sample_id),
- ADD KEY(initial_specimen_sample_id),
- ADD KEY(collection_id),
- ADD KEY(bank_id),
- ADD KEY(sop_master_id),
- ADD KEY(participant_id),
- ADD KEY(participant_identifier),
- ADD KEY(acquisition_label),
- ADD KEY(initial_specimen_sample_type),
- ADD KEY(initial_specimen_sample_control_id),
- ADD KEY(parent_sample_type),
- ADD KEY(parent_sample_control_id),
- ADD KEY(sample_type),
- ADD KEY(sample_control_id),
- ADD KEY(sample_code),
- ADD KEY(sample_category),
- ADD KEY(coll_to_creation_spent_time_msg),
- ADD KEY(coll_to_rec_spent_time_msg);
- 
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("6", "all (participant, consent, diagnosis and treatment/annotation)");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"), (SELECT id FROM structure_permissible_values WHERE value="6" AND language_alias="all (participant, consent, diagnosis and treatment/annotation)"), "3", "1");
 DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="3" AND spv.language_alias="participant and diagnosis";
