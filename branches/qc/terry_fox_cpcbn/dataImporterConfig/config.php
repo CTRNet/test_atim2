@@ -68,7 +68,7 @@ class Config{
 
 //*	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chemotherapy', 'radiotherapy');
 //*	static $opc_file_event_types	= array('biopsy', 'surgery', 'chemotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
-	
+	static $storage_master_id = null;
 	static $sample_aliquot_controls = array();
 //*	static $banks = array();
 //*	static $drugs	= array();
@@ -121,11 +121,11 @@ Config::$config_files[] = $relative_path.'dx_other_primary.php';
 Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){	
-	$file_path = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
+	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
 	"=====================================================================".Config::$line_break_tag."
 	DATA EXPORT PROCESS : CPCBN TFRI".Config::$line_break_tag."
-	source_file = $file_path".Config::$line_break_tag."
+	source_file = $file_name".Config::$line_break_tag."
 	".Config::$line_break_tag."=====================================================================
 	</FONT>".Config::$line_break_tag."";	
 	
@@ -173,27 +173,27 @@ function addonFunctionStart(){
 		Config::$collection_sites[strtolower($row['value'])] = $row['value'];
 	}
 	
-
-// 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id']);
-// 	}
+	//TODO	
+	$query = "SELECT MAX(rght) as last_rght FROM storage_masters;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	$row = $results->fetch_assoc();
+	$last_rght = empty($row['last_rght'])? 0 : $row['last_rght'];
+	$tma_name = substr($file_name, 0, strpos($file_name, '-'));
+	$user_id = Config::$db_created_id;
+	$query = "INSERT INTO `storage_masters` (`storage_control_id`, `short_label`, selection_label, `lft`, `rght`, `created`, `created_by`, `modified`, `modified_by`) 	VALUES (20, '$tma_name', '$tma_name', '".($last_rght+1)."', '".($last_rght+2)."', NOW(), $user_id, NOW(), $user_id);";
+	if(Config::$print_queries) echo $query.Config::$line_break_tag;
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	$storage_master_id = Config::$db_connection->insert_id;
+	$query = 'UPDATE storage_masters SET code=id WHERE id='.$storage_master_id;
+	if(Config::$print_queries) echo $query.Config::$line_break_tag;
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	Database::insertRevForLastRow('storage_masters');
+	Config::$storage_master_id = $storage_master_id;
 	
-// 	// SET banks
-// 	$query = "SELECT id, name, misc_identifier_control_id FROM banks";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$banks[$row['name']] = array(
-// 			'id' => $row['id'],
-// 			'misc_identifier_control_id' => $row['misc_identifier_control_id']);
-// 	}	
-	
-// 	$query = "SELECT generic_name FROM drugs";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$drugs[] = $row['generic_name'];
-// 	}	
+	$query = "INSERT INTO `std_tma_blocks` (`storage_master_id`) VALUES ($storage_master_id);";
+	if(Config::$print_queries) echo $query.Config::$line_break_tag;
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	Database::insertRevForLastRow('std_tma_blocks');
 	
 	$query = "select id,sample_type from sample_controls where sample_type in ('tissue');";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -209,15 +209,6 @@ function addonFunctionStart(){
 			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'volume_unit' => $row['volume_unit']);
 		}	
 	}
-
-// 	$query = "SELECT value FROM structure_permissible_values_customs INNEr JOIN structure_permissible_values_custom_controls "
-// 		."ON structure_permissible_values_custom_controls.id = structure_permissible_values_customs.control_id "
-// 		."WHERE name LIKE 'tissue source'";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$tissue_source[] = $row['value'];
-// 	}
-// 	Config::$tissue_source[] = '';	
 }
 
 function addonFunctionEnd(){
@@ -232,7 +223,7 @@ function addonFunctionEnd(){
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query(Config::$db_connection, str_replace('participants','participants_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('participants','participants_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
 	//  ** Clean-up DIAGNOSIS_MASTERS ** 
@@ -243,7 +234,7 @@ function addonFunctionEnd(){
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query(Config::$db_connection, str_replace('diagnosis_masters','diagnosis_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('diagnosis_masters','diagnosis_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}	
 	
 	//  ** Clean-up TREAMTENT_MASTERS ** 
@@ -254,7 +245,7 @@ function addonFunctionEnd(){
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}	
 	
 	//  ** Clean-up EVENT_MASTERS ** 
@@ -271,7 +262,7 @@ function addonFunctionEnd(){
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query(Config::$db_connection, str_replace(array('event_masters', 'diagnosis_masters'),array('event_masters_revs','diagnosis_masters_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace(array('event_masters', 'diagnosis_masters'),array('event_masters_revs','diagnosis_masters_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
 	// ** SURVIVAL & BCR **
@@ -342,7 +333,7 @@ function addonFunctionEnd(){
 		$query = "UPDATE treatment_masters SET qc_tf_disease_free_survival_start_events = '1' WHERE id IN (".implode(',', $dfs_tx_ids).");";
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
 	// Set first BCR
@@ -384,7 +375,7 @@ function addonFunctionEnd(){
 		$query = "UPDATE qc_tf_dxd_recurrence_bio SET first_biochemical_recurrence = '1' WHERE diagnosis_master_id IN (".implode(',', $first_bcr_dx_ids).");";
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;	
-		mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_recurrence_bio','qc_tf_dxd_recurrence_bio_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_recurrence_bio','qc_tf_dxd_recurrence_bio_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}	
 	
 	// Calculate survival and bcr
@@ -470,8 +461,92 @@ function addonFunctionEnd(){
 			$query = "UPDATE qc_tf_dxd_cpcbn SET bcr_in_months = '$new_bcr', survival_in_months = '$new_survival' WHERE diagnosis_master_id = ".$row['diagnosis_master_id'].";";
 			mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 			if(Config::$print_queries) echo $query.Config::$line_break_tag;
-			mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
+			if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
 		}
+	}
+	
+	if(true) {
+		$queries = array(
+			"DROP VIEW IF EXISTS view_collections;",
+			"DROP TABLE IF EXISTS view_collections;",
+			"CREATE TABLE view_collections (SELECT * FROM view_collections_view);",
+			"ALTER TABLE view_collections
+				ADD PRIMARY KEY(collection_id),
+				ADD KEY(bank_id),
+				ADD KEY(qc_tf_collection_type),
+				ADD KEY(sop_master_id),
+				ADD KEY(participant_id),
+				ADD KEY(diagnosis_master_id),
+				ADD KEY(consent_master_id),
+				ADD KEY(treatment_master_id),
+				ADD KEY(event_master_id),
+				ADD KEY(participant_identifier),
+				ADD KEY(qc_tf_bank_participant_identifier),
+				ADD KEY(acquisition_label),
+				ADD KEY(collection_site),
+				ADD KEY(collection_datetime),
+				ADD KEY(collection_property),
+				ADD KEY(created);",
+				
+			"DROP VIEW IF EXISTS view_samples;",
+			"DROP TABLE IF EXISTS view_samples;",
+			"CREATE TABLE view_samples (SELECT * FROM view_samples_view);",		
+			"ALTER TABLE view_samples
+				ADD PRIMARY KEY(sample_master_id),
+				ADD KEY(parent_sample_id),
+				ADD KEY(initial_specimen_sample_id),
+				ADD KEY(collection_id),
+				ADD KEY(bank_id),
+				ADD KEY(qc_tf_collection_type),
+				ADD KEY(sop_master_id),
+				ADD KEY(participant_id),
+				ADD KEY(participant_identifier),
+				ADD KEY(qc_tf_bank_participant_identifier),
+				ADD KEY(acquisition_label),
+				ADD KEY(initial_specimen_sample_type),
+				ADD KEY(initial_specimen_sample_control_id),
+				ADD KEY(parent_sample_type),
+				ADD KEY(parent_sample_control_id),
+				ADD KEY(sample_type),
+				ADD KEY(sample_control_id),
+				ADD KEY(sample_code),
+				ADD KEY(sample_category),
+				ADD KEY(coll_to_creation_spent_time_msg),
+				ADD KEY(coll_to_rec_spent_time_msg);",
+				
+			"DROP VIEW IF EXISTS view_aliquots;",
+			"DROP TABLE IF EXISTS view_aliquots;",
+			"CREATE TABLE view_aliquots (SELECT * FROM view_aliquots_view);",
+			"ALTER TABLE view_aliquots
+				ADD PRIMARY KEY(aliquot_master_id),
+				ADD KEY(sample_master_id),
+				ADD KEY(collection_id),
+				ADD KEY(bank_id),
+				ADD KEY(qc_tf_collection_type),
+				ADD KEY(storage_master_id),
+				ADD KEY(participant_id),
+				ADD KEY(participant_identifier),
+				ADD KEY(qc_tf_bank_participant_identifier),
+				ADD KEY(acquisition_label),
+				ADD KEY(initial_specimen_sample_type),
+				ADD KEY(initial_specimen_sample_control_id),
+				ADD KEY(parent_sample_type),
+				ADD KEY(parent_sample_control_id),
+				ADD KEY(barcode),
+				ADD KEY(aliquot_label),
+				ADD KEY(aliquot_type),
+				ADD KEY(aliquot_control_id),
+				ADD KEY(in_stock),
+				ADD KEY(code),
+				ADD KEY(selection_label),
+				ADD KEY(temperature),
+				ADD KEY(temp_unit),
+				ADD KEY(created),
+				ADD KEY(has_notes);");
+		foreach($queries as $query)	{
+			mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+			if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		}	
 	}
 
 	// MESSAGES

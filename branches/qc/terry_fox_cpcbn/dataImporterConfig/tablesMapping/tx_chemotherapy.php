@@ -64,10 +64,8 @@ function txChemotherapyPostWrite(Model $m){
 			if(Config::$print_queries) echo $query.Config::$line_break_tag;
 			mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 			$id = mysqli_insert_id(Config::$db_connection);
-			
 			$query = "INSERT INTO txe_chemos_revs (id, drug_id, treatment_master_id, version_created, modified_by) VALUES ($id, $drug_id, ".$m->last_id.", NOW(), ".Config::$db_created_id.")";
-			if(Config::$print_queries) echo $query.Config::$line_break_tag;
-			mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+			if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 		}
 	}
 }
@@ -81,8 +79,7 @@ function getDrugId($drug_name) {
 	
 	$id = mysqli_insert_id(Config::$db_connection);
 	$query = "INSERT INTO drugs_revs (id, generic_name, type, version_created, modified_by) VALUES ($id, '$drug_name', 'chemotherapy', NOW(), ".Config::$db_created_id.");";
-	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+	if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	
 	Config::$drugs[strtolower($drug_name)] = $id;
 	
