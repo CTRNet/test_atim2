@@ -56,7 +56,7 @@ function getCollectionSite($values) {
 		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		$last_id = $connection->insert_id;
 		$query = "INSERT INTO `structure_permissible_values_customs_revs` (id, `value`, `en`, `fr`, `control_id`, `use_as_input`) VALUES ('$last_id', '$recorded_values','$values','$values', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'specimen collection sites'), 1);";
-		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		if(Config::$insert_revs) mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		Config::$collection_sites[$recorded_values] = $recorded_values;
 	}
 	
@@ -73,6 +73,7 @@ function createTissue($collection_id, $tissue_nature, $aliquot_label) {
 	global $connection;
 	
 	$sample_conttrol_id = Config::$sample_aliquot_controls['tissue']['sample_control_id'];
+	$aliquot_control_id = Config::$sample_aliquot_controls['tissue']['aliquots']['core']['aliquot_control_id'];
 	$user_id = Config::$db_created_id;
 	
 	//sample_masters
@@ -83,7 +84,6 @@ function createTissue($collection_id, $tissue_nature, $aliquot_label) {
 	$query = 'UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id='.$sample_master_id;
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
 	Database::insertRevForLastRow('sample_masters');
 	
 	//sd_spe_tissues
@@ -98,42 +98,23 @@ function createTissue($collection_id, $tissue_nature, $aliquot_label) {
 	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 	Database::insertRevForLastRow('specimen_details');
 	
-	return;
-	
-	//aliquot_masters
-	$query = 'INSERT INTO aliquot_masters (sample_master_id, collection_id, aliquot_control_id, created, created_by, modified, modified_by, deleted) VALUES '
-	.sprintf('(%d, %d, 33, NOW(), %d, NOW(), %d, 0)', $sample_master_id, $m->last_id, Config::$db_created_id, Config::$db_created_id);
-	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$last_id = $connection->insert_id;
-	Database::insertRevForLastRow('aliquot_masters');
-	
-	//ad_tissue_cores
-	$query = 'INSERT INTO ad_tissue_cores (aliquot_master_id, deleted) VALUES ('.$last_id.', 0)';
-	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	Database::insertRevForLastRow('ad_tissue_cores');	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	for($i = 1; $i < 4; $i++) {
+		//TODO
+		$barcode = $sample_master_id.'.'.$i;
+		
+		//aliquot_masters
+		$query = "INSERT INTO `aliquot_masters` (`barcode`, `aliquot_label`, `in_stock`, `aliquot_control_id`, `storage_master_id`, `collection_id`, `sample_master_id`, created, created_by, modified, modified_by) VALUES ('$barcode', '$aliquot_label', 'yes - available', $aliquot_control_id, ".Config::$storage_master_id.", $collection_id, $sample_master_id, NOW(), $user_id, NOW(), $user_id);";
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		$aliquot_master_id = $connection->insert_id;
+		Database::insertRevForLastRow('aliquot_masters');
+		
+		//ad_tissue_cores
+		$query = "INSERT INTO `ad_tissue_cores` (`aliquot_master_id`) VALUES ($aliquot_master_id);";
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		Database::insertRevForLastRow('ad_tissue_cores');
+	}
 }
 
 

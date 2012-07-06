@@ -177,8 +177,7 @@ function manageManyRows(Model $m){
 			mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 			if(Config::$print_queries) echo $query.Config::$line_break_tag;
 			$query = str_replace($table, $table.'_revs',$query);
-			mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			if(Config::$print_queries) echo $query.Config::$line_break_tag;
+			if(Config::$insert_revs) mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
 		}
 	}
 }
