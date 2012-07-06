@@ -27,7 +27,6 @@ $model->insert_condition_function = 'eventPsaInsertCondition';
 Config::addModel($model, 'event_psa');
 
 function eventPsaPostRead(Model $m){
-	global $connection;
 	if(empty($m->values['PSA (ng/ml)'])){
 		return false;
 	}

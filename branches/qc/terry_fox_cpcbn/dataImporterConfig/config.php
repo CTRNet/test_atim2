@@ -21,15 +21,15 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//Date format
-	static $use_windows_xls_offset = false;
+	//static $use_windows_xls_offset = true;
 	
 	//if reading excel file
 	
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_20120629_revised.xls';
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_revised.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_20120629_revised.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_20120629_revised.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_20120629_revised.xls';static $use_windows_xls_offset = true;
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';static $use_windows_xls_offset = false;
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_revised.xls';static $use_windows_xls_offset = false;
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_20120629_revised.xls';static $use_windows_xls_offset = false;
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_20120629_revised.xls';static $use_windows_xls_offset = true;
 	
 	static $xls_header_rows = 2;
 
@@ -585,7 +585,7 @@ function addonFunctionEnd(){
 		}
 	}
 	
-	echo Config::$line_break_tag."Don't forget to rebuild view : \app>..\lib\Cake\Console\cake view".Config::$line_break_tag;
+//	echo Config::$line_break_tag."Don't forget to rebuild view : \app>..\lib\Cake\Console\cake view".Config::$line_break_tag;
 }
 
 //=========================================================================================================

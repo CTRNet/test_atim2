@@ -46,17 +46,15 @@ function dxCollectionInsertCondition(Model $m){
 }
 
 function getCollectionSite($values) {
-	global $connection;
-	
 	$recorded_values = strtolower($values);
 	
 	if(!empty($recorded_values) && !in_array($recorded_values, Config::$collection_sites)) {
 		$query = "INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `control_id`, `use_as_input`) VALUES ('$recorded_values','$values','$values', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'specimen collection sites'), 1);";
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$last_id = $connection->insert_id;
+		mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		$last_id = Config::$db_connection->insert_id;
 		$query = "INSERT INTO `structure_permissible_values_customs_revs` (id, `value`, `en`, `fr`, `control_id`, `use_as_input`) VALUES ('$last_id', '$recorded_values','$values','$values', (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'specimen collection sites'), 1);";
-		if(Config::$insert_revs) mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Config::$collection_sites[$recorded_values] = $recorded_values;
 	}
 	
@@ -64,14 +62,12 @@ function getCollectionSite($values) {
 }
 
 function dxCollectionPostWrite(Model $m){
-	createTissue($m->last_id, 'normal', $m->values['Sample ID number']);
-	createTissue($m->last_id, 'tumoral',  $m->values['Sample ID number']);
+	createTissue($m->last_id, 'normal', isset($m->values['Sample ID number'])? $m->values['Sample ID number'] : '-');
+	createTissue($m->last_id, 'tumoral',  isset($m->values['Sample ID number'])? $m->values['Sample ID number'] : '-');
 	return true;
 }
 	
 function createTissue($collection_id, $tissue_nature, $aliquot_label) {
-	global $connection;
-	
 	$sample_conttrol_id = Config::$sample_aliquot_controls['tissue']['sample_control_id'];
 	$aliquot_control_id = Config::$sample_aliquot_controls['tissue']['aliquots']['core']['aliquot_control_id'];
 	$user_id = Config::$db_created_id;
@@ -79,23 +75,23 @@ function createTissue($collection_id, $tissue_nature, $aliquot_label) {
 	//sample_masters
 	$query = "INSERT INTO sample_masters (collection_id, sample_control_id, initial_specimen_sample_type, sample_code, created, created_by, modified, modified_by, deleted) VALUES($collection_id, $sample_conttrol_id, 'tissue', 'tmp_$collection_id', NOW(), $user_id, NOW(), $user_id, 0)";
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$sample_master_id = $connection->insert_id;
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	$sample_master_id = Config::$db_connection->insert_id;
 	$query = 'UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id='.$sample_master_id;
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	Database::insertRevForLastRow('sample_masters');
 	
 	//sd_spe_tissues
 	$query = "INSERT INTO sd_spe_tissues (sample_master_id, qc_tf_collected_specimen_nature) VALUES('.$sample_master_id.', '$tissue_nature')";
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	Database::insertRevForLastRow('sd_spe_tissues');
 	
 	//sd_spe_tissues
 	$query = "INSERT INTO specimen_details (sample_master_id) VALUES('.$sample_master_id.')";
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	Database::insertRevForLastRow('specimen_details');
 	
 	for($i = 1; $i < 4; $i++) {
@@ -105,14 +101,14 @@ function createTissue($collection_id, $tissue_nature, $aliquot_label) {
 		//aliquot_masters
 		$query = "INSERT INTO `aliquot_masters` (`barcode`, `aliquot_label`, `in_stock`, `aliquot_control_id`, `storage_master_id`, `collection_id`, `sample_master_id`, created, created_by, modified, modified_by) VALUES ('$barcode', '$aliquot_label', 'yes - available', $aliquot_control_id, ".Config::$storage_master_id.", $collection_id, $sample_master_id, NOW(), $user_id, NOW(), $user_id);";
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$aliquot_master_id = $connection->insert_id;
+		mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		$aliquot_master_id = Config::$db_connection->insert_id;
 		Database::insertRevForLastRow('aliquot_masters');
 		
 		//ad_tissue_cores
 		$query = "INSERT INTO `ad_tissue_cores` (`aliquot_master_id`) VALUES ($aliquot_master_id);";
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		mysqli_query($connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRevForLastRow('ad_tissue_cores');
 	}
 }

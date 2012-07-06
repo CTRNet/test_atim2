@@ -26,8 +26,6 @@ $model->post_write_function = 'postOtherDxWrite';
 Config::addModel($model, 'dx_other_primary');
 
 function postOtherDxRead(Model $m){
-	global $connection;
-	
 	if(!is_null($m->custom_data['previous_line']) && $m->custom_data['previous_line'] != ($m->line - 1)) {
 		pr("postOtherDxRead: Check patient # is set or data exists. See line ".($m->line-1).".");
 		pr($m->values);
