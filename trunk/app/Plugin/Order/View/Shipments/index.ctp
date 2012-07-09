@@ -3,7 +3,7 @@
 	$structure_links = array(
 		'bottom' => array(
 			'new search' => OrderAppController::$search_links,
-			'add order' => '/Order/orders/add/'
+			'add order' => '/Order/Orders/add/'
 		)
 	);
 
