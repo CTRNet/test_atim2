@@ -19,6 +19,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	
 	var $base_model = "AliquotInternalUse";
 	var $base_plugin = 'InventoryManagement';
+	var $useTable = false;
 	
 	static protected $models_details = null;
 	
