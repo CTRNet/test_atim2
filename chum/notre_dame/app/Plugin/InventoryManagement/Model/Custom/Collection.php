@@ -15,7 +15,10 @@ class CollectionCustom extends Collection{
 		
 		// Get bank_participant_identifier
 		if(is_null($bank_participant_identifier)){
-			$collection_view_data = $this->ViewCollection->getOrRedirect($collection_id);
+			$collection_view_data = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id)));
+			if(empty($collection_view_data)){
+				return;//here via participant add collection
+			}
 			$bank_participant_identifier = $collection_view_data['ViewCollection']['identifier_value'];			
 		}
 		
