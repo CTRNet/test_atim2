@@ -15,7 +15,7 @@ class ShipmentsController extends OrderAppController {
 	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
 	function search($search_id = 0){
-		$this->set('atim_menu', $this->Menus->get('/Order/orders/search'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
 		$this->searchHandler($search_id, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
 
 		$hook_link = $this->hook('format');
