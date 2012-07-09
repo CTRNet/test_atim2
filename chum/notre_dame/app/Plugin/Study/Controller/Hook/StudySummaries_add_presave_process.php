@@ -1,7 +1,7 @@
 <?php
 $result = $this->StudySummary->find('first', array(
 	'fields'		=> array('StudySummary.qc_nd_code'), 
-	'conditions'	=> array('StudySummary.qc_nd_code LIKE' => date('Y').'-%'),
+	'conditions'	=> array('StudySummary.qc_nd_code REGEXP ' => date('Y').'-[0-9]+$'),
 	'order'			=> array('StudySummary.qc_nd_code DESC')
 ));
 
