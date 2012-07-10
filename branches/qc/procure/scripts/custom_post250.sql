@@ -47,8 +47,8 @@ VALUES
 -- ===============================================================================================================================================================================
 
 INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
-(null, 'consent form signature', 1, 'procure_consent_form_siganture', 'procure_cd_sigantures', 0, 'consent form signature');
-UPDATE consent_controls SET flag_active = 0 WHERE controls_type != 'consent form signature';
+(null, 'procure consent form signature', 1, 'procure_consent_form_siganture', 'procure_cd_sigantures', 0, 'procure consent form signature');
+UPDATE consent_controls SET flag_active = 0 WHERE controls_type != 'procure consent form signature';
 
 -- master
 
@@ -113,7 +113,7 @@ INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SE
 -- i18n
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
-("consent form signature","F1 - Consent form signature worksheet","F1 - Fiche de signature du consentement"),
+("procure consent form signature","F1 - Consent form signature worksheet","F1 - Fiche de signature du consentement"),
 ("consent form version","Consent from version","Version du consentement"),
 ("revision date","Revised date","Date de révision"),
 ("confirm that the identity of the patient has been verified","I confirm that the identity of the patient has been verified", "Je confirme que l'identité du participant a été vérifiée");
@@ -124,14 +124,15 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 --
 -- ===============================================================================================================================================================================
 
+UPDATE treatment_controls SET flag_active = 0;
 
 INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `databrowser_label`) VALUES
-(null, 'medication worksheet', 'procure', 1, 'procure_txd_medications', 'procure_txd_medications', 'procure_txe_medications', 'procure_txe_medications', 'procure|medication worksheet');
+(null, 'procure medication worksheet', 'procure', 1, 'procure_txd_medications', 'procure_txd_medications', 'procure_txe_medications', 'procure_txe_medications', 'procure medication worksheet');
 
 -- drug 
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_drug_type", "", "", NULL);
-INSERT INTO structure_permissible_values (value, language_alias) 
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 VALUES
 ("prostate", "prostate"),
 ("other diseases", "other diseases"),
@@ -233,7 +234,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'medication_for_prostatitis', 'yes_no',  NULL , '0', '', '', '', 'medication for prostatitis', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'benign_hyperplasia', 'yes_no',  NULL , '0', '', '', '', 'benign hyperplasia', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'benign_hyperplasia_place_and_date', 'input',  NULL , '0', 'size=30', '', '', 'benign hyperplasia place and date', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'benign_hyperplasia_notes', 'textarea',  NULL , '0', 'size=30,rows=3', '', '', 'notes', ''),
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'benign_hyperplasia_notes', 'textarea',  NULL , '0', 'size=30,rows=3', '', '', 'comments', ''),
 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'prescribed_drugs_for_other_diseases', 'yes_no',  NULL , '0', '', '', '', 'prescribed drugs for other diseases', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'list_of_drugs_for_other_diseases', 'yes_no',  NULL , '0', '', '', '', 'list of drugs for other diseases', ''), 
@@ -246,7 +247,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='form_identification' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='identification' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='patient_identity_check_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='patient identity check date' AND `language_tag`=''), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '23', '', '1', 'comments', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='medication_for_prostate_cancer' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='medication for prostate cancer' AND `language_tag`=''), '1', '30', 'prostate medication', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='medication_for_benign_prostatic_hyperplasia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='medication for benign prostatic hyperplasia' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -254,7 +255,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='benign_hyperplasia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='benign hyperplasia' AND `language_tag`=''), '2', '40', 'benign prostatic hyperplasia', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='benign_hyperplasia_place_and_date' AND `type`='input'), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='benign_hyperplasia_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='benign_hyperplasia_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='comments' AND `language_tag`=''), '2', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='prescribed_drugs_for_other_diseases'), '2', '51', 'prescribed medication for other diseases', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='list_of_drugs_for_other_diseases'), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -268,7 +269,7 @@ INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SE
 -- i18n
 
 REPLACE INTO i18n  (id,fr,en) VALUES
-("medication worksheet","F1a - Fiche des médicaments","F1a - Medication worksheet"),
+("procure medication worksheet","F1a - Fiche des médicaments","F1a - Medication worksheet"),
 ("procure","PROCURE","PROCURE"),
 
 ("patient identity check date","Date","Date"),
@@ -347,6 +348,450 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 REPLACE INTO i18n  (id,fr,en) VALUES
 ("medication","Médicaments","Medication"),
 ("duration","Durée","Duration");
+
+-- ===============================================================================================================================================================================
+--
+-- F12 - Rapport de pathologie
+--
+-- ===============================================================================================================================================================================
+
+UPDATE event_controls SET flag_Active = 0;
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+(null, 'procure', 'lab', 'procure pathology report', 1, 'procure_ed_pathology', 'procure_ed_lab_pathologies', 0, 'procure pathology report', 1);
+
+DROP TABLE IF EXISTS procure_ed_lab_pathologies;
+DROP TABLE IF EXISTS procure_ed_lab_pathologies_revs;
+
+CREATE TABLE IF NOT EXISTS `procure_ed_lab_pathologies` (
+	`form_identification` varchar(50) DEFAULT NULL,
+  
+  	path_number varchar(50) DEFAULT NULL,
+	pathologist_name varchar(250) DEFAULT NULL,
+	
+	prostate_weight_gr decimal(10,2) DEFAULT NULL, 
+	prostate_length_cm decimal(10,2) DEFAULT NULL, 
+	prostate_width_cm decimal(10,2) DEFAULT NULL, 
+	prostate_thickness_cm decimal(10,2) DEFAULT NULL, 
+	     
+	right_seminal_vesicles_length_cm decimal(10,2) DEFAULT NULL, 
+	right_seminal_vesicle_width_cm decimal(10,2) DEFAULT NULL, 
+	right_seminal_vesicle_thickness_cm decimal(10,2) DEFAULT NULL, 
+	left_seminal_vesicle_length_cm decimal(10,2) DEFAULT NULL, 
+	left_seminal_vesicle_width_cm decimal(10,2) DEFAULT NULL, 
+	left_seminal_vesicle_thickness_cm decimal(10,2) DEFAULT NULL,     
+   
+	histology varchar(50) DEFAULT NULL,
+	histology_other_precision varchar(50) DEFAULT NULL,
+      
+	tumour_location_right_anterior tinyint(1) DEFAULT '0',
+	tumour_location_left_anterior tinyint(1) DEFAULT '0',
+	tumour_location_right_posterior tinyint(1) DEFAULT '0',
+	tumour_location_left_posterior tinyint(1) DEFAULT '0',
+	tumour_location_apex tinyint(1) DEFAULT '0',
+	tumour_location_base tinyint(1) DEFAULT '0',
+	tumour_location_bladder_neck tinyint(1) DEFAULT '0',
+  
+ 	tumour_volume varchar(50) DEFAULT NULL,
+  
+	histologic_grade_primary_pattern varchar(50) DEFAULT NULL,
+	histologic_grade_secondary_pattern varchar(50) DEFAULT NULL,
+	histologic_grade_tertiary_pattern varchar(50) DEFAULT NULL,
+    histologic_grade_gleason_score varchar(50) DEFAULT NULL,
+    
+    margins varchar(50) DEFAULT NULL,
+    margins_focal_or_extensive varchar(50) DEFAULT NULL,
+    margins_extensive_anterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_anterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_posterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_posterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_apical_anterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_apical_anterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_apical_posterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_apical_posterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_bladder_neck tinyint(1) DEFAULT '0',
+    margins_gleaseon_score varchar(50) DEFAULT NULL,
+    
+    extra_prostatic_extension varchar(50) DEFAULT NULL,
+    extra_prostatic_extension_precision varchar(50) DEFAULT NULL,
+    
+    extra_prostatic_extension_right_anterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_left_anterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_right_posterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_left_posterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_apex tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_base tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_bladder_neck tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_seminal_vesicles varchar(50) DEFAULT NULL,
+    
+	pathologic_staging_version varchar(50) DEFAULT NULL,
+	pathologic_staging_pt varchar(50) DEFAULT NULL,
+	pathologic_staging_pn_collected char(1) DEFAULT '',
+	pathologic_staging_pn varchar(50) DEFAULT NULL,
+	pathologic_staging_pn_lymph_node_examined int(6) DEFAULT NULL,
+	pathologic_staging_pn_lymph_node_involved int(6) DEFAULT NULL,
+	pathologic_staging_pm varchar(50) DEFAULT NULL,
+  
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `procure_ed_lab_pathologies_revs` (
+	`form_identification` varchar(50) DEFAULT NULL,
+  
+  	path_number varchar(50) DEFAULT NULL,
+	pathologist_name varchar(250) DEFAULT NULL,
+	
+	prostate_weight_gr decimal(10,2) DEFAULT NULL, 
+	prostate_length_cm decimal(10,2) DEFAULT NULL, 
+	prostate_width_cm decimal(10,2) DEFAULT NULL, 
+	prostate_thickness_cm decimal(10,2) DEFAULT NULL, 
+	     
+	right_seminal_vesicle_length_cm decimal(10,2) DEFAULT NULL, 
+	right_seminal_vesicle_width_cm decimal(10,2) DEFAULT NULL, 
+	right_seminal_vesicle_thickness_cm decimal(10,2) DEFAULT NULL, 
+	left_seminal_vesicle_length_cm decimal(10,2) DEFAULT NULL, 
+	left_seminal_vesicle_width_cm decimal(10,2) DEFAULT NULL, 
+	left_seminal_vesicle_thickness_cm decimal(10,2) DEFAULT NULL,     
+   
+	histology varchar(50) DEFAULT NULL,
+	histology_other_precision varchar(50) DEFAULT NULL,
+      
+	tumour_location_right_anterior tinyint(1) DEFAULT '0',
+	tumour_location_left_anterior tinyint(1) DEFAULT '0',
+	tumour_location_right_posterior tinyint(1) DEFAULT '0',
+	tumour_location_left_posterior tinyint(1) DEFAULT '0',
+	tumour_location_apex tinyint(1) DEFAULT '0',
+	tumour_location_base tinyint(1) DEFAULT '0',
+	tumour_location_bladder_neck tinyint(1) DEFAULT '0',
+  
+ 	tumour_volume varchar(50) DEFAULT NULL,
+  
+	histologic_grade_primary_pattern varchar(50) DEFAULT NULL,
+	histologic_grade_secondary_pattern varchar(50) DEFAULT NULL,
+	histologic_grade_tertiary_pattern varchar(50) DEFAULT NULL,
+    histologic_grade_gleason_score varchar(50) DEFAULT NULL,
+    
+    margins varchar(50) DEFAULT NULL,
+    margins_focal_or_extensive varchar(50) DEFAULT NULL,
+    margins_extensive_anterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_anterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_posterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_posterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_apical_anterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_apical_anterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_apical_posterior_left tinyint(1) DEFAULT '0',
+    margins_extensive_apical_posterior_right tinyint(1) DEFAULT '0',
+    margins_extensive_bladder_neck tinyint(1) DEFAULT '0',
+    margins_gleaseon_score varchar(50) DEFAULT NULL,
+    
+    extra_prostatic_extension varchar(50) DEFAULT NULL,
+    extra_prostatic_extension_precision varchar(50) DEFAULT NULL,
+    
+    extra_prostatic_extension_right_anterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_left_anterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_right_posterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_left_posterior tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_apex tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_base tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_bladder_neck tinyint(1) DEFAULT '0',
+    extra_prostatic_extension_seminal_vesicles varchar(50) DEFAULT NULL,
+    
+	pathologic_staging_version varchar(50) DEFAULT NULL,
+	pathologic_staging_pt varchar(50) DEFAULT NULL,
+	pathologic_staging_pn_collected char(1) DEFAULT '',
+	pathologic_staging_pn varchar(50) DEFAULT NULL,
+	pathologic_staging_pn_lymph_node_examined int(6) DEFAULT NULL,
+	pathologic_staging_pn_lymph_node_involved int(6) DEFAULT NULL,
+	pathologic_staging_pm varchar(50) DEFAULT NULL,
+  
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `procure_ed_lab_pathologies`
+  ADD CONSTRAINT `procure_ed_lab_pathologies_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('procure_ed_pathology');
+
+
+
+
+
+
+
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_histology", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("acinar adenocarcinoma/usual type", "acinar adenocarcinoma/usual type"),
+("prostatic ductal adenocarcinoma", "prostatic ductal adenocarcinoma"),
+("sarcomatoid carcinoma", "sarcomatoid carcinoma"),
+("other specify", "other specify");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="acinar adenocarcinoma/usual type" AND language_alias="acinar adenocarcinoma/usual type"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="prostatic ductal adenocarcinoma" AND language_alias="prostatic ductal adenocarcinoma"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="mucinous adenocarcinoma" AND language_alias="mucinous adenocarcinoma"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="signet-ring cell carcinoma" AND language_alias="signet-ring cell carcinoma"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="adenosquamous carcinoma" AND language_alias="adenosquamous carcinoma"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="small cell carcinoma" AND language_alias="small cell carcinoma"), "6", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="sarcomatoid carcinoma" AND language_alias="sarcomatoid carcinoma"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_histology"), (SELECT id FROM structure_permissible_values WHERE value="other specify" AND language_alias="other specify"), "8", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_tumour_volume", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("low", "tumour volume low"),
+("moderate", "tumour volume moderate"),
+("high", "tumour volume high");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_tumour_volume"), (SELECT id FROM structure_permissible_values WHERE value="low" AND language_alias="tumour volume low"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_tumour_volume"), (SELECT id FROM structure_permissible_values WHERE value="moderate" AND language_alias="tumour volume moderate"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_tumour_volume"), (SELECT id FROM structure_permissible_values WHERE value="high" AND language_alias="tumour volume high"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_and_none", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "5", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_margins", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("cannot be assessed","cannot be assessed"),
+("negative","negative"),
+("positive","positive");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_margins"), 
+(SELECT id FROM structure_permissible_values WHERE value="cannot be assessed" AND language_alias="cannot be assessed"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_margins"), 
+(SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_margins"), 
+(SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_margins_positive_precision", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("focal","focal: cancer touching ink in less equal than 3mm and in one slide only"),
+("extensive","extensive");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_margins_positive_precision"), 
+(SELECT id FROM structure_permissible_values WHERE value="focal" AND language_alias="focal: cancer touching ink in less equal than 3mm and in one slide only"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_margins_positive_precision"), 
+(SELECT id FROM structure_permissible_values WHERE value="extensive" AND language_alias="extensive"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_extra_prostatic_extension", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("absent","absent"),
+("present","present");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_extra_prostatic_extension"), 
+(SELECT id FROM structure_permissible_values WHERE value="absent" AND language_alias="absent"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_extra_prostatic_extension"), 
+(SELECT id FROM structure_permissible_values WHERE value="present" AND language_alias="present"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_extra_prostatic_extension_precision", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("focal","focal: cancer in peri-prostatic tissue in an area less than one 40X field in one slide only"),
+("established","established");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_extra_prostatic_extension_precision"), 
+(SELECT id FROM structure_permissible_values WHERE value="focal" AND language_alias="focal: cancer in peri-prostatic tissue in an area less than one 40X field in one slide only"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_extra_prostatic_extension_precision"), 
+(SELECT id FROM structure_permissible_values WHERE value="established" AND language_alias="established"), "3", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_seminal_vesicles", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+("absent","absent"),
+("present","present");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_seminal_vesicles"), 
+(SELECT id FROM structure_permissible_values WHERE value="absent" AND language_alias="absent"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_seminal_vesicles"), 
+(SELECT id FROM structure_permissible_values WHERE value="present" AND language_alias="present"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'path_number', 'input',  NULL , '0', 'size=10', '', '', 'path report number', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'pathologist_name', 'input',  NULL , '0', 'size=30', '', '', 'pathologist name', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'prostate_weight_gr', 'float_positive',  NULL , '0', 'size=4', '', '', 'prostate', 'weight gr'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'prostate_length_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'length cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'prostate_width_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'width cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'prostate_thickness_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'thickness cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'right_seminal_vesicle_length_cm', 'float_positive',  NULL , '0', 'size=4', '', '', 'right seminal vesicle', 'length cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'right_seminal_vesicle_width_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'width cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'right_seminal_vesicle_thickness_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'thickness cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'left_seminal_vesicle_length_cm', 'float_positive',  NULL , '0', 'size=4', '', '', 'left seminal vesicle', 'length cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'left_seminal_vesicle_width_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'width cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'left_seminal_vesicle_thickness_cm', 'float_positive',  NULL , '0', 'size=4', '', '', '', 'thickness cm'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histology', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_histology') , '0', '', '', '', 'histology', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histology_other_precision', 'input',  NULL , '0', 'size=30', '', '', 'other precision', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_right_anterior', 'checkbox',  NULL , '0', '', '', '', 'anterior', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_left_anterior', 'checkbox',  NULL , '0', '', '', '', '', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_right_posterior', 'checkbox',  NULL , '0', '', '', '', 'posterior', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_left_posterior', 'checkbox',  NULL , '0', '', '', '', '', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_apex', 'checkbox',  NULL , '0', '', '', '', 'apex', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_base', 'checkbox',  NULL , '0', '', '', '', 'base', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_bladder_neck', 'checkbox',  NULL , '0', '', '', '', 'bladder neck', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_volume', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_tumour_volume') , '0', '', '', '', 'tumour volume', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_primary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade') , '0', '', '', '', 'primary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_secondary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade') , '0', '', '', '', 'secondary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_tertiary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_and_none') , '0', '', '', '', 'tertiary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_gleason_score', 'input',  NULL , '0', 'size=5', '', '', 'total gleason score', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_margins') , '0', '', '', '', 'margins', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_focal_or_extensive', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_margins_positive_precision') , '0', '', '', '', 'positive precision', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_anterior_left', 'checkbox',  NULL , '0', '', '', '', 'anterior', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_anterior_right', 'checkbox',  NULL , '0', '', '', '', '', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_posterior_left', 'checkbox',  NULL , '0', '', '', '', 'posterior', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_posterior_right', 'checkbox',  NULL , '0', '', '', '', '', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_apical_anterior_left', 'checkbox',  NULL , '0', '', '', '', 'apical anterior', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_apical_anterior_right', 'checkbox',  NULL , '0', '', '', '', '', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_apical_posterior_left', 'checkbox',  NULL , '0', '', '', '', 'apical posterior', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_apical_posterior_right', 'checkbox',  NULL , '0', '', '', '', '', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_extensive_bladder_neck', 'checkbox',  NULL , '0', '', '', '', 'bladder neck', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_gleaseon_score', 'input',  NULL , '0', 'size=5', '', '', 'margins gleaseon score', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_extra_prostatic_extension') , '0', '', '', '', 'extra prostatic extension', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_extra_prostatic_extension_precision') , '0', '', '', '', 'extra prostatic extension precision', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_right_anterior', 'checkbox',  NULL , '0', '', '', '', 'anterior', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_left_anterior', 'checkbox',  NULL , '0', '', '', '', '', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_right_posterior', 'checkbox',  NULL , '0', '', '', '', 'posterior', 'right'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_left_posterior', 'checkbox',  NULL , '0', '', '', '', '', 'left'), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_apex', 'checkbox',  NULL , '0', '', '', '', 'apex', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_base', 'checkbox',  NULL , '0', '', '', '', 'base', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_bladder_neck', 'checkbox',  NULL , '0', '', '', '', 'bladder neck', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'extra_prostatic_extension_seminal_vesicles', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_seminal_vesicles') , '0', '', '', '', 'seminal vesicles', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='path_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='path report number' AND `language_tag`=''), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '10', '', '1', 'comments', '0', '', '0', '', '0', '', '1', 'cols=30,rows=3', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='pathologist_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='pathologist name' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='prostate_weight_gr' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='prostate' AND `language_tag`='weight gr'), '1', '20', 'measurements', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='prostate_length_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='length cm'), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='prostate_width_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='width cm'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='prostate_thickness_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='thickness cm'), '1', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='right_seminal_vesicle_length_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='right seminal vesicle' AND `language_tag`='length cm'), '1', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='right_seminal_vesicle_width_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='width cm'), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='right_seminal_vesicle_thickness_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='thickness cm'), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='left_seminal_vesicle_length_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='left seminal vesicle' AND `language_tag`='length cm'), '1', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='left_seminal_vesicle_width_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='width cm'), '1', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='left_seminal_vesicle_thickness_cm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='thickness cm'), '1', '29', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histology' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_histology')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histology' AND `language_tag`=''), '2', '40', '1) histology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histology_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='other precision' AND `language_tag`=''), '2', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_right_anterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='anterior' AND `language_tag`='right'), '2', '50', '2) tumour location', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_left_anterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='left'), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_right_posterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='posterior' AND `language_tag`='right'), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_left_posterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='left'), '2', '53', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_apex' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='apex' AND `language_tag`=''), '2', '54', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_base' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='base' AND `language_tag`=''), '2', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_bladder_neck' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bladder neck' AND `language_tag`=''), '2', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_volume' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_tumour_volume')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumour volume' AND `language_tag`=''), '2', '60', '3) tumour volume', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_primary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary pattern' AND `language_tag`=''), '2', '70', '4) histologic grade', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_secondary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='secondary pattern' AND `language_tag`=''), '2', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_tertiary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_and_none')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tertiary pattern' AND `language_tag`=''), '2', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_gleason_score' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='total gleason score' AND `language_tag`=''), '2', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_margins')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='margins' AND `language_tag`=''), '3', '80', '5) margins', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_focal_or_extensive' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_margins_positive_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='positive precision' AND `language_tag`=''), '3', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_anterior_left' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='anterior' AND `language_tag`='left'), '3', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_anterior_right' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='right'), '3', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_posterior_left' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='posterior' AND `language_tag`='left'), '3', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_posterior_right' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='right'), '3', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_apical_anterior_left' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='apical anterior' AND `language_tag`='left'), '3', '86', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_apical_anterior_right' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='right'), '3', '87', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_apical_posterior_left' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='apical posterior' AND `language_tag`='left'), '3', '88', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_apical_posterior_right' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='right'), '3', '89', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_extensive_bladder_neck' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bladder neck' AND `language_tag`=''), '3', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_gleaseon_score' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='margins gleaseon score' AND `language_tag`=''), '3', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_extra_prostatic_extension')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='extra prostatic extension' AND `language_tag`=''), '3', '100', '6) extra prostatic extension', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_extra_prostatic_extension_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='extra prostatic extension precision' AND `language_tag`=''), '3', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_right_anterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='anterior' AND `language_tag`='right'), '3', '102', '7) location of extra-prostatic extension', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_left_anterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='left'), '3', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_right_posterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='posterior' AND `language_tag`='right'), '3', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_left_posterior' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='left'), '3', '105', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_apex' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='apex' AND `language_tag`=''), '3', '106', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_base' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='base' AND `language_tag`=''), '3', '107', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_bladder_neck' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bladder neck' AND `language_tag`=''), '3', '108', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_seminal_vesicles' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_seminal_vesicles')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='seminal vesicles' AND `language_tag`=''), '3', '109', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- i18n 	Pathology report number
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('procure pathology report', "F12 - Pathology report","F12 - Rapport de pathologie"),
+('path report number','Pathology report number','Numéro du rapport de pathologie'),
+('pathologist name','Pathologist first/last name','Nom/Prénom pathologiste:'),
+('comments','Comments','Commentaires'),
+
+('measurements', "Measurements","Dimensions"),
+('weight gr', "Weight (gr)","Poids (gr)"),
+('length cm', "Length (cm)","Longueur (cm)"),
+('width cm', "Width (cm)","Largeur (cm)"),
+('thickness cm', "Thickness (cm)","Épaisseur (cm)"),
+('right seminal vesicle', "Right seminal vesicle","Vésicule séminale droite"),
+('left seminal vesicle', "Left seminal vesicle","Vésicule séminale gauche"),
+
+('acinar adenocarcinoma/usual type', "Acinar adenocarcinoma/usual type", "Adénocarcinome acinaire ou du type usuel"),
+('prostatic ductal adenocarcinoma', "Prostatic ductal adenocarcinoma", "Adénocarcinome canalaire"),
+('mucinous adenocarcinoma', "Mucinous adenocarcinoma", "Adénocarcinome mucineux"),
+('signet-ring cell carcinoma', "Signet-ring cell carcinoma", "Carcinome à cellules indépendantes"),
+('adenosquamous carcinoma', "Adenosquamous carcinoma", "Carcinome adénosquameux"),
+('small cell carcinoma', "Small cell carcinoma", "Carcinome à petites cellules"),
+('sarcomatoid carcinoma', "Sarcomatoid carcinoma", "Carcinome sarcomatoïde"),
+('other specify', "Other (specify)", "Autre (spécifiez)"),
+
+("1) histology","1) Histology (check what applies)","1) Histologie (Cochez tout ce qui s'applique)"),
+("other precision","Other precision ","Autre précision"),
+("2) tumour location", "2) Tumour location (check all that apply)", "2) Localisation de la tumeur (cochez ce qui s'applique)"),
+("anterior","Anterior","Antérieur"),
+("posterior","Posterior","Postérieur"),
+("apex","Apex","Apex"),
+("base","Base","Base"),
+("bladder neck","Bladder neck","Col vésical"),
+
+("3) tumour volume", "3) Tumour volume (check what applies)", "3) Volume tumoral total (cochez ce qui s'applique)"),
+("tumour volume", "Volume", "Volume"),
+("tumour volume low", "Low (<30&#37)", "Atteinte légère (<30&#37)"),
+("tumour volume moderate", "Moderate (30-60&#37)", "Atteinte modérée (30-60&#37)"),
+("tumour volume high", "High (>60&#37;)", "Atteinte extensive (>60&#37)"),
+
+("4) histologic grade", "4) Histologic grade", "4) Patron histologique"),
+("primary pattern", "Primary pattern", "Patron primaire"),
+("secondary pattern", "Secondary pattern", "Patron secondaire"),
+("tertiary pattern", "Tertiary pattern", "Patron tertiaire"),
+("total gleason score", "Gleason score", "Score de Gleason"),
+
+("focal: cancer touching ink in less equal than 3mm and in one slide only","Focal: cancer touching ink in &le;3mm and in one slide only","Focale:cancer touchant l'encre (&le;3mm) dans une lame seulement"),
+
+("5) margins","5) Margins (check what applies)","5) Marges (cochez ce qui s'applique)"),
+("extensive","Extensive","Extensive"),
+("positive precision","Precision (positive)","Précision (positive)"),
+("apical anterior","Apical region anterior","Région apicale antérieur"),
+("apical posterior","Apical region posterior","Région apicale postérieure"),
+("margins gleaseon score","Gleason score at margins","Score de Gleason aux marges"),
+
+("6) extra prostatic extension","6) Extra-prostatic extension","6) Extension extraprostatique"),
+("absent","Absent","Absente"),
+("present","Present","Présente"),
+("focal: cancer in peri-prostatic tissue in an area less than one 40X field in one slide only","Focal: cancer in peri-prostatic tissue in an area less than one 40X field in one slide only","Focale: dans tissu périprostatique sur une surface inférieure à un champ 40X pour une lame seulement"),
+("established","Established","Établie"),
+
+("extra prostatic extension","Extension","Extension"),
+("extra prostatic extension precision","Precision (extension)","Précision (extension)"),
+
+("7) location of extra-prostatic extension","7) Location of extra-prostatic extension (check all that apply)","7) Localisation de l'extension extraprostatique (cochez ce qui s'applique)"),
+("seminal vesicles","Seminal vesicles","Vésicules séminales");
+
 
 
 
