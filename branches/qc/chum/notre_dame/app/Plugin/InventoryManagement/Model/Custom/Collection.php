@@ -40,7 +40,7 @@ class CollectionCustom extends Collection{
 						
 			// Save new label
 			$this->SampleMaster->id = $new_collection_sample['SampleMaster']['id'];
-			if(!$this->SampleMaster->save(array('SampleMaster' => array('sample_label' => $new_sample_label)), false)) {
+			if(!$this->SampleMaster->save(array('SampleMaster' => array('qc_nd_sample_label' => $new_sample_label)), false)) {
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}

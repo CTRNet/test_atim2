@@ -75,13 +75,13 @@ class AliquotMasterCustom extends AliquotMaster {
 				case 'blood':
 					if($aliquot_control_data['AliquotControl']['aliquot_type'] == 'whatman paper') {
 						$default_sample_label .= ' -WHT1';
-					} else if(strpos($view_sample['ViewSample']['sample_label'], 'EDTA') !== FALSE) {
+					} else if(strpos($view_sample['ViewSample']['qc_nd_sample_label'], 'EDTA') !== FALSE) {
 						$default_sample_label .= ' -EDB1';
-					} else if(strpos($view_sample['ViewSample']['sample_label'], 'ZCSA') !== FALSE) {
+					} else if(strpos($view_sample['ViewSample']['qc_nd_sample_label'], 'ZCSA') !== FALSE) {
 						$default_sample_label .= ' -SRB1';
-					} else if(strpos($view_sample['ViewSample']['sample_label'], 'gel SST') !== FALSE) {
+					} else if(strpos($view_sample['ViewSample']['qc_nd_sample_label'], 'gel SST') !== FALSE) {
 						$default_sample_label .= ' -SRB1';
-					} else if(strpos($view_sample['ViewSample']['sample_label'], 'paxgene') !== FALSE) {
+					} else if(strpos($view_sample['ViewSample']['qc_nd_sample_label'], 'paxgene') !== FALSE) {
 						$default_sample_label .= ' -RNB1';
 					}
 					break;
@@ -130,7 +130,7 @@ class AliquotMasterCustom extends AliquotMaster {
 			} 
 			
 			$default_sample_label =
-				(empty($view_sample['ViewSample']['sample_label'])? 'n/a' : $view_sample['ViewSample']['sample_label']) .
+				(empty($view_sample['ViewSample']['qc_nd_sample_label'])? 'n/a' : $view_sample['ViewSample']['qc_nd_sample_label']) .
 				(empty($aliquot_creation_date)? '' : ' ' . substr($aliquot_creation_date, 0, strpos($aliquot_creation_date," ")));
 		}
 

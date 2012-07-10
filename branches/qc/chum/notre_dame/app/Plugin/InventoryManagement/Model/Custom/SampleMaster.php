@@ -17,8 +17,8 @@ class SampleMasterCustom extends SampleMaster {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_label']),
-				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['sample_label']),
+				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['qc_nd_sample_label']),
+				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . ' : ' . $specimen_data['SampleMaster']['qc_nd_sample_label']),
 				'data' 				=> $specimen_data,
 	 			'structure alias' 	=> 'sample_masters_for_search_result'
 			);
@@ -39,8 +39,8 @@ class SampleMasterCustom extends SampleMaster {
 			
 			// Set summary	 	
 	 		$return = array(
-					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_label']),
-					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['sample_label']),
+					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['qc_nd_sample_label']),
+					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type'], true) . ' : ' . $derivative_data['SampleMaster']['qc_nd_sample_label']),
 					'data' 				=> $derivative_data,
 	 				'structure alias' 	=> 'sample_masters_for_search_result'
 			);
@@ -93,7 +93,7 @@ class SampleMasterCustom extends SampleMaster {
 			
 			$this->contain();
 			$tmp_initial_specimen_sample_data = $this->getOrRedirect($sample_data['SampleMaster']['initial_specimen_sample_id']);
-			$initial_specimen_label = $tmp_initial_specimen_sample_data['SampleMaster']['sample_label'];		
+			$initial_specimen_label = $tmp_initial_specimen_sample_data['SampleMaster']['qc_nd_sample_label'];		
 		}
 	
 		if(is_null($bank_participant_identifier) && ((strcmp($sample_category, 'specimen') == 0) || (strcmp($sample_type, 'cell culture') == 0))) {
@@ -304,7 +304,7 @@ class SampleMasterCustom extends SampleMaster {
 	function formatParentSampleDataForDisplay($parent_sample_data) {
 		$formatted_data = array();
 		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
-			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_label'] . ' / ' . $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['qc_nd_sample_label'] . ' / ' . $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
 		}
 	
 		return $formatted_data;

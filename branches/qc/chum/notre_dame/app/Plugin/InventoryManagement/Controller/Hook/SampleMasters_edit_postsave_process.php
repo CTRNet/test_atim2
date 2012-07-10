@@ -3,8 +3,8 @@
 	// --------------------------------------------------------------------------------
 	// Update Derivatives Sample Labels of an updated Specimen
 	// -------------------------------------------------------------------------------- 	
-	if($is_specimen && ($sample_data['SampleMaster']['sample_label'] != $this->data['SampleMaster']['sample_label'])) {
-		$specimen_sample_label = $this->data['SampleMaster']['sample_label'];
+	if($is_specimen && ($sample_data['SampleMaster']['qc_nd_sample_label'] != $this->data['SampleMaster']['qc_nd_sample_label'])) {
+		$specimen_sample_label = $this->data['SampleMaster']['qc_nd_sample_label'];
 				
 		// Get bank_participant_identifier	
 		$view_collection_model = AppModel::getInstance('InventoryManagement', 'ViewCollection', true);		
@@ -23,7 +23,7 @@
 		// Update derivative samples label
 		foreach($specimen_derivatives_list as $new_derivative) {
 			$derivative_data_to_save = array();
-			$derivative_data_to_save['SampleMaster']['sample_label'] = 	$this->SampleMaster->createSampleLabel($collection_id, $new_derivative, $bank_participant_identifier, $specimen_sample_label);
+			$derivative_data_to_save['SampleMaster']['qc_nd_sample_label'] = 	$this->SampleMaster->createSampleLabel($collection_id, $new_derivative, $bank_participant_identifier, $specimen_sample_label);
 		
 			$this->SampleMaster->data = array();
 			$this->SampleMaster->id = $new_derivative['SampleMaster']['id'];
