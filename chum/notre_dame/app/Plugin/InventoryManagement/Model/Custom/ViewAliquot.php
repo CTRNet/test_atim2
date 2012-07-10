@@ -62,7 +62,8 @@ class ViewAliquotCustom extends ViewAliquot{
 		Collection.diagnosis_master_id AS diagnosis_master_id,
 		Collection.consent_master_id AS consent_master_id,
 		AliquotMaster.in_stock_detail,
-		AliquotMaster.study_summary_id
+		AliquotMaster.study_summary_id,
+		SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 			
 		FROM aliquot_masters AS AliquotMaster
 		INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
