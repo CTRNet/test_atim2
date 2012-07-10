@@ -36,9 +36,13 @@ class TreatmentExtendsController extends ClinicalAnnotationAppController {
 			require($hook_link); 
 		}
 		
-		
 		if ( empty($this->request->data) ) {
 			$this->request->data[] = array();
+			
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
 			
 		} else {
 			
