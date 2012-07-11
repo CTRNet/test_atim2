@@ -468,7 +468,7 @@ ALTER TABLE collections_revs
  ADD COLUMN consent_master_id INT DEFAULT NULL AFTER diagnosis_master_id,
  ADD COLUMN treatment_master_id INT DEFAULT NULL AFTER consent_master_id,
  ADD COLUMN event_master_id INT DEFAULT NULL AFTER treatment_master_id;
- 
+  
 UPDATE collections AS c
 INNER JOIN clinical_collection_links AS ccl ON c.id=ccl.collection_id
 SET c.participant_id=ccl.participant_id, c.diagnosis_master_id=ccl.diagnosis_master_id, c.consent_master_id=ccl.consent_master_id;
