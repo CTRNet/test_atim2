@@ -1,3 +1,3 @@
 <?php
-	if(isset($default_form_identification)) $final_options['override']['TreatmentDetail.form_identification'] = $default_form_identification;
+	if(isset($default_procure_form_identification)) $final_options['override']['TreatmentMaster.procure_form_identification'] = $default_procure_form_identification;
 	
