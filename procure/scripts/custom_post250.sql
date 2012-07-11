@@ -5,7 +5,7 @@ ALTER TABLE ed_all_lifestyle_smokings_revs DROP COLUMN years_quit_smoking;
 UPDATE users SET flag_active = 1;
 UPDATE `groups` SET `flag_show_confidential` = '1';
 
-INSERT INTO i18n (id,en,fr) VALUES ('core_installname','PROCURE','PROCURE');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('core_installname','PROCURE','PROCURE'),('add form', 'Add Form', 'Créer Fiche');
 
 -- ===============================================================================================================================================================================
 --
@@ -835,7 +835,7 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ("tertiary pattern", "Tertiary pattern", "Patron tertiaire"),
 ("total gleason score", "Gleason score", "Score de Gleason"),
 
-("focal: cancer touching ink in less equal than 3mm and in one slide only","Focal: cancer touching ink in =< and in one slide only","Focale:cancer touchant l'encre (=<3mm) dans une lame seulement"),
+("focal: cancer touching ink in less equal than 3mm and in one slide only","Focal: cancer touching ink in =< 3mm and in one slide only","Focale:cancer touchant l'encre (=<3mm) dans une lame seulement"),
 
 ("5) margins","5) Margins (check what applies)","5) Marges (cochez ce qui s'applique)"),
 ("extensive","Extensive","Extensive"),
