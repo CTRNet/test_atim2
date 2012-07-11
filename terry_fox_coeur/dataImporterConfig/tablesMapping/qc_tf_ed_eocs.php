@@ -8,7 +8,7 @@ $fields = array(
 //	"event_group" => "#event group",
 //	"event_type" => array("Event Type" => array("ct scan" => 'ct scan', "ca125" => 'ca125', "biopsy" => 'biopsy')),
 	"event_date" => "Date of event (beginning) Date",
-	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
+	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "d" => "d", "" => ""))
 );
 
 $model = new Model(2, $pkey, array(), false, "participant_id", $pkey, 'event_masters', $fields);
@@ -29,6 +29,8 @@ function edAfterRead(Model $m){
 
 	if($m->values['Event Type'] == 'chimiotherapy'){
 		$m->values['Event Type'] = 'chemotherapy';
+	}else if($m->values['Event Type'] == 'radiation'){
+		$m->values['Event Type'] = 'radiotherapy';
 	}
 	
 	if(!in_array($m->values['Event Type'], $m->file_event_types)){

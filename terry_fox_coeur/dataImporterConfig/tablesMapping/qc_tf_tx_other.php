@@ -5,7 +5,7 @@ $fields = array(
 	"participant_id" => $pkey,
 	"treatment_control_id" => array("Event Type" => array("surgery" => 16, "chemotherapy" => 17, "radiotherapy" => 18, "hormonal therapy" => 19)),
 	"start_date" => "Date of event (beginning) Date",
-	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "d" => "d", "" => "")),
 	"finish_date" => "Date of event (end) Date",
 	"finish_date_accuracy" => array("Date of event (end) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
 );
@@ -29,6 +29,8 @@ function txPostRead(Model $m){
 	
 	if($m->values['Event Type'] == 'chimiotherapy'){
 		$m->values['Event Type'] = 'chemotherapy';
+	}else if($m->values['Event Type'] == 'radiation'){
+		$m->values['Event Type'] = 'radiotherapy';
 	}
 
 	if(!in_array($m->values['Event Type'], $m->file_event_types)){

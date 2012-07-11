@@ -38,6 +38,11 @@ function progressionSiteNumPostRead(Model $m){
 		$m->values['qc_tf_progression_detection_method'] = 'site detection';
 	}
 
+	$field = key($m->fields['qc_tf_tumor_site']);
+	if(isset($m->values[$field]) && $m->values[$field] == 'ascite'){
+		$m->values[$field] = 'Ascites';
+	}
+
 	return true;
 	
 }
