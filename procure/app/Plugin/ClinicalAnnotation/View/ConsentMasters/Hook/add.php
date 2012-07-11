@@ -1,3 +1,3 @@
 <?php
-	$final_options['override']['ConsentDetail.form_identification'] = $default_form_identification;
+	$final_options['override']['ConsentMaster.procure_form_identification'] = $default_procure_form_identification;
 	
