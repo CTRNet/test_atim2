@@ -55,6 +55,7 @@ function postCollectionWrite(Model $m){
 		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$lat_domain = Config::$value_domains['tissue_laterality'];
+		$m->values['Tissue Precision Tissue Laterality'] = trim($m->values['Tissue Precision Tissue Laterality']);
 		$lat_value = $lat_domain->isValidValue($m->values['Tissue Precision Tissue Laterality']);
 		if($lat_value === null){
 			echo "WARNING: Unmatched laterality value [",$m->values['Tissue Precision Tissue Laterality'],"] at line [".$m->line."]\n";

@@ -49,7 +49,12 @@ function otherDxPostRead(Model $m){
 		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
 			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]\n";
 		}
-	}	
+	}
+	
+	$field = key($m->fields['qc_tf_tumor_site']);
+	if(isset($m->values[$field]) && $m->values[$field] == 'ascite'){
+		$m->values[$field] = 'Ascites';
+	}
 		
 	return true;
 }

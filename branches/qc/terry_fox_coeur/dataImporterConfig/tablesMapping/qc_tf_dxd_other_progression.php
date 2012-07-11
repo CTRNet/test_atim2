@@ -40,5 +40,11 @@ function otherProgressionPostRead(Model $m){
 			$insert = false;
 		}
 	}
+	
+	$field = key($m->fields['qc_tf_tumor_site']);
+	if(isset($m->values[$field]) && $m->values[$field] == 'ascite'){
+		$m->values[$field] = 'Ascites';
+	}
+	
 	return true;
 }

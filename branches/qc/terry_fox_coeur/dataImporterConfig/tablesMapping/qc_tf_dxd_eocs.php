@@ -73,10 +73,6 @@ function dxdEocsPostRead(Model $m){
 		}
 	}
 	
-	if($m->values[$m->fields['qc_tf_tumor_site']] == 'ascite'){
-		$m->values[$m->fields['qc_tf_tumor_site']] = 'Ascites';
-	}
-	
 	$m->custom_data['last_csv_pkey'] = $m->values[$m->csv_pkey];
 	$m->custom_data['last_dx_values'] = $m->values;
 	

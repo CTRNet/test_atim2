@@ -5,7 +5,7 @@ $fields = array(
 	"participant_id" => $pkey,
 	"treatment_control_id" => array("Event Type" => array("surgery(ovarectomy)" => 20, "surgery(other)" => 15, "chemotherapy" => 14, "radiotherapy" => 21)),
 	"start_date" => "Date of event (beginning) Date",
-	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"start_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "d" => "d", "" => "")),
 	"finish_date" => "Date of event (end) Date",
 	"finish_date_accuracy" => array("Date of event (end) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => ""))
 );

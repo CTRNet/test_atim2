@@ -28,6 +28,7 @@ function progressionNoSitePostRead(Model $m){
 		&& empty($m->values['Site 1 of Primary Tumor Progression (metastasis)  If Applicable'])
 		&& empty($m->values['Site 2 of Primary Tumor Progression (metastasis)  If applicable'])
 	){
+		
 		excelDateFix($m);
 		return true;
 	}
