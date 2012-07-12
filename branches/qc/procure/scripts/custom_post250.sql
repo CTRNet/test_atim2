@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `procure_cd_sigantures_revs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 ALTER TABLE `procure_cd_sigantures`
-  ADD CONSTRAINT `procure_cd_sigantures_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+  ADD CONSTRAINT `procure_cd_sigantures_ibfk_2` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
   
 INSERT INTO structures(`alias`) VALUES ('procure_consent_form_siganture');
 
@@ -115,6 +115,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_consent_form_siganture'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='procure_cd_sigantures' AND `field`='revision_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='revision date' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
 ((SELECT id FROM structures WHERE alias='procure_consent_form_siganture'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='procure_cd_sigantures' AND `field`='patient_identity_verified'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
 -- i18n
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
@@ -387,6 +388,8 @@ INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SE
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='procure_form_identification' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- detail
 
 CREATE TABLE IF NOT EXISTS `procure_ed_lab_pathologies` (
@@ -567,20 +570,20 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_tumour_volume"), (SELECT id FROM structure_permissible_values WHERE value="moderate" AND language_alias="tumour volume moderate"), "2", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_tumour_volume"), (SELECT id FROM structure_permissible_values WHERE value="high" AND language_alias="tumour volume high"), "3", "1");
 
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade", "", "", NULL);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_1to4", "", "", NULL);
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1");
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1");
 
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_and_none", "", "", NULL);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_1to4_and_none", "", "", NULL);
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_and_none"), (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "5", "1");
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4_and_none"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4_and_none"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4_and_none"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4_and_none"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to4_and_none"), (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "5", "1");
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_margins", "", "", NULL);
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
@@ -716,9 +719,9 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_base', 'checkbox',  NULL , '0', '', '', '', 'base', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_location_bladder_neck', 'checkbox',  NULL , '0', '', '', '', 'bladder neck', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'tumour_volume', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_tumour_volume') , '0', '', '', '', 'tumour volume', ''), 
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_primary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade') , '0', '', '', '', 'primary pattern', ''), 
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_secondary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade') , '0', '', '', '', 'secondary pattern', ''), 
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_tertiary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_and_none') , '0', '', '', '', 'tertiary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_primary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to4') , '0', '', '', '', 'primary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_secondary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to4') , '0', '', '', '', 'secondary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_tertiary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to4_and_none') , '0', '', '', '', 'tertiary pattern', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'histologic_grade_gleason_score', 'input',  NULL , '0', 'size=5', '', '', 'total gleason score', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_margins') , '0', '', '', '', 'margins', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'margins_focal_or_extensive', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_margins_positive_precision') , '0', '', '', '', 'positive precision', ''), 
@@ -773,9 +776,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_base' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='base' AND `language_tag`=''), '2', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_location_bladder_neck' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bladder neck' AND `language_tag`=''), '2', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='tumour_volume' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_tumour_volume')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumour volume' AND `language_tag`=''), '2', '60', '3) tumour volume', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_primary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary pattern' AND `language_tag`=''), '2', '70', '4) histologic grade', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_secondary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='secondary pattern' AND `language_tag`=''), '2', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_tertiary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_and_none')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tertiary pattern' AND `language_tag`=''), '2', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_primary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to4')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary pattern' AND `language_tag`=''), '2', '70', '4) histologic grade', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_secondary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to4')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='secondary pattern' AND `language_tag`=''), '2', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_tertiary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to4_and_none')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tertiary pattern' AND `language_tag`=''), '2', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histologic_grade_gleason_score' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='total gleason score' AND `language_tag`=''), '2', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_margins')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='margins' AND `language_tag`=''), '3', '80', '5) margins', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='margins_focal_or_extensive' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_margins_positive_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='positive precision' AND `language_tag`=''), '3', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -806,6 +809,11 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='pathologic_staging_pn_lymph_node_examined' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='specify number of lymph nodes' AND `language_tag`='examined'), '3', '124', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='pathologic_staging_pn_lymph_node_involved' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='involved'), '3', '125', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='pathologic_staging_pm' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_pathologic_staging_pm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='distant metastasis (pm)' AND `language_tag`=''), '3', '126', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '-2', '', '1', 'report date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology');
 
 -- i18n 	Pathology report number
 
@@ -909,7 +917,156 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('pm1: distant metastasis',"pM1: Distant metastasis","pM1: Métastases à distance"),
 ('pn0: no regional lymph node metastasis',"pN0: No regional lymph node metastasis","pN0: Pas d'atteinte des ganglions lymphatiques régionaux");
 
-UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology');
+-- ===============================================================================================================================================================================
+--
+-- F1b - Fiche de renseignement au diagnostic
+--
+-- ===============================================================================================================================================================================
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+(null, 'procure', 'lab', 'procure diagnostic information worksheet', 1, 'procure_ed_diagnostic_information_worksheet', 'procure_ed_lab_diagnostic_information_worksheets', 0, 'procure diagnostic information worksheet', 1);
+
+-- master
+
+-- detail
+
+CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets` (
+  `revision_date` date DEFAULT NULL,
+  `revision_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `patient_identity_verified` tinyint(1) DEFAULT '0',
+
+  `biopsy_pre_surgery_date` date DEFAULT NULL,
+  `biopsy_pre_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',  
+   
+  `aps_pre_surgery_total_ng_ml` decimal(10,2) DEFAULT NULL, 
+  `aps_pre_surgery_free_ng_ml` decimal(10,2) DEFAULT NULL,  
+  `aps_pre_surgery_date` date DEFAULT NULL,
+  `aps_pre_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',  
+  
+  collected_cores_nbr int(4) DEFAULT NULL,  
+  nbr_of_cores__with_cancer int(4) DEFAULT NULL, 
+  
+  highest_prc_of_tumoral_zone_of_core decimal(10,2) DEFAULT NULL,  
+  
+  histologic_grade_primary_pattern varchar(50) DEFAULT NULL,
+  histologic_grade_secondary_pattern varchar(50) DEFAULT NULL,
+  histologic_grade_gleason_total varchar(50) DEFAULT NULL,  
+  
+  biopsies_before char(1) DEFAULT '',
+  biopsy_date  date DEFAULT NULL,
+  biopsy_date_accuracy char(1) NOT NULL DEFAULT '',
+
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets_revs` (
+  `revision_date` date DEFAULT NULL,
+  `revision_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `patient_identity_verified` tinyint(1) DEFAULT '0',
+
+  `biopsy_pre_surgery_date` date DEFAULT NULL,
+  `biopsy_pre_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',  
+   
+  `aps_pre_surgery_total_ng_ml` decimal(10,2) DEFAULT NULL, 
+  `aps_pre_surgery_free_ng_ml` decimal(10,2) DEFAULT NULL,  
+  `aps_pre_surgery_date` date DEFAULT NULL,
+  `aps_pre_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',  
+  
+  collected_cores_nbr int(4) DEFAULT NULL,  
+  nbr_of_cores__with_cancer int(4) DEFAULT NULL, 
+  
+  highest_prc_of_tumoral_zone_of_core decimal(10,2) DEFAULT NULL,  
+  
+  histologic_grade_primary_pattern varchar(50) DEFAULT NULL,
+  histologic_grade_secondary_pattern varchar(50) DEFAULT NULL,
+  histologic_grade_gleason_total varchar(50) DEFAULT NULL,  
+  
+  biopsies_before char(1) DEFAULT '',
+  biopsy_date  date DEFAULT NULL,
+  biopsy_date_accuracy char(1) NOT NULL DEFAULT '',
+	
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `procure_ed_lab_diagnostic_information_worksheets`
+  ADD CONSTRAINT `procure_ed_lab_diagnostic_information_worksheets_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_1to5", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to5"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to5"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to5"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to5"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_1to5"), (SELECT id FROM structure_permissible_values WHERE value="5" AND language_alias="5"), "5", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_6to10", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="6" AND language_alias="6"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="7" AND language_alias="7"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="8" AND language_alias="8"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="9"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="10" AND language_alias="10"), "5", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'revision_date', 'date',  NULL , '0', '', '', '', 'revision date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsy_pre_surgery_date', 'date',  NULL , '0', '', '', '', 'date of biopsy prior to surgery', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'aps_pre_surgery_total_ng_ml', 'float_positive',  NULL , '0', '', '', '', 'total ng/ml', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'aps_pre_surgery_free_ng_ml', 'float_positive',  NULL , '0', '', '', '', 'free ng/ml', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'aps_pre_surgery_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'collected_cores_nbr', 'float_positive',  NULL , '0', '', '', '', 'number of collected cores', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'nbr_of_cores__with_cancer', 'float_positive',  NULL , '0', '', '', '', 'number of cores with cancer', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'highest_prc_of_tumoral_zone_of_core', 'float_positive',  NULL , '0', '', '', '', 'highest percentage of tumoral zone of core', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_primary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5') , '0', '', '', '', 'primary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_secondary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5') , '0', '', '', '', 'secondary pattern', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_gleason_total', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_6to10') , '0', '', '', '', 'gleason Score', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsies_before', 'yes_no',  NULL , '0', '', '', '', 'did the patient have biopsies before', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsy_date ', 'date',  NULL , '0', '', '', '', 'date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='revision_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='revision date' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_pre_surgery_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date of biopsy prior to surgery' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_total_ng_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total ng/ml' AND `language_tag`=''), '1', '30', 'psa prior to surgery', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_free_ng_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='free ng/ml' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='collected_cores_nbr' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of collected cores' AND `language_tag`=''), '1', '40', 'cores', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='nbr_of_cores__with_cancer' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of cores with cancer' AND `language_tag`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='highest_prc_of_tumoral_zone_of_core' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='highest percentage of tumoral zone of core' AND `language_tag`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_primary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary pattern' AND `language_tag`=''), '2', '50', 'histologic grade', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_secondary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='secondary pattern' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_gleason_total' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_6to10')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason Score' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsies_before' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='did the patient have biopsies before' AND `language_tag`=''), '2', '60', 'biopsy', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_date ' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '2', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', 'comments', '1', 'comments', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- i18n
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('procure diagnostic information worksheet', "F1b - Diagnostic information worksheet","F1b - Fiche de renseignements au diagnostic"),
+('biopsy', 'Biopsy','Biopie'),
+('cores','Cores','Zones prélevées'),
+('date of biopsy prior to surgery',"Date of biopsy prior to surgery","Date de biopsie pré-chirurgie"),
+('did the patient have biopsies before',"Did the patient have biopsies before","Le patient a-t-il eu des biopsies antérieurement"),
+('free ng/ml',"Free (ng/ml)","Libre (ng/ml)"),
+('highest percentage of tumoral zone of core','Highest pct of tumoral zone among collected samples',"pct d'atteinte le plus élevé parmi les prélèvements"),
+('number of collected cores',"Nombre de zones prélevées","Number of collected cores"),
+('number of cores with cancer',"Nombre de zones atteintes","Number of cores with cancer"),
+('psa prior to surgery',"PSA prior to surgery","APS pré-chirurgie:"),
+('total ng/ml',"Total (ng/ml)","Total (ng/ml)");
+
+
+
+
+
+
+
+
+
+
 
 
 
