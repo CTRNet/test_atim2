@@ -187,6 +187,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 		}
 		$samples = $this->ViewSample->find('all', array('conditions' => array('sample_master_id' => $sample_master_ids), 'recursive' => -1));
+		$this->ViewSample->sortForDisplay($samples, $sample_master_ids);
 		$samples_from_id = array();
 		
 		$is_specimen = (strcmp($samples[0]['ViewSample']['sample_category'], 'specimen') ==0)? true: false;
@@ -648,12 +649,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;	
 		}
+		$this->AliquotMaster->sortForDisplay($aliquot_data, $aliquot_ids);
 		
 		// SET MENU AND STRUCTURE DATA
 		
 		$atim_menu_link = '/InventoryManagement/';
 		if($aliquot_master_id != null){
-			// User is workning on a collection		
+			// User is working on a collection		
 			$atim_menu_link = ($aliquot_data[0]['SampleControl']['sample_category'] == 'specimen')? 
 				'/InventoryManagement/AliquotMasters/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%AliquotMaster.id%%': 
 				'/InventoryManagement/AliquotMasters/detail/%%Collection.id%%/%%SampleMaster.id%%/%%AliquotMaster.id%%';
@@ -1610,6 +1612,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
 			
+			$this->AliquotMaster->sortForDisplay($parent_aliquots, $parent_aliquots_ids);
+			
 			//build data array
 			$this->request->data = array();
 			foreach($parent_aliquots as $parent_aliquot){
@@ -1986,6 +1990,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						'foreignKey' => 'parent_aliquot_master_id')));
 			$this->AliquotMaster->bindModel($has_many_details);	
 			$parent_aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => explode(",", $parent_aliquots_ids))));
+			$this->AliquotMaster->sortForDisplay($parent_aliquots, $parent_aliquots_ids);
 			if(empty($parent_aliquots)){
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}

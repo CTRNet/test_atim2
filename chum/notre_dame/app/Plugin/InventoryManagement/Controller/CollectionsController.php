@@ -13,6 +13,7 @@ class CollectionsController extends InventoryManagementAppController {
 		'InventoryManagement.SpecimenReviewMaster',
 		'InventoryManagement.ParentToDerivativeSampleControl',
 		'InventoryManagement.SpecimenDetail',//here for collection template validation
+		'InventoryManagement.DerivativeDetail',//here for collection template validation
 		
 		'ExternalLink'
 	);
