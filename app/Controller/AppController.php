@@ -546,13 +546,15 @@ class AppController extends Controller {
 			return array('error' => "batch init - number of submitted records too big");
 		}
 		//extract valid ids
-		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->request->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
-		$ids = $ids[0][0]['ids'];
+		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->request->data[$data_model_name][$data_key]), 'fields' => array($model->name.'.id'), 'recursive' => -1));
 		if(empty($ids)){
 			return array('error' => "batch init no data");
 		}
+		$model->sortForDisplay($ids, $this->request->data[$data_model_name][$data_key]);
+		$ids = self::defineArrayKey($ids, $model->name, 'id');
+		$ids = array_keys($ids);
 	
-		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
+		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => $ids), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
 		if(count($controls) != 1){
 			return array('error' => "you must select elements with a common type");
 		}
@@ -563,7 +565,7 @@ class AppController extends Controller {
 			return array('error' => $no_possibilities_msg);
 		}
 	
-		return array('ids' => $ids, 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
+		return array('ids' => implode(',', $ids), 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
 	}
 	
 	/**

@@ -1258,4 +1258,22 @@ class AppModel extends Model {
 			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
 		}
 	}
+	
+	/**
+	 * Will sort data based on the given primary key order.
+	 * @param array $data The data to sort.
+	 * @param array|string $order The ordered pkeys in either an array or a comma separated string.
+	 */
+	function sortForDisplay(array &$data, $order){
+		$tmp_data = AppController::defineArrayKey($data, $this->name, $this->primaryKey, true);
+		if(is_string($order)){
+			$order = explode(',', $order);
+		}
+		$order = array_unique(array_filter($order));
+		$data = array();
+		foreach($order as $key){
+			$data[] = $tmp_data[$key];
+		}
+		unset($tmp_data);
+	}
 }

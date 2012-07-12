@@ -44,7 +44,7 @@ class DatamartAppModel extends AppModel {
 					$functions_menu[] = array(
 						'value' 	=> '0',
 						'label' 	=> __($function['DatamartStructureFunction']['label']),
-						'value'		=> $function['DatamartStructureFunction']['link']
+						'value'		=> substr($function['DatamartStructureFunction']['link'], 1)
 					);
 				}
 			}
