@@ -5,6 +5,7 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("time_hour", "Time", "Heure"),
 ("tracking #", "Tracking #", "# de suivi"),
 ("phone #", "Phone #", "# de téléphone"),
 ("department/door", "Department/Door", "Département/Porte"),
@@ -208,6 +209,8 @@ UPDATE collections SET collection_datetime_accuracy='c' WHERE collection_datetim
 UPDATE aliquot_masters SET storage_datetime_accuracy='c' WHERE storage_datetime IS NOT NULL AND storage_datetime_accuracy='';
 UPDATE specimen_details SET reception_datetime_accuracy='c' WHERE reception_datetime IS NOT NULL AND reception_datetime_accuracy='';
 UPDATE derivative_details SET creation_datetime_accuracy='c' WHERE creation_datetime IS NOT NULL AND creation_datetime_accuracy='';
+UPDATE participants SET date_of_birth_accuracy='c' WHERE date_of_birth IS NOT NULL AND date_of_birth_accuracy='';
+UPDATE participants SET date_of_death_accuracy='c' WHERE date_of_death IS NOT NULL AND date_of_death_accuracy='';
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -2330,4 +2333,4 @@ UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id F
 UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_postal_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_country' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
+UPDATE structure_fields SET  `language_label`='time_hour' WHERE model='custom' AND tablename='' AND field='time' AND `type`='time' AND structure_value_domain  IS NULL ;
