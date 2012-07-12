@@ -1,6 +1,6 @@
 <?php 
 
-	if($tx_master_data['TreatmentControl']['tx_method'] == 'medication worksheet') {
+	if($tx_master_data['TreatmentControl']['tx_method'] == 'procure medication worksheet') {
 		$ordered_drugs_to_dispay = array(
 				'prostate' => array('avodart' => null,'proscar'=> null,'flomax'=> null,'xatral'=> null,'cipro'=> null),
 				'open sale' => array('aspirine'=> null, 'advil'=> null, 'tylenol'=> null, 'vitamines'=> null));
