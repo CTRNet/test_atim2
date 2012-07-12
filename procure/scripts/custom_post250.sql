@@ -7,6 +7,14 @@ UPDATE `groups` SET `flag_show_confidential` = '1';
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('core_installname','PROCURE','PROCURE'),('add form', 'Add Form', 'Créer Fiche');
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/FamilyHistories%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantMessages%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantContacts%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/DiagnosisMasters%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ReproductiveHistories%';
+
+
+
 -- ===============================================================================================================================================================================
 --
 -- PROFILE & IDENTIFICATION
@@ -694,8 +702,6 @@ VALUES
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_pathologic_staging_pm"),(SELECT id FROM structure_permissible_values WHERE value="pM1b" AND language_alias="pM1b: bone"), "5", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_pathologic_staging_pm"),(SELECT id FROM structure_permissible_values WHERE value="pM1c" AND language_alias="pM1c: other sites"), "6", "1");
 
-DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='procure_ed_pathology');
-DELETE FROM structure_fields WHERE tablename = 'procure_ed_lab_pathologies';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'path_number', 'input',  NULL , '0', 'size=10', '', '', 'path report number', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'pathologist_name', 'input',  NULL , '0', 'size=30', '', '', 'pathologist name', ''), 
@@ -944,7 +950,7 @@ CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets` (
   `aps_pre_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',  
   
   collected_cores_nbr int(4) DEFAULT NULL,  
-  nbr_of_cores__with_cancer int(4) DEFAULT NULL, 
+  nbr_of_cores_with_cancer int(4) DEFAULT NULL, 
   
   highest_prc_of_tumoral_zone_of_core decimal(10,2) DEFAULT NULL,  
   
@@ -974,7 +980,7 @@ CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets_rev
   `aps_pre_surgery_date_accuracy` char(1) NOT NULL DEFAULT '',  
   
   collected_cores_nbr int(4) DEFAULT NULL,  
-  nbr_of_cores__with_cancer int(4) DEFAULT NULL, 
+  nbr_of_cores_with_cancer int(4) DEFAULT NULL, 
   
   highest_prc_of_tumoral_zone_of_core decimal(10,2) DEFAULT NULL,  
   
@@ -983,8 +989,8 @@ CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets_rev
   histologic_grade_gleason_total varchar(50) DEFAULT NULL,  
   
   biopsies_before char(1) DEFAULT '',
-  biopsy_date  date DEFAULT NULL,
-  biopsy_date_accuracy char(1) NOT NULL DEFAULT '',
+  biopsy_date date DEFAULT NULL,
+  biopsy_date_accuracy char(1) NOT NULL DEFAULT '',  
 	
   `event_master_id` int(11) NOT NULL,
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -994,6 +1000,8 @@ CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets_rev
 
 ALTER TABLE `procure_ed_lab_diagnostic_information_worksheets`
   ADD CONSTRAINT `procure_ed_lab_diagnostic_information_worksheets_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structures(`alias`) VALUES ('procure_ed_diagnostic_information_worksheet');
 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_grade_1to5", "", "", NULL);
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
@@ -1019,13 +1027,13 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'aps_pre_surgery_free_ng_ml', 'float_positive',  NULL , '0', '', '', '', 'free ng/ml', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'aps_pre_surgery_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'collected_cores_nbr', 'float_positive',  NULL , '0', '', '', '', 'number of collected cores', ''), 
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'nbr_of_cores__with_cancer', 'float_positive',  NULL , '0', '', '', '', 'number of cores with cancer', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'nbr_of_cores_with_cancer', 'float_positive',  NULL , '0', '', '', '', 'number of cores with cancer', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'highest_prc_of_tumoral_zone_of_core', 'float_positive',  NULL , '0', '', '', '', 'highest percentage of tumoral zone of core', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_primary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5') , '0', '', '', '', 'primary pattern', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_secondary_pattern', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5') , '0', '', '', '', 'secondary pattern', ''), 
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_gleason_total', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_6to10') , '0', '', '', '', 'gleason Score', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'histologic_grade_gleason_total', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_6to10') , '0', '', '', '', 'gleason score', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsies_before', 'yes_no',  NULL , '0', '', '', '', 'did the patient have biopsies before', ''), 
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsy_date ', 'date',  NULL , '0', '', '', '', 'date', '');
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsy_date', 'date',  NULL , '0', '', '', '', 'date', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='revision_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='revision date' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -1034,13 +1042,13 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_free_ng_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='free ng/ml' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='collected_cores_nbr' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of collected cores' AND `language_tag`=''), '1', '40', 'cores', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='nbr_of_cores__with_cancer' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of cores with cancer' AND `language_tag`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='nbr_of_cores_with_cancer' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of cores with cancer' AND `language_tag`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='highest_prc_of_tumoral_zone_of_core' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='highest percentage of tumoral zone of core' AND `language_tag`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_primary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary pattern' AND `language_tag`=''), '2', '50', 'histologic grade', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_secondary_pattern' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_1to5')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='secondary pattern' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_gleason_total' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_6to10')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason Score' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='histologic_grade_gleason_total' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_grade_6to10')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason score' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsies_before' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='did the patient have biopsies before' AND `language_tag`=''), '2', '60', 'biopsy', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_date ' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '2', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '2', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', 'comments', '1', 'comments', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 -- i18n
@@ -1058,7 +1066,27 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('psa prior to surgery',"PSA prior to surgery","APS pré-chirurgie:"),
 ('total ng/ml',"Total (ng/ml)","Total (ng/ml)");
 
+-- ===============================================================================================================================================================================
+--
+-- F1 - Fiche de suivi du patient
+--
+-- ===============================================================================================================================================================================
 
+-- INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+-- (null, 'procure', 'clinical', 'procure follow-up worksheet', 1, 'procure_ed_followup_worksheet', 'procure_ed_clinical_followup_worksheets', 0, 'procure follow-up worksheet', 1);
+
+
+
+
+
+
+
+
+
+-- i18n
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('procure follow-up worksheet', "F1 - Follow-up Worksheet","F1b - Fiche de suivi du patient ")
 
 
 
