@@ -1254,8 +1254,7 @@ class AppModel extends Model {
 		try{
 			return parent::query($sql, $cache);
 		}catch(Exception $e){
-			$bt = debug_backtrace();
-			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
+			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
 		}
 	}
 	
