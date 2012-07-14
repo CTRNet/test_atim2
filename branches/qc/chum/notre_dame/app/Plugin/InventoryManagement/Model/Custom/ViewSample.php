@@ -33,9 +33,10 @@ class ViewSampleCustom extends ViewSample{
 			
 		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
 		IF(Collection.collection_datetime IS NULL, -1,
+		IF(Collection.collection_datetime_accuracy IN ("h", "i") OR DerivativeDetail.creation_datetime_accuracy IN ("h", "i"), DATEDIFF(DerivativeDetail.creation_datetime, Collection.collection_datetime) * 1440,
 		IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
+		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime)))))) AS coll_to_creation_spent_time_msg,
 		
 		MiscIdentifier.identifier_value AS identifier_value,
 		Collection.visit_label AS visit_label,
