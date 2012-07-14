@@ -10,6 +10,8 @@
 		
 		$this->SampleMaster->addWritableField('qc_nd_sample_label');
 		$this->request->data['SampleMaster']['qc_nd_sample_label'] = $this->SampleMaster->createSampleLabel($collection_id, $working_data);
+		
+		$this->SampleMaster->data = array();
 	}		
 			
 ?>
