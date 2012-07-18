@@ -43,3 +43,44 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES
  ((SELECT `id` FROM `structure_fields` WHERE `tablename` = 'txd_surgeries' AND `field` = 'path_num'), "/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{5}$^/", 'npttb error surgery path number');
 
+
+/*
+	Add age field for data migration from npttb spreadsheet
+*/
+
+ALTER TABLE `participants` ADD COLUMN `npttb_age` INT NULL  AFTER `last_chart_checked_date_accuracy` ;
+
+ALTER TABLE `cd_npttb_consent_baker_v2` CHANGE COLUMN `id` `id` INT(11) NOT NULL AUTO_INCREMENT  ;
+ALTER TABLE `cd_npttb_consent_baker_v3` CHANGE COLUMN `id` `id` INT(11) NOT NULL AUTO_INCREMENT  ;
+ALTER TABLE `cd_npttb_consent_brain_bank` CHANGE COLUMN `id` `id` INT(11) NOT NULL AUTO_INCREMENT  ;
+
+/*
+	Fix custom consent values for person consenting
+*/
+
+UPDATE `structure_permissible_values_customs` SET `value`='ruxandra petcu', `en`='Ruxandra Petcu'
+WHERE `value`='ruxandra';
+
+UPDATE `structure_permissible_values_customs` SET `value`='sherri lang', `en`='Sherri Lang'
+WHERE `value`='sherri';
+
+UPDATE `structure_permissible_values_customs` SET `value`='jane rigel', `en`='Jane Rigel'
+WHERE `value`='jane';
+
+UPDATE `structure_permissible_values_customs` SET `value`='errin st thomas', `en`='Errin St. Thomas'
+WHERE `value`='errin';
+
+/*
+	New custom consent values for person consenting
+*/
+
+INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`) VALUES
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb person consenting'), 'dr forsyth', 'Dr. Forsyth', 22, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb person consenting'), 'dr cairncross', 'Dr. Cairncross', 22, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb person consenting'), 'ds', 'DS', 22, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb person consenting'), 'ra', 'RA', 22, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb person consenting'), 'mary', 'Mary', 22, 0);
+
+
+
+
