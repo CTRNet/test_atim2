@@ -29,6 +29,7 @@ class Config{
 
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
+	static $line_break_tag = '<br>';
 	
 	//--------------------------------------
 
@@ -88,8 +89,6 @@ Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImpo
 //=========================================================================================================
 	
 function addonFunctionStart(){
-	global $connection;
-	
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -105,28 +104,28 @@ function addonFunctionStart(){
 	// ** Data check ** 
 	
 	$query = "SELECT COUNT(*) FROM participants;";
-	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] < 1) {
 		die("Step2: Participant table should be completed");
 	}
 	
 	$query = "SELECT COUNT(*) FROM misc_identifiers;";
-	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] < 1) {
 		die("Step2: Identifiers table should be completed");
 	}	
 	
 	$query = "SELECT COUNT(*) FROM diagnosis_masters;";
-	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] > 0) {
 		die("Step2: Diagnoses table should be empty");
 	}	
 
 	$query = "SELECT COUNT(*) FROM collections;";
-	$results = mysqli_query($connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] > 0) {
 		die("Step2: Collections table should be empty");
@@ -135,7 +134,7 @@ function addonFunctionStart(){
 	// ** Set sample aliquot controls **
 	
 	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue','blood', 'ascite', 'peritoneal wash', 'ascite cell', 'ascite supernatant', 'cell culture', 'serum', 'plasma', 'dna', 'rna', 'blood cell')";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
 	}	
@@ -143,7 +142,7 @@ function addonFunctionStart(){
 	
 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
 		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
-		$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 		while($row = $results->fetch_assoc()){
 			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
 		}	
@@ -152,7 +151,7 @@ function addonFunctionStart(){
 	// ** Set diagnosis controls **
 	
 	$query = "select id,category,controls_type,detail_tablename from diagnosis_controls where flag_active = '1' AND category IN ('primary','secondary');";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$diagnosis_controls[$row['category']][$row['controls_type']] = array('diagnosis_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
@@ -160,7 +159,7 @@ function addonFunctionStart(){
 	// ** Set treatment controls **
 	
 	$query = "select id,tx_method,disease_site,detail_tablename from treatment_controls where flag_active = '1';";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$treatment_controls[$row['tx_method']][$row['disease_site']] = array('treatment_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
@@ -168,7 +167,7 @@ function addonFunctionStart(){
 	// ** Set event controls **
 	
 	$query = "select id,disease_site,event_group,event_type,detail_tablename from event_controls where flag_active = '1';";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$event_controls[$row['event_group']][$row['disease_site']][$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
@@ -176,7 +175,7 @@ function addonFunctionStart(){
 	// ** Set cytoreduction value **
 	
 	$query = "select value from structure_permissible_values_customs where control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'cytoreductions values');";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$cytoreduction_values[] = $row['value'];
 	}
@@ -186,7 +185,7 @@ function addonFunctionStart(){
 	$query = "SELECT ident.id, ctrl.misc_identifier_name, ident.identifier_value, ident.participant_id
 	FROM misc_identifier_controls AS ctrl INNER JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = ctrl.id
 	WHERE ctrl.misc_identifier_name LIKE '%FRSQ%' AND ident.deleted != 1";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		if(isset(Config::$ids_from_frsq_nbr[$row['identifier_value']])) {
 			pr($row);
@@ -206,7 +205,7 @@ function addonFunctionStart(){
 	// ** Set storage controls **
 	
 	$query = "select id,storage_type,detail_tablename from storage_controls where flag_active = '1';";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
@@ -218,19 +217,17 @@ function addonFunctionStart(){
 //=========================================================================================================
 	
 function addonFunctionEnd(){
-	global $connection;
-
 	// DIAGNOSIS UPDATE
 	
 	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
 	$query = "UPDATE diagnosis_masters parent, diagnosis_masters child SET child.primary_id = parent.primary_id WHERE child.primary_id IS NULL AND child.parent_id IS NOT NULL AND child.parent_id = parent.id;";
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$query = str_replace('diagnosis_masters','diagnosis_masters_revs',$query);
-	mysqli_query($connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("primary_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 
 	// ADD PATIENT OTHER DATA
 	
@@ -240,20 +237,20 @@ function addonFunctionEnd(){
 
   	// INVENTORY COMPLETION
 		
-	$query = "UPDATE sample_masters SET sample_code=id;";
-	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE sample_masters_revs SET sample_code=id;";
-	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+//	$query = "UPDATE sample_masters SET sample_code=id;";
+//	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+//	$query = "UPDATE sample_masters_revs SET sample_code=id;";
+//	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
 	
 	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
 	
-	$query = "UPDATE aliquot_masters SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+//	$query = "UPDATE aliquot_masters SET barcode=id;";
+//	mysqli_query(Config::$db_connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+//	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
+//	mysqli_query(Config::$db_connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
 	// WARNING DISPLAY
 
@@ -305,8 +302,6 @@ function addonFunctionEnd(){
 }
 
 function addPatientsHistory() {
-	global $connection;
-	
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path);
 	
@@ -450,9 +445,9 @@ function addPatientsHistory() {
 			}
 			if(!empty($update_sql)) {
 				$query = "UPDATE participants SET $update_sql WHERE id = $participant_id;";
-				mysqli_query($connection, $query) or die("participants update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("participants update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$query = str_replace('participants','participants_revs',$query);
-				mysqli_query($connection, $query) or die("participants update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
+				mysqli_query(Config::$db_connection, $query) or die("participants update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));		
 			}
 
 			// ADD clinical-all-followup (chus_ed_clinical_followups)
@@ -508,9 +503,9 @@ function addPatientsHistory() {
 			$notes .= empty($line_data['IMC'])? '' : (empty($notes)? '' : ' // ').'IMC was defined in source file ('.$line_data['IMC'].').';
 			
 			if(!is_null($height_in_cm) || !is_null($weight_in_kg)) {
-				if(!isset(Config::$event_controls['clinical']['all']['followup'])) die('ERR 88998379');
-				$event_control_id = Config::$event_controls['clinical']['all']['followup']['event_control_id'];
-				$detail_tablename = Config::$event_controls['clinical']['all']['followup']['detail_tablename'];				
+				if(!isset(Config::$event_controls['clinical']['general']['followup'])) die('ERR 88998379.1');
+				$event_control_id = Config::$event_controls['clinical']['general']['followup']['event_control_id'];
+				$detail_tablename = Config::$event_controls['clinical']['general']['followup']['detail_tablename'];				
 				
 				$master_fields = array(
 					'participant_id' => $participant_id,
@@ -582,9 +577,9 @@ function addPatientsHistory() {
 			}
 			
 			if(!empty($detail_fields)) {
-				if(!isset(Config::$event_controls['lifestyle']['all']['smoking history questionnaire'])) die('ERR 88998379');
-				$event_control_id = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['event_control_id'];
-				$detail_tablename = Config::$event_controls['lifestyle']['all']['smoking history questionnaire']['detail_tablename'];				
+				if(!isset(Config::$event_controls['lifestyle']['general']['smoking history questionnaire'])) die('ERR 88998379.2');
+				$event_control_id = Config::$event_controls['lifestyle']['general']['smoking history questionnaire']['event_control_id'];
+				$detail_tablename = Config::$event_controls['lifestyle']['general']['smoking history questionnaire']['detail_tablename'];				
 				
 				$master_fields = array(
 					'participant_id' => $participant_id,
@@ -717,9 +712,9 @@ function addPatientsHistory() {
 			
 			// ADD ATCD
 			
-			if(!isset(Config::$event_controls['clinical']['all']['past history'])) die('ERR 88998379');
-			$event_control_id = Config::$event_controls['clinical']['all']['past history']['event_control_id'];
-			$detail_tablename = Config::$event_controls['clinical']['all']['past history']['detail_tablename'];				
+			if(!isset(Config::$event_controls['clinical']['general']['past history'])) die('ERR 88998379.3');
+			$event_control_id = Config::$event_controls['clinical']['general']['past history']['event_control_id'];
+			$detail_tablename = Config::$event_controls['clinical']['general']['past history']['detail_tablename'];				
 			
 			$all_atcd_events = array();
 			
@@ -833,8 +828,6 @@ function getAtcdDate($date_string, $line_counter) {
 }
 
 function addFamilyHistory() {
-	global $connection;
-
 	$tumors_list_matches = array(
 		'vessie' => array('tumor' => 'bladder', 'origin' => ''),
 		'os' => array('tumor' => 'bone', 'origin' => ''),
@@ -1055,7 +1048,6 @@ function pr($arr) {
 }
 
 function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false, $flush_empty_fields = false) {
-	global $connection;
 	$created = $is_detail_table? array() : array(
 		"created"		=> "NOW()", 
 		"created_by"	=> Config::$db_created_id, 
@@ -1073,13 +1065,14 @@ function customInsertChusRecord($data_arr, $table_name, $is_detail_table = false
 	
 	$insert_arr = array_merge($data_arr, $created);
 	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
-	$record_id = mysqli_insert_id($connection);
+	$record_id = mysqli_insert_id(Config::$db_connection);
+	$additional_fields = $is_detail_table? array('version_created' => "NOW()") : array('id' => "$record_id", 'version_created' => "NOW()");
 	
-	$rev_insert_arr = array_merge($data_arr, array('id' => "$record_id", 'version_created' => "NOW()"));
+	$rev_insert_arr = array_merge($data_arr, $additional_fields);
 	$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
 	return $record_id;	
 }
@@ -1315,7 +1308,7 @@ function loadAscite2mlCollection($collections_to_create) {
 				// Created stored aliquot
 				if(empty($line_data['Boite'])) die('ERR  ['.$line_counter.'] 88990373'.$line_data['Boite'].'//'.$line_data['Emplacement']);
 				
-				$storage_master_id = getStorageId('ascite_1_ml', 'box100', $line_data['Boite']);
+				$storage_master_id = getStorageId('ascite 1ml', 'box100', $line_data['Boite']);
 				
 				$stored_aliquots_positions = array();
 				$emplacement_tmp = str_replace(array(' ','.'), array('',','), $line_data['Emplacement']);
@@ -1577,7 +1570,7 @@ function loadAscite10mlCollection($collections_to_create) {
 				// Created stored aliquot
 				if(empty($line_data['Boite'])) die('ERR  ['.$line_counter.'] 88990rrr373'.$line_data['Boite'].'//'.$line_data['Emplacement']);
 				
-				$storage_master_id = getStorageId('ascite_10_ml', 'box49', $line_data['Boite']);
+				$storage_master_id = getStorageId('ascite 10ml', 'box49', $line_data['Boite']);
 				
 				$stored_aliquots_positions = array();
 				$emplacement_tmp = str_replace(array(' ','.'), array('',','), $line_data['Emplacement']);
@@ -2607,7 +2600,7 @@ function loadDNACollection() {
 				if(sizeof($aliquot_positions) > 1) Config::$summary_msg['DNA']['@@MESSAGE@@']["Split current weight"][] = "Split current weight ($current_weight) in ".sizeof($aliquot_positions)." => ($current_weight_per_aliquot). Please confirm! [line: $line_counter]";
 				if($current_weight_per_aliquot == '0.0') Config::$summary_msg['DNA']['@@ERROR@@']["Empty 'available' aliquot"][] = "The current weight of aliquot is equal to 0 but the status is still equal to 'yes - available'. Please confirm! [line: $line_counter]";
 				foreach($aliquot_positions as $new_stored_aliquot) {
-					$storage_master_id = getStorageId('plasma', 'box100', $new_stored_aliquot['box_label']);
+					$storage_master_id = getStorageId('dna', 'box100', $new_stored_aliquot['box_label']);
 					$new_dna['aliquots'][] = array(
 						'aliquot_masters' => array(
 							'aliquot_label' => "'$aliquot_label'", 
@@ -2724,7 +2717,7 @@ function getParticipantIdentifierAndDiagnosisIds($worksheet, $line_counter, $frs
 function getStorageId($aliquot_description, $storage_control_type, $selection_label) {
 	global $storage_list;
 	
-	$selection_label = str_replace(' ', '', $selection_label);
+	$selection_label = str_replace(' ', '', $selection_label)."[OV/$aliquot_description]";
 	
 	$storage_key = $aliquot_description.$storage_control_type.$selection_label;
 	if(isset($storage_list[$storage_key])) return $storage_list[$storage_key];
@@ -2754,10 +2747,7 @@ function createCollection($collections_to_create) {
 	foreach($collections_to_create as $new_collection) {	
 		// Create colleciton
 		if(!isset($new_collection['collection'])) die('ERR 889940404023');
-		$collection_id = customInsertChusRecord(array_merge($new_collection['collection'], array('bank_id' => '2', 'collection_property' => "'participant collection'")), 'collections');	
-		
-		if(!isset($new_collection['link'])) die('ERR 889940404023.3');
-		customInsertChusRecord(array_merge($new_collection['link'], array('collection_id' => $collection_id)), 'clinical_collection_links', false, true);			
+		$collection_id = customInsertChusRecord(array_merge($new_collection['collection'], $new_collection['link'], array('bank_id' => '2', 'collection_property' => "'participant collection'")), 'collections', false, true);	
 		
 		if(!isset($new_collection['inventory'])) die('ERR 889940404023.1');
 		foreach($new_collection['inventory'] as $specimen_type => $specimen_products_list) {
@@ -2769,7 +2759,7 @@ function createCollection($collections_to_create) {
 					'initial_specimen_sample_type' => "'$specimen_type'");
 				$sample_master_id = customInsertChusRecord(array_merge($new_specimen_products['sample_masters'], $additional_data), 'sample_masters', false, true);			
 				customInsertChusRecord(array_merge($new_specimen_products['sample_details'], array('sample_master_id' => $sample_master_id)), Config::$sample_aliquot_controls[$specimen_type]['detail_tablename'], true, true);			
-				customInsertChusRecord(array_merge($new_specimen_products['specimen_details'], array('sample_master_id' => $sample_master_id)), 'specimen_details', false, true);
+				customInsertChusRecord(array_merge($new_specimen_products['specimen_details'], array('sample_master_id' => $sample_master_id)), 'specimen_details', true, true);
 				$next_sample_code++;
 				
 				// Create Derivative
@@ -2797,7 +2787,7 @@ function createDerivative($collection_id, $initial_specimen_sample_id, $initial_
 				'parent_sample_type' => "'$parent_sample_type'");
 			$sample_master_id = customInsertChusRecord(array_merge($new_derivative['sample_masters'], $additional_data), 'sample_masters', false, true);			
 			customInsertChusRecord(array_merge($new_derivative['sample_details'], array('sample_master_id' => $sample_master_id)), Config::$sample_aliquot_controls[$derivative_type]['detail_tablename'], true, true);			
-			customInsertChusRecord(array_merge($new_derivative['derivative_details'], array('sample_master_id' => $sample_master_id)), 'derivative_details', false, true);
+			customInsertChusRecord(array_merge($new_derivative['derivative_details'], array('sample_master_id' => $sample_master_id)), 'derivative_details', true, true);
 			$next_sample_code++;
 				
 			// Create Derivative

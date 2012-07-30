@@ -94,7 +94,6 @@ $model->custom_data = array();
 Config::$models['BreastDiagnosisMaster'] = $model;
 	
 function postBreastDiagnosesRead(Model $m){
-	global $connection;
 	
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
 	
@@ -130,7 +129,7 @@ function postBreastDiagnosesRead(Model $m){
 			"consent_signed_date" => "'$consent_date'",
 			"consent_signed_date_accuracy" => "'c'");
 		$consent_master_id = customInsertChusRecord($master_fields, 'consent_masters');
-		customInsertChusRecord(array('consent_master_id' => $consent_master_id), 'cd_nationals', true);
+		customInsertChusRecord(array('consent_master_id' => $consent_master_id), 'cd_nationals', true, true);
 		
 		Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] = $consent_master_id;
 		Config::$data_for_import_from_participant_id[$participant_id]['consent_date'] = $consent_date;
@@ -154,9 +153,9 @@ function postBreastDiagnosesRead(Model $m){
 				Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']['Participant Birthdate conflict step2/3'][] = "The patient with FRSQ#(s) [".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ BR']).(!empty(Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV'])? "-".implode(",", Config::$data_for_import_from_participant_id[$participant_id]['#FRSQ OV']) : '')."] has different birth dates defined from step2 and step3 ($date_of_birth != $date_of_birth_from_step2! Check OV and BR files ! [Line: ".$m->line.']';
 			} else if(!empty($date_of_birth)) {
 				$query = "UPDATE participants SET date_of_birth = '$date_of_birth', date_of_birth_accuracy = 'c'  WHERE id = ".$m->values['participant_id'].";";
-				mysqli_query($connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$query = str_replace('participants','participants_revs', $query);
-				mysqli_query($connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
+				mysqli_query(Config::$db_connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));		
 			}
 		}	
 	}
@@ -440,13 +439,12 @@ function postBreastDiagnosesRead(Model $m){
 }
 
 function postBreastDiagnosesWrite(Model $m){
-	global $connection;
 	
 	if(isset($m->values['parent_id'])) {
 		$query = "UPDATE diagnosis_masters SET parent_id = ".$m->values['parent_id']." WHERE id = ".$m->last_id.";";
-		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
-		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+		mysqli_query(Config::$db_connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
 	}
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$m->values['participant_id']])) die ('ERR 9988939383');
@@ -673,7 +671,6 @@ function addHormono(Model $m, $participant_id, $diagnosis_master_id = null) {
 }
 
 function addPrePostTreatment($file_field, $treatment_type, $pre_post, Model $m, $participant_id, $diagnosis_master_id = null) {
-	global $connection;
 	
 	$trt_control = Config::$treatment_controls[$treatment_type]['breast'];
 	
@@ -739,14 +736,14 @@ function addPrePostTreatment($file_field, $treatment_type, $pre_post, Model $m, 
 			
 			} else if(preg_match('/^refus$/i',$value,$matches)) {
 				$query = "select id, notes from participants where id = $participant_id;";
-				$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
+				$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 				$row = $results->fetch_assoc();
 				if(empty($row)) die('ERR7748484774');
 				$new_note = (empty($row['notes'])? '' : ' // ').$file_field . ' : Refus';			
 				$query = "UPDATE participants SET notes = CONCAT(IFNULL(notes, ''), '$new_note') WHERE id = $participant_id;";				
-				mysqli_query($connection, $query) or die("participant  notes update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("participant  notes update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$query = str_replace('participants','participants_revs', $query);
-				mysqli_query($connection, $query) or die("participant  notes update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));		
+				mysqli_query(Config::$db_connection, $query) or die("participant  notes update  [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));		
 				
 				return;
 				
