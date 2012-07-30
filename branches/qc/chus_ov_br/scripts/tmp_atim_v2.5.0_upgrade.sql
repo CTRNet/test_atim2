@@ -5,6 +5,11 @@ SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed fro
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
 
 REPLACE INTO i18n (id, en, fr) VALUES
+("time_hour", "Time", "Heure"),
+("tracking #", "Tracking #", "# de suivi"),
+("phone #", "Phone #", "# de téléphone"),
+("department/door", "Department/Door", "Département/Porte"),
+('events','Events','Événements'),
 ('aliquot details', 'Aliquot Details', 'Détails aliquot'),
 ('order line details', 'Order Line Details', 'Détails ligne commande'),
 ('no storage layout is defined for this storage type','No storage layout is defined for this storage type','Aucun plan d''entreposage est défini pour ce type d''entreposage'),
@@ -199,7 +204,13 @@ REPLACE INTO i18n (id, en, fr) VALUES
  "Tout (participant, Consentement, Diagnotic, Traitement/Annotation)"),
 ("the value must be between %g and %g", "The value must be between %g and %g", "La valeur doit être entre %g et %g"),
 ("invalid primary disease code", "Invalid primary disease code", "Code de maladie primaire invalide");
- 
+
+UPDATE collections SET collection_datetime_accuracy='c' WHERE collection_datetime IS NOT NULL AND collection_datetime_accuracy='';
+UPDATE aliquot_masters SET storage_datetime_accuracy='c' WHERE storage_datetime IS NOT NULL AND storage_datetime_accuracy='';
+UPDATE specimen_details SET reception_datetime_accuracy='c' WHERE reception_datetime IS NOT NULL AND reception_datetime_accuracy='';
+UPDATE derivative_details SET creation_datetime_accuracy='c' WHERE creation_datetime IS NOT NULL AND creation_datetime_accuracy='';
+UPDATE participants SET date_of_birth_accuracy='c' WHERE date_of_birth IS NOT NULL AND date_of_birth_accuracy='';
+UPDATE participants SET date_of_death_accuracy='c' WHERE date_of_death IS NOT NULL AND date_of_death_accuracy='';
 
 UPDATE menus SET use_link='/ClinicalAnnotation/Participants/search/' WHERE id='clin_CAN_1';
 UPDATE menus SET use_link='/ClinicalAnnotation/FamilyHistories/listall/%%Participant.id%%' WHERE id='clin_CAN_10';
@@ -338,65 +349,65 @@ UPDATE structure_fields SET plugin='StorageLayout' WHERE plugin='storagelayout';
 UPDATE structure_fields SET plugin='Study' WHERE plugin='study';
 UPDATE structure_fields SET plugin='Tools' WHERE plugin='Tools';
 
-UPDATE structure_value_domains SET source='InventoryManagement.AliquotControl::getAliquotTypePermissibleValues' WHERE id=5;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.TreatmentControl::getDiseaseSitePermissibleValues' WHERE id=101;
-UPDATE structure_value_domains SET source='Protocol.ProtocolControl::getProtocolTypePermissibleValues' WHERE id=102;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''quality control tools'')' WHERE id=104;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValues' WHERE id=141;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSampleTypePermissibleValues' WHERE id=144;
-UPDATE structure_value_domains SET source='StorageLayout.StorageControl::getStorageTypePermissibleValues' WHERE id=146;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''specimen collection sites'')' WHERE id=173;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''laboratory staff'')' WHERE id=174;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''specimen supplier departments'')' WHERE id=175;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''laboratory sites'')' WHERE id=179;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.Icd10::permissibleValues' WHERE id=187;
-UPDATE structure_value_domains SET source='Administrate.Bank::getBankPermissibleValues' WHERE id=191;
-UPDATE structure_value_domains SET source='Drug.Drug::getDrugPermissibleValues' WHERE id=192;
-UPDATE structure_value_domains SET source='Protocol.ProtocolControl::getProtocolTumourGroupPermissibleValues' WHERE id=193;
-UPDATE structure_value_domains SET source='StorageLayout.StorageMaster::getParentStoragePermissibleValues' WHERE id=194;
-UPDATE structure_value_domains SET source='Sop.SopMaster::getTmaBlockSopPermissibleValues' WHERE id=195;
-UPDATE structure_value_domains SET source='Sop.SopMaster::getTmaSlideSopPermissibleValues' WHERE id=196;
-UPDATE structure_value_domains SET source='Study.StudySummary::getStudyPermissibleValues' WHERE id=197;
-UPDATE structure_value_domains SET source='InventoryManagement.AliquotControl::getAliquotTypePermissibleValuesFromId' WHERE id=198;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSampleTypePermissibleValuesFromId' WHERE id=199;
-UPDATE structure_value_domains SET source='InventoryManagement.AliquotControl::getSampleAliquotTypesPermissibleValues' WHERE id=200;
-UPDATE structure_value_domains SET source='Order.Shipment::getShipmentPermissibleValues' WHERE id=201;
-UPDATE structure_value_domains SET source='Sop.SopMaster::getCollectionSopPermissibleValues' WHERE id=202;
-UPDATE structure_value_domains SET source='Sop.SopMaster::getSampleSopPermissibleValues' WHERE id=203;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleDetail::getTissueSourcePermissibleValues' WHERE id=204;
-UPDATE structure_value_domains SET source='Sop.SopMaster::getAliquotSopPermissibleValues' WHERE id=205;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValues' WHERE id=206;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNameAbrevPermissibleValues' WHERE id=207;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.ConsentControl::getConsentTypePermissibleValuesFromId' WHERE id=208;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisControl::getDiagnosisTypePermissibleValuesFromId' WHERE id=209;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventDiseaseSitePermissibleValues' WHERE id=210;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventTypePermissibleValues' WHERE id=211;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.TreatmentControl::getMethodPermissibleValues' WHERE id=212;
-UPDATE structure_value_domains SET source='Protocol.ProtocolMaster::getProtocolPermissibleValuesFromId' WHERE id=213;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisMaster::getMorphologyValues' WHERE id=214;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValuesFromId' WHERE id=216;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValuesFromId' WHERE id=217;
-UPDATE structure_value_domains SET source='InventoryManagement.SpecimenReviewControl::getSpecimenTypePermissibleValues' WHERE id=220;
-UPDATE structure_value_domains SET source='InventoryManagement.SpecimenReviewControl::getReviewTypePermissibleValues' WHERE id=221;
-UPDATE structure_value_domains SET source='InventoryManagement.AliquotReviewMaster::getAliquotListForReview' WHERE id=223;
-UPDATE structure_value_domains SET source='User::getUsersList' WHERE id=224;
-UPDATE structure_value_domains SET source='Datamart.Batchset::getActionsDropdown' WHERE id=329;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleMaster::getParentSampleDropdown' WHERE id=330;
-UPDATE structure_value_domains SET source='StorageLayout.StorageMaster::getStoragesDropdown' WHERE id=331;
-UPDATE structure_value_domains SET source='InventoryManagement.AliquotMaster::getRealiquotDropdown' WHERE id=333;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleMaster::getDerivativesDropdown' WHERE id=335;
-UPDATE structure_value_domains SET source='LabBook.LabBookControl::getLabBookTypePermissibleValuesFromId' WHERE id=336;
-UPDATE structure_value_domains SET source='LabBook.LabBookMaster::getLabBookPermissibleValuesFromId' WHERE id=337;
-UPDATE structure_value_domains SET source='Datamart.DatamartStructure::getDisplayNameFromId' WHERE id=339;
-UPDATE structure_value_domains SET source='Sop.SopControl::getTypePermissibleValues' WHERE id=344;
-UPDATE structure_value_domains SET source='Sop.SopControl::getGroupPermissibleValues' WHERE id=345;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE id=346;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE id=347;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''sop versions'')' WHERE id=348;
-UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''consent form versions'')' WHERE id=352;
-UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventGroupPermissibleValues' WHERE id=354;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValues' WHERE id=355;
-UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValuesFromId' WHERE id=356;
+UPDATE structure_value_domains SET source='InventoryManagement.AliquotControl::getAliquotTypePermissibleValues' WHERE source='InventoryManagement.AliquotControl::getAliquotTypePermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.TreatmentControl::getDiseaseSitePermissibleValues' WHERE source='ClinicalAnnotation.TreatmentControl::getDiseaseSitePermissibleValues';
+UPDATE structure_value_domains SET source='Protocol.ProtocolControl::getProtocolTypePermissibleValues' WHERE source='Protocol.ProtocolControl::getProtocolTypePermissibleValues';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''quality control tools'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''quality control tools'')';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValues' WHERE source='InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSampleTypePermissibleValues' WHERE source='InventoryManagement.SampleControl::getSampleTypePermissibleValues';
+UPDATE structure_value_domains SET source='StorageLayout.StorageControl::getStorageTypePermissibleValues' WHERE source='StorageLayout.StorageControl::getStorageTypePermissibleValues';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''specimen collection sites'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''specimen collection sites'')';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''laboratory staff'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''laboratory staff'')';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''specimen supplier departments'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''specimen supplier departments'')';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''laboratory sites'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''laboratory sites'')';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.Icd10::permissibleValues' WHERE source='ClinicalAnnotation.Icd10::permissibleValues';
+UPDATE structure_value_domains SET source='Administrate.Bank::getBankPermissibleValues' WHERE source='Administrate.Bank::getBankPermissibleValues';
+UPDATE structure_value_domains SET source='Drug.Drug::getDrugPermissibleValues' WHERE source='Drug.Drug::getDrugPermissibleValues';
+UPDATE structure_value_domains SET source='Protocol.ProtocolControl::getProtocolTumourGroupPermissibleValues' WHERE source='Protocol.ProtocolControl::getProtocolTumourGroupPermissibleValues';
+UPDATE structure_value_domains SET source='StorageLayout.StorageMaster::getParentStoragePermissibleValues' WHERE source='StorageLayout.StorageMaster::getParentStoragePermissibleValues';
+UPDATE structure_value_domains SET source='Sop.SopMaster::getTmaBlockSopPermissibleValues' WHERE source='Sop.SopMaster::getTmaBlockSopPermissibleValues';
+UPDATE structure_value_domains SET source='Sop.SopMaster::getTmaSlideSopPermissibleValues' WHERE source='Sop.SopMaster::getTmaSlideSopPermissibleValues';
+UPDATE structure_value_domains SET source='Study.StudySummary::getStudyPermissibleValues' WHERE source='Study.StudySummary::getStudyPermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.AliquotControl::getAliquotTypePermissibleValuesFromId' WHERE source='InventoryManagement.AliquotControl::getAliquotTypePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSampleTypePermissibleValuesFromId' WHERE source='InventoryManagement.SampleControl::getSampleTypePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='InventoryManagement.AliquotControl::getSampleAliquotTypesPermissibleValues' WHERE source='InventoryManagement.AliquotControl::getSampleAliquotTypesPermissibleValues';
+UPDATE structure_value_domains SET source='Order.Shipment::getShipmentPermissibleValues' WHERE source='Order.Shipment::getShipmentPermissibleValues';
+UPDATE structure_value_domains SET source='Sop.SopMaster::getCollectionSopPermissibleValues' WHERE source='Sop.SopMaster::getCollectionSopPermissibleValues';
+UPDATE structure_value_domains SET source='Sop.SopMaster::getSampleSopPermissibleValues' WHERE source='Sop.SopMaster::getSampleSopPermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleDetail::getTissueSourcePermissibleValues' WHERE source='InventoryManagement.SampleDetail::getTissueSourcePermissibleValues';
+UPDATE structure_value_domains SET source='Sop.SopMaster::getAliquotSopPermissibleValues' WHERE source='Sop.SopMaster::getAliquotSopPermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValues' WHERE source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNameAbrevPermissibleValues' WHERE source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNameAbrevPermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.ConsentControl::getConsentTypePermissibleValuesFromId' WHERE source='ClinicalAnnotation.ConsentControl::getConsentTypePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisControl::getDiagnosisTypePermissibleValuesFromId' WHERE source='ClinicalAnnotation.DiagnosisControl::getDiagnosisTypePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventDiseaseSitePermissibleValues' WHERE source='ClinicalAnnotation.EventControl::getEventDiseaseSitePermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventTypePermissibleValues' WHERE source='ClinicalAnnotation.EventControl::getEventTypePermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.TreatmentControl::getMethodPermissibleValues' WHERE source='ClinicalAnnotation.TreatmentControl::getMethodPermissibleValues';
+UPDATE structure_value_domains SET source='Protocol.ProtocolMaster::getProtocolPermissibleValuesFromId' WHERE source='Protocol.ProtocolMaster::getProtocolPermissibleValuesFromId';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisMaster::getMorphologyValues' WHERE source='ClinicalAnnotation.DiagnosisMaster::getMorphologyValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValuesFromId' WHERE source='ClinicalAnnotation.MiscIdentifierControl::getMiscIdentifierNamePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValuesFromId' WHERE source='InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='InventoryManagement.SpecimenReviewControl::getSpecimenTypePermissibleValues' WHERE source='InventoryManagement.SpecimenReviewControl::getSpecimenTypePermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.SpecimenReviewControl::getReviewTypePermissibleValues' WHERE source='InventoryManagement.SpecimenReviewControl::getReviewTypePermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.AliquotReviewMaster::getAliquotListForReview' WHERE source='InventoryManagement.AliquotReviewMaster::getAliquotListForReview';
+UPDATE structure_value_domains SET source='User::getUsersList' WHERE source='User::getUsersList';
+UPDATE structure_value_domains SET source='Datamart.Batchset::getActionsDropdown' WHERE source='Datamart.Batchset::getActionsDropdown';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleMaster::getParentSampleDropdown' WHERE source='InventoryManagement.SampleMaster::getParentSampleDropdown';
+UPDATE structure_value_domains SET source='StorageLayout.StorageMaster::getStoragesDropdown' WHERE source='StorageLayout.StorageMaster::getStoragesDropdown';
+UPDATE structure_value_domains SET source='InventoryManagement.AliquotMaster::getRealiquotDropdown' WHERE source='InventoryManagement.AliquotMaster::getRealiquotDropdown';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleMaster::getDerivativesDropdown' WHERE source='InventoryManagement.SampleMaster::getDerivativesDropdown';
+UPDATE structure_value_domains SET source='LabBook.LabBookControl::getLabBookTypePermissibleValuesFromId' WHERE source='LabBook.LabBookControl::getLabBookTypePermissibleValuesFromId';
+UPDATE structure_value_domains SET source='LabBook.LabBookMaster::getLabBookPermissibleValuesFromId' WHERE source='LabBook.LabBookMaster::getLabBookPermissibleValuesFromId';
+UPDATE structure_value_domains SET source='Datamart.DatamartStructure::getDisplayNameFromId' WHERE source='Datamart.DatamartStructure::getDisplayNameFromId';
+UPDATE structure_value_domains SET source='Sop.SopControl::getTypePermissibleValues' WHERE source='Sop.SopControl::getTypePermissibleValues';
+UPDATE structure_value_domains SET source='Sop.SopControl::getGroupPermissibleValues' WHERE source='Sop.SopControl::getGroupPermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE source='ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE source='ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''sop versions'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''sop versions'')';
+UPDATE structure_value_domains SET source='StructurePermissibleValuesCustom::getCustomDropdown(''consent form versions'')' WHERE source='StructurePermissibleValuesCustom::getCustomDropdown(''consent form versions'')';
+UPDATE structure_value_domains SET source='ClinicalAnnotation.EventControl::getEventGroupPermissibleValues' WHERE source='ClinicalAnnotation.EventControl::getEventGroupPermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValues' WHERE source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValues';
+UPDATE structure_value_domains SET source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValuesFromId' WHERE source='InventoryManagement.SampleControl::getParentSampleTypePermissibleValuesFromId';
 
 UPDATE menus SET use_summary=REPLACE(use_summary, 'Inventorymanagement', 'InventoryManagement'); 
 UPDATE menus SET use_summary=REPLACE(use_summary, 'Storagelayout', 'StorageLayout'); 
@@ -466,12 +477,6 @@ INNER JOIN clinical_collection_links AS ccl ON c.id=ccl.collection_id
 SET c.participant_id=ccl.participant_id, c.diagnosis_master_id=ccl.diagnosis_master_id, c.consent_master_id=ccl.consent_master_id;
 INSERT INTO collections_revs (id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, version_created)
 (SELECT id, acquisition_label, bank_id, collection_site, collection_datetime, collection_datetime_accuracy, sop_master_id, collection_property, collection_notes, participant_id, diagnosis_master_id, modified_by, NOW() FROM collections);
-
-
-DROP VIEW view_collections;
-CREATE VIEW `view_collections_view` AS select `col`.`id` AS `collection_id`,`col`.`bank_id` AS `bank_id`,`col`.`sop_master_id` AS `sop_master_id`,`col`.`participant_id` AS `participant_id`,`col`.`diagnosis_master_id` AS `diagnosis_master_id`,`col`.`consent_master_id` AS `consent_master_id`,`col`.`treatment_master_id` AS `treatment_master_id`,`col`.`event_master_id` AS `event_master_id`,`part`.`participant_identifier` AS `participant_identifier`,`col`.`acquisition_label` AS `acquisition_label`,`col`.`collection_site` AS `collection_site`,`col`.`collection_datetime` AS `collection_datetime`,`col`.`collection_datetime_accuracy` AS `collection_datetime_accuracy`,`col`.`collection_property` AS `collection_property`,`col`.`collection_notes` AS `collection_notes`,`banks`.`name` AS `bank_name`,`col`.`created` AS `created` from `collections` `col` 
-left join `participants` `part` on `col`.`participant_id` = `part`.`id` and `part`.`deleted` <> 1 
-left join `banks` on `col`.`bank_id` = `banks`.`id` and `banks`.`deleted` <> 1 where `col`.`deleted` <> 1;
 
 ALTER TABLE specimen_details MODIFY sample_master_id INT NOT NULL;
 ALTER TABLE specimen_details_revs MODIFY sample_master_id INT NOT NULL;
@@ -778,13 +783,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='storage_w_spaces'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='empty_spaces' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='empty spaces' AND `language_tag`=''), '0', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1');
 
 UPDATE storage_controls SET form_alias=CONCAT(form_alias, ',storage_w_spaces') WHERE coord_x_size IS NOT NULL OR coord_y_size IS NOT NULL;
-
-CREATE VIEW view_storage_masters AS SELECT sm.*, IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(am.id) - COUNT(ts.id) - COUNT(smc.id)) AS empty_spaces FROM storage_masters AS sm
-INNER JOIN storage_controls AS sc ON sm.storage_control_id=sc.id
-LEFT JOIN aliquot_masters AS am ON am.storage_master_id=sm.id AND am.deleted=0
-LEFT JOIN tma_slides AS ts ON ts.storage_master_id=sm.id AND ts.deleted=0
-LEFT JOIN storage_masters AS smc ON smc.parent_id=sm.id AND smc.deleted=0
-WHERE sm.deleted=0 GROUP BY sm.id;
 
 ALTER TABLE datamart_structures
  ADD COLUMN adv_search_structure_alias VARCHAR(255) DEFAULT NULL AFTER structure_id, 
@@ -1215,124 +1213,7 @@ UPDATE menus SET use_summary='' WHERE id='clin_CAN_67';
 
 
 DROP VIEW view_aliquots;
-CREATE VIEW view_aliquots_view AS 
-SELECT 
-al.id AS aliquot_master_id,
-al.sample_master_id AS sample_master_id,
-al.collection_id AS collection_id, 
-col.bank_id, 
-al.storage_master_id AS storage_master_id,
-col.participant_id, 
-
-part.participant_identifier, 
-
-col.acquisition_label, 
-
-specimenc.sample_type AS initial_specimen_sample_type,
-specimen.sample_control_id AS initial_specimen_sample_control_id,
-parent_sampc.sample_type AS parent_sample_type,
-parent_samp.sample_control_id AS parent_sample_control_id,
-sampc.sample_type,
-samp.sample_control_id,
-
-al.barcode,
-al.aliquot_label,
-alc.aliquot_type,
-al.aliquot_control_id,
-al.in_stock,
-
-stor.code,
-stor.selection_label,
-al.storage_coord_x,
-al.storage_coord_y,
-
-stor.temperature,
-stor.temp_unit,
-
-al.created,
-
-IF(al.storage_datetime IS NULL, NULL,
- IF(col.collection_datetime IS NULL, -1,
- IF(col.collection_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
- IF(col.collection_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, col.collection_datetime, al.storage_datetime))))) AS coll_to_stor_spent_time_msg,
-IF(al.storage_datetime IS NULL, NULL,
- IF(specimen_details.reception_datetime IS NULL, -1,
- IF(specimen_details.reception_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
- IF(specimen_details.reception_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, specimen_details.reception_datetime, al.storage_datetime))))) AS rec_to_stor_spent_time_msg,
-IF(al.storage_datetime IS NULL, NULL,
- IF(derivative_details.creation_datetime IS NULL, -1,
- IF(derivative_details.creation_datetime_accuracy != 'c' OR al.storage_datetime_accuracy != 'c', -2,
- IF(derivative_details.creation_datetime > al.storage_datetime, -3,
- TIMESTAMPDIFF(MINUTE, derivative_details.creation_datetime, al.storage_datetime))))) AS creat_to_stor_spent_time_msg,
- 
-IF(LENGTH(al.notes) > 0, "y", "n") AS has_notes
-
-
-FROM aliquot_masters AS al
-INNER JOIN aliquot_controls AS alc ON al.aliquot_control_id = alc.id
-INNER JOIN sample_masters AS samp ON samp.id = al.sample_master_id AND samp.deleted != 1
-INNER JOIN sample_controls AS sampc ON samp.sample_control_id = sampc.id
-INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
-LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
-LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
-LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id=parent_sampc.id
-LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
-LEFT JOIN storage_masters AS stor ON stor.id = al.storage_master_id AND stor.deleted != 1
-LEFT JOIN specimen_details ON al.sample_master_id=specimen_details.sample_master_id
-LEFT JOIN derivative_details ON al.sample_master_id=derivative_details.sample_master_id
-WHERE al.deleted != 1;
-
 DROP VIEW view_samples;
-CREATE VIEW view_samples_view AS 
-SELECT 
-samp.id AS sample_master_id,
-samp.parent_id AS parent_sample_id,
-samp.initial_specimen_sample_id,
-samp.collection_id AS collection_id,
-
-col.bank_id, 
-col.sop_master_id, 
-col.participant_id, 
-
-part.participant_identifier, 
-
-col.acquisition_label, 
-
-specimenc.sample_type AS initial_specimen_sample_type,
-specimen.sample_control_id AS initial_specimen_sample_control_id,
-parent_sampc.sample_type AS parent_sample_type,
-parent_samp.sample_control_id AS parent_sample_control_id,
-sampc.sample_type,
-samp.sample_control_id,
-samp.sample_code,
-sampc.sample_category,
-
-IF(specimen_details.reception_datetime IS NULL, NULL,
- IF(col.collection_datetime IS NULL, -1,
- IF(col.collection_datetime_accuracy != 'c' OR specimen_details.reception_datetime_accuracy != 'c', -2,
- IF(col.collection_datetime > specimen_details.reception_datetime, -3,
- TIMESTAMPDIFF(MINUTE, col.collection_datetime, specimen_details.reception_datetime))))) AS coll_to_rec_spent_time_msg,
- 
-IF(derivative_details.creation_datetime IS NULL, NULL,
- IF(col.collection_datetime IS NULL, -1,
- IF(col.collection_datetime_accuracy != 'c' OR derivative_details.creation_datetime_accuracy != 'c', -2,
- IF(col.collection_datetime > derivative_details.creation_datetime, -3,
- TIMESTAMPDIFF(MINUTE, col.collection_datetime, derivative_details.creation_datetime))))) AS coll_to_creation_spent_time_msg 
-
-FROM sample_masters as samp
-INNER JOIN sample_controls as sampc ON samp.sample_control_id=sampc.id
-INNER JOIN collections AS col ON col.id = samp.collection_id AND col.deleted != 1
-LEFT JOIN specimen_details ON specimen_details.sample_master_id=samp.id
-LEFT JOIN derivative_details ON derivative_details.sample_master_id=samp.id
-LEFT JOIN sample_masters AS specimen ON samp.initial_specimen_sample_id = specimen.id AND specimen.deleted != 1
-LEFT JOIN sample_controls AS specimenc ON specimen.sample_control_id = specimenc.id
-LEFT JOIN sample_masters AS parent_samp ON samp.parent_id = parent_samp.id AND parent_samp.deleted != 1
-LEFT JOIN sample_controls AS parent_sampc ON parent_samp.sample_control_id = parent_sampc.id
-LEFT JOIN participants AS part ON col.participant_id = part.id AND part.deleted != 1
-WHERE samp.deleted != 1;
 
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 -- Delete obsolete structure fields and validations
@@ -1370,71 +1251,6 @@ DELETE FROM structure_permissible_values WHERE value="partial" AND language_alia
 UPDATE structure_fields SET model='SampleMaster' WHERE model='Generated' AND field='coll_to_creation_spent_time_msg';
 UPDATE structure_fields SET model='SampleMaster' WHERE model='Generated' AND field='coll_to_rec_spent_time_msg';
 
-CREATE TABLE view_aliquots (SELECT * FROM view_aliquots_view);
-ALTER TABLE view_aliquots
- ADD PRIMARY KEY(aliquot_master_id),
- ADD KEY(sample_master_id),
- ADD KEY(collection_id),
- ADD KEY(bank_id),
- ADD KEY(storage_master_id),
- ADD KEY(participant_id),
- ADD KEY(participant_identifier),
- ADD KEY(acquisition_label),
- ADD KEY(initial_specimen_sample_type),
- ADD KEY(initial_specimen_sample_control_id),
- ADD KEY(parent_sample_type),
- ADD KEY(parent_sample_control_id),
- ADD KEY(barcode),
- ADD KEY(aliquot_label),
- ADD KEY(aliquot_type),
- ADD KEY(aliquot_control_id),
- ADD KEY(in_stock),
- ADD KEY(code),
- ADD KEY(selection_label),
- ADD KEY(temperature),
- ADD KEY(temp_unit),
- ADD KEY(created),
- ADD KEY(has_notes);
-
-CREATE TABLE view_collections (SELECT * FROM view_collections_view);
-ALTER TABLE view_collections
- ADD PRIMARY KEY(collection_id),
- ADD KEY(bank_id),
- ADD KEY(sop_master_id),
- ADD KEY(participant_id),
- ADD KEY(diagnosis_master_id),
- ADD KEY(consent_master_id),
- ADD KEY(treatment_master_id),
- ADD KEY(event_master_id),
- ADD KEY(participant_identifier),
- ADD KEY(acquisition_label),
- ADD KEY(collection_site),
- ADD KEY(collection_datetime),
- ADD KEY(collection_property),
- ADD KEY(created);
-
-CREATE TABLE view_samples (SELECT * FROM view_samples_view);
-ALTER TABLE view_samples
- ADD PRIMARY KEY(sample_master_id),
- ADD KEY(parent_sample_id),
- ADD KEY(initial_specimen_sample_id),
- ADD KEY(collection_id),
- ADD KEY(bank_id),
- ADD KEY(sop_master_id),
- ADD KEY(participant_id),
- ADD KEY(participant_identifier),
- ADD KEY(acquisition_label),
- ADD KEY(initial_specimen_sample_type),
- ADD KEY(initial_specimen_sample_control_id),
- ADD KEY(parent_sample_type),
- ADD KEY(parent_sample_control_id),
- ADD KEY(sample_type),
- ADD KEY(sample_control_id),
- ADD KEY(sample_code),
- ADD KEY(sample_category),
- ADD KEY(coll_to_creation_spent_time_msg),
- ADD KEY(coll_to_rec_spent_time_msg);
- 
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("6", "all (participant, consent, diagnosis and treatment/annotation)");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"), (SELECT id FROM structure_permissible_values WHERE value="6" AND language_alias="all (participant, consent, diagnosis and treatment/annotation)"), "3", "1");
 DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="3" AND spv.language_alias="participant and diagnosis";
@@ -2416,12 +2232,87 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='detail' AND `type`='textarea' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
-SELECT 'Remove persmissions on adhoc query tool (custom query) for all groups. Feature has not been tested in v2.5.' TODO;
+UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getCategoryPermissibleValues';
+UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getTypePermissibleValues';
+UPDATE structure_value_domains SET source=REPLACE(source, 'Clinicalannotation', 'ClinicalAnnotation');
+UPDATE structure_value_domains SET source=REPLACE(source, 'Inventorymanagement', 'InventoryManagement');
 
+ALTER TABLE misc_identifier_controls
+ ADD COLUMN reg_exp_validation VARCHAR(50) NOT NULL DEFAULT '',
+ ADD COLUMN user_readable_format VARCHAR(50) NOT NULL DEFAULT '';
 
+UPDATE acos SET alias='Controller' WHERE id=1;
 
+UPDATE structure_fields SET language_label = '', language_tag = '-' WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site';
+UPDATE structure_fields SET language_label = 'event_form_type', language_tag = '' WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type';
+UPDATE structure_formats SET `display_order`='-3' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-4' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
 
+UPDATE structure_fields SET language_label = '' WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site';
+UPDATE structure_fields SET language_label = 'type' WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method';
+UPDATE structure_formats SET `display_order`='0', `flag_override_tag`='0', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1', `flag_override_tag`='1', `language_tag`='-' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site');
 
+UPDATE structure_formats SET `language_heading`='', `display_order`='401', `flag_override_tag`='1', `language_tag`='-' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='annotation', `display_order`='400', `flag_override_tag`='1', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
 
+UPDATE structure_formats SET structure_field_id = (SELECT id FROM structure_fields WHERE model = 'TreatmentControl' AND field = 'tx_method' AND type = 'select') WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'TreatmentControl' AND field = 'tx_method' AND type = 'input');
+DELETE FROM structure_fields WHERE model = 'TreatmentControl' AND field = 'tx_method' AND type = 'input';
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site'), '1', '301', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='302' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+ALTER TABLE shipments
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door,
+ ADD COLUMN tracking VARCHAR(50) NOT NULL DEFAULT '' AFTER shipping_account_nbr; 
+ALTER TABLE shipments_revs
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door,
+ ADD COLUMN tracking VARCHAR(50) NOT NULL DEFAULT '' AFTER shipping_account_nbr; 
+ALTER TABLE shipment_contacts
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door; 
+ALTER TABLE shipment_contacts_revs
+ ADD COLUMN delivery_phone_number VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_country,
+ ADD COLUMN delivery_department_or_door VARCHAR(50) NOT NULL DEFAULT '' AFTER delivery_phone_number,
+ ADD COLUMN delivery_notes text DEFAULT NULL AFTER delivery_department_or_door; 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Shipment', 'shipments', 'delivery_department_or_door', 'input',  NULL , '0', '', '', '', 'department/door', ''), 
+('Order', 'Shipment', 'shipments', 'delivery_phone_number', 'input',  NULL , '0', '', '', '', 'phone #', ''),
+('Order', 'Shipment', 'shipments', 'delivery_notes', 'textarea',  NULL , '0', '', '', '', 'notes', ''),
+('Order', 'Shipment', 'shipments', 'tracking', 'input',  NULL , '0', '', '', '', 'tracking #', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_department_or_door' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='department/door' AND `language_tag`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_phone_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='phone #' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='tracking' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tracking #' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_street_address' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_city' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='17' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_province' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='18' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_postal_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='19' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_country' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='facility' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='delivery_phone_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'ShipmentContact', 'shipment_contacts', 'delivery_phone_number', 'input',  NULL , '0', '', '', '', 'delivery phone #', ''), 
+('Order', 'ShipmentContact', 'shipment_contacts', 'delivery_department_or_door', 'input',  NULL , '0', '', '', '', 'delivery department or door', ''), 
+('Order', 'ShipmentContact', 'shipment_contacts', 'delivery_notes', 'textarea',  NULL , '0', '', '', '', 'delivery notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_phone_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery phone #' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_department_or_door' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery department or door' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='shipment_recipients'), (SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='delivery notes' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='facility' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_street_address' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_city' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_province' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_postal_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_country' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `language_label`='time_hour' WHERE model='custom' AND tablename='' AND field='time' AND `type`='time' AND structure_value_domain  IS NULL ;

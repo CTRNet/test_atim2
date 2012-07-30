@@ -9,10 +9,11 @@ class StorageMaster extends StorageLayoutAppModel {
 		)    
 	);
 	
-	var $actsAs = array('Tree');
+	var $actsAs = array('Tree', 'StoredItem');
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot' => array('storage_master_id')
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.storage_master_id'),
+		'StorageLayout.ViewStorageMaster' => array('StorageMaster.id')
 	);
 	
 	var $used_storage_pos = array();

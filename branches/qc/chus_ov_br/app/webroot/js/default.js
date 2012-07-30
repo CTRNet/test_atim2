@@ -1714,7 +1714,7 @@ function initActions(){
 				fctLinksToAjax(indexZone);
 			}else{
 				indexZone.html("<div class='loading'>---" + STR_LOADING + "---</div>");
-				$.get(root_url + url + "/noActions:/?t=" + new Date().getTime(), function(data){
+				var successFct = function(data){
 					var page = null;
 					if(data.indexOf("{") == 0){
 						data = $.parseJSON(data);
@@ -1728,6 +1728,17 @@ function initActions(){
 					
 					history.state.indexZone[url] = page;
 					history.replaceState(history.state, "foo");
+				};
+				var errorFct = function(jqXHR, textStatus, errorThrown){
+					indexZone.html(errorThrown);
+				};
+				
+				$.ajax({
+					type	: "GET",
+					url		: root_url + url + "/noActions:/",
+					cache	: false,
+					success	: successFct,
+					error	: errorFct
 				});
 			}
 		});

@@ -26,6 +26,8 @@ class PermissionsController extends AdministrateAppController {
 	function regenerate(){
 		$this->PermissionManager->buildAcl();
 		$this->set('log', $this->PermissionManager->log);
+		$this->SystemVar->setVar('permission_timestamp', time());
+		Cache::clear(false, "menus");
 	}
 	
 	function update($aro_id, $aco_id, $state){
@@ -81,7 +83,12 @@ class PermissionsController extends AdministrateAppController {
 			';
 		}
 		
-		$this->Aro->tryCatchQuery($sql);
+		try {
+			$this->Aro->query($sql);
+		}catch(Exception $e){
+			$bt = debug_backtrace();
+			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
+		}
 		
 	}
 	
@@ -170,13 +177,18 @@ class PermissionsController extends AdministrateAppController {
 			return;
 		}
 		
-		$depth = $this->Aco->tryCatchQuery('
-			SELECT node.id, (COUNT(parent.id) - 1) AS depth
-			FROM acos AS node, acos AS parent
-			WHERE node.lft BETWEEN parent.lft AND parent.rght
-			GROUP BY node.id
-			ORDER BY node.lft;
-		');
+		try{
+			$depth = $this->Aco->query('
+				SELECT node.id, (COUNT(parent.id) - 1) AS depth
+				FROM acos AS node, acos AS parent
+				WHERE node.lft BETWEEN parent.lft AND parent.rght
+				GROUP BY node.id
+				ORDER BY node.lft;
+			');
+		}catch(Exception $e){
+			$bt = debug_backtrace();
+			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
+		}
 		
 		$depth = array_combine(Set::extract('{n}.node.id',$depth),Set::extract('{n}.0.depth',$depth));
 		
