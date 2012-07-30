@@ -2,7 +2,7 @@
 
 class AliquotMaster extends InventoryManagementAppModel {
 	
-	var $actsAs = array('MinMax');
+	var $actsAs = array('MinMax', 'StoredItem');
 
 	var $belongsTo = array(       
 		'AliquotControl' => array(           
@@ -46,7 +46,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'LEFT', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot' => array('aliquot_master_id')
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.id')
 	);
 		
 	function summary($variables=array()) {
@@ -282,7 +282,10 @@ class AliquotMaster extends InventoryManagementAppModel {
 				
 		// Launch validation		
 		if(array_key_exists('FunctionManagement', $aliquot_data) && array_key_exists('recorded_storage_selection_label', $aliquot_data['FunctionManagement'])) {
-			$is_sample_core = isset($aliquot_data['AliquotMaster']['aliquot_type']) && ($aliquot_data['AliquotMaster']['aliquot_type'] == 'core');
+			if(!isset($aliquot_data['AliquotControl']['aliquot_type'])) {
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			$is_sample_core = ($aliquot_data['AliquotControl']['aliquot_type'] == 'core');
 			
 			// Check the aliquot storage definition
 			$arr_storage_selection_results = self::$storage->validateAndGetStorageData($aliquot_data['FunctionManagement']['recorded_storage_selection_label'], $aliquot_data['AliquotMaster']['storage_coord_x'], $aliquot_data['AliquotMaster']['storage_coord_y'], $is_sample_core);

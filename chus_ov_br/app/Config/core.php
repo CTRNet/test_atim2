@@ -173,7 +173,7 @@ $debug = 2;
  *
  */
 	Configure::write('Session', array(
-		'defaults' => 'php'
+		'defaults' => 'cake'
 	));
 
 /**
@@ -286,7 +286,7 @@ Cache::config('_cake_model_', array(
 	Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => '+1 week'));
 	Cache::config('default', array('engine' => 'File'));
 	
-	Configure::write('use_compression', true);
+	Configure::write('use_compression', false);
 	
 	
 	unset($debug);

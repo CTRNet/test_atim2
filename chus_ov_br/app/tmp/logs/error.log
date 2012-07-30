@@ -173,3 +173,18 @@
 #12 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\lib\Cake\Routing\Dispatcher.php(85): Dispatcher->_invoke(Object(AliquotMastersController), Object(CakeRequest), Object(CakeResponse))
 #13 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
 #14 {main}
+2012-06-13 19:20:08 Warning: Warning (2): Invalid argument supplied for foreach() in [C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\View\Helper\StructuresHelper.php, line 420]
+Trace:
+StructuresHelper::build() - APP\View\Helper\StructuresHelper.php, line 420
+include - APP\Plugin\StorageLayout\View\StorageMasters\content_tree_view.ctp, line 85
+View::_evaluate() - CORE\Cake\View\View.php, line 908
+View::_render() - CORE\Cake\View\View.php, line 872
+View::render() - CORE\Cake\View\View.php, line 463
+Controller::render() - CORE\Cake\Controller\Controller.php, line 967
+Dispatcher::_invoke() - CORE\Cake\Routing\Dispatcher.php, line 110
+Dispatcher::dispatch() - CORE\Cake\Routing\Dispatcher.php, line 85
+[main] - APP\webroot\index.php, line 97
+
+2012-06-28 18:01:28 Error: [MissingControllerException] <span class='untranslated'>Controller class Controller could not be found.</span>
+#0 C:\_My_Directory\Local_Server\ATiM\chus_ovbr\app\webroot\index.php(97): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#1 {main}

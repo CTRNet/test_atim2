@@ -81,6 +81,31 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 		}
 		return $results;
 	}
+	
+	function validates($options = array()){
+		$errors = parent::validates($options);
+		if(!isset($this->data['MiscIdentifier']['deleted']) || $this->data['MiscIdentifier']['deleted'] == 0){
+			if(isset($this->validationErrors['identifier_value']) && !is_array($this->validationErrors['identifier_value'])){
+				$this->validationErrors['identifier_value'] = array($this->validationErrors['identifier_value']);
+			}
+			$rule = null;
+			$current = null;
+			if($this->id){
+				$current = $this->findById($this->id);
+			}else{
+				assert($this->data['MiscIdentifier']['misc_identifier_control_id']) or die('Missing Identifier Control Id');
+				$misc_identifier_control_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifierControl');
+				$current = $misc_identifier_control_model->findById($this->data['MiscIdentifier']['misc_identifier_control_id']);
+			}
+			if($current && $current['MiscIdentifierControl']['reg_exp_validation']){
+				$rule = $current['MiscIdentifierControl']['reg_exp_validation'];
+			}
+			if($rule && !preg_match('/'.$rule.'/', $this->data['MiscIdentifier']['identifier_value'])){
+				$this->validationErrors['identifier_value'][] = __('the identifier expected format is %s', $current['MiscIdentifierControl']['user_readable_format']);
+				return false;
+			}
+		}
+		return $errors;
+	}
 }
 
-?>

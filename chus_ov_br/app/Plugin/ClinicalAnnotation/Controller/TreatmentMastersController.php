@@ -112,6 +112,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 						
 			if($submitted_data_validates) {
 				$this->TreatmentMaster->id = $tx_master_id;
+				$this->TreatmentMaster->addWritableField(array('diagnosis_master_id'));
 				if ($this->TreatmentMaster->save($this->request->data)) {
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) {
@@ -154,7 +155,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/listall/%%Participant.id%%'));
 		
 		// Set trt header
-		$this->set('tx_header', __($tx_control_data['TreatmentControl']['disease_site']) . ' - ' . __($tx_control_data['TreatmentControl']['tx_method']));
+		$this->set('tx_header', __($tx_control_data['TreatmentControl']['tx_method']) . ' - ' . __($tx_control_data['TreatmentControl']['disease_site']));
 		
 		// set DIAGANOSES radio list form
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');

@@ -11,6 +11,8 @@ class StructuresHelper extends Helper {
 	
 	private $my_validation_errors = null;
 	
+	private static $write_modes = array('add', 'edit', 'search', 'addgrid', 'editgrid', 'batchedit');
+	
 	//default options
 	private static $defaults = array(
 			'type'		=>	NULL, 
@@ -436,7 +438,7 @@ class StructuresHelper extends Helper {
 		
 		// run specific TYPE function to build structure (ordered by frequence for performance)
 		$type = $options['type'];
-		if(in_array($type, array('add', 'edit', 'search', 'addgrid', 'editgrid', 'batchedit'))){
+		if(in_array($type, self::$write_modes)){
 			//editable types, convert validation errors
 			$this->my_validation_errors = array();
 			foreach($this->Form->validationErrors as $validation_error_arr){
@@ -742,7 +744,11 @@ class StructuresHelper extends Helper {
 						$first_line = false;
 					}
 					if(array_key_exists($table_row_part['model'], $data_unit) && array_key_exists($table_row_part['field'], $data_unit[$table_row_part['model']])){
-						echo $this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null), " ";
+						$value = $data_unit[$table_row_part['model']][$table_row_part['field']];
+						if($table_row_part['type'] == 'textarea'){
+							$value = str_replace('\n', '<br/>', $value);
+						}
+						echo $this->getPrintableField($table_row_part, $options, $value, null, null), " ";
 					}else if(Configure::read('debug') > 0 && $options['settings']['data_miss_warn']){
 						AppController::addWarningMsg(__("no data for [%s.%s]", $table_row_part['model'], $table_row_part['field']));
 					}
@@ -910,6 +916,12 @@ class StructuresHelper extends Helper {
 				}
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$display = str_replace('.', ',', $current_value);
+			}else if($table_row_part['type'] == 'textarea'){
+				$current_value = htmlspecialchars($current_value);
+				$current_value = str_replace('\\\\', '&dbs;', $current_value);
+				$current_value = str_replace('\n', in_array($options['type'], self::$write_modes) ? "\n" : '<br/>', $current_value);
+				$current_value = str_replace('&dbs;', '\\', $current_value);
+				$display = html_entity_decode($current_value);
 			}else{
 				$display = $current_value;
 			}
@@ -1174,21 +1186,21 @@ class StructuresHelper extends Helper {
 	 * @param unknown_type $options
 	 */
 	private function buildCsv($atim_structure, $options, $data){
+		$csv = $this->Csv;
 		if(isset(AppController::getInstance()->csv_config)){
 			$this->Csv->csv_separator = AppController::getInstance()->csv_config['define_csv_separator']; 
 		}
 		
-		
-		if(isset($this->Csv->nodes_info)){
+		if(isset($csv::$nodes_info)){
 			//same line mode
 			$this->Csv->current = array();
 			if($options['settings']['csv_header']){
 				//first call, build all structures
 				$options['type'] = 'index';
-				foreach($this->Csv->nodes_info as $node_id => $node_info){
+				foreach($csv::$nodes_info as $node_id => $node_info){
 					$sub_line = array();
-					$this->Csv->structures[$node_id] = $structure = $this->buildStack($this->Csv->structures[$node_id], $options);
-					foreach($this->Csv->structures[$node_id] as $table_column){
+					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
+					foreach($csv::$structures[$node_id] as $table_column){
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
 								$sub_line[] = $table_row_part['label'];
@@ -1196,7 +1208,7 @@ class StructuresHelper extends Helper {
 						}
 						
 					}
-					$this->Csv->nodes_info[$node_id]['cols_count'] = count($sub_line);
+					$csv::$nodes_info[$node_id]['cols_count'] = count($sub_line);
 					for($i = 1; $i <= $node_info['max_length']; ++ $i){
 						foreach($sub_line as $sub_line_part){
 							$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
@@ -1210,7 +1222,7 @@ class StructuresHelper extends Helper {
 			$lines = array();
 			//data = array(node => pkey => data rows => data line
 					
-			foreach($this->Csv->nodes_info as $node_id => $node_info){
+			foreach($csv::$nodes_info as $node_id => $node_info){
 				//fill the node section of the lines array. the index is the pkey of the line
 				foreach($data[$node_id] as $pkey => $data_row){
 					if(!isset($lines[$pkey])){
@@ -1219,7 +1231,7 @@ class StructuresHelper extends Helper {
 					$instances = 0;
 					foreach($data_row as $model_data){
 						//node_data is all data of a node linked to a pkey
-						foreach($this->Csv->structures[$node_id] as $table_column){
+						foreach($csv::$structures[$node_id] as $table_column){
 							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
 									if(isset($model_data[$table_row_part['model']][$table_row_part['field']])){
@@ -1232,9 +1244,9 @@ class StructuresHelper extends Helper {
 						}
 						++ $instances;
 					}
-					if($instances < $this->Csv->nodes_info[$node_id]['max_length']){
+					if($instances < $csv::$nodes_info[$node_id]['max_length']){
 						//padding
-						$lines[$pkey] = array_merge($lines[$pkey], array_fill(0, $this->Csv->nodes_info[$node_id]['cols_count'], ""));
+						$lines[$pkey] = array_merge($lines[$pkey], array_fill(0, $csv::$nodes_info[$node_id]['cols_count'], ""));
 					}
 				}
 			}
@@ -1461,7 +1473,11 @@ class StructuresHelper extends Helper {
 					echo '<a class="icon16 reveal activate" href="#" onclick="return false;">+</a> | ';
 				}
 			}else if($children){
-				$data_json = htmlentities(json_encode(array('url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : "")));
+				$data_json = array('url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : "");
+				if($data_json['url'][0] == '/'){
+					$data_json['url'] = substr($data_json['url'], 1);
+				}
+				$data_json = htmlentities(json_encode($data_json));
 				echo '<a class="icon16 reveal notFetched" data-json="'.$data_json.'" href="#" onclick="return false;">+</a> | ';
 			}else{
 				echo '<a class="icon16 reveal not_allowed" href="#" onclick="return false;">+</a> | ';
@@ -2636,5 +2652,6 @@ class StructuresHelper extends Helper {
 		</div>
 		' : '<div>'.__('You are not authorized to access that location.').'</div>';
 	}
+	
 }
 	

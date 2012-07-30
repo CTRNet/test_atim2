@@ -1,23 +1,21 @@
 <?php
 	$identifiers_menu = array();
-// 	foreach($identifier_controls_list as $identifier_ctrl){
-// 		$identifiers_menu[$identifier_ctrl['MiscIdentifierControl']['misc_identifier_name']] = '/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$identifier_ctrl['MiscIdentifierControl']['id'];
-// 	}
-	
 	$link_availability = AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/reuse/');
-	foreach($identifier_controls_list as $option){
-		$identifiers_menu[__($option['MiscIdentifierControl']['misc_identifier_name'], true)] =
-		isset($option['reusable']) && $link_availability ?
-		'javascript:miscIdPopup('.$atim_menu_variables['Participant.id'].' ,'.$option['MiscIdentifierControl']['id'].');' :
-		'/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$option['MiscIdentifierControl']['id'].'/';
+	$sort_0 = array();
+	$sort_1 = array();
+	foreach($identifier_controls_list as &$option){
+		$option['MiscIdentifierControl']['misc_identifier_name'] = __($option['MiscIdentifierControl']['misc_identifier_name']);
+		$sort_0[] = $option['MiscIdentifierControl']['display_order'];
+		$sort_1[] = $option['MiscIdentifierControl']['misc_identifier_name']; 
 	}
-	
-	
-	
-	
-	
-	
-	
+	array_multisort($sort_0, SORT_ASC, $sort_1, SORT_ASC, $identifier_controls_list);
+		
+	foreach($identifier_controls_list as $new_option){
+		$identifiers_menu[$new_option['MiscIdentifierControl']['misc_identifier_name']] =
+		isset($new_option['reusable']) && $link_availability ?
+		'javascript:miscIdPopup('.$atim_menu_variables['Participant.id'].' ,'.$new_option['MiscIdentifierControl']['id'].');' :
+		'/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$new_option['MiscIdentifierControl']['id'].'/';
+	}
 	
 	if(empty($identifiers_menu)){
 		$identifiers_menu = '/underdev/';
