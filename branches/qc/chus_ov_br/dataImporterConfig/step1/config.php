@@ -45,6 +45,8 @@ class Config{
 	
 	static $config_files	= array();
 	
+	static $line_break_tag = '<br>';
+	
 	//--------------------------------------
 
 	static $patient_profile_data_from_patient_nbr = array();
@@ -77,8 +79,6 @@ Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImpo
 Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/chus_ovbr/dataImporterConfig/step1/tablesMapping/bank_identifiers.php'; 
 
 function addonFunctionStart(){
-	global $connection;
-	
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -89,7 +89,7 @@ function addonFunctionStart(){
 	</FONT><br>";		
 	
 	$query = "SELECT COUNT(*) FROM participants;";
-	$results = mysqli_query($connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$results = mysqli_query(Config::$db_connection, $query) or die("participant_identifier update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$row = $results->fetch_assoc();
 	if($row['COUNT(*)'] > 0) {
 		die("Step1: Participant table should be empty");
@@ -99,8 +99,7 @@ function addonFunctionStart(){
 }
 
 function addonFunctionEnd(){
-	global $connection;
-
+	
 	// WARNING DISPLAY
 	
 	echo "<br><FONT COLOR=\"red\" >

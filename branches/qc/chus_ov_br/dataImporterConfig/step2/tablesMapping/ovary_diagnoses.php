@@ -118,8 +118,6 @@ $model->custom_data = array();
 Config::$models['OvaryDiagnosisMaster'] = $model;
 	
 function postOvaryDiagnosesRead(Model $m){
-	global $connection;
-	
 	$m->values['notes'] = '';
 	
 	// 1- GET PARTICIANT ID & PARTICIPANT CHECK
@@ -173,7 +171,7 @@ function postOvaryDiagnosesRead(Model $m){
 			"consent_signed_date" => "'$consent_date'",
 			"consent_signed_date_accuracy" => "'c'");
 		$consent_master_id = customInsertChusRecord($master_fields, 'consent_masters');
-		customInsertChusRecord(array('consent_master_id' => $consent_master_id), 'cd_nationals', true);
+		customInsertChusRecord(array('consent_master_id' => $consent_master_id), 'cd_nationals', true, true);
 		
 		Config::$data_for_import_from_participant_id[$participant_id]['consent_master_id'] = $consent_master_id;
 		Config::$data_for_import_from_participant_id[$participant_id]['consent_date'] = $consent_date;
@@ -189,9 +187,9 @@ function postOvaryDiagnosesRead(Model $m){
 			}
 		} else {
 			$query = "UPDATE participants SET date_of_birth = '$date_of_birth', date_of_birth_accuracy = 'c'  WHERE id = ".$m->values['participant_id'].";";
-			mysqli_query($connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			mysqli_query(Config::$db_connection, $query) or die("birth date update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 			$query = str_replace('participants','participants_revs', $query);
-			mysqli_query($connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			mysqli_query(Config::$db_connection, $query) or die("birth date update  [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		}
 		Config::$data_for_import_from_participant_id[$participant_id]['date_of_birth'] = $date_of_birth;
 	}
@@ -466,13 +464,11 @@ function postOvaryDiagnosesRead(Model $m){
 }
 
 function postOvaryDiagnosesWrite(Model $m){
-	global $connection;
-	
 	if(isset($m->values['parent_id'])) {
 		$query = "UPDATE diagnosis_masters SET parent_id = ".$m->values['parent_id']." WHERE id = ".$m->last_id.";";
-		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
-		mysqli_query($connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+		mysqli_query(Config::$db_connection, $query) or die("Diag Parent id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
 	}
 	
 	if(!isset(Config::$data_for_import_from_participant_id[$m->values['participant_id']])) die ('ERR 9988939383');
@@ -541,7 +537,7 @@ function createOtherPrimaries($primary_tumors, $uncertain_dx, Model $m) {
 			"notes" => "'$notes'"
 		);
 		$diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
-		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['primary'][$tumor_site]['detail_tablename'], true);
+		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['primary'][$tumor_site]['detail_tablename'], true, true);
 		
 		$diagnosis_master_ids[] = $diagnosis_master_id;
 	}
@@ -565,7 +561,7 @@ function participantDataCompletion(Model $m, $participant_id, $diagnosis_master_
 	addOtherTreatment('Chimio::Post op', 'chemotherapy','post', $m, $participant_id, $diagnosis_master_id);	
 	
 	addEvent(array('CA125 au Dx'), 'lab', 'ovary', 'CA125', $m, $participant_id, $diagnosis_master_id);
-	addEvent(array('CTScan (+ ou -)'), 'clinical', 'all', 'ctscan', $m, $participant_id, $diagnosis_master_id);
+	addEvent(array('CTScan (+ ou -)'), 'clinical', 'general', 'ctscan', $m, $participant_id, $diagnosis_master_id);
 	addEvent(array('Immuno (IHC)::ER','Immuno (IHC)::PR','Immuno (IHC)::P53','Immuno (IHC)::CA125'), 'lab', 'ovary', 'immunohistochemistry', $m, $participant_id, $diagnosis_master_id);
 }
 
@@ -627,7 +623,7 @@ function addOvcaSecondary(Model $m, $participant_id, $ovca_diagnosis_master_id, 
 			"notes" => "'".str_replace("'", "''", $notes)."'"
 		);
 		$diagnosis_master_id = customInsertChusRecord($master_fields, 'diagnosis_masters');
-		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['secondary'][$control_type]['detail_tablename'], true);
+		customInsertChusRecord(array('diagnosis_master_id' => $diagnosis_master_id), Config::$diagnosis_controls['secondary'][$control_type]['detail_tablename'], true, true);
 	}
 }
 
@@ -639,7 +635,7 @@ function addEvent($fields, $event_group, $disease_site, $event_type, Model $m, $
 	}
 	if($empty_data) return;
 	
-	if(!isset(Config::$event_controls[$event_group][$disease_site][$event_type])) die('ERR 88998379');
+	if(!isset(Config::$event_controls[$event_group][$disease_site][$event_type])) die('ERR 88998379.xx');
 	$event_control_id = Config::$event_controls[$event_group][$disease_site][$event_type]['event_control_id'];
 	$detail_tablename = Config::$event_controls[$event_group][$disease_site][$event_type]['detail_tablename'];
 	
@@ -789,7 +785,7 @@ function addEvent($fields, $event_group, $disease_site, $event_type, Model $m, $
 		}	
 		if($diagnosis_master_id) $master_fields['diagnosis_master_id'] = $diagnosis_master_id;
 		$event_master_id = customInsertChusRecord( array_merge($master_fields,$new_record_data['master']), 'event_masters');	
-		customInsertChusRecord(array_merge(array('event_master_id' => $event_master_id), $new_record_data['detail']), $detail_tablename, true);
+		customInsertChusRecord(array_merge(array('event_master_id' => $event_master_id), $new_record_data['detail']), $detail_tablename, true, true);
 	
 	}
 }
@@ -960,7 +956,7 @@ function addOtherTreatment($field, $treatment_type, $pre_post_surgery, Model $m,
 		'treatment_master_id' => $treatment_master_id,
 		'pre_post_surgery' => "'".$pre_post_surgery."'"
 	);			
-	customInsertChusRecord($detail_fields, $detail_tablename, true);
+	customInsertChusRecord($detail_fields, $detail_tablename, true, true);
 	
 	if(!empty($start_date) && !empty($finish_date) && (str_replace('-','',$start_date) > str_replace('-','',$finish_date))) {
 		Config::$summary_msg[strtoupper($treatment_type)]['@@ERROR@@']['Date error'][$trt_data] = "Dates definition error (from $start_date to $finish_date)! [Line: ".$m->line.']';		
@@ -1127,6 +1123,6 @@ function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
 		if(!empty($ovg_size_cm)) $detail_fields['ovg_size_cm'] = $ovg_size_cm;
 		if(!empty($ovd_size_cm)) $detail_fields['ovd_size_cm'] = $ovd_size_cm;
 		
-		customInsertChusRecord($detail_fields, Config::$treatment_controls['surgery']['ovary']['detail_tablename'], true);
+		customInsertChusRecord($detail_fields, Config::$treatment_controls['surgery']['ovary']['detail_tablename'], true, true);
 	}
 }	
