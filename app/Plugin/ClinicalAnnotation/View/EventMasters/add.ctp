@@ -8,6 +8,7 @@
 	
 	$structure_settings = array(
 		'actions'		=> false, 
+		'header' 		=> $ev_header,
 		'form_bottom'	=> false
 	);
 	

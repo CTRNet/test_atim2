@@ -2316,3 +2316,7 @@ UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id F
 UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipment_recipients') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ShipmentContact' AND `tablename`='shipment_contacts' AND `field`='delivery_country' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_fields SET  `language_label`='time_hour' WHERE model='custom' AND tablename='' AND field='time' AND `type`='time' AND structure_value_domain  IS NULL ;
+
+ALTER TABLE sd_spe_tissues MODIFY `tissue_laterality` varchar(30) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs MODIFY `tissue_laterality` varchar(30) DEFAULT NULL;
+
