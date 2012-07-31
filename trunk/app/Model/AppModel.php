@@ -1254,7 +1254,13 @@ class AppModel extends Model {
 		try{
 			return parent::query($sql, $cache);
 		}catch(Exception $e){
-			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+			if(Configure::read('debug') > 0){
+				pr('QUERY ERROR:');
+				pr($sql);
+				exit;
+			} else {
+				AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
 		}
 	}
 	
