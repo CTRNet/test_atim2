@@ -2320,3 +2320,11 @@ UPDATE structure_fields SET  `language_label`='time_hour' WHERE model='custom' A
 ALTER TABLE sd_spe_tissues MODIFY `tissue_laterality` varchar(30) DEFAULT NULL;
 ALTER TABLE sd_spe_tissues_revs MODIFY `tissue_laterality` varchar(30) DEFAULT NULL;
 
+REPLACE INTO i18n (id,en,fr) VALUES 
+('the format of the identifier is incorrect', 'The format of the identifier is incorrect', 'Le format de l''identifiant est incorrecte'),
+('expected misc identifier format is %s', '(The expected misc identifier format is %s)', '(Le format de l''identifiant attendu est %s)');
+
+
+
+
+
