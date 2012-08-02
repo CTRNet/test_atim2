@@ -2203,35 +2203,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `display_order`='28' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET  `model`='ViewAliquot' WHERE model='AliquotMaster' AND tablename='' AND field='has_notes' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
 
-CREATE TABLE aliquot_events(
- id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- aliquot_master_id INT NOT NULL,
- event_date DATETIME NOT NULL,
- event_date_accuracy DATETIME NOT NULL,
- event_type VARCHAR(50) NOT NULL DEFAULT '',
- detail TEXT,
- created DATETIME NOT NULL,
- created_by INT NOT NULL,
- modified DATETIME NOT NULL,
- modified_by DATETIME NOT NULL,
- deleted BOOLEAN NOT NULL DEFAULT false,
- FOREIGN KEY (aliquot_master_id) REFERENCES aliquot_masters(id)
-)Engine=InnoDb;
-
-INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("aliquot_event", "", "", "StructurePermissibleValuesCustom::getCustomDropdown('aliquot_event')");
-INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES
-('aliquot_event', 1, 50); 
-
-INSERT INTO structures(`alias`) VALUES ('aliquot_event');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotEvent', 'aliquot_events', 'event_date', 'datetime',  NULL , '0', '', '', '', 'date', ''), 
-('InventoryManagement', 'AliquotEvent', 'aliquot_events', 'event_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event') , '0', '', '', '', 'type', ''), 
-('InventoryManagement', 'AliquotEvent', 'aliquot_events', 'detail', 'textarea', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event') , '0', '', '', '', 'detail', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='event_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='aliquot_event'), (SELECT id FROM structure_fields WHERE `model`='AliquotEvent' AND `tablename`='aliquot_events' AND `field`='detail' AND `type`='textarea' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_event')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-
 UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getCategoryPermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getCategoryPermissibleValues';
 UPDATE structure_value_domains SET source = 'ClinicalAnnotation.DiagnosisControl::getTypePermissibleValues' WHERE source = 'Cinicalannotation.DiagnosisControl::getTypePermissibleValues';
 UPDATE structure_value_domains SET source=REPLACE(source, 'Clinicalannotation', 'ClinicalAnnotation');
@@ -2322,9 +2293,237 @@ ALTER TABLE sd_spe_tissues_revs MODIFY `tissue_laterality` varchar(30) DEFAULT N
 
 REPLACE INTO i18n (id,en,fr) VALUES 
 ('the format of the identifier is incorrect', 'The format of the identifier is incorrect', 'Le format de l''identifiant est incorrecte'),
-('expected misc identifier format is %s', '(The expected misc identifier format is %s)', '(Le format de l''identifiant attendu est %s)');
+('expected misc identifier format is %s', '(The expected misc identifier format is %s)', '(Le format de l''identifiant attendu est %s)'),
+('all with filter', 'All with Filter', 'Tous avec filtre');
 
+ALTER TABLE aliquot_internal_uses 
+  ADD COLUMN `type` varchar(50) DEFAULT NULL AFTER aliquot_master_id,
+  ADD COLUMN `duration` int(6) DEFAULT NULL AFTER use_datetime_accuracy,
+  ADD COLUMN `duration_unit` varchar(25)  DEFAULT NULL AFTER duration;
+ALTER TABLE aliquot_internal_uses_revs 
+  ADD COLUMN `type` varchar(50) DEFAULT NULL AFTER aliquot_master_id,
+  ADD COLUMN `duration` int(6) DEFAULT NULL AFTER use_datetime_accuracy,
+  ADD COLUMN `duration_unit` varchar(25)  DEFAULT NULL AFTER duration;
 
+UPDATE aliquot_internal_uses SET type = 'internal use';
+UPDATE aliquot_internal_uses_revs SET type = 'internal use';
 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("duration_unit", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("mn", "minutes_unit"),
+("hr", "hour_unit"),
+("d", "day_unit"),
+("m", "month_unit"),
+("yr", "year_unit");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="duration_unit"), (SELECT id FROM structure_permissible_values WHERE value="mn" AND language_alias="minutes_unit"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="duration_unit"), (SELECT id FROM structure_permissible_values WHERE value="hr" AND language_alias="hour_unit"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="duration_unit"), (SELECT id FROM structure_permissible_values WHERE value="d" AND language_alias="day_unit"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="duration_unit"), (SELECT id FROM structure_permissible_values WHERE value="m" AND language_alias="month_unit"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="duration_unit"), (SELECT id FROM structure_permissible_values WHERE value="yr" AND language_alias="year_unit"), "5", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("aliquot_internal_use_type", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'aliquot use and event types\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES ('aliquot use and event types', 1, 50);
+SET @control_id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES ('internal use', 'Internal Use', 'Utilisation interne', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`use_as_input`, `value`, `en`, `fr`, `control_id`, `modified_by`, `id`, `version_created`) VALUES ('1', 'internal use', 'Internal Use', 'Utilisation interne', @control_id, 1, @last_id, NOW());
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) VALUES ('at room temperature', 'At Room Temperature', 'À température pièce', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`use_as_input`, `value`, `en`, `fr`, `control_id`, `modified_by`, `id`, `version_created`) VALUES ('1', 'at room temperature', 'At Room Temperature', 'À température pièce', @control_id, 1, @last_id, NOW());
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type') , '0', '', '', '', 'type', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'duration', 'integer_positive',  NULL , '0', 'size=6', '', '', 'duration', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'duration_unit', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name='duration_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='duration' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='duration' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='duration_unit' AND `type`='select' AND `structure_value_domain`  =(SELECT id FROM structure_value_domains WHERE domain_name='duration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `field`='type'), 'notEmpty');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+("minutes_unit", "mn", "mn"),
+("hour_unit", "hr", "hr"),
+("day_unit", "d", "d"),
+("month_unit", "m", "m"),
+("year_unit", "yr", "yr"),
+("duration", "Duration", "Durée");
+
+DROP VIEW view_aliquot_uses;
+
+CREATE VIEW `view_aliquot_uses` AS 
+
+SELECT concat(`source`.`id`,1) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'sample derivative creation' AS `use_definition`,
+`samp`.`sample_code` AS `use_code`,
+'' AS `use_details`,
+`source`.`used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`der`.`creation_datetime` AS `use_datetime`,
+`der`.`creation_datetime_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`der`.`creation_by` AS `used_by`,
+`source`.`created` AS `created`,
+concat('inventorymanagement/aliquot_masters/listAllSourceAliquots/',`samp`.`collection_id`,'/',`samp`.`id`) AS `detail_url`,
+`samp2`.`id` AS `sample_master_id`,
+`samp2`.`collection_id` AS `collection_id` 
+FROM (((((`source_aliquots` `source` 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `source`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+JOIN `derivative_details` `der` ON ((`samp`.`id` = `der`.`sample_master_id`))) 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `source`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `sample_masters` `samp2` ON (((`samp2`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) WHERE (`source`.`deleted` <> 1) 
+
+UNION ALL
+ 
+SELECT concat(`realiq`.`id`,2) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'realiquoted to' AS `use_definition`,
+`child`.`barcode` AS `use_code`,
+'' AS `use_details`,
+`realiq`.`parent_used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`realiq`.`realiquoting_datetime` AS `use_datetime`,
+`realiq`.`realiquoting_datetime_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`realiq`.`realiquoted_by` AS `used_by`,
+`realiq`.`created` AS `created`,
+concat('/inventorymanagement/aliquot_masters/listAllRealiquotedParents/',`child`.`collection_id`,'/',`child`.`sample_master_id`,'/',`child`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM ((((`realiquotings` `realiq` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `realiq`.`parent_aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `aliquot_masters` `child` ON (((`child`.`id` = `realiq`.`child_aliquot_master_id`) AND (`child`.`deleted` <> 1)))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`realiq`.`deleted` <> 1) 
+
+UNION ALL 
+
+SELECT concat(`qc`.`id`,3) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'quality control' AS `use_definition`,
+`qc`.`qc_code` AS `use_code`,
+'' AS `use_details`,
+`qc`.`used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`qc`.`date` AS `use_datetime`,
+`qc`.`date_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`qc`.`run_by` AS `used_by`,
+`qc`.`created` AS `created`,
+concat('/inventorymanagement/quality_ctrls/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`qc`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`quality_ctrls` `qc` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `qc`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`qc`.`deleted` <> 1)
+
+UNION ALL 
+
+SELECT concat(`item`.`id`,4) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'aliquot shipment' AS `use_definition`,
+`sh`.`shipment_code` AS `use_code`,
+'' AS `use_details`,
+'' AS `used_volume`,
+'' AS `aliquot_volume_unit`,
+`sh`.`datetime_shipped` AS `use_datetime`,
+`sh`.`datetime_shipped_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`sh`.`shipped_by` AS `used_by`,
+`sh`.`created` AS `created`,
+concat('/order/shipments/detail/',`sh`.`order_id`,'/',`sh`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`order_items` `item` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `item`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `shipments` `sh` ON (((`sh`.`id` = `item`.`shipment_id`) AND (`sh`.`deleted` <> 1)))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`item`.`deleted` <> 1) 
+
+UNION ALL 
+
+SELECT concat(`alr`.`id`,5) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'specimen review' AS `use_definition`,
+`spr`.`review_code` AS `use_code`,
+'' AS `use_details`,
+'' AS `used_volume`,
+'' AS `aliquot_volume_unit`,
+`spr`.`review_date` AS `use_datetime`,
+`spr`.`review_date_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+'' AS `used_by`,
+`alr`.`created` AS `created`,
+concat('/inventorymanagement/specimen_reviews/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`spr`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`aliquot_review_masters` `alr` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `alr`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `specimen_review_masters` `spr` ON (((`spr`.`id` = `alr`.`specimen_review_master_id`) AND (`spr`.`deleted` <> 1)))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`alr`.`deleted` <> 1) 
+
+UNION ALL 
+
+SELECT concat(`aluse`.`id`,6) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+`aluse`.`type` AS `use_definition`,
+`aluse`.`use_code` AS `use_code`,
+`aluse`.`use_details` AS `use_details`,
+`aluse`.`used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`aluse`.`use_datetime` AS `use_datetime`,
+`aluse`.`use_datetime_accuracy` AS `use_datetime_accuracy`,
+`aluse`.`duration` AS `duration`,
+`aluse`.`duration_unit` AS `duration_unit`,
+`aluse`.`used_by` AS `used_by`,
+`aluse`.`created` AS `created`,
+concat('/inventorymanagement/aliquot_masters/detailAliquotInternalUse/',`aliq`.`id`,'/',`aluse`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`aliquot_internal_uses` `aluse` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `aluse`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`aluse`.`deleted` <> 1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquotUse', 'view_aliquot_uses', 'duration', 'integer_positive',  NULL , '0', 'size=6', '', '', 'duration', ''), 
+('InventoryManagement', 'ViewAliquotUse', 'view_aliquot_uses', 'duration_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='duration_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='viewaliquotuses'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='duration' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='duration' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='viewaliquotuses'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='duration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='duration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="aliquot_use_definition");
+UPDATE structure_value_domains SET source = "InventoryManagement.ViewAliquotUse::getUseDefinitions" WHERE domain_name = 'aliquot_use_definition';
+
+UPDATE structure_fields SET  `language_label`='use and/or event' WHERE model='ViewAliquotUse' AND field='use_definition';
+UPDATE datamart_structures SET display_name = 'aliquot uses and events' WHERE model = 'ViewAliquotUse';
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('history','History','Historique'),
+('use and/or event','Use/Event','Utilisation/événement'),
+('aliquot uses and events','Aliquot Uses/Events','Utilisations/événements d''aliquot'),
+('uses and events','Uses/Events','Utilisations/événements'),
+('aliquot shipment','Aliquot Shipment nbr','Numéro d''envoi d''aliquots'),
+('add uses/events','Add Uses/Events','Ajouter utilisations/événements'),
+('use/event creation','Use/Event Creation','Cération utilisation/événement'),
+('aliquot use/event','Aliquot Use/Event','Utilisation/événement d''aliquot');
 
 
