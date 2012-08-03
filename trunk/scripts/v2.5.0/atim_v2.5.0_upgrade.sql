@@ -2674,3 +2674,70 @@ UPDATE structure_permissible_values SET value = 'ptis.' WHERE language_alias = "
 -- ---------------------------------------------------------------------------
 -- END TNM Clean Up
 -- ---------------------------------------------------------------------------
+
+INSERT INTO `realiquoting_controls` (`parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`, `lab_book_control_id`) VALUES ((SELECT ac.id FROM aliquot_controls ac INNER JOIN sample_controls sc ON sc.id = ac.sample_control_id WHERE ac.aliquot_type = 'block' AND sc.sample_type = 'tissue'), (SELECT ac.id FROM aliquot_controls ac INNER JOIN sample_controls sc ON sc.id = ac.sample_control_id WHERE ac.aliquot_type = 'tube' AND sc.sample_type = 'tissue'), 1, NULL);
+
+UPDATE structure_fields SET language_help = 'new_participants_nbr_help' WHERE plugin = 'Datamart' AND field = 'new_participants_nbr';
+UPDATE structure_fields SET language_help = 'obtained_consents_nbr_help' WHERE plugin = 'Datamart' AND field = 'obtained_consents_nbr';
+UPDATE structure_fields SET language_help = 'new_collections_nbr_help' WHERE plugin = 'Datamart' AND field = 'new_collections_nbr';
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('new_participants_nbr_help', 
+'Number of participants created into the system during the defined period (based on the dates of the participants creation into the system).',
+'Nombre de participants créés dans le système pendant la période définie (selon les dates de création des patients dans le système).'),
+('obtained_consents_nbr_help',
+'Number of consents having a signature date included into the defined period.',
+'Nombre de consentements ayant une date de signature inclue dans la période définie.'),
+('new_collections_nbr_help',
+'Number of participants linked to at least one collection with a collection date included into the defined period.',
+'Nombre de participants liés à au moins une collection ayant une date de collection inclue dans la période définie.');
+
+UPDATE structure_fields SET language_help = 'created_samples_nbr_help' WHERE plugin = 'Datamart' AND field = 'created_samples_nbr';
+UPDATE structure_fields SET language_help = 'matching_participant_number_help' WHERE plugin = 'Datamart' AND field = 'matching_participant_number';
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES 
+('created_samples_nbr_help', 
+'Number of either specimens collected during the defined period or derivatives created during this same period.',
+'Nombre de spécimens récoltés au cours de la période définie ou de dérivés créés au cours de cette même période.'),
+('matching_participant_number_help', 
+'Number of participants of the samples included into the count of the previous column.',
+'Nombre de participants des échantillons inclus dans le décompte de la colonne précédente.');
+
+UPDATE i18n SET id = 'report_3_name' WHERE id = 'bank activity report';
+UPDATE i18n SET id = 'report_3_desc' WHERE id = 'number of new participants created, consents obtained and participants having samples collected';
+UPDATE datamart_reports SET name = 'report_3_name', description = 'report_3_desc' WHERE id = 3;
+
+UPDATE i18n SET id = 'report_4_name' WHERE id = 'specimens collection/derivatives creation';
+UPDATE datamart_reports SET name = 'report_4_name', description = 'report_4_desc' WHERE id = 4;
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('report_3_desc', '', 'Number of created participants, obtained consents and participants having samples collected.', 'Nombre de participants créés, de consentements obtenus et de participants ayant des échantillons collectés.'),
+('report_4_desc', '', 'Specimens and derivatives count plus the count of matching participants.', 'Le compte des spécimens et dérivés ainsi que le compte des participants correspondants.'),
+('report_4_name', '', 'Specimens Collection/Derivatives Creation', 'Collections des spécimens/Creations des dérivés');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'bank_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='banks') , '0', '', '', '', 'bank', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_datetime_range_definition'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bank' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+UPDATE i18n SET id = 'report_5_name' WHERE id = 'bank activity report (per period)';
+UPDATE datamart_reports SET name = 'report_5_name', description = 'report_3_desc' WHERE id = 5;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

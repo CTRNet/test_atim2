@@ -134,6 +134,7 @@ class ReportsController extends DatamartAppController {
 				AND col.participant_id != '0'
 				AND ($conditions)
 				AND col.deleted != '1'
+				AND sm.deleted != '1'
 			) AS res;");
 		$data['0']['new_collections_nbr'] = $new_collections_nbr[0][0]['COUNT(*)'];
 		
@@ -147,14 +148,29 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function sampleAndDerivativeCreationSummary($parameters) {
+			
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_start']['year'], $parameters[0]['report_datetime_range_start']['month'], $parameters[0]['report_datetime_range_start']['day']);
 		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_end']['year'], $parameters[0]['report_datetime_range_end']['month'], $parameters[0]['report_datetime_range_end']['day']);
+		
 		$header = array(
 			'title' => __('from').' '.(empty($parameters[0]['report_datetime_range_start']['year'])?'?':$start_date_for_display).' '.__('to').' '.(empty($parameters[0]['report_datetime_range_end']['year'])?'?':$end_date_for_display), 
 			'description' => 'n/a');
+		
+		$bank_ids = array();
+		foreach($parameters[0]['bank_id'] as $bank_id) if(!empty($bank_id)) $bank_ids[] = $bank_id;
+		if(!empty($bank_ids)) {
+			$Bank = AppModel::getInstance("Administrate", "Bank", true);
+			$bank_list = $Bank->find('all', array('conditions' => array('id' => $bank_ids)));
+			$bank_names = array();
+			foreach($bank_list as $new_bank) $bank_names[] = $new_bank['Bank']['name'];
+			$header['description'] = __('bank'). ': '.implode(',',$bank_names);
+		}	
 
 		// 2- Search data
+		
+		$bank_conditions = empty($bank_ids)? 'TRUE' : 'col.bank_id IN ('. implode(',',$bank_ids).')';
+			
 		$start_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_start'], 'start');
 		$end_date_for_sql = AppController::getFormatedDatetimeSQL($parameters[0]['report_datetime_range_end'], 'end');
 		
@@ -165,58 +181,87 @@ class ReportsController extends DatamartAppController {
 		$tmp_res_final = array();
 		
 		// Work on specimen
-		$sample_master_model = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
 		
-		$res_1 = $sample_master_model->find('all', array(
-			'fields' => array('COUNT(*)', 'SampleControl.sample_type', 'SampleControl.sample_category'),
-			'conditions' => $search_on_date_range ? array('Collection.collection_datetime >=' => $start_date_for_sql, 'Collection.collection_datetime <=' => $end_date_for_sql) : array(),
-			'group'	=> 'SampleControl.sample_type',
-			'recursive' => 0
-		));
-		
-		foreach($res_1 as $data) {
-			$tmp_res_final[$data['SampleControl']['sample_type']] = array(
-				'SampleControl' => array('sample_category' => $data['SampleControl']['sample_category'], 'sample_type'=> $data['SampleControl']['sample_type']),
-				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
-		}
-
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
-		$res_2 = $this->Report->tryCatchQuery(
-			"SELECT COUNT(*), participant_id, res.sample_type FROM (
-				SELECT DISTINCT col.participant_id, sc.sample_type  
-				FROM sample_masters AS sm 
+		$res_samples = $this->Report->tryCatchQuery(
+			"SELECT COUNT(*), sc.sample_type
+			FROM sample_masters AS sm
+			INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
+			INNER JOIN collections AS col ON col.id = sm.collection_id
+			WHERE col.participant_id IS NOT NULL
+			AND col.participant_id != '0'
+			AND sc.sample_category = 'specimen'
+			AND ($conditions)
+			AND ($bank_conditions)
+			AND sm.deleted != '1'
+			GROUP BY sample_type;"
+		);		
+		$res_participants = $this->Report->tryCatchQuery(
+			"SELECT COUNT(*), res.sample_type FROM (
+				SELECT DISTINCT col.participant_id, sc.sample_type
+				FROM sample_masters AS sm
 				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
-				INNER JOIN collections AS col ON col.id = sm.collection_id 
-				WHERE col.participant_id IS NOT NULL 
+				INNER JOIN collections AS col ON col.id = sm.collection_id
+				WHERE col.participant_id IS NOT NULL
 				AND col.participant_id != '0'
 				AND sc.sample_category = 'specimen'
 				AND ($conditions)
+				AND ($bank_conditions)
 				AND sm.deleted != '1'
 			) AS res GROUP BY res.sample_type;"
-		);
-		foreach($res_2 as $data) {
-			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+		);		
+		
+		foreach($res_samples as $data) {
+			$tmp_res_final['specimen-'.$data['sc']['sample_type']] = array(
+				'SampleControl' => array('sample_category' => 'specimen', 'sample_type'=> $data['sc']['sample_type']),
+				'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
+		}
+		foreach($res_participants as $data) {
+			$tmp_res_final['specimen-'.$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
 		}
 		
 		// Work on derivative
-		$res_2 = $this->Report->tryCatchQuery(
-			"SELECT COUNT(*), res.sample_type FROM (
-				SELECT DISTINCT col.participant_id, sc.sample_type  
-				FROM sample_masters AS sm 
+		
+		$conditions = $search_on_date_range? "der.creation_datetime >= '$start_date_for_sql' AND der.creation_datetime <= '$end_date_for_sql'" : 'TRUE';
+		$res_samples = $this->Report->tryCatchQuery(
+				"SELECT COUNT(*), sc.sample_type
+				FROM sample_masters AS sm
 				INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
+				INNER JOIN collections AS col ON col.id = sm.collection_id
 				INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id
-				INNER JOIN collections AS col ON col.id = sm.collection_id 
-				WHERE col.participant_id IS NOT NULL 
+				WHERE col.participant_id IS NOT NULL
 				AND col.participant_id != '0'
 				AND sc.sample_category = 'derivative'
 				AND ($conditions)
+				AND ($bank_conditions)
 				AND sm.deleted != '1'
+				GROUP BY sample_type;"
+		);
+		$res_participants = $this->Report->tryCatchQuery(
+			"SELECT COUNT(*), res.sample_type FROM (
+					SELECT DISTINCT col.participant_id, sc.sample_type
+					FROM sample_masters AS sm
+					INNER JOIN sample_controls AS sc ON sm.sample_control_id=sc.id
+					INNER JOIN collections AS col ON col.id = sm.collection_id
+					INNER JOIN derivative_details AS der ON der.sample_master_id = sm.id
+					WHERE col.participant_id IS NOT NULL
+					AND col.participant_id != '0'
+					AND sc.sample_category = 'derivative'
+					AND ($conditions)
+					AND ($bank_conditions)
+					AND sm.deleted != '1'
 			) AS res GROUP BY res.sample_type;"
 		);
-		
-		foreach($res_2 as $data) {
-			$tmp_res_final[$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+	
+		foreach($res_samples as $data) {
+			$tmp_res_final['derivative-'.$data['sc']['sample_type']] = array(
+					'SampleControl' => array('sample_category' => 'specimen', 'sample_type'=> $data['sc']['sample_type']),
+					'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
 		}
+		foreach($res_participants as $data) {
+			$tmp_res_final['derivative-'.$data['res']['sample_type']]['0']['matching_participant_number'] = $data[0]['COUNT(*)'];
+		}		
+		
 		// Format data for report
 		foreach($tmp_res_final as $new_sample_type_data) {
 			$res_final[] = $new_sample_type_data;
@@ -315,6 +360,7 @@ class ReportsController extends DatamartAppController {
 				AND col.participant_id != '0'
 				AND ($conditions)
 				AND col.deleted != '1'
+				AND sm.deleted != '1'
 			) AS res
 			GROUP BY res.collection_year".($month_period? ", res.collection_month": "").";");
 		foreach($collection_res as $new_data) {
