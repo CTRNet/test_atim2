@@ -255,7 +255,7 @@ class ReportsController extends DatamartAppController {
 	
 		foreach($res_samples as $data) {
 			$tmp_res_final['derivative-'.$data['sc']['sample_type']] = array(
-					'SampleControl' => array('sample_category' => 'specimen', 'sample_type'=> $data['sc']['sample_type']),
+					'SampleControl' => array('sample_category' => 'derivative', 'sample_type'=> $data['sc']['sample_type']),
 					'0' => array('created_samples_nbr' => $data[0]['COUNT(*)'], 'matching_participant_number' => null));
 		}
 		foreach($res_participants as $data) {
@@ -266,7 +266,7 @@ class ReportsController extends DatamartAppController {
 		foreach($tmp_res_final as $new_sample_type_data) {
 			$res_final[] = $new_sample_type_data;
 		}	
-		
+			
 		$array_to_return = array(
 			'header' => $header, 
 			'data' => $res_final, 
@@ -395,4 +395,328 @@ class ReportsController extends DatamartAppController {
 		return $array_to_return;
 	}
 	
+	function ctrnetCatalogueSubmissionFile($parameters) {
+			
+		// 1- Build Header
+		$header = array(
+				'title' => __('report_ctrnet_catalogue_name'),
+				'description' => 'n/a');
+	
+		$bank_ids = array();
+		foreach($parameters[0]['bank_id'] as $bank_id) if(!empty($bank_id)) $bank_ids[] = $bank_id;
+		if(!empty($bank_ids)) {
+			$Bank = AppModel::getInstance("Administrate", "Bank", true);
+			$bank_list = $Bank->find('all', array('conditions' => array('id' => $bank_ids)));
+			$bank_names = array();
+			foreach($bank_list as $new_bank) $bank_names[] = $new_bank['Bank']['name'];
+			$header['title'] .= ' ('.__('bank'). ': '.implode(',', $bank_names).')';
+		}
+		
+		// 2- Search data
+	
+		$bank_conditions = empty($bank_ids)? 'TRUE' : 'col.bank_id IN ('. implode(',',$bank_ids).')';
+		$aliquot_type_confitions = $parameters[0]['include_core_and_slide'][0]? 'TRUE' : "ac.aliquot_type NOT IN ('core','slide')";
+		$whatman_paper_confitions = $parameters[0]['include_whatman_paper'][0]? 'TRUE' : "ac.aliquot_type NOT IN ('whatman paper')";
+		$detail_other_count = $parameters[0]['detail_other_count'][0]? true : false;
+				
+		$data = array();
+				
+		// **all**
+		
+		$tmp_data = array('sample_type' => __('total'), 'cases_nbr' => '', 'aliquots_nbr' => '', 'notes' => '');
+		
+		$sql = "
+			SELECT count(*) AS nbr FROM (
+				SELECT DISTINCT %%id%%
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				WHERE col.deleted != '1' 
+				AND ($bank_conditions)
+				AND ($aliquot_type_confitions) 
+				AND am.in_stock IN ('yes - available ','yes - not available')
+			) AS res;";		
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+		$tmp_data['cases_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+		$tmp_data['aliquots_nbr'] =  $query_results[0][0]['nbr'];
+
+		$data[] = $tmp_data;
+		
+		// **FFPE**
+		
+		$tmp_data = array('sample_type' => __('FFPE'), 'cases_nbr' => '', 'aliquots_nbr' => '', 'notes' => __('tissue').' '.__('block').' ('.__('paraffin').')');
+		
+		$sql = "	
+			SELECT count(*) AS nbr FROM (
+				SELECT DISTINCT  %%id%%
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+				INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = sm.id
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				INNER JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND am.in_stock IN ('yes - available ','yes - not available')
+				AND sc.sample_type IN ('tissue')
+				AND ac.aliquot_type = 'block'
+				AND blk.block_type = 'paraffin'
+			) AS res;";
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+		$tmp_data['cases_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+		$tmp_data['aliquots_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$data[] = $tmp_data;
+		
+		// **frozen tissue**
+		
+		$tmp_data = array('sample_type' => __('frozen tissue'), 'cases_nbr' => '', 'aliquots_nbr' => '', 'notes' => '');
+		
+		$sql = "
+			SELECT count(*) AS nbr FROM (
+				SELECT DISTINCT  %%id%%
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+				INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = sm.id
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND am.in_stock IN ('yes - available ','yes - not available')
+				AND sc.sample_type IN ('tissue')
+				AND ($aliquot_type_confitions) 
+				AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin')
+			) AS res;";
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+		$tmp_data['cases_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+		$tmp_data['aliquots_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$sql = "
+			SELECT DISTINCT sc.sample_type,ac.aliquot_type,blk.block_type
+			FROM collections AS col
+			INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+			INNER JOIN sd_spe_tissues AS tiss ON tiss.sample_master_id = sm.id
+			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+			LEFT JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
+			WHERE col.deleted != '1' AND ($bank_conditions)
+			AND am.in_stock IN ('yes - available ','yes - not available')
+			AND sc.sample_type IN ('tissue')
+				AND ($aliquot_type_confitions) 
+			AND am.id NOT IN (SELECT aliquot_master_id FROM ad_blocks WHERE block_type = 'paraffin');";
+		$query_results = $this->Report->tryCatchQuery($sql);		
+		foreach($query_results as $new_type) $tmp_data['notes'] .= (empty($tmp_data['notes'])? '' : ' & ').__($new_type['sc']['sample_type']).' '.__($new_type['ac']['aliquot_type']).(empty($new_type['blk']['block_type'])? '' : ' ('.__($new_type['blk']['block_type']).')');
+
+		$data[] = $tmp_data;		
+		
+		// **blood**
+		// **pbmc**
+		// **blood cell**
+		// **plasma**
+		// **serum**
+		// **rna**
+		// **dna**
+		// **cell culture**
+		
+		$sample_types = "'blood', 'pbmc', 'blood cell', 'plasma', 'serum', 'rna', 'dna', 'cell culture'";
+		
+		$tmp_data = array();
+		$sql = "
+			SELECT count(*) AS nbr,sample_type, aliquot_type FROM (
+				SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND am.in_stock IN ('yes - available ','yes - not available')
+				AND sc.sample_type IN ($sample_types)
+				AND ($whatman_paper_confitions)	
+			) AS res GROUP BY sample_type, aliquot_type;";
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+		foreach($query_results as $new_res) {
+			$sample_type = $new_res['res']['sample_type'];
+			$aliquot_type = $new_res['res']['aliquot_type'];
+			$tmp_data[$sample_type.$aliquot_type] = array('sample_type' => __($sample_type).' '.__($aliquot_type), 'cases_nbr' => $new_res[0]['nbr'], 'aliquots_nbr' => '', 'notes' => '');
+		}
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+		foreach($query_results as $new_res) {
+			$sample_type = $new_res['res']['sample_type'];
+			$aliquot_type = $new_res['res']['aliquot_type'];
+			$tmp_data[$sample_type.$aliquot_type]['aliquots_nbr'] = $new_res[0]['nbr'];
+			$data[] = $tmp_data[$sample_type.$aliquot_type];
+		}
+		
+		// **Urine**	
+
+		$tmp_data = array('sample_type' => __('urine'), 'cases_nbr' => '', 'aliquots_nbr' => '', 'notes' => '');
+		$sql = "
+			SELECT count(*) AS nbr FROM (
+				SELECT DISTINCT  %%id%%
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND am.in_stock IN ('yes - available ','yes - not available')
+				AND sc.sample_type LIKE '%urine%'
+			) AS res;";
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+		$tmp_data['cases_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+		$tmp_data['aliquots_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$sql = "
+			SELECT DISTINCT sc.sample_type,ac.aliquot_type
+			FROM collections AS col
+			INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+			WHERE col.deleted != '1' AND ($bank_conditions)
+			AND am.in_stock IN ('yes - available ','yes - not available')
+			AND sc.sample_type LIKE '%urine%'";
+		$query_results = $this->Report->tryCatchQuery($sql);
+		foreach($query_results as $new_type) $tmp_data['notes'] .= (empty($tmp_data['notes'])? '' : ' & ').__($new_type['sc']['sample_type']).' '.__($new_type['ac']['aliquot_type']);
+		
+		$data[] = $tmp_data;
+		
+		// **Ascite**
+		
+		$tmp_data = array('sample_type' => __('ascite'), 'cases_nbr' => '', 'aliquots_nbr' => '', 'notes' => '');
+		$sql = "
+			SELECT count(*) AS nbr FROM (
+				SELECT DISTINCT  %%id%%
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND am.in_stock IN ('yes - available ','yes - not available')
+				AND sc.sample_type LIKE '%ascite%'
+			) AS res;";
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+				$tmp_data['cases_nbr'] =  $query_results[0][0]['nbr'];
+		
+		$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+		$tmp_data['aliquots_nbr'] =  $query_results[0][0]['nbr'];
+
+		$sql = "
+			SELECT DISTINCT sc.sample_type,ac.aliquot_type
+			FROM collections AS col
+			INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+			INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+			WHERE col.deleted != '1' AND ($bank_conditions)
+			AND am.in_stock IN ('yes - available ','yes - not available')
+			AND sc.sample_type LIKE '%ascite%'";
+		$query_results = $this->Report->tryCatchQuery($sql);
+		foreach($query_results as $new_type) $tmp_data['notes'] .= (empty($tmp_data['notes'])? '' : ' & ').__($new_type['sc']['sample_type']).' '.__($new_type['ac']['aliquot_type']);		
+
+		$data[] = $tmp_data;
+		
+		// **other**
+		
+		$other_conditions = "sc.sample_type NOT LIKE '%ascite%' AND sc.sample_type NOT LIKE '%urine%' AND sc.sample_type NOT IN ('tissue', $sample_types)";
+		
+		if($detail_other_count) {
+			
+			$tmp_data = array();
+			$sql = "
+				SELECT count(*) AS nbr,sample_type, aliquot_type FROM (
+					SELECT DISTINCT  %%id%%, sc.sample_type, ac.aliquot_type
+					FROM collections AS col
+					INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+					INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+					WHERE col.deleted != '1' AND ($bank_conditions)
+					AND am.in_stock IN ('yes - available ','yes - not available')
+					AND ($other_conditions)
+				) AS res GROUP BY sample_type, aliquot_type;";
+			$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+			foreach($query_results as $new_res) {
+				$sample_type = $new_res['res']['sample_type'];
+				$aliquot_type = $new_res['res']['aliquot_type'];
+				$tmp_data[$sample_type.$aliquot_type] = array('sample_type' => __($sample_type).' '.__($aliquot_type), 'cases_nbr' => $new_res[0]['nbr'], 'aliquots_nbr' => '', 'notes' => '');
+			}
+			$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+			foreach($query_results as $new_res) {
+				$sample_type = $new_res['res']['sample_type'];
+				$aliquot_type = $new_res['res']['aliquot_type'];
+				$tmp_data[$sample_type.$aliquot_type]['aliquots_nbr'] = $new_res[0]['nbr'];
+				$data[] = $tmp_data[$sample_type.$aliquot_type];
+			}			
+
+		} else {
+			
+			$tmp_data = array('sample_type' => __('other'), 'cases_nbr' => '', 'aliquots_nbr' => '', 'notes' => '');
+			$sql = "
+				SELECT count(*) AS nbr FROM (
+					SELECT DISTINCT  %%id%%
+					FROM collections AS col
+					INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+					INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+					WHERE col.deleted != '1' AND ($bank_conditions)
+					AND am.in_stock IN ('yes - available ','yes - not available')
+					AND ($other_conditions)
+				) AS res;";
+			$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','col.participant_id',$sql));
+			$tmp_data['cases_nbr'] =  $query_results[0][0]['nbr'];
+			
+			$query_results = $this->Report->tryCatchQuery(str_replace('%%id%%','am.id',$sql));
+					$tmp_data['aliquots_nbr'] =  $query_results[0][0]['nbr'];
+			
+			$sql = "
+				SELECT DISTINCT sc.sample_type,ac.aliquot_type
+				FROM collections AS col
+				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
+				INNER JOIN sample_controls AS sc ON sc.id = sm.sample_control_id
+				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
+				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND am.in_stock IN ('yes - available ','yes - not available')
+				AND ($other_conditions)";
+			$query_results = $this->Report->tryCatchQuery($sql);
+			foreach($query_results as $new_type) $tmp_data['notes'] .= (empty($tmp_data['notes'])? '' : ' & ').__($new_type['sc']['sample_type']).' '.__($new_type['ac']['aliquot_type']);
+			
+			$data[] = $tmp_data;
+		}
+		
+		
+		// Format data form display
+		
+		$final_data = array();
+		foreach($data as $new_row) {
+			if($new_row['cases_nbr']) {
+				$final_data[][0] = $new_row;
+			}
+		}
+
+		$array_to_return = array(
+			'header' => $header,
+			'data' => $final_data,
+			'columns_names' => null,
+			'error_msg' => null);
+	
+		return $array_to_return;
+	}
+	
+	
+
 }
