@@ -2725,19 +2725,49 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE i18n SET id = 'report_5_name' WHERE id = 'bank activity report (per period)';
 UPDATE datamart_reports SET name = 'report_5_name', description = 'report_3_desc' WHERE id = 5;
 
+UPDATE structure_formats SET `flag_override_default`='1', `default`='all' WHERE structure_id=(SELECT id FROM structures WHERE alias='template') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_default`='1', `default`='all' WHERE structure_id=(SELECT id FROM structures WHERE alias='template') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing') AND `flag_confidential`='0');
 
+-- ------------------------------------------------------
+-- report for ctrnet catalogue update
+-- ------------------------------------------------------
 
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`) VALUES
+(null, 'report_ctrnet_catalogue_name', 'report_ctrnet_catalogue_desc', 'ctrnet_calatogue_submission_file_params', 'ctrnet_calatogue_submission_file', 'index', 'ctrnetCatalogueSubmissionFile', 1);
 
+INSERT INTO structures(`alias`) VALUES ('ctrnet_calatogue_submission_file');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'sample_type', 'input',  NULL , '0', '', '', '', 'sample type', ''), 
+('Datamart', '0', '', 'cases_nbr', 'input',  NULL , '0', '', '', '', 'cases number', ''), 
+('Datamart', '0', '', 'aliquots_nbr', 'input',  NULL , '0', '', '', '', 'aliquots number', ''), 
+('Datamart', '0', '', 'notes', 'input',  NULL , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sample_type'), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='cases_nbr'), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='aliquots_nbr'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='notes'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
 
+INSERT INTO structures(`alias`) VALUES ('ctrnet_calatogue_submission_file_params');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'include_core_and_slide', 'checkbox',  (SELECT id FROM structure_value_domains WHERE domain_name = 'yes_no_checkbox') , '0', '', '', '', 'include core and slide in the count', ''), 
+('Datamart', '0', '', 'include_whatman_paper', 'checkbox',  (SELECT id FROM structure_value_domains WHERE domain_name = 'yes_no_checkbox') , '0', '', '', '', 'include whatman paper in the count', ''), 
+('Datamart', '0', '', 'detail_other_count', 'checkbox',  (SELECT id FROM structure_value_domains WHERE domain_name = 'yes_no_checkbox') , '0', '', '', '', 'detail other count', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file_params'), (SELECT id FROM structure_fields WHERE `plugin`='Datamart' AND `field`='include_core_and_slide'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file_params'), (SELECT id FROM structure_fields WHERE `plugin`='Datamart' AND `field`='include_whatman_paper'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file_params'), (SELECT id FROM structure_fields WHERE `plugin`='Datamart' AND `field`='detail_other_count'), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='ctrnet_calatogue_submission_file_params'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='bank_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='bank' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+UPDATE structure_fields SET  `language_label`='notes' WHERE model='0' AND tablename='' AND field='notes' AND `type`='input' AND structure_value_domain  IS NULL ;
 
-
-
-
-
-
-
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('report_ctrnet_catalogue_name','CTRNet catalogue', 'Catalogue CTRNet'),
+('report_ctrnet_catalogue_desc','Data creation for CTRNet catalogue.', 'Génération des données pour le catalogue de CTRNet.'),
+('cases number','Cases Number','Nombre de cas'),
+('aliquots number','Aliquots Number','Nombre d''aliquots'),
+('include core and slide in the count','Include core and slide in the count','Inclure les lames et les cores dans le décompte'),
+('include whatman paper in the count','Include whatman paper in the count','Inclure les papier Whatman dans le décompte'),
+('detail other count','Detail ''Other'' Count','Détailler ''Autre'' décompte'),
+('FFPE','FFPE','FFPE'),
+('total','Total','Total');
 
