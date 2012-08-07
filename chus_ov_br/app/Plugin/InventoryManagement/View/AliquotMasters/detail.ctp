@@ -20,15 +20,14 @@
 		$structure_links['bottom']['add to order'] = array("link" => '/Order/OrderItems/addAliquotsInBatch/'.$atim_menu_variables['AliquotMaster.id'].'/', "icon" => "order");
 	}		
 	
-	$structure_links['bottom']['add uses'] = array("link" => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/'. $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
+	$structure_links['bottom']['add uses/events'] = array("link" => '/InventoryManagement/AliquotMasters/addAliquotInternalUse/'. $atim_menu_variables['AliquotMaster.id'], "icon" => "use");
 	
 	$structure_links['bottom']['realiquoting'] = array(
 		'realiquot' =>  array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/creation/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"),
 		'define realiquoted children' => array("link" => '/InventoryManagement/AliquotMasters/realiquotInit/definition/' . $atim_menu_variables['AliquotMaster.id'], "icon" => "aliquot"));
 
 	$structure_links['bottom']['create derivative'] = $can_create_derivative ? '/InventoryManagement/SampleMasters/batchDerivativeInit/'.$atim_menu_variables['AliquotMaster.id'] : 'cannot';
-	$structure_links['bottom']['event'] = '/InventoryManagement/AliquotEvents/add/'.$col_id_samp_id_al_id;
-
+	
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
 		$settings['header'] = __('aliquot', null);
@@ -78,7 +77,7 @@
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'data' => array(), 
-			'settings' => array('header' => __('uses'), 'actions' => false),
+			'settings' => array('header' => __('history'), 'language_heading' => __('uses and events'), 'actions' => false),
 			'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 
@@ -97,7 +96,7 @@
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'links'		=> $structure_links,
-			'settings'	=> array('header' => __('storage history'), 'actions' => false),
+			'settings'	=> array('language_heading' => __('storage').' ('.__('system data').')', 'actions' => false),
 			'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 		
@@ -116,29 +115,11 @@
 		$final_atim_structure = $empty_structure;
 		$final_options = array(
 			'links'		=> $structure_links,
-			'settings'	=> array('header' => __('realiquoted parent'), 'actions' => false),
+			'settings'	=> array('header' => __('realiquoted parent')),
 			'extras'	=> $this->Structures->ajaxIndex($data_url)
 		);
 		
 		$hook_link = $this->Structures->hook('realiquoted_parent');
-		if($hook_link){
-			require($hook_link);
-		}
-		
-		$this->Structures->build($final_atim_structure, $final_options);
-		
-		
-		
-		// 5 - REALIQUOTED PARENTS
-		$data_url = sprintf('InventoryManagement/AliquotEvents/index/%d/%d/%d/', $atim_menu_variables['Collection.id'], $atim_menu_variables['SampleMaster.id'], $atim_menu_variables['AliquotMaster.id']);
-		$final_atim_structure = $empty_structure;
-		$final_options = array(
-				'links'		=> $structure_links,
-				'settings'	=> array('header' => __('events')),
-				'extras'	=> $this->Structures->ajaxIndex($data_url)
-		);
-		
-		$hook_link = $this->Structures->hook('aliquot_events');
 		if($hook_link){
 			require($hook_link);
 		}
