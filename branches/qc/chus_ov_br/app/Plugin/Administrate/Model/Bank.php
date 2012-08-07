@@ -3,9 +3,9 @@
 class Bank extends AdministrateAppModel {
 	
 	var $registered_view = array(
-			'InventoryManagement.ViewCollection' => array('Bank.id'),
-			'InventoryManagement.ViewSample' => array('Bank.id'),
-			'InventoryManagement.ViewAliquot' => array('Bank.id')
+			'InventoryManagement.ViewCollection' => array('Collection.bank_id'),
+			'InventoryManagement.ViewSample' => array('Collection.bank_id'),
+			'InventoryManagement.ViewAliquot' => array('Collection.bank_id')
 	);
 	
 	function summary( $variables=array() ) {

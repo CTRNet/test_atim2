@@ -26,7 +26,8 @@ class ViewCollection extends InventoryManagementAppModel {
 	
 	static $table_query = '
 		SELECT 
-		Collection.id AS collection_id,Collection.bank_id AS bank_id,
+		Collection.id AS collection_id,
+		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
 		Collection.participant_id AS participant_id,
 		Collection.diagnosis_master_id AS diagnosis_master_id,
@@ -39,11 +40,10 @@ class ViewCollection extends InventoryManagementAppModel {
 		Collection.collection_datetime AS collection_datetime,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
-		Collection.collection_notes AS collection_notes,Bank.name AS bank_name,
+		Collection.collection_notes AS collection_notes,
 		Collection.created AS created 
 		FROM collections AS Collection 
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
-		LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
