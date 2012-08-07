@@ -1,5 +1,5 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) 
-VALUES('2.5.0', NOW(),'> 4043');
+VALUES('2.5.0', NOW(),'4792');
 
 SELECT IF(sample_type='amplified rna', 'Purified RNA sample type has changed from 2.4.3 to 2.4.3A. It has now been deactivated. Read the release notes for more informations.', '') as msg FROM sample_controls WHERE sample_type='purified rna';
 UPDATE parent_to_derivative_sample_controls SET flag_active=0 WHERE parent_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna') OR derivative_sample_control_id=(SELECT id FROM sample_controls WHERE sample_type='purified rna');
@@ -2725,9 +2725,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE i18n SET id = 'report_5_name' WHERE id = 'bank activity report (per period)';
 UPDATE datamart_reports SET name = 'report_5_name', description = 'report_3_desc' WHERE id = 5;
 
-UPDATE structure_formats SET `flag_override_default`='1', `default`='all' WHERE structure_id=(SELECT id FROM structures WHERE alias='template') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='owner' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_override_default`='1', `default`='all' WHERE structure_id=(SELECT id FROM structures WHERE alias='template') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Template' AND `tablename`='templates' AND `field`='visibility' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sharing') AND `flag_confidential`='0');
-
 -- ------------------------------------------------------
 -- report for ctrnet catalogue update
 -- ------------------------------------------------------
@@ -2770,4 +2767,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('detail other count','Detail ''Other'' Count','Détailler ''Autre'' décompte'),
 ('FFPE','FFPE','FFPE'),
 ('total','Total','Total');
+
+UPDATE versions SET permissions_regenerated = 0;
 
