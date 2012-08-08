@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 	//static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-denominalise 2012-06-01.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/BTD cancer ovaire et sein Sherbrooke Recrutement-denominalise 2012-08-07.xls";
 	
 	static $xls_header_rows = 1;
 	
