@@ -180,3 +180,15 @@ ALTER TABLE `storage_masters`
 ALTER TABLE `storage_masters_revs` 
 	MODIFY `short_label` varchar(25) DEFAULT NULL,
 	MODIFY `selection_label` varchar(100) DEFAULT '';
+	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'chus_dxd_breasts', 'dx_nature_precision', 'input',  NULL , '0', 'size=30', '', '', '', 'dx nature precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dx_breast'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='dx_nature_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='dx nature precision'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+ALTER TABLE chus_dxd_breasts ADD COLUMN `dx_nature_precision` varchar(100) DEFAULT NULL AFTER diagnosis_master_id;
+ALTER TABLE chus_dxd_breasts_revs ADD COLUMN `dx_nature_precision` varchar(100) DEFAULT NULL AFTER diagnosis_master_id;
+
+INSERT INTO i18n (id,en,fr) VALUES ('dx nature precision','Details','Détails');
+
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='chus_dx_breast') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='chus_dxd_breasts' AND `field`='laterality' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chus_laterality') AND `flag_confidential`='0');

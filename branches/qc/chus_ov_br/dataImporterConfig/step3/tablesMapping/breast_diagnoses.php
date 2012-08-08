@@ -13,6 +13,7 @@ $master_fields = array(
 	"notes" => "#notes"
 );
 $detail_fields = array(
+	"dx_nature_precision" => "#dx_nature_precision",
 	"atcd" => "#atcd",
 	"atcd_description" => "ATCD Cancer sein (oui/non)",
 	"laterality" => "#laterality",
@@ -353,7 +354,6 @@ function postBreastDiagnosesRead(Model $m){
 	
 	$m->values['diagnosis_control_id'] = Config::$diagnosis_controls['primary']['breast']['diagnosis_control_id'];
 	$m->values['dx_nature'] = '';
-	$note_from_dx = '';
 	$tmp_dx = preg_replace('/ $/', '', strtolower($m->values[utf8_decode('Dx sein Normal/Bénin/Cancer/Récidive/Risque élevé/Métastase/Reprise de marge')]));
 	
 	if(empty($tmp_dx)) {
@@ -363,9 +363,10 @@ function postBreastDiagnosesRead(Model $m){
 	
 	if(in_array($participant_id, Config::$participant_id_linked_to_br_dx_in_step2)) Config::$summary_msg['DIAGNOSTIC']['@@WARNING@@']['Breast Dx defined in step2'][] = "Breast Dx had already been created fot the participant '$frsq_nbr' during step2! Please control dat deeply! [Line: ".$m->line.']';
 	
+	$m->values['dx_nature_precision'] = '';
 	switch(utf8_encode($tmp_dx)) {
 		case "risque élevé":
-			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
+			$m->values['dx_nature_precision'] = utf8_encode($tmp_dx);
 		case "à venir 2012-03-01":
 		case "à venir 2012-05-04":
 			break;
@@ -397,7 +398,7 @@ function postBreastDiagnosesRead(Model $m){
 		case "reprise de marge normal":
 		case "reprise de marge normal":
 		case "bénin (sans maladie résiduelle)":
-			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
+			$m->values['dx_nature_precision'] = utf8_encode($tmp_dx);
 		case "cancer":
 			$m->values['dx_nature'] = 'cancer';
 			break;
@@ -411,7 +412,7 @@ function postBreastDiagnosesRead(Model $m){
 			break;
 				
 		case "métastatique gg":
-			$note_from_dx = 'Dx Note: '.utf8_encode($tmp_dx);
+			$m->values['dx_nature_precision'] = utf8_encode($tmp_dx);
 		case "métastatique":
 			$master_fields = array(
 				"diagnosis_control_id" => Config::$diagnosis_controls['primary']['primary diagnosis unknown']['diagnosis_control_id'],
@@ -429,8 +430,6 @@ function postBreastDiagnosesRead(Model $m){
 		default:
 			die('ERR 88990303 : ['.$tmp_dx.']');	
 	}
-	
-	if(!empty($note_from_dx)) $dx_notes .= (empty($dx_notes)? '' : ' || ').$note_from_dx;
 	
 	if(!empty($m->values['Note'])) $dx_notes = utf8_encode($m->values['Note']).(empty($dx_notes)? '' : ' || '.$dx_notes);
 	$m->values['notes'] = str_replace("'","''",$dx_notes);	
@@ -533,7 +532,9 @@ function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
 		
 		$treatment_master_id = customInsertChusRecord($surgery_data['master'], 'treatment_masters');
 		$surgery_data['detail']['treatment_master_id'] = $treatment_master_id;
-		customInsertChusRecord($surgery_data['detail'], Config::$treatment_controls['surgery']['breast']['detail_tablename'], true);		
+		customInsertChusRecord($surgery_data['detail'], Config::$treatment_controls['surgery']['breast']['detail_tablename'], true);	
+
+		if(!empty($surgery_data['master']['start_date'])) Config::$breast_surgery_id_from_participant_id[$participant_id][$surgery_data['master']['start_date']][] = $treatment_master_id;
 	}
 }	
 

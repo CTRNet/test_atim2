@@ -62,6 +62,7 @@ class Config{
 	static $family_history_from_id = array();
 	static $storage_id_from_storage_key = array();
 	static $nbr_storage_in_step2 = 0;
+	static $breast_surgery_id_from_participant_id = array();
 		
 	static $summary_msg = array();	
 
@@ -2062,7 +2063,18 @@ function getStorageId($aliquot_description, $storage_control_type, $selection_la
 function createCollection($collections_to_create) {
 	global $next_sample_code;
 	
-	foreach($collections_to_create as $new_collection) {	
+	foreach($collections_to_create as $new_collection) {
+		// treatment_master_id
+		$tmp_date = str_replace(' 00:00:00','', $new_collection['collection']['collection_datetime']);
+		if(!empty($tmp_date) && isset(Config::$breast_surgery_id_from_participant_id[$new_collection['link']['participant_id']][$tmp_date])) {
+			if(sizeof(Config::$breast_surgery_id_from_participant_id[$new_collection['link']['participant_id']][$tmp_date]) == 1) {
+				$new_collection['link']['treatment_master_id'] = Config::$breast_surgery_id_from_participant_id[$new_collection['link']['participant_id']][$tmp_date][0];
+			} else {
+				Config::$summary_msg['COLLECTION']['@@WARNING@@']['2 surgeries same date'][] = "See participant_id = ".$new_collection['link']['participant_id'];
+			}
+		}
+		
+		
 		// Create colleciton
 		if(!isset($new_collection['collection'])) die('ERR 889940404023');
 		if(!isset($new_collection['link'])) die('ERR 889940404023.3');
