@@ -420,7 +420,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$ids = array_flip($this->StorageMaster->hasChild($ids));//array_key_exists is faster than in_array
 		foreach($tree_data as &$data_unit){
 			//only storages child interrests us here
-			$data_unit['children'] = isset($data_unit['StorageMaster']) && !isset($data_unit['TmaSlide']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
+			$data_unit['children'] = isset($data_unit['StorageMaster']) && !isset($data_unit['TmaSlide']) && !isset($data_unit['AliquotMaster']) && array_key_exists($data_unit['StorageMaster']['id'], $ids);
 		}
 			
 		$this->request->data = $tree_data;
