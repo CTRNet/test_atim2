@@ -1099,6 +1099,7 @@ function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
 			'treatment_control_id' =>  Config::$treatment_controls['surgery']['ovary']['treatment_control_id'],
 			'notes' => "'".utf8_encode(str_replace("'","''",$notes))."'"
 		);
+		
 		if(!empty($start_date)) {
 			$master_fields['start_date'] = "'".$start_date."'";
 			$master_fields['start_date_accuracy'] = "'c'";
@@ -1124,5 +1125,7 @@ function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
 		if(!empty($ovd_size_cm)) $detail_fields['ovd_size_cm'] = $ovd_size_cm;
 		
 		customInsertChusRecord($detail_fields, Config::$treatment_controls['surgery']['ovary']['detail_tablename'], true, true);
+		
+		if(!empty($start_date)) Config::$ovary_surgery_id_from_participant_id[$participant_id]["'".$start_date."'"][] = $treatment_master_id;
 	}
 }	
