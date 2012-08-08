@@ -261,13 +261,13 @@ class Browser extends DatamartAppModel {
 	function buildItemOptions(array &$result, array &$browsing_structures, &$current_id, array &$sub_models_id_filter){
 		$result['children'] = array(
 			array(
-				'value' => $result['value'],
-				'label' => __('filter'),
-				'style'	=> 'filter'),
-			array(
 				'value' => $result['value']."/true/",
 				'label' => __('no filter'),
-				'style' => 'no_filter')
+				'style' => 'no_filter'),
+			array(
+				'value' => $result['value'],
+				'label' => __('all with filter'),
+				'style'	=> 'filter')
 		);
 		$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
 		if($control_name = $browsing_model->getControlName()){
