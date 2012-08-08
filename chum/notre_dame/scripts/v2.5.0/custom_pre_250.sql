@@ -1,3 +1,8 @@
+
+SELECT count(*) AS 'nbr of problematic diagnoses' FROM diagnosis_masters WHERE (created_by != 12 OR modified_by !=12) AND deleted != 1;
+SELECT count(*) AS 'nbr of problematic treatments' FROM treatment_masters WHERE (created_by != 12 OR modified_by !=12) AND deleted != 1;
+SELECT count(*) AS 'nbr of problematic fam hist' FROM family_histories WHERE (created_by != 12 OR modified_by !=12) AND deleted != 1;
+
 -- 2012-04-04
 REPLACE INTO i18n (id, en, fr) VALUES
 ("Prostate", "Prostate", "Prostate"),
@@ -994,3 +999,55 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("ctx", "
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ct"), (SELECT id FROM structure_permissible_values WHERE value="ctx" AND language_alias="cTx"), "23", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("ptx", "pTx");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_pt"), (SELECT id FROM structure_permissible_values WHERE value="ptx" AND language_alias="pTx"), "23", "1");
+
+-- Event clean up
+
+SELECT count(*) AS 'nbr of problematic event' FROM event_masters WHERE (created_by != 12 OR modified_by !=12) AND deleted != 1 AND event_control_id != (SELECT id FROM event_controls WHERE event_type = 'procure');
+TRUNCATE ed_cap_report_smintestines;
+TRUNCATE ed_cap_report_perihilarbileducts;
+TRUNCATE ed_cap_report_pancreasexos;
+TRUNCATE ed_cap_report_pancreasendos;
+TRUNCATE ed_cap_report_intrahepbileducts;
+TRUNCATE ed_cap_report_hepatocellular_carcinomas;
+TRUNCATE ed_cap_report_gallbladders;
+TRUNCATE ed_cap_report_distalexbileducts;
+TRUNCATE ed_cap_report_colon_biopsies;
+TRUNCATE ed_cap_report_ampullas;
+TRUNCATE ed_cap_report_colon_rectum_resections;
+TRUNCATE ed_all_comorbidities;
+TRUNCATE qc_nd_ed_biopsy;
+TRUNCATE qc_nd_ed_cytology;
+TRUNCATE qc_nd_ed_ca125s;
+TRUNCATE qc_nd_ed_pathologies;
+TRUNCATE qc_nd_ed_observations;
+TRUNCATE qc_nd_ed_patho_prostates;
+TRUNCATE qc_nd_ed_aps_prostates;
+DELETE FROM event_masters WHERE event_control_id != (SELECT id FROM event_controls WHERE event_type = 'procure');
+TRUNCATE ed_cap_report_smintestines_revs;
+TRUNCATE ed_cap_report_perihilarbileducts_revs;
+TRUNCATE ed_cap_report_pancreasexos_revs;
+TRUNCATE ed_cap_report_pancreasendos_revs;
+TRUNCATE ed_cap_report_intrahepbileducts_revs;
+TRUNCATE ed_cap_report_hepatocellular_carcinomas_revs;
+TRUNCATE ed_cap_report_gallbladders_revs;
+TRUNCATE ed_cap_report_distalexbileducts_revs;
+TRUNCATE ed_cap_report_colon_biopsies_revs;
+TRUNCATE ed_cap_report_ampullas_revs;
+TRUNCATE ed_cap_report_colon_rectum_resections_revs;
+TRUNCATE ed_all_comorbidities_revs;
+TRUNCATE qc_nd_ed_biopsy_revs;
+TRUNCATE qc_nd_ed_cytology_revs;
+TRUNCATE qc_nd_ed_ca125s_revs;
+TRUNCATE qc_nd_ed_pathologies_revs;
+TRUNCATE qc_nd_ed_observations_revs;
+TRUNCATE qc_nd_ed_patho_prostates_revs;
+TRUNCATE qc_nd_ed_aps_prostates_revs;
+DELETE FROM event_masters_revs WHERE event_control_id != (SELECT id FROM event_controls WHERE event_type = 'procure');
+UPDATE event_controls SET flag_active = 0 WHERE event_type NOT LIKE 'procure%';
+
+UPDATE diagnosis_controls SET flag_active = 0;
+
+UPDATE treatment_controls SET flag_active = 0;
+
+DELETE FROM reproductive_histories WHERE created_by = 12 AND modified_by =12;
+DELETE FROM reproductive_histories_revs WHERE id NOT IN (SELECT id FROM reproductive_histories);
