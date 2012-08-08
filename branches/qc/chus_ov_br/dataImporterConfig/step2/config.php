@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 //	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-03-14_revised.xls";
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atim DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-06-04.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atim DONNEES CLINIQUES et BIOLOGIQUES-OVAIRE-2012-08-07.xls";
 	
 	static $xls_header_rows = 1;
 	

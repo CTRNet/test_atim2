@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atimDONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-06-04.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atimDONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-08-07.xls";
 	
 	static $xls_header_rows = 1;
 	

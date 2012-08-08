@@ -369,6 +369,8 @@ function postBreastDiagnosesRead(Model $m){
 			$m->values['dx_nature_precision'] = utf8_encode($tmp_dx);
 		case "à venir 2012-03-01":
 		case "à venir 2012-05-04":
+		case "cancer (À venir 2012-08-07)":
+		case "(À venir 2012-08-07)":
 			break;
 				
 		case "cancer (chimio préop)":
@@ -397,6 +399,8 @@ function postBreastDiagnosesRead(Model $m){
 		case "récidive (g)":
 		case "reprise de marge normal":
 		case "reprise de marge normal":
+		case "reprise marge négative":
+		case "reprise de marge":
 		case "bénin (sans maladie résiduelle)":
 			$m->values['dx_nature_precision'] = utf8_encode($tmp_dx);
 		case "cancer":
