@@ -8,13 +8,13 @@ class ViewSampleCustom extends ViewSample{
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
 		
-		Collection.bank_id,
-		Collection.sop_master_id,
-		Collection.participant_id,
+		Collection.bank_id, 
+		Collection.sop_master_id, 
+		Collection.participant_id, 
 		
-		Participant.participant_identifier,
+		Participant.participant_identifier, 
 		
-		Collection.acquisition_label,
+		Collection.acquisition_label, 
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -26,23 +26,22 @@ class ViewSampleCustom extends ViewSample{
 		SampleControl.sample_category,
 		
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
-		IF(Collection.collection_datetime IS NULL, -1,
-		IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
-		IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
-			
+		 IF(Collection.collection_datetime IS NULL, -1,
+		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
+		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
+		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
+		 
 		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
-		IF(Collection.collection_datetime IS NULL, -1,
-		IF(Collection.collection_datetime_accuracy IN ("h", "i") OR DerivativeDetail.creation_datetime_accuracy IN ("h", "i"), DATEDIFF(DerivativeDetail.creation_datetime, Collection.collection_datetime) * 1440,
-		IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
-		IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime)))))) AS coll_to_creation_spent_time_msg,
-		
-		MiscIdentifier.identifier_value AS identifier_value,
-		Collection.visit_label AS visit_label,
-		Collection.diagnosis_master_id AS diagnosis_master_id,
-		Collection.consent_master_id AS consent_master_id,
-		SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
+		 IF(Collection.collection_datetime IS NULL, -1,
+		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
+		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
+		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
+		 
+MiscIdentifier.identifier_value AS identifier_value,
+Collection.visit_label AS visit_label,
+Collection.diagnosis_master_id AS diagnosis_master_id,
+Collection.consent_master_id AS consent_master_id,
+SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
 		
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -54,10 +53,10 @@ class ViewSampleCustom extends ViewSample{
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-		LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-		LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-	    LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-		
+LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
+
 }
 
