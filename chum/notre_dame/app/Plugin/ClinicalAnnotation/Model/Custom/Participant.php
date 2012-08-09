@@ -24,14 +24,14 @@ class ParticipantCustom extends Participant {
 				$result[0]['identifiers'] = "";
 				$temp_array = array();
 				foreach($identifier_results as $ir){
-					$temp_array[__($ir['MiscIdentifierControl']['misc_identifier_name'], true)] = $ir['MiscIdentifier']['identifier_value'];	
+					$temp_array[__(str_replace(' bank no lab','',$ir['MiscIdentifierControl']['misc_identifier_name']), true)] = $ir['MiscIdentifier']['identifier_value'];	
 				}
 				asort($temp_array);
 				foreach($temp_array as $key => $value){
 					$result[0]['identifiers'] .= $key." - ".$value."\n";
 				}
 				
-				$title = implode(" ", $temp_array);
+				$title = 'NoLabo: '. implode(" & ", $temp_array);
 			}else{
 				$result = $this->findById($variables['Participant.id']);
 				$result[0]['identifiers'] = '';
