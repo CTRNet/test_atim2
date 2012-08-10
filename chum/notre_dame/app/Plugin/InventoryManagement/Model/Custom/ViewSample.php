@@ -57,6 +57,32 @@ LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
-
+	
+	function find($type = 'first', $query = array()) {
+		if($type == 'all' && isset($query['conditions'])) {
+			$identifier_values = array();
+			foreach($query['conditions'] as $key => $new_condition) {
+				if($key === 'ViewSample.identifier_value') {
+					$identifier_values = $new_condition;
+					break;
+				} else if(is_string($new_condition)) {
+					if(preg_match_all('/ViewSample\.identifier_value LIKE \'%([0-9]+)%\'/', $new_condition, $matches)) {
+						$identifier_values = $matches[1];
+						break;
+					}
+				}
+			}
+			if(!empty($identifier_values)) {
+				$misc_identifier_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
+				$result = $misc_identifier_model->find('all', array('conditions' => array('MiscIdentifier.misc_identifier_control_id' => 6, 'MiscIdentifier.identifier_value' => $identifier_values), 'fields' => 'MiscIdentifier.identifier_value'));
+				if($result){
+					$all_values = array();
+					foreach($result as $new_res) $all_values[] = $new_res['MiscIdentifier']['identifier_value'];
+					AppController::addWarningMsg(__('no labos [%s] matche old bank numbers', implode(', ', $all_values)));
+				}
+			}
+		}
+		return parent::find($type, $query);
+	}
 }
 
