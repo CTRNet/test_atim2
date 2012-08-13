@@ -60,12 +60,20 @@ class SampleMasterCustom extends SampleMaster {
 
 		// ** Set Data **
 
-		if(!array_key_exists('sample_category', $sample_data['SampleControl'])
+	 	$sample_category = null;
+	 	if(array_key_exists('sample_category', $sample_data['SampleControl'])) {
+	 		$sample_category = $sample_data['SampleControl']['sample_category'];
+	 	} else if(array_key_exists('SpecimenDetail', $sample_data)) {
+	 		$sample_category = 'specimen';
+	 	} else  if(array_key_exists('DerivativeDetail', $sample_data)) {
+			$sample_category = 'derivative';
+	 	}		
+		
+		if(is_null($sample_category)
 		|| !array_key_exists('sample_type', $sample_data['SampleControl'])
-		|| !array_key_exists('qc_nd_sample_type_code', $sample_data['SampleControl'])){ 
+		|| !array_key_exists('qc_nd_sample_type_code', $sample_data['SampleControl'])) {
 			AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
-		$sample_category = $sample_data['SampleControl']['sample_category'];
 		$sample_type = $sample_data['SampleControl']['sample_type'];
 		$qc_nd_sample_type_code = $sample_data['SampleControl']['qc_nd_sample_type_code'];
 
@@ -210,7 +218,8 @@ class SampleMasterCustom extends SampleMaster {
 		
 		$process_validates = true;
 		
-		if($data_to_validate['SampleControl']['sample_category'] === 'specimen') {
+		if((isset($data_to_validate['SampleControl']['sample_category']) && $data_to_validate['SampleControl']['sample_category'] === 'specimen') || 
+		(!isset($data_to_validate['SampleControl']['sample_category']) && array_key_exists('SpecimenDetail', $data_to_validate))) {
 			// Load model to control data
 			$lab_type_laterality_match = AppModel::getInstance('InventoryManagement', 'LabTypeLateralityMatch', true);		
 			
@@ -303,11 +312,17 @@ class SampleMasterCustom extends SampleMaster {
 	
 	function formatParentSampleDataForDisplay($parent_sample_data) {
 		$formatted_data = array();
-		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
-			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['qc_nd_sample_label'] . ' / ' . $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+		if(!empty($parent_sample_data)) {
+			if(isset($parent_sample_data['SampleMaster'])) {
+				$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['qc_nd_sample_label'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+			} else if(isset($parent_sample_data[0]['ViewSample'])){
+				foreach($parent_sample_data as $new_parent) {
+					$formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['qc_nd_sample_label'] . ' [' . __($new_parent['ViewSample']['sample_type'], TRUE) . ']';
+				}
+			}
 		}
-	
-		return $formatted_data;
+		return $formatted_data;		
+		
 	}
 	
 	function validates($options = array()){
