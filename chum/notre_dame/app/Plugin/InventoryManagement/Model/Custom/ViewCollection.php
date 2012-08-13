@@ -34,7 +34,8 @@ LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.mi
 	function find($type = 'first', $query = array()) {
 		if($type == 'all' && isset($query['conditions'])) {
 			$identifier_values = array();
-			foreach($query['conditions'] as $key => $new_condition) {
+			$query_conditions = is_array($query['conditions'])? $query['conditions'] : array($query['conditions']);
+			foreach($query_conditions as $key => $new_condition) {
 				if($key === 'ViewCollection.identifier_value') {
 					$identifier_values = $new_condition;
 					break;
