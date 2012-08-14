@@ -16,3 +16,10 @@ UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit
 UPDATE structure_fields SET language_label = 'parent sample' WHERE language_label = 'parent sample code';
 UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+REPLACE INTO i18n (id,en,fr) VALUES ('cdna','cDNA','ADNc');
+
+UPDATE structure_formats SET `language_heading`='realiquoting data' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquot_without_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='realiquoting_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='realiquoting data' WHERE structure_id=(SELECT id FROM structures WHERE alias='realiquot_with_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='realiquoting_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en,fr) VALUES 
+('realiquoting data','Realiquoting','Réaliquotage'),
+('realiquoting date','Date (Realiquoting)','Date (réaliquotage)');
