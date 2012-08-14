@@ -26,3 +26,8 @@ UPDATE structure_formats SET flag_add= 0,flag_add_readonly= 0,flag_edit= 0,flag_
 
 UPDATE i18n SET fr=en WHERE id like '%trizol%' AND fr = '';
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='shipping_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE diagnosis_masters_revs DROP COLUMN survival_time_months;
+
+
+
