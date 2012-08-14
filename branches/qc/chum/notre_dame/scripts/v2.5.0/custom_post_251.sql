@@ -24,3 +24,5 @@ UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM
 
 UPDATE structure_formats SET flag_add= 0,flag_add_readonly= 0,flag_edit= 0,flag_edit_readonly= 0,flag_search= 0,flag_search_readonly= 0,flag_addgrid= 0,flag_addgrid_readonly= 0,flag_editgrid= 0,flag_editgrid_readonly= 0,flag_batchedit= 0,flag_batchedit_readonly= 0,flag_index= 0,flag_detail= 0,flag_summary= 0,flag_float= 0 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'sop_master_id');
 
+UPDATE i18n SET fr=en WHERE id like '%trizol%' AND fr = '';
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='orderitems') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='OrderItem' AND `tablename`='order_items' AND `field`='shipping_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
