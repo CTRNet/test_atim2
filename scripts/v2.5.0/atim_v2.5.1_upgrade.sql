@@ -23,3 +23,19 @@ UPDATE structure_formats SET `language_heading`='realiquoting data' WHERE struct
 REPLACE INTO i18n (id,en,fr) VALUES 
 ('realiquoting data','Realiquoting','Réaliquotage'),
 ('realiquoting date','Date (Realiquoting)','Date (réaliquotage)');
+
+-- CAP report field clean up (added to trunk)
+-- Hepatocellular Carcinoma
+REPLACE INTO i18n (id,en) VALUES
+('lymph vascular large vessel invasion','Macroscopic Venous (Large Vessel) Invasion (V)'),
+('lymph vascular small vessel invasion','Microscopic (Small Vessel) Invasion (L)');
+UPDATE structure_formats SET language_heading = 'perineural invasion' WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_cap_report_hepatocellular_carcinomas') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'perineural_invasion');
+-- Pancreas endo & exo
+ALTER TABLE  `ed_cap_report_pancreasendos` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+ALTER TABLE  `ed_cap_report_pancreasendos_revs` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+ALTER TABLE  `ed_cap_report_pancreasexos` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+ALTER TABLE  `ed_cap_report_pancreasexos_revs` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+UPDATE structure_fields SET field = 'proximal_pancreatic_margin', language_label = 'proximal pancreatic margin' WHERE field = 'promimal_pancreatic_margin';
+INSERT IGNORE INTO i18n (id,en) VALUE ('proximal pancreatic margin','Proximal Pancreatic Margin');
+
+
