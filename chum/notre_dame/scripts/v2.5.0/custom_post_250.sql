@@ -1,3 +1,43 @@
+-- MiscIdentifier CleanUp
+
+SELECT 'DUPLICATED MISCIDENTIFIER CHECK' AS msg;
+
+SELECT 'identifier to check' AS msg;
+
+SELECT id.identifier_value, mic.misc_identifier_name, part.first_name, part.last_name, part.id
+FROM misc_identifiers id
+INNER JOIN (
+  SELECT identifier_value 
+  FROM misc_identifiers AS mi 
+  INNER JOIN misc_identifier_controls AS mic ON mi.misc_identifier_control_id=mic.id 
+  WHERE deleted=0 GROUP BY identifier_value, misc_identifier_control_id HAVING COUNT(*) > 1
+) AS dup ON dup.identifier_value = id.identifier_value
+INNER JOIN misc_identifier_controls AS mic ON id.misc_identifier_control_id=mic.id 
+INNER JOIN participants AS part ON part.id = id.participant_id
+WHERE id.deleted=0 ORDER BY id.identifier_value;
+
+UPDATE misc_identifiers AS ident
+INNER JOIN (
+  SELECT identifier_value 
+  FROM misc_identifiers AS mi 
+  INNER JOIN misc_identifier_controls AS mic ON mi.misc_identifier_control_id=mic.id 
+  WHERE deleted=0 GROUP BY identifier_value, misc_identifier_control_id HAVING COUNT(*) > 1
+) AS dup ON dup.identifier_value = ident.identifier_value
+SET ident.identifier_value = CONCAT(ident.identifier_value,' **DUP?**',ident.id)
+WHERE ident.deleted=0;
+
+SELECT 'identifiers changed to' AS msg;
+
+SELECT id.identifier_value, mic.misc_identifier_name, part.first_name, part.last_name, part.id
+FROM misc_identifiers id
+INNER JOIN misc_identifier_controls AS mic ON id.misc_identifier_control_id=mic.id 
+INNER JOIN participants AS part ON part.id = id.participant_id
+WHERE id.deleted=0 AND id.identifier_value LIKE '%**DUP?**%' ORDER BY id.identifier_value;
+
+SELECT 'END DUPLICATED MISCIDENTIFIER CHECK' AS msg;
+
+-- End MiscIdentifier CleanUp
+
 UPDATE misc_identifiers mi INNER JOIN misc_identifier_controls mic ON mi.misc_identifier_control_id=mic.id SET mi.flag_unique=1 WHERE mic.flag_unique=true AND mi.deleted=0;
 UPDATE misc_identifiers mi INNER JOIN misc_identifiers_revs mi_r ON mi.id=mi_r.id SET mi_r.flag_unique=mi.flag_unique;
 
