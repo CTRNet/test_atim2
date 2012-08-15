@@ -111,9 +111,9 @@ class DrugsController extends DrugAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {	
 			if( $this->Drug->atim_delete( $drug_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/drug/drugs/index/');
+				$this->atimFlash( 'your data has been deleted', '/drug/drugs/search/');
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/drug/drugs/index/');
+				$this->flash( 'error deleting data - contact administrator', '/drug/drugs/search/');
 			}	
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/drug/drugs/detail/'.$drug_id);
