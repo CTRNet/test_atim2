@@ -1257,6 +1257,7 @@ class AppModel extends Model {
 			if(Configure::read('debug') > 0){
 				pr('QUERY ERROR:');
 				pr($sql);
+				pr(AppController::getStackTrace());
 				exit;
 			} else {
 				AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
