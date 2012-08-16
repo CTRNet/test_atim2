@@ -1,3 +1,10 @@
+-- Run against a 2.5.0 installation
+-- Read the printed messages carefully
+
+-- Update version information
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
+('2.5.1', NOW(), '4820');
+
 SELECT IF(COUNT(*) > 0, "At least one row of structure_fields table contains a field linked to detail model with no plugin defintion.", "No error") AS 'structure_fields.plugin check msg' FROM structure_fields WHERE model LIKE '%Detail' AND (plugin LIKE '' OR plugin IS NULL);
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND `flag_index`='1';
@@ -23,3 +30,19 @@ UPDATE structure_formats SET `language_heading`='realiquoting data' WHERE struct
 REPLACE INTO i18n (id,en,fr) VALUES 
 ('realiquoting data','Realiquoting','Réaliquotage'),
 ('realiquoting date','Date (Realiquoting)','Date (réaliquotage)');
+
+-- CAP report field clean up (added to trunk)
+-- Hepatocellular Carcinoma
+REPLACE INTO i18n (id,en) VALUES
+('lymph vascular large vessel invasion','Macroscopic Venous (Large Vessel) Invasion (V)'),
+('lymph vascular small vessel invasion','Microscopic (Small Vessel) Invasion (L)');
+UPDATE structure_formats SET language_heading = 'perineural invasion' WHERE structure_id = (SELECT id FROM structures WHERE alias='ed_cap_report_hepatocellular_carcinomas') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'perineural_invasion');
+-- Pancreas endo & exo
+ALTER TABLE  `ed_cap_report_pancreasendos` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+ALTER TABLE  `ed_cap_report_pancreasendos_revs` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+ALTER TABLE  `ed_cap_report_pancreasexos` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+ALTER TABLE  `ed_cap_report_pancreasexos_revs` CHANGE `promimal_pancreatic_margin` `proximal_pancreatic_margin` tinyint(1) DEFAULT '0';
+UPDATE structure_fields SET field = 'proximal_pancreatic_margin', language_label = 'proximal pancreatic margin' WHERE field = 'promimal_pancreatic_margin';
+INSERT IGNORE INTO i18n (id,en) VALUE ('proximal pancreatic margin','Proximal Pancreatic Margin');
+
+SELECT 'Add max_input_vars=5000; to your php.ini (see wiki Troubleshooting for more details)' AS 'serveur_configuration_msg';
