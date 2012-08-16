@@ -5,7 +5,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('include tissue storage details in the count','Include tissue storage details in the count','Inclure les détails d''entreposage des tissus dans le décompte'),
-('frozen tissue tube','Frozen Tissue Tube','Tube de tissu cogelé');
+('frozen tissue tube','Frozen Tissue Tube','Tube de tissu congelé');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('Datamart', '0', '', 'display_tissue_derivative_count_split_per_nature', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'display tissue derivative count split per nature', '');
@@ -29,5 +29,20 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 
 ALTER TABLE diagnosis_masters_revs DROP COLUMN survival_time_months;
 
+UPDATE datamart_reports SET form_alias_for_search = 'report_date_range_definition' WHERE id = 3;
+UPDATE datamart_reports SET form_alias_for_search = 'report_datetime_range_definition' WHERE id = 4;
 
+UPDATE datamart_reports SET flag_active = 0 WHERE name IN ( 'PROCURE - consent report', 'banking activity');
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'box2-procure', 'row', 'integer', 2, NULL, NULL, NULL, 2, 0, 0, 0, 0, 0, 0, 1, '', 'std_boxs', 'box2-procure', 0);
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'rack8-procure', 'row', 'integer', 8, NULL, NULL, NULL, 4, 2, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_racks', 'rack8-procure', 1),
+(null, 'rack4-procure', 'row', 'integer', 4, NULL, NULL, NULL, 4, 0, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_racks', 'rack4-procure', 1);
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('rack8-procure','Rack8-PROCURE','Râtelier8-PROCURE'),
+('rack4-procure','Rack4-PROCURE','Râtelier4-PROCURE'),
+('box2-procure','Box2-PROCURE','Boîte2-PROCURE'),
+('rack20 vertical numbering','Râtelier20-Vert.','Râtelier20-Vert.');
 
