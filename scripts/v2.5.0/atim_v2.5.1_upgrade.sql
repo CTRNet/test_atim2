@@ -46,3 +46,12 @@ UPDATE structure_fields SET field = 'proximal_pancreatic_margin', language_label
 INSERT IGNORE INTO i18n (id,en) VALUE ('proximal pancreatic margin','Proximal Pancreatic Margin');
 
 SELECT 'Add max_input_vars=5000; to your php.ini (see wiki Troubleshooting for more details)' AS 'serveur_configuration_msg';
+
+UPDATE datamart_structures SET index_link='/InventoryManagement/SampleMasters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%/' WHERE model='ViewSample';
+UPDATE datamart_structures SET index_link='/ClinicalAnnotation/Participants/profile/%%MiscIdentifier.participant_id%%' WHERE model='MiscIdentifier';
+UPDATE menus SET use_link='/Order/Shipments/listall/%%Order.id%%/' WHERE use_link='/Order/shipments/listall/%%Order.id%%/';
+UPDATE menus SET use_link='/Order/Shipments/detail/%%Order.id%%/' WHERE use_link='/Order/shipments/detail/%%Order.id%%/';
+UPDATE structure_fields SET setting = 'url=/StorageLayout/StorageMasters/autocompleteLabel' WHERE setting ='url=/StorageLayout/storage_masters/autocompleteLabel';
+
+
+
