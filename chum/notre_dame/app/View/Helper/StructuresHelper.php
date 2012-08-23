@@ -870,7 +870,9 @@ class StructuresHelper extends Helper {
 				}
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$current_value = str_replace('.', ',', $current_value);
-			}
+			} else if($table_row_part['type'] == "textarea") {
+				$current_value = str_replace('\n', "\n", $current_value);	
+			}			
 			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
 			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
