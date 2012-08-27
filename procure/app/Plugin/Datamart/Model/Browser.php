@@ -261,13 +261,13 @@ class Browser extends DatamartAppModel {
 	function buildItemOptions(array &$result, array &$browsing_structures, &$current_id, array &$sub_models_id_filter){
 		$result['children'] = array(
 			array(
-				'value' => $result['value'],
-				'label' => __('filter'),
-				'style'	=> 'filter'),
-			array(
 				'value' => $result['value']."/true/",
 				'label' => __('no filter'),
-				'style' => 'no_filter')
+				'style' => 'no_filter'),
+			array(
+				'value' => $result['value'],
+				'label' => __('all with filter'),
+				'style'	=> 'filter')
 		);
 		$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
 		if($control_name = $browsing_model->getControlName()){
@@ -1197,7 +1197,11 @@ class Browser extends DatamartAppModel {
 			$node = null;
 			foreach($this->models_buffer as $model_index => $model_ids){
 				$node = $this->nodes[$model_index];
-				$model_data = $node[self::MODEL]->find('all', array('conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 'recursive' => 0));
+				$model_data = $node[self::MODEL]->find('all', array(
+					'fields'	=> '*',
+					'conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 
+					'recursive' => 0)
+				);
 				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
 				foreach($this->rows_buffer as $row_index => $row_data){
 					if(!empty($row_data[$model_index])){

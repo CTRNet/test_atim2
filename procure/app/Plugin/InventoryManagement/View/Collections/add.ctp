@@ -1,6 +1,6 @@
 <?php
 	$structure_links = array(
-		'top' => '/InventoryManagement/collections/add/'.$atim_variables['Collection.id'].'/'.$copy_source,
+		'top' => '/InventoryManagement/Collections/add/'.$atim_variables['Collection.id'].'/'.$copy_source,
 		'bottom' => array('cancel' => 'javascript:history.go(-1)')
 	);
 	

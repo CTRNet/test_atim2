@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'index' => array('detail' => '/InventoryManagement/AliquotMasters/detail/%%ViewAliquot.collection_id%%/%%ViewAliquot.sample_master_id%%/%%ViewAliquot.aliquot_master_id%%'),
 		'bottom' => array(
-			'add collection' => '/InventoryManagement/collections/add')
+			'add collection' => '/InventoryManagement/Collections/add')
 	);
 	
 	$settings = array(

@@ -132,10 +132,12 @@ class StructuresComponent extends Component {
 		}
 
 		foreach($alias as $alias_unit){
-			$tmp = $this->getSingleStructure($alias_unit);
-			$result['structure']['Sfs'] = array_merge($tmp['structure']['Sfs'], $result['structure']['Sfs']);
-			$result['structure']['Structure'][] = $tmp['structure']['Structure'];
-			$result['rules'] = array_merge($tmp['rules'], $result['rules']);
+			if(!empty($alias_unit)) {
+				$tmp = $this->getSingleStructure($alias_unit);			
+				$result['structure']['Sfs'] = array_merge($tmp['structure']['Sfs'], $result['structure']['Sfs']);
+				$result['structure']['Structure'][] = $tmp['structure']['Structure'];
+				$result['rules'] = array_merge($tmp['rules'], $result['rules']);
+			}
 		}
 		if(count($alias) > 1){
 			self::sortStructure($result['structure']);

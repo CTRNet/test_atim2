@@ -7,9 +7,9 @@ class Participant extends ClinicalAnnotationAppModel {
 	);
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewCollection' => array('participant_id'),
-		'InventoryManagement.ViewSample' => array('participant_id'),
-		'InventoryManagement.ViewAliquot' => array('participant_id')
+		'InventoryManagement.ViewCollection' => array('Participant.id'),
+		'InventoryManagement.ViewSample' => array('Participant.id'),
+		'InventoryManagement.ViewAliquot' => array('Participant.id')
 	);
 	
 	function summary($variables=array()){
