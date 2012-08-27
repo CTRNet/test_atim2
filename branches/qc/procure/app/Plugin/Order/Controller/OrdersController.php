@@ -14,14 +14,14 @@ class OrdersController extends OrderAppController {
 		'OrderLine'=>array('limit'=>pagination_amount,'order'=>'OrderLine.date_required DESC'));
 	
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/Order/orders/search'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
 		
 		if(empty($search_id)){
 			//index
 			unset($_SESSION['Order']['AliquotIdsToAddToOrder']);
 		}
 		
-		$this->searchHandler($search_id, $this->Order, 'orders', '/Order/orders/search');
+		$this->searchHandler($search_id, $this->Order, 'orders', '/Order/Orders/search');
 
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -39,7 +39,7 @@ class OrdersController extends OrderAppController {
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
-		$this->set('atim_menu', $this->Menus->get('/Order/orders/search'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
 			
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -61,7 +61,7 @@ class OrdersController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved','/Order/orders/detail/'.$this->Order->id );
+				$this->atimFlash( 'your data has been saved','/Order/Orders/detail/'.$this->Order->id );
 			}
 		} 
 	}
@@ -123,7 +123,7 @@ class OrdersController extends OrderAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/Order/orders/detail/'.$order_id );
+					$this->atimFlash( 'your data has been updated','/Order/Orders/detail/'.$order_id );
 				}							
 			}
 		}
@@ -147,12 +147,12 @@ class OrdersController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Order->atimDelete($order_id)) {
-				$this->atimFlash('your data has been deleted', '/Order/orders/search/');
+				$this->atimFlash('your data has been deleted', '/Order/Orders/search/');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/orders/search/');
+				$this->flash('error deleting data - contact administrator', '/Order/Orders/search/');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/Order/orders/detail/' . $order_id);
+			$this->flash($arr_allow_deletion['msg'], '/Order/Orders/detail/' . $order_id);
 		}
   }
 }

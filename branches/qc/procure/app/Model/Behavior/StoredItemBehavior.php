@@ -16,19 +16,19 @@ class StoredItemBehavior extends ModelBehavior{
 	}
 	
 	public function afterSave(Model $model, $created){
+		$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
 		$use_key = $model->name == 'StorageMaster' ? 'parent_id' : 'storage_master_id';
-		if($created){
-			$new_storage_id = isset($model->data[$model->name][$use_key]) ? $model->data[$model->name][$use_key] : null;
-			if($new_storage_id){
-				$query = sprintf('REPLACE INTO view_storage_masters (SELECT * FROM view_storage_masters_view WHERE id=%d)', $new_storage_id);
-				$model->tryCatchQuery($query);				
+		$new_storage_id = isset($model->data[$model->name][$use_key]) ? $model->data[$model->name][$use_key] : null;
+		if((isset($model->data[$model->name]['deleted']) && $model->data[$model->name]['deleted'])
+			|| $this->previous_storage_master_id != $new_storage_id
+		){
+			//deleted OR new != old
+			$query = 'REPLACE INTO view_storage_masters ('.$view_storage_master_model::$table_query.')';
+			if($this->previous_storage_master_id){
+				$model->tryCatchQuery(str_replace('%%WHERE%%', 'AND StorageMaster.id='.$this->previous_storage_master_id, $query));
 			}
-		}else{
-			if((isset($model->data[$model->name]['deleted']) && $model->data[$model->name]['deleted'])
-				|| (isset($model->data[$model->name][$use_key]) && $this->previous_storage_master_id != $model->data[$model->name][$use_key])
-			){
-				$query = sprintf('REPLACE INTO view_storage_masters (SELECT * FROM view_storage_masters_view WHERE id=%d)', $this->previous_storage_master_id);
-				$model->tryCatchQuery($query);
+			if($new_storage_id){
+				$model->tryCatchQuery(str_replace('%%WHERE%%', 'AND StorageMaster.id='.$new_storage_id, $query));
 			}
 		}
 	}
