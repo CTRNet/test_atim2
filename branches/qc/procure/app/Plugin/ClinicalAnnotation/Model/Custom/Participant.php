@@ -42,7 +42,7 @@ class ParticipantCustom extends Participant {
 	
 	function validateFormIdentification($procure_form_identification, $model, $id) {
 		
-		if(!preg_match("/^(PS[0-9]P0[0-9]+ V[0-9]+ -(CSF|FBP|PST|FSP|MED)[0-9]+)$/", $procure_form_identification)) {
+		if(!preg_match("/^(PS[0-9]P0[0-9]+ V[0-9]+ -(CSF|FBP|PST|FSP|MED|QUE)[0-9]+)$/", $procure_form_identification)) {
 			//Format
 			return "the identification format is wrong";
 		

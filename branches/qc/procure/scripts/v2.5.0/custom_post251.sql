@@ -367,3 +367,225 @@ UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- ===============================================================================================================================================================================
+--
+-- F2 - Fiche d'administration du questionnaire
+--
+-- ===============================================================================================================================================================================
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+(null, 'procure', 'lifestyle', 'procure questionnaire administration worksheet', 1, 'procure_ed_questionnaire_administration_worksheet', 'procure_ed_lifestyle_quest_admin_worksheets', 0, 'procure questionnaire administration worksheet', 1);
+
+CREATE TABLE IF NOT EXISTS `procure_ed_lifestyle_quest_admin_worksheets` (
+  `patient_identity_verified` tinyint(1) DEFAULT '0',
+
+  delivery_date date DEFAULT NULL,
+  `delivery_date_accuracy` char(1) NOT NULL DEFAULT '',
+  delivery_site_method varchar(50) DEFAULT NULL,
+
+  method_to_complete varchar(50) DEFAULT NULL,
+
+  recovery_date date DEFAULT NULL,
+ `recovery_date_accuracy` char(1) NOT NULL DEFAULT '',
+  recovery_method varchar(50) DEFAULT NULL,
+
+  verification_date date DEFAULT NULL,
+ `verification_date_accuracy` char(1) NOT NULL DEFAULT '', 
+  verification_result varchar(50) DEFAULT NULL,
+  
+  revision_date date DEFAULT NULL,
+ `revision_date_accuracy` char(1) NOT NULL DEFAULT '', 
+  revision_method varchar(50) DEFAULT NULL,
+   
+  version varchar(50) DEFAULT NULL,
+  version_date date DEFAULT NULL,
+  
+  spent_time_delivery_to_recovery int(6) DEFAULT NULL,
+  
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `procure_ed_lifestyle_quest_admin_worksheets_revs` (
+  `patient_identity_verified` tinyint(1) DEFAULT '0',
+
+  delivery_date date DEFAULT NULL,
+  `delivery_date_accuracy` char(1) NOT NULL DEFAULT '',
+  delivery_site_method varchar(50) DEFAULT NULL,
+
+  method_to_complete varchar(50) DEFAULT NULL,
+
+  recovery_date date DEFAULT NULL,
+ `recovery_date_accuracy` char(1) NOT NULL DEFAULT '',
+  recovery_method varchar(50) DEFAULT NULL,
+
+  verification_date date DEFAULT NULL,
+ `verification_date_accuracy` char(1) NOT NULL DEFAULT '', 
+  verification_result varchar(50) DEFAULT NULL,
+  
+  revision_date date DEFAULT NULL,
+ `revision_date_accuracy` char(1) NOT NULL DEFAULT '', 
+  revision_method varchar(50) DEFAULT NULL,
+   
+  version varchar(50) DEFAULT NULL,
+  version_date date DEFAULT NULL,
+  
+  spent_time_delivery_to_recovery int(6) DEFAULT NULL,
+	
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `procure_ed_lifestyle_quest_admin_worksheets`
+  ADD CONSTRAINT `procure_ed_lifestyle_quest_admin_worksheets_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_questionnaire_delivery_site_and_method", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'questionnaire delivery site and method\')"),
+("procure_method_to_complete_questionnaire", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'method to complete questionnaire\')"),
+("procure_questionnaire_recovery_method", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'questionnaire recovery method\')"),
+("procure_questionnaire_verification_result", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'questionnaire verification result\')"),
+("procure_questionnaire_revision_method", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'questionnaire revision method\')"),
+("procure_questionnaire_version", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'questionnaire version\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('questionnaire delivery site and method', 1, 50),
+('method to complete questionnaire', 1, 50),
+('questionnaire recovery method', 1, 50),
+('questionnaire verification result', 1, 50),
+('questionnaire revision method', 1, 50),
+('questionnaire version', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire delivery site and method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('urologist office', 'Urologist Office', 'Bureau de l''urologue', '1', @control_id, NOW(), NOW(), 1, 1),
+('pre-op clinic', 'Pre-op Clinic', 'Clinique pré-opératoire', '1', @control_id, NOW(), NOW(), 1, 1),
+('during hospitalisation', 'During Hospitalisation', 'Lors de l''hospitalisation', '1', @control_id, NOW(), NOW(), 1, 1),
+('e-mail', 'E-mail', 'Courriel', '1', @control_id, NOW(), NOW(), 1, 1),
+('mail', 'Mail', 'Courrier', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'method to complete questionnaire');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('alone', 'Alone', 'Seul', '1', @control_id, NOW(), NOW(), 1, 1),
+('with a family member', 'With a Family Member', 'Avec membre(s) de la famille', '1', @control_id, NOW(), NOW(), 1, 1),
+('with the biobank personnel', 'With the Biobank Personnel', 'Avec personnel de la Biobanque', '1', @control_id, NOW(), NOW(), 1, 1),
+('at home', 'At Home', 'À la maison', '1', @control_id, NOW(), NOW(), 1, 1),
+('in the hospital', 'In the Hospital', 'À l''hôpital', '1', @control_id, NOW(), NOW(), 1, 1),
+('online', 'Online', 'En ligne', '1', @control_id, NOW(), NOW(), 1, 1),
+('phone', 'Phone', 'Téléphone', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire recovery method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('directly', 'Directly', 'Directement', '1', @control_id, NOW(), NOW(), 1, 1),
+('mail', 'Mail', 'Courrier', '1', @control_id, NOW(), NOW(), 1, 1),
+('internal mail', 'Internal Mail', 'Courrier Interne', '1', @control_id, NOW(), NOW(), 1, 1),
+('e-mail', 'E-mail', 'Courriel', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire verification result');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('complete', 'Complete', 'Complet', '1', @control_id, NOW(), NOW(), 1, 1),
+('incomplete', 'Incomplete', 'Incomplet', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire revision method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('with the participant', 'With the Participant', 'Avec le participant', '1', @control_id, NOW(), NOW(), 1, 1),
+('directly', 'Directly', 'Directement', '1', @control_id, NOW(), NOW(), 1, 1),
+('phone', 'Phone', 'Par téléphone', '1', @control_id, NOW(), NOW(), 1, 1),
+('e-mail', 'E-mail', 'Par courriel', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire version');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('french', 'French', 'Française', '1', @control_id, NOW(), NOW(), 1, 1),
+('english', 'English', 'Anglaise', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO structures(`alias`) VALUES ('procure_ed_questionnaire_administration_worksheet');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'delivery_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'delivery_site_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_delivery_site_and_method') , '0', '', '', '', 'site/method', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'method_to_complete', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_method_to_complete_questionnaire') , '0', '', '', '', 'method', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'recovery_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'recovery_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_recovery_method') , '0', '', '', '', 'method', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'verification_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'verification_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_verification_result') , '0', '', '', '', 'result', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'revision_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'revision_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_revision_method') , '0', '', '', '', 'method', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'version', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_version') , '0', '', '', '', 'version', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'version_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'spent_time_delivery_to_recovery', 'integer_positive',  NULL , '0', '', '', '', 'time spent between receipt and recovery of questionnaire', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='procure_form_identification' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='identification' AND `language_tag`=''), '1', '-6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='delivery_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '20', 'questionnaire given to the participant', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='delivery_site_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_delivery_site_and_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='site/method' AND `language_tag`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='method_to_complete' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_method_to_complete_questionnaire')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '25', 'questionnaire completed by the participant', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='recovery_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '30', 'questionnaire recovered by the Biobank personnel', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='recovery_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_recovery_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='verification_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '35', 'questionnaire verified by the Biobank personnel', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='verification_result' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_verification_result')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='result' AND `language_tag`=''), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='revision_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '40', 'questionnaire revised by the Biobank personnel', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='revision_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_revision_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='version' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_version')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='version' AND `language_tag`=''), '1', '45', 'version of questionnaire', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='version_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='spent_time_delivery_to_recovery' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='time spent between receipt and recovery of questionnaire' AND `language_tag`=''), '1', '47', 'Time spent', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', 'comments', '1', 'comments', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('procure questionnaire administration worksheet', "F2 - Questionnaire Administration Worksheet","F2 - Fiche d'administration du questionnaire"),
+
+('questionnaire completed by the participant','Completed by the Participant','Complété par le participant'),
+('questionnaire given to the participant','Given to the Participant','Remis au participant'),
+('questionnaire recovered by the Biobank personnel','Recovered by the Biobank Personnel','Receuilli par le personnel de la Biobanque'),
+('questionnaire revised by the Biobank personnel','Revised by the Biobank Personnel','Revisé par le personnel de la Biobanque'),
+('questionnaire verified by the Biobank personnel','Verified by the Biobank Personnel','Vérifié par le personnel de la Biobanque'),
+('site/method','Site/Method','Site/Méthode'),
+('Time spent','Time spent','Temps écoulé'),
+('time spent between receipt and recovery of questionnaire','Time spent between receipt and recovery of questionnaire (days)','Temps écoulé entre remise et récupération du questionnaire (jours)'),
+('version of questionnaire','Version of questionnaire','Version du questionnaire');
