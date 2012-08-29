@@ -41,7 +41,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
-('participant identifier','Identification ','Identification '),
+('participant identifier','Identification','Identification'),
 ('the identification format is wrong','Le format de l''identification n''est pas supporté!','The identification format is wrong!'),
 ('hospital number','Hospital Number','Numéro hospitalier'),
 ('RAMQ','RAMQ','RAMQ');
@@ -80,7 +80,6 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'procure_form_identification', 'input',  NULL , '0', 'size=30', '', '', 'identification', '');
 
 INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='procure_form_identification' AND `type`='input'), 'notEmpty');
-INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='procure_form_identification' AND `type`='input'), 'isUnique');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `field`='procure_form_identification'), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
@@ -90,8 +89,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 CREATE TABLE IF NOT EXISTS `procure_cd_sigantures` (
   `consent_master_id` int(11) NOT NULL,
  
-  `revision_date` date DEFAULT NULL,
-  `revision_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `revised_date` date DEFAULT NULL,
+  `revised_date_accuracy` char(1) NOT NULL DEFAULT '',
   `patient_identity_verified` tinyint(1) DEFAULT '0',
   
   KEY `consent_master_id` (`consent_master_id`)
@@ -100,8 +99,8 @@ CREATE TABLE IF NOT EXISTS `procure_cd_sigantures` (
 CREATE TABLE IF NOT EXISTS `procure_cd_sigantures_revs` (
   `consent_master_id` int(11) NOT NULL,
   
-  `revision_date` date DEFAULT NULL,
-  `revision_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `revised_date` date DEFAULT NULL,
+  `revised_date_accuracy` char(1) NOT NULL DEFAULT '',
   `patient_identity_verified` tinyint(1) DEFAULT '0',
   
   `version_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -115,19 +114,19 @@ ALTER TABLE `procure_cd_sigantures`
 INSERT INTO structures(`alias`) VALUES ('procure_consent_form_siganture');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ConsentDetail', 'procure_cd_sigantures', 'revision_date', 'date',  NULL , '0', '', '', '', 'revision date', ''),
+('ClinicalAnnotation', 'ConsentDetail', 'procure_cd_sigantures', 'revised_date', 'date',  NULL , '0', '', '', '', '', 'revised date'),
 ('ClinicalAnnotation', 'ConsentDetail', 'procure_cd_sigantures', 'patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='procure_consent_form_siganture'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='procure_cd_sigantures' AND `field`='revision_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='revision date' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
-((SELECT id FROM structures WHERE alias='procure_consent_form_siganture'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='procure_cd_sigantures' AND `field`='patient_identity_verified'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='procure_consent_form_siganture'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='procure_cd_sigantures' AND `field`='revised_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='revised date'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='procure_consent_form_siganture'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='procure_cd_sigantures' AND `field`='patient_identity_verified'), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
 -- i18n
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
-("procure consent form signature","F1 - Consent form signature worksheet","F1 - Fiche de signature du consentement"),
+("procure consent form signature","F1 - Consent Form Signature Worksheet","F1 - Fiche de signature du consentement"),
 ("consent form version","Consent from version","Version du consentement"),
-("revision date","Revised date","Date de révision"),
+("revised date","Revised date","Date de révision"),
 ("confirm that the identity of the patient has been verified","I confirm that the identity of the patient has been verified", "Je confirme que l'identité du participant a été vérifiée");
 
 -- ===============================================================================================================================================================================
@@ -184,7 +183,6 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'procure_form_identification', 'input',  NULL , '0', 'size=30', '', '', 'identification', ''); 
 
 INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `field`='procure_form_identification'), 'notEmpty');
-INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `field`='procure_form_identification' AND `type`='input'), 'isUnique');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `field`='procure_form_identification' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='identification' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'); 
@@ -193,8 +191,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 CREATE TABLE IF NOT EXISTS `procure_txd_medications` (
  `patient_identity_verified` tinyint(1) DEFAULT '0',
-  `patient_identity_check_date` date DEFAULT NULL,
-  `patient_identity_check_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `id_confirmation_date` date DEFAULT NULL,
+  `id_confirmation_date_accuracy` char(1) NOT NULL DEFAULT '',
 
   `medication_for_prostate_cancer` char(1) DEFAULT '',
   `medication_for_benign_prostatic_hyperplasia` char(1) DEFAULT '',
@@ -217,8 +215,8 @@ CREATE TABLE IF NOT EXISTS `procure_txd_medications` (
 
 CREATE TABLE IF NOT EXISTS `procure_txd_medications_revs` (
   `patient_identity_verified` tinyint(1) DEFAULT '0',
-  `patient_identity_check_date` date DEFAULT NULL,
-  `patient_identity_check_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `id_confirmation_date` date DEFAULT NULL,
+  `id_confirmation_date_accuracy` char(1) NOT NULL DEFAULT '',
 
   `medication_for_prostate_cancer` char(1) DEFAULT '',
   `medication_for_benign_prostatic_hyperplasia` char(1) DEFAULT '',
@@ -249,7 +247,7 @@ INSERT INTO structures(`alias`) VALUES ('procure_txd_medications');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'patient_identity_check_date', 'date',  NULL , '0', '', '', '', 'patient identity check date', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'id_confirmation_date', 'date',  NULL , '0', '', '', '', '', 'date'), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'medication_for_prostate_cancer', 'yes_no',  NULL , '0', '', '', '', 'medication for prostate cancer', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'medication_for_benign_prostatic_hyperplasia', 'yes_no',  NULL , '0', '', '', '', 'medication for benign prostatic hyperplasia', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medications', 'medication_for_prostatitis', 'yes_no',  NULL , '0', '', '', '', 'medication for prostatitis', ''), 
@@ -266,7 +264,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='patient_identity_check_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='patient identity check date' AND `language_tag`=''), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='id_confirmation_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='date'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '23', '', '1', 'comments', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
 
 ((SELECT id FROM structures WHERE alias='procure_txd_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='medication_for_prostate_cancer' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='medication for prostate cancer' AND `language_tag`=''), '1', '30', 'prostate medication', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -287,10 +285,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- i18n
 
 REPLACE INTO i18n  (id,fr,en) VALUES
-("procure medication worksheet","F1a - Fiche des médicaments","F1a - Medication worksheet"),
+("procure medication worksheet","F1a - Fiche des médicaments","F1a - Medication Worksheet"),
 ("procure","PROCURE","PROCURE"),
-
-("patient identity check date","Date","Date"),
 
 ("prostate medication","Médication pour la prostate","Prostate medication"),
 ("medication for prostate cancer","Le patient prend-il des médicaments pour le cancer de la prostate","Does the patient take medication for prostate cancer"),
@@ -390,7 +386,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='eventmasters'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='procure_form_identification'), '1', '-6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'); 
 
 INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='procure_form_identification' AND `type`='input'), 'notEmpty');
-INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `field`='procure_form_identification' AND `type`='input'), 'isUnique');
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='procure_form_identification' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
@@ -822,9 +817,9 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 -- i18n 	Pathology report number
 
 REPLACE INTO i18n (id,en,fr) VALUES
-('procure pathology report', "F12 - Pathology report","F12 - Rapport de pathologie"),
-('path report number','Pathology report number','Numéro du rapport de pathologie'),
-('pathologist name','Pathologist first/last name','Nom/Prénom pathologiste:'),
+('procure pathology report', "F12 - Pathology Report","F12 - Rapport de pathologie"),
+('path report number','Pathology Report Number','Numéro du rapport de pathologie'),
+('pathologist name','Pathologist First/Last Name','Nom/Prénom pathologiste:'),
 ('comments','Comments','Commentaires'),
 
 ('measurements', "Measurements","Dimensions"),
@@ -832,8 +827,8 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('length cm', "Length (cm)","Longueur (cm)"),
 ('width cm', "Width (cm)","Largeur (cm)"),
 ('thickness cm', "Thickness (cm)","Épaisseur (cm)"),
-('right seminal vesicle', "Right seminal vesicle","Vésicule séminale droite"),
-('left seminal vesicle', "Left seminal vesicle","Vésicule séminale gauche"),
+('right seminal vesicle', "Right Seminal Vesicle","Vésicule séminale droite"),
+('left seminal vesicle', "Left Seminal Vesicle","Vésicule séminale gauche"),
 
 ('acinar adenocarcinoma/usual type', "Acinar adenocarcinoma/usual type", "Adénocarcinome acinaire ou du type usuel"),
 ('prostatic ductal adenocarcinoma', "Prostatic ductal adenocarcinoma", "Adénocarcinome canalaire"),
@@ -935,8 +930,8 @@ INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`,
 -- detail
 
 CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets` (
-  `revision_date` date DEFAULT NULL,
-  `revision_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `id_confirmation_date` date DEFAULT NULL,
+  `id_confirmation_date_accuracy` char(1) NOT NULL DEFAULT '',
   `patient_identity_verified` tinyint(1) DEFAULT '0',
 
   `biopsy_pre_surgery_date` date DEFAULT NULL,
@@ -965,8 +960,8 @@ CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `procure_ed_lab_diagnostic_information_worksheets_revs` (
-  `revision_date` date DEFAULT NULL,
-  `revision_date_accuracy` char(1) NOT NULL DEFAULT '',
+  `id_confirmation_date` date DEFAULT NULL,
+  `id_confirmation_date_accuracy` char(1) NOT NULL DEFAULT '',
   `patient_identity_verified` tinyint(1) DEFAULT '0',
 
   `biopsy_pre_surgery_date` date DEFAULT NULL,
@@ -1018,7 +1013,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 ((SELECT id FROM structure_value_domains WHERE domain_name="procure_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="10" AND language_alias="10"), "5", "1");
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'revision_date', 'date',  NULL , '0', '', '', '', 'revision date', ''), 
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'id_confirmation_date', 'date',  NULL , '0', '', '', '', '', 'date'), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsy_pre_surgery_date', 'date',  NULL , '0', '', '', '', 'date of biopsy prior to surgery', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'aps_pre_surgery_total_ng_ml', 'float_positive',  NULL , '0', '', '', '', 'total ng/ml', ''), 
@@ -1033,8 +1028,8 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsies_before', 'yes_no',  NULL , '0', '', '', '', 'did the patient have biopsies before', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_diagnostic_information_worksheets', 'biopsy_date', 'date',  NULL , '0', '', '', '', 'date', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='revision_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='revision date' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='id_confirmation_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='date'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_pre_surgery_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date of biopsy prior to surgery' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_total_ng_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total ng/ml' AND `language_tag`=''), '1', '30', 'psa prior to surgery', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_diagnostic_information_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_free_ng_ml' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='free ng/ml' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -1052,48 +1047,14 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- i18n
 
 REPLACE INTO i18n (id,en,fr) VALUES
-('procure diagnostic information worksheet', "F1b - Diagnostic information worksheet","F1b - Fiche de renseignements au diagnostic"),
-('biopsy', 'Biopsy','Biopie'),
+('procure diagnostic information worksheet', "F1b - Diagnostic Information Worksheet","F1b - Fiche de renseignements au diagnostic"),
+('biopsy', 'Biopsy','Biopsie'),
 ('cores','Cores','Zones prélevées'),
 ('date of biopsy prior to surgery',"Date of biopsy prior to surgery","Date de biopsie pré-chirurgie"),
 ('did the patient have biopsies before',"Did the patient have biopsies before","Le patient a-t-il eu des biopsies antérieurement"),
 ('free ng/ml',"Free (ng/ml)","Libre (ng/ml)"),
-('highest percentage of tumoral zone of core','Highest pct of tumoral zone among collected samples',"pct d'atteinte le plus élevé parmi les prélèvements"),
+('highest percentage of tumoral zone of core','Highest pct of tumoral zone among collected samples',"Pct d'atteinte le plus élevé parmi les prélèvements"),
 ('number of collected cores',"Nombre de zones prélevées","Number of collected cores"),
 ('number of cores with cancer',"Nombre de zones atteintes","Number of cores with cancer"),
 ('psa prior to surgery',"PSA prior to surgery","APS pré-chirurgie:"),
 ('total ng/ml',"Total (ng/ml)","Total (ng/ml)");
-
--- ===============================================================================================================================================================================
---
--- F1 - Fiche de suivi du patient
---
--- ===============================================================================================================================================================================
-
--- INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
--- (null, 'procure', 'clinical', 'procure follow-up worksheet', 1, 'procure_ed_followup_worksheet', 'procure_ed_clinical_followup_worksheets', 0, 'procure follow-up worksheet', 1);
-
-
-
-
-
-
-
-
-
--- i18n
-
-REPLACE INTO i18n (id,en,fr) VALUES
-('procure follow-up worksheet', "F1 - Follow-up Worksheet","F1b - Fiche de suivi du patient ")
-
-
-
-
-
-
-
-
-
-
-
-
