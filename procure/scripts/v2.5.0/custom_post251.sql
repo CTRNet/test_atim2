@@ -583,6 +583,8 @@ DELETE FROM structure_permissible_values WHERE value="6" AND language_alias="all
 
 UPDATE structure_fields SET  `default`='2' WHERE model='FunctionManagement' AND tablename='' AND field='col_copy_binding_opt' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt');
 
+INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='collection_datetime'), 'notEmpty');
+
 -- ******************* TEMPLATE *********************************************
 
 INSERT INTO `templates` (`id`, `flag_system`, `name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`) VALUES
@@ -633,7 +635,7 @@ ALTER TABLE sd_spe_bloods_revs
 	
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
-WHERE structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'reception_datetime') 
+WHERE structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field IN ('coll_to_rec_spent_time_msg', 'reception_datetime')) 
 AND structure_id=(SELECT id FROM structures WHERE alias='specimens');
 UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
 WHERE structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'blood_type') 
@@ -655,6 +657,12 @@ UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permiss
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="1" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="serum");
 INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='blood_type'), 'notEmpty');
 
+UPDATE structure_formats SET `display_column`='0', `display_order`='500' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='501' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field`='coll_to_rec_spent_time_msg');
+
+UPDATE structure_formats SET `display_column`='0', `display_order`='500' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `field`='creation_datetime');
+UPDATE structure_formats SET `display_column`='0', `display_order`='501' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `field`='coll_to_creation_spent_time_msg');
+ 
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
 VALUES 
 ("procure_blood_collection_sites", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'blood collection sites\')");
@@ -688,8 +696,8 @@ VALUES
 ('tubes_inverted 8 10 times','All tubes were immediately inverted 8-10 times after collection','Les tubes ont été immédiatement inversés 8-10 fois suivant le prélèvement'),
 ('procure blood tubes correclty stored','Good temporary storage conditions (see help)','Bonnes conditions de stockage temporaire (voir aide)'),
 ('procure_tubes_correclty_stored_help',
-'EDTA tubes were immediately placed in the cold. Serum tubes were kept at room temperature for 1 hour. The PAXgene tube was kept at room temperature for 2 hours.',
-'Les tubes EDTA ont été immédiatement mis au froid. Les tubes sérum ont été conservés à la température ambiante pendant 1 heure. Le tube PAXgene a été conservé à la température ambiante pendant 2 heures.');
+'<b>EDTA tubes</b> were immediately placed in the cold. <br><b>Serum tubes</b> were kept at room temperature for 1 hour. <br><b>PAXgene tube</b> was kept at room temperature for 2 hours.',
+'Les <b>tubes EDTA</b> ont été immédiatement mis au froid. <br>Les <b>tubes sérum</b> ont été conservés à la température ambiante pendant 1 heure. <br>Le <b>tube PAXgene</b> a été conservé à la température ambiante pendant 2 heures.');
 
 UPDATE structure_fields SET language_label = 'aliquot procure identification' WHERE model LIKE '%Aliquot%' AND field = 'barcode' AND language_label = 'barcode';
 UPDATE structure_formats SET language_label = 'used aliquot procure identification' WHERE language_label = 'used aliquot barcode';
@@ -714,27 +722,38 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='used_blood_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='used_blood_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
 
-
-todo
 ALTER TABLE ad_whatman_papers
 	ADD COLUMN procure_card_completed_at time DEFAULT NULL,
-	ADD COLUMN `procure_card_sealed_date` date DEFAULT NULL,
+	ADD COLUMN `procure_card_sealed_date` datetime DEFAULT NULL,
 	ADD COLUMN `procure_card_sealed_date_accuracy` char(1) NOT NULL DEFAULT '';
 ALTER TABLE ad_whatman_papers_revs
 	ADD COLUMN procure_card_completed_at time DEFAULT NULL,
-	ADD COLUMN `procure_card_sealed_date` date DEFAULT NULL,
+	ADD COLUMN `procure_card_sealed_date` datetime DEFAULT NULL,
 	ADD COLUMN `procure_card_sealed_date_accuracy` char(1) NOT NULL DEFAULT '';
 
-
-
-
-
-
-
-
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', '', 'procure_card_sealed_date', 'datetime',  NULL , '0', '', '', '', 'procure card sealed on', '');
+('InventoryManagement', 'AliquotDetail', 'ad_whatman_papers', 'procure_card_completed_at', 'time',  NULL , '0', '', '', '', 'card completed at', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_whatman_papers', 'procure_card_sealed_date', 'datetime',  NULL , '0', '', '', '', 'card sealed date', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='procure_card_sealed_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procure card sealed on' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='procure_card_completed_at' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='card completed at' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='procure_card_sealed_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='card sealed date' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0');
 
-		
+REPLACE INTO i18n (id,en,fr)
+VALUES 
+('card completed at','Card completed at','Carte complétée à'),
+('card sealed date','Sealed on','Scellée le');
+
+ALTER TABLE ad_tubes
+	ADD COLUMN procure_expiration_date varchar(50) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+	ADD COLUMN procure_expiration_date varchar(50) DEFAULT NULL;
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_aliquot_expiration_date') WHERE aliquot_type = 'tube' AND sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood') AND flag_active = 1;
+INSERT INTO structures(`alias`) VALUES ('procure_aliquot_expiration_date');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_expiration_date', 'input',  NULL , '0', 'size=10', '', '', 'expiration date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_aliquot_expiration_date'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_expiration_date' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='expiration date' AND `language_tag`=''), '1', '1198', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0');
+REPLACE INTO i18n (id,en,fr)
+VALUES ('expiration date','Expiration date','Date d''expiration');
+	
+
