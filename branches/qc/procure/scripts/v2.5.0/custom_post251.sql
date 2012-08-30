@@ -365,54 +365,6 @@ REPLACE INTO i18n (id,en,fr) VALUES
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- ===============================================================================================================================================================================
 --
 -- F2 - Fiche d'administration du questionnaire
@@ -589,3 +541,200 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('Time spent','Time spent','Temps écoulé'),
 ('time spent between receipt and recovery of questionnaire','Time spent between receipt and recovery of questionnaire (days)','Temps écoulé entre remise et récupération du questionnaire (jours)'),
 ('version of questionnaire','Version of questionnaire','Version du questionnaire');
+
+-- ===============================================================================================================================================================================
+-- 
+-- INVENTORY
+-- 
+-- ===============================================================================================================================================================================
+
+-- ******************* COLLECTION *********************************************
+
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ( 'sop_master_id','acquisition_label','collection_property','collection_site'));
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'bank_id' AND model IN ('Collection','ViewAliquot','ViewCollection','ViewSample'));
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('inv_collection_datetime_defintion','Collection time of either blood, urine or prostate','Temps de collection du sang de l''urine ou de la prostate');
+
+ALTER TABLE collections ADD `procure_patient_identity_verified` tinyint(1) DEFAULT '0';
+ALTER TABLE collections_revs ADD `procure_patient_identity_verified` tinyint(1) DEFAULT '0';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'procure_patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', ''),
+('InventoryManagement', 'ViewCollection', '', 'procure_patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='procure_patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='procure_patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='procure_patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confirm that the identity of the patient has been verified' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_id = (SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'collection_datetime');
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("2", "participant");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="col_copy_binding_opt"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="participant"), "2", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="2" AND spv.language_alias="participant only";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="6" AND spv.language_alias="all (participant, consent, diagnosis and treatment/annotation)";
+DELETE FROM structure_permissible_values WHERE value="2" AND language_alias="participant only";
+DELETE FROM structure_permissible_values WHERE value="6" AND language_alias="all (participant, consent, diagnosis and treatment/annotation)";
+
+UPDATE structure_fields SET  `default`='2' WHERE model='FunctionManagement' AND tablename='' AND field='col_copy_binding_opt' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='col_copy_binding_opt');
+
+-- ******************* TEMPLATE *********************************************
+
+INSERT INTO `templates` (`id`, `flag_system`, `name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`) VALUES
+(1, 1, 'Urine', 'user', 'user', 1, 1, 1),
+(2, 1, 'Blood/Sang', 'user', 'user', 1, 1, 1),
+(3, 1, 'Tissue/Tissu', 'user', 'user', 1, 1, 1);
+
+INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES
+(1, NULL, 1, 5, 4, 1),
+(2, 1, 1, 5, 15, 1),
+(3, 2, 1, 1, 14, 2),
+(4, NULL, 2, 5, 2, 1),
+(5, 4, 2, 1, 3, 3),
+(6, 4, 2, 5, 10, 1),
+(7, 6, 2, 1, 17, 5),
+(8, NULL, 2, 5, 2, 1),
+(9, 8, 2, 1, 3, 1),
+(10, NULL, 2, 5, 2, 1),
+(11, 10, 2, 1, 3, 3),
+(14, NULL, 3, 5, 3, 1),
+(15, 14, 3, 1, 9, 8),
+(16, 4, 2, 1, 11, 1),
+(17, 10, 2, 5, 9, 1),
+(18, 17, 2, 1, 16, 5),
+(19, 10, 2, 5, 8, 1),
+(20, 19, 2, 1, 37, 3);
+
+
+-- ******************* INVENTORY CONFIGURATION *********************************************
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 1, 12, 19, 131, 135, 2, 25, 3, 119, 132, 142, 105, 112, 106, 143, 120, 124, 121, 141, 103, 109, 104, 144, 122, 127, 123, 7, 130, 101, 102, 10);
+UPDATE aliquot_controls SET flag_active=false WHERE id IN(33, 10, 1);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(11, 34, 46, 1, 10);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(24, 118);
+
+-- ******************* BLOOD *********************************************
+
+ALTER TABLE sd_spe_bloods
+	ADD COLUMN procure_collection_site varchar(250) DEFAULT NULL,
+	ADD COLUMN procure_collection_without_incident tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_tubes_inverted_8_10_times tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_tubes_correclty_stored tinyint(1) DEFAULT '0';
+ALTER TABLE sd_spe_bloods_revs
+	ADD COLUMN procure_collection_site varchar(250) DEFAULT NULL,
+	ADD COLUMN procure_collection_without_incident tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_tubes_inverted_8_10_times tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_tubes_correclty_stored tinyint(1) DEFAULT '0';	
+	
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'reception_datetime') 
+AND structure_id=(SELECT id FROM structures WHERE alias='specimens');
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id NOT IN (SELECT id FROM structure_fields WHERE field = 'blood_type') 
+AND structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods');
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("k2-EDTA", "k2-EDTA");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="k2-EDTA" AND language_alias="k2-EDTA"), "2", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="unknown" AND spv.language_alias="unknown";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="EDTA" AND spv.language_alias="EDTA";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="gel CSA" AND spv.language_alias="gel CSA";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="heparin" AND spv.language_alias="heparin";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="ZCSA" AND spv.language_alias="ZCSA";
+DELETE FROM structure_permissible_values WHERE value="EDTA" AND language_alias="EDTA";
+DELETE FROM structure_permissible_values WHERE value="gel CSA" AND language_alias="gel CSA";
+DELETE FROM structure_permissible_values WHERE value="heparin" AND language_alias="heparin";
+DELETE FROM structure_permissible_values WHERE value="ZCSA" AND language_alias="ZCSA";
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("serum", "serum");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="serum"), "2", "1");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="3" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="k2-EDTA" AND language_alias="k2-EDTA");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="1" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="serum");
+INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='blood_type'), 'notEmpty');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_blood_collection_sites", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'blood collection sites\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('blood collection sites', 1, 250);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'blood collection sites');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('clinic', 'In the clinic', 'En clinique', '1', @control_id, NOW(), NOW(), 1, 1),
+('operating room', 'In operating room', 'En salle d''opération', '1', @control_id, NOW(), NOW(), 1, 1),
+('before anestesia', 'Before anestesia', 'Lors de la pré-anesthésie', '1', @control_id, NOW(), NOW(), 1, 1),
+('after anesthesia', 'After anesthesia', 'Après anesthésie', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'procure_collection_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_blood_collection_sites') , '0', '', '', '', 'blood collection was done', ''), 
+('InventoryManagement', 'SampleDetail', '', 'procure_collection_without_incident', 'checkbox',  NULL , '0', '', '', '', 'without incident', ''), 
+('InventoryManagement', 'SampleDetail', '', 'procure_tubes_inverted_8_10_times', 'checkbox',  NULL , '0', '', '', '', 'tubes_inverted 8 10 times', ''), 
+('InventoryManagement', 'SampleDetail', '', 'procure_tubes_correclty_stored', 'checkbox',  NULL , '0', '', '', 'procure_tubes_correclty_stored_help', 'procure blood tubes correclty stored', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_blood_collection_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='blood collection was done' AND `language_tag`=''), '1', '450', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_collection_without_incident' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='without incident' AND `language_tag`=''), '1', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_inverted_8_10_times' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tubes_inverted 8 10 times' AND `language_tag`=''), '1', '452', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='procure_tubes_correclty_stored' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='procure_tubes_correclty_stored_help' AND `language_label`='procure blood tubes correclty stored' AND `language_tag`=''), '1', '453', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en,fr)
+VALUES 
+('k2-EDTA','K2-EDTA','K2-EDTA'),
+('blood collection was done','The blood collection was done','Le prélèvement a été effectué'),
+('without incident','Without incident','Sans incident'),
+('tubes_inverted 8 10 times','All tubes were immediately inverted 8-10 times after collection','Les tubes ont été immédiatement inversés 8-10 fois suivant le prélèvement'),
+('procure blood tubes correclty stored','Good temporary storage conditions (see help)','Bonnes conditions de stockage temporaire (voir aide)'),
+('procure_tubes_correclty_stored_help',
+'EDTA tubes were immediately placed in the cold. Serum tubes were kept at room temperature for 1 hour. The PAXgene tube was kept at room temperature for 2 hours.',
+'Les tubes EDTA ont été immédiatement mis au froid. Les tubes sérum ont été conservés à la température ambiante pendant 1 heure. Le tube PAXgene a été conservé à la température ambiante pendant 2 heures.');
+
+UPDATE structure_fields SET language_label = 'aliquot procure identification' WHERE model LIKE '%Aliquot%' AND field = 'barcode' AND language_label = 'barcode';
+UPDATE structure_formats SET language_label = 'used aliquot procure identification' WHERE language_label = 'used aliquot barcode';
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='aliquot_label');
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='lot_number' AND model LIKE '%aliquot%');
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='1199' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='1200' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr)
+VALUES 
+('aliquot procure identification','Identification','Identification'),
+('used aliquot procure identification','Used Aliquot Identification','Identification de l''aliquot utilisé');
+
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('creation_site', 'creation_by') AND model LIKE 'DerivativeDetail');
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('cell_count','concentration', 'cell_count_unit', 'cell_viability', 'concentration_unit') AND model LIKE 'AliquotDetail');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='used_blood_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='used_blood_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+
+todo
+ALTER TABLE ad_whatman_papers
+	ADD COLUMN procure_card_completed_at time DEFAULT NULL,
+	ADD COLUMN `procure_card_sealed_date` date DEFAULT NULL,
+	ADD COLUMN `procure_card_sealed_date_accuracy` char(1) NOT NULL DEFAULT '';
+ALTER TABLE ad_whatman_papers_revs
+	ADD COLUMN procure_card_completed_at time DEFAULT NULL,
+	ADD COLUMN `procure_card_sealed_date` date DEFAULT NULL,
+	ADD COLUMN `procure_card_sealed_date_accuracy` char(1) NOT NULL DEFAULT '';
+
+
+
+
+
+
+
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'procure_card_sealed_date', 'datetime',  NULL , '0', '', '', '', 'procure card sealed on', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='procure_card_sealed_date' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procure card sealed on' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0');
+
+		
