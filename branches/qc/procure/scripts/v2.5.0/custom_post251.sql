@@ -594,8 +594,6 @@ INSERT INTO `templates` (`id`, `flag_system`, `name`, `owner`, `visibility`, `fl
 
 INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES
 (1, NULL, 1, 5, 4, 1),
-(2, 1, 1, 5, 15, 1),
-(3, 2, 1, 1, 14, 2),
 (4, NULL, 2, 5, 2, 1),
 (5, 4, 2, 1, 3, 3),
 (6, 4, 2, 5, 10, 1),
@@ -610,8 +608,10 @@ INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_struct
 (17, 10, 2, 5, 9, 1),
 (18, 17, 2, 1, 16, 5),
 (19, 10, 2, 5, 8, 1),
-(20, 19, 2, 1, 37, 3);
-
+(20, 19, 2, 1, 37, 3),
+(21, 1, 1, 1, 4, 1),
+(22, 1, 1, 5, 15, 1),
+(23, 22, 1, 1, 14, 2);
 
 -- ******************* INVENTORY CONFIGURATION *********************************************
 
@@ -756,4 +756,376 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 REPLACE INTO i18n (id,en,fr)
 VALUES ('expiration date','Expiration date','Date d''expiration');
 	
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ******************* URINE *********************************************
+
+ALTER TABLE `aliquot_controls`	
+  MODIFY  `aliquot_type` enum('block','cell gel matrix','core','slide','tube','whatman paper','cup') NOT NULL COMMENT 'Generic name.';
+ALTER TABLE `aliquot_review_controls` 
+  MODIFY  `aliquot_type_restriction` enum('all','block','cell gel matrix','core','slide','tube','whatman paper','cup') NOT NULL DEFAULT 'all' COMMENT 'Allow to link specific aliquot type to the specimen review.';
+  
+UPDATE aliquot_controls SET aliquot_type = 'cup' WHERE  aliquot_type = 'tube' AND sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'urine');
+
+ALTER TABLE sd_spe_urines
+	ADD COLUMN procure_other_urine_aspect varchar(250) DEFAULT NULL,
+	ADD COLUMN procure_hematuria char(1) DEFAULT '',	
+	ADD COLUMN procure_collected_via_catheter char(1) DEFAULT '';
+ALTER TABLE sd_spe_urines_revs
+	ADD COLUMN procure_other_urine_aspect varchar(250) DEFAULT NULL,
+	ADD COLUMN procure_hematuria char(1) DEFAULT '',	
+	ADD COLUMN procure_collected_via_catheter char(1) DEFAULT '';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_urines', 'procure_other_urine_aspect', 'input',  NULL , '0', 'size=30', '', '', 'other precision', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_urines', 'procure_hematuria', 'yes_no',  NULL , '0', '', '', '', 'hematuria', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_urines', 'procure_collected_via_catheter', 'yes_no',  NULL , '0', '', '', '', 'urine was collected via a urinary catheter', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_urines'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_urines' AND `field`='procure_other_urine_aspect' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='other precision' AND `language_tag`=''), '1', '442', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_urines'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_urines' AND `field`='procure_hematuria' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hematuria' AND `language_tag`=''), '1', '443', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_urines'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_urines' AND `field`='procure_collected_via_catheter' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='urine was collected via a urinary catheter' AND `language_tag`=''), '1', '444', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect') ,  `language_label`='aspect at reception' WHERE model='SampleDetail' AND tablename='' AND field='urine_aspect' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect');
+UPDATE structure_formats SET `display_order`='397' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_urines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='398', `flag_add_readonly`='1', `flag_edit_readonly`='1', `flag_addgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_urines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_urines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='urine_aspect' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_urines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='pellet_signs' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_urines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='pellet_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_urines') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='pellet_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit') AND `flag_confidential`='0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='other precision' WHERE model='SampleDetail' AND tablename='sd_spe_urines' AND field='procure_other_urine_aspect' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('cup','Cup','Godet'),	
+('aspect at reception','Aspect at arrival','Aspect à la réception'),
+('hematuria','Hematuria','Hématurie'),
+('urine was collected via a urinary catheter','Urine was collected via a urinary catheter','L''urine a été prélevée à partir d''une sonde');
+
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_aliquot_expiration_date') WHERE aliquot_type = 'cup' AND sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'urine') AND flag_active = 1;
+
+ALTER TABLE sd_der_urine_cents
+	ADD COLUMN procure_processed_at_reception tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_conserved_at_4 tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_time_at_4 int(6) DEFAULT NULL, 
+	ADD COLUMN procure_aspect_after_refrigeration varchar(50) DEFAULT NULL,
+	ADD COLUMN procure_other_aspect_after_refrigeration varchar(250) DEFAULT NULL,  
+	ADD COLUMN procure_aspect_after_centrifugation varchar(50) DEFAULT NULL,
+	ADD COLUMN procure_other_aspect_after_centrifugation varchar(250) DEFAULT NULL, 
+	ADD COLUMN procure_pellet_aspect_after_centrifugation varchar(50) DEFAULT NULL,
+	ADD COLUMN procure_other_pellet_aspect_after_centrifugation varchar(250) DEFAULT NULL,
+	ADD COLUMN procure_approximatif_pellet_volume_ml decimal(10,5) DEFAULT NULL,
+	ADD COLUMN procure_pellet_volume_ml decimal(10,5) DEFAULT NULL;
+ALTER TABLE sd_der_urine_cents_revs
+	ADD COLUMN procure_processed_at_reception tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_conserved_at_4 tinyint(1) DEFAULT '0',
+	ADD COLUMN procure_time_at_4 int(6) DEFAULT NULL, 
+	ADD COLUMN procure_aspect_after_refrigeration varchar(50) DEFAULT NULL,
+	ADD COLUMN procure_other_aspect_after_refrigeration varchar(250) DEFAULT NULL,  
+	ADD COLUMN procure_aspect_after_centrifugation varchar(50) DEFAULT NULL,
+	ADD COLUMN procure_other_aspect_after_centrifugation varchar(250) DEFAULT NULL, 
+	ADD COLUMN procure_pellet_aspect_after_centrifugation varchar(50) DEFAULT NULL,
+	ADD COLUMN procure_other_pellet_aspect_after_centrifugation varchar(250) DEFAULT NULL,
+	ADD COLUMN procure_approximatif_pellet_volume_ml decimal(10,5) DEFAULT NULL,
+	ADD COLUMN procure_pellet_volume_ml decimal(10,5) DEFAULT NULL;	
+
+UPDATE sample_controls SET detail_form_alias = 'procure_sd_urine_cents,derivatives' WHERE sample_type = 'centrifuged urine';
+
+INSERT INTO structures(`alias`) VALUES ('procure_sd_urine_cents');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES 
+("procure_urine_aspect_after_centrifugation", "open", "", NULL),
+("procure_pellet_aspect_after_centrifugation", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES
+("reddish", "reddish"),
+("pinkish", "pinkish");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_urine_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_urine_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="clear" AND language_alias="clear"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_urine_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="turbidity" AND language_alias="turbidity"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_urine_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="reddish" AND language_alias="reddish"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_urine_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="pinkish" AND language_alias="pinkish"), "4", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_pellet_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_pellet_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="clear" AND language_alias="clear"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_pellet_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="turbidity" AND language_alias="turbidity"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_pellet_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="reddish" AND language_alias="reddish"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_pellet_aspect_after_centrifugation"), (SELECT id FROM structure_permissible_values WHERE value="pinkish" AND language_alias="pinkish"), "4", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_processed_at_reception', 'checkbox',  NULL , '0', '', '', '', 'processed at reception', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_conserved_at_4', 'checkbox',  NULL , '0', '', '', '', 'conserved at 4', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_time_at_4', 'integer_positive',  NULL , '0', '', '', '', '', 'time at 4'), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_aspect_after_refrigeration', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect') , '0', '', '', '', 'urine aspect after refrigeration', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_other_aspect_after_refrigeration', 'input',  NULL , '0', 'size=30', '', '', '', 'other precision'), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_aspect_after_centrifugation', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_urine_aspect_after_centrifugation') , '0', '', '', '', 'urine aspect after centrifugation', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_other_aspect_after_centrifugation', 'input',  NULL , '0', 'size=30', '', '', '', 'other precision'), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_pellet_aspect_after_centrifugation', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_pellet_aspect_after_centrifugation') , '0', '', '', '', 'pellet aspect after centrifugation', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_other_pellet_aspect_after_centrifugation', 'input',  NULL , '0', 'size=30', '', '', '', 'other precision'), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_approximatif_pellet_volume_ml', 'float',  NULL , '0', 'size=6', '', '', 'approximatif pellet volume ml', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'procure_pellet_volume_ml', 'float',  NULL , '0', 'size=6', '', '', '', 'pellet volume ml');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_processed_at_reception' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='processed at reception' AND `language_tag`=''), '1', '446', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_conserved_at_4' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='conserved at 4' AND `language_tag`=''), '1', '447', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_time_at_4' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='time at 4'), '1', '448', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_refrigeration' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='urine_aspect')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='urine aspect after refrigeration' AND `language_tag`=''), '1', '449', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_refrigeration' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other precision'), '1', '450', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_aspect_after_centrifugation' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_urine_aspect_after_centrifugation')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='urine aspect after centrifugation' AND `language_tag`=''), '1', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_aspect_after_centrifugation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other precision'), '1', '452', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_pellet_aspect_after_centrifugation' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_pellet_aspect_after_centrifugation')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pellet aspect after centrifugation' AND `language_tag`=''), '1', '453', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_other_pellet_aspect_after_centrifugation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other precision'), '1', '454', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_approximatif_pellet_volume_ml' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='approximatif pellet volume ml' AND `language_tag`=''), '1', '455', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='procure_pellet_volume_ml' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='pellet volume ml'), '1', '456', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('approximatif pellet volume ml','Approximate volume of pellet (for 50 mL volume)','Volume approximatif du culot (pour volume de 50 mL)'),
+('pellet volume ml','Or volume (ml)','Ou volume (ml)'),
+('urine aspect after centrifugation','Urine aspect after centrifugation','Aspect urine après centrifugation'),
+('urine aspect after refrigeration','Urine aspect after refrigeration','Aspect urine après réfrigération'),
+('conserved at 4','Stored at 4°C','Conservée à 4°C'),
+
+('pellet aspect after centrifugation','Pellet aspect after centrifugation','Aspect culot après centrifugation'),
+
+('pinkish','Pinkish','Rosée'),
+('processed at reception','Processed upon arrival','Traitée dès sa réception'),
+('reddish','Reddish','Rougeâtre'),
+('time at 4','Time at 4°C','Temps à 4°C');
+
+-- ******************* TISSUE *********************************************
+
+ALTER TABLE sd_spe_tissues
+	ADD COLUMN procure_tissue_identification varchar(50) DEFAULT null,
+	ADD COLUMN procure_prostatectomy_type varchar(50) DEFAULT null,
+	ADD COLUMN procure_prostatectomy_beginning_time time DEFAULT NULL,
+	ADD COLUMN procure_prostatectomy_resection_time time DEFAULT NULL,
+	ADD COLUMN procure_surgeon_name varchar(100) DEFAULT null,
+	ADD COLUMN procure_sample_number varchar(50) DEFAULT null,
+	
+	ADD COLUMN procure_transfer_to_pathology_on_ice char(1) DEFAULT '',
+	ADD COLUMN procure_transfer_to_pathology_time time DEFAULT NULL,
+	
+	ADD COLUMN procure_arrival_in_pathology_time time DEFAULT NULL,
+	ADD COLUMN procure_pathologist_name varchar(100) DEFAULT null,
+	ADD COLUMN procure_report_number varchar(50) DEFAULT null,
+	ADD COLUMN procure_reference_to_biopsy_report char(1) DEFAULT '',
+	ADD COLUMN procure_ink_external_color varchar(50) DEFAULT null,
+	ADD COLUMN procure_prostate_slicing_beginning_time time DEFAULT NULL,
+	ADD COLUMN procure_number_to_slides_collected int(6) DEFAULT NULL,
+	ADD COLUMN procure_number_to_slides_collected_for_procure int(6) DEFAULT NULL,
+	ADD COLUMN procure_prostate_slicing_ending_time time DEFAULT NULL,
+	ADD COLUMN prostate_fixation_time time DEFAULT NULL,
+	ADD COLUMN procure_lymph_nodes_fixation_time time DEFAULT NULL,
+	ADD COLUMN procure_fixation_process_duration_hr int(6) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs
+	ADD COLUMN procure_tissue_identification varchar(50) DEFAULT null,
+	ADD COLUMN procure_prostatectomy_type varchar(50) DEFAULT null,
+	ADD COLUMN procure_prostatectomy_beginning_time time DEFAULT NULL,
+	ADD COLUMN procure_prostatectomy_resection_time time DEFAULT NULL,
+	ADD COLUMN procure_surgeon_name varchar(100) DEFAULT null,
+	ADD COLUMN procure_sample_number varchar(50) DEFAULT null,
+	
+	ADD COLUMN procure_transfer_to_pathology_on_ice char(1) DEFAULT '',
+	ADD COLUMN procure_transfer_to_pathology_time time DEFAULT NULL,
+	
+	ADD COLUMN procure_arrival_in_pathology_time time DEFAULT NULL,
+	ADD COLUMN procure_pathologist_name varchar(100) DEFAULT null,
+	ADD COLUMN procure_report_number varchar(50) DEFAULT null,
+	ADD COLUMN procure_reference_to_biopsy_report char(1) DEFAULT '',
+	ADD COLUMN procure_ink_external_color varchar(50) DEFAULT null,
+	ADD COLUMN procure_prostate_slicing_beginning_time time DEFAULT NULL,
+	ADD COLUMN procure_number_to_slides_collected int(6) DEFAULT NULL,
+	ADD COLUMN procure_number_to_slides_collected_for_procure int(6) DEFAULT NULL,
+	ADD COLUMN procure_prostate_slicing_ending_time time DEFAULT NULL,
+	ADD COLUMN prostate_fixation_time time DEFAULT NULL,
+	ADD COLUMN procure_lymph_nodes_fixation_time time DEFAULT NULL,
+	ADD COLUMN procure_fixation_process_duration_hr int(6) DEFAULT NULL;
+	
+UPDATE sample_controls SET detail_form_alias = 'procure_sd_spe_tissues,specimens' WHERE sample_type = 'tissue';
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_prostatectomy_types", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'procure prostatectomy types\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('procure prostatectomy types', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'procure prostatectomy types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('open surgery', 'Open surgery', 'Chirurgie ouverte', '1', @control_id, NOW(), NOW(), 1, 1),
+('laparascopy', 'Laparascopy', 'Laparascopie', '1', @control_id, NOW(), NOW(), 1, 1),
+('robot', 'Robot', 'Robot', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO structures(`alias`) VALUES ('procure_sd_spe_tissues');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_tissue_identification', 'input',  NULL , '0', 'size=30', '', '', 'tissue identification', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_prostatectomy_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_prostatectomy_types') , '0', '', '', '', 'prostatectomy type', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_prostatectomy_beginning_time', 'time',  NULL , '0', '', '', '', 'prostatectomy beginning time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_prostatectomy_resection_time', 'time',  NULL , '0', '', '', '', 'prostatectomy resection time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_surgeon_name', 'input',  NULL , '0', 'size=30', '', '', 'surgeon name', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_sample_number', 'input',  NULL , '0', 'size=30', '', '', 'sample number', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_transfer_to_pathology_on_ice', 'yes_no',  NULL , '0', '', '', '', 'transfer to pathology on ice', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_transfer_to_pathology_time', 'time',  NULL , '0', '', '', '', 'transfer to pathology time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_arrival_in_pathology_time', 'time',  NULL , '0', '', '', '', 'arrival in pathology time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_pathologist_name', 'input',  NULL , '0', 'size=30', '', '', 'pathologist name', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_report_number', 'input',  NULL , '0', 'size=30', '', '', 'report number', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_reference_to_biopsy_report', 'yes_no',  NULL , '0', '', '', '', 'reference to biopsy report', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_ink_external_color', 'input',  NULL , '0', 'size=30', '', '', 'ink external color', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_prostate_slicing_beginning_time', 'time',  NULL , '0', '', '', '', 'prostate slicing beginning time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_number_to_slides_collected', 'integer_positive',  NULL , '0', 'size=6', '', '', 'number to slides collected', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_number_to_slides_collected_for_procure', 'integer_positive',  NULL , '0', 'size=6', '', '', 'number to slides collected for procure', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_prostate_slicing_ending_time', 'time',  NULL , '0', '', '', '', 'prostate slicing ending time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'prostate_fixation_time', 'time',  NULL , '0', '', '', '', 'prostate fixation time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_lymph_nodes_fixation_time', 'time',  NULL , '0', '', '', '', 'lymph nodes fixation time', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'procure_fixation_process_duration_hr', 'integer_positive',  NULL , '0', '', '', '', 'fixation process duration hr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_tissue_identification' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='tissue identification' AND `language_tag`=''), '1', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_prostatectomy_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_prostatectomy_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostatectomy type' AND `language_tag`=''), '1', '452', 'prostatectomy', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_prostatectomy_beginning_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostatectomy beginning time' AND `language_tag`=''), '1', '453', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_prostatectomy_resection_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostatectomy resection time' AND `language_tag`=''), '1', '454', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_surgeon_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='surgeon name' AND `language_tag`=''), '1', '455', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_sample_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sample number' AND `language_tag`=''), '1', '456', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_transfer_to_pathology_on_ice' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='transfer to pathology on ice' AND `language_tag`=''), '1', '457', 'handling from operating room', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_transfer_to_pathology_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='transfer to pathology time' AND `language_tag`=''), '1', '458', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_arrival_in_pathology_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='arrival in pathology time' AND `language_tag`=''), '1', '459', 'arrival in pathology', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_pathologist_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='pathologist name' AND `language_tag`=''), '1', '460', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_report_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='report number' AND `language_tag`=''), '1', '461', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_reference_to_biopsy_report' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reference to biopsy report' AND `language_tag`=''), '1', '462', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_ink_external_color' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='ink external color' AND `language_tag`=''), '1', '463', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_prostate_slicing_beginning_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostate slicing beginning time' AND `language_tag`=''), '1', '464', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_number_to_slides_collected' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='number to slides collected' AND `language_tag`=''), '1', '465', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_number_to_slides_collected_for_procure' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='number to slides collected for procure' AND `language_tag`=''), '1', '466', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_prostate_slicing_ending_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostate slicing ending time' AND `language_tag`=''), '1', '467', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='prostate_fixation_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostate fixation time' AND `language_tag`=''), '1', '468', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_lymph_nodes_fixation_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph nodes fixation time' AND `language_tag`=''), '1', '469', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='procure_fixation_process_duration_hr' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fixation process duration hr' AND `language_tag`=''), '1', '470', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('tissue identification', 'Identification', 'Identification'),
+
+('prostatectomy', 'Prostatectomy', 'Prostatectomie'),
+('prostatectomy type', 'Type (prostatectomy)', 'Type (prostatectomie)'),
+('prostatectomy beginning time', 'Beginning of prostatectomy', 'Début de la chirurgie'),
+('prostatectomy resection time', 'Resection of prostate', 'Résection de la prostate'),
+('sample number', 'Sample number (N/A if not applicable)', 'Numéro d''échantillon (N/A si non applicable)'),
+('surgeon name', 'First/Last name of surgeon', 'Prénom/Nom du chirurgien'),
+
+('handling from operating room', 'Handling from operating room', 'Prise en charge de la salle d''opération'),
+('transfer to pathology on ice', 'Transfer to pathology on ice', 'Transfert en pathologie sur glace'),
+('transfer to pathology time', 'Time (transfer to pathology)', 'Heure (transfert en pathologie)'),
+
+('arrival in pathology', 'Arrival in pathology', 'Réception en pathologie'),
+('arrival in pathology time', 'Time (arrival in pathology)', 'Heure (réception en pathologie)'),
+('report number', 'Report#', 'Num. rapport'),
+('reference to biopsy report', 'Reference to biopsy report', 'Référence au rapport de biopsie'),
+('ink external color', 'Ink/External color', 'Encre/Couleur externe'),
+('prostate slicing beginning time', 'Beginning of prostate slicing', 'Début de la coupe de la prostate'),
+('number to slides collected', 'Total number to slides collected', 'Nombre de tranches prélevées'),
+('number to slides collected for procure', 'Number to slides collected for Procure', 'Nombre de tranches prélevées pour Procure'),
+('prostate slicing ending time', 'Ending time of prostate slicing', 'Fin de la coupe de la prostate'),
+('prostate fixation time', 'Prostate fixation', 'Fixation prostate'),
+('lymph nodes fixation time', 'Lymph nodes fixation', 'Fixation des ganglions'),
+('fixation process duration hr', 'Duration of fixation process (hr)', 'Durée du processus de fixation (hr)');
+
+UPDATE structure_formats SET display_column = 2 WHERE display_column = 1 
+AND structure_id IN (SELECT id FROM structures WHERE alias IN ('sample_masters','view_sample_joined_to_collection','sd_spe_bloods','specimens','derivatives','sd_spe_urines','procure_sd_spe_tissues','sd_undetailed_derivatives','sd_der_plasmas','sd_der_serums'));
+
+UPDATE structure_formats SET display_column = 1 WHERE display_column = 2 AND display_order < 459 AND structure_id = (SELECT id FROM structures WHERE alias = 'procure_sd_spe_tissues');
+
+INSERT INTO i18n (id,en,fr) VALUES ('quick procure collection creation button', 'Collection (F3-9,10,11,13,14)', 'Collection (F3-9,10,11,13,14)');
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='block_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="OCT" AND language_alias="oct solution");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='block_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="paraffin" AND language_alias="paraffin");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='block_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="frozen" AND language_alias="frozen");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("ISO", "ISO"),("ISO+OCT", "ISO+OCT");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="block_type"), (SELECT id FROM structure_permissible_values WHERE value="ISO" AND language_alias="ISO"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="block_type"), (SELECT id FROM structure_permissible_values WHERE value="ISO+OCT" AND language_alias="ISO+OCT"), "4", "1");
+
+INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='block_type'), 'notEmpty');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE ad_blocks
+	ADD COLUMN procure_freezing_ending_time time DEFAULT null,
+	ADD COLUMN procure_origin_of_slice varchar(50) DEFAULT null,
+	ADD COLUMN procure_dimensions varchar(50) DEFAULT null,
+	ADD COLUMN time_spent_collection_to_freezing_end_mn int(6) DEFAULT null;
+ALTER TABLE ad_blocks_revs
+	ADD COLUMN procure_freezing_ending_time time DEFAULT null,
+	ADD COLUMN procure_origin_of_slice varchar(50) DEFAULT null,
+	ADD COLUMN procure_dimensions varchar(50) DEFAULT null,
+	ADD COLUMN time_spent_collection_to_freezing_end_mn int(6) DEFAULT null;	
+		
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='freezing type' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='block_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='block_type') AND `flag_confidential`='0');
+	
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_slice_origins", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'procure _slice origins\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('procure _slice origins', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'procure _slice origins');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('RA', 'RA', 'RA', '1', @control_id, NOW(), NOW(), 1, 1),
+('RP', 'RP', 'RP', '1', @control_id, NOW(), NOW(), 1, 1),
+('LA', 'LA', 'LA', '1', @control_id, NOW(), NOW(), 1, 1),
+('LP', 'LP', 'LP', '1', @control_id, NOW(), NOW(), 1, 1);	
+	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'procure_freezing_ending_time', 'time',  NULL , '0', '', '', '', 'freezing ending time', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'procure_origin_of_slice', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_slice_origins') , '0', '', '', '', 'origin of slice', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'procure_dimensions', 'input',  NULL , '0', 'size=10', '', '', 'dimensions', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'time_spent_collection_to_freezing_end_mn', 'integer',  NULL , '0', '', '', '', 'time spent collection to freezing end mn', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_freezing_ending_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='freezing ending time' AND `language_tag`=''), '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_origin_of_slice' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_slice_origins')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='origin of slice' AND `language_tag`=''), '1', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_dimensions' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='dimensions' AND `language_tag`=''), '1', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='time_spent_collection_to_freezing_end_mn' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='time spent collection to freezing end mn' AND `language_tag`=''), '1', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+("ISO+OCT","ISO+OCT","ISO+OCT"),
+("ISO","ISO","ISO"),
+('freezing type', 'Freezing type', 'Type de congélation'),
+('freezing ending time', 'Freezing ending time', 'Heure fin congélation'),
+('origin of slice', 'Origin of slice', 'Origine de la tranche'),	
+('dimensions', 'Dimensions', 'Dimensions'),
+('time spent collection to freezing end mn', 'Time spent between collection and freezing end (mn)', 'Temps écoulé entre la collection et la fin de congélation (mn)');
+
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='freezing ending time' WHERE model='AliquotDetail' AND tablename='ad_blocks' AND field='procure_freezing_ending_time' AND `type`='time' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_column`='0', `display_order`='1001' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_freezing_ending_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ===============================================================================================================================================================================
+-- ===============================================================================================================================================================================
+
+UPDATE specimen_review_controls SET flag_active = 0;
+UPDATE aliquot_review_controls SET flag_active = 0;
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('FamilyHistory','ParticipantContact','ParticipantMessage','ReproductiveHistory','SpecimenReviewMaster'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('FamilyHistory','ParticipantContact','ParticipantMessage','ReproductiveHistory','SpecimenReviewMaster'));
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/Adhocs/%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/%';
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Sop/%';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
