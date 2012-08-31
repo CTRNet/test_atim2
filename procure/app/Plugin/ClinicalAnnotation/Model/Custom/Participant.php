@@ -15,24 +15,24 @@ class ParticipantCustom extends Participant {
 	}
 	
 	function buildAddProcureFormsButton($participant_id) {
-		$add_links = array();
+		$add_links = array(__('quick procure collection creation button') => array('link'=> '/ClinicalAnnotation/ClinicalCollectionLinks/add/'.$participant_id, 'icon' => 'collection'));
 		
 		$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentControl", true);
 		$consent_controls_list = $consent_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($consent_controls_list as $consent_control) {
-			$add_links[__($consent_control['ConsentControl']['controls_type'])] = '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/';
+			$add_links[__($consent_control['ConsentControl']['controls_type'])] = array('link'=> '/ClinicalAnnotation/ConsentMasters/add/'.$participant_id.'/'.$consent_control['ConsentControl']['id'].'/', 'icon' => 'participant');
 		}
 		
 		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
 		$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($event_controls_list as $event_ctrl) {
-			$add_links[__($event_ctrl['EventControl']['event_type'])] = '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/';
+			$add_links[__($event_ctrl['EventControl']['event_type'])] = array('link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 'icon' => 'participant');
 		}	
 		
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($tx_controls_list as $treatment_control) {
-			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/';
+			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
 		}		
 
 		ksort($add_links);	
