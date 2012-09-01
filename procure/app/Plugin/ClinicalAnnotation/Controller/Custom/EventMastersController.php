@@ -13,6 +13,10 @@ class EventMastersControllerCustom extends EventMastersController {
 		$event_control_data = $this->EventControl->getOrRedirect($event_control_id);
 		$event_group = $event_control_data['EventControl']['event_group'];
 			
+		if(!in_array($event_control_data['EventControl']['event_type'], array('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event'))) {
+			$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+		}
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
