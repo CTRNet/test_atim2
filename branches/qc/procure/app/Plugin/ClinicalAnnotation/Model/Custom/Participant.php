@@ -26,13 +26,16 @@ class ParticipantCustom extends Participant {
 		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
 		$event_controls_list = $event_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($event_controls_list as $event_ctrl) {
-			$add_links[__($event_ctrl['EventControl']['event_type'])] = array('link'=> '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 'icon' => 'participant');
+			$add_function = (in_array($event_ctrl['EventControl']['event_type'], array('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event')))? 'addInBatch' : 'add';
+			$add_links[__($event_ctrl['EventControl']['event_type'])] = array('link'=> '/ClinicalAnnotation/EventMasters/'.$add_function.'/'.$participant_id.'/'.$event_ctrl['EventControl']['id'].'/', 'icon' => 'participant');
 		}	
 		
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($tx_controls_list as $treatment_control) {
-			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
+			
+			$add_function = ($treatment_control['TreatmentControl']['tx_method'] == 'procure follow-up worksheet - treatment')? 'addInBatch' : 'add';			
+			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/'.$add_function.'/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
 		}		
 
 		ksort($add_links);	
