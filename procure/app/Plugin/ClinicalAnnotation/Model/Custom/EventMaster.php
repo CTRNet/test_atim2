@@ -139,9 +139,10 @@ class EventMasterCustom extends EventMaster {
 	//control pas de delection du suivi si lié a APS, trt, etc
 	
 	function getFollowupIdentificationFromId($participant_id) {
-		$res = array('' => '');
+		$res = array();
+		$res[''] = 'N/A';
 		if($participant_id) {
-			$tmp_res =$this->find('all', array('conditions' => array('EventControl.event_type' => 'procure follow-up worksheet', 'EventMaster.participant_id' => $participant_id), 'recursive' => '0'));
+			$tmp_res =$this->find('all', array('conditions' => array('EventControl.event_type' => 'procure follow-up worksheet', 'EventMaster.participant_id' => $participant_id), 'order' => array('EventMaster.event_date DESC, EventMaster.modified DESC'), 'recursive' => '0'));
 			foreach($tmp_res as $new_res) $res[$new_res['EventMaster']['id']] = $new_res['EventMaster']['procure_form_identification'].' ('.$new_res['EventMaster']['event_date'].')';
 		}
 		return $res;

@@ -215,6 +215,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_aps'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', 'comments', '1', 'comments', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `field`='total_ngml'), 'notEmpty');
 
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_aps') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='followup_event_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_aps') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- ********************* clinical event **************************************
 
 INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
@@ -266,6 +269,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', 'comments', '1', 'interpretation', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='exam' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='type'), 'notEmpty');
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='followup_event_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_event') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_clinical_events' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_exam_types') AND `flag_confidential`='0');
 
 -- ********************* Treatment **************************************
 
@@ -357,10 +364,11 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('clinical recurrence','Clinical Recurrence','Récidive clinique'),
 ('site','Site','Site'),
 ('interpretation','Interpretation','Interprétation'),
-('procure follow-up worksheet - treatment', "F1 - Follow-up Worksheet :: Medical Treatments","F1 - Fiche de suivi du patient :: Traitements médicaux"),
+('procure follow-up worksheet - treatment', "F1 - Follow-up Worksheet :: Treatments","F1 - Fiche de suivi du patient :: Traitements"),
 ('dosage','Dosage','Posologie'),
 ('treatment type','Treatment Type','Type de traitement'),
-('surgery for metastases','Surgery for Metastases','Chirurgie pour métastases');
+('surgery for metastases','Surgery for Metastases','Chirurgie pour métastases'),
+('at least one record has to be created','At least one record has to be created','Au moins une donnée doit être créée');
 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
@@ -612,6 +620,9 @@ INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_struct
 (21, 1, 1, 1, 4, 1),
 (22, 1, 1, 5, 15, 1),
 (23, 22, 1, 1, 14, 2);
+
+UPDATE structure_formats SET flag_add= '0', flag_add_readonly= '0', flag_edit= '0', flag_edit_readonly= '0', flag_search= '0', flag_search_readonly= '0', flag_addgrid= '0', flag_addgrid_readonly= '0', flag_editgrid= '0', flag_editgrid_readonly= '0', flag_batchedit= '0', flag_batchedit_readonly= '0', flag_index= '0', flag_detail= '0', flag_summary= '0' 
+WHERE structure_id = (SELECT id FROM structures WHERE `alias`='template_init_structure');
 
 -- ******************* INVENTORY CONFIGURATION *********************************************
 
@@ -1111,20 +1122,6 @@ OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('FamilyHistory','P
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/Adhocs/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/%';
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Sop/%';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
