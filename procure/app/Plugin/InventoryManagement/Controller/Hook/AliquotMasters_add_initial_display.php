@@ -10,6 +10,7 @@
 		$label = '-?';
 		$default_in_stock_value = 'yes - available';
 		$default_volume = '';
+		$default_concentration_unit = '';
 			
 		$default_storage_datetime = ($sample_data['SampleControl']['sample_category'] == 'specimen')?  $sample_data['SpecimenDetail']['reception_datetime'] : $sample_data['DerivativeDetail']['creation_datetime'];
 		$default_storage_datetime_accuracy = 'h';
@@ -70,6 +71,16 @@
 				
 			case 'tissue-block':
 				$label = '-FRZ';
+				break;	
+				
+			//--------------------------------------------------------------------------------
+			//  RNA
+			//--------------------------------------------------------------------------------
+				
+			case 'rna-tube':
+				$label = '-RNA';
+				$default_concentration_unit = 'ng/ul';
+				if(is_null($template_init_id) && sizeof($new_sample_record['children']) == 1) $new_sample_record['children'][1] = $new_sample_record['children'][0];				
 				break;		
 									
 			default:
@@ -85,6 +96,7 @@
 				$new_aliquot['AliquotMaster']['barcode'] = $participant_identifier . ' ' . $visite . ' ' . $label.$counter;
 				$new_aliquot['AliquotMaster']['in_stock'] = $default_in_stock_value;
 				if($default_volume) $new_aliquot['AliquotMaster']['initial_volume'] = $default_volume;
+				if($default_concentration_unit) $new_aliquot['AliquotDetail']['concentration_unit'] = $default_concentration_unit;
 				$new_aliquot['AliquotMaster']['storage_datetime'] = $default_storage_datetime;
 				$new_aliquot['AliquotMaster']['storage_datetime_accuracy'] = $default_storage_datetime_accuracy;
 				
