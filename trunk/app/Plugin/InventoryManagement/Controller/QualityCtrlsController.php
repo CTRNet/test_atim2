@@ -329,8 +329,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->request->data = $display_data;
 			}
 		}else{
-			//probably a direct access, not supposed to do that
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;
 		}
 	}
 	
