@@ -30,7 +30,7 @@ UPDATE structure_formats SET `flag_override_help`='0', `language_help`='', `flag
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='secondary_cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='title' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='person title') AND `flag_confidential`='0');
 
-INSERT INTO `procure`.`misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`) 
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`) 
 VALUES 
 (NULL, 'RAMQ', '1', '1', '1', '1'),
 (NULL, 'hospital number', '1', '1', '1', '1');
