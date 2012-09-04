@@ -778,6 +778,18 @@ VALUES ('expiration date','Expiration date','Date d''expiration');
 	
 UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_tube_weight') WHERE aliquot_type = 'tube' AND sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood') AND flag_active = 1;
+ALTER TABLE ad_tubes
+	ADD COLUMN procure_tube_weight_gr decimal(8,2) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+	ADD COLUMN procure_tube_weight_gr decimal(8,2) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('procure_tube_weight');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_tube_weight_gr', 'float_positive',  NULL , '0', 'size=6', '', '', 'tube weight gr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_tube_weight'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_tube_weight_gr' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='tube weight gr' AND `language_tag`=''), '1', '1199', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0');
+REPLACE INTO i18n (id,en,fr) VALUES ('tube weight gr','Weight of tube (gr)','Poids du tube (gr)');
+
 -- ******************* URINE *********************************************
 
 ALTER TABLE `aliquot_controls`	
@@ -1116,6 +1128,111 @@ UPDATE structure_fields SET  `language_label`='',  `language_tag`='freezing endi
 UPDATE structure_formats SET `display_column`='0', `display_order`='1001' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_freezing_ending_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ******************* RNA *********************************************
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(118);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(133, 20, 13, 15, 17, 113, 125, 110, 128, 8);
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='concentration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='concentration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit') AND `flag_confidential`='0');
+
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_total_quantity_ug') WHERE aliquot_type = 'tube' AND sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna') AND flag_active = 1;
+ALTER TABLE ad_tubes
+	ADD COLUMN procure_total_quantity_ug decimal(8,2) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+	ADD COLUMN procure_total_quantity_ug decimal(8,2) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('procure_total_quantity_ug');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_total_quantity_ug', 'float_positive',  NULL , '0', 'size=6', '', '', 'total quantity ug', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_total_quantity_ug'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_total_quantity_ug' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_tag`=''), '1', '1199', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '0', '0');
+REPLACE INTO i18n (id,en,fr) VALUES ('total quantity ug','Total Quantity (ug)','Quantité totale (ug)');
+
+UPDATE structure_fields SET  `language_label`='used aliquot type' WHERE model='AliquotControl' AND tablename='aliquot_controls' AND field='aliquot_type' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_type_precision' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='aliquot_type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='quality_control_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="pcr" AND language_alias="pcr");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='quality_control_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="agarose gel" AND language_alias="agarose gel");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='quality_control_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="immunohistochemistry" AND language_alias="immunohistochemistry");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("nanodrop", "nanodrop");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_type"), (SELECT id FROM structure_permissible_values WHERE value="nanodrop" AND language_alias="nanodrop"), "", "1");
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='tool' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_qc_tool') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='conclusion' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_conclusion') AND `flag_confidential`='0');
+
+INSERT INTO `structure_validations` (`structure_field_id` , `rule` ) VALUES ((SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `field`='type'), 'notEmpty');
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="quality_control_unit"), (SELECT id FROM structure_permissible_values WHERE value="ng/ul" AND language_alias="ng/ul"), "", "1");
+
+ALTER TABLE quality_ctrls
+	ADD COLUMN procure_appended_spectras varchar(250) DEFAULT null,
+	
+	ADD COLUMN procure_shippment_to_crn_date date DEFAULT NULL,
+	ADD COLUMN procure_shippment_to_crn_date_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN procure_shippment_to_crn_by varchar(50) DEFAULT null,
+
+	ADD COLUMN procure_arrival_at_crn_date date DEFAULT NULL,
+	ADD COLUMN procure_arrival_at_crn_date_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN procure_arrival_at_crn_by varchar(50) DEFAULT null,	
+	
+	ADD COLUMN procure_analysis_by varchar(50) DEFAULT null,	
+	
+	ADD COLUMN procure_return_to_site_date date DEFAULT NULL,
+	ADD COLUMN procure_return_to_site_date_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN procure_return_to_site_by varchar(50) DEFAULT null;
+
+ALTER TABLE quality_ctrls_revs
+	ADD COLUMN procure_appended_spectras varchar(250) DEFAULT null,
+	
+	ADD COLUMN procure_shippment_to_crn_date date DEFAULT NULL,
+	ADD COLUMN procure_shippment_to_crn_date_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN procure_shippment_to_crn_by varchar(50) DEFAULT null,
+
+	ADD COLUMN procure_arrival_at_crn_date date DEFAULT NULL,
+	ADD COLUMN procure_arrival_at_crn_date_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN procure_arrival_at_crn_by varchar(50) DEFAULT null,	
+	
+	ADD COLUMN procure_analysis_by varchar(50) DEFAULT null,	
+	
+	ADD COLUMN procure_return_to_site_date date DEFAULT NULL,
+	ADD COLUMN procure_return_to_site_date_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN procure_return_to_site_by varchar(50) DEFAULT null;
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='qualityctrls')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'quality_ctrls' AND field LIKE 'procure_%');
+DELETE FROM structure_fields WHERE tablename = 'quality_ctrls' AND field LIKE 'procure_%';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_appended_spectras', 'input',  NULL , '0', 'size=30', '', '', 'procure appended spectras', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_shippment_to_crn_date', 'date',  NULL , '0', '', '', '', 'procure shippment to crn date', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_shippment_to_crn_by', 'input',  NULL , '0', 'size=30', '', '', '', 'procure shippment to crn by'), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_arrival_at_crn_date', 'date',  NULL , '0', '', '', '', 'procure arrival at crn date', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_arrival_at_crn_by', 'input',  NULL , '0', 'size=30', '', '', '', 'procure arrival at crn by'), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_analysis_by', 'input',  NULL , '0', 'size=30', '', '', 'procure analysis by', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_return_to_site_date', 'date',  NULL , '0', '', '', '', 'procure return to site date', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'procure_return_to_site_by', 'input',  NULL , '0', 'size=30', '', '', '', 'procure return to site by');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_appended_spectras' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='procure appended spectras' AND `language_tag`=''), '0', '23', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_shippment_to_crn_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procure shippment to crn date' AND `language_tag`=''), '1', '55', 'expedition', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_shippment_to_crn_by' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='procure shippment to crn by'), '1', '56', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_arrival_at_crn_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procure arrival at crn date' AND `language_tag`=''), '1', '57', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_arrival_at_crn_by' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='procure arrival at crn by'), '1', '58', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_analysis_by' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='procure analysis by' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_return_to_site_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procure return to site date' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='procure_return_to_site_by' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='procure return to site by'), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '1', '0', '0');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('expedition','Expedition','Expédition'),
+('procure appended spectras', 'Appended Spectras', 'Spectres joints'),
+('procure shippment to crn date', 'Shippment to CRN', 'Expédition au RRC'),
+('procure shippment to crn by', 'Shipped by', 'Envoyé par'),
+('procure arrival at crn date', 'Arrival at CRN', 'Réception au RRC'),
+('procure arrival at crn by', 'Made by', 'Effectué par'),
+('procure analysis by', 'Analysed by', 'Analysé par'),
+('procure return to site date', 'Return of results to site', 'Retour des résultats au site'),
+('procure return to site by', 'Made by', 'Effectué par');
 
 -- ===============================================================================================================================================================================
 -- ===============================================================================================================================================================================

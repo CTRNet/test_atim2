@@ -35,7 +35,7 @@
 				$this->ViewCollection = AppModel::getInstance("InventoryManagement", "ViewCollection", true);
 				$collection = $this->ViewCollection->find('first', array('conditions' => array('ViewCollection.collection_id' => $collection_id), 'recursive' => '-1'));
 			
-				$this->request->data['SpecimenDetail']['reception_datetime'] = $collection['$ViewCollection']['collection_datetime'];
+				$this->request->data['SpecimenDetail']['reception_datetime'] = $collection['ViewCollection']['collection_datetime'];
 				$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = 'h';
 				
 				$this->request->data['SampleDetail']['blood_type'] = 'serum';
