@@ -2,6 +2,9 @@
 
 class ViewStorageMaster extends StorageLayoutAppModel {
 	
+	var $base_model = "StorageMaster";
+	var $base_plugin = 'StorageLayout';
+	
 	var $belongsTo = array(       
 		'StorageControl' => array(           
 			'className'    => 'StorageLayout.StorageControl',            

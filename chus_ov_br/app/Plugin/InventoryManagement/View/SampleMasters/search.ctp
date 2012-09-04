@@ -2,7 +2,7 @@
 	$structure_links = array(
 		'index' => array('detail' => '/InventoryManagement/SampleMasters/detail/%%ViewSample.collection_id%%/%%ViewSample.sample_master_id%%'),
 		'bottom' => array(
-			'add collection' => '/InventoryManagement/collections/add' 
+			'add collection' => '/InventoryManagement/Collections/add' 
 		)
 	);
 	
