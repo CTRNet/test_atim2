@@ -231,10 +231,15 @@ class SampleMaster extends InventoryManagementAppModel {
 	 */	
 	function formatParentSampleDataForDisplay($parent_sample_data) {
 		$formatted_data = array();
-		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
-			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+		if(!empty($parent_sample_data)) {
+			if(isset($parent_sample_data['SampleMaster'])) {
+				$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+			} else if(isset($parent_sample_data[0]['ViewSample'])){
+				foreach($parent_sample_data as $new_parent) {
+					$formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['sample_code'] . ' [' . __($new_parent['ViewSample']['sample_type'], TRUE) . ']';
+				}
+			}
 		}
-		
 		return $formatted_data;
 	}
 	

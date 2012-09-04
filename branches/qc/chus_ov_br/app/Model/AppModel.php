@@ -687,7 +687,7 @@ class AppModel extends Model {
 		}
 		if($instance === false && $error_view_on_null){
 			pr(AppController::getStackTrace());
-			die('died in AppModel::getInstance ['.$plugin_name.$class_name.']');//TODO: remove me!
+			die('died in AppModel::getInstance ['.$plugin_name.$class_name.'] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');//TODO: remove me!
 			AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
 		}
 		
@@ -1257,6 +1257,7 @@ class AppModel extends Model {
 			if(Configure::read('debug') > 0){
 				pr('QUERY ERROR:');
 				pr($sql);
+				pr(AppController::getStackTrace());
 				exit;
 			} else {
 				AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );

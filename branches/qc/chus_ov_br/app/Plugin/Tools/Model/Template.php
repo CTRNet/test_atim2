@@ -78,12 +78,12 @@ class Template extends AppModel {
 		$visible_nodes = $this->findVisibleNodes();
 		$options['empty template'] = array(
 					'icon' => 'add',
-					'link' => '/InventoryManagement/collections/template/'.$collection_id.'/0'
+					'link' => '/InventoryManagement/Collections/template/'.$collection_id.'/0'
 		);
 		foreach($visible_nodes as $template){
 			$options[$template['Template']['name']] = array(
 				'icon' => 'template',
-				'link' => '/InventoryManagement/collections/template/'.$collection_id.'/'.$template['Template']['id']
+				'link' => '/InventoryManagement/Collections/template/'.$collection_id.'/'.$template['Template']['id']
 			);
 		}
 		

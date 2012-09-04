@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'bottom' => array(
-			'add collection' => '/InventoryManagement/collections/add'
+			'add collection' => '/InventoryManagement/Collections/add'
 		)
 	);
 
