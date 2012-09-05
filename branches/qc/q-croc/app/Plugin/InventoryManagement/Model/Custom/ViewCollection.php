@@ -8,7 +8,7 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
-Collection.qcroc_sop_followed AS qcroc_sop_followed,
+-- Collection.qcroc_sop_followed AS qcroc_sop_followed,
 		Collection.participant_id AS participant_id,
 		Collection.diagnosis_master_id AS diagnosis_master_id,
 		Collection.consent_master_id AS consent_master_id,
