@@ -45,7 +45,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	/* ----------------------------- ALIQUOT MASTER ----------------------------- */
 	
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		
 		$this->searchHandler($search_id, $this->ViewAliquot, 'view_aliquot_joined_to_sample_and_collection', '/InventoryManagement/AliquotMasters/search');
 
@@ -2432,7 +2432,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function editInBatch(){
-		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		$this->Structures->set('aliquot_master_edit_in_batchs');
 		
 		if(isset($this->request->data['aliquot_ids'])){

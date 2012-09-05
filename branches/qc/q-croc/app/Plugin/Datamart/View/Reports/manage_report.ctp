@@ -8,10 +8,10 @@
 		
 		$structure_links = array(
 			'top'=>array(
-				'search'=>'/Datamart/reports/manageReport/' . $atim_menu_variables['Report.id']),
+				'search'=>'/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id']),
 			'bottom'=>array(
-				'reload form' => '/Datamart/reports/manageReport/' . $atim_menu_variables['Report.id'],
-				'cancel'=>'/Datamart/reports/index/')
+				'reload form' => '/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id'],
+				'cancel'=>'/Datamart/Reports/index/')
 		);
 		
 		$structure_override = array();	
@@ -48,11 +48,11 @@
 		
 			$structure_links = array(
 				'bottom'=>array(
-					'export as CSV file (comma-separated values)'=>'/Datamart/reports/manageReport/' . $atim_menu_variables['Report.id'].'/'.true,
-					'list'=>'/Datamart/reports/index/')
+					'export as CSV file (comma-separated values)'=>'/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id'].'/'.true,
+					'list'=>'/Datamart/Reports/index/')
 			);
 			if($display_new_search){
-				$structure_links['bottom']['new search'] = array('link' => '/Datamart/reports/manageReport/' . $atim_menu_variables['Report.id'], 'icon' => 'search');
+				$structure_links['bottom']['new search'] = array('link' => '/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id'], 'icon' => 'search');
 			}
 			
 			$structure_override = array();	
