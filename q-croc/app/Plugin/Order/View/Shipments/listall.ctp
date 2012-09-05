@@ -2,11 +2,11 @@
 	$structure_links = array(
 		'top'=>null,
 		'index'=> array(
-			'detail' => '/Order/shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/',
-			'add items to shipment' => array('link'=> '/Order/shipments/addToShipment/%%Shipment.order_id%%/%%Shipment.id%%/', 'icon' => 'add_to_shipment'),
-			'delete' => '/Order/shipments/delete/%%Shipment.order_id%%/%%Shipment.id%%/'),
+			'detail' => '/Order/Shipments/detail/%%Shipment.order_id%%/%%Shipment.id%%/',
+			'add items to shipment' => array('link'=> '/Order/Shipments/addToShipment/%%Shipment.order_id%%/%%Shipment.id%%/', 'icon' => 'add_to_shipment'),
+			'delete' => '/Order/Shipments/delete/%%Shipment.order_id%%/%%Shipment.id%%/'),
 		'bottom'=>array(
-			'add'=>'/Order/shipments/add/'.$atim_menu_variables['Order.id'].'/'
+			'add'=>'/Order/Shipments/add/'.$atim_menu_variables['Order.id'].'/'
 		)
 	);
 	
