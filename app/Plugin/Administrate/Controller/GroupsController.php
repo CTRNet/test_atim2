@@ -38,7 +38,7 @@ class GroupsController extends AdministrateAppController {
 					$this->Aro->id = $aro_data['Aro']['id'];
 					$this->Aro->save($aro_data);
 					
-					$this->atimFlash('your data has been saved', '/Administrate/permissions/tree/'.$group_id);
+					$this->atimFlash('your data has been saved', '/Administrate/Permissions/tree/'.$group_id);
 				}
 			}else{
 				$this->Group->validationErrors['name'][] = 'this name is already in use';

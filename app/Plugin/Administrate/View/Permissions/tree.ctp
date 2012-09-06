@@ -31,7 +31,7 @@
 ?>
 <script>
 	var treeView = true;
-	var permissionPreset = <?php echo AppController::checkLinkPermission('/Administrate/permissions/loadPreset/') ? "true" : "false" ?>;
+	var permissionPreset = <?php echo AppController::checkLinkPermission('/Administrate/Permissions/loadPreset/') ? "true" : "false" ?>;
 
 	function loadPresetFrame(){
 		$("#frame").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");

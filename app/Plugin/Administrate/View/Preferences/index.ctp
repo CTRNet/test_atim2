@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/Administrate/preferences/edit/'.$atim_menu_variables['Group.id'].'/'.$atim_menu_variables['User.id']
+			'edit'=>'/Administrate/Preferences/edit/'.$atim_menu_variables['Group.id'].'/'.$atim_menu_variables['User.id']
 		)
 	);
 	
