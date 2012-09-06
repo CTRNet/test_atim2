@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/rtbform/rtbforms/edit/%%Rtbform.id%%/',
+		'top'=>'/rtbform/rtbforms/edit/'.$atim_menu_variables['Rtbform.id'],
 		'bottom'=>array(
-			'cancel'=>'/rtbform/rtbforms/profile/%%Rtbform.id%%/'
+			'cancel'=>'/rtbform/rtbforms/profile/'.$atim_menu_variables['Rtbform.id']
 		)
 	);
 	
