@@ -6,11 +6,10 @@ class Config{
 	//Configure as needed-------------------
 	//db config
 	static $db_ip			= "127.0.0.1";
-	
-	static $db_port 		= "8889";
+	static $db_port 		= "3306";
 	static $db_user 		= "root";
-	static $db_pwd			= "root";
-	static $db_schema		= "atim_tf_coeur2";
+	static $db_pwd			= "";
+	static $db_schema		= "coeur";
 	
 // 	static $db_port 		= "3306";
 // 	static $db_user 		= "root";
@@ -21,12 +20,14 @@ class Config{
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
 	
 	static $timezone		= "America/Montreal";
+	static $use_windows_xls_offset = true;
 	
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
 	
- 	static $xls_file_path = '/Users/francois-michellheureux/Documents/CTRNet/Terry Fox/COEUR todo/COEUR#2 -v3.0 2011-09-01.xls';
+ 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-CHUS -v3.0 2012-08-17_revised.xls";
+ 	                        
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
@@ -67,6 +68,8 @@ class Config{
 	static $tissue_source = array();
 	
 	static $identifiers = array();
+	
+	static $line_break_tag = '<br>';
 }
 
 //add you start queries here
@@ -98,7 +101,7 @@ Config::$parent_models[] = "participants";
 Config::$parent_models[] = "collections";
 
 //add your configs
-$relative_path = '../atim_tf_coeur/dataImporterConfig/tablesMapping/';
+$relative_path = '../tfri_coeur/dataImporterConfig/tablesMapping/';
 Config::$config_files[] = $relative_path.'participants.php';
 Config::$config_files[] = $relative_path.'qc_tf_dxd_eocs.php';
 Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_no_site.php';
@@ -121,6 +124,14 @@ function mainDxCondition(Model $m){
 }
 
 function addonFunctionStart(){
+	$file_path = Config::$xls_file_path;
+	echo "<br><FONT COLOR=\"green\" >
+	=====================================================================<br>
+	DATA EXPORT PROCESS : COEUR<br>
+	source_file = $file_path<br>
+	<br>=====================================================================
+	</FONT><br>";
+	
 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
