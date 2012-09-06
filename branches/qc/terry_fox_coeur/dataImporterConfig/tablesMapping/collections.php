@@ -21,7 +21,6 @@ function postCollectionRead(Model $m){
 }
 
 function postCollectionWrite(Model $m){
-	global $connection;
 	$created = array(
 		"created"		=> "NOW()", 
 		"created_by"	=> Config::$db_created_id, 
@@ -48,10 +47,10 @@ function postCollectionWrite(Model $m){
 		);
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$sample_master_id = mysqli_insert_id($connection);
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		$sample_master_id = mysqli_insert_id(Config::$db_connection);
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('T - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$lat_domain = Config::$value_domains['tissue_laterality'];
@@ -82,13 +81,13 @@ function postCollectionWrite(Model $m){
 		);
 		//$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sd_spe_tissues (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sd_spe_tissues', $sample_master_id);
 		
 		$insert = array("sample_master_id" => $sample_master_id);
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('specimen_details', $sample_master_id);
 		
 		//	*** TISSUE : flash frozen tube ***
@@ -140,14 +139,14 @@ function postCollectionWrite(Model $m){
 			while($tubes_nbr) {
 				$insert = array_merge($master_insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$detail_insert["aliquot_master_id"] = $aliquot_master_id;
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($detail_insert)).") VALUES (".implode(", ", array_values($detail_insert)).")";
 				$insert = array_merge($insert, $created);
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('ad_tubes', $aliquot_master_id);
 		
 				$tubes_nbr--;
@@ -173,8 +172,8 @@ function postCollectionWrite(Model $m){
 			);
 			$insert = array_merge($insert, $created);
 			$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$aliquot_master_id = mysqli_insert_id($connection);
+			mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+			$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 			Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 			$insert = array(
@@ -184,7 +183,7 @@ function postCollectionWrite(Model $m){
 			);
 			$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 			$insert = array_merge($insert, $created);
-			mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 			Database::insertRev('ad_tubes', $aliquot_master_id);
 		}
 		
@@ -206,8 +205,8 @@ function postCollectionWrite(Model $m){
 					);
 					$insert = array_merge($insert, $created);
 					$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-					mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-					$aliquot_master_id = mysqli_insert_id($connection);
+					mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+					$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 					Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 					$insert = array(
@@ -216,7 +215,7 @@ function postCollectionWrite(Model $m){
 					);
 					$query = "INSERT INTO ad_blocks (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 					$insert = array_merge($insert, $created);
-					mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+					mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 					Database::insertRev('ad_blocks', $aliquot_master_id);
 				}
 			} else {
@@ -241,22 +240,22 @@ function postCollectionWrite(Model $m){
 		);
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$sample_master_id = mysqli_insert_id($connection);
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		$sample_master_id = mysqli_insert_id(Config::$db_connection);
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('A - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id
 		);
 		$query = "INSERT INTO sd_spe_ascites (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sd_spe_ascites', $sample_master_id);
 		
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('specimen_details', $sample_master_id);
 		
 		//	*** ASCITE : tube ***
@@ -273,15 +272,15 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 				Database::insertRev('aliquot_masters', $aliquot_master_id);
 				
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('ad_tubes', $aliquot_master_id);
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Ascite Precision Ascites Fluids Volume (ml)'],"] at line [".$m->line."]\n";
@@ -305,22 +304,22 @@ function postCollectionWrite(Model $m){
 		);
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		$sample_master_id = mysqli_insert_id($connection);
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		$sample_master_id = mysqli_insert_id(Config::$db_connection);
 		$query = "UPDATE sample_masters SET sample_code=CONCAT('B - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$insert = array(
 			"sample_master_id"	=> $sample_master_id
 		);
 		$query = "INSERT INTO sd_spe_bloods (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sd_spe_bloods', $sample_master_id);
 		
 		$insert = array_merge($insert, $created);
 		$query = "INSERT INTO specimen_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-		mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('specimen_details', $sample_master_id);
 
 		//	*** SERUM : tube ***
@@ -338,22 +337,22 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$serum_sample_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$serum_sample_master_id = mysqli_insert_id(Config::$db_connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('SER - ', id) WHERE id=".$serum_sample_master_id;
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $serum_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $serum_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_serums (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sd_der_serums', $serum_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('derivative_details', $serum_sample_master_id);
 				
 				$insert = array(
@@ -366,15 +365,15 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('ad_tubes', $aliquot_master_id);
 			}  else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Frozen Serum Volume (ml)'],"] at line [".$m->line."]\n";
@@ -396,22 +395,22 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$plasma_sample_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$plasma_sample_master_id = mysqli_insert_id(Config::$db_connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('PLS - ', id) WHERE id=".$plasma_sample_master_id;
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $plasma_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $plasma_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_plasmas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sd_der_plasmas', $plasma_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('derivative_details', $plasma_sample_master_id);
 				
 				$insert = array(
@@ -424,15 +423,15 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('ad_tubes', $aliquot_master_id);
 			}  else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Frozen Plasma Volume (ml)'],"] at line [".$m->line."]\n";
@@ -454,22 +453,22 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$dna_sample_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$dna_sample_master_id = mysqli_insert_id(Config::$db_connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('DNA - ', id) WHERE id=".$dna_sample_master_id;
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $dna_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $dna_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_dnas (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sd_der_dnas', $dna_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('derivative_details', $dna_sample_master_id);
 				
 				$insert = array(
@@ -480,8 +479,8 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 				Database::insertRev('aliquot_masters', $aliquot_master_id);
 		
 				$insert = array(
@@ -489,7 +488,7 @@ function postCollectionWrite(Model $m){
 					"qc_tf_weight_ug"		=> $m->values['Blood Precision Blood DNA Volume (ug)']
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('ad_tubes', $aliquot_master_id);
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Blood DNA Volume (ug)'],"] at line [".$m->line."]\n";
@@ -511,22 +510,22 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$bc_sample_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$bc_sample_master_id = mysqli_insert_id(Config::$db_connection);
 				$query = "UPDATE sample_masters SET sample_code=CONCAT('BLD-C - ', id) WHERE id=".$bc_sample_master_id;
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $bc_sample_master_id);
 				
 				$insert = array(
 					"sample_master_id"	=> $bc_sample_master_id
 				);
 				$query = "INSERT INTO sd_der_blood_cells (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sd_der_blood_cells', $bc_sample_master_id);
 				
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO derivative_details (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('derivative_details', $bc_sample_master_id);
 				
 				$insert = array(
@@ -539,15 +538,15 @@ function postCollectionWrite(Model $m){
 				);
 				$insert = array_merge($insert, $created);
 				$query = "INSERT INTO aliquot_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-				$aliquot_master_id = mysqli_insert_id($connection);
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+				$aliquot_master_id = mysqli_insert_id(Config::$db_connection);
 				Database::insertRev('aliquot_masters', $aliquot_master_id);
 	
 				$insert = array(
 					"aliquot_master_id"		=> $aliquot_master_id,
 				);
 				$query = "INSERT INTO ad_tubes (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-				mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('ad_tubes', $aliquot_master_id);	
 			} else {
 				echo "WARNING: Wrong numeric value for volume [",$m->values['Blood Precision Buffy coat (ul)'],"] at line [".$m->line."]\n";
@@ -562,7 +561,7 @@ function postCollectionWrite(Model $m){
 	
 	$label = $collection_type.' ('.$m->last_id.')';
 	$query = "UPDATE collections SET acquisition_label = '$label' WHERE id = ".$m->last_id;
-	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				
 	if(Config::$insert_revs){
 		$query = "UPDATE collections_revs SET acquisition_label = '$label' WHERE id = ".$m->last_id;

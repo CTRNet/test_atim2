@@ -54,9 +54,8 @@ function postParticipantRead(Model $m){
 }
 
 function postParticipantWrite(Model $m){
-	global $connection;
 	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id;
-	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	if(!isset($m->values['misc_identifier_control_id'])){
 		die("Participant misc_identifier_control_id is required");
 	}
@@ -73,12 +72,12 @@ function postParticipantWrite(Model $m){
 		"modified_by"					=> "1"
 	);
 	$query = "INSERT INTO misc_identifiers (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
-	mysqli_query($connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
 	if(Config::$insert_revs){
 		$query = "INSERT INTO misc_identifiers_revs (id, identifier_value, misc_identifier_control_id, effective_date, expiry_date, participant_id, notes, modified_by, version_created) "
-			."(SELECT id, identifier_value, misc_identifier_control_id, effective_date, expiry_date, participant_id, notes, modified_by, NOW() FROM misc_identifiers WHERE id='".mysqli_insert_id($connection)."')";
-		mysqli_query($connection, $query) or die("postParticipantWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+			."(SELECT id, identifier_value, misc_identifier_control_id, effective_date, expiry_date, participant_id, notes, modified_by, NOW() FROM misc_identifiers WHERE id='".mysqli_insert_id(Config::$db_connection)."')";
+		mysqli_query(Config::$db_connection, $query) or die("postParticipantWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	}
 }
 

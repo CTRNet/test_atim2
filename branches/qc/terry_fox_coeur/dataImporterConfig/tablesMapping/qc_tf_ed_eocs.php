@@ -42,9 +42,7 @@ function edAfterRead(Model $m){
 	return in_array($m->values['Event Type'], $m->event_types_to_import);
 }
 
-function edPostWrite(Model $m){
-	global $connection;
-	
+function edPostWrite(Model $m){	
 	if($m->values['Event Type'] == 'ca125'){
 		if(!empty($m->values['CA125  Precision (U)']) && !is_numeric($m->values['CA125  Precision (U)'])) {
 			echo "ERROR: 'CA125  Precision (U)' should be numeric [",$m->file,"] at line [", $m->line,"]\n";
@@ -52,12 +50,12 @@ function edPostWrite(Model $m){
 		
 		$query = "INSERT INTO qc_tf_ed_ca125s (event_master_id, precision_u, deleted) VALUES "
 			."(".$m->last_id.", '".$m->values['CA125  Precision (U)']."', 0)";
-		mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		
 		if(Config::$insert_revs){
 			$query = "INSERT INTO qc_tf_ed_ca125s_revs (id, event_master_id, precision_u, version_created) "
-				."SELECT id, event_master_id, precision_u, NOW() FROM qc_tf_ed_ca125s WHERE id='".mysqli_insert_id($connection)."'";
-			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				."SELECT id, event_master_id, precision_u, NOW() FROM qc_tf_ed_ca125s WHERE id='".mysqli_insert_id(Config::$db_connection)."'";
+			mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		}
 		
 	}else if($m->values['Event Type'] == 'ct scan'){
@@ -69,23 +67,23 @@ function edPostWrite(Model $m){
 		}
 		$query = "INSERT INTO qc_tf_ed_ct_scans (event_master_id, scan_precision, deleted) VALUES "
 			."(".$m->last_id.", '".$ct_scan_value."', 0)";
-		mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		
 		if(Config::$insert_revs){
 			$query = "INSERT INTO qc_tf_ed_ct_scans_revs (id, event_master_id, scan_precision, version_created)  "
-				." SELECT id, event_master_id, scan_precision, NOW() FROM qc_tf_ed_ct_scans WHERE id='".mysqli_insert_id($connection)."'";
-			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				." SELECT id, event_master_id, scan_precision, NOW() FROM qc_tf_ed_ct_scans WHERE id='".mysqli_insert_id(Config::$db_connection)."'";
+			mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		}
 		
 	}else if(($m->values['Event Type'] == 'biopsy') || ($m->values['Event Type'] == 'radiology')){
 		$query = "INSERT INTO qc_tf_ed_no_details (event_master_id, deleted) VALUES "
 			."(".$m->last_id.", 0)";
-		mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+		mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		
 		if(Config::$insert_revs){
 			$query = "INSERT INTO qc_tf_ed_no_details_revs (id, event_master_id, version_created)  "
-				."SELECT id, event_master_id, NOW() FROM qc_tf_ed_no_details WHERE id='".mysqli_insert_id($connection)."'";
-			mysqli_query($connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+				."SELECT id, event_master_id, NOW() FROM qc_tf_ed_no_details WHERE id='".mysqli_insert_id(Config::$db_connection)."'";
+			mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		}
 	}else{
 		die("Invalid event type in ".__FILE__." at line ".__LINE__);
