@@ -52,7 +52,7 @@ class ProfilesController extends CustomizeAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/Customize/profiles/index' );
+				$this->atimFlash( 'your data has been updated','/Customize/Profiles/index' );
 				return;
 			}
 			
