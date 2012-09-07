@@ -14,6 +14,9 @@ class ProfilesController extends CustomizeAppController {
 	}
 	
 	function edit() {
+		//TODO
+		$this->atimFlash( 'this function is temporarily unusable', '/Customize/Profiles/index');
+		
 		$this->Structures->set('users' );
 		$user_data = $this->User->getOrRedirect($_SESSION['Auth']['User']['id']);
 	
