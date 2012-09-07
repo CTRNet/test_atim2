@@ -11,7 +11,3 @@ INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_mes
 
 UPDATE menus SET use_link = '/Material/Materials/detail/%%Material.id%%' WHERE use_link = '/Material/materials/detail/%%Material.id%%';
 UPDATE menus SET use_link = '/Material/Materials/index/' WHERE use_link = '/Material/materials/index/';
-UPDATE menus SET use_link = '/Menus/Datamart/' WHERE use_link = '/Menus/datamart/';
-UPDATE menus SET use_link = '/Menus/Tools/' WHERE use_link = '/Menus/tools/';
-
-
