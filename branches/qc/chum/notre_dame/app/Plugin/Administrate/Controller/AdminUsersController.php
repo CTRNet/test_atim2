@@ -78,6 +78,9 @@ class AdminUsersController extends AdministrateAppController {
 	}
 	
 	function edit($group_id, $user_id){
+		//TODO
+		$this->atimFlash( 'this function is temporarily unusable', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
+		
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
 	
 		$this->Structures->set('users');

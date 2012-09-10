@@ -988,8 +988,8 @@ class SampleMastersController extends InventoryManagementAppController {
 				$this->request->data = array();
 				foreach($aliquots as $aliquot){
 					$this->request->data[] = array('parent' => $aliquot, 'children' => array());
-				}
-				$parent_sample_data_for_display[] = $aliquot;				
+					$parent_sample_data_for_display[] = $aliquot;	
+				}			
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
 				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
