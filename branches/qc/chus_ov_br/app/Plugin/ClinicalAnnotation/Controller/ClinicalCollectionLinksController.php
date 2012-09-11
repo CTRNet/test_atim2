@@ -79,7 +79,6 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		$this->request->data = $this->Collection->find('all', array(
 			'conditions' => $conditions,
 			'order' => $order,
-			'limit' => pagination_amount,
 			'joins' => $joins, 
 			'fields' => array('*')
 		));
