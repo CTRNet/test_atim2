@@ -78,7 +78,11 @@ class AdminUsersController extends AdministrateAppController {
 	}
 	
 	function edit($group_id, $user_id){
+		//TODO
+		$this->atimFlash( 'this function is temporarily unusable', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
+		
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
+		$user_data = $this->User->getOrRedirect($user_id);
 	
 		$this->Structures->set('users');
 		$hook_link = $this->hook('format');
@@ -86,16 +90,27 @@ class AdminUsersController extends AdministrateAppController {
 			require($hook_link); 
 		}
 		
-		if(!empty($this->request->data)){
+		if(empty($this->request->data)){
+			$this->request->data = $user_data;
+			
+		} else {
 			$this->request->data['User']['id'] = $user_id;
 			$this->request->data['User']['group_id'] = $group_id;
 			$this->request->data['Group']['id'] = $group_id;
 			
 			$submitted_data_validates = true;
+					
+			if($this->request->data['User']['username'] != $user_data['User']['username']) {
+				$this->User->validationErrors['username'][] = __('a user name can not be changed');
+				$submitted_data_validates	= false;
+			}
+			
+			unset($this->request->data['User']['username']);
 			
 			if($user_id == $_SESSION['Auth']['User']['id'] && !$this->request->data['User']['flag_active']){
 				unset($this->request->data['User']['flag_active']);
-				AppController::addWarningMsg(__('you cannot deactivate yourself'));
+				$this->User->validationErrors[][] = __('you cannot deactivate yourself');
+				$submitted_data_validates	= false;
 			}
 			
 			$hook_link = $this->hook('presave_process');
@@ -110,11 +125,13 @@ class AdminUsersController extends AdministrateAppController {
 						require($hook_link);
 					}
 					$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
+					return;
 				}
 			}
+			
+			//Reset username
+			$this->request->data['User']['username'] = $user_data['User']['username'];
 		}
-		
-		$this->request->data = $this->User->getOrRedirect($user_id);
 	}
 	
 	function delete($group_id, $user_id){
