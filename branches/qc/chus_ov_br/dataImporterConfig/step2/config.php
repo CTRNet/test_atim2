@@ -1216,8 +1216,10 @@ function loadAscite2mlCollection($collections_to_create) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date collecte'])) {
-				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 2 ml', $line_counter).' 00:00:00';
-				$collection_date_accuracy = 'h';
+				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 2 ml', $line_counter);
+				$collection_date_accuracy = 'c';
+			} else { 
+				Config::$summary_msg['ASCITE 2 ml']['@@WARNING@@']['Missing collection date'][] = "... [line: $line_counter]";
 			}
 			
 			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
@@ -1230,8 +1232,8 @@ function loadAscite2mlCollection($collections_to_create) {
 						'diagnosis_master_id' => $diagnosis_master_id,
 						'consent_master_id' => $consent_master_id),
 					'collection' => array(
-						'collection_datetime' => "'$collection_date'", 
-						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
+						'chus_collection_date' => "'$collection_date'", 
+						'chus_collection_date_accuracy' => "'$collection_date_accuracy'"),
 					'inventory' => array());
 			}
 			
@@ -1240,13 +1242,17 @@ function loadAscite2mlCollection($collections_to_create) {
 			$line_data['Heure Réception'] = str_replace('ND','',$line_data['Heure Réception']);
 			if(!empty($line_data['Heure Réception']) && empty($collection_date)) die('ERR 890003');
 			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] 890004 be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
-			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
-			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : 'h';
+			$reception_datetime = (!empty($line_data['Heure Réception']))? $collection_date.' '.$line_data['Heure Réception'].':00' : (empty($collection_date)? '' : $collection_date.' 00:00:00');
+			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' :  (empty($reception_datetime)? '' : 'h');
 			
 			if(!isset($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime])) {
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_masters'] = array();
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array(
+						'chus_collection_datetime' => empty($collection_date)? "''" : "'$collection_date 00:00:00'", 
+						'chus_collection_datetime_accuracy' =>  empty($collection_date)? "''" : "'h'",
+						'reception_datetime' => "'$reception_datetime'", 
+						'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['aliquots'] = array();
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives'] = array();
 			}
@@ -1282,10 +1288,10 @@ function loadAscite2mlCollection($collections_to_create) {
 				die('ERR ['.$line_counter.'] 99994884');
 			}
 			
-			if(!empty($collection_date) && !empty($storage_datetime)) {
-				$collection_date_tmp = str_replace(array(' ', ':', '-'), array('','',''), $collection_date);
+			if(!empty($reception_datetime) && !empty($storage_datetime)) {
+				$reception_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $reception_datetime);
 				$storage_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $storage_datetime);
-				if($storage_datetime_tmp < $collection_date_tmp) Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
+				if($storage_datetime_tmp < $reception_datetime_tmp) Config::$summary_msg['ASCITE 2 ml']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
 			}
 			
 			$remisage = str_replace(array(' ','ND'), array('',''), $line_data['Temps au remisage (H)']);
@@ -1484,8 +1490,10 @@ function loadAscite10mlCollection($collections_to_create) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date collecte'])) {
-				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 10 ml', $line_counter).' 00:00:00';
-				$collection_date_accuracy = 'h';
+				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'ASCITE 10 ml', $line_counter);
+				$collection_date_accuracy = 'c';
+			}  else { 
+				Config::$summary_msg['ASCITE 10 ml']['@@WARNING@@']['Missing collection date'][] = "... [line: $line_counter]";
 			}
 			
 			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
@@ -1498,8 +1506,8 @@ function loadAscite10mlCollection($collections_to_create) {
 						'diagnosis_master_id' => $diagnosis_master_id,
 						'consent_master_id' => $consent_master_id),
 					'collection' => array(
-						'collection_datetime' => "'$collection_date'", 
-						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
+						'chus_collection_date' => "'$collection_date'", 
+						'chus_collection_date_accuracy' => "'$collection_date_accuracy'"),
 					'inventory' => array());
 			}
 			
@@ -1508,13 +1516,17 @@ function loadAscite10mlCollection($collections_to_create) {
 			$line_data['Heure Réception'] = str_replace('ND','',$line_data['Heure Réception']);
 			if(!empty($line_data['Heure Réception']) && empty($collection_date)) die('ERR 890wwww003');
 			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] 890rqrqrq004 be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
-			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
-			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : $collection_date_accuracy;
-			
+			$reception_datetime = (!empty($line_data['Heure Réception']))? $collection_date.' '.$line_data['Heure Réception'].':00' : (empty($collection_date)? '' : $collection_date.' 00:00:00');
+			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : (empty($reception_datetime)? '' : 'h');
+				
 			if(!isset($collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime])) {
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_masters'] = array();
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['specimen_details'] = array(
+						'chus_collection_datetime' => empty($collection_date)? "''" : "'$collection_date 00:00:00'", 
+						'chus_collection_datetime_accuracy' =>  empty($collection_date)? "''" : "'h'",
+						'reception_datetime' => "'$reception_datetime'", 
+						'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['aliquots'] = array();
 				$collections_to_create[$collection_key]['inventory']['ascite'][$reception_datetime]['derivatives'] = array();
 			}
@@ -1546,6 +1558,12 @@ function loadAscite10mlCollection($collections_to_create) {
 				}
 			} else if(!empty($line_data['Heure congélation'])) {
 				die('ERR ['.$line_counter.'] 99994www884');
+			}
+				
+			if(!empty($reception_datetime) && !empty($storage_datetime)) {
+				$reception_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $reception_datetime);
+				$storage_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $storage_datetime);
+				if($storage_datetime_tmp < $reception_datetime_tmp) Config::$summary_msg['ASCITE 10 ml']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
 			}
 			
 			$remisage = str_replace(array(' ','ND'), array('',''), $line_data['Temps au remisage']);
@@ -1739,8 +1757,10 @@ function loadTissueCollection($collections_to_create) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date collecte'])) {
-				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'TISSU', $line_counter).' 00:00:00';
-				$collection_date_accuracy = 'h';
+				$collection_date = customGetFormatedDate($line_data['Date collecte'], 'TISSU', $line_counter);
+				$collection_date_accuracy = 'c';
+			}  else { 
+				Config::$summary_msg['TISSU']['@@WARNING@@']['Missing collection date'][] = "... [line: $line_counter]";
 			}
 			
 			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
@@ -1753,8 +1773,8 @@ function loadTissueCollection($collections_to_create) {
 						'diagnosis_master_id' => $diagnosis_master_id,
 						'consent_master_id' => $consent_master_id),
 					'collection' => array(
-						'collection_datetime' => "'$collection_date'", 
-						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
+						'chus_collection_date' => "'$collection_date'", 
+						'chus_collection_date_accuracy' => "'$collection_date_accuracy'"),
 					'inventory' => array());
 			}
 			
@@ -1766,14 +1786,18 @@ function loadTissueCollection($collections_to_create) {
 				$line_data['Heure Réception'] = '';
 			}
 			if(!empty($line_data['Heure Réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure Réception'], $matches)) die('ERR  ['.$line_counter.'] fafasassa be sure cell custom format is h:mm ['.$line_data['Heure Réception'].']');
-			$reception_datetime = (!empty($line_data['Heure Réception']))? str_replace('00:00:00', $line_data['Heure Réception'].':00', $collection_date) : $collection_date;
-			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : $collection_date_accuracy;
+			$reception_datetime = (!empty($line_data['Heure Réception']))? $collection_date.' '.$line_data['Heure Réception'].':00' : (empty($collection_date)? '' : $collection_date.' 00:00:00');
+			$reception_datetime_accuracy = (!empty($line_data['Heure Réception']))? 'c' : (empty($reception_datetime)? '' : 'h');
 			
 			$tissue_key = $reception_datetime.$line_data['Échantillon'];
 			if(!isset($collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key])) {
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_masters'] = array('notes' => "''");
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['specimen_details'] = array(
+						'chus_collection_datetime' => empty($collection_date)? "''" : "'$collection_date 00:00:00'", 
+						'chus_collection_datetime_accuracy' =>  empty($collection_date)? "''" : "'h'",
+						'reception_datetime' => "'$reception_datetime'", 
+						'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['aliquots'] = array();
 				$collections_to_create[$collection_key]['inventory']['tissue'][$tissue_key]['derivatives'] = array();
 				
@@ -1817,6 +1841,12 @@ function loadTissueCollection($collections_to_create) {
 				}
 			} else if(!empty($line_data['Heure congélation'])) {
 				Config::$summary_msg['TISSU']['@@ERROR@@']['Storage time defined but no collection date'][] = "Storage date & time won't be imported! [line: $line_counter]";
+			}
+			
+			if(!empty($reception_datetime) && !empty($storage_datetime)) {
+				$reception_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $reception_datetime);
+				$storage_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $storage_datetime);
+				if($storage_datetime_tmp < $reception_datetime_tmp) Config::$summary_msg['TISSU']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
 			}
 			
 			$remisage = strtolower(str_replace(array(' ','ND', '?'), array('','',''), $line_data['Temps au remisage']));
@@ -2093,7 +2123,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 					
 			$frsq_value = preg_replace('/ +$/','',$line_data['# FRSQ']);
 
-			$ids = getParticipantIdentifierAndDiagnosisIds('TISSU', $line_counter, $frsq_value, '');
+			$ids = getParticipantIdentifierAndDiagnosisIds('BLOOD', $line_counter, $frsq_value, '');
 			if(empty($ids)) continue;
 			
 			$participant_id = $ids['participant_id'];
@@ -2109,8 +2139,10 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 			$collection_date = '';
 			$collection_date_accuracy = '';
 			if(!empty($line_data['Date Réception'])) {
-				$collection_date = customGetFormatedDate($line_data['Date Réception'], 'TISSU', $line_counter).' 00:00:00';
-				$collection_date_accuracy = 'h';
+				$collection_date = customGetFormatedDate($line_data['Date Réception'], 'BLOOD', $line_counter);
+				$collection_date_accuracy = 'c';
+			} else { 
+				Config::$summary_msg['BLOOD']['@@WARNING@@']['Missing collection date'][] = "... [line: $line_counter]";
 			}
 			
 			$collection_key = "participant_id=$participant_id#misc_identifier_id=".(empty($misc_identifier_id)?'':$misc_identifier_id)."#diagnosis_master_id=".(empty($diagnosis_master_id)?'':$diagnosis_master_id)."#date=$collection_date";
@@ -2123,8 +2155,8 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 						'diagnosis_master_id' => $diagnosis_master_id,
 						'consent_master_id' => $consent_master_id),
 					'collection' => array(
-						'collection_datetime' => "'$collection_date'", 
-						'collection_datetime_accuracy' => "'$collection_date_accuracy'"),
+						'chus_collection_date' => "'$collection_date'", 
+						'chus_collection_date_accuracy' => "'$collection_date_accuracy'"),
 					'inventory' => array());
 			}
 			
@@ -2136,13 +2168,17 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 				$line_data['Heure réception'] = '';
 			}
 			if(!empty($line_data['Heure réception']) && !preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure réception'], $matches)) die('ERR  ['.$line_counter.'] fafasassa be sure cell custom format is h:mm ['.$line_data['Heure réception'].']');
-			$reception_datetime = (!empty($line_data['Heure réception']))? str_replace('00:00:00', $line_data['Heure réception'].':00', $collection_date) : $collection_date;
-			$reception_datetime_accuracy = (!empty($line_data['Heure réception']))? 'c' : $collection_date_accuracy;
+			$reception_datetime = (!empty($line_data['Heure réception']))? $collection_date.' '.$line_data['Heure réception'].':00' : $collection_date;
+			$reception_datetime_accuracy = (!empty($line_data['Heure réception']))? 'c' : (empty($reception_datetime)? '' : 'h');
 			
 			if(!isset($collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime])) {
 				$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['sample_masters'] = array('notes' => "''");
 				$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['sample_details'] = array();
-				$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['specimen_details'] = array('reception_datetime' => "'$reception_datetime'", 'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
+				$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['specimen_details'] = array(
+						'chus_collection_datetime' => empty($collection_date)? "''" : "'$collection_date 00:00:00'", 
+						'chus_collection_datetime_accuracy' =>  empty($collection_date)? "''" : "'h'",
+						'reception_datetime' => "'$reception_datetime'", 
+						'reception_datetime_accuracy' => "'$reception_datetime_accuracy'");
 				$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['aliquots'] = array();
 				$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['derivatives'] = array();
 				
@@ -2175,7 +2211,7 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 			$centrifugation_date = '';
 			$centrifugation_date_accuracy = '';
 			if(!empty($line_data['Date traitement'])) {
-				$centrifugation_date = customGetFormatedDate($line_data['Date traitement'], 'DNA', $line_counter).' 00:00:00';
+				$centrifugation_date = customGetFormatedDate($line_data['Date traitement'], 'BLOOD', $line_counter).' 00:00:00';
 				$centrifugation_date_accuracy = 'h';
 				if(!empty($line_data['Heure début Traitement'])) {
 					if(!preg_match('/^[0-9]{2}:[0-9]{2}$/', $line_data['Heure début Traitement'], $matches)) die('ERR  ['.$line_counter.'] fafasassa cacacacbe sure cell custom format is h:mm ['.$line_data['Heure début Traitement'].']');
@@ -2215,10 +2251,10 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 				die('ERR ['.$line_counter.'] 99994884');
 			}
 			
-			if(!empty($collection_date) && !empty($storage_datetime)) {
-				$collection_date_tmp = str_replace(array(' ', ':', '-'), array('','',''), $collection_date);
+			if(!empty($reception_datetime) && !empty($storage_datetime)) {
+				$reception_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $reception_datetime);
 				$storage_datetime_tmp = str_replace(array(' ', ':', '-'), array('','',''), $storage_datetime);
-				if($storage_datetime_tmp < $collection_date_tmp) Config::$summary_msg['BLOOD']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
+				if($storage_datetime_tmp < $reception_datetime_tmp) Config::$summary_msg['BLOOD']['@@ERROR@@']['Collection & Storage Dates'][] = "Sotrage should be done after collection. Please check collection and storage date! [line: $line_counter]";
 			}
 			
 			$created_aliquots = 0;
@@ -2316,8 +2352,8 @@ function loadBloodCollection($collections_to_create, &$dnas_from_ov_nbr) {
 					$collections_to_create[$collection_key]['inventory']['blood'][$reception_datetime]['derivatives']['plasma'][$centrifugation_date]['aliquots'][] = array(
 						'aliquot_masters' => array(
 							'aliquot_label' => "'$aliquot_label'", 
-//							'initial_volume' => "'1'",
-//							'current_volume' => "'1'",
+							'initial_volume' => "'1'",
+							'current_volume' => "'1'",
 							'in_stock' => "'yes - available'",
 							'storage_master_id' => "'$storage_master_id'",
 							'storage_datetime' => "'$storage_datetime'",
@@ -2747,7 +2783,7 @@ function createCollection($collections_to_create) {
 	
 	foreach($collections_to_create as $new_collection) {
 		// treatment_master_id
-		$tmp_date = str_replace(' 00:00:00','', $new_collection['collection']['collection_datetime']);
+		$tmp_date = $new_collection['collection']['chus_collection_date'];
 		if(!empty($tmp_date) && isset(Config::$ovary_surgery_id_from_participant_id[$new_collection['link']['participant_id']][$tmp_date])) {
 			if(sizeof(Config::$ovary_surgery_id_from_participant_id[$new_collection['link']['participant_id']][$tmp_date]) == 1) {
 				$new_collection['link']['treatment_master_id'] = Config::$ovary_surgery_id_from_participant_id[$new_collection['link']['participant_id']][$tmp_date][0];

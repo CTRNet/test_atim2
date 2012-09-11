@@ -1,5 +1,3 @@
 <?php
 	
 	$this->AliquotMaster->regenerateAliquotBarcode();
-
-?>

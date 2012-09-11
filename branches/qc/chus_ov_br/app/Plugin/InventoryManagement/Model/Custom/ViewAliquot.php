@@ -69,11 +69,16 @@ MiscIdentifier.identifier_value AS frsq_number,
 			
 			AliquotMaster.created,
 			
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(Collection.collection_datetime IS NULL, -1,
-			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
+--			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+--			 IF(Collection.collection_datetime IS NULL, -1,
+--			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+--			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
+--			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
+IF(AliquotMaster.storage_datetime IS NULL, NULL,
+ IF(InitialSpecimenDetail.chus_collection_datetime IS NULL, -1,
+ IF(InitialSpecimenDetail.chus_collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+ IF(InitialSpecimenDetail.chus_collection_datetime > AliquotMaster.storage_datetime, -3,
+ TIMESTAMPDIFF(MINUTE, InitialSpecimenDetail.chus_collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,			 
 			IF(AliquotMaster.storage_datetime IS NULL, NULL,
 			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
 			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
@@ -100,6 +105,7 @@ MiscIdentifier.identifier_value AS frsq_number,
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+LEFT JOIN specimen_details AS InitialSpecimenDetail ON InitialSpecimenDetail.sample_master_id=SampleMaster.initial_specimen_sample_id
 LEFT JOIN misc_identifiers MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id and MiscIdentifier.deleted <> 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 		
