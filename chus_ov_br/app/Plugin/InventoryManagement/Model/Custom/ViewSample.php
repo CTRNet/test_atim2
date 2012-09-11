@@ -45,21 +45,34 @@ MiscIdentifier.identifier_value AS frsq_number,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
 		
-		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
-		 IF(Collection.collection_datetime IS NULL, -1,
-		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
-		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
+--		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
+--		 IF(Collection.collection_datetime IS NULL, -1,
+--		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
+--		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
+--		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
+
+IF(SpecimenDetail.reception_datetime IS NULL, NULL,
+ IF(SpecimenDetail.chus_collection_datetime IS NULL, -1,
+ IF(SpecimenDetail.chus_collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
+ IF(SpecimenDetail.chus_collection_datetime > SpecimenDetail.reception_datetime, -3,
+ TIMESTAMPDIFF(MINUTE, SpecimenDetail.chus_collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,		 
 		 
-		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
-		 IF(Collection.collection_datetime IS NULL, -1,
-		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
-		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg 
+--		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
+--		 IF(Collection.collection_datetime IS NULL, -1,
+--		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
+--		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
+--		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg 
 		
+IF(DerivativeDetail.creation_datetime IS NULL, NULL,
+ IF(InitialSpecimenDetail.chus_collection_datetime IS NULL, -1,
+ IF(InitialSpecimenDetail.chus_collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
+ IF(InitialSpecimenDetail.chus_collection_datetime > DerivativeDetail.creation_datetime, -3,
+ TIMESTAMPDIFF(MINUTE, InitialSpecimenDetail.chus_collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg 
+		 
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+LEFT JOIN specimen_details AS InitialSpecimenDetail ON InitialSpecimenDetail.sample_master_id=SampleMaster.initial_specimen_sample_id
 		LEFT JOIN specimen_details AS SpecimenDetail ON SpecimenDetail.sample_master_id=SampleMaster.id
 		LEFT JOIN derivative_details AS DerivativeDetail ON DerivativeDetail.sample_master_id=SampleMaster.id
 		LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1

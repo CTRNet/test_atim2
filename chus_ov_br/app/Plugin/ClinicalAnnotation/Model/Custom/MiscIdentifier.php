@@ -12,9 +12,10 @@ class MiscIdentifierCustom extends MiscIdentifier {
 		if ($nbr_linked_collection > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_frsq_number_linked_collection';
+			return $arr_allow_deletion;
 		}
 	
-		return $arr_allow_deletion;
+		return parent::allowDeletion($event_master_id);
 	}
 }
 
