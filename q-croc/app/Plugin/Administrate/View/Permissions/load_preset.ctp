@@ -20,7 +20,7 @@ $this->Structures->build($atim_structure, array(
 	'links' => array(
 		'index' => array('detail' => array('link' => '#', 'icon' => 'detail jsApplyPreset', 'json' => '%%PermissionsPreset.json%%'), 'delete' => $can_delete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'),
 		'bottom' => array(
-			__('save preset') => array('link' => AppController::checkLinkPermission('/Administrate/permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
+			__('save preset') => array('link' => AppController::checkLinkPermission('/Administrate/Permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
 		)
 	), 
 	'settings' => array(

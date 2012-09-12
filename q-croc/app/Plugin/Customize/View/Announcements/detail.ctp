@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'list'=>'/Customize/announcements/index'
+			'list'=>'/Customize/Announcements/index'
 		)
 	);
 	
