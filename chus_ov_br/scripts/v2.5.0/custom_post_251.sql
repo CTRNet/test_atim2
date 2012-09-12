@@ -213,3 +213,162 @@ JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `aluse`.`aliquot_master_id`) A
 JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
 JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
 WHERE (`aluse`.`deleted` <> 1);
+
+UPDATE aliquot_controls SET volume_unit = 'ul' WHERE sample_control_id IN (select id from sample_controls WHERE sample_type IN ('dna','rna','amplified rna','cdna'));
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('aliquot used volume', '', 'Used Volume', 'Volume utilisé'),
+('aliquots with volume', '', 'Aliquots with volume', 'Aliquots avec volume'),
+('aliquots without volume', '', 'Aliquots without volume', 'Aliquots sans volume'),
+('current volume', '', 'Current Volume', 'Volume courant'),
+('initial volume', '', 'Initial Volume', 'Volume initial'),
+('no volume has to be recorded for this aliquot type', '', 'No volume has to be recorded for this aliquot type!', 'Aucun volume doit être enregistré pour ce type d''aliquot!'),
+('no volume has to be recorded when the volume unit field is empty', '', 'No volume has to be recorded when the volume unit field is empty!', 'Aucun volume ne doit être enregistré losque le champ ''unité'' est vide!'),
+('parent used volume', '', 'Parent Used Volume', 'Volume utilisé du parent'),
+('parent_used_volume_help', '', 'Volume of the parent aliquot used to create the children aliquot.', 'Volume de l''aliquot parent utilisé pour créer l''aliquot enfant.'),
+('source aliquot used volume', '', 'Used Volume', 'Volume utilisé'),
+('source_used_volume_help', '', 'Volume of the source aliquot to create the new derivative sample.', 'Volume de l''aliquot source utilisé pour créer l''échantillon dérivé.'),
+('tested aliquot used volume', '', 'Used Volume', 'Volume utilisé'),
+('tested_aliquot_volume_help', '', 'Volume of the aliquot used for the quality control.', 'Volume de l''aliquot utilisé pour le contrôle de qualité.'),
+('the aliquot with barcode [%s] has reached a volume bellow 0', '', 'The aliquot with barcode [%s] has reached a volume below 0.', 'L''aliquot avec le code à barres [%s] a atteint un volume inférieur à 0.'),
+('the inputed volume was automatically removed', '', 'The inputed volume was automatically removed', 'La valeur de volume entrée a été automatiquement retirée'),
+('the used volume is higher than the remaining volume', '', 'The used volume is higher than the remaining volume', 'Le volume utilisé est supérieur au volume restant'),
+('this aliquot has no recorded volume', '', 'This aliquot has no recorded volume', 'Cet aliquot n''a aucun volume enregistré'),
+('used volume', '', 'Used Volume', 'Volume utilisé'),
+('volume should be a positif decimal', '', 'Volume should be a positive decimal!', 'Le volume doit être un décimal positif!'),
+('volume unit', '', 'Volume Unit', 'Unité de volume');
+
+
+ALTER TABLE ad_tubes
+  ADD COLUMN `chum_current_weight_ug` decimal(10,5) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN `chum_current_weight_ug` decimal(10,5) DEFAULT NULL;  
+
+INSERT INTO structures(`alias`) VALUES ('chus_dna_rna_weight');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'chum_current_weight_ug', 'float',  NULL , '0', 'size=5', '', '', 'current weight ug', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chus_dna_rna_weight'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='chum_current_weight_ug' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='current weight ug' AND `language_tag`=''), '1', '77', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE aliquot_controls, sample_controls
+SET aliquot_controls.detail_form_alias = CONCAT(aliquot_controls.detail_form_alias, ',chus_dna_rna_weight') 
+WHERE aliquot_controls.sample_control_id  = sample_controls.id
+AND sample_controls.sample_type IN ('dna','rna','amplified rna','cdna');
+
+INSERT INTO i18n (id,en,fr) VALUES ('current weight ug','Current Weight (ug)','Poids courant (ug)');
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='concentration_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="ug/ul" AND language_alias="ug/ul");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='concentration_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="ng/ul" AND language_alias="ng/ul");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='concentration_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="pg/ul" AND language_alias="pg/ul");
+
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+REPLACE INTO view_aliquots (SELECT 
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.sample_master_id AS sample_master_id,
+			AliquotMaster.collection_id AS collection_id, 
+			Collection.bank_id, 
+			AliquotMaster.storage_master_id AS storage_master_id,
+			Collection.participant_id, 
+			
+			Participant.participant_identifier, 
+			
+Collection.misc_identifier_id AS misc_identifier_id,
+MiscIdentifier.identifier_value AS frsq_number,
+			
+			Collection.acquisition_label, 
+			
+			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
+			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
+			ParentSampleControl.sample_type AS parent_sample_type,
+			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
+			SampleControl.sample_type,
+			SampleMaster.sample_control_id,
+			
+			AliquotMaster.barcode,
+			AliquotMaster.aliquot_label,
+			AliquotControl.aliquot_type,
+			AliquotMaster.aliquot_control_id,
+			AliquotMaster.in_stock,
+			
+			StorageMaster.code,
+			StorageMaster.selection_label,
+			AliquotMaster.storage_coord_x,
+			AliquotMaster.storage_coord_y,
+			
+			StorageMaster.temperature,
+			StorageMaster.temp_unit,
+			
+			AliquotMaster.created,
+			
+--			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+--			 IF(Collection.collection_datetime IS NULL, -1,
+--			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+--			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
+--			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
+IF(AliquotMaster.storage_datetime IS NULL, NULL,
+ IF(InitialSpecimenDetail.chus_collection_datetime IS NULL, -1,
+ IF(InitialSpecimenDetail.chus_collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+ IF(InitialSpecimenDetail.chus_collection_datetime > AliquotMaster.storage_datetime, -3,
+ TIMESTAMPDIFF(MINUTE, InitialSpecimenDetail.chus_collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,			 
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
+			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(DerivativeDetail.creation_datetime IS NULL, -1,
+			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
+			 
+			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
+			
+			FROM aliquot_masters AS AliquotMaster
+			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
+			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
+			LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
+			LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
+			LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
+			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
+			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
+			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+LEFT JOIN specimen_details AS InitialSpecimenDetail ON InitialSpecimenDetail.sample_master_id=SampleMaster.initial_specimen_sample_id
+LEFT JOIN misc_identifiers MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id and MiscIdentifier.deleted <> 1
+			WHERE AliquotMaster.deleted != 1 AND AliquotMaster.barcode != AliquotMaster.id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
