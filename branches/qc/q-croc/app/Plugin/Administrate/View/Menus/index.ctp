@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'index'	=> array(
-			'detail'	=> '/Administrate/menus/detail/%%Menu.id%%'
+			'detail'	=> '/Administrate/Menus/detail/%%Menu.id%%'
 		)
 	);
 	
