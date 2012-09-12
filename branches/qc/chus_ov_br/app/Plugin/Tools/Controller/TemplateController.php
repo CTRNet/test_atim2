@@ -54,7 +54,7 @@ class TemplateController extends AppController {
 		AppController::applyTranslation($aliquot_controls, 'AliquotControl', 'aliquot_type');
  		//-----------------------------
 
-		if($this->Template->data['Template']['owning_entity_id'] == $this->Session->read('Auth.User.id')){
+		if(!isset($this->Template->data['Template']) || $this->Template->data['Template']['owning_entity_id'] == $this->Session->read('Auth.User.id')){
 			$this->Structures->set('template');
 		}else{
 			$this->Structures->set('template_disabled');
