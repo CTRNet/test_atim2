@@ -19,7 +19,7 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atimDONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-08-07.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/chus_ovbr/data/atimDONNEES CLINIQUES ET BIOLOGIQUES-SEIN 2012-09-12.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -2013,16 +2013,31 @@ function loadDNACollection() {
 					$aliquot_positions[] = array('box_label' => $boite, 'position' => '');
 				}
 				
-				$current_weight_per_aliquot = $current_weight/sizeof($aliquot_positions);
-				if(sizeof($aliquot_positions) > 1) Config::$summary_msg['DNA']['@@MESSAGE@@']["Split current weight"][] = "Split current weight ($current_weight) in ".sizeof($aliquot_positions)." => ($current_weight_per_aliquot). Please confirm! [line: $line_counter]";
-				if($current_weight_per_aliquot == '0.0') Config::$summary_msg['DNA']['@@ERROR@@']["Empty 'available' aliquot"][] = "The current weight of aliquot is equal to 0 but the status is still equal to 'yes - available'. Please confirm! [line: $line_counter]";
+				$current_weight_per_aliquot = '';
+				if(strlen($current_weight)) {
+					$current_weight_per_aliquot = $current_weight/sizeof($aliquot_positions);
+					if(sizeof($aliquot_positions) > 1) Config::$summary_msg['DNA']['@@MESSAGE@@']["Split current weight"][] = "Split current weight ($current_weight) in ".sizeof($aliquot_positions)." => ($current_weight_per_aliquot). Please confirm! [line: $line_counter]";
+					if($current_weight_per_aliquot == '0.0') Config::$summary_msg['DNA']['@@ERROR@@']["Empty 'available' aliquot"][] = "The current weight of aliquot is equal to 0 but the status is still equal to 'yes - available'. Please confirm! [line: $line_counter]";
+				}
+				
+				$current_volume_per_aliquot_ul = '';
+				if(strlen($current_weight_per_aliquot) || strlen($concentration)) {
+					if(!strlen($current_weight_per_aliquot) || !strlen($concentration)) {
+						Config::$summary_msg['DNA']['@@ERROR@@']["Missing information to calculate volume"][] = "Either concentration or weight is missing to calculate volume! [line: $line_counter]";
+					} else if(empty($concentration)) {
+						die('ERR 789004 line '.$line_counter);
+					} else {
+						$current_volume_per_aliquot_ul = ($current_weight_per_aliquot/$concentration)*1000;
+					}
+				}
+				
 				foreach($aliquot_positions as $new_stored_aliquot) {
 					$storage_master_id = getStorageId('dna', 'box100', $new_stored_aliquot['box_label']);
 					$new_dna['aliquots'][] = array(
 						'aliquot_masters' => array(
 							'aliquot_label' => "'$aliquot_label'", 
-							'initial_volume' => "'$current_weight_per_aliquot'",
-							'current_volume' => "'$current_weight_per_aliquot'",
+							'initial_volume' => "'$current_volume_per_aliquot_ul'",
+							'current_volume' => "'$current_volume_per_aliquot_ul'",
 							'in_stock' => "'yes - available'",
 							'storage_master_id' => "'$storage_master_id'",
 							'storage_datetime' => "''",
@@ -2032,7 +2047,8 @@ function loadDNACollection() {
 						'aliquot_details' => array(
 							'chus_qc_ratio_260_280' => "'$ratio'",
 							'concentration' => "'$concentration'",
-							'concentration_unit' => (empty($concentration)? "''":"'ug/ml'")),
+							'concentration_unit' => (empty($concentration)? "''":"'ug/ml'"),
+							'chum_current_weight_ug' => "'$current_weight_per_aliquot'"),
 						'aliquot_internal_uses' => array(),
 						'shippings' => array()
 					);

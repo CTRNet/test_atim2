@@ -156,6 +156,7 @@ function postOvaryDiagnosesRead(Model $m){
 	$consent_date = customGetFormatedDate($m->values[utf8_decode('Date (année-mois-jour)')], 'DIAGNOSTIC', $m->line);
 	if(empty($consent_date)) {
 		pr($m->values);
+		pr(Config::$summary_msg['DIAGNOSTIC']['@@ERROR@@']);
 		die('ERR empty consent date line '.$m->line);
 	}
 	if(isset(Config::$data_for_import_from_participant_id[$participant_id]['consent_date'])) {
