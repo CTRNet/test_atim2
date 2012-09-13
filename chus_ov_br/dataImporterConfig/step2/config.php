@@ -513,6 +513,12 @@ function addPatientsHistory() {
 					'event_control_id' =>  $event_control_id,
 					'event_summary' => "'".str_replace("'","''",$notes)."'"
 				);
+				//TODO ici
+				if(!empty($line_data['Date recrutement'])) {
+					$date_tmp = customGetFormatedDate($line_data['Date recrutement'], 'PATIENT HISTORY', $line_counter);
+					$master_fields['event_date'] = "'$date_tmp'";
+					$master_fields['event_date_accuracy'] = "'c'";
+				}
 				$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
 				
 				$detail_fields = array('event_master_id' => $event_master_id);
