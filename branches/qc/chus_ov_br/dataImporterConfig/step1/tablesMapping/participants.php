@@ -9,8 +9,8 @@ $child = array(
 
 $fields = array(	
 	"participant_identifier" => $pkey, 
-	"first_name" => utf8_encode("Prenom"),
-	"last_name" => utf8_encode("Nom"));
+	"first_name" => "Prenom",
+	"last_name" => "Nom");
 
 //see the Model class definition for more info
 $model = new Model(0, $pkey, $child, false, NULL, NULL, 'participants', $fields);
@@ -36,7 +36,8 @@ function postParticipantRead(Model $m){
 	Config::$pateint_nbr_from_chus_nbr[$m->values['No Dossier CHUS']] = $m->values['PatienteNbr'];
 	
 	// Check duplicated row content for a same patient
-	
+	$m->values['Nom'] = utf8_encode($m->values['Nom']);
+	$m->values['Prenom'] = utf8_encode($m->values['Prenom']);
 	$patient_profile_data = array(
 		'line' => $m->line,
 		'no_patient' => $m->values['PatienteNbr'],

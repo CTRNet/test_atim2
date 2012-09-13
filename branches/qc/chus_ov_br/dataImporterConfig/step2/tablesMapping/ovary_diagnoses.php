@@ -1057,12 +1057,12 @@ function addSurgery(Model $m, $participant_id, $diagnosis_master_id = null) {
 	}
 	
 	$cytoreduction = '';
-	if(!empty($m->values['Cytoreduction'])) {
-		$cytoreduction = str_replace(array(' ','Aucune','aucune','microscopique','Microscopique'),array('','none','none','microscpic','microscpic'),$m->values['Cytoreduction']);
+	if(!empty($m->values['Cytoreduction (> ou < 2cm)'])) {
+		$cytoreduction = str_replace(array(' ','Aucune','aucune','microscopique','Microscopique'),array('','none','none','microscpic','microscpic'),$m->values['Cytoreduction (> ou < 2cm)']);
 		if(!in_array($cytoreduction, Config::$cytoreduction_values)) {
 			$cytoreduction = '';
-			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Cytoreduction'][] = "Unsupported Cytoreduction value [".$m->values['Cytoreduction']."] : added to note! [Line: ".$m->line.']';
-			$notes .= (empty($notes)? '' : ' // ').'Cytoreduction note: '.$m->values['Cytoreduction'];
+			Config::$summary_msg['SURGERY']['@@MESSAGE@@']['Cytoreduction'][] = "Unsupported Cytoreduction value [".$m->values['Cytoreduction (> ou < 2cm)']."] : added to note! [Line: ".$m->line.']';
+			$notes .= (empty($notes)? '' : ' // ').'Cytoreduction note: '.$m->values['Cytoreduction (> ou < 2cm)'];
 		}
 		$record_surgery = true;
 	}
