@@ -6,7 +6,7 @@ class ParticipantCustom extends Participant {
 	
 	var $hasMany = array(
 		'DiagnosisMaster' => array(
-			'className'   => 'Clinicalannotation.DiagnosisMaster',
+			'className'   => 'ClinicalAnnotation.DiagnosisMaster',
 			 'foreignKey'  => 'participant_id')
 	); 	
 	
@@ -63,7 +63,7 @@ class ParticipantCustom extends Participant {
 	function updateAllDxAges($date_of_birth) {
 
 		// Finds all associated diagnosis records
-		$diagnosis_master_model = AppModel::getInstance("Clinicalannotation", "DiagnosisMaster", true);
+		$diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
 		$participant_dx_results = $diagnosis_master_model->find('all', array('conditions' => array ('DiagnosisMaster.participant_id' => $this->id), 'recursive' => '0'));		
 		
 		foreach($participant_dx_results as $new_dx) {
