@@ -8,10 +8,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 
 	var $belongsTo = array(        
 		'Participant' => array(            
-		'className'    => 'Clinicalannotation.Participant',            
+		'className'    => 'ClinicalAnnotation.Participant',            
 		'foreignKey'    => 'participant_id'),
 		'DiagnosisControl' => array(            
-		'className'    => 'Clinicalannotation.DiagnosisControl',            
+		'className'    => 'ClinicalAnnotation.DiagnosisControl',            
 		'foreignKey'    => 'diagnosis_control_id')
 	);
 
@@ -35,7 +35,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			}
 
 		
-			$dx_control_model = AppModel::getInstance("Clinicalannotation", "DiagnosisControl", true);
+			$dx_control_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisControl", true);
 			$dx_control_data = $dx_control_model->find('first', array('conditions' => array ('DiagnosisControl.id' => $dx_control_id)));
 			
 			if (empty($dx_control_data)) {
@@ -47,7 +47,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				
 			if(is_null($previous_dx_data) || ($dx_date != $previous_dx_date)) {
 					
-				$participant_model = AppModel::getInstance("Clinicalannotation", "Participant", true);
+				$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 				$participant_data = $participant_model->find('first', array('conditions' => array ('Participant.id' => $participant_id), 'recursive' => '-1'));
 
 				if(empty($participant_data)) {
