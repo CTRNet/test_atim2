@@ -252,7 +252,30 @@ function addonFunctionEnd(){
 //	mysqli_query(Config::$db_connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 //	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
 //	mysqli_query(Config::$db_connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+
+	// EMPTY DATES CLEAN UP
 	
+	$date_times_to_check = array(
+			'collections.collection_datetime',
+			'diagnosis_masters.dx_date',
+			'event_masters.event_date',
+			'participants.date_of_birth',
+			'participants.date_of_death',
+			'treatment_masters.start_date',
+			'treatment_masters.finish_date');
+	
+	foreach($date_times_to_check as $table_field) {
+		$names = explode(".", $table_field);
+	
+		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
+	
+		if(Config::$insert_revs){
+			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null,".$names[1]."_accuracy WHERE ".$names[1]." LIKE '0000-00-00%'";
+			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");
+		}
+	}
+		
 	// WARNING DISPLAY
 
 	echo "<br><br><FONT COLOR=\"blue\" >
@@ -517,7 +540,7 @@ function addPatientsHistory() {
 				if(!empty($line_data['Date recrutement'])) {
 					$date_tmp = customGetFormatedDate($line_data['Date recrutement'], 'PATIENT HISTORY', $line_counter);
 					$master_fields['event_date'] = "'$date_tmp'";
-					$master_fields['event_date_accuracy'] = "'c'";
+					if(!empty($date_tmp)) $master_fields['event_date_accuracy'] = "'c'";
 				}
 				$event_master_id = customInsertChusRecord($master_fields, 'event_masters');	
 				
