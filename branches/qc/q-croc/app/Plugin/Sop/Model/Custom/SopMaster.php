@@ -12,10 +12,9 @@ class SopMasterCustom extends SopMaster
 	function getAllSopPermissibleValues($conditions = array()) {
 		$result = array();
 		$sop_versions = $this->getSopVersions();		
-		foreach($this->find('all', array('conditions' => array('SopControl.sop_group' => 'biopsy'), 'order' => 'SopMaster.activated_date DESC')) as $sop) {
-			$version = '?';
-			if(array_key_exists($sop['SopMaster']['version'], $sop_versions)) $version = strlen($sop_versions[$sop['SopMaster']['version']])? $sop_versions[$sop['SopMaster']['version']] : $sop['SopMaster']['version'];
-			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ('.$version.' / '.$sop['SopMaster']['activated_date'].')';
+		foreach($this->find('all', array('conditions' => $conditions, 'order' => 'SopMaster.activated_date DESC')) as $sop) {
+			$version = array_key_exists($sop['SopMaster']['version'], $sop_versions)? $sop_versions[$sop['SopMaster']['version']] : $sop['SopMaster']['version'].'???????';
+			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.$sop['SopMaster']['activated_date']." | V#".$version.']';
 		}
 		return $result;
 	}	
@@ -24,7 +23,8 @@ class SopMasterCustom extends SopMaster
 		$StructurePermissibleValuesCustom = AppModel::getInstance("Administrate", "StructurePermissibleValuesCustom", true);
 		$sop_versions = $StructurePermissibleValuesCustom->find('all',array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'sop versions', 'StructurePermissibleValuesCustomControl.flag_active' => '1')));
 		$res = array();
-		foreach($sop_versions as $new_vers) $res[$new_vers['StructurePermissibleValuesCustom']['value']] = $new_vers['StructurePermissibleValuesCustom']['en'];
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+		foreach($sop_versions as $new_vers) $res[$new_vers['StructurePermissibleValuesCustom']['value']] = empty($new_vers['StructurePermissibleValuesCustom'][$lang])? $new_vers['StructurePermissibleValuesCustom']['value'] : empty($new_vers['StructurePermissibleValuesCustom'][$lang]);
 		return $res;
 	}
 	

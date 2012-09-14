@@ -11,5 +11,11 @@
 		'bottom'=>array('add' => $add_links)
 	);
 	
-	$this->Structures->build( $atim_structure, array('type'=>'index','links'=>$structure_links) );
-?>
+	$final_atim_structure = $atim_structure;
+	$final_options = array('type'=>'index','links'=>$structure_links);
+	
+	// CUSTOM CODE
+	$hook_link = $this->Structures->hook();
+	if( $hook_link ) { require($hook_link); }
+		
+	$this->Structures->build( $final_atim_structure,  $final_options);
