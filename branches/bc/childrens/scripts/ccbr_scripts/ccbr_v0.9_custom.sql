@@ -7,6 +7,15 @@
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('core_installname', 'Child and Family Research Institute - CCBR v0.9 (RC1)', '');
 
+-- Fix column name for extended radiation tables. Incorrect field name
+ALTER TABLE `txe_radiations` DROP FOREIGN KEY `FK_txe_radiations_tx_masters` ;
+ALTER TABLE `txe_radiations` CHANGE COLUMN `treatment_master_id` `tx_master_id` INT(11) NULL DEFAULT NULL  , 
+  ADD CONSTRAINT `FK_txe_radiations_tx_masters`
+  FOREIGN KEY (`tx_master_id` )
+  REFERENCES `treatment_masters` (`id` );
+  
+ALTER TABLE `txe_radiations_revs` CHANGE COLUMN `treatment_master_id` `tx_master_id` INT(11) NULL DEFAULT NULL  ;  
+
 /*
 	---------------------------------------------------------------------------
 	EVENTUM ISSUE: #2135 - Dx/Tx Source
@@ -22,6 +31,23 @@ INSERT INTO `structure_permissible_values` (`value`, `language_alias`) VALUES ('
 INSERT INTO `structure_value_domains_permissible_values` (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`, `use_as_input`) VALUES
 ((select id from structure_value_domains where domain_name = 'information_source'), (SELECT id FROM structure_permissible_values where value = 'eve' and language_alias = 'ccbr eve'), 5, 1, 1);
 
+/*
+	---------------------------------------------------------------------------
+	EVENTUM ISSUE: #2377 - Radiation - Add Target Site
+	---------------------------------------------------------------------------
+*/
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('ccbr rad site other', 'Site, if Other', '');
+
+ALTER TABLE `txd_radiations` ADD COLUMN `ccbr_rad_site_other` VARCHAR(100) NULL DEFAULT NULL AFTER `ccbr_rad_site` ;
+ALTER TABLE `txd_radiations_revs` ADD COLUMN `ccbr_rad_site_other` VARCHAR(100) NULL DEFAULT NULL AFTER `ccbr_rad_site` ;
+
+INSERT INTO `structure_fields` (`plugin`, `model`, `tablename`, `field`, `language_label`, `type`) VALUES
+('Clinicalannotation', 'TreatmentDetail', 'txd_radiations', 'ccbr_rad_site_other', 'ccbr rad site other', 'input');
+	
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='ccbr_rad_site_other' AND `type`='input' AND `language_label`='ccbr rad site other'), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+ 
 /*
 	---------------------------------------------------------------------------
 	EVENTUM ISSUE: #2145 - Fix PHN Validation
@@ -141,7 +167,15 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_ccbr_lab_immunophenotypes'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_ccbr_lab_immunophenotypes' AND `field`='ccbr_CD65' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesnopartial')  AND `flag_confidential`='0' AND `setting`='' AND `default`='n' AND `language_help`='' AND `language_label`='ccbr CD65' AND `language_tag`=''), '2', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'); 
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
-	VALUES ('ccbr CD65', 'CD65', '');	
+	VALUES ('ccbr CD65', 'CD65', '');
+	
+/*
+	---------------------------------------------------------------------------
+	EVENTUM ISSUE: #2392 - Consent revisions
+	---------------------------------------------------------------------------
+*/
+
+ALTER TABLE `cd_ccbr_consents_rev` CHANGE COLUMN `version_id` `version_id` INT(11) NOT NULL AUTO_INCREMENT  ; 		
 	
 /*	
 	---------------------------------------------------------------------------
@@ -366,7 +400,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_18', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom 18', ''), 
 ('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_19', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom 19', ''), 
 ('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_20', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom 20', ''), 
-ed_ccbr_lab_karyotypes, 
+('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_21', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom 21', ''), 
 ('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_22', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom 22', ''), 
 ('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_x', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom x', ''), 
 ('Clinicalannotation', 'EventDetail', 'ed_ccbr_lab_karyotypes', 'ccbr_chrom_y', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype') , '0', '', '', '', 'ccbr chrom y', '');
@@ -395,5 +429,3 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_ccbr_lab_karyotypes'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_ccbr_lab_karyotypes' AND `field`='ccbr_chrom_22' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ccbr chrom 22' AND `language_tag`=''), '2', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_ccbr_lab_karyotypes'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_ccbr_lab_karyotypes' AND `field`='ccbr_chrom_x' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ccbr chrom x' AND `language_tag`=''), '3', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_ccbr_lab_karyotypes'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_ccbr_lab_karyotypes' AND `field`='ccbr_chrom_y' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_karyotype')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ccbr chrom y' AND `language_tag`=''), '3', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
-
-  
