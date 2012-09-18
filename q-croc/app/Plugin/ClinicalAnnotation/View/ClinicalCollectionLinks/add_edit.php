@@ -78,7 +78,7 @@ $final_options = array(
 $display_next_sub_form = true;
 
 // CUSTOM CODE
-$hook_link = $this->Structures->hook('event_detail');
+$hook_link = $this->Structures->hook('trt_detail');
 if( $hook_link ) {
 	require($hook_link);
 }

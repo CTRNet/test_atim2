@@ -20,7 +20,7 @@ class SopMasterCustom extends SopMaster
 	}	
 	
 	function getSopVersions() {
-		$StructurePermissibleValuesCustom = AppModel::getInstance("Administrate", "StructurePermissibleValuesCustom", true);
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
 		$sop_versions = $StructurePermissibleValuesCustom->find('all',array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'sop versions', 'StructurePermissibleValuesCustomControl.flag_active' => '1')));
 		$res = array();
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
