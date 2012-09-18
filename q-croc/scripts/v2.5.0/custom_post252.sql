@@ -261,10 +261,81 @@ INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, 
 VALUES 
 ((SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='date_sample_received'), 'notEmpty', '', '');
 
--- SAMPLE TRANSFERT
+-- SAMPLE TRANSFER
 
 UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type') AND `flag_confidential`='0');
+
+ALTER TABLE aliquot_internal_uses
+	ADD COLUMN qcroc_transfer_to varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_conditions varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_method_of_dispatch varchar(50) DEFAULT NULL;
+ALTER TABLE aliquot_internal_uses_revs
+	ADD COLUMN qcroc_transfer_to varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_conditions varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_method_of_dispatch varchar(50) DEFAULT NULL;	
+
+
+
+exit
+toto
+
+INSERT INTO structures(`alias`) VALUES ('qcroc_aliquot_transfer');
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("qcroc_aliquot_transfer_conditions", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Aliquot Transfer: Conditions\')"),
+("qcroc_aliquot_dispatch_methods", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Aliquot Transfer: Dispatch methods\')"),
+("qcroc_aliquot_transfer_types", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Aliquot Transfer: Types\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Aliquot Transfer: Conditions', 1, 50),
+('Aliquot Transfer: Dispatch methods', 1, 50),
+('Aliquot Transfer: Types', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Transfer: Conditions');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('dry ice', 'On dry ice', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('ice packs', 'On ice packs', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('room temperature', 'At room temperature', '', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Transfer: Dispatch methods');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('fedex', 'FedEx', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Taxi', 'Sent by taxi', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('in person', 'Given in person', '', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Transfer: Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('site to HDQ','Site to HDQ', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('site to JGH','Site to JGH', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('HDQ to JGH','HDQ to JGH', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types') , '0', '', '', '', 'type', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_to', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'shipped to', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_conditions', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_conditions') , '0', '', '', '', 'shipping conditions', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_method_of_dispatch', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_dispatch_methods') , '0', '', '', '', 'method of dispatch', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '2', '', '1', 'shipping number', '0', '', '0', '', '0', '', '1', 'size=15', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_use_datetime_defintion' AND `language_label`='date' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0'), '0', '7', '', '1', 'shipped by', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_created' AND `language_label`='created (into the system)' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '1', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_to' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipped to' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_conditions' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_conditions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipping conditions' AND `language_tag`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_method_of_dispatch' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_dispatch_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method of dispatch' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `field`='type' AND structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types')), 'notEmpty', '', '');
+
+REPLACE INTO i18n (id,en) VALUES 
+('shipping number', 'Shipping #'),
+('shipped by','Shipped by'),
+('shipped to','Shipped to'),
+('use/event','Use/Event'),
+('transfer','Transfer'),
+('shipping conditions','Shipping conditions'),
+('method of dispatch','Dispatch method'),
+('aliquot transfer','Aliquot transfer');	
 
 
 
@@ -350,7 +421,6 @@ ALTER TABLE `spr_breast_cancer_types`
 UPDATE structure_formats SET `display_column`='1', `display_order`='71', `language_heading`='collection information at site' WHERE structure_id=(SELECT id FROM structures WHERE alias='qcroc_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='qcroc_ad_tissue_tubes' AND `field`='time_placed_at_4c' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 REPLACE INTO i18n (id,en) VALUES ('collection information at site','Collection information (at site)'),('initial storage date','Time of storage (at JGH)');
-
 
 
 

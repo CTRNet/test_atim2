@@ -24,7 +24,7 @@ class SopMasterCustom extends SopMaster
 		$sop_versions = $StructurePermissibleValuesCustom->find('all',array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'sop versions', 'StructurePermissibleValuesCustomControl.flag_active' => '1')));
 		$res = array();
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-		foreach($sop_versions as $new_vers) $res[$new_vers['StructurePermissibleValuesCustom']['value']] = empty($new_vers['StructurePermissibleValuesCustom'][$lang])? $new_vers['StructurePermissibleValuesCustom']['value'] : empty($new_vers['StructurePermissibleValuesCustom'][$lang]);
+		foreach($sop_versions as $new_vers) $res[$new_vers['StructurePermissibleValuesCustom']['value']] = empty($new_vers['StructurePermissibleValuesCustom'][$lang])? $new_vers['StructurePermissibleValuesCustom']['value'] : $new_vers['StructurePermissibleValuesCustom'][$lang];
 		return $res;
 	}
 	
