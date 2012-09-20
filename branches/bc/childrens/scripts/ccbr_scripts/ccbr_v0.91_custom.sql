@@ -3,7 +3,7 @@
 -- ATiM Version: v2.5.1
 -- Notes: Must be run against ATiM v2.5.1 with all previous CCBR upgrades applied
 
--- Fix FK name for extended radiation tables
+-- Fix FK name for extended radiation table
 ALTER TABLE `txe_radiations` 
 DROP FOREIGN KEY `FK_txe_radiations_tx_masters`;
 
@@ -38,3 +38,7 @@ UPDATE structure_formats SET `display_column`='2', `display_order`='5' WHERE str
 UPDATE structure_formats SET `display_column`='2', `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='ccbr_rad_total_dose' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_treatment_site') AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `display_column`='2', `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='ccbr_rad_site_other' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='ccbr rad site other' WHERE model='TreatmentDetail' AND tablename='txd_radiations' AND field='ccbr_rad_site_other' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+UPDATE structure_fields SET  `setting`='size=30' WHERE model='TreatmentDetail' AND tablename='txd_radiations' AND field='ccbr_rad_site_other' AND `type`='input' AND structure_value_domain  IS NULL ;
