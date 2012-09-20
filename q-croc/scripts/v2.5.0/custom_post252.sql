@@ -267,18 +267,13 @@ UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id F
 UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type') AND `flag_confidential`='0');
 
 ALTER TABLE aliquot_internal_uses
-	ADD COLUMN qcroc_transfer_to varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_by varchar(50) DEFAULT NULL,
 	ADD COLUMN qcroc_transfer_conditions varchar(50) DEFAULT NULL,
 	ADD COLUMN qcroc_transfer_method_of_dispatch varchar(50) DEFAULT NULL;
 ALTER TABLE aliquot_internal_uses_revs
-	ADD COLUMN qcroc_transfer_to varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_by varchar(50) DEFAULT NULL,
 	ADD COLUMN qcroc_transfer_conditions varchar(50) DEFAULT NULL,
 	ADD COLUMN qcroc_transfer_method_of_dispatch varchar(50) DEFAULT NULL;	
-
-
-
-exit
-toto
 
 INSERT INTO structures(`alias`) VALUES ('qcroc_aliquot_transfer');
 INSERT INTO structure_value_domains (domain_name, override, category, source) 
@@ -309,23 +304,38 @@ VALUES
 ('site to HDQ','Site to HDQ', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('site to JGH','Site to JGH', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('HDQ to JGH','HDQ to JGH', '', '1', @control_id, NOW(), NOW(), 1, 1);
+UPDATE structure_value_domains SET source = 'InventoryManagement.ViewAliquotUse::getLaboratoryStaff' WHERE domain_name = 'custom_laboratory_staff';
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qcroc_sites_and_hdq_staff", "", "", "InventoryManagement.ViewAliquotUse::getSitesAndHDQStaff");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Staff : Sites', 1, 50),
+('Staff : HDQ', 1, 50),
+('Staff : JGH', 1, 50);
+
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types') , '0', '', '', '', 'type', ''), 
-('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_to', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'shipped to', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_by', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_sites_and_hdq_staff') , '0', '', '', '', 'shipped by', ''), 
 ('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_conditions', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_conditions') , '0', '', '', '', 'shipping conditions', ''), 
 ('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_transfer_method_of_dispatch', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_dispatch_methods') , '0', '', '', '', 'method of dispatch', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '2', '', '1', 'shipping number', '0', '', '0', '', '0', '', '1', 'size=15', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_use_datetime_defintion' AND `language_label`='date' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0'), '0', '7', '', '1', 'shipped by', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='used_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0'), '0', '8', '', '1', 'shipped to', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_details' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '0', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_created' AND `language_label`='created (into the system)' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '1', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_to' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipped to' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_by' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_sites_and_hdq_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipped by' AND `language_tag`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_conditions' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_conditions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipping conditions' AND `language_tag`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_transfer_method_of_dispatch' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_dispatch_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method of dispatch' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `field`='type' AND structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types')), 'notEmpty', '', '');
+
+ALTER TABLE aliquot_internal_uses
+	ADD COLUMN qcroc_is_transfer tinyint(1) NOT NULL DEFAULT '0';
+ALTER TABLE aliquot_internal_uses_revs
+	ADD COLUMN qcroc_is_transfer tinyint(1) NOT NULL DEFAULT '0';
+
+UPDATE structure_formats SET `flag_override_label` = 1, `language_label` = 'used by/shipped to' WHERE structure_id=(SELECT id FROM structures WHERE alias='viewaliquotuses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquotUse' AND `tablename`='view_aliquot_uses' AND `field`='used_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 
 REPLACE INTO i18n (id,en) VALUES 
 ('shipping number', 'Shipping #'),
@@ -335,13 +345,215 @@ REPLACE INTO i18n (id,en) VALUES
 ('transfer','Transfer'),
 ('shipping conditions','Shipping conditions'),
 ('method of dispatch','Dispatch method'),
-('aliquot transfer','Aliquot transfer');	
+('aliquot transfer','Aliquot transfer'),
+('used by/shipped to','Used by/Shipped to'),
+('unable to calculate time sample remained in rnalater','Unable to calculate time sample remained in rnalater'),
+('the treatment date used as default collection date was rough','The treatment date used as default collection date was rough');	
 
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(10);
 
+REPLACE INTO i18n (id,en) VALUES 
+('realiquoted by','Processed By (Realiquoting)'),
+('realiquoting date','Processing Date (Realiquoting)');
 
+ALTER TABLE realiquotings
+  ADD COLUMN qcroc_sop_followed char(1) DEFAULT '',  
+  ADD COLUMN qcroc_sop_master_id int(11) DEFAULT NULL,
+  ADD COLUMN qcroc_sop_deviations text;  
+ALTER TABLE realiquotings_revs
+  ADD COLUMN qcroc_sop_followed char(1) DEFAULT '',  
+  ADD COLUMN qcroc_sop_master_id int(11) DEFAULT NULL,
+  ADD COLUMN qcroc_sop_deviations text;  
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'qcroc_blocks_sops', 'open', '', 'Sop.SopMaster::getBlockSopPermissibleValues');
+INSERT INTO `sop_controls` (`sop_group`, `type`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `created`, `created_by`, `modified`, `modified_by`, `flag_active`) VALUES
+('tissue block', '', 'sopd_general_alls', 'sopd_general_all', '', '', 0, NULL, 0, NULL, 0, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Realiquoting', 'realiquotings', 'qcroc_sop_followed', 'yes_no',  NULL , '0', '', '', '', 'sop followed', ''), 
+('InventoryManagement', 'Realiquoting', 'realiquotings', 'qcroc_sop_master_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_blocks_sops') , '0', '', '', '', 'sop#', ''), 
+('InventoryManagement', 'Realiquoting', 'realiquotings', 'qcroc_sop_deviations', 'textarea',  NULL , '0', 'cols=30,rows=3', '', '', 'sop deviations', ''); 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='realiquot_without_vol'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='qcroc_sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '1', '2013', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='realiquot_without_vol'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='qcroc_sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_blocks_sops')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop#' AND `language_tag`=''), '1', '2014', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='realiquot_without_vol'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='qcroc_sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '1', '2015', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='realiquot_with_vol'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='qcroc_sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '1', '2015', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='realiquot_with_vol'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='qcroc_sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_blocks_sops')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop#' AND `language_tag`=''), '1', '2016', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='realiquot_with_vol'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='qcroc_sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '1', '2017', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'specimen collection sites');
+INSERT INTO structure_permissible_values_customs (control_id, value, display_order, use_as_input, created, created_by, modified, modified_by, deleted) VALUES 
+(@control_id, 'CHUS', 1, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'CHUM-HDM', 2, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'CHUM-HND', 3, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'CHUM-HSL', 4, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'CHUQ-CHUL', 5, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'CHUQ-HDQ', 6, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'CHUQ-HSFA', 7, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'HSCM', 8, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'HSS', 9, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'McGill-HSM', 10, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'McGill-JGH', 11, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'McGill-MGH', 12, 1, NOW(), 1, NOW(), 1, 0),
+(@control_id, 'McGill-RVH', 13, 1, NOW(), 1, NOW(), 1, 0);
+
+UPDATE structure_permissible_values_custom_controls SET name = 'SOP : Versions' WHERE name = 'sop versions';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'SOP : Versions\')" WHERE domain_name = 'custom_sop_verisons';
+
+ALTER TABLE ad_blocks
+	ADD COLUMN qcroc_methyl_butane_refrigeration varchar(50) default null,
+	ADD COLUMN qcroc_carrot_longer_than_1_cm  char(1) DEFAULT '',
+	ADD COLUMN qcroc_fragment_nbr  varchar(10) DEFAULT '',
+	ADD COLUMN qcroc_fragment_nbr_specify  int(6) DEFAULT null,
+	ADD COLUMN qcroc_sizes_mm  varchar(50) DEFAULT '';
+ALTER TABLE ad_blocks_revs
+	ADD COLUMN qcroc_methyl_butane_refrigeration varchar(50) default null,
+	ADD COLUMN qcroc_carrot_longer_than_1_cm  char(1) DEFAULT '',
+	ADD COLUMN qcroc_fragment_nbr  varchar(10) DEFAULT '',
+	ADD COLUMN qcroc_fragment_nbr_specify  int(6) DEFAULT null,
+	ADD COLUMN qcroc_sizes_mm  varchar(50) DEFAULT '';
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qcroc_methyl_butane_refrigeration", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("liquid nitrogen", "liquid nitrogen"),("dry ice", "dry ice");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qcroc_methyl_butane_refrigeration"), (SELECT id FROM structure_permissible_values WHERE value="liquid nitrogen" AND language_alias="liquid nitrogen"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qcroc_methyl_butane_refrigeration"), (SELECT id FROM structure_permissible_values WHERE value="dry ice" AND language_alias="dry ice"), "", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qcroc_carrot_fragement_nbr", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qcroc_carrot_fragement_nbr"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qcroc_carrot_fragement_nbr"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qcroc_carrot_fragement_nbr"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qcroc_carrot_fragement_nbr"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
 	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qcroc_methyl_butane_refrigeration', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_methyl_butane_refrigeration') , '0', '', '', '', 'methyl butane refrigeration', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qcroc_carrot_longer_than_1_cm', 'yes_no',  NULL , '0', '', '', '', 'carrot longer than 1 cm', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qcroc_fragment_nbr', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_carrot_fragement_nbr') , '0', '', '', '', 'fragment nbr', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qcroc_sizes_mm', 'input',  NULL , '0', 'size=6', '', '', 'sizes mm', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_methyl_butane_refrigeration' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_methyl_butane_refrigeration')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='methyl butane refrigeration' AND `language_tag`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_carrot_longer_than_1_cm' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='carrot longer than 1 cm' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_fragment_nbr' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_carrot_fragement_nbr')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fragment nbr' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_sizes_mm' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='sizes mm' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='rec_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='block_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='block_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='rec_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en) VALUES 
+('methyl butane refrigeration','Methyl butane (isopentane) refrigeration'),  
+('carrot longer than 1 cm','Was the biopsy carrot longer than 1cm'),  
+('fragment nbr','Number of fragments'),  
+('sizes mm','Size(s) (mm)'),  
+("liquid nitrogen", "Liquid nitrogen"),("dry ice", "Dry ice");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'qcroc_fragment_nbr_specify', 'integer_positive',  NULL , '0', 'size=6', '', '', '', 'specify');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_fragment_nbr_specify' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='specify'), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `setting`='size=30' WHERE model='AliquotDetail' AND tablename='ad_blocks' AND field='qcroc_sizes_mm' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='74' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_sizes_mm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(1);
+UPDATE aliquot_controls SET flag_active=false WHERE id IN(11);
+UPDATE realiquoting_controls SET flag_active=false WHERE id IN(12, 46);
+
+SET @block_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue') AND aliquot_type = 'block');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id,child_aliquot_control_id,flag_active) VALUES (@block_control_id,@block_control_id,1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- -------------------------------------------------------------------------------------------
+-- OTHER
+-- -------------------------------------------------------------------------------------------
+
+INSERT INTO structure_permissible_values_customs_revs (id, control_id, value, display_order, use_as_input, modified_by, version_created)
+(SELECT id, control_id, value, display_order, use_as_input, modified_by, modified FROM structure_permissible_values_customs);
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/%';
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ParticipantContact','EventMaster','FamilyHistory','DiagnosisMaster','ConsentMaster','MiscIdentifier'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ParticipantContact','EventMaster','FamilyHistory','DiagnosisMaster','ConsentMaster','MiscIdentifier'));
+
+-- -------------------------------------------------------------------------------------------
+-- Exampel values to delete
+
+-- -------------------------------------------------------------------------------------------
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : Sites');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('site staff 1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('site staff 2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : HDQ');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('HDQ staff 1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('HDQ staff 2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : JGH');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('JGH staff 1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('JGH staff 2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name =  'SOP : Versions');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('sv1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('sv2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+
+ 
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 exit
-todo...
+in progress
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 -- Review
@@ -422,22 +634,6 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='71', `langua
 
 REPLACE INTO i18n (id,en) VALUES ('collection information at site','Collection information (at site)'),('initial storage date','Time of storage (at JGH)');
 
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-exit
-done
 
 
 

@@ -19,11 +19,38 @@ class ViewAliquotUseCustom extends ViewAliquotUse {
 		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
 		
 		$transfer_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'Aliquot Transfer: Types')));
-		foreach($transfer_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = __('aliquot transfer').': '.(strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value']);
+		foreach($transfer_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = __('aliquot transfer').' ('.(strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value']).')';
 		
 		asort($result);
 		return $result;
 	}
+	
+	function  getSitesAndHDQStaff() {
+		$result = array();
+		
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+		
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff: Sites', 'Staff: HDQ'))));
+		foreach($all_values as $new_value) $result[$new_value['StructurePermissibleValuesCustom']['value']] = strlen($new_value['StructurePermissibleValuesCustom'][$lang])? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value'];
+		
+		asort($result);
+		return $result;
+	}
+	
+	function  getLaboratoryStaff() {
+		$result = array();
+	
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+	
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff: JGH', 'Staff: HDQ'))));
+		foreach($all_values as $new_value) $result[$new_value['StructurePermissibleValuesCustom']['value']] = strlen($new_value['StructurePermissibleValuesCustom'][$lang])? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value'];
+	
+		asort($result);
+		return $result;
+	}	
+	
 
 }
 
