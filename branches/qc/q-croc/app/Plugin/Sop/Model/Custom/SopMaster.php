@@ -9,11 +9,15 @@ class SopMasterCustom extends SopMaster
 		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'biopsy'));
 	}
 	
+	function getBlockSopPermissibleValues() {
+		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'tissue block'));
+	}		
+	
 	function getAllSopPermissibleValues($conditions = array()) {
 		$result = array();
 		$sop_versions = $this->getSopVersions();		
 		foreach($this->find('all', array('conditions' => $conditions, 'order' => 'SopMaster.activated_date DESC')) as $sop) {
-			$version = array_key_exists($sop['SopMaster']['version'], $sop_versions)? $sop_versions[$sop['SopMaster']['version']] : $sop['SopMaster']['version'].'???????';
+			$version = array_key_exists($sop['SopMaster']['version'], $sop_versions)? $sop_versions[$sop['SopMaster']['version']] : $sop['SopMaster']['version'];
 			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.$sop['SopMaster']['activated_date']." | V#".$version.']';
 		}
 		return $result;
