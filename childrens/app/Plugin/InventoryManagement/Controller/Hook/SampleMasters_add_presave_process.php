@@ -11,15 +11,18 @@
 			// Save either specimen or derivative detail
 			if($is_specimen) {
 			// SpecimenDetail
-				$this->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
-				if(!$this->SpecimenDetail->save($this->data['SpecimenDetail'], false)) { 
-					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				$this->request->data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+				$this->SpecimenDetail->id = $sample_master_id;
+
+				if(!$this->SpecimenDetail->save($this->request->data['SpecimenDetail'], false)) { 
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 			} else {
 			// DerivativeDetail
-				$this->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
-				if(!$this->DerivativeDetail->save($this->data['DerivativeDetail'], false)) { 
-					$this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				$this->request->data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+				$this->DerivativeDetail->id = $sample_master_id;
+				if(!$this->DerivativeDetail->save($this->request->data['DerivativeDetail'], false)) { 
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
 			}						
 					
@@ -28,11 +31,11 @@
 				require($hook_link); 
 			}
 					
-			if($this->RequestHandler->isAjax()){
+			if($this->request->is('ajax')){
 				echo json_encode(array('goToNext' => true, 'display' => '', 'id' => $sample_master_id));
 				exit;
 			}else{
-				$this->atimFlash('your data has been saved', '/inventorymanagement/sample_masters/detail/' . $collection_id . '/' . $sample_master_id);
+				$this->atimFlash('your data has been saved', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 			}	
 		}				
 	}		
