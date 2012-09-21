@@ -463,6 +463,34 @@ UPDATE realiquoting_controls SET flag_active=false WHERE id IN(12, 46);
 SET @block_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue') AND aliquot_type = 'block');
 INSERT INTO realiquoting_controls (parent_aliquot_control_id,child_aliquot_control_id,flag_active) VALUES (@block_control_id,@block_control_id,1);
 
+INSERT INTO `templates` (`id`, `flag_system`, `name`, `owner`, `visibility`, `flag_active`, `owning_entity_id`, `visible_entity_id`) VALUES
+(1, 1, 'Biopsy', 'all', 'all', 1, 1, 1);
+
+INSERT INTO `template_nodes` (`id`, `parent_id`, `template_id`, `datamart_structure_id`, `control_id`, `quantity`) VALUES
+(1, NULL, 1, 5, 3, 1),
+(2, 1, 1, 1, 1, 1),
+(3, NULL, 1, 5, 3, 1),
+(4, 3, 1, 1, 1, 1),
+(5, NULL, 1, 5, 3, 1),
+(6, 5, 1, 1, 1, 1);
+
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='tissue carrot data (if applied)' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_methyl_butane_refrigeration' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_methyl_butane_refrigeration') AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en) VALUES 
+('tissue carrot data (if applied)','Tissue carrot data (if applied)');
+
+REPLACE INTO i18n (id,en) VALUES 
+('oct embedding of biopsies', 'OCT embedding of biopsies'),
+('sampling or processing of oct embedded biopsies','Sampling/Processing of oct embedded biopsies'),
+('batch aliquots processing','Batch aliquots processing');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
 
 
 
@@ -631,16 +659,6 @@ ALTER TABLE `spr_breast_cancer_types`
   ADD CONSTRAINT `FK_spr_breast_cancer_types_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
 
 UPDATE structure_formats SET `display_column`='1', `display_order`='71', `language_heading`='collection information at site' WHERE structure_id=(SELECT id FROM structures WHERE alias='qcroc_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='qcroc_ad_tissue_tubes' AND `field`='time_placed_at_4c' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-REPLACE INTO i18n (id,en) VALUES ('collection information at site','Collection information (at site)'),('initial storage date','Time of storage (at JGH)');
-
-
-
-
-
-
-
-
 
 
 
