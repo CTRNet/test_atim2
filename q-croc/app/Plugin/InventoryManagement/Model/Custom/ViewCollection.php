@@ -40,7 +40,7 @@ LEFT JOIN qcroc_txd_liver_biopsies AS TreatmentDetail ON Collection.treatment_ma
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
 			
 			$return = array(
-				'menu' => array(null, $collection_data['ViewCollection']['participant_identifier']),
+				'menu' => array(null, $collection_data['ViewCollection']['participant_identifier'] . ' ' .$collection_data['ViewCollection']['qcroc_collection_date']),
 				'title' => array(null, __('collection') . ' : ' . $collection_data['ViewCollection']['participant_identifier']),
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data

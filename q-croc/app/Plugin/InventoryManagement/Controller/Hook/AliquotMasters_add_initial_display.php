@@ -6,7 +6,7 @@
 		
 		if($new_data_set['parent']['ViewSample']['sample_type'] == 'tissue' && $aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
 			$label_study = (preg_match("/^Q-CROC-([0-9]+)$/", $new_data_set['parent']['ViewSample']['qcroc_protocol'], $matches))? $matches[1] : '?';
-			$label_pre_post = '';
+			$label_pre_post = '?';
 			switch($new_data_set['parent']['ViewSample']['qcroc_collection_type']) {
 				case 'pre':
 					$label_pre_post = '1';
@@ -30,15 +30,44 @@
 					$label_prefix = '1';
 					$tmp_default_aliquot_data['AliquotDetail.tube_type'] = 'rnalater';
 					break;
-				case '1':
+				case '1':					
 					$label_prefix = '2';
 					$tmp_default_aliquot_data['AliquotDetail.tube_type'] = 'rnalater';
-					foreach(array('time_placed_at_4c','date_sample_received','temperature_in_box_celsius','sample_condition_at_reception') as $field_name) $tmp_default_aliquot_data['AliquotDetail.'.$field_name] = $existing_tissue_tubes[0]['AliquotDetail'][$field_name];
+					$fields_to_duplicate = array(
+						'AliquotMaster'  => array(
+							'in_stock',
+							'in_stock_detail',
+							'storage_datetime',
+							'storage_datetime_accuracy'),
+						'AliquotDetail'  => array(
+							'time_placed_at_4c',
+							'date_sample_received',
+							'temperature_in_box_celsius',
+							'sample_condition_at_reception')
+					);
+					foreach($fields_to_duplicate as $model => $model_field_names) {
+						foreach($model_field_names as $field_name) {
+							$tmp_default_aliquot_data[$model.'.'.$field_name] = $existing_tissue_tubes[0][$model][$field_name];
+						}
+					}
+					$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = $existing_tissue_tubes[0]['StorageMaster']['selection_label'];
 					break;
 				case '2':
 					$label_prefix = '3';
 					$tmp_default_aliquot_data['AliquotDetail.tube_type'] = 'formaline';
-					foreach(array('time_placed_at_4c','date_sample_received','temperature_in_box_celsius','sample_condition_at_reception') as $field_name) $tmp_default_aliquot_data['AliquotDetail.'.$field_name] = $existing_tissue_tubes[1]['AliquotDetail'][$field_name];
+					$fields_to_duplicate = array(
+							'AliquotMaster'  => array(),
+							'AliquotDetail'  => array(
+									'time_placed_at_4c',
+									'date_sample_received',
+									'temperature_in_box_celsius',
+									'sample_condition_at_reception')
+					);
+					foreach($fields_to_duplicate as $model => $model_field_names) {
+						foreach($model_field_names as $field_name) {
+							$tmp_default_aliquot_data[$model.'.'.$field_name] = $existing_tissue_tubes[0][$model][$field_name];
+						}
+					}
 					break;
 				default:
 					break;
