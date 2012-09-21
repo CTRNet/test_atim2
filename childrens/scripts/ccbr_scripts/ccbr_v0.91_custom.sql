@@ -3,6 +3,10 @@
 -- ATiM Version: v2.5.1
 -- Notes: Must be run against ATiM v2.5.1 with all previous CCBR upgrades applied
 
+-- Update bank name for version tracking during customization
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('core_installname', 'Child and Family Research Institute - CCBR v0.91', '');
+
 -- Fix FK name for extended radiation table
 ALTER TABLE `txe_radiations` 
 DROP FOREIGN KEY `FK_txe_radiations_tx_masters`;
