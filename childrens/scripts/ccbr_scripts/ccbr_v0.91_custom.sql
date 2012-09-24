@@ -46,3 +46,46 @@ UPDATE structure_formats SET `display_column`='2', `display_order`='6' WHERE str
 UPDATE structure_fields SET  `language_label`='',  `language_tag`='ccbr rad site other' WHERE model='TreatmentDetail' AND tablename='txd_radiations' AND field='ccbr_rad_site_other' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 UPDATE structure_fields SET  `setting`='size=30' WHERE model='TreatmentDetail' AND tablename='txd_radiations' AND field='ccbr_rad_site_other' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+/*
+	---------------------------------------------------------------------------
+	EVENTUM ISSUE: #2400 - Sample Type - Expanded Cells
+	---------------------------------------------------------------------------
+*/
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('ccbr expanded cells', 'Expanded Cells', '');
+
+-- Add new type to controls table
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+ ('ccbr expanded cells', 'derivative', 'sd_undetailed_derivatives,derivatives', 'sd_der_ccbr_expanded_cells', 0, 'expanded cells');
+
+-- Blood -> Expanded Cells
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'blood' AND `sample_category` = 'specimen'), (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr expanded cells' AND `sample_category` = 'derivative'), 1);
+
+-- Bone Marrow -> Expanded Cells
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES
+((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'bone marrow' AND `sample_category` = 'specimen'), (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr expanded cells' AND `sample_category` = 'derivative'), 1);
+
+-- Create new aliquot tube for Expanded Cells
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+ ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr expanded cells' AND `sample_category` = 'derivative'), 'tube', '', 'ad_ccbr_spec_tubes_incl_cell_count', 'ad_tubes', 'ml', 1, 'Derivative tube requiring cell count for CCBR', 0, 'tube');
+
+-- Detail table creation
+DROP TABLE IF EXISTS `sd_der_ccbr_expanded_cells`;
+CREATE TABLE `sd_der_ccbr_expanded_cells` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `deleted` TINYINT(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `sd_der_ccbr_expanded_cells_revs`;
+CREATE TABLE `sd_der_ccbr_expanded_cells_revs` (
+  `id` int(11) NOT NULL,
+  `sample_master_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
