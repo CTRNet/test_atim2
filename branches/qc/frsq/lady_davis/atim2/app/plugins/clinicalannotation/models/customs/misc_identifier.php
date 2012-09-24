@@ -31,13 +31,8 @@ class MiscIdentifierCustom extends MiscIdentifier{
 		}else{
 			$control_id = $this->data['MiscIdentifier']['misc_identifier_control_id'];
 		}
-		if($control_id == 10 && !preg_match("#^NEO-[\d]+$#", $this->data['MiscIdentifier']['identifier_value'])){
-			//NEO-xx
-			$this->validationErrors['identifier_value'][] = sprintf(__('the identifier expected format is %s', true), 'NEO-#');
-			return false;
-		}else if($control_id == 11 && !preg_match("#^MET-[\d]+$#", $this->data['MiscIdentifier']['identifier_value'])){
-			//MET-xx
-			$this->validationErrors['identifier_value'][] = sprintf(__('the identifier expected format is %s', true), 'MET-#');
+		if($control_id == 11 && !preg_match("#^(MET|NEO)-[\d]+$#", $this->data['MiscIdentifier']['identifier_value'])){
+			$this->validationErrors['identifier_value'][] = sprintf(__('the identifier expected format is %s', true), 'MET-# '.__('or', true).' NEO-#');
 			return false;
 		}
 		return $errors;
