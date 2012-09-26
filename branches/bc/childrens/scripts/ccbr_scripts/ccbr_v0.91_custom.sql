@@ -89,3 +89,14 @@ CREATE TABLE `sd_der_ccbr_expanded_cells_revs` (
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
+
+/*
+	---------------------------------------------------------------------------
+	EVENTUM ISSUE: #2401 - Unique Sample Code - Error Message
+	---------------------------------------------------------------------------
+*/
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('ccbr sample code must be unique', 'Sample code must be unique', '');
+
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES ((SELECT `id` FROM `structure_fields` WHERE `tablename` = 'sample_masters' AND `field` = 'sample_code'), 'isUnique', 'ccbr sample code must be unique');
