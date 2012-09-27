@@ -46,12 +46,14 @@ Collection.misc_identifier_id AS misc_identifier_id,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 -- Bank.name AS bank_name,		
-Collection.qc_lady_type AS qc_lady_type,
+-- Collection.qc_lady_type AS qc_lady_type,
 Collection.qc_lady_follow_up AS qc_lady_follow_up,
 Collection.qc_lady_pre_op AS qc_lady_pre_op,
 -- Sd.supplier_dept_grouped AS qc_lady_supplier_dept_grouped,
 Collection.qc_lady_banking_nbr AS qc_lady_banking_nbr,
 Collection.qc_lady_visit AS qc_lady_visit,
+Collection.qc_lady_specimen_type AS qc_lady_specimen_type,
+Collection.qc_lady_specimen_type_precision AS qc_lady_specimen_type_precision,
 MiscIdentifier.identifier_value AS misc_identifier_value
 		FROM collections AS Collection 
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
