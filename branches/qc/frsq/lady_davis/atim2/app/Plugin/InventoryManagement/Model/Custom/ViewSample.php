@@ -38,6 +38,8 @@ Collection.misc_identifier_id AS misc_identifier_id,
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg ,
+Collection.qc_lady_specimen_type AS qc_lady_specimen_type,
+Collection.qc_lady_specimen_type_precision AS qc_lady_specimen_type_precision,
 MiscIdentifier.identifier_value AS misc_identifier_value
 		
 		FROM sample_masters AS SampleMaster

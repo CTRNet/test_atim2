@@ -23,7 +23,7 @@ class FamilyHistoryCustom extends FamilyHistory{
 			$participant_id = $data['FamilyHistory']['participant_id'];
 			$data = $this->find('first', array('conditions' => array('FamilyHistory.participant_id' => $participant_id)));
 			if(empty($data)){
-				AppController::addWarningMsg('no more family histories exists - update the participant has family histor');
+				AppController::addWarningMsg('no more family histories exists - update the participant has family history');
 			}
 		}
 	}

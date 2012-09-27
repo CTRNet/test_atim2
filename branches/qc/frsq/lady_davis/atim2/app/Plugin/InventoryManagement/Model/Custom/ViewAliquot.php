@@ -57,6 +57,8 @@ Collection.misc_identifier_id AS misc_identifier_id,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
 			 
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
+Collection.qc_lady_specimen_type AS qc_lady_specimen_type,
+Collection.qc_lady_specimen_type_precision AS qc_lady_specimen_type_precision,
 MiscIdentifier.identifier_value AS misc_identifier_value
 			
 			FROM aliquot_masters AS AliquotMaster

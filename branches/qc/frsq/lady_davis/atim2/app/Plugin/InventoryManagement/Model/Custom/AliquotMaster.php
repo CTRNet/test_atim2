@@ -25,7 +25,7 @@ class AliquotMasterCustom extends AliquotMaster{
 		} else if(isset($this->barcodes[$control_id][$barcode])) {
 			$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
 		} else if(isset($this->barcodes['all'][$barcode])) {
-			AppController::addWarningMsg(sprintf(__('barcode [%s] was created more than once', true), $barcode));
+			AppController::addWarningMsg(sprintf(__('barcode [%s] was created more than once'), $barcode));
 		} else {
 			$this->barcodes['all'][$barcode] = '';
 			$this->barcodes[$control_id][$barcode] = '';
