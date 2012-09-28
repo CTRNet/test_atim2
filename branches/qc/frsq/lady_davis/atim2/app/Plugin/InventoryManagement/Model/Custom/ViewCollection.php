@@ -54,6 +54,8 @@ Collection.qc_lady_banking_nbr AS qc_lady_banking_nbr,
 Collection.qc_lady_visit AS qc_lady_visit,
 Collection.qc_lady_specimen_type AS qc_lady_specimen_type,
 Collection.qc_lady_specimen_type_precision AS qc_lady_specimen_type_precision,
+Collection.qc_lady_sop_followed AS qc_lady_sop_followed,
+Collection.qc_lady_sop_deviations AS qc_lady_sop_deviations,
 MiscIdentifier.identifier_value AS misc_identifier_value
 		FROM collections AS Collection 
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -61,7 +63,7 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
 -- LEFT JOIN qc_lady_supplier_depts2 AS Sd on Sd.collection_id = Collection.id
 -- LEFT JOIN banks AS Bank on Collection.bank_id = Bank.id and Bank.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-
+	
 	function summary($variables=array()) {
 		$return = false;
 		
