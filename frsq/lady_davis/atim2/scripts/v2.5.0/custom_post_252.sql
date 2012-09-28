@@ -8,6 +8,7 @@ REPLACE INTO i18n (id,en,fr) VALUES
 "Les antécédents familiaux n'existent plus pour ce participant dans le système. Vous pouvez mettre a jour la donnée 'Possède antécédents familiaux'."),
 ('breast or ovarian cancer','Breast or ovarian cancer','Cancer du sein ou de l''ovaire');
 
+SELECT '*************** CHECK yesrs quit smoking *******************************************' AS MSG;
 SELECT IF(COUNT(*) = 0, 
 "You have no entries into ed_all_lifestyle_smokings.years_quit_smoking. Drop that column.", 
 "You have entries into ed_all_lifestyle_smokings.years_quit_smoking. Column has been deleted"
@@ -16,8 +17,9 @@ SELECT IF(COUNT(*) = 0,
 ALTER TABLE ed_all_lifestyle_smokings DROP COLUMN years_quit_smoking;
 ALTER TABLE ed_all_lifestyle_smokings_revs DROP COLUMN years_quit_smoking;
 
-SELECT 'Check collection#: Participant having more than one collection#' as MSG;
+SELECT '*************** Check collection#: Participant having more than one collection *******************************************' AS MSG;
 SELECT max_nbr, participant_id FROM (SELECT count(*) as max_nbr, participant_id FROM misc_identifiers WHERE misc_identifier_control_id = 9 AND deleted <> 1 GROUP BY participant_id) AS res WHERE res.max_nbr > 1;
+
 UPDATE participants pa, misc_identifiers mi
 SET pa.participant_identifier = mi.identifier_value
 WHERE mi.misc_identifier_control_id = 9 AND mi.deleted <> 1
@@ -205,11 +207,13 @@ UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='' WHERE st
 -- Tissue & Blood collection clean up
 -- --------------------------------------------------------------------------------------------------------------------------------
 
+SELECT '*************** List all collections having both blood and tissue before clean up *******************************************' AS MSG;
 SELECT distinct col.id AS collection_with_both_tissue_and_blood_that_will_be_cleaned
 FROM collections AS col
 INNER JOIN sample_masters AS sm_t ON sm_t.collection_id = col.id AND sm_t.deleted <> 1 AND sm_t.sample_control_id = 3
 INNER JOIN sample_masters AS sm_b ON sm_b.collection_id = col.id AND sm_b.deleted <> 1 AND sm_b.sample_control_id = 2
 WHERE col.deleted <> 1;
+SELECT '*************** Check no specimen review exists *******************************************' AS MSG;
 SELECT count(*) AS nbr_of_specimen_review_should_be_0 from specimen_review_masters;
 
 ALTER TABLE collections ADD COLUMN tmp_blood_collection_id_to_move int(11) default null;
@@ -316,31 +320,14 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ('collection specimen type','Specimen type','Type de spécimen'),
 ('collection specimen type unspecified', 'Specimen type (unspecified)','Type de spécimen (non précisé)');
 
-
-
-
-
-
-
--- >> full_breast_dev.sql
-SELECT 'exit >> full_breast_dev.sql' as msg;
-exit 
-
-
-
-
-
-
-
-
-
+SELECT '*************** List all collections having both blood and tissue after clean up *******************************************' AS MSG;
 SELECT distinct col.id AS check_no_collection_with_both_tissue_and_blood
 FROM collections AS col
 INNER JOIN sample_masters AS sm_t ON sm_t.collection_id = col.id AND sm_t.deleted <> 1 AND sm_t.sample_control_id = 3
 INNER JOIN sample_masters AS sm_b ON sm_b.collection_id = col.id AND sm_b.deleted <> 1 AND sm_b.sample_control_id = 2
 WHERE col.deleted <> 1;
-SELECT count(*) AS nbr_of_specimen_review_should_be_0 from specimen_review_masters;
 
+SELECT '*************** Check sample_type of a collection samples versus col.qc_lady_type *******************************************' AS MSG;
 SELECT sc.sample_type, col.qc_lady_type, count(*)
 FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
@@ -351,6 +338,7 @@ FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
 INNER JOIN sample_controls sc ON sc.id = sm.sample_control_id AND sc.sample_type = 'tissue'
 WHERE sc.sample_type = 'tissue' AND col.qc_lady_type = 'blood'; 
+
 UPDATE collections col, sample_masters sm, sample_controls sc
 SET col.qc_lady_specimen_type = 'tissue' , col.qc_lady_specimen_type_precision = 'tissue||unspecified'
 WHERE sm.collection_id = col.id AND sm.deleted <> 1
@@ -381,18 +369,22 @@ SET col.qc_lady_specimen_type = 'tissue' , col.qc_lady_specimen_type_precision =
 WHERE sm.collection_id = col.id AND sm.deleted <> 1
 AND sc.id = sm.sample_control_id AND sc.sample_type = 'tissue'
 AND col.qc_lady_type = 'tumor'; 
+
+SELECT '*************** Display coll type and precision versus collection samples type for tissue *******************************************' AS MSG;
 SELECT sc.sample_type, col.qc_lady_type, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision, count(*)
 FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
 INNER JOIN sample_controls sc ON sc.id = sm.sample_control_id AND sc.sample_type = 'tissue'
 GROUP BY sc.sample_type, col.qc_lady_type, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision; 
 
+SELECT '*************** Display coll type and precision versus collection samples type for blood *******************************************' AS MSG;
 SELECT sc.sample_type, col.qc_lady_type, sd.qc_lady_clinical_status, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision, count(*)
 FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
 INNER JOIN sample_controls sc ON sc.id = sm.sample_control_id AND sc.sample_type = 'blood'
 INNER JOIN sd_spe_bloods sd ON sm.id = sd.sample_master_id
 GROUP BY sc.sample_type, col.qc_lady_type, sd.qc_lady_clinical_status, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision; 
+
 UPDATE collections col, sample_masters sm, sample_controls sc, sd_spe_bloods sd
 SET col.qc_lady_specimen_type = 'blood' , col.qc_lady_specimen_type_precision = 'blood||adjuvant'
 WHERE sm.collection_id = col.id AND sm.deleted <> 1
@@ -420,6 +412,8 @@ WHERE sm.collection_id = col.id AND sm.deleted <> 1
 AND sc.id = sm.sample_control_id AND sc.sample_type = 'blood'
 AND sm.id = sd.sample_master_id
 AND col.qc_lady_specimen_type IS NULL; 
+
+SELECT '*************** Display collection having more than one blood clinical status *******************************************' AS MSG;
 SELECT sc.sample_type, col.qc_lady_type, sd.qc_lady_clinical_status, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision, count(*)
 FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
@@ -439,14 +433,18 @@ FROM (
 	GROUP BY res_1.sample_type, res_1.collection_id
 ) res_2
 WHERE res_2.tot > 1;
+
+SELECT '*************** Display to check samples type versus collection type *******************************************' AS MSG;
 SELECT sc.sample_type, col.qc_lady_type, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision, count(*)
 FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
 INNER JOIN sample_controls sc ON sc.id = sm.sample_control_id AND sc.sample_category = 'specimen'
 GROUP BY sc.sample_type, col.qc_lady_type, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision; 
 
+SELECT '*************** Display all collections having no qc_lady_specimen_type *******************************************' AS MSG;
 SELECT col.id AS collection_id_to_check_no_sample_perhaps FROM collections col WHERE col.deleted != 1 AND col.qc_lady_specimen_type IS NULL;
 
+SELECT '*************** Check tissue collection *******************************************' AS MSG;
 SELECT sc.sample_type, col.qc_lady_specimen_type, col.qc_lady_specimen_type_precision, col.qc_lady_type, sd.qc_lady_from_biopsy, sd.qc_lady_from_surgery, count(*)
 FROM collections col
 INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
@@ -460,17 +458,21 @@ INNER JOIN sample_controls sc ON sc.id = sm.sample_control_id AND sc.sample_type
 INNER JOIN sd_spe_tissues sd ON sm.id = sd.sample_master_id
 WHERE (col.qc_lady_specimen_type_precision = 'tissue||metastasis biopsy' AND col.qc_lady_type = 'metastasis' AND sd.qc_lady_from_surgery = '1')
 OR (col.qc_lady_specimen_type_precision = 'tissue||unspecified' AND col.qc_lady_type = 'blood')
-OR (col.qc_lady_specimen_type_precision = 'tissue||unspecified' AND sd.qc_lady_from_biopsy = '1')
+OR (col.qc_lady_specimen_type_precision = 'tissue||unspecified' AND sd.qc_lady_from_biopsy = '1');
 
 UPDATE structure_fields SET language_label = CONCAT('**', language_label, ' TO DELETE **') WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status');
-SELECT "DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status'));
+
+SELECT '*************** TODO *******************************************' AS MSG;
+SELECT "
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status'));
 DELETE FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status');
 ALTER TABLE sd_spe_tissues DROP COLUMN qc_lady_from_biopsy, DROP COLUMN qc_lady_from_surgery;
 ALTER TABLE sd_spe_tissues_revs DROP COLUMN qc_lady_from_biopsy, DROP COLUMN qc_lady_from_surgery;
 ALTER TABLE sd_spe_bloods DROP COLUMN qc_lady_clinical_status;
 ALTER TABLE sd_spe_bloods_revs DROP COLUMN qc_lady_clinical_status;
 ALTER TABLE collections DROP COLUMN qc_lady_type;
-ALTER TABLE collections_revs DROP COLUMN qc_lady_type;"AS RUN_FOLLWING_QUERY_AFTER_MIGRATION ;
+ALTER TABLE collections_revs DROP COLUMN qc_lady_type;
+"AS RUN_FOLLWING_QUERY_AFTER_MIGRATION ;
 
 UPDATE structure_formats SET `language_heading`='blood collection data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_lady_follow_up' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='tissue collection data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='qc_lady_visit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_collection_visit') AND `flag_confidential`='0');
@@ -502,6 +504,330 @@ AND col.participant_id IN (
 		GROUP BY res.participant_id
 	) AS res_2 WHERE nbr_ident = 1
 );
+
+INSERT INTO cd_nationals (consent_master_id) (SELECT id FROM consent_masters WHERE id NOT IN (SELECT consent_master_id FROM cd_nationals));
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_specimen_type_precision'), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_column`='0', `flag_index`='1', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_specimen_type_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_collection_specimen_type_precision') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_specimen_type_precision'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="QUAIAMP Kit" AND spv.language_alias="QUAIAMP Kit";
+DELETE FROM structure_permissible_values WHERE value="QUAIAMP Kit" AND language_alias="QUAIAMP Kit";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="other" AND spv.language_alias="other";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="TE BUffer" AND spv.language_alias="TE Buffer";
+DELETE FROM structure_permissible_values WHERE value="TE BUffer" AND language_alias="TE Buffer";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Extraction : Method\')" WHERE domain_name = 'qc_lady_dna_extraction_method';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Extraction : Storage solution\')" WHERE domain_name = 'qc_lady_dna_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Extraction : Method', 1, 50),('Extraction : Storage solution', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Extraction : Method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('QUAIAMP Kit', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Extraction : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('TE Buffer', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('other', 'Other', 'Autre', '1', @control_id, NOW(), NOW(), 1, 1);
+ALTER TABLE ad_tubes MODIFY `qc_lady_storage_solution` varchar(50) NOT NULL DEFAULT '';
+ALTER TABLE ad_tubes_revs MODIFY `qc_lady_storage_solution` varchar(50) NOT NULL DEFAULT '';
+ALTER TABLE sd_der_dnas MODIFY `qc_lady_storage_solution` varchar(50) NOT NULL DEFAULT '',MODIFY `qc_lady_extraction_method` varchar(50) NOT NULL DEFAULT '';
+ALTER TABLE sd_der_dnas_revs MODIFY `qc_lady_storage_solution` varchar(50) NOT NULL DEFAULT '',MODIFY `qc_lady_extraction_method` varchar(50) NOT NULL DEFAULT '';
+UPDATE ad_tubes SET qc_lady_storage_solution = 'TE Buffer' WHERE qc_lady_storage_solution = 'TE BUffer';
+UPDATE sd_der_dnas SET qc_lady_storage_solution = 'TE Buffer' WHERE qc_lady_storage_solution = 'TE BUffer';
+
+INSERT INTO i18n (id,en,fr) VALUES ('the collection type and the type of the specimen you are trying to create do not match','The collection type and the type of the specimen you are trying to create do not match','le type de collection et le type de l''échantillon que vous essayez de créer ne correspondent pas');
+
+ALTER TABLE `sd_spe_tissues` MODIFY `qc_lady_tissue_type` varchar(30) DEFAULT NULL;
+ALTER TABLE `sd_spe_tissues_revs` MODIFY `qc_lady_tissue_type` varchar(30) DEFAULT NULL;
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="TBR" AND spv.language_alias="TBR";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="NBR" AND spv.language_alias="NBR";
+DELETE FROM structure_permissible_values WHERE value="TBR" AND language_alias="TBR";
+DELETE FROM structure_permissible_values WHERE value="NBR" AND language_alias="NBR";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Type\')" WHERE domain_name = 'qc_lady_tissue_type';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Type', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('NBR', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('TBR', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('metastasis', 'Metastasis', 'Métastase','1', @control_id, NOW(), NOW(), 1, 1);
+
+ALTER TABLE `qc_lady_screening_biopsy_revs` MODIFY `version_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `collections` MODIFY `qc_lady_pre_op` char(1) default '';
+ALTER TABLE `collections_revs` MODIFY `qc_lady_pre_op` char(1) default '';
+UPDATE collections SET qc_lady_pre_op = 'y' WHERE qc_lady_pre_op = '1';
+UPDATE collections SET qc_lady_pre_op = '' WHERE qc_lady_pre_op = '0';
+UPDATE collections SET qc_lady_pre_op = '' WHERE qc_lady_pre_op IS NULL;
+UPDATE collections_revs SET qc_lady_pre_op = 'y' WHERE qc_lady_pre_op = '1';
+UPDATE collections_revs SET qc_lady_pre_op = '' WHERE qc_lady_pre_op = '0';
+UPDATE collections_revs SET qc_lady_pre_op = '' WHERE qc_lady_pre_op IS NULL;
+UPDATE structure_fields SET type = 'yes_no', structure_value_domain = NULL WHERE field = 'qc_lady_pre_op';
+
+SELECT '*************** CHECK collection fields conflicts with type tissue/blood *******************************************' AS MSG;
+SELECT id AS collection_id, qc_lady_specimen_type, qc_lady_pre_op, qc_lady_follow_up, qc_lady_banking_nbr FROM collections 
+WHERE qc_lady_specimen_type = 'tissue' 
+AND (qc_lady_pre_op NOT LIKE '' OR qc_lady_follow_up IS NOT NULL OR qc_lady_banking_nbr IS NOT NULL);
+SELECT id AS collection_id, qc_lady_specimen_type, qc_lady_pre_op, qc_lady_follow_up, qc_lady_banking_nbr FROM collections 
+WHERE qc_lady_specimen_type = 'blood' 
+AND qc_lady_visit NOT LIKE '';
+
+INSERT INTO i18n (id,en,fr) VALUES ('the fields you are completing cannot be used for a collection having %s type', 'The fields you are completing cannot be used for a collection having %s type', 'Les champs que vous remplissez ne peuvent pas être utilisés pour une collection ayant le type %s');
+
+SELECT '*************** CHECK supported sample types *******************************************' AS MSG;
+SELECT distinct sc.sample_type FROM sample_controls sc INNER JOIN sample_masters sm ON sm.sample_control_id = sc.id AND sm.deleted <>1;
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(158);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(131, 135, 136, 132, 130, 101);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='441' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_lady_tissue_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_type') AND `flag_confidential`='0');
+
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="ganglion" AND spv.language_alias="ganglion";
+DELETE FROM structure_permissible_values WHERE value="ganglion" AND language_alias="ganglion";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Source\')" WHERE domain_name = 'tissue_source_list';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Source', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Source');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('ganglion', 'Ganglion', 'Ganglion','1', @control_id, NOW(), NOW(), 1, 1);
+
+SELECT '*************** CHECK metastasis biopsy AND qc_lady_tissue_type *******************************************' AS MSG;
+SELECT col.id, col.qc_lady_specimen_type_precision, tis.qc_lady_tissue_type
+FROM collections col
+INNER JOIN sample_masters sm ON sm.collection_id = col.id AND sm.deleted <> 1
+INNER JOIN sd_spe_tissues tis ON tis.sample_master_id = sm.id
+WHERE col.qc_lady_specimen_type_precision = 'tissue||metastasis biopsy' AND tis.qc_lady_tissue_type NOT LIKE '';
+
+UPDATE collections col, sample_masters sm, sd_spe_tissues tis
+SET tis.qc_lady_tissue_type = 'metastasis'
+WHERE sm.collection_id = col.id AND sm.deleted <> 1
+AND tis.sample_master_id = sm.id
+AND col.qc_lady_specimen_type_precision = 'tissue||metastasis biopsy';
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="RNA later" AND spv.language_alias="rna later";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="OCT" AND spv.language_alias="OCT";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="flash freeze" AND spv.language_alias="flash freeze";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="formalin" AND spv.language_alias="formalin";
+DELETE FROM structure_permissible_values WHERE value="RNA later" AND language_alias="rna later";
+DELETE FROM structure_permissible_values WHERE value="OCT" AND language_alias="OCT";
+DELETE FROM structure_permissible_values WHERE value="flash freeze" AND language_alias="flash freeze";
+DELETE FROM structure_permissible_values WHERE value="formalin" AND language_alias="formalin";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Storage solution\')" WHERE domain_name = 'qc_lady_tissue_tube_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Storage solution', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('RNA later', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('OCT', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('flash freeze', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('formalin', '', '','1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE ad_tubes SET qc_lady_storage_solution = 'flash freeze' WHERE qc_lady_storage_solution = 'flash free';
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_sd_der_dnas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_lady_storage_solution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_dna_storage_solution') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `flag_search`='1', `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_sd_der_dnas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_lady_extraction_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_dna_extraction_method') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_qc_lady_dnas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+SELECT '*************** CHECK no DNA tube storage solution *******************************************' AS MSG;
+SELECT distinct sc.sample_type, dna.qc_lady_storage_solution, tb.qc_lady_storage_solution
+FROM sample_controls sc
+INNER JOIN sample_masters sm ON sm.sample_control_id = sc.id AND sm.deleted <>1 AND sc.sample_type = 'DNA'
+INNEr JOIN sd_der_dnas dna ON dna.sample_master_id = sm.id
+INNER JOIN aliquot_masters am ON am.sample_master_id = sm.id AND am.deleted <>1
+INNER JOIN ad_tubes tb ON tb.aliquot_master_id = am.id;
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_qc_lady_dnas') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_storage_solution' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_dna_storage_solution') AND `flag_confidential`='0');
+
+UPDATE sample_controls SET detail_form_alias = 'qc_lady_sd_der_dnas,derivatives' WHERE sample_type  = 'RNA';
+ALTER TABLE sd_der_rnas 
+  ADD COLUMN `qc_lady_storage_solution` varchar(50) NOT NULL DEFAULT '',
+  ADD COLUMN `qc_lady_extraction_method` varchar(50) NOT NULL DEFAULT '';
+ALTER TABLE sd_der_rnas_revs 
+  ADD COLUMN `qc_lady_storage_solution` varchar(50) NOT NULL DEFAULT '',
+  ADD COLUMN `qc_lady_extraction_method` varchar(50) NOT NULL DEFAULT '';
+
+UPDATE sample_controls sc, aliquot_controls ac
+SET ac.aliquot_type_precision = NULL,
+ac.detail_form_alias = 'ad_der_tubes_qc_lady_dnas',
+ac.detail_tablename  = 'ad_tubes',	
+ac.volume_unit = 'ml',
+ac.comment = 'derivative tube specifid to rna'
+WHERE ac.sample_control_id = sc.id AND sc.sample_type = 'RNA';
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE quality_ctrls ADD COLUMN `concentration` decimal(10,2) DEFAULT NULL, ADD COLUMN  `concentration_unit` varchar(20) DEFAULT NULL;
+ALTER TABLE quality_ctrls_revs ADD COLUMN `concentration` decimal(10,2) DEFAULT NULL, ADD COLUMN  `concentration_unit` varchar(20) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'concentration', 'float_positive',  NULL , '0', 'size=5', '', '', 'concentration', ''), 
+('InventoryManagement', 'QualityCtrl', 'quality_ctrls', 'concentration_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='concentration' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='concentration' AND `language_tag`=''), '0', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='concentration_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '24', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('concentration','Concentration','Concentration');
+
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="unknown" AND spv.language_alias="unknown";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="EDTA" AND spv.language_alias="EDTA";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="gel CSA" AND spv.language_alias="gel CSA";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="heparin" AND spv.language_alias="heparin";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="paxgene" AND spv.language_alias="paxgene";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="ZCSA" AND spv.language_alias="ZCSA";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="serum" AND spv.language_alias="serum";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="CTAD" AND spv.language_alias="CTAD";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="P100" AND spv.language_alias="P100";
+DELETE FROM structure_permissible_values WHERE value="EDTA" AND language_alias="EDTA";
+DELETE FROM structure_permissible_values WHERE value="gel CSA" AND language_alias="gel CSA";
+DELETE FROM structure_permissible_values WHERE value="heparin" AND language_alias="heparin";
+DELETE FROM structure_permissible_values WHERE value="paxgene" AND language_alias="paxgene";
+DELETE FROM structure_permissible_values WHERE value="ZCSA" AND language_alias="ZCSA";
+DELETE FROM structure_permissible_values WHERE value="serum" AND language_alias="serum";
+DELETE FROM structure_permissible_values WHERE value="CTAD" AND language_alias="CTAD";
+DELETE FROM structure_permissible_values WHERE value="P100" AND language_alias="P100";
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Blood : Type\')" WHERE domain_name = 'blood_type';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Blood : Type', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood : Type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('EDTA', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('gel CSA', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('serum', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('CTAD', '', '','1', @control_id, NOW(), NOW(), 1, 1),
+('P100', '', '','1', @control_id, NOW(), NOW(), 1, 1);
+
+ALTER TABLE ad_tubes 
+  ADD COLUMN `qc_lady_real_collection_time` time DEFAULT NULL;
+ALTER TABLE ad_tubes_revs 
+  ADD COLUMN `qc_lady_real_collection_time` time DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('qc_lady_tissu_tubes');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qc_lady_real_collection_time', 'time',  NULL , '0', '', '', '', 'exact collection time', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_tissu_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_real_collection_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='exact collection time' AND `language_tag`=''), '0', '320', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('exact collection time','Exact col. time','Heure exacte de col.');
+UPDATE sample_controls sc, aliquot_controls ac
+SET ac.detail_form_alias = CONCAT(ac.detail_form_alias, ',qc_lady_tissu_tubes')
+WHERE ac.sample_control_id = sc.id AND sc.sample_type = 'tissue' AND ac.aliquot_type = 'tube';
+
+ALTER TABLE collections
+  ADD COLUMN qc_lady_sop_followed char(1) DEFAULT '' AFTER sop_master_id,  
+  ADD COLUMN qc_lady_sop_deviations text AFTER qc_lady_sop_followed;  
+ ALTER TABLE collections_revs
+  ADD COLUMN qc_lady_sop_followed char(1) DEFAULT '' AFTER sop_master_id,  
+  ADD COLUMN qc_lady_sop_deviations text AFTER qc_lady_sop_followed;  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'qc_lady_sop_followed', 'yes_no',  NULL , '0', '', '', '', 'sop followed', ''), 
+('InventoryManagement', 'Collection', 'collections', 'qc_lady_sop_deviations', 'textarea',  NULL , '0', 'cols=30,rows=3', '', '', 'sop deviations', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_followed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_deviations' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_sop_followed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'qc_lady_sop_followed', 'yes_no',  NULL , '0', '', '', '', 'sop followed', ''), 
+('InventoryManagement', 'ViewCollection', '', 'qc_lady_sop_deviations', 'textarea',  NULL , '0', 'cols=30,rows=3', '', '', 'sop deviations', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_lady_sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_lady_sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '0', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_sop_list') AND `flag_confidential`='0');
+
+ALTER TABLE sample_masters
+  ADD COLUMN qc_lady_sop_followed char(1) DEFAULT '' AFTER sop_master_id,  
+  ADD COLUMN qc_lady_sop_deviations text AFTER qc_lady_sop_followed;  
+ ALTER TABLE sample_masters_revs
+  ADD COLUMN qc_lady_sop_followed char(1) DEFAULT '' AFTER sop_master_id,  
+  ADD COLUMN qc_lady_sop_deviations text AFTER qc_lady_sop_followed;  
+INSERT INTO structures(`alias`) VALUES ('qc_lady_derivative_sop');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleMaster', 'sample_masters', 'qc_lady_sop_followed', 'yes_no',  NULL , '0', '', '', '', 'sop followed', ''), 
+('InventoryManagement', 'SampleMaster', 'sample_masters', 'qc_lady_sop_deviations', 'textarea',  NULL , '0', 'cols=30,rows=3', '', '', 'sop deviations', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_derivative_sop'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_lady_sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '1', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_derivative_sop'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample sop' AND `language_tag`=''), '1', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_derivative_sop'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_lady_sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '1', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_lady_derivative_sop') WHERE detail_form_alias LIKE '%qc_lady_sd_der_dnas%' OR detail_form_alias LIKE '%sd_der_cell_cultures%';
+
+INSERT IGNORE INTO i18n (id,en, fr) VALUES 
+('sop deviations', 'SOP deviations', 'SOP déviations'),
+('sop followed', 'SOP followed', 'SOP suivi');
+
+ALTER TABLE ad_tubes 
+  ADD COLUMN qc_lady_hemoysis_color VARCHAR(30) DEFAULT null,
+  ADD COLUMN qc_lady_hemoysis_color_other VARCHAR(30) DEFAULT null;
+ALTER TABLE ad_tubes_revs 
+  ADD COLUMN qc_lady_hemoysis_color VARCHAR(30) DEFAULT null,
+  ADD COLUMN qc_lady_hemoysis_color_other VARCHAR(30) DEFAULT null;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_lady_hemoysis_color", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("yellow", "yellow");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_lady_hemoysis_color"), (SELECT id FROM structure_permissible_values WHERE value="yellow" AND language_alias="yellow"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("pink", "pink");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_lady_hemoysis_color"), (SELECT id FROM structure_permissible_values WHERE value="pink" AND language_alias="pink"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("red", "red");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_lady_hemoysis_color"), (SELECT id FROM structure_permissible_values WHERE value="red" AND language_alias="red"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_lady_hemoysis_color"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "4", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qc_lady_hemoysis_color', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_hemoysis_color') , '0', '', '', '', 'hemolysis signs', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'qc_lady_hemoysis_color_other', 'input',  NULL , '0', 'size-10', '', '', '', 'other specify');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_hemolysis'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_lady_hemoysis_color' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_hemoysis_color')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hemolysis signs' AND `language_tag`=''), '1', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_hemolysis'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_lady_hemoysis_color_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size-10' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other specify'), '1', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_hemolysis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en, fr) VALUES 
+("yellow", "Yellow",'Jaune'),
+("pink", "Pink",'Rose'),
+("red", "Red",'Rouge'),
+('other specify', 'Specify (other)', 'Spécifier (autre)'); 
+UPDATE ad_tubes SET qc_lady_hemoysis_color = 'yellow' WHERE hemolysis_signs = 'n';
+UPDATE ad_tubes SET qc_lady_hemoysis_color = 'red' WHERE hemolysis_signs = 'y';
+
+UPDATE collections SET  qc_lady_specimen_type_precision = 'tissue||tumor surgery' WHERE participant_id IN (
+SELECT participant_id from misc_identifiers WHERE identifier_value REGEXP "^T-[0-9]$|^T-[0-9][0-9]$|^T-1[0-9][0-9]$" AND deleted <> 1) AND deleted <> 1 AND qc_lady_specimen_type = 'tissue';
+
+SELECT '*************** TODO Done *******************************************' AS MSG;
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status'));
+DELETE FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status');
+ALTER TABLE sd_spe_tissues DROP COLUMN qc_lady_from_biopsy, DROP COLUMN qc_lady_from_surgery;
+ALTER TABLE sd_spe_tissues_revs DROP COLUMN qc_lady_from_biopsy, DROP COLUMN qc_lady_from_surgery;
+ALTER TABLE sd_spe_bloods DROP COLUMN qc_lady_clinical_status;
+ALTER TABLE sd_spe_bloods_revs DROP COLUMN qc_lady_clinical_status;
+ALTER TABLE collections DROP COLUMN qc_lady_type;
+ALTER TABLE collections_revs DROP COLUMN qc_lady_type;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

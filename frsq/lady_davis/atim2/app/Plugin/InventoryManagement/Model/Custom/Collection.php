@@ -28,6 +28,28 @@ class CollectionCustom extends Collection {
 		return $result;
 	}
 	
+	function validates($options = array()){
+		parent::validates($options);
+
+		if(!array_key_exists('deleted', $this->data['Collection']) || !$this->data['Collection']['deleted']) {
+			$cust_error_detected = false;	
+			$qc_lady_specimen_type = substr($this->data['Collection']['qc_lady_specimen_type_precision'], 0, strpos($this->data['Collection']['qc_lady_specimen_type_precision'],'||'));
+			switch($qc_lady_specimen_type) {
+				case 'tissue':
+					if(strlen($this->data['Collection']['qc_lady_follow_up'].$this->data['Collection']['qc_lady_pre_op'].$this->data['Collection']['qc_lady_banking_nbr'])) $cust_error_detected = true;
+					break;
+				case 'blood':
+					if(strlen($this->data['Collection']['qc_lady_visit'])) $cust_error_detected = true;
+					break;
+				default:
+					$this->validationErrors['qc_lady_specimen_type_precision'][] = __('value is required');
+			}
+			if($cust_error_detected) $this->validationErrors['qc_lady_specimen_type_precision'][] = str_replace('%s', __($qc_lady_specimen_type), __('the fields you are completing cannot be used for a collection having %s type'));
+		}
+		
+		return empty($this->validationErrors);
+	}
+	
 }
 
 ?>
