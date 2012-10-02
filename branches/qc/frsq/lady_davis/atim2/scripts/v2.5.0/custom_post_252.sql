@@ -462,18 +462,6 @@ OR (col.qc_lady_specimen_type_precision = 'tissue||unspecified' AND sd.qc_lady_f
 
 UPDATE structure_fields SET language_label = CONCAT('**', language_label, ' TO DELETE **') WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status');
 
-SELECT '*************** TODO *******************************************' AS MSG;
-SELECT "
-DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status'));
-DELETE FROM structure_fields WHERE field IN ('qc_lady_type','qc_lady_from_biopsy','qc_lady_from_surgery','qc_lady_clinical_status');
-ALTER TABLE sd_spe_tissues DROP COLUMN qc_lady_from_biopsy, DROP COLUMN qc_lady_from_surgery;
-ALTER TABLE sd_spe_tissues_revs DROP COLUMN qc_lady_from_biopsy, DROP COLUMN qc_lady_from_surgery;
-ALTER TABLE sd_spe_bloods DROP COLUMN qc_lady_clinical_status;
-ALTER TABLE sd_spe_bloods_revs DROP COLUMN qc_lady_clinical_status;
-ALTER TABLE collections DROP COLUMN qc_lady_type;
-ALTER TABLE collections_revs DROP COLUMN qc_lady_type;
-"AS RUN_FOLLWING_QUERY_AFTER_MIGRATION ;
-
 UPDATE structure_formats SET `language_heading`='blood collection data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qc_lady_follow_up' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='tissue collection data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='qc_lady_visit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_collection_visit') AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='blood collection data' WHERE structure_id=(SELECT id FROM structures WHERE alias='linked_collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_lady_follow_up' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_coll_follow_up') AND `flag_confidential`='0');
@@ -796,7 +784,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_hemolysis'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_lady_hemoysis_color' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_hemoysis_color')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hemolysis signs' AND `language_tag`=''), '1', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ad_hemolysis'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='qc_lady_hemoysis_color_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size-10' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other specify'), '1', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_hemolysis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT IGNORE INTO i18n (id,en, fr) VALUES 
+Replace INTO i18n (id,en, fr) VALUES 
 ("yellow", "Yellow",'Jaune'),
 ("pink", "Pink",'Rose'),
 ("red", "Red",'Rouge'),
@@ -817,30 +805,63 @@ ALTER TABLE sd_spe_bloods_revs DROP COLUMN qc_lady_clinical_status;
 ALTER TABLE collections DROP COLUMN qc_lady_type;
 ALTER TABLE collections_revs DROP COLUMN qc_lady_type;
 
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', "<FONT color='red'>Lady Davis - Breast - Test</FONT>",  "<FONT color='red'>Lady Davis - Sein - Test</FONT>");
 
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',qc_lady_derivative_sop') WHERE sample_type LIKE 'blood';
 
+SELECT '*************** Merg collections surgery tum. & surgery norm. : Patient # to check *******************************************' AS MSG;
+SELECT '--- Without Date conditions --' AS conditions;
+SELECT participant_identifier FROM participants 
+WHERE id IN (SELECT participant_id FROM collections WHERE deleted <> 1 AND qc_lady_specimen_type_precision = 'tissue||tumor surgery') 
+AND id IN (SELECT participant_id FROM collections WHERE deleted <> 1 AND qc_lady_specimen_type_precision = 'tissue||normal surgery') 
+AND deleted <> 1 ORDER BY participant_identifier;
+SELECT '--- With same collection date --' AS conditions;
+SELECT participants.participant_identifier, tum_col.id AS tum_col_id, norm_col.id AS norm_col_id,
+CONCAT(norm_col.collection_site,'|',tum_col.collection_site) AS collection_site ,
+CONCAT(norm_col.bank_id,'|',tum_col.bank_id) AS bank_id,
+CONCAT(norm_col.sop_master_id,'|',tum_col.sop_master_id) AS sop_master_id,
+CONCAT(norm_col.qc_lady_visit,'|',tum_col.qc_lady_visit) AS qc_lady_visit
+FROM collections AS tum_col
+INNER JOIN collections AS norm_col ON tum_col.participant_id = norm_col.participant_id
+INNER JOIN participants  ON norm_col.participant_id = participants.id
+WHERE tum_col.deleted <> 1 AND tum_col.qc_lady_specimen_type_precision = 'tissue||tumor surgery'
+AND  norm_col.deleted <> 1 AND norm_col.qc_lady_specimen_type_precision = 'tissue||normal surgery'
+AND norm_col.collection_datetime = tum_col.collection_datetime
+AND norm_col.collection_datetime_accuracy = tum_col.collection_datetime_accuracy
+ORDER BY participant_identifier;
 
+ALTER TABLE collections ADD COLUMN tmp_new_collection_id int(11) default null;
+UPDATE collections AS tum_col, collections AS norm_col
+SET norm_col.tmp_new_collection_id = tum_col.id
+WHERE tum_col.participant_id = norm_col.participant_id
+AND tum_col.deleted <> 1 AND tum_col.qc_lady_specimen_type_precision = 'tissue||tumor surgery'
+AND  norm_col.deleted <> 1 AND norm_col.qc_lady_specimen_type_precision = 'tissue||normal surgery'
+AND norm_col.collection_datetime = tum_col.collection_datetime
+AND norm_col.collection_datetime_accuracy = tum_col.collection_datetime_accuracy;
+UPDATE sample_masters sm, collections col
+SET sm.collection_id = col.tmp_new_collection_id 
+WHERE col.tmp_new_collection_id IS NOT NULL
+AND col.id = sm.collection_id AND sm.deleted <> 1;
+UPDATE aliquot_masters am, collections col
+SET am.collection_id = col.tmp_new_collection_id 
+WHERE col.tmp_new_collection_id IS NOT NULL
+AND col.id = am.collection_id AND am.deleted <> 1;
+UPDATE sample_masters_revs sm_r, sample_masters sm
+SET sm_r.collection_id = sm.collection_id
+WHERE sm_r.collection_id != sm.collection_id AND sm_r.id = sm.id
+AND sm.collection_id IN (SELECT tmp_new_collection_id FROM collections WHERE tmp_new_collection_id IS NOT NULL);
+UPDATE aliquot_masters_revs am_r, aliquot_masters am
+SET am_r.collection_id = am.collection_id
+WHERE am_r.collection_id != am.collection_id AND am_r.id = am.id
+AND am.collection_id IN (SELECT tmp_new_collection_id FROM collections WHERE tmp_new_collection_id IS NOT NULL);
+UPDATE collections SET deleted = 1 WHERE tmp_new_collection_id IS NOT NULL;
+ALTER TABLE collections DROP COLUMN tmp_new_collection_id;
+SELECT '--- Last collections with normal chir changed to chir: to check --' AS conditions;
+SELECT col.id, part.participant_identifier FROM collections col INNER JOIN participants part ON part.id = col.participant_id WHERE qc_lady_specimen_type_precision = 'tissue||normal surgery' AND col.deleted <> 1;
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Collection : Tissue type precision');
+UPDATE structure_permissible_values_customs SET value = 'surgery', `en` = 'Surgery', `fr` = 'Chirurgie'
+WHERE control_id = @control_id AND value = 'tumor surgery';
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value = 'normal surgery';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE collections SET qc_lady_specimen_type_precision = 'tissue||surgery' WHERE qc_lady_specimen_type_precision LIKE 'tissue||% surgery' AND deleted <> 1;
