@@ -41,8 +41,8 @@ class Template extends AppModel {
 		return $this->find('first', array(
 			'conditions' => array(
 				'OR' => array(
-					array('Template.owner' => 'user', 'Template.owning_entity_id' => $_SESSION['Auth']['User']['id']),
-					array('Template.owner' => 'bank', 'Template.owning_entity_id' => $group_data['Group']['bank_id']),
+					array('Template.owner' => 'user', 'Template.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.id')),
+					array('Template.owner' => 'bank', 'Template.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.group_id')),
 					array('Template.owner' => 'all')
 				), 'Template.flag_system' => false,
 				'Template.id' => $id
@@ -55,8 +55,8 @@ class Template extends AppModel {
 		$group_data = $group_model->findById($_SESSION['Auth']['User']['group_id']);
 		return $this->find('all', array('conditions' => array(
 			'OR' => array(
-					array('Template.owner' => 'user', 'Template.owning_entity_id' => $_SESSION['Auth']['User']['id']),
-					array('Template.owner' => 'bank', 'Template.owning_entity_id' => $group_data['Group']['bank_id']),
+					array('Template.owner' => 'user', 'Template.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.id')),
+					array('Template.owner' => 'bank', 'Template.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.group_id')),
 					array('Template.owner' => 'all')
 			), 'Template.flag_system' => false
 		)));
@@ -67,8 +67,8 @@ class Template extends AppModel {
 		$group_data = $group_model->findById(AppController::getInstance()->Session->read('Auth.User.group_id'));
 		return $this->find('all', array('conditions' => array(
 			'OR' => array(
-					array('Template.visibility' => 'user', 'Template.visible_entity_id' => $_SESSION['Auth']['User']['id']),
-					array('Template.visibility' => 'bank', 'Template.visible_entity_id' => $group_data['Group']['bank_id']),
+					array('Template.owner' => 'user', 'Template.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.id')),
+					array('Template.owner' => 'bank', 'Template.owning_entity_id' => AppController::getInstance()->Session->read('Auth.User.group_id')),
 					array('Template.visibility' => 'all')
 			), 'Template.flag_active' => 1
 		)));
