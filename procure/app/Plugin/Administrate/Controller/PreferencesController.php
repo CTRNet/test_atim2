@@ -74,7 +74,7 @@ class PreferencesController extends AdministrateAppController {
 			
 			if($this->User->validates() && $this->Config->validates()) {
 				if($this->User->save($this->request->data, false) && $this->Config->save($this->request->data, false)){
-					$this->atimFlash( 'your data has been updated','/Administrate/preferences/index/'.$group_id.'/'.$user_id );
+					$this->atimFlash( 'your data has been updated','/Administrate/Preferences/index/'.$group_id.'/'.$user_id );
 				} else {
 					$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				}
