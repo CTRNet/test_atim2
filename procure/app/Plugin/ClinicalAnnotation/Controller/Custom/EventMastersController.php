@@ -88,6 +88,34 @@ class EventMastersControllerCustom extends EventMastersController {
 		}
 	}
 	
+	
+	function listall( $event_group, $participant_id, $event_control_id=null ){
+		// MANAGE DATA
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		
+		$event_ctrls = $this->EventControl->find('all', array('conditions' => array('EventControl.flag_active' => '1')));
+		$tmp_event_list = $this->EventMaster->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_id), 'order' => array('EventMaster.event_date DESC')));
+		
+		$this->request->data = null;
+		$event_lists = array();
+		$atim_structures = array('default' => $this->Structures->get('form', 'eventmasters'));
+		foreach($event_ctrls as $new_ctrls) {
+			$event_lists[__($new_ctrls['EventControl']['event_type'])] = array(
+				'detail_form_alias' =>  $new_ctrls['EventControl']['detail_form_alias'],
+				'form_name' => __($new_ctrls['EventControl']['event_type']), 
+				'data' => array());
+			if(preg_match('/^procure_ed_followup_worksheet_.+$/', $new_ctrls['EventControl']['detail_form_alias'], $matches)) $atim_structures[$new_ctrls['EventControl']['detail_form_alias']] = $this->Structures->get('form', 'eventmasters,'.$new_ctrls['EventControl']['detail_form_alias']);
+		}
+		ksort($event_lists);
+		foreach($tmp_event_list as $new_evts) $event_lists[__($new_evts['EventControl']['event_type'])]['data'][] = $new_evts;
+		$this->set('event_lists', $event_lists);
+		$this->set('atim_structures', $atim_structures);
+		
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
+		
+		$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
+	}
 }
 
 ?>

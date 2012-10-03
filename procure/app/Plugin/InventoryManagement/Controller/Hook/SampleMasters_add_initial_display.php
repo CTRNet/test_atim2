@@ -56,7 +56,10 @@
 					break;
 				case 'tissue':
 					$participant_identifier = empty($collection['ViewCollection']['participant_identifier'])? '?' : $collection['ViewCollection']['participant_identifier'];
-					$this->request->data['SampleDetail']['procure_tissue_identification'] = $participant_identifier. ' V01 -PST1';
+					
+					
+					
+					$this->request->data['SampleDetail']['procure_tissue_identification'] = $participant_identifier. ' ' . $collection['ViewCollection']['procure_visit'] . ' -PST1';
 					break;			
 			}
 			
