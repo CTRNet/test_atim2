@@ -79,7 +79,6 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		$this->request->data = $this->Collection->find('all', array(
 			'conditions' => $conditions,
 			'order' => $order,
-			'limit' => pagination_amount,
 			'joins' => $joins, 
 			'fields' => array('*')
 		));
@@ -346,10 +345,13 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			$this->request->data = array('Collection' => array(
 				'participant_id' => null,
 				'diagnosis_master_id' => null,
-				'consent_master_id' => null)
-			);
-				
+				'consent_master_id' => null,
+				'treatment_master_id' => null,
+				'event_master_id' => null)
+			);			
+			
 			$this->Collection->id = $collection_id;
+			$this->Collection->addWritableField(array('participant_id','diagnosis_master_id','consent_master_id','treatment_master_id','event_master_id'));
 			if($this->Collection->save($this->request->data)){
 				
 				$hook_link = $this->hook('postsave_process');

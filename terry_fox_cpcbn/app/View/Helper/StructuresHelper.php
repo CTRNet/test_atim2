@@ -870,7 +870,9 @@ class StructuresHelper extends Helper {
 				}
 			}else if(($table_row_part['type'] == "float" || $table_row_part['type'] == "float_positive") && decimal_separator == ','){
 				$current_value = str_replace('.', ',', $current_value);
-			}
+			} else if($table_row_part['type'] == "textarea") {
+				$current_value = str_replace('\n', "\n", $current_value);	
+			}			
 			$display .= $table_row_part['format'];//might contain hidden field if the current one is disabled
 			
 			$this->fieldDisplayFormat($display, $table_row_part, $key, $current_value);
@@ -1473,7 +1475,11 @@ class StructuresHelper extends Helper {
 					echo '<a class="icon16 reveal activate" href="#" onclick="return false;">+</a> | ';
 				}
 			}else if($children){
-				$data_json = htmlentities(json_encode(array('url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : "")));
+				$data_json = array('url' => isset($options['links']['tree_expand'][$expand_key]) ? $this->strReplaceLink($options['links']['tree_expand'][$expand_key], $data_val) : "");
+				if($data_json['url'][0] == '/'){
+					$data_json['url'] = substr($data_json['url'], 1);
+				}
+				$data_json = htmlentities(json_encode($data_json));
 				echo '<a class="icon16 reveal notFetched" data-json="'.$data_json.'" href="#" onclick="return false;">+</a> | ';
 			}else{
 				echo '<a class="icon16 reveal not_allowed" href="#" onclick="return false;">+</a> | ';

@@ -12,9 +12,9 @@
 	if($is_ajax) $settings['header'] = __('collection');
 	
 	$bottom_links = array(
-		'edit'						=> '/InventoryManagement/collections/edit/' . $atim_menu_variables['Collection.id'],
-		'delete'					=> '/InventoryManagement/collections/delete/' . $atim_menu_variables['Collection.id'],
-		'copy for new collection'	=> array('link' => '/InventoryManagement/collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy'),
+		'edit'						=> '/InventoryManagement/Collections/edit/' . $atim_menu_variables['Collection.id'],
+		'delete'					=> '/InventoryManagement/Collections/delete/' . $atim_menu_variables['Collection.id'],
+		'copy for new collection'	=> array('link' => '/InventoryManagement/Collections/add/0/'.$atim_menu_variables['Collection.id'], 'icon' => 'copy'),
 		'print barcodes'			=> array('link' => '/InventoryManagement/AliquotMasters/printBarcodes/model:Collection/id:'.$atim_menu_variables['Collection.id'], 'icon' => 'barcode'),
 		'add specimen'				=> $add_links,
 		'add from template'			=> $templates,

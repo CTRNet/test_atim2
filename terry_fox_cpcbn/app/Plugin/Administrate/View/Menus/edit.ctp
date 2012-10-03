@@ -1,9 +1,9 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/Administrate/menus/edit/%%Menu.id%%',
+		'top'=>'/Administrate/Menus/edit/%%Menu.id%%',
 		'bottom'=>array(
-			'delete'=>'/Administrate/menus/delete/%%Menu.id%%',
-			'cancel'=>'/Administrate/menus/detail/%%Menu.id%%'
+			'delete'=>'/Administrate/Menus/delete/%%Menu.id%%',
+			'cancel'=>'/Administrate/Menus/detail/%%Menu.id%%'
 		)
 	);
 	

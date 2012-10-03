@@ -6,7 +6,7 @@ class BanksController extends AdministrateAppController {
 	var $paginate = array('Bank'=>array('limit' => pagination_amount,'order'=>'Bank.name ASC')); 
 	
 	function add(){
-		$this->set( 'atim_menu', $this->Menus->get('/Administrate/banks/index') );
+		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Banks/index') );
 		
 		$this->hook();
 		
@@ -16,7 +16,7 @@ class BanksController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/banks/detail/'.$this->Bank->id );
+				$this->atimFlash( 'your data has been updated','/Administrate/Banks/detail/'.$this->Bank->id );
 			}
 		}
 	}
@@ -44,7 +44,7 @@ class BanksController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/banks/detail/'.$bank_id );
+				$this->atimFlash( 'your data has been updated','/Administrate/Banks/detail/'.$bank_id );
 			}
 		} else {
 			$this->request->data = $this->Bank->find('first',array('conditions'=>array('Bank.id'=>$bank_id)));
@@ -54,10 +54,10 @@ class BanksController extends AdministrateAppController {
 	function delete( $bank_id ) {
 		$this->hook();
 		if($this->Bank->isBeingUsed($bank_id)){
-			$this->flash( 'this bank is being used and cannot be deleted', '/Administrate/banks/detail/'.$bank_id."/" );
+			$this->flash( 'this bank is being used and cannot be deleted', '/Administrate/Banks/detail/'.$bank_id."/" );
 		}else{
 			$this->Bank->del( $bank_id );
-			$this->atimFlash( 'your data has been deleted', '/Administrate/banks/index' );
+			$this->atimFlash( 'your data has been deleted', '/Administrate/Banks/index' );
 		}
 	}
 }

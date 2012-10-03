@@ -1,9 +1,9 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/Administrate/banks/edit/%%Bank.id%%', 
-			'delete'=>'/Administrate/banks/delete/%%Bank.id%%/',
-			'list'=>'/Administrate/banks/index'
+			'edit'=>'/Administrate/Banks/edit/%%Bank.id%%', 
+			'delete'=>'/Administrate/Banks/delete/%%Bank.id%%/',
+			'list'=>'/Administrate/Banks/index'
 		)
 	);
 	
