@@ -120,7 +120,10 @@ Config::$config_files[] = $relative_path.'event_psa.php';
 Config::$config_files[] = $relative_path.'dx_other_primary.php';
 Config::$config_files[] = $relative_path.'collections.php';
 
-function addonFunctionStart(){	
+function addonFunctionStart(){
+TODO
+hormontherapy accepte les drugs
+il faut créer un type trtt prechimio	
 	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
 	"=====================================================================".Config::$line_break_tag."

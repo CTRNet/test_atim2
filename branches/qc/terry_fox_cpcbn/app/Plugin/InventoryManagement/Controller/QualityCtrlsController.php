@@ -137,6 +137,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
+				$this->AliquotMaster->sortForDisplay($data, $aliquot_ids);
 			}else{
 				if(!is_array($this->request->data['ViewSample']['sample_master_id'])){
 					$this->request->data['ViewSample']['sample_master_id'] = array($this->request->data['ViewSample']['sample_master_id']);
@@ -147,6 +148,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					'conditions'	=> array('ViewSample.sample_master_id' => $sample_ids),
 					'recursive'		=> -1)
 				);
+				$view_sample_model->sortForDisplay($data, $sample_ids);
 			}
 			
 			
@@ -327,8 +329,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->request->data = $display_data;
 			}
 		}else{
-			//probably a direct access, not supposed to do that
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;
 		}
 	}
 	

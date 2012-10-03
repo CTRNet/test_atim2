@@ -1,8 +1,8 @@
 <?php 
 	
 	$structure_links = array(
-		'top' => '/InventoryManagement/collections/edit/' . $atim_menu_variables['Collection.id'],
-		'bottom' => array('cancel' => '/InventoryManagement/collections/detail/' . $atim_menu_variables['Collection.id'])
+		'top' => '/InventoryManagement/Collections/edit/' . $atim_menu_variables['Collection.id'],
+		'bottom' => array('cancel' => '/InventoryManagement/Collections/detail/' . $atim_menu_variables['Collection.id'])
 	);
 	
 	$structure_override = array();

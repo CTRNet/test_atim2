@@ -33,7 +33,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		
 		//lazy load
 		$this->SampleControl;
@@ -957,10 +957,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		$this->Structures->set('empty', 'empty_structure');
 		
 		$this->set('children_sample_control_id', $this->request->data['SampleMaster']['sample_control_id']);
-		$this->set('created_sample_override_data', array(
-			'SampleControl.sample_type'		=> $children_control_data['SampleControl']['sample_type'],
-			'SampleControl.sample_category'	=> $children_control_data['SampleControl']['sample_category']
-		));
+		$this->set('created_sample_override_data', array('SampleControl.sample_type'		=> $children_control_data['SampleControl']['sample_type']));
 		$this->set('parent_sample_control_id', $parent_sample_control_id);
 		
 		$joins = array(array(
@@ -978,6 +975,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		
 		if(isset($this->request->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
+			$parent_sample_data_for_display = array();
 			if(!empty($this->request->data['AliquotMaster']['ids'])){
 				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$aliquots = $this->AliquotMaster->find('all', array(
@@ -986,17 +984,22 @@ class SampleMastersController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
+				$this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
 				$this->request->data = array();
 				foreach($aliquots as $aliquot){
 					$this->request->data[] = array('parent' => $aliquot, 'children' => array());
-				}
+					$parent_sample_data_for_display[] = $aliquot;	
+				}			
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
+				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
 				$this->request->data = array();
 				foreach($samples as $sample){
-					$this->request->data[] = array('parent' => $sample, 'children' => array());
+					$parent_sample_data_for_display[] = $sample;
+					$this->request->data[] = array('parent' => $sample, 'children' => array());				
 				}
 			}
+			$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data_for_display));
 						
 			$hook_link = $this->hook('initial_display');
 			if($hook_link){
@@ -1016,6 +1019,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			$aliquots_data = array();
 			$validation_iterations = array('SampleMaster', 'DerivativeDetail', 'SourceAliquot');
 			$set_source_aliquot = false;
+			$parent_sample_data_for_display = array();			
 			foreach($prev_data as $parent_id => &$children){
 				$parent = null;
 				$record_counter++;
@@ -1085,7 +1089,10 @@ class SampleMastersController extends InventoryManagementAppController {
 				if(!$new_derivative_created){
 					$errors[]['at least one child has to be created'][$record_counter] = $record_counter;
 				}
+				$parent_sample_data_for_display[] = $parent;
 			}
+			$this->set('parent_sample_data_for_display', $this->SampleMaster->formatParentSampleDataForDisplay($parent_sample_data_for_display));
+			
 			$this->SourceAliquot->validationErrors = null;
 			
 			$hook_link = $this->hook('presave_process');

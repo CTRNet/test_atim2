@@ -57,11 +57,14 @@
 	
 	$final_atim_structure = array('DiagnosisMaster' => $diagnosis_structure);
 
+	$display_next_sub_form = true;
+	
 	$hook_link = $this->Structures->hook('dx_list');
 	if($hook_link){
 		require($hook_link);
 	}	
-	$this->Structures->build($final_atim_structure, $final_options);
+	
+	if($display_next_sub_form) $this->Structures->build($final_atim_structure, $final_options);
 ?>
 <script>
 var treeView = true;

@@ -30,12 +30,7 @@ class EventMaster extends ClinicalAnnotationAppModel {
 				'structure alias'	=> 'eventmasters'
 			);
 		}else if(isset($variables['EventControl.id'])){
-			$event_control_model = AppModel::getInstance('ClinicalAnnotation', 'EventControl');
-			$result = $event_control_model->findById($variables['EventControl.id']);
-			$return = array(
-				'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE).' - '.__($result['EventControl']['disease_site'], TRUE) ),
-				'title'			=>	array( NULL, __('annotation', TRUE) )
-			);
+			$return = array();
 		}
 	
 		return $return;
