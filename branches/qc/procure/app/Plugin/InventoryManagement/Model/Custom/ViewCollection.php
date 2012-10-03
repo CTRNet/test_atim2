@@ -15,6 +15,7 @@ class ViewCollectionCustom extends ViewCollection {
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
 Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
+Collection.procure_visit AS procure_visit,
 		Participant.participant_identifier AS participant_identifier,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,

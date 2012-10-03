@@ -6,7 +6,8 @@
 		$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $new_sample_record['parent']['ViewSample']['sample_master_id']), 'recursive' => '0'));
 		
 		$participant_identifier = empty($new_sample_record['parent']['ViewSample']['participant_identifier'])? '?' : $new_sample_record['parent']['ViewSample']['participant_identifier'];
-		$visite = 'V0';
+
+		$visite = $new_sample_record['parent']['ViewSample']['procure_visit'];
 		$label = '-?';
 		$default_in_stock_value = 'yes - available';
 		$default_volume = '';
