@@ -29,7 +29,9 @@ class Config{
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';static $use_windows_xls_offset = false;
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_revised.xls';static $use_windows_xls_offset = false;
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_20120629_revised.xls';static $use_windows_xls_offset = false;
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_20120629_revised.xls';static $use_windows_xls_offset = true;
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_nl_rev.xls';
+	
+	static $use_windows_xls_offset = false;
 	
 	static $xls_header_rows = 2;
 
@@ -97,9 +99,6 @@ class Config{
 Config::$addon_queries_start[] = "DROP TABLE IF EXISTS start_time";
 Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start_time)";
 
-Config::$value_domains['qc_tf_ct_scan_precision']= new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-Config::$value_domains['tissue_laterality']= new ValueDomain("tissue_laterality", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-Config::$value_domains['qc_tf_tissue_type']= new ValueDomain("qc_tf_tissue_type", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 //add the parent models here
 Config::$parent_models[] = "participants";
@@ -114,16 +113,14 @@ Config::$config_files[] = $relative_path.'tx_surgery.php';
 Config::$config_files[] = $relative_path.'tx_biopsy.php';
 Config::$config_files[] = $relative_path.'dx_recurrence.php';
 Config::$config_files[] = $relative_path.'tx_radiotherapy.php';
-Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
 Config::$config_files[] = $relative_path.'tx_chemotherapy.php';
+Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
+Config::$config_files[] = $relative_path.'tx_other_trt.php';
 Config::$config_files[] = $relative_path.'event_psa.php';
 Config::$config_files[] = $relative_path.'dx_other_primary.php';
 Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){
-TODO
-hormontherapy accepte les drugs
-il faut créer un type trtt prechimio	
 	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
 	"=====================================================================".Config::$line_break_tag."
@@ -132,6 +129,8 @@ il faut créer un type trtt prechimio
 	".Config::$line_break_tag."=====================================================================
 	</FONT>".Config::$line_break_tag."";	
 	
+	echo "<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>";
+
 	$query = "SELECT id, name FROM banks";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
@@ -290,7 +289,8 @@ function addonFunctionEnd(){
 	
 	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
 		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id
-		WHERE tm.participant_id IN (".implode(',', Config::$create_participant_ids).")
+		WHERE tm.participant_id IN (".implode(',', Config::$create_participant_ids).") 
+		AND tc.detail_form_alias != 'qc_tf_txd_others'
 		ORDER BY tm.participant_id, tm.start_date ASC";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 
@@ -468,89 +468,8 @@ function addonFunctionEnd(){
 		}
 	}
 	
-	if(true) {
-		$queries = array(
-			"DROP VIEW IF EXISTS view_collections;",
-			"DROP TABLE IF EXISTS view_collections;",
-			"CREATE TABLE view_collections (SELECT * FROM view_collections_view);",
-			"ALTER TABLE view_collections
-				ADD PRIMARY KEY(collection_id),
-				ADD KEY(bank_id),
-				ADD KEY(qc_tf_collection_type),
-				ADD KEY(sop_master_id),
-				ADD KEY(participant_id),
-				ADD KEY(diagnosis_master_id),
-				ADD KEY(consent_master_id),
-				ADD KEY(treatment_master_id),
-				ADD KEY(event_master_id),
-				ADD KEY(participant_identifier),
-				ADD KEY(qc_tf_bank_participant_identifier),
-				ADD KEY(acquisition_label),
-				ADD KEY(collection_site),
-				ADD KEY(collection_datetime),
-				ADD KEY(collection_property),
-				ADD KEY(created);",
-				
-			"DROP VIEW IF EXISTS view_samples;",
-			"DROP TABLE IF EXISTS view_samples;",
-			"CREATE TABLE view_samples (SELECT * FROM view_samples_view);",		
-			"ALTER TABLE view_samples
-				ADD PRIMARY KEY(sample_master_id),
-				ADD KEY(parent_sample_id),
-				ADD KEY(initial_specimen_sample_id),
-				ADD KEY(collection_id),
-				ADD KEY(bank_id),
-				ADD KEY(qc_tf_collection_type),
-				ADD KEY(sop_master_id),
-				ADD KEY(participant_id),
-				ADD KEY(participant_identifier),
-				ADD KEY(qc_tf_bank_participant_identifier),
-				ADD KEY(acquisition_label),
-				ADD KEY(initial_specimen_sample_type),
-				ADD KEY(initial_specimen_sample_control_id),
-				ADD KEY(parent_sample_type),
-				ADD KEY(parent_sample_control_id),
-				ADD KEY(sample_type),
-				ADD KEY(sample_control_id),
-				ADD KEY(sample_code),
-				ADD KEY(sample_category),
-				ADD KEY(coll_to_creation_spent_time_msg),
-				ADD KEY(coll_to_rec_spent_time_msg);",
-				
-			"DROP VIEW IF EXISTS view_aliquots;",
-			"DROP TABLE IF EXISTS view_aliquots;",
-			"CREATE TABLE view_aliquots (SELECT * FROM view_aliquots_view);",
-			"ALTER TABLE view_aliquots
-				ADD PRIMARY KEY(aliquot_master_id),
-				ADD KEY(sample_master_id),
-				ADD KEY(collection_id),
-				ADD KEY(bank_id),
-				ADD KEY(qc_tf_collection_type),
-				ADD KEY(storage_master_id),
-				ADD KEY(participant_id),
-				ADD KEY(participant_identifier),
-				ADD KEY(qc_tf_bank_participant_identifier),
-				ADD KEY(acquisition_label),
-				ADD KEY(initial_specimen_sample_type),
-				ADD KEY(initial_specimen_sample_control_id),
-				ADD KEY(parent_sample_type),
-				ADD KEY(parent_sample_control_id),
-				ADD KEY(barcode),
-				ADD KEY(aliquot_label),
-				ADD KEY(aliquot_type),
-				ADD KEY(aliquot_control_id),
-				ADD KEY(in_stock),
-				ADD KEY(code),
-				ADD KEY(selection_label),
-				ADD KEY(temperature),
-				ADD KEY(temp_unit),
-				ADD KEY(created),
-				ADD KEY(has_notes);");
-		foreach($queries as $query)	{
-			mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-			if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		}	
-	}
+	$query = "UPDATE versions SET permissions_regenerated = 0;";
+	mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
 
 	// MESSAGES
 	

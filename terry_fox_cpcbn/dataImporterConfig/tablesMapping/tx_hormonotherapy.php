@@ -24,6 +24,7 @@ $model->custom_data = array(
 
 $model->post_read_function = 'txHormonotherapyPostRead';
 $model->insert_condition_function = 'txHormonotherapyInsertCondition';
+$model->post_write_function = 'txHormonoPostWrite';
 Config::addModel($model, 'tx_hormonotherapy');
 
 function txHormonotherapyPostRead(Model $m){
@@ -46,9 +47,28 @@ function txHormonotherapyInsertCondition(Model $m){
 	return true;
 }
 
-
-
-
+function txHormonoPostWrite(Model $m){
+	for($i = 1; $i < 5; $i ++){
+		$key = 'treatment Precision drug '.$i;
+		if(!array_key_exists($key, $m->values)){
+			die('FATAL ERROR: Missing key ['.$key."] FROM event".Config::$line_break_tag);
+		}
+		if(!in_array($m->values[$key], array('', 'no', 'unknown'))){
+			if(!in_array($m->values['chemiotherapy'], array('no', 'unknown', ''))){
+				Config::$summary_msg['event: chimio & horm & HR & bone']['@@WARNING@@']['Drug & more than one trt'][] = "Drugs are defined and both chemo and radio are defined. Drugs will be assigned to chemo. See line ".$m->line.".";
+				break;
+			}
+			$drug_id = getDrugId($m->values[$key], 'hormonal');
+				
+			$query = "INSERT INTO txe_chemos (drug_id, treatment_master_id, created, created_by, modified, modified_by) VALUES ($drug_id, ".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.");";
+			if(Config::$print_queries) echo $query.Config::$line_break_tag;
+			mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+			$id = mysqli_insert_id(Config::$db_connection);
+			$query = "INSERT INTO txe_chemos_revs (id, drug_id, treatment_master_id, version_created, modified_by) VALUES ($id, $drug_id, ".$m->last_id.", NOW(), ".Config::$db_created_id.")";
+			if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+		}
+	}
+}
 
 
 
