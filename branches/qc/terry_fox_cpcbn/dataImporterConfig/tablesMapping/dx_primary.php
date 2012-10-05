@@ -8,6 +8,7 @@ $child = array(
  	'tx_radiotherapy',
  	'tx_hormonotherapy',
  	'tx_chemotherapy',
+	'tx_other_trt',
  	'event_psa',
 	'collection'
 );
@@ -28,7 +29,8 @@ $detail_fields = array(
 	'presence_of_capsular_penetration' 		=> array('Presence of capsular penetration' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
 	'presence_of_seminal_vesicle_invasion'	=> array('Presence of seminal vesicle invasion' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
 	'margin' 								=> array('Margin' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
-	'hormonorefractory_status' 				=> array('hormonorefractory status status' => new ValueDomain('qc_tf_hormonorefractory_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
+	'hormonorefractory_status' 				=> array('hormonorefractory status status' => new ValueDomain('qc_tf_hormonorefractory_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'active_surveillance' 					=> array('Active Surveillance' => new ValueDomain('qc_tf_active_surveillance', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
 );
 
 $model = new MasterDetailModel(1, $pkey, $child, false, 'participant_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_cpcbn', 'diagnosis_master_id', $detail_fields);
@@ -52,7 +54,7 @@ $model->custom_data = array(
 		'presence_of_capsular_penetration' => 'Presence of capsular penetration',
 		'presence_of_seminal_vesicle_invasion' => 'Presence of seminal vesicle invasion',
 		'margin' => 'Margin',
-
+		'active_surveillance' => 'Active Surveillance',
 		'hormonorefractory_status' => 'hormonorefractory status status')
 );
 
@@ -84,6 +86,8 @@ function postDxRead(Model $m){
 	$m->values['Gleason score at biopsy'] =str_replace(array('.00'), array(''),$m->values['Gleason score at biopsy']);
 	$m->values['Gleason sum RP'] =str_replace(array('.00'), array(''),$m->values['Gleason sum RP']);
 		
+	$m->values['Active Surveillance'] =str_replace(array('no','unknown'), array('',''),$m->values['Active Surveillance']);
+	
 	if($m->values['Patient # in biobank'] == $m->custom_data['last_pkey']){
 		//only one primary dx per participant
 		//Config::$summary_msg['diagnosis: primary']['@@MESSAGE@@']['More than one line per participant'][] = "Primary dx already created for patient [".$m->values['Patient # in biobank']."] but a new dx line is being defined. Please validate data! [see line ".$m->line."].";

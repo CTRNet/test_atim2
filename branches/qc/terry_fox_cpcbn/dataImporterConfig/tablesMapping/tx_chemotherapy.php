@@ -32,7 +32,7 @@ function txChemotherapyPostRead(Model $m){
 	if(in_array($m->values['chemiotherapy'], array('no', 'unknown', ''))){
 		$drug_defined = false;
 		for($i = 1; $i < 5; $i ++) if(strlen($m->values['treatment Precision drug '.$i])) $drug_defined = true;
-		if($drug_defined) Config::$summary_msg['event: chemotherapy']['@@WARNING@@']['Drug defined without chemo'][] = "No chemo will be imported but drugs are defined. See line ".$m->line.".";
+		if($drug_defined && in_array($m->values['hormonotherapy'], array('no', 'unknown', '')) && in_array($m->values['Other treatments'], array('no', 'unknown', ''))) Config::$summary_msg['event: trt & horm & HR & bone']['@@WARNING@@']['Drug defined without chemo'][] = "No chemo will be imported but drugs are defined. See line ".$m->line.".";
 		return false;
 	}
 	if($m->values['chemiotherapy'] != 'yes'){
@@ -58,7 +58,7 @@ function txChemotherapyPostWrite(Model $m){
 			die('FATAL ERROR: Missing key ['.$key."] FROM event".Config::$line_break_tag);
 		}
 		if(!in_array($m->values[$key], array('', 'no', 'unknown'))){			
-			$drug_id = getDrugId($m->values[$key]);
+			$drug_id = getDrugId($m->values[$key], 'chemotherapy');
 			
 			$query = "INSERT INTO txe_chemos (drug_id, treatment_master_id, created, created_by, modified, modified_by) VALUES ($drug_id, ".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.");";
 			if(Config::$print_queries) echo $query.Config::$line_break_tag;
@@ -70,18 +70,19 @@ function txChemotherapyPostWrite(Model $m){
 	}
 }
 
-function getDrugId($drug_name) {
-	if(array_key_exists(strtolower($drug_name), Config::$drugs)) return Config::$drugs[strtolower($drug_name)];
+function getDrugId($drug_name, $type) {
+	$drug_key = strtolower($drug_name).$type;
+	if(array_key_exists($drug_key, Config::$drugs)) return Config::$drugs[$drug_key];
 		
-	$query = "INSERT INTO drugs (generic_name, type, created, created_by, modified, modified_by) VALUES ('$drug_name', 'chemotherapy', NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.");";
+	$query = "INSERT INTO drugs (generic_name, type, created, created_by, modified, modified_by) VALUES ('$drug_name', '$type', NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.");";
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
 	mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	
 	$id = mysqli_insert_id(Config::$db_connection);
-	$query = "INSERT INTO drugs_revs (id, generic_name, type, version_created, modified_by) VALUES ($id, '$drug_name', 'chemotherapy', NOW(), ".Config::$db_created_id.");";
+	$query = "INSERT INTO drugs_revs (id, generic_name, type, version_created, modified_by) VALUES ($id, '$drug_name', '$type', NOW(), ".Config::$db_created_id.");";
 	if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	
-	Config::$drugs[strtolower($drug_name)] = $id;
+	Config::$drugs[$drug_key] = $id;
 	
 	return $id;
 }

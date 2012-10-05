@@ -14,7 +14,8 @@ $fields = array(
 	'notes' 				=> 'note'
 );
 $detail_fields = array(
-	'qc_tf_dose_cg' => 'radiotherapy dose'
+	'qc_tf_dose_cg' => 'radiotherapy dose cGy',
+	'qc_tf_type' 	=> array('Radiotherapy' => new ValueDomain('qc_tf_radiotherapy_type', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
 );
 
 $model = new MasterDetailModel(2, $pkey, $child, false, 'diagnosis_master_id', $pkey, 'treatment_masters', $fields, 'txd_radiations', 'treatment_master_id', $detail_fields);
@@ -34,20 +35,19 @@ function txRadiotherapyPostRead(Model $m){
 		Config::$summary_msg['event']['@@ERROR@@']['Missing Patient # in biobank'][] = "Check patient # is set or data exists. See line ".($m->line-1).".";
 	}
 	$m->custom_data['previous_line'] = $m->line;
-	if($m->values['Radiotherapy'] != 'yes' && $m->values['hormonotherapy'] != 'yes' && $m->values['chemiotherapy'] != 'yes' && !preg_match('/^[0-9\.]+$/', $m->values['PSA (ng/ml)'],$matches)) {
+	$m->values['Radiotherapy'] = str_replace(array('no', 'unknown'),array('',''),$m->values['Radiotherapy']);
+	if(empty($m->values['Radiotherapy']) && $m->values['hormonotherapy'] != 'yes' && $m->values['chemiotherapy'] != 'yes' && !preg_match('/^[0-9\.]+$/', $m->values['PSA (ng/ml)'],$matches)) {
 		Config::$summary_msg['event']['@@WARNING@@']['No data to import'][] = "No data will be imported because no event is defined. See line ".$m->line.".";
 		return false;
 	}
 
-	if(in_array($m->values['Radiotherapy'], array('no', 'unknown', ''))){
+	if(empty($m->values['Radiotherapy'])){
 		return false;
 	}
-	if($m->values['Radiotherapy'] != 'yes'){
-		echo 'WARNING: Unknwon value ['.$m->values['radiotherapy'].'] for radiotherapy in event at line ['.$m->line."]".Config::$line_break_tag;
-	}
-	if(!preg_match('/^([0-9]*)$/', $m->values['radiotherapy dose'], $matches)) {
-		Config::$summary_msg['event: radiotherapy']['@@WARNING@@']['value error'][] = "Integer expected. See value [".$m->values['radiotherapy dose']."] at line ".$m->line.".";
-		$m->values['radiotherapy dose'] = '';
+	
+	if(!preg_match('/^([0-9]*)$/', $m->values['radiotherapy dose cGy'], $matches)) {
+		Config::$summary_msg['event: radiotherapy']['@@WARNING@@']['value error'][] = "Integer expected. See value [".$m->values['radiotherapy dose cGy']."] at line ".$m->line.".";
+		$m->values['radiotherapy dose cGy'] = '';
 	}	
 	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: radiotherapy']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	excelDateFix($m);
