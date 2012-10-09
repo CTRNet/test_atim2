@@ -865,3 +865,76 @@ WHERE control_id = @control_id AND value = 'tumor surgery';
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value = 'normal surgery';
 
 UPDATE collections SET qc_lady_specimen_type_precision = 'tissue||surgery' WHERE qc_lady_specimen_type_precision LIKE 'tissue||% surgery' AND deleted <> 1;
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- New requests (2012-10-09)
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE sd_spe_tissues ADD COLUMN qc_lady_tumor_location varchar(50) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN qc_lady_tumor_location varchar(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("qc_lady_tissue_tumor_location", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Tumor location\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Tumor location', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Tumor location');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('q upper inside', 'Q Upper Inside', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('q upper outside', 'Q Upper Outside', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('q lower inside', 'Q Lower Inside', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('q lower outside', 'Q Lower Outside', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'qc_lady_tumor_location', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tumor_location') , '0', '', '', '', 'tumor location', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='qc_lady_tumor_location' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tumor_location')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor location' AND `language_tag`=''), '1', '444', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('tumor location','Tumor Location','Localisation de la tumeur');
+
+UPDATE structure_formats SET `display_order`='450', `language_heading`='tissue from OR' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE sd_spe_tissues ADD COLUMN qc_lady_under_audiological_guidance char(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN qc_lady_under_audiological_guidance char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qc_lady_under_audiological_guidance', 'yes_no',  NULL , '0', '', '', '', 'under audiological guidance', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_lady_under_audiological_guidance' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='under audiological guidance' AND `language_tag`=''), '1', '455', 'bx primary / metastasis', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES 
+('under audiological guidance', 'Under audiological guidance', 'Sous une direction audio.'),
+('bx primary / metastasis', 'Bx primary/metastasis', 'Biopsie prim./métas.'),
+('tissue from OR', 'Tissue from OR', 'Tissu de la Salle d''OP.');
+
+REPLACE INTO i18n (id,en,fr) VALUE ('pbmc', 'Buffy coat','Buffy coat'), ('PBMC Tube', 'Buffy coat Tube', 'Tube de Buffy coat');
+
+-- ALTER TABLE sd_der_plasmas DROP COLUMN qc_lady_centri_1, DROP COLUMN qc_lady_centri_1_duration_min, DROP COLUMN qc_lady_centri_1_unit;
+-- ALTER TABLE sd_der_plasmas_revs DROP COLUMN qc_lady_centri_1, DROP COLUMN qc_lady_centri_1_duration_min, DROP COLUMN qc_lady_centri_1_unit;
+-- ALTER TABLE sd_der_serums DROP COLUMN qc_lady_coagulation_time_sec, DROP COLUMN qc_lady_centri_1_rpm, DROP COLUMN qc_lady_centri_1_duration_min, DROP COLUMN qc_lady_centri_2_rpm, DROP COLUMN qc_lady_centri_2_duration_min;
+-- ALTER TABLE sd_der_serums_revs DROP COLUMN qc_lady_coagulation_time_sec, DROP COLUMN qc_lady_centri_1_rpm, DROP COLUMN qc_lady_centri_1_duration_min, DROP COLUMN qc_lady_centri_2_rpm, DROP COLUMN qc_lady_centri_2_duration_min;
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename IN ('sd_der_serums','sd_der_plasmas') AND field LIKE 'qc_lady_centri_%');
+DELETE FROM structure_fields WHERE tablename IN ('sd_der_serums','sd_der_plasmas') AND field LIKE 'qc_lady_centri_%';
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field LIKE 'qc_lady_coagulation_time_sec');
+DELETE FROM structure_fields WHERE field LIKE 'qc_lady_coagulation_time_sec';
+
+REPLACE INTO i18n (id,en,fr) VALUES ('creation date','Processing date','Date du traitement');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site') AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('hemolysis signs','Color','Couleur');
+
+INSERT INTO structures(`alias`) VALUES ('qc_lady_ad_der_pbmc');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='current volume' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='initial volume' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_creat_to_stor_spent_time_msg_defintion' AND `language_label`='creation to storage spent time' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_coll_to_stor_spent_time_msg_defintion' AND `language_label`='collection to storage spent time' AND `language_tag`=''), '1', '59', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '60', '', '1', 'creation to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE sample_controls sc, aliquot_controls ac SET ac.detail_form_alias = 'qc_lady_ad_der_pbmc' WHERE sc.sample_type = 'pbmc' AND sc.id = ac.sample_control_id;
+
+
+
+
+
+
+
