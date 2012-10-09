@@ -35,7 +35,8 @@ function postOtherDxRead(Model $m){
 	}
 	$m->custom_data['previous_line'] = $m->line;
 	
-	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['other']['id'];
+	if($m->values['cancer type'] == 'Other-Primary Unknown') return false;
+	
 	excelDateFix($m);
 	
 	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['Age at Time of Diagnosis (yr)'], $matches)) {
@@ -46,8 +47,12 @@ function postOtherDxRead(Model $m){
 		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
 	}
 	
-	if(in_array($m->values['cancer type'], array('prostate','Other-Primary Unknown'))) die("TODO: to support other cancer like 'prostate','Other-Primary Unknown'");
-	$m->values['cancer type'] = strtolower(str_replace('-',' - ', $m->values['cancer type']));
+	if(in_array($m->values['cancer type'], array('prostate'))) {
+		die("TODO: to support other cancer like 'prostate','Other-Primary Unknown'.");
+	} else {
+		$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['other']['id'];
+		$m->values['cancer type'] = strtolower(str_replace('-',' - ', $m->values['cancer type']));
+	}
 	
 	return true;
 }

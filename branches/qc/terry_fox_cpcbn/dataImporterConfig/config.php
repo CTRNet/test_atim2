@@ -25,11 +25,11 @@ class Config{
 	
 	//if reading excel file
 	
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_20120629_revised.xls';static $use_windows_xls_offset = true;
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_20120629_revised.xls';static $use_windows_xls_offset = false;
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_revised.xls';static $use_windows_xls_offset = false;
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_20120629_revised.xls';static $use_windows_xls_offset = false;
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_nl_rev.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_nl_rev.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_nl_rev.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_nl_rev.xls';
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_nl_rev.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_nl_rev.xls';
 	
 	static $use_windows_xls_offset = false;
 	
@@ -118,6 +118,7 @@ Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
 Config::$config_files[] = $relative_path.'tx_other_trt.php';
 Config::$config_files[] = $relative_path.'event_psa.php';
 Config::$config_files[] = $relative_path.'dx_other_primary.php';
+Config::$config_files[] = $relative_path.'dx_unknown_primary.php';
 Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){
@@ -129,7 +130,7 @@ function addonFunctionStart(){
 	".Config::$line_break_tag."=====================================================================
 	</FONT>".Config::$line_break_tag."";	
 	
-	echo "<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>";
+	echo Config::$line_break_tag."<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>".Config::$line_break_tag.Config::$line_break_tag;
 
 	$query = "SELECT id, name FROM banks";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);

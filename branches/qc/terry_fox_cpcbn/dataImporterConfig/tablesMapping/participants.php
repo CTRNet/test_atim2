@@ -3,7 +3,8 @@
 $pkey = "Patient # in biobank";
 $child = array(
  	'dx_primary',
-	'dx_other_primary'
+	'dx_other_primary',
+	'dx_unknown_primary'
 );
 $fields = array(
 	"participant_identifier" 					=> "@tmp_id",
