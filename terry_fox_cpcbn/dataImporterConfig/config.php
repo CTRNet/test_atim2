@@ -25,10 +25,10 @@ class Config{
 	
 	//if reading excel file
 	
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_nl_rev.xls';
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_nl_rev.xls';
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_nl_rev.xls';
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_nl_rev.xls';
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_nl_rev.xls';
+	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_nl_rev.xls';
 	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_nl_rev.xls';
 	
 	static $use_windows_xls_offset = false;
@@ -36,7 +36,7 @@ class Config{
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//whether to output the dataImporter generated queries
-	static $insert_revs		= false;//whether to insert generated queries data in revs as well
+	static $insert_revs		= true;//whether to insert generated queries data in revs as well
 	
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
@@ -190,13 +190,14 @@ function addonFunctionStart(){
 	$query = 'UPDATE storage_masters SET code=id WHERE id='.$storage_master_id;
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
 	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	Database::insertRevForLastRow('storage_masters');
+	Database::insertRev('storage_masters', $storage_master_id, 'id');
+	
 	Config::$storage_master_id = $storage_master_id;
 	
 	$query = "INSERT INTO `std_tma_blocks` (`storage_master_id`) VALUES ($storage_master_id);";
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;
 	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	Database::insertRevForLastRow('std_tma_blocks');
+	Database::insertRev('std_tma_blocks', $storage_master_id, 'storage_master_id');
 	
 	$query = "select id,sample_type from sample_controls where sample_type in ('tissue');";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -307,7 +308,7 @@ function addonFunctionEnd(){
 					foreach($tx_methode_sorted_for_dfs as $next_tx_method) {					
 						if(isset($first_tx_list_per_method[$next_tx_method])) {
 							$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
-							if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined based on treatments with at least one unaccracy date. See patient # $qc_tf_bank_participant_identifier.";
+							if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient # $qc_tf_bank_participant_identifier.";
 							break;
 						}
 					}
@@ -328,7 +329,7 @@ function addonFunctionEnd(){
 	foreach($tx_methode_sorted_for_dfs as $next_tx_method) {
 		if(isset($first_tx_list_per_method[$next_tx_method])) {
 			$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
-			if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined based on treatments with at least one unaccracy date. See patient # $qc_tf_bank_participant_identifier.";
+			if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient # $qc_tf_bank_participant_identifier.";
 			break;
 		}
 	}
