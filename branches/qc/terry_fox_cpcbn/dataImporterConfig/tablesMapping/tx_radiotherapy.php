@@ -36,7 +36,7 @@ function txRadiotherapyPostRead(Model $m){
 	}
 	$m->custom_data['previous_line'] = $m->line;
 	$m->values['Radiotherapy'] = str_replace(array('no', 'unknown'),array('',''),$m->values['Radiotherapy']);
-	if(empty($m->values['Radiotherapy']) && $m->values['hormonotherapy'] != 'yes' && $m->values['chemiotherapy'] != 'yes' && !preg_match('/^[0-9\.]+$/', $m->values['PSA (ng/ml)'],$matches)) {
+	if(empty($m->values['Radiotherapy']) && $m->values['hormonotherapy'] != 'yes' && $m->values['chemiotherapy'] != 'yes' && empty($m->values['Other treatments']) && !preg_match('/^[0-9\.]+$/', $m->values['PSA (ng/ml)'],$matches)) {
 		Config::$summary_msg['event']['@@WARNING@@']['No data to import'][] = "No data will be imported because no event is defined. See line ".$m->line.".";
 		return false;
 	}
