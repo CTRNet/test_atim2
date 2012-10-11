@@ -899,7 +899,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_lady_under_audiological_guidance' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='under audiological guidance' AND `language_tag`=''), '1', '455', 'bx primary / metastasis', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr) VALUES 
-('under audiological guidance', 'Under audiological guidance', 'Sous une direction audio.'),
+('under audiological guidance', 'Under audiological guidance', 'Sous guidage radiologique'),
 ('bx primary / metastasis', 'Bx primary/metastasis', 'Biopsie prim./métas.'),
 ('tissue from OR', 'Tissue from OR', 'Tissu de la Salle d''OP.');
 
@@ -932,9 +932,94 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_lady_ad_der_pbmc'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 UPDATE sample_controls sc, aliquot_controls ac SET ac.detail_form_alias = 'qc_lady_ad_der_pbmc' WHERE sc.sample_type = 'pbmc' AND sc.id = ac.sample_control_id;
 
+ALTER TABLE ad_tubes ADD COLUMN qc_lady_storage_method VARCHAR(50) DEFAULT '';
+ALTER TABLE ad_tubes_revs ADD COLUMN qc_lady_storage_method VARCHAR(50) DEFAULT '';
+UPDATE ad_tubes SET qc_lady_storage_solution = '', qc_lady_storage_method = 'flash freeze' WHERE qc_lady_storage_solution = 'flash freeze ';
+UPDATE ad_tubes_revs SET qc_lady_storage_solution = '', qc_lady_storage_method = 'flash freeze' WHERE qc_lady_storage_solution = 'flash freeze ';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Storage solution');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value = 'flash freeze';
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("qc_lady_tissue_tube_storage_method", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Storage method\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Storage method', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Storage method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('flash freeze', '', '','1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qc_lady_storage_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_storage_method') , '0', '', '', '', 'storage method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tissue_tube_storage_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('storage method','Storage method', 'Méthode d''entreposage');
+
+SELECT '*************** Collections with type undefined: to complete *******************************************' AS MSG;
+select id AS collection_id from collections where (qc_lady_specimen_type_precision is null or qc_lady_specimen_type_precision like '') OR (qc_lady_specimen_type_precision is null or qc_lady_specimen_type_precision like '');
+SELECT '-------- Collections with type undefined with sample (should be empty) -------- ' AS MSG;
+SELECT id AS collection_id_issue FROM sample_masters 
+WHERE collection_id IN (
+select id from collections where (qc_lady_specimen_type_precision is null or qc_lady_specimen_type_precision like '') OR (qc_lady_specimen_type_precision is null or qc_lady_specimen_type_precision like '')
+)
+AND deleted != 1;
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='tool' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_qc_tool') AND `flag_confidential`='0');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("qc_lady_quality_control_type", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Quality Ctrl : Type\')");
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_quality_control_type')  WHERE model='QualityCtrl' AND tablename='quality_ctrls' AND field='type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_type');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Quality Ctrl : Type', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Quality Ctrl : Type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT id,en,fr,'1', @control_id, NOW(), NOW(), 1, 1 FROM i18n WHERE id IN ('bioanalyzer','spectrophotometer','pcr','agarose gel','immunohistochemistry'));
+
+UPDATE aliquot_controls ac, sample_controls sc
+SET ac.volume_unit = 'ul'
+WHERE ac.sample_control_id = sc.id AND sc.sample_type IN ('rna','dna');
+UPDATE aliquot_masters am, aliquot_controls ac, sample_controls sc
+SET am.initial_volume = am.initial_volume*1000, am.current_volume = am.current_volume*1000
+WHERE am.deleted <> 1 AND am.aliquot_control_id = ac.id AND ac.sample_control_id = sc.id AND  sc.sample_type IN ('rna','dna')
+AND (am.initial_volume IS NOT NULL AND am.initial_volume NOT LIKE '');
+SELECT '*************** DNA RNA uses to check no volume has to be changed to ul *******************************************' AS MSG;
+SELECT aliquot_master_id, use_definition, use_code, used_volume, aliquot_volume_unit FROM view_aliquot_uses WHERE aliquot_master_id IN (
+	SELECT am.id
+	FROM aliquot_masters am, aliquot_controls ac, sample_controls sc
+	WHERE am.deleted <> 1 AND am.aliquot_control_id = ac.id AND ac.sample_control_id = sc.id AND  sc.sample_type IN ('rna','dna')
+	AND (am.initial_volume IS NOT NULL AND am.initial_volume NOT LIKE '')
+);
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+("the barcode [%s] has already been recorded","The barcode [%s] has already been recorded!","Le code à barres [%s] a déjà été enregistré!"),
+("you can not record barcode [%s] twice","You can not record barcode [%s] twice!","Vous ne pouvez enregistrer le code à barres [%s] deux fois!");
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+REPLACE INTO i18n (id,en,fr) VALUEs ('core_appname', "<FONT color = 'red'>ATiM - Advanced Tissue Management - Test</FONT> - Test", "ATiM - Application de gestion avancée des tissus - Test</FONT>");
 
 
 

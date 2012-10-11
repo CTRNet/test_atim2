@@ -17,7 +17,7 @@ class AliquotMasterCustom extends AliquotMaster{
 		}
 		
 		$barcode = $aliquot_data['AliquotMaster']['barcode'];
-		$control_id = $aliquot_data['AliquotMaster']['aliquot_control_id'];
+		$control_id = isset($aliquot_data['AliquotMaster']['aliquot_control_id'])? $aliquot_data['AliquotMaster']['aliquot_control_id'] : '';
 		
 		// Check duplicated barcode into submited record
 		if(empty($barcode)) {
