@@ -163,3 +163,6 @@ CREATE TABLE IF NOT EXISTS `qc_tf_ed_cpcbn_revs` (
   `notes` text NOT NULL,
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+TRUNCATE acos;
+
