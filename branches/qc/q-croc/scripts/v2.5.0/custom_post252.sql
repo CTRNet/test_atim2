@@ -490,6 +490,20 @@ REPLACE INTO i18n (id,en) VALUES
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `field`='start_date'), 'notEmpty', '', '');
+UPDATE structure_formats SET `language_heading`='reception at JGH/HDQ' WHERE structure_id=(SELECT id FROM structures WHERE alias='qcroc_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='qcroc_ad_tissue_tubes' AND `field`='date_sample_received' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='storage' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='storage' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='other information' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en) VALUES 
+('reception at JGH/HDQ','Reception at JGH/HDQ'),
+('tissue tubes transferring','Tissue tubes transferring'),
+('create aliquot tranfers', 'Create aliquot tranfers'),
+('other information','Other information');
+
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, 1, 'create aliquot tranfers', '/InventoryManagement/AliquotMasters/addAliquotTransfer/', 1, '');
 
 
 
@@ -659,17 +673,6 @@ ALTER TABLE `spr_breast_cancer_types`
   ADD CONSTRAINT `FK_spr_breast_cancer_types_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
 
 UPDATE structure_formats SET `display_column`='1', `display_order`='71', `language_heading`='collection information at site' WHERE structure_id=(SELECT id FROM structures WHERE alias='qcroc_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='qcroc_ad_tissue_tubes' AND `field`='time_placed_at_4c' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -621,7 +621,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 	
 	/* ------------------------------ ALIQUOT INTERNAL USES ------------------------------ */
 
-	function addAliquotInternalUse($aliquot_master_id = null, $qcroc_is_transfer = false) {
+	function addAliquotInternalUse($aliquot_master_id = null) {
 		//GET DATA
 		
 		$initial_display = false;
