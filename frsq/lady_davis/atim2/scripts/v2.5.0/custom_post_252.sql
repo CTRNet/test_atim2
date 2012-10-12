@@ -996,6 +996,7 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ("the barcode [%s] has already been recorded","The barcode [%s] has already been recorded!","Le code à barres [%s] a déjà été enregistré!"),
 ("you can not record barcode [%s] twice","You can not record barcode [%s] twice!","Vous ne pouvez enregistrer le code à barres [%s] deux fois!");
 
+UPDATE structure_formats SET `display_column`='1', `display_order`='59' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_tissu_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_real_collection_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
@@ -1019,7 +1020,25 @@ REPLACE INTO i18n (id,en,fr) VALUES
 
 
 
-REPLACE INTO i18n (id,en,fr) VALUEs ('core_appname', "<FONT color = 'red'>ATiM - Advanced Tissue Management - Test</FONT> - Test", "ATiM - Application de gestion avancée des tissus - Test</FONT>");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
