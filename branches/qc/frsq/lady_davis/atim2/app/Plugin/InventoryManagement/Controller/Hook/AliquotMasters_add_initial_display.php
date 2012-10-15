@@ -13,9 +13,6 @@
 				$tmp_col_data = $this->Collection->find('first', array('conditions' => array('Collection.id' => $tmp_col_id), 'recursive' => '-1'));
 				$tmp_coll_data_from_id[$tmp_col_id] = $tmp_col_data;
 			}
-			if($tmp_col_data['Collection']['collection_datetime_accuracy'] == 'c') {
-				$tmp_default_aliquot_data['AliquotDetail.qc_lady_real_collection_time'] = substr($tmp_col_data['Collection']['collection_datetime'],(strpos($tmp_col_data['Collection']['collection_datetime'], ' ')+1), 5);
-			}
 		} else if(($new_data_set['parent']['ViewSample']['sample_type'] == 'pbmc') && $aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
 			$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'Buffy Coat';
 		} else if(($new_data_set['parent']['ViewSample']['sample_type'] == 'serum') && $aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
