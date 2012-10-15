@@ -14,3 +14,7 @@ UPDATE menus SET use_link = '/Material/Materials/index/' WHERE use_link = '/Mate
 
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
 ('2.5.2', NOW(), '4882');
+
+ALTER TABLE specimen_review_controls DROP FOREIGN KEY FK_specimen_review_controls_specimen_review_controls;
+ALTER TABLE `specimen_review_controls`
+  ADD CONSTRAINT `FK_specimen_review_controls_aliquot_review_controls` FOREIGN KEY (`aliquot_review_control_id`) REFERENCES `aliquot_review_controls` (`id`);
