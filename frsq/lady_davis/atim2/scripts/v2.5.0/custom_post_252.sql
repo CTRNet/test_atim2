@@ -703,20 +703,6 @@ VALUES
 ('CTAD', '', '','1', @control_id, NOW(), NOW(), 1, 1),
 ('P100', '', '','1', @control_id, NOW(), NOW(), 1, 1);
 
-ALTER TABLE ad_tubes 
-  ADD COLUMN `qc_lady_real_collection_time` time DEFAULT NULL;
-ALTER TABLE ad_tubes_revs 
-  ADD COLUMN `qc_lady_real_collection_time` time DEFAULT NULL;
-INSERT INTO structures(`alias`) VALUES ('qc_lady_tissu_tubes');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', '', 'qc_lady_real_collection_time', 'time',  NULL , '0', '', '', '', 'exact collection time', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='qc_lady_tissu_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_real_collection_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='exact collection time' AND `language_tag`=''), '0', '320', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
-INSERT INTO i18n (id,en,fr) VALUES ('exact collection time','Exact col. time','Heure exacte de col.');
-UPDATE sample_controls sc, aliquot_controls ac
-SET ac.detail_form_alias = CONCAT(ac.detail_form_alias, ',qc_lady_tissu_tubes')
-WHERE ac.sample_control_id = sc.id AND sc.sample_type = 'tissue' AND ac.aliquot_type = 'tube';
-
 ALTER TABLE collections
   ADD COLUMN qc_lady_sop_followed char(1) DEFAULT '' AFTER sop_master_id,  
   ADD COLUMN qc_lady_sop_deviations text AFTER qc_lady_sop_followed;  
@@ -995,10 +981,6 @@ SELECT aliquot_master_id, use_definition, use_code, used_volume, aliquot_volume_
 REPLACE INTO i18n (id,en,fr) VALUES 
 ("the barcode [%s] has already been recorded","The barcode [%s] has already been recorded!","Le code à barres [%s] a déjà été enregistré!"),
 ("you can not record barcode [%s] twice","You can not record barcode [%s] twice!","Vous ne pouvez enregistrer le code à barres [%s] deux fois!");
-
-UPDATE structure_formats SET `display_column`='1', `display_order`='59' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_tissu_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qc_lady_real_collection_time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-
 
 
 
