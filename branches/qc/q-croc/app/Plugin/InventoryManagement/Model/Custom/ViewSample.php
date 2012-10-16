@@ -38,7 +38,8 @@ class ViewSampleCustom extends ViewSample {
 		IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
 		
-TreatmentDetail.biopsy_type AS qcroc_collection_type,
+TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type,
+TreatmentMaster.qcroc_cycle AS qcroc_cycle,
 Collection.qcroc_protocol AS qcroc_protocol
 		
 		FROM sample_masters AS SampleMaster
@@ -51,8 +52,8 @@ Collection.qcroc_protocol AS qcroc_protocol
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-LEFT JOIN qcroc_txd_liver_biopsies AS TreatmentDetail ON Collection.treatment_master_id = TreatmentDetail.treatment_master_id AND Participant.deleted <> 1
-	
+LEFT JOIN treatment_masters AS TreatmentMaster ON Collection.treatment_master_id = TreatmentMaster.id AND TreatmentMaster.deleted <> 1
+			
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
 }

@@ -38,15 +38,13 @@ UPDATE treatment_controls SET flag_active = 0;
 INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`) VALUES
 ('biopsy', 'liver', 1, 'qcroc_txd_liver_biopsies', 'qcroc_txd_liver_biopsy', 'qcroc_txe_liver_biopsie_sedations', 'qcroc_txe_liver_biopsie_sedation', 0, NULL, NULL, 'biopsy|liver', 1);
 
+ALTER TABLE treatment_masters ADD COLUMN qcroc_biopsy_type varchar(50) DEFAULT NULL;
+ALTER TABLE treatment_masters_revs ADD COLUMN qcroc_biopsy_type varchar(50) DEFAULT NULL;
+
 CREATE TABLE IF NOT EXISTS `qcroc_txd_liver_biopsies` (
-   biopsy_type varchar(50) DEFAULT NULL,
    biopsy_performed char(1) DEFAULT '',
    reason_if_not_performed varchar(250) DEFAULT NULL,
    other_reason_if_not_performed varchar(250) DEFAULT NULL,
-
-   sop_followed char(1) DEFAULT '',  
-   sop_master_id int(11) DEFAULT NULL,
-   sop_deviations text,  
 
    instrument varchar(250) DEFAULT NULL,
    other_instrument_specify varchar(250) DEFAULT NULL,
@@ -60,14 +58,9 @@ CREATE TABLE IF NOT EXISTS `qcroc_txd_liver_biopsies` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE IF NOT EXISTS `qcroc_txd_liver_biopsies_revs` (
-   biopsy_type varchar(50) DEFAULT NULL,
    biopsy_performed char(1) DEFAULT '',
    reason_if_not_performed varchar(250) DEFAULT NULL,
    other_reason_if_not_performed varchar(250) DEFAULT NULL,
-
-   sop_followed char(1) DEFAULT '',  
-   sop_master_id int(11) DEFAULT NULL,
-   sop_deviations text,  
 
    instrument varchar(250) DEFAULT NULL,
    other_instrument_specify varchar(250) DEFAULT NULL,
@@ -117,8 +110,6 @@ VALUES
 ('18-gauge biopince Francine-type', '18-gauge biopince Francine-type', '', '1', @control_id, NOW(), NOW(), 1, 1),
 ('other', 'Other', '', '1', @control_id, NOW(), NOW(), 1, 1);
 UPDATE structure_permissible_values_customs SET display_order = id WHERE control_id IN (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('Biopsy : Instruments', 'Biopsy : Reason if not performed'));
-INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
-(null, 'qcroc_biopsy_sops', 'open', '', 'Sop.SopMaster::getBiopsySopPermissibleValues');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Biopsy : Liver segments');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, display_order) 
 VALUES 
@@ -140,31 +131,25 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'biopsy_performed', 'yes_no',  NULL , '0', '', '', '', 'biopsy performed', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'reason_if_not_performed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_reasons_if_no_biopsy_performed') , '0', '', '', '', 'reason if biopsy not performed', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'other_reason_if_not_performed', 'input',  NULL , '0', 'size=30', '', '', 'other reason if not performed', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'sop_followed', 'yes_no',  NULL , '0', '', '', '', 'sop followed', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'sop_master_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_sops') , '0', '', '', '', 'sop#', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'sop_deviations', 'textarea',  NULL , '0', 'cols=30,rows=3', '', '', 'sop deviations', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'instrument', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_instruments') , '0', '', '', '', 'instrument', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'other_instrument_specify', 'input',  NULL , '0', 'size=30', '', '', '', 'other specify'), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'liver_segment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_liver_segments') , '0', '', '', '', 'liver segment', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'lesion_size', 'float_positive',  NULL , '0', '', '', '', 'lesion size', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'radiologist', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_radiologists') , '0', '', '', '', 'radiologist', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'coordinator', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_coordinators') , '0', '', '', '', 'coordinator', ''),
-('ClinicalAnnotation', 'TreatmentDetail', 'qcroc_txd_liver_biopsies', 'biopsy_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_types') , '0', '', '', '', 'type', '');
+('ClinicalAnnotation', 'TreatmentMaster', 'treatment_masters', 'qcroc_biopsy_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_types') , '0', '', '', '', 'type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='biopsy_performed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy performed' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='reason_if_not_performed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_reasons_if_no_biopsy_performed')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reason if biopsy not performed' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='other_reason_if_not_performed' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='other reason if not performed' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='sop_followed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop followed' AND `language_tag`=''), '2', '34', 'SOP', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_sops')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sop#' AND `language_tag`=''), '2', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='sop_deviations' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=30,rows=3' AND `default`='' AND `language_help`='' AND `language_label`='sop deviations' AND `language_tag`=''), '2', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='instrument' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_instruments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='instrument' AND `language_tag`=''), '2', '47', 'biopsy details', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='other_instrument_specify' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other specify'), '2', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='liver_segment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_liver_segments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver segment' AND `language_tag`=''), '2', '49', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='lesion_size' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lesion size' AND `language_tag`=''), '2', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='radiologist' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_radiologists')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='radiologist' AND `language_tag`=''), '2', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='coordinator' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_coordinators')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='coordinator' AND `language_tag`=''), '2', '52', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
-((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qcroc_txd_liver_biopsies' AND `field`='biopsy_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE `tablename`='qcroc_txd_liver_biopsies' AND `field` IN ('biopsy_type')), 'notEmpty', '', '');
+((SELECT id FROM structures WHERE alias='qcroc_txd_liver_biopsy'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='qcroc_biopsy_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `on_action`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE `tablename`='treatment_masters' AND `field` IN ('qcroc_biopsy_type')), 'notEmpty', '', '');
 
 CREATE TABLE IF NOT EXISTS `qcroc_txe_liver_biopsie_sedations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
