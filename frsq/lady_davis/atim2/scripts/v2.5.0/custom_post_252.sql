@@ -878,14 +878,14 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES ('tumor location','Tumor Location','Localisation de la tumeur');
 
 UPDATE structure_formats SET `display_order`='450', `language_heading`='tissue from OR' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-ALTER TABLE sd_spe_tissues ADD COLUMN qc_lady_under_audiological_guidance char(1) DEFAULT '';
-ALTER TABLE sd_spe_tissues_revs ADD COLUMN qc_lady_under_audiological_guidance char(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues ADD COLUMN qc_lady_under_radiological_guidance char(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN qc_lady_under_radiological_guidance char(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qc_lady_under_audiological_guidance', 'yes_no',  NULL , '0', '', '', '', 'under audiological guidance', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'qc_lady_under_radiological_guidance', 'yes_no',  NULL , '0', '', '', '', 'under radiological guidance', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_lady_under_audiological_guidance' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='under audiological guidance' AND `language_tag`=''), '1', '455', 'bx primary / metastasis', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='qc_lady_under_radiological_guidance' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='under radiological guidance' AND `language_tag`=''), '1', '455', 'bx primary / metastasis', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr) VALUES 
-('under audiological guidance', 'Under audiological guidance', 'Sous guidage radiologique'),
+('under radiological guidance', 'Under radiological guidance', 'Sous guidage radiologique'),
 ('bx primary / metastasis', 'Bx primary/metastasis', 'Biopsie prim./métas.'),
 ('tissue from OR', 'Tissue from OR', 'Tissu de la Salle d''OP.');
 
@@ -982,45 +982,4 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ("the barcode [%s] has already been recorded","The barcode [%s] has already been recorded!","Le code à barres [%s] a déjà été enregistré!"),
 ("you can not record barcode [%s] twice","You can not record barcode [%s] twice!","Vous ne pouvez enregistrer le code à barres [%s] deux fois!");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/adhocs/%';
