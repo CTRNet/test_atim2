@@ -8,4 +8,6 @@
 			}
 		}
 		$this->set('default_qcroc_protocol', 'Q-CROC-01');
+	} else if(empty($collection_data)) {
+		$this->set('default_qcroc_protocol', 'Q-CROC-01');
 	}

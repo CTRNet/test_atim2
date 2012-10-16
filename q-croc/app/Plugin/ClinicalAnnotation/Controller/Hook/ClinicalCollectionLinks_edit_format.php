@@ -1,3 +1,3 @@
 <?php 
 
-	$this->Structures->set('treatmentmasters,qcroc_txd_liver_biopsy_for_clini_coll_link', 'atim_structure_tx');
+	$this->Structures->set('treatmentmasters,qcroc_treatmentmasters_precision', 'atim_structure_tx');

@@ -5,8 +5,8 @@ class SopMasterCustom extends SopMaster
 	var $name = 'SopMaster';
     var $useTable = 'sop_masters';
 	
-	function getBiopsySopPermissibleValues() {
-		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'biopsy'));
+	function getCollectionSopPermissibleValues() {
+		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => array('blood collection','biopsy')));
 	}
 	
 	function getBlockSopPermissibleValues() {
