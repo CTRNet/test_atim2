@@ -10,3 +10,8 @@
 		$this->request->data['SampleMaster']['qc_lady_sop_deviations'] = $collection_data['Collection']['qc_lady_sop_deviations'];
 	}
 	
+	if ($sample_control_data['SampleControl']['sample_category'] == 'specimen' && !empty($collection_data['Collection']['collection_datetime'])) {
+		$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_data['Collection']['collection_datetime'];
+		$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = in_array($collection_data['Collection']['collection_datetime_accuracy'], array('i','c'))? 'h' : $collection_data['Collection']['collection_datetime_accuracy'];		
+	}
+	
