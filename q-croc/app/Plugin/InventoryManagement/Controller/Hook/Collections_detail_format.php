@@ -21,20 +21,6 @@
 						'AliquotMaster.collection_id' => $collection_id,
 						'SampleControl.sample_type' => 'tissue',
 						'AliquotControl.aliquot_type' => array('tube'),
-						'AliquotDetail.tube_type' => array('rnalater','formaline'));
-				$joins = array(array(
-						'table' => 'qcroc_ad_tissue_tubes',
-						'alias'	=> 'AliquotDetail',
-						'type'	=> 'INNER',
-						'conditions' => array('AliquotMaster.id = AliquotDetail.aliquot_master_id', 'AliquotMaster.deleted <> 1')
-				));
-				$tissue_tubes = $this->AliquotMaster->find('all', array('conditions' => $qcroc_conditions, 'joins' => $joins, 'recursive' => '0'));
-				if(!empty($tissue_tubes)) $this->set('tissue_tubes_for_transfering', $tissue_tubes);
-				
-				$qcroc_conditions = array(
-						'AliquotMaster.collection_id' => $collection_id,
-						'SampleControl.sample_type' => 'tissue',
-						'AliquotControl.aliquot_type' => array('tube'),
 						'AliquotDetail.tube_type' => array('rnalater'));
 				$joins = array(array(
 						'table' => 'qcroc_ad_tissue_tubes',

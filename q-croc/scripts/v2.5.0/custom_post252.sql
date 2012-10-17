@@ -471,10 +471,10 @@ UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM 
 UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-UPDATE structure_formats SET `language_heading`='tissue carrot data (if applied)' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_methyl_butane_refrigeration' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_methyl_butane_refrigeration') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='tissue carrot data (if applicable)' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_methyl_butane_refrigeration' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_methyl_butane_refrigeration') AND `flag_confidential`='0');
 
 REPLACE INTO i18n (id,en) VALUES 
-('tissue carrot data (if applied)','Tissue carrot data (if applied)');
+('tissue carrot data (if applicable)','Tissue carrot data (if applicable)');
 
 REPLACE INTO i18n (id,en) VALUES 
 ('oct embedding of biopsies', 'OCT embedding of biopsies'),
@@ -494,132 +494,6 @@ REPLACE INTO i18n (id,en) VALUES
 ('tissue tubes transferring','Tissue tubes transferring'),
 ('create aliquot tranfers', 'Create aliquot tranfers'),
 ('other information','Other information');
-
-INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
-(null, 1, 'create aliquot tranfers', '/InventoryManagement/AliquotMasters/addAliquotTransfer/', 1, '');
-
-DROP TABLE IF EXISTS `view_aliquot_uses`;
-DROP VIEW IF EXISTS `view_aliquot_uses`;
-CREATE VIEW `view_aliquot_uses` AS 
-
-select concat(`source`.`id`,1) AS `id`,
-`aliq`.`id` AS `aliquot_master_id`,
-'sample derivative creation' AS `use_definition`,
-`samp`.`sample_code` AS `use_code`,
-'' AS `use_details`,
-`source`.`used_volume` AS `used_volume`,
-`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
-`der`.`creation_datetime` AS `use_datetime`,
-`der`.`creation_datetime_accuracy` AS `use_datetime_accuracy`,
-'' AS `duration`,'' AS `duration_unit`,
-`der`.`creation_by` AS `used_by`,
-`source`.`created` AS `created`,
-concat('inventorymanagement/aliquot_masters/listAllSourceAliquots/',`samp`.`collection_id`,'/',`samp`.`id`) AS `detail_url`,
-`samp2`.`id` AS `sample_master_id`,
-`samp2`.`collection_id` AS `collection_id` ,
-'0' AS qcroc_is_transfer
-from (((((`source_aliquots` `source` join `sample_masters` `samp` on(((`samp`.`id` = `source`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) join `derivative_details` `der` on((`samp`.`id` = `der`.`sample_master_id`))) join `aliquot_masters` `aliq` on(((`aliq`.`id` = `source`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) join `sample_masters` `samp2` on(((`samp2`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`source`.`deleted` <> 1) 
-
-union all 
-
-select concat(`realiq`.`id`,2) AS `id`,
-`aliq`.`id` AS `aliquot_master_id`,
-'realiquoted to' AS `use_definition`,
-`child`.`barcode` AS `use_code`,
-'' AS `use_details`,
-`realiq`.`parent_used_volume` AS `used_volume`,
-`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
-`realiq`.`realiquoting_datetime` AS `use_datetime`,
-`realiq`.`realiquoting_datetime_accuracy` AS `use_datetime_accuracy`,
-'' AS `duration`,
-'' AS `duration_unit`,
-`realiq`.`realiquoted_by` AS `used_by`,
-`realiq`.`created` AS `created`,
-concat('/inventorymanagement/aliquot_masters/listAllRealiquotedParents/',`child`.`collection_id`,'/',`child`.`sample_master_id`,'/',`child`.`id`) AS `detail_url`,
-`samp`.`id` AS `sample_master_id`,
-`samp`.`collection_id` AS `collection_id` ,
-'0' AS qcroc_is_transfer
-from ((((`realiquotings` `realiq` join `aliquot_masters` `aliq` on(((`aliq`.`id` = `realiq`.`parent_aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) join `aliquot_masters` `child` on(((`child`.`id` = `realiq`.`child_aliquot_master_id`) and (`child`.`deleted` <> 1)))) join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`realiq`.`deleted` <> 1) 
-
-union all 
-
-select concat(`qc`.`id`,3) AS `id`,
-`aliq`.`id` AS `aliquot_master_id`,
-'quality control' AS `use_definition`,
-`qc`.`qc_code` AS `use_code`,
-'' AS `use_details`,
-`qc`.`used_volume` AS `used_volume`,
-`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
-`qc`.`date` AS `use_datetime`,
-`qc`.`date_accuracy` AS `use_datetime_accuracy`,
-'' AS `duration`,
-'' AS `duration_unit`,
-`qc`.`run_by` AS `used_by`,
-`qc`.`created` AS `created`,
-concat('/inventorymanagement/quality_ctrls/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`qc`.`id`) AS `detail_url`,
-`samp`.`id` AS `sample_master_id`,
-`samp`.`collection_id` AS `collection_id` ,
-'0' AS qcroc_is_transfer
-from (((`quality_ctrls` `qc` join `aliquot_masters` `aliq` on(((`aliq`.`id` = `qc`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`qc`.`deleted` <> 1) 
-
-union all 
-
-select concat(`item`.`id`,4) AS `id`,
-`aliq`.`id` AS `aliquot_master_id`,
-'aliquot shipment' AS `use_definition`,
-`sh`.`shipment_code` AS `use_code`,
-'' AS `use_details`,
-'' AS `used_volume`,
-'' AS `aliquot_volume_unit`,
-`sh`.`datetime_shipped` AS `use_datetime`,
-`sh`.`datetime_shipped_accuracy` AS `use_datetime_accuracy`,
-'' AS `duration`,
-'' AS `duration_unit`,
-`sh`.`shipped_by` AS `used_by`,
-`sh`.`created` AS `created`,concat('/order/shipments/detail/',`sh`.`order_id`,'/',`sh`.`id`) AS `detail_url`,
-`samp`.`id` AS `sample_master_id`,
-`samp`.`collection_id` AS `collection_id` ,
-'0' AS qcroc_is_transfer
-from (((`order_items` `item` join `aliquot_masters` `aliq` on(((`aliq`.`id` = `item`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) join `shipments` `sh` on(((`sh`.`id` = `item`.`shipment_id`) and (`sh`.`deleted` <> 1)))) join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`item`.`deleted` <> 1) 
-
-union all 
-
-select concat(`alr`.`id`,5) AS `id`,
-`aliq`.`id` AS `aliquot_master_id`,
-'specimen review' AS `use_definition`,
-`spr`.`review_code` AS `use_code`,
-'' AS `use_details`,'' AS `used_volume`,
-'' AS `aliquot_volume_unit`,
-`spr`.`review_date` AS `use_datetime`,
-`spr`.`review_date_accuracy` AS `use_datetime_accuracy`,
-'' AS `duration`,'' AS `duration_unit`,
-'' AS `used_by`,
-`alr`.`created` AS `created`,concat('/inventorymanagement/specimen_reviews/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`spr`.`id`) AS `detail_url`,
-`samp`.`id` AS `sample_master_id`,
-`samp`.`collection_id` AS `collection_id` ,
-'0' AS qcroc_is_transfer
-from (((`aliquot_review_masters` `alr` join `aliquot_masters` `aliq` on(((`aliq`.`id` = `alr`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) join `specimen_review_masters` `spr` on(((`spr`.`id` = `alr`.`specimen_review_master_id`) and (`spr`.`deleted` <> 1)))) join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`alr`.`deleted` <> 1) 
-
-union all 
-
-select concat(`aluse`.`id`,6) AS `id`,
-`aliq`.`id` AS `aliquot_master_id`,
-`aluse`.`type` AS `use_definition`,
-`aluse`.`use_code` AS `use_code`,
-`aluse`.`use_details` AS `use_details`,
-`aluse`.`used_volume` AS `used_volume`,
-`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
-`aluse`.`use_datetime` AS `use_datetime`,
-`aluse`.`use_datetime_accuracy` AS `use_datetime_accuracy`,
-`aluse`.`duration` AS `duration`,
-`aluse`.`duration_unit` AS `duration_unit`,
-`aluse`.`used_by` AS `used_by`,
-`aluse`.`created` AS `created`,
-concat('/inventorymanagement/aliquot_masters/detailAliquotInternalUse/',`aliq`.`id`,'/',`aluse`.`id`) AS `detail_url`,
-`samp`.`id` AS `sample_master_id`,
-`samp`.`collection_id` AS `collection_id`,
-`aluse`.`qcroc_is_transfer` AS qcroc_is_transfer
-from (((`aliquot_internal_uses` `aluse` join `aliquot_masters` `aliq` on(((`aliq`.`id` = `aluse`.`aliquot_master_id`) and (`aliq`.`deleted` <> 1)))) join `aliquot_controls` `aliqc` on((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) join `sample_masters` `samp` on(((`samp`.`id` = `aliq`.`sample_master_id`) and (`samp`.`deleted` <> 1)))) where (`aluse`.`deleted` <> 1) ;
 
 INSERT INTO i18n (id,en) VALUES ('transfers','Transfers');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
@@ -878,26 +752,100 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qcroc_prior_to_chemo_specify'),  '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
 ((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_prior_to_chemo_specify'),  '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_prior_to_chemo' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_sop_followed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_sop_deviations' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_biopsy_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_biopsy_types') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_cycle' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='qcroc_is_baseline' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- change transfer record
 
+ALTER TABLE qcroc_ad_tissue_tubes DROP COLUMN date_sample_received, DROP COLUMN temperature_in_box_celsius, DROP COLUMN sample_condition_at_reception;
+ALTER TABLE qcroc_ad_tissue_tubes_revs DROP COLUMN date_sample_received, DROP COLUMN temperature_in_box_celsius, DROP COLUMN sample_condition_at_reception;
 
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'qcroc_ad_tissue_tubes' AND field IN ('date_sample_received','temperature_in_box_celsius','sample_condition_at_reception'));
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'qcroc_ad_tissue_tubes' AND field IN ('date_sample_received','temperature_in_box_celsius','sample_condition_at_reception'));
+DELETE FROM structure_fields WHERE tablename = 'qcroc_ad_tissue_tubes' AND field IN ('date_sample_received','temperature_in_box_celsius','sample_condition_at_reception');
 
+ALTER TABLE aliquot_internal_uses 
+	DROP COLUMN qcroc_transfer_by, 
+	DROP COLUMN qcroc_transfer_conditions, 
+	DROP COLUMN qcroc_transfer_method_of_dispatch;
+ALTER TABLE aliquot_internal_uses_revs
+	DROP COLUMN qcroc_transfer_by, 
+	DROP COLUMN qcroc_transfer_conditions, 
+	DROP COLUMN qcroc_transfer_method_of_dispatch;
+	
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'aliquot_internal_uses' AND field LIKE 'qcroc_transfer_%');
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE tablename = 'aliquot_internal_uses' AND field LIKE 'qcroc_transfer_%');
+DELETE FROM structure_fields WHERE tablename = 'aliquot_internal_uses' AND field LIKE 'qcroc_transfer_%';
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias = 'qcroc_aliquot_transfer');
+DELETE FROM structures WHERE alias = 'qcroc_aliquot_transfer';
 
+ALTER TABLE aliquot_masters
+	ADD COLUMN qcroc_transfer_type varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_shipping_nbr varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_shipping_date date DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_by varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_to varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_conditions varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_method_of_dispatch varchar(50) DEFAULT NULL,
+  	ADD COLUMN qcroc_transfer_date_sample_received datetime DEFAULT null,
+  	ADD COLUMN qcroc_transfer_temperature_in_box_celsius decimal(6,2) DEFAULT NULL,
+  	ADD COLUMN qcroc_transfer_sample_condition_at_reception  varchar(50) DEFAULT null;
+ALTER TABLE aliquot_masters_revs
+	ADD COLUMN qcroc_transfer_type varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_shipping_nbr varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_shipping_date date DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_by varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_to varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_conditions varchar(50) DEFAULT NULL,
+	ADD COLUMN qcroc_transfer_method_of_dispatch varchar(50) DEFAULT NULL,
+  	ADD COLUMN qcroc_transfer_date_sample_received datetime DEFAULT null,
+  	ADD COLUMN qcroc_transfer_temperature_in_box_celsius decimal(6,2) DEFAULT NULL,
+  	ADD COLUMN qcroc_transfer_sample_condition_at_reception  varchar(50) DEFAULT null;
+UPDATE structure_value_domains SET domain_name = 'qcroc_transfer_sample_condition_at_reception' WHERE domain_name = 'qcroc_tissue_condition_at_reception';
+INSERT INTO structures(`alias`) VALUES ('qcroc_site_to_site_aliquot_transfer');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types') , '0', '', '', '', 'type', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_shipping_date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_to', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'shipped to', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_by', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_sites_and_hdq_staff') , '0', '', '', '', 'shipped by', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_conditions', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_conditions') , '0', '', '', '', 'shipping conditions', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_method_of_dispatch', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_dispatch_methods') , '0', '', '', '', 'method of dispatch', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_shipping_nbr', 'input',  NULL , '0', 'size=15', '', '', 'shipping number', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_date_sample_received', 'datetime',  NULL , '0', '', '', '', 'date sample received', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_temperature_in_box_celsius', 'float_positive',  NULL , '0', '', '', '', 'temperature in box celsius', ''), 
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'qcroc_transfer_sample_condition_at_reception', 'select',  NULL , '0', '', '', '', 'sample condition at reception', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_shipping_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_to' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipped to' AND `language_tag`=''), '1', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_by' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_sites_and_hdq_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipped by' AND `language_tag`=''), '1', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_conditions' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_conditions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='shipping conditions' AND `language_tag`=''), '1', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_method_of_dispatch' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_dispatch_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method of dispatch' AND `language_tag`=''), '1', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_shipping_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=15' AND `default`='' AND `language_help`='' AND `language_label`='shipping number' AND `language_tag`=''), '1', '86', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_date_sample_received' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date sample received' AND `language_tag`=''), '1', '87', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_temperature_in_box_celsius' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='temperature in box celsius' AND `language_tag`=''), '1', '88', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_sample_condition_at_reception' AND `type`='select' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample condition at reception' AND `language_tag`=''), '1', '89', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
 
+UPDATE structure_value_domains SET source = 'InventoryManagement.ViewCollection::getSitesAndHDQStaff' WHERE domain_name = 'qcroc_sites_and_hdq_staff';
+UPDATE structure_value_domains SET source = 'InventoryManagement.ViewCollection::getLaboratoryStaff' WHERE domain_name = 'custom_laboratory_staff';
 
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias,',qcroc_site_to_site_aliquot_transfer') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue') AND aliquot_type IN ('tube','slide','block');
 
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types') ,  `language_label`='transfer type' WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='qcroc_transfer_type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types');
+UPDATE structure_formats SET `language_heading`='transfer data if applicable' WHERE structure_id=(SELECT id FROM structures WHERE alias='qcroc_site_to_site_aliquot_transfer') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='qcroc_transfer_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_aliquot_transfer_types') AND `flag_confidential`='0');
 
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qcroc_transfer_sample_condition_at_reception')  WHERE model='AliquotMaster' AND tablename='aliquot_masters' AND field='qcroc_transfer_sample_condition_at_reception' AND `type`='select' AND structure_value_domain  IS NULL ;
 
+INSERT INTO i18n (id,en) VALUES ('transfer data if applicable','Transfer data (if applicable)'),('transfer type','Transfer type');
 
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qcroc_ad_tissue_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='qcroc_ad_tissue_tubes' AND `field`='time_placed_at_4c' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
-
-
-
-
-
-
-
+SELECT 'regarder dans le code et mettre a jour tout calcul lié à date_sample_received' AS TODO;
 
 -- -------------------------------------------------------------------------------------------
 -- OTHER
@@ -913,8 +861,7 @@ WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHi
 OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ParticipantContact','EventMaster','FamilyHistory','DiagnosisMaster','ConsentMaster','MiscIdentifier'));
 
 -- -------------------------------------------------------------------------------------------
--- Exampel values to delete
-
+-- Example values to delete
 -- -------------------------------------------------------------------------------------------
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : Sites');

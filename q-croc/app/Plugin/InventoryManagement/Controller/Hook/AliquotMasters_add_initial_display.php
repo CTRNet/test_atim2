@@ -7,7 +7,7 @@
 		if($new_data_set['parent']['ViewSample']['sample_type'] == 'tissue' && $aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
 			$label_study = (preg_match("/^Q-CROC-([0-9]+)$/", $new_data_set['parent']['ViewSample']['qcroc_protocol'], $matches))? $matches[1] : '?';
 			$label_pre_post = '?';
-			switch($new_data_set['parent']['ViewSample']['qcroc_collection_type']) {
+			switch($new_data_set['parent']['ViewSample']['qcroc_biopsy_type']) {
 				case 'pre':
 					$label_pre_post = '1';
 					break;
@@ -38,12 +38,19 @@
 							'in_stock',
 							'in_stock_detail',
 							'storage_datetime',
-							'storage_datetime_accuracy'),
+							'storage_datetime_accuracy',
+							'qcroc_transfer_type',
+							'qcroc_transfer_shipping_nbr',
+							'qcroc_transfer_shipping_date',
+							'qcroc_transfer_by',
+							'qcroc_transfer_to',
+							'qcroc_transfer_conditions',
+							'qcroc_transfer_method_of_dispatch',
+  							'qcroc_transfer_date_sample_received',
+  							'qcroc_transfer_temperature_in_box_celsius',
+  							'qcroc_transfer_sample_condition_at_reception'),
 						'AliquotDetail'  => array(
-							'time_placed_at_4c',
-							'date_sample_received',
-							'temperature_in_box_celsius',
-							'sample_condition_at_reception')
+							'time_placed_at_4c')
 					);
 					foreach($fields_to_duplicate as $model => $model_field_names) {
 						foreach($model_field_names as $field_name) {
@@ -56,12 +63,14 @@
 					$label_prefix = '3';
 					$tmp_default_aliquot_data['AliquotDetail.tube_type'] = 'formaline';
 					$fields_to_duplicate = array(
-							'AliquotMaster'  => array(),
+							'AliquotMaster'  => array(
+								'qcroc_transfer_type',
+								'qcroc_transfer_shipping_date',
+								'qcroc_transfer_by',
+								'qcroc_transfer_conditions',
+								'qcroc_transfer_method_of_dispatch'),
 							'AliquotDetail'  => array(
-									'time_placed_at_4c',
-									'date_sample_received',
-									'temperature_in_box_celsius',
-									'sample_condition_at_reception')
+								'time_placed_at_4c')
 					);
 					foreach($fields_to_duplicate as $model => $model_field_names) {
 						foreach($model_field_names as $field_name) {
