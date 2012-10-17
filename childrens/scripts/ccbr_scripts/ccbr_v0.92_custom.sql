@@ -3,6 +3,13 @@
 -- ATiM Version: v2.5.1
 -- Notes: Must be run against ATiM v2.5.1 with all previous CCBR upgrades applied
 
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('ccbr karotype', 'Karyotype', '');	
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('karotype', 'Karyotype', '');	
+
 /*
 	---------------------------------------------------------------------------
 	EVENTUM ISSUE: #2405 - Lab -> CBC and Bone Marrow fix Cellularity Label
@@ -45,3 +52,5 @@ INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_mes
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('ccbr percent must be between 0-100', 'Percent values must be an integer value between 0-100', '');
+	
+	
