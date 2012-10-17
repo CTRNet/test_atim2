@@ -31,7 +31,8 @@ class CollectionCustom extends Collection {
 	function validates($options = array()){
 		parent::validates($options);
 
-		if(!array_key_exists('deleted', $this->data['Collection']) || !$this->data['Collection']['deleted']) {
+		if((!array_key_exists('deleted', $this->data['Collection']) || !$this->data['Collection']['deleted']) 
+		&& (array_key_exists('qc_lady_follow_up', $this->data['Collection']) || array_key_exists('qc_lady_pre_op', $this->data['Collection']) || array_key_exists('qc_lady_banking_nbr', $this->data['Collection']) || array_key_exists('qc_lady_visit', $this->data['Collection']))) {
 			$cust_error_detected = false;	
 			$qc_lady_specimen_type = substr($this->data['Collection']['qc_lady_specimen_type_precision'], 0, strpos($this->data['Collection']['qc_lady_specimen_type_precision'],'||'));
 			switch($qc_lady_specimen_type) {
