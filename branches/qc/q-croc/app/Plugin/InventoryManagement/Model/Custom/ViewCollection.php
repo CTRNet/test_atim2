@@ -9,30 +9,34 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.id AS collection_id,
 --	Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
-Collection.qcroc_sop_followed AS qcroc_sop_followed,
-Collection.qcroc_sop_deviations AS qcroc_sop_deviations,
 		Collection.participant_id AS participant_id,
 		Collection.diagnosis_master_id AS diagnosis_master_id,
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
 		Participant.participant_identifier AS participant_identifier,
-Participant.qcroc_initials AS qcroc_initials,
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
 --	Collection.collection_datetime AS collection_datetime,
 --	Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
-Collection.qcroc_prior_to_chemo AS qcroc_prior_to_chemo,
-Collection.qcroc_prior_to_chemo_specify AS  qcroc_prior_to_chemo_specify,
-Collection.qcroc_is_baseline AS qcroc_is_baseline,
-Collection.qcroc_banking_nbr AS qcroc_banking_nbr,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
+
 Collection.qcroc_protocol AS qcroc_protocol,
-TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type,
+Collection.qcroc_banking_nbr AS qcroc_banking_nbr,
+Participant.qcroc_initials AS qcroc_initials,
+Collection.qcroc_collection_date AS qcroc_collection_date,
+
+Collection.qcroc_sop_followed AS qcroc_sop_followed,
+Collection.qcroc_sop_deviations AS qcroc_sop_deviations,
+
+Collection.qcroc_prior_to_chemo AS qcroc_prior_to_chemo,
+Collection.qcroc_prior_to_chemo_specify AS  qcroc_prior_to_chemo_specify,
 TreatmentMaster.qcroc_cycle AS qcroc_cycle,
-Collection.qcroc_collection_date AS qcroc_collection_date	
+Collection.qcroc_is_baseline AS qcroc_is_baseline,
+
+TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type
 	
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
@@ -55,6 +59,32 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON Collection.treatment_master_id
 		}
 		
 		return $return;
+	}
+	
+	function  getSitesAndHDQStaff() {
+		$result = array();
+	
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+	
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff : Sites', 'Staff : HDQ'))));
+		foreach($all_values as $new_value) $result[$new_value['StructurePermissibleValuesCustom']['value']] = strlen($new_value['StructurePermissibleValuesCustom'][$lang])? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value'];
+	
+		asort($result);
+		return $result;
+	}
+	
+	function  getLaboratoryStaff() {
+		$result = array();
+	
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+	
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff : JGH', 'Staff : HDQ'))));
+		foreach($all_values as $new_value) $result[$new_value['StructurePermissibleValuesCustom']['value']] = strlen($new_value['StructurePermissibleValuesCustom'][$lang])? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value'];
+	
+		asort($result);
+		return $result;
 	}
 
 }

@@ -16,7 +16,7 @@
 					'type'	=> 'INNER',
 					'conditions' => array('AliquotMaster.sample_master_id = SpecimenDetail.sample_master_id')));
 			foreach($this->AliquotMaster->find('all', array('conditions' => $condtions, 'joins' => $joins, 'recursive' => 0)) as $new_aliquot_to_update) {
-				$time_remained_in_rna_later_days = $this->AliquotMaster->calculateTimeRemainedInRNAlater($sample_data['Collection']['qcroc_collection_date'], $new_qcroc_collection_time, $new_aliquot_to_update['AliquotDetail']['date_sample_received']);			
+				$time_remained_in_rna_later_days = $this->AliquotMaster->calculateTimeRemainedInRNAlater($sample_data['Collection']['qcroc_collection_date'], $new_qcroc_collection_time, $new_aliquot_to_update['AliquotMaster']['qcroc_transfer_date_sample_received']);			
 				$this->AliquotMaster->data = array();
 				$this->AliquotMaster->id = $new_aliquot_to_update['AliquotMaster']['id'];
 				if(!$this->AliquotMaster->save(array('AliquotMaster' => array('id' => $new_aliquot_to_update['AliquotMaster']['id']), 'AliquotDetail' => array('time_remained_in_rna_later_days' => $time_remained_in_rna_later_days)), false)) {
