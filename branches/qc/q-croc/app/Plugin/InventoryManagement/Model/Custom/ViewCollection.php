@@ -23,14 +23,15 @@ Participant.qcroc_initials AS qcroc_initials,
 --	Collection.collection_datetime AS collection_datetime,
 --	Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 Collection.qcroc_prior_to_chemo AS qcroc_prior_to_chemo,
+Collection.qcroc_prior_to_chemo_specify AS  qcroc_prior_to_chemo_specify,
+Collection.qcroc_is_baseline AS qcroc_is_baseline,
+Collection.qcroc_banking_nbr AS qcroc_banking_nbr,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
-		
 Collection.qcroc_protocol AS qcroc_protocol,
 TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type,
 TreatmentMaster.qcroc_cycle AS qcroc_cycle,
-
 Collection.qcroc_collection_date AS qcroc_collection_date	
 	
 		FROM collections AS Collection
