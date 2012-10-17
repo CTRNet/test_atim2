@@ -983,3 +983,6 @@ REPLACE INTO i18n (id,en,fr) VALUES
 ("you can not record barcode [%s] twice","You can not record barcode [%s] twice!","Vous ne pouvez enregistrer le code à barres [%s] deux fois!");
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/adhocs/%';
+
+UPDATE versions SET build_number = '4914' WHERE build_number = '4882' AND version_number = '2.5.2';
+
