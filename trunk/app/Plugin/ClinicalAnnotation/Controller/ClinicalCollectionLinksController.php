@@ -342,7 +342,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		}
 		
 		if($arr_allow_deletion['allow_deletion']) {
-			$this->request->data = array('Collection' => array(
+			$collection_data_to_update = array('Collection' => array(
 				'participant_id' => null,
 				'diagnosis_master_id' => null,
 				'consent_master_id' => null,
@@ -350,17 +350,24 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 				'event_master_id' => null)
 			);			
 			
+			$this->Collection->data = array();
 			$this->Collection->id = $collection_id;
 			$this->Collection->addWritableField(array('participant_id','diagnosis_master_id','consent_master_id','treatment_master_id','event_master_id'));
-			if($this->Collection->save($this->request->data)){
+			
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
+			if($this->Collection->save($collection_data_to_update, false)){
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				
+			
 				$this->atimFlash( 'your data has been deleted' , '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$participant_id.'/');
-			}else{
+			}else{	
 				$this->flash( 'error deleting data - contact administrator','/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$collection_id.'/');
 			}
 		} else {
