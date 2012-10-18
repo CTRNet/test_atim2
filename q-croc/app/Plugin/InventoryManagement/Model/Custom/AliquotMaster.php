@@ -19,21 +19,17 @@ class AliquotMasterCustom extends AliquotMaster {
 	}
 	
 	function calculateTimeRemainedInRNAlater($qcroc_collection_date, $qcroc_collection_time, $date_sample_received) {
-		$warning = '';
+		$error = '';
 		$time_remained = '';
-		$pattern = "/^(19|20[0-9]{2}\-[0-9]{2}\-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})$/";
-		if(preg_match($pattern, $qcroc_collection_date.' '.$qcroc_collection_time, $match_coll) && preg_match($pattern, $date_sample_received, $match_sample)) {
+		if(!empty($qcroc_collection_date) && !empty($qcroc_collection_time) && !empty($date_sample_received)) {
 			$res  = $this->getSpentTime($qcroc_collection_date.' '.$qcroc_collection_time, $date_sample_received);			
 			if(!empty($res['message'])) {
-				$warning = __('unable to calculate time sample remained in rnalater'). ' (' .  __($res['message']) .')';
+				$error = __('unable to calculate time sample remained in rnalater'). ' (' .  __($res['message']) .')';
 			} else {				
 				$time_remained = $res['days'];
 			}
-		} else {
-			$warning = __('unable to calculate time sample remained in rnalater'). ' (' .  __('error in the date definitions') .')';
-		}
-		if(!empty($warning)) AppController::addWarningMsg($warning);		
-		return $time_remained;
+		}		
+		return array('time_remained' => $time_remained, 'error' => $error);
 	}
 
 }
