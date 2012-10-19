@@ -86,6 +86,19 @@ LEFT JOIN treatment_masters AS TreatmentMaster ON Collection.treatment_master_id
 		asort($result);
 		return $result;
 	}
+	
+	function  getSitesAndLaboratoryStaff() {
+		$result = array();
+	
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+	
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff : JGH', 'Staff : Sites'))));
+		foreach($all_values as $new_value) $result[$new_value['StructurePermissibleValuesCustom']['value']] = strlen($new_value['StructurePermissibleValuesCustom'][$lang])? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value'];
+	
+		asort($result);
+		return $result;
+	}
 
 }
 

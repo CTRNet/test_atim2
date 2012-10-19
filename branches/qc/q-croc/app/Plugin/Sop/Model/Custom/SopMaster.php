@@ -13,6 +13,18 @@ class SopMasterCustom extends SopMaster
 		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'tissue block'));
 	}		
 	
+	function getTissueSlideSopPermissibleValues() {
+		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'tissue slide'));
+	}		
+	
+	function getBloodPRocessingSopPermissibleValues() {
+		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'blood processing'));
+	}	
+	
+	function getDnaRnaExtractionSopPermissibleValues() {
+		return $this->getAllSopPermissibleValues(array('SopControl.sop_group' => 'dna rna extraction'));
+	}
+	
 	function getAllSopPermissibleValues($conditions = array()) {
 		$result = array();
 		$sop_versions = $this->getSopVersions();		
