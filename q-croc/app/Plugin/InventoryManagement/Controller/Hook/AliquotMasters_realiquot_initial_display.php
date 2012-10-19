@@ -7,9 +7,11 @@
 		if($parent_aliquots[0]['SampleControl']['sample_type'] == 'tissue' && $parent_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'tube' && $child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block') {
 			$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = $new_data_set['parent']['AliquotMaster']['aliquot_label'];
 			$tmp_default_aliquot_data['AliquotMaster.qcroc_barcode'] = $new_data_set['parent']['AliquotMaster']['qcroc_barcode'];
+		
 		} else if($parent_aliquots[0]['SampleControl']['sample_type'] == 'tissue' && $parent_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block' && $child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'slide') {
 			$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = $new_data_set['parent']['AliquotMaster']['aliquot_label'];
 			$tmp_default_aliquot_data['AliquotMaster.qcroc_barcode'] = $new_data_set['parent']['AliquotMaster']['qcroc_barcode'];
+		
 		} else if($parent_aliquots[0]['SampleControl']['sample_type'] == 'tissue' && $parent_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block' && $child_aliquot_ctrl['AliquotControl']['aliquot_type'] == 'block') {
 			$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = $new_data_set['parent']['AliquotMaster']['aliquot_label'].'-?';
 			$tmp_default_aliquot_data['AliquotMaster.qcroc_barcode'] = $new_data_set['parent']['AliquotMaster']['qcroc_barcode'];
