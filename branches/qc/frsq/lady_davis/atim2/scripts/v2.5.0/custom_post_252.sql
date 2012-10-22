@@ -986,3 +986,17 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/adhocs/%';
 
 UPDATE versions SET build_number = '4914' WHERE build_number = '4882' AND version_number = '2.5.2';
 
+-- ------------------------------------------------------------------------------------------------------------------
+-- CREATE TEMPLATE FOR BLOOD METASTASIS
+-- executed on server : 
+-- ------------------------------------------------------------------------------------------------------------------
+
+UPDATE templates SET flag_system = true WHERE name = 'META';
+
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE participants SET participant_identifier = CONCAT(participant_identifier,' [',id,']') WHERE participant_identifier LIKE 'N/A' AND deleted <> 1;
+
+UPDATE versions SET permissions_regenerated = 0;
