@@ -46,3 +46,88 @@ VALUES
 ('box2-procure','Box2-PROCURE','Boîte2-PROCURE'),
 ('rack20 vertical numbering','Râtelier20-Vert.','Râtelier20-Vert.');
 
+-- -----------------------------------------------------------------------------------------------------------------
+-- CHANGE DROP DOWN LIST TO CUSTOM DROP DOWN LIST
+-- -----------------------------------------------------------------------------------------------------------------
+
+-- DNA RNA : Storage solution / qc_dna_rna_storage_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'DNA RNA : Storage solution\')" WHERE domain_name = 'qc_dna_rna_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('DNA RNA : Storage solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA RNA : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT  spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_dna_rna_storage_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_dna_rna_storage_solution';
+
+-- DNA RNA : Source storage method / qc_source_storage_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'DNA RNA : Source storage method\')" WHERE domain_name = 'qc_source_storage_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('DNA RNA : Source storage method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA RNA : Source storage method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT  spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_source_storage_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_source_storage_method';
+
+-- RNA : Extraction method / qc_rna_extraction_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'RNA : Extraction method\')" WHERE domain_name = 'qc_rna_extraction_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('RNA : Extraction method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'RNA : Extraction method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT  spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_rna_extraction_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_rna_extraction_method';
+
+-- DNA RNA : Source storage solution / qc_source_storage_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'DNA RNA : Source storage solution\')" WHERE domain_name = 'qc_source_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('DNA RNA : Source storage solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA RNA : Source storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_source_storage_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_source_storage_solution';
+
+
