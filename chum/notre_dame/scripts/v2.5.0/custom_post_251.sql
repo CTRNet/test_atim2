@@ -130,4 +130,224 @@ INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv
 INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
 WHERE svd.domain_name = 'qc_source_storage_solution';
 
+------------------------------
 
+-- Ascite Cells : Storage solution / qc_ascit_cell_storage_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Ascite Cells : Storage solution\')" WHERE domain_name = 'qc_ascit_cell_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Ascite Cells : Storage solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Ascite Cells : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_ascit_cell_storage_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_ascit_cell_storage_solution';
+
+-- Ascite Cells : Storage method / qc_ascit_cell_storage_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Ascite Cells : Storage method\')" WHERE domain_name = 'qc_ascit_cell_storage_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Ascite Cells : Storage method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Ascite Cells : Storage method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_ascit_cell_storage_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_ascit_cell_storage_method';
+
+-- Cell Culture : Collection method / qc_cell_collection_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Cell Culture : Collection method\')" WHERE domain_name = 'qc_cell_collection_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Cell Culture : Collection method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Cell Culture : Collection method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_cell_collection_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_cell_collection_method';
+
+-- Cell Culture : Hormone / qc_culture_hormone
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Cell Culture : Hormone\')" WHERE domain_name = 'qc_culture_hormone';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Cell Culture : Hormone', 1, 40);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Cell Culture : Hormone');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_culture_hormone');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_culture_hormone';
+
+-- Cell Culture : Solution / qc_culture_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Cell Culture : Solution\')" WHERE domain_name = 'qc_culture_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Cell Culture : Solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Cell Culture : Solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_culture_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_culture_solution';
+
+-- Cell Culture : Storage solution / qc_cell_storage_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Cell Culture : Storage solution\')" WHERE domain_name = 'qc_cell_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Cell Culture : Storage solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Cell Culture : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_cell_storage_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_cell_storage_solution';
+
+-- Tissue : Storage solution / qc_tissue_storage_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Storage solution\')" WHERE domain_name = 'qc_tissue_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Storage solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_tissue_storage_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_tissue_storage_solution';
+
+-- Tissue : Storage method / qc_tissue_storage_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue : Storage method\')" WHERE domain_name = 'qc_tissue_storage_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue : Storage method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue : Storage method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_tissue_storage_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_tissue_storage_method';
+
+-- Blood cell : Storage solution / qc_blood_cell_storage_solution
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Blood cell : Storage solution\')" WHERE domain_name = 'qc_blood_cell_storage_solution';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Blood cell : Storage solution', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood cell : Storage solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_blood_cell_storage_solution');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_blood_cell_storage_solution';
+
+-- Amp. RNA : Amp. method / qc_rna_amplification_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Amp. RNA : Amp. method\')" WHERE domain_name = 'qc_rna_amplification_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Amp. RNA : Amp. method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Amp. RNA : Amp. method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_rna_amplification_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_rna_amplification_method';
+
+-- DNA : Extraction method / qc_dna_extraction_method
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'DNA : Extraction method\')" WHERE domain_name = 'qc_dna_extraction_method';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('DNA : Extraction method', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'DNA : Extraction method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT spv.value, i18n.en, i18n.fr, '1', @control_id, NOW(), NOW(), 1, 1 
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+LEFT JOIN i18n ON i18n.id = spv.language_alias
+WHERE svd.domain_name = 'qc_dna_extraction_method');
+DELETE svdpv
+FROM structure_value_domains AS svd
+INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
+INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
+WHERE svd.domain_name = 'qc_dna_extraction_method';
