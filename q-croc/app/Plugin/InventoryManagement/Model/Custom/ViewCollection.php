@@ -33,7 +33,7 @@ Collection.qcroc_sop_deviations AS qcroc_sop_deviations,
 
 Collection.qcroc_prior_to_chemo AS qcroc_prior_to_chemo,
 Collection.qcroc_prior_to_chemo_specify AS  qcroc_prior_to_chemo_specify,
-TreatmentMaster.qcroc_cycle AS qcroc_cycle,
+Collection.qcroc_cycle AS qcroc_cycle,
 Collection.qcroc_is_baseline AS qcroc_is_baseline,
 
 TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type

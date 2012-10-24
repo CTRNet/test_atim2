@@ -39,7 +39,7 @@ class ViewSampleCustom extends ViewSample {
 		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
 		
 TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type,
-TreatmentMaster.qcroc_cycle AS qcroc_cycle,
+Collection.qcroc_cycle AS qcroc_cycle,
 Collection.qcroc_protocol AS qcroc_protocol
 		
 		FROM sample_masters AS SampleMaster

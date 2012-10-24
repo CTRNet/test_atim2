@@ -20,7 +20,10 @@ class AliquotReviewMasterCustom extends AliquotReviewMaster {
 			}
 			
 			foreach($this->AliquotMaster->find('all', array('conditions' => $conditions, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0')) as $new_aliquot) {
-				$result[$new_aliquot['AliquotMaster']['id']] = $new_aliquot['AliquotMaster']['qcroc_barcode']. (empty($new_aliquot['AliquotMaster']['aliquot_label'])? '' : ' ['.$new_aliquot['AliquotMaster']['aliquot_label'].']');					
+				$result[$new_aliquot['AliquotMaster']['id']] = 
+					__($conditions['AliquotControl.aliquot_type']).': '.
+					$new_aliquot['AliquotMaster']['qcroc_barcode']. 
+					(empty($new_aliquot['AliquotMaster']['aliquot_label'])? '' : ' ['.$new_aliquot['AliquotMaster']['aliquot_label'].']');					
 			}
 		}
 		

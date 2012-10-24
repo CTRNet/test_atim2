@@ -77,7 +77,6 @@
 					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = date('Y-m-d');
 					$fields_to_duplicate = array(
 							'AliquotMaster'  => array(
-									'qcroc_transfer_type',
 									'qcroc_transfer_shipping_date',
 									'qcroc_transfer_by',
 									'qcroc_transfer_conditions',
