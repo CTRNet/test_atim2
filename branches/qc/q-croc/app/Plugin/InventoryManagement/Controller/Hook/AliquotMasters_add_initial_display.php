@@ -41,6 +41,7 @@
 					$tmp_default_aliquot_data['AliquotMaster.qcroc_transfer_shipping_date'] = $full_tissues_data_from_id[$new_data_set['parent']['ViewSample']['sample_master_id']]['Collection']['qcroc_collection_date'];
 					$tmp_default_aliquot_data['AliquotMaster.qcroc_transfer_type'] = 'site to HDQ';
 					$tmp_default_aliquot_data['AliquotMaster.qcroc_transfer_date_sample_received'] = date('Y-m-d');
+					$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = 'HDQ';
 					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = date('Y-m-d');
 					break;
 				
@@ -74,6 +75,7 @@
 					$tmp_default_aliquot_data['AliquotDetail.tube_type'] = 'formaline';
 					$tmp_default_aliquot_data['AliquotMaster.qcroc_transfer_type'] = 'site to JGH';
 					$tmp_default_aliquot_data['AliquotMaster.qcroc_transfer_date_sample_received'] = date('Y-m-d');
+					$tmp_default_aliquot_data['FunctionManagement.recorded_storage_selection_label'] = 'JGH';
 					$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = date('Y-m-d');
 					$fields_to_duplicate = array(
 							'AliquotMaster'  => array(
