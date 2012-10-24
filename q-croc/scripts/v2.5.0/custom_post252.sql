@@ -1182,26 +1182,9 @@ INSERT IGNORE INTO i18n (id,en) VALUES ('rack4x4','Rack 4x4'),('site','Site');
 UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 
-
-
-
-
-
-
-
-
-
-
-
-
-SELECT CONCAT('', ViewCollection.collection_id) AS ids 
-FROM `qcroc`.`view_collections` AS `ViewCollection` 
-INNER JOIN `qcroc`.`collections` AS `Collection` ON (`ViewCollection`.`collection_id` = `Collection`.`id`) 
-LEFT JOIN `qcroc`.`participants` AS `Participant` ON (`ViewCollection`.`participant_id` = `Participant`.`id`) 
-LEFT JOIN `qcroc`.`diagnosis_masters` AS `DiagnosisMaster` ON (`ViewCollection`.`diagnosis_master_id` = `DiagnosisMaster`.`id`) 
-LEFT JOIN `qcroc`.`consent_masters` AS `ConsentMaster` ON (`ViewCollection`.`consent_master_id` = `ConsentMaster`.`id`) 
-WHERE `ViewCollection`.`qcroc_collection_date` 
-GROUP BY `ViewCollection`.`collection_id` ORDER BY `ViewCollection`.`collection_id` ASC 
+UPDATE structure_formats SET `language_heading`='storage hdq jgh' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='storage hdq jgh' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en) VALUES ('storage hdq jgh','Storage (at HDQ or JGH)');
 
 DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='qcroc_collection_date' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='adv_coll_datetime'));
 DELETE FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='qcroc_collection_date' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='adv_coll_datetime');
@@ -1212,6 +1195,8 @@ UPDATE datamart_structure_functions SET flag_active = 0 WHERE label LIKE 'print 
 
 SELECT 'TODO: qualityctrls_volume_for_detail?' AS msg;
 SELECT 'TODO: SHOULD SAMPLE ID MOVED TO SAMPLE LEVEL?' AS msg;
+SELECT 'TODO: PRe/POST biopsy can be empty?' AS msg;
+SELECT 'TODO: Add path review in batch?' AS msg;
 
 -- -------------------------------------------------------------------------------------------
 -- OTHER
