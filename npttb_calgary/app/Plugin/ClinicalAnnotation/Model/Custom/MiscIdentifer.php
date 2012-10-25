@@ -7,10 +7,10 @@ class MiscIdentifierCustom extends MiscIdentifier {
 
 	var $belongsTo = array(
 		'Participant' => array(
-			'className' => 'Clinicalannotation.Participant',
+			'className' => 'ClinicalAnnotation.Participant',
 			'foreignKey' => 'participant_id'),
 		'MiscIdentifierControl' => array(
-			'className' => 'Clinicalannotation.MiscIdentifierControl',
+			'className' => 'ClinicalAnnotation.MiscIdentifierControl',
 			'foreignKey' => 'misc_identifier_control_id'
 		)
 	);
@@ -38,7 +38,7 @@ class MiscIdentifierCustom extends MiscIdentifier {
 		
 		// Get control data for current identifier
 		$miscIdentControlData = array();
-		$miscIdentControlModel = AppModel::getInstance("Clinicalannotation", "MiscIdentifierControl", true);
+		$miscIdentControlModel = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
 		$miscIdentControlData = $miscIdentControlModel->find('first', array('conditions' => array ('MiscIdentifierControl.id' => $miscIdentifierControlId)));
 			
 		if (empty($miscIdentControlData)) {
