@@ -351,3 +351,61 @@ FROM structure_value_domains AS svd
 INNER JOIN structure_value_domains_permissible_values AS svdpv ON svd.id = svdpv.structure_value_domain_id
 INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id 
 WHERE svd.domain_name = 'qc_dna_extraction_method';
+
+-- 2012-10-24 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- consent form versions
+
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'consent form versions');
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'consent form versions';
+
+-- qc_nd_tmp_extraction_method
+
+DELETE FROM `structure_permissible_values_customs` WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'qc_nd_tmp_extraction_method');
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'qc_nd_tmp_extraction_method';
+
+-- Cell Culture : Collection method
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Cell Culture : Collection method');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value = 'mechanic';
+UPDATE structure_permissible_values_customs SET value = 'scraping' WHERE control_id = @control_id AND value = 'scratching';
+UPDATE sd_der_cell_cultures SET tmp_collection_method = 'scraping' WHERE tmp_collection_method = 'scratching';
+
+-- Laterality
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Laterality');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value LIKE 'Atteinte initiale %';
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value LIKE 'Droit';
+UPDATE structure_permissible_values_customs SET value = 'DROITE' WHERE control_id = @control_id AND value = 'DROITE: atteinte initiale';
+UPDATE structure_permissible_values_customs SET value = 'GAUCHE' WHERE control_id = @control_id AND value = 'GAUCHE: atteinte initiale';
+SELECT value FROM structure_permissible_values_customs WHERE control_id = @control_id;
+
+-- orders_institutions
+
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'orders_institution') WHERE tablename = 'orders' AND field = 'institution';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'orders_institution');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT institution, '','', '1', @control_id, NOW(), NOW(), 1, 1 FROM orders WHERE institution NOT LIKE '' AND institution IS NOT NULL);
+
+-- orders_contact
+
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name = 'orders_contact') WHERE tablename = 'orders' AND field = 'contact';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'orders_contact');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT DISTINCT contact, '','', '1', @control_id, NOW(), NOW(), 1, 1 FROM orders WHERE contact NOT LIKE '' AND contact IS NOT NULL);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
