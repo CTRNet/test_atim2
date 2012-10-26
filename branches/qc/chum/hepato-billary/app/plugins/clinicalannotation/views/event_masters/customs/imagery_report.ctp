@@ -100,6 +100,7 @@
 								<th colspan="2"><?php echo(__('segment', true))?> VI</th>
 								<th colspan="2"><?php echo(__('segment', true))?> VII</th>
 								<th colspan="2"><?php echo(__('segment', true))?> VIII</th>
+								<th colspan="3"><?php echo(__('other segment', true))?></th>
 								<th colspan="2"><?php echo(__('other', true))?></th>
 							</tr>
 							<tr>
@@ -107,8 +108,11 @@
 									<th><?php echo(__('number', true)); ?></th>
 									<th><?php echo(__('size', true)); ?></th>
 								<?php } ?>
-								<th><?php echo(__('density (iu)', true)); ?></th>
-								<th><?php echo(__('type', true)); ?></th>
+								<th><?php echo(__('multi', true)); ?></th>
+								<th style="border-right-style: none;"><?php echo(__('size', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('location', true)); ?></th>
+								<th style="border-right-style: none;"><?php echo(__('density (iu)', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('type', true)); ?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -132,6 +136,9 @@
 										?><td><?php echo($data['EventDetail']['segment_'.$i.'_number']); ?></td>
 										<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
 									<?php } ?>
+									<td><?php echo(str_replace(array('y','n'),array(__('yes',true),__('no',true)),$data['EventDetail']['other_segment_is_multi'])); ?></td>
+									<td><?php echo($data['EventDetail']['other_segment_size']); ?></td>	
+									<td><?php echo(__($data['EventDetail']['other_segment_location'], true)); ?></td>									
 									<td><?php echo($data['EventDetail']['density']); ?></td>
 									<td><?php echo($data['EventDetail']['type']); ?></td>
 								</tr>
@@ -182,11 +189,14 @@
 								<th colspan="2"><?php echo(__('colon', true)); ?></th>
 								<th colspan="2"><?php echo(__('rectum', true)); ?></th>
 								<th colspan="2"><?php echo(__('bones', true)); ?></th>
+								<th colspan="2"><?php echo(__('bile ducts', true)); ?></th>
 							</tr>
 							<tr>
 								<th><?php echo(__('number', true)); ?></th>
 								<th><?php echo(__('size', true)); ?></th>
 								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('localisation', true)); ?></th>
+								<th><?php echo(__('number', true)); ?></th>
+								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('size', true)); ?></th>
 								<th><?php echo(__('number', true)); ?></th>
 								<th style="border-right-style: solid; border-width: 2px;"><?php echo(__('size', true)); ?></th>
 								<th><?php echo(__('number', true)); ?></th>
@@ -215,7 +225,8 @@
 								<td><?php echo($data['EventDetail']['rectum_size']) ?></td>
 								<td><?php echo($data['EventDetail']['bones_number']) ?></td>
 								<td><?php echo($data['EventDetail']['bones_size']) ?></td>
-								
+								<td><?php echo($data['EventDetail']['bile_ducts_number']) ?></td>
+								<td><?php echo($data['EventDetail']['bile_ducts_size']) ?></td>
 							</tr>
 							<?php 
 						}
@@ -265,6 +276,9 @@
 								<th><?php echo(__('portal vein', true)); ?></th>
 								<th><?php echo(__('superior mesenteric vein', true)); ?></th>
 								<th><?php echo(__('splenic vein', true)); ?></th>
+								<th><?php echo(__('metastatic lymph nodes', true)); ?></th>
+								<th><?php echo(__('number', true)); ?></th>
+								<th><?php echo(__('size (cm)', true)); ?></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -281,6 +295,9 @@
 									<td><?php echo($data['EventDetail']['portal_vein']); ?></td>
 									<td><?php echo($data['EventDetail']['superior_mesenteric_vein']); ?></td>
 									<td><?php echo($data['EventDetail']['splenic_vein']); ?></td>
+									<td><?php echo($data['EventDetail']['metastatic_lymph_nodes']); ?></td>
+									<td><?php echo($data['EventDetail']['pancreas_number']); ?></td>
+									<td><?php echo($data['EventDetail']['pancreas_size']); ?></td>
 								</tr>
 								<?php 
 								}

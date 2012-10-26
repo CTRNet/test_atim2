@@ -1164,3 +1164,90 @@ ALTER TABLE qc_hb_ed_lab_report_liver_metastases CHANGE `viable_cells_perc` `nec
 ALTER TABLE qc_hb_ed_lab_report_liver_metastases_revs CHANGE `viable_cells_perc` `necrosis_perc_list` varchar(50) DEFAULT NULL;
 UPDATE structure_fields SET field = 'necrosis_perc_list', language_label = 'necrosis percentage list' WHERE tablename = 'qc_hb_ed_lab_report_liver_metastases' AND field = 'viable_cells_perc';
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES ('necrosis percentage', 'Necrosis %', 'Nécrose %'),('necrosis percentage list', 'Necrosis % (List)', 'Nécrose % (liste)');
+
+-- --------------------------------------------------------------------------------------------------------------------------
+-- 2012-10-24
+-- --------------------------------------------------------------------------------------------------------------------------
+
+-- score clavien : Liver Surgery Complocation
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="8" WHERE svd.domain_name='qc_hb_clavien_score_list' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="IV");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IIIa", "IIIa");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IIIa" AND language_alias="IIIa"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IIIb", "IIIb");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IIIb" AND language_alias="IIIb"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IIIa-d", "IIIa-d");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IIIa-d" AND language_alias="IIIa-d"), "6", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IIIb-d", "IIIb-d");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IIIb-d" AND language_alias="IIIb-d"), "7", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IVa", "IVa");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IVa" AND language_alias="IVa"), "9", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IVb", "IVb");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IVb" AND language_alias="IVb"), "10", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IVa-d", "IVa-d");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IVa-d" AND language_alias="IVa-d"), "11", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IVb-d", "IVb-d");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="IVb-d" AND language_alias="IVb-d"), "12", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("V ", "V ");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_clavien_score_list"), (SELECT id FROM structure_permissible_values WHERE value="V " AND language_alias="V "), "13", "1");
+
+-- Databrowse on participant contact
+
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `display_name`, `use_key`, `control_model`, `control_master_model`, `control_field`, `index_link`, `batch_edit_link`) VALUES
+(null, 'Clinicalannotation', 'ParticipantContact', (SELECT id FROM structures WHERE alias = 'participantcontacts'), 'participant contacts', 'id', '', '', '', '/clinicalannotation/participant_contacts/detail/%%ParticipantContact.participant_id%%/%%ParticipantContact.id%%/', '');
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE display_name = 'participant contacts'), (SELECT id FROM datamart_structures WHERE display_name = 'participants'), 1, 1, 'ParticipantContact.participant_id');
+UPDATE datamart_structures SET display_name = 'contacts' WHERE display_name = 'participant contacts';
+
+-- Search on contact
+
+UPDATE structure_formats
+SET  flag_search = '1', flag_index = '1' WHERE structure_id = (SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id IN 
+(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `field` IN ('country','region','locality','relationship','contact_name'));
+UPDATE participant_contacts SET region = 'quebec' WHERE region = 'Québec';
+
+-- Segments
+
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings 
+	ADD COLUMN other_segment_is_multi CHAR(1) DEFAULT '' AFTER segment_8_size,
+	ADD COLUMN other_segment_size VARCHAR(10) DEFAULT NULL AFTER other_segment_is_multi,
+	ADD COLUMN other_segment_location VARCHAR(30) DEFAULT NULL AFTER other_segment_size;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs 
+	ADD COLUMN other_segment_is_multi CHAR(1) DEFAULT '' AFTER segment_8_size,
+	ADD COLUMN other_segment_size VARCHAR(10) DEFAULT NULL AFTER other_segment_is_multi,
+	ADD COLUMN other_segment_location VARCHAR(30) DEFAULT NULL AFTER other_segment_size;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_hb_other_segment_location", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_location"), (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_location"), (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_location"), (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_hb_other_segment_size", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("<1", "<1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_size"), (SELECT id FROM structure_permissible_values WHERE value="<1" AND language_alias="<1"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES(">1", ">1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_size"), (SELECT id FROM structure_permissible_values WHERE value=">1" AND language_alias=">1"), "1", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_segment_is_multi', 'yes_no',  NULL , '0', '', '', '', 'other segment', 'multi'),
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_segment_size', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_size") , '0', '', '', '', '', 'size'),
+('Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'other_segment_location', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_other_segment_location") , '0', '', '', '', '', 'location');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='other_segment_is_multi'), '2', '218', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='other_segment_size'), '2', '219', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1'),
+((SELECT id FROM structures WHERE alias='qc_hb_segment'), (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='other_segment_location'), '2', '219', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+INSERT INTO i18n (id,en) VALUES ('other segment','Other Segment'),('multi','Multi'),('location','Location');
+
+-- transection pancreas
+
+UPDATE structure_fields SET language_label = 'transection pancreas' WHERE field = 'recoupe_pancreas';
+INSERT INTO i18n (id,en) VALUES ('transection pancreas','Transection Pancreas');
+
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings ADD COLUMN bile_ducts_specify varchar(50) DEFAULT NULL AFTER bile_ducts_size;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs ADD COLUMN bile_ducts_specify varchar(50) DEFAULT NULL AFTER bile_ducts_size;
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'qc_hb_bile_ducts_specify', 'open', '', 'StructurePermissibleValuesCustom::getCustomDropdown(''Bile Ducts List'')');
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active,values_max_length) VALUES ('Bile Ducts List', '1', '50');
+INSERT INTO `structure_fields` (`id`, `public_identifier`, `plugin`, `model`, `tablename`, `field`, `language_label`, `language_tag`, `type`, `setting`, `default`, `structure_value_domain`, `language_help`, `validation_control`, `value_domain_control`, `field_control`, `flag_confidential`) VALUES
+(null, '', 'Clinicalannotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'bile_ducts_specify', '', 'specify', 'select', '', '', (SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_bile_ducts_specify"), '', '', '', '', 0);
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_other_localisations'), 
+(SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='bile_ducts_specify'), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
+
+-- Update annotation report
