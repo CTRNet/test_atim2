@@ -15,27 +15,27 @@ $fields = array(
 //	"middle_name" => "",
 //	"last_name" => "",
 	"date_of_birth" => "Date of Birth Date",
-	"date_of_birth_accuracy" => array("Date of Birth date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "d" => "d", "" => "")),
+	"date_of_birth_accuracy" => array("Date of Birth date accuracy" => Config::$coeur_accuracy_def),
 //	"marital_status" => "",
 //	"language_preferred" => "",
 //	"sex" => "",
 //	"race" => "",
 	"vital_status" => array("Death Death" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
 	"date_of_death" => "Registered Date of Death Date",
-	"date_of_death_accuracy" => array("Registered Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "d" => "d", "" => "")),
+	"date_of_death_accuracy" => array("Registered Date of Death date accuracy" => Config::$coeur_accuracy_def),
 //	"cod_icd10_code" => "",
 //	"secondary_cod_icd10_code" => "",
 //	"cod_confirmation_source" => "",
 	"participant_identifier" => "@tmp_id",
 //	"last_chart_checked_date" => "",
 	"qc_tf_suspected_date_of_death" => "Suspected Date of Death Date",
-	"qc_tf_suspected_date_of_death_accuracy" => array("Suspected Date of Death date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_suspected_date_of_death_accuracy" => array("Suspected Date of Death date accuracy" => Config::$coeur_accuracy_def),
 	"qc_tf_family_history" => array("family history" => new ValueDomain("qc_tf_fam_hist", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 
 
 	"qc_tf_brca_status" => array("BRCA status" => new ValueDomain("qc_tf_brca", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_last_contact" => "Date of Last Contact Date",
-	"qc_tf_last_contact_accuracy" => array("Date of Last Contact date accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_last_contact_accuracy" => array("Date of Last Contact date accuracy" => Config::$coeur_accuracy_def),
 	"qc_tf_bank_id"				=> "#qc_tf_bank_id",
 	"notes" => "notes"
 );
@@ -60,7 +60,7 @@ function postParticipantWrite(Model $m){
 		die("Participant misc_identifier_control_id is required");
 	}
 	
-	checkAndAddIdentifier($m->values[$m->csv_pkey], $m->values['misc_identifier_control_id']);
+	checkAndAddIdentifier($m->values[$m->csv_pkey], $m->values['misc_identifier_control_id'], ' Patient already exists into DB, can not be added');
 	
 	$insert = array(
 		"identifier_value"				=> "'".$m->values[$m->csv_pkey]."'",

@@ -4,7 +4,7 @@ $pkey = "Patient Biobank Number (required)";
 $fields = array(
 	"bank_id" 						=> "#bank_id",
 	"collection_datetime" 			=> "Date of Specimen Collection Date",
-	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => Config::$coeur_accuracy_def),
 	"collection_notes"				=> "notes"
 );
 

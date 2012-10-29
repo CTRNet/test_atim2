@@ -7,7 +7,7 @@ $fields = array(
 	"parent_id" => "#parent_id",
 	"diagnosis_control_id" => "@16",
 	"dx_date" => "Date of Progression/Recurrence Date",
-	"dx_date_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"dx_date_accuracy" => array("Date of Progression/Recurrence Accuracy" => Config::$coeur_accuracy_def),
 	"qc_tf_tumor_site" => "@unknown",
 	"qc_tf_dx_origin" => "@progression",
 	"qc_tf_progression_detection_method" => "@unknown"
