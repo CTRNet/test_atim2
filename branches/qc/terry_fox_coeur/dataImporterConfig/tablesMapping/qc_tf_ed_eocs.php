@@ -8,7 +8,7 @@ $fields = array(
 //	"event_group" => "#event group",
 //	"event_type" => array("Event Type" => array("ct scan" => 'ct scan', "ca125" => 'ca125', "biopsy" => 'biopsy')),
 	"event_date" => "Date of event (beginning) Date",
-	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "d" => "d", "" => ""))
+	"event_date_accuracy" => array("Date of event (beginning) Accuracy" => Config::$coeur_accuracy_def)
 );
 
 $model = new Model(2, $pkey, array(), false, "participant_id", $pkey, 'event_masters', $fields);

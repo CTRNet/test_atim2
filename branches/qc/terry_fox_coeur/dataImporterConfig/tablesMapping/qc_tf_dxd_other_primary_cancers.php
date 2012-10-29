@@ -5,7 +5,7 @@ $fields = array(
 	"participant_id" => $pkey,
 	"diagnosis_control_id" => "@15",
 	"dx_date" => "Date of Diagnosis Date",
-	"dx_date_accuracy" => array("Date of Diagnosis Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"dx_date_accuracy" => array("Date of Diagnosis Accuracy" => Config::$coeur_accuracy_def),
 	"age_at_dx" => "Age at Time of Diagnosis (yr)",
 	"tumour_grade" => array("Grade" => new ValueDomain('qc_tf_grade', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"path_stage_summary" => array("Stage" => new ValueDomain('qc_tf_stage', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),

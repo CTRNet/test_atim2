@@ -2,7 +2,7 @@
 class Config{
 	const	INPUT_TYPE_CSV = 1;
 	const	INPUT_TYPE_XLS = 2;
-	
+
 	//Configure as needed-------------------
 	//db config
 	static $db_ip			= "127.0.0.1";
@@ -26,8 +26,10 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-CHUS -v3.0 2012-08-17_revised.xls";
- 	                        
+ 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/McGill#3-COEUR-v3.0.xls";
+ 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#4-v3.0 2012-10.xls";
+ 	
+ 	
 	static $xls_header_rows = 2;
 
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
@@ -70,6 +72,9 @@ class Config{
 	static $identifiers = array();
 	
 	static $line_break_tag = '<br>';
+	
+	static $coeur_accuracy_def = array("c" => "c", "y" => "m", "m" => "d", "d" => "c", "" => "");
+
 }
 
 //add you start queries here
@@ -135,7 +140,7 @@ function addonFunctionStart(){
 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id']);
+		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id'], ' Duplicate value into DB');
 	}
 	
 	// SET banks
@@ -178,12 +183,12 @@ function addonFunctionStart(){
 	Config::$tissue_source[] = '';	
 }
 
-function checkAndAddIdentifier($identifier_value, $identifier_control_id){
+function checkAndAddIdentifier($identifier_value, $identifier_control_id, $error_precision){
 	$key = sprintf("%s-%d", $identifier_value, $identifier_control_id);
 	if(array_key_exists($key, Config::$identifiers)){
 		global $insert;
 		$insert = false;
-		echo "ERROR: identifier value [",$identifier_value,"] already exists for control id [",$identifier_control_id,"]\n";
+		echo "ERROR: identifier value [",$identifier_value,"] already exists for control id [",$identifier_control_id,"] ".$error_precision.Config::$line_break_tag;	
 	}else{
 		Config::$identifiers[$key] = null;
 	}
@@ -285,4 +290,9 @@ function addonFunctionEnd(){
 		$query = "UPDATE aliquot_masters_revs SET barcode=CONCAT('', id) WHERE barcode=''";
 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	}
+}
+	
+function pr($arr) {
+	echo "<pre>";
+	print_r($arr);
 }

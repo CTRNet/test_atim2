@@ -4,7 +4,7 @@ $fields = array(
 	"participant_id" => $pkey,
 	"diagnosis_control_id" => "@14",
 	"dx_date" => "Date of EOC Diagnosis Date",
-	"dx_date_accuracy" => array("Date of EOC Diagnosis Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"dx_date_accuracy" => array("Date of EOC Diagnosis Accuracy" => Config::$coeur_accuracy_def),
 	"age_at_dx" => "Age at Time of Diagnosis (yr)",
 	"tumour_grade" => array("Grade" => new ValueDomain('qc_tf_grade', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"qc_tf_tumor_site" => "@Female Genital-Ovary",
@@ -14,9 +14,9 @@ $fields = array(
 
 $detail_fields = array(
 	//"date_of_progression_recurrence" => "Date of Progression/Recurrence Date",
-	//"date_of_progression_recurrence_accuracy" => array("Date of Progression/Recurrence Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	//"date_of_progression_recurrence_accuracy" => array("Date of Progression/Recurrence Accuracy" => Config::$coeur_accuracy_def),
 	//"date_of_ca125_progression" => "Date of Progression of CA125 Date",
-	//"date_of_ca125_progression_accu" => array("Date of Progression of CA125 Accuracy"=> array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	//"date_of_ca125_progression_accu" => array("Date of Progression of CA125 Accuracy"=> Config::$coeur_accuracy_def),
 	"ca125_progression_time_in_months" => "CA125 progression time (months)",
 	"presence_of_precursor_of_benign_lesions" => array("Presence of precursor of benign lesions" => new ValueDomain('qc_tf_presence_of_precursor_of_benign_lesions', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 	"fallopian_tube_lesion" => array("fallopian tube lesions" => new ValueDomain('qc_tf_fallopian_tube_lesion', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
