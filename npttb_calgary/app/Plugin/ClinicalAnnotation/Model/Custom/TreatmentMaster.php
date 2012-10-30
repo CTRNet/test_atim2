@@ -62,9 +62,6 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	
 	function updateAgeAtDx($date_of_treatment, $date_of_birth) {
 
-		echo $date_of_treatment;
-		echo $date_of_birth;
-
 		if (isset($date_of_birth) && isset($date_of_treatment)) {
 
 			$birthDateObj = new DateTime($date_of_birth);
