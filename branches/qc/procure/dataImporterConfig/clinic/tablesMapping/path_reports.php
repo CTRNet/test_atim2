@@ -72,43 +72,30 @@ $detail_fields = array(
 	"margins_extensive_apical_posterior_right" => "#margins_extensive_apical_posterior_right",
 	"margins_extensive_bladder_neck" => "#margins_extensive_bladder_neck",
 	"margins_extensive_base" => "#margins_extensive_base",
-	"margins_gleason_score" => utf8_decode("Marges chirurgicales::Positives::Score de Gleason aux marges")
+	"margins_gleason_score" => utf8_decode("Marges chirurgicales::Positives::Score de Gleason aux marges"),
 		
+	// Extra Prostatic Extension
+			
+	"extra_prostatic_extension" => "#extra_prostatic_extension",	
+	"extra_prostatic_extension_precision" => "#extra_prostatic_extension_precision",
+	"extra_prostatic_extension_right_anterior" => "#extra_prostatic_extension_right_anterior",
+	"extra_prostatic_extension_left_anterior" => "#extra_prostatic_extension_left_anterior",
+	"extra_prostatic_extension_right_posterior" => "#extra_prostatic_extension_right_posterior",
+	"extra_prostatic_extension_left_posterior" => "#extra_prostatic_extension_left_posterior",
+	"extra_prostatic_extension_apex" => "#extra_prostatic_extension_apex",
+	"extra_prostatic_extension_base" => "#extra_prostatic_extension_base",
+	"extra_prostatic_extension_bladder_neck" => "#extra_prostatic_extension_bladder_neck",
+	"extra_prostatic_extension_seminal_vesicles" => "#extra_prostatic_extension_seminal_vesicles",
+	
+	// Pathologic Staging		
 
-
-	/*		
-
-
-
-
-
-extra_prostatic_extension	 ===>	"Extension extraprostatique::Absente
-Extension extraprostatique::prostate::Focale (surface < 40x un champ/une seule Ant gaucheme)
-Extension extraprostatique::prostate::Établie (cochez Ant gauche ou les zones)"
-extra_prostatic_extension_precision	 ===>	"Extension extraprostatique::prostate::Focale (surface < 40x un champ/une seule Ant gaucheme)
-Extension extraprostatique::prostate::Établie (cochez Ant gauche ou les zones)"
-extra_prostatic_extension_right_anterior	 ===>	
-extra_prostatic_extension_left_anterior	 ===>	
-extra_prostatic_extension_right_posterior	 ===>	
-extra_prostatic_extension_left_posterior	 ===>	
-extra_prostatic_extension_apex	 ===>	
-extra_prostatic_extension_base	 ===>	
-extra_prostatic_extension_bladder_neck	 ===>	
-extra_prostatic_extension_seminal_vesicles	 ===>	
-
-
-pathologic_staging_version	 ===>	Définition pTNM (version)
-pathologic_staging_pt	 ===>	Tumeur primaire::pT
-pathologic_staging_pn_collected	 ===>	"Ganglions lymphatiques / Adénopathies régionales::non récoltés 
-Ganglions lymphatiques / Adénopathies régionales::récoltés, nombre examinés"
-pathologic_staging_pn	 ===>	Ganglions lymphatiques / Adénopathies régionales::résultat de l'examen (cochez)
-pathologic_staging_pn_lymph_node_examined	 ===>	Ganglions lymphatiques / Adénopathies régionales::récoltés, nombre examinés
-pathologic_staging_pn_lymph_node_involved	 ===>	Ganglions lymphatiques / Adénopathies régionales::Nombre atteints
-pathologic_staging_pm	 ===>	Métastases à distance
-		
-		
-	*/	
-
+	"pathologic_staging_version" => utf8_decode("Définition pTNM (version)"),
+	"pathologic_staging_pt" => array(utf8_decode("Tumeur primaire::pT") => new ValueDomain("procure_pathologic_staging_pt", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"pathologic_staging_pn_collected" => "#pathologic_staging_pn_collected",
+	"pathologic_staging_pn" => array(utf8_decode("Ganglions lymphatiques / Adénopathies régionales::résultat de l'examen (cochez)") => new ValueDomain("procure_pathologic_staging_pn", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+	"pathologic_staging_pn_lymph_node_examined" => "#pathologic_staging_pn_lymph_node_examined",
+	"pathologic_staging_pn_lymph_node_involved" => "#pathologic_staging_pn_lymph_node_involved",
+	"pathologic_staging_pm" => array(utf8_decode("Métastases à distance") => new ValueDomain("procure_pathologic_staging_pm", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
 );
 
 //see the Model class definition for more info
@@ -126,11 +113,12 @@ Config::$models['PathReport'] = $model;
 function postPathReportRead(Model $m){
 	$data_to_record = false;
 	$path_report_excel_fields = array(
-		"Nom du pathologiste",
+//		"Nom du pathologiste",
 		
 		// Dimensions
 		
-		"Prostate::poids (g)", "Prostate::longueur (cm) Apex/Base", 
+		"Prostate::poids (g)", 
+		"Prostate::longueur (cm) Apex/Base", 
 		"Prostate::largeur (cm) latérale/latérale",  
 		"Prostate::épaisseur (cm) antéro-postérieur",
 		"Vésicule séminale droite::longueur (cm)", 
@@ -139,7 +127,7 @@ function postPathReportRead(Model $m){
 		"Vésicule séminale gauche::Longueur (cm)", 
 		"Vésicule séminale gauche::Largeur (cm)", 
 		"Vésicule séminale gauche::épaisseur (cm)",
-		
+			
 		// Tumor location
 		
 		"Localisation des foyers tumoraux::Antérieur Droit", 
@@ -167,15 +155,32 @@ function postPathReportRead(Model $m){
 		"Patron histologique::primaire (2 à 5)",
 		"Patron histologique::secondaire (2 à 5)",
 		"Patron histologique::Tertiaire (aucun; 2 à 5)",
+		"Patron histologique::Score de Gleason",
 			
 		// Margins
 		
 		"Marges chirurgicales::Ne peuvent être évaluées",
 		"Marges chirurgicales::Négatives",
-		"Marges chirurgicales::Positives::Focale (encre ≤ 3mm/une seule Ant gaucheme)",
-		"Marges chirurgicales::Positives::Extensive (cochez Ant gauche ou les zones)",
-		"Marges chirurgicales::Positives::Score de Gleason aux marges"
+		"Marges chirurgicales::Positives::Focale",
+		"Marges chirurgicales::Positives::Extensive",
+		"Marges chirurgicales::Positives::Score de Gleason aux marges",
 			
+		// Extra Prostatic Extension	
+			
+		"Extension extraprostatique::Absente",
+		"Extension extraprostatique::prostate::Focale",
+		"Extension extraprostatique::prostate::Établie",
+		"Extension extraprostatique::vésicules séminales::Unilatérale",
+		"Extension extraprostatique::vésicules séminales::Bilatérale",
+		
+		// Pathologic Staging		
+
+		"Tumeur primaire::pT",
+		"Ganglions lymphatiques / Adénopathies régionales::non récoltés",
+		"Ganglions lymphatiques / Adénopathies régionales::récoltés, nombre examinés",
+		"Ganglions lymphatiques / Adénopathies régionales::résultat de l'examen (cochez)",
+		"Ganglions lymphatiques / Adénopathies régionales::Nombre atteints",
+		"Métastases à distance"
 	);
 	foreach($path_report_excel_fields as $field_to_test) {
 		$field_to_test = utf8_decode($field_to_test);
@@ -277,46 +282,183 @@ function postPathReportRead(Model $m){
 
 	// Margins
 	
-	$margin_not_assessed = $m->values[utf8_decode("Marges chirurgicales::Ne peuvent être évaluées")];
-	$margin_negative = $m->values[utf8_decode("Marges chirurgicales::Négatives")];
-	
-	$margin_positive_focal = $m->values[utf8_decode("Marges chirurgicales::Positives::Focale (encre ≤ 3mm/une seule Ant gaucheme)")];
-	$margin_positive_extensive = $m->values[utf8_decode("Marges chirurgicales::Positives::Extensive (cochez Ant gauche ou les zones)")];
+	$m->values["margins"] = "";
+	$m->values["margins_focal_or_extensive"] = "";
+	$m->values["margins_extensive_anterior_left"] = "";
+	$m->values["margins_extensive_anterior_right"] = "";
+	$m->values["margins_extensive_posterior_left"] = "";
+	$m->values["margins_extensive_posterior_right"] = "";
+	$m->values["margins_extensive_apical_anterior_left"] = "";
+	$m->values["margins_extensive_apical_anterior_right"] = "";
+	$m->values["margins_extensive_apical_posterior_left"] = "";
+	$m->values["margins_extensive_apical_posterior_right"] = "";
+	$m->values["margins_extensive_bladder_neck"] = "";
+	$m->values["margins_extensive_base"] = "";	
+	$margin_not_assessed = strtolower($m->values[utf8_decode("Marges chirurgicales::Ne peuvent être évaluées")]);
+	$margin_negative = strtolower($m->values[utf8_decode("Marges chirurgicales::Négatives")]);
+	$margin_positive_focal = strtolower($m->values[utf8_decode("Marges chirurgicales::Positives::Focale")]);
+	$margin_positive_extensive = strtolower($m->values[utf8_decode("Marges chirurgicales::Positives::Extensive")]);
 	$margin_positive_gleason = $m->values[utf8_decode("Marges chirurgicales::Positives::Score de Gleason aux marges")];
-	 
+	if(strlen($margin_positive_focal.$margin_positive_extensive.$margin_positive_gleason)) {
+		$m->values["margins"] = 'positive';
+		if(strlen($margin_positive_focal) && strlen($margin_positive_extensive)) {
+			Config::$summary_msg['Patho Report']['@@ERROR@@']['Postive margin conflict (1)'][] = "Margin defined as both focal and not extensive. See line: ".$m->line;
+		} else if(strlen($margin_positive_focal)) {
+			if($margin_positive_focal != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Focal margin value'][] = "Focal margin value '$margin_positive_focal' different than 'x'. See line: ".$m->line;
+			$m->values["margins_focal_or_extensive"] = 'focal';
+		} else if(strlen($margin_positive_extensive)) {
+			$m->values["margins_focal_or_extensive"] = 'extensive';
+			$extensions = explode('+', $margin_positive_extensive);
+			foreach($extensions as $new_site) {
+				switch(utf8_encode($new_site)) {
+					case 'ant gauche':
+						$m->values["margins_extensive_anterior_left"] = "1";
+						break;
+					case 'ant droit':
+						$m->values["margins_extensive_anterior_right"] = "1";
+						break;
+					case 'post gauche':
+						$m->values["margins_extensive_posterior_left"] = "1";
+						break;
+					case 'post droit':
+						$m->values["margins_extensive_posterior_right"] = "1";
+						break;
+					case 'apex ant gauche':
+						$m->values["margins_extensive_apical_anterior_left"] = "1";
+						break;
+					case 'apex ant droit':
+						$m->values["margins_extensive_apical_anterior_right"] = "1";
+						break;
+					case 'apex post gauche':
+						$m->values["margins_extensive_apical_posterior_left"] = "1";
+						break;
+					case 'apex post droit':
+						$m->values["margins_extensive_apical_posterior_right"] = "1";
+						break;
+					case 'col vésical':
+						$m->values["margins_extensive_bladder_neck"] = "1";
+						break;
+					case 'base':
+						$m->values["margins_extensive_base"] = "1";	
+						break;
+					default:
+						Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value'][] = "Positive extensive margin '$new_site' is not supported. See line: ".$m->line;
+				}
+			}
+		}
+		if(strlen($margin_negative.$margin_not_assessed)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Postive margin conflict (2)'][] = "Margin defined as both positive and negtaive or not be assessed. See line: ".$m->line;
+	} else if(strlen($margin_negative)) {
+		if($margin_negative != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Negative margin value'][] = "Negative margin value '$margin_negative' different than 'x'. See line: ".$m->line;
+		if(strlen($margin_not_assessed)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Negative margin conflict'][] = "Margin defined as both negative and not be assessed. See line: ".$m->line;
+		$m->values["margins"] = 'negative';		
+	} else if(strlen($margin_not_assessed)) {
+		if($margin_not_assessed != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Not assessable margin value'][] = "Not assessable margin value '$margin_not_assessed' different than 'x'. See line: ".$m->line;
+		$m->values["margins"] = 'cannot be assessed';
+	}
+	$m->values["Marges chirurgicales::Positives::Score de Gleason aux marges"] = utf8_encode($m->values["Marges chirurgicales::Positives::Score de Gleason aux marges"]);
 	
+	// Histological grade
 	
+	$m->values["Patron histologique::Score de Gleason"] = utf8_encode($m->values["Patron histologique::Score de Gleason"]);
+	
+	// Extra Prostatic Extension
 
-	// Margins
+	$m->values["extra_prostatic_extension"] = "";
+	$m->values["extra_prostatic_extension_precision"] = "";
+	$m->values["extra_prostatic_extension_right_anterior"] = "";
+	$m->values["extra_prostatic_extension_left_anterior"] = "";
+	$m->values["extra_prostatic_extension_right_posterior"] = "";
+	$m->values["extra_prostatic_extension_left_posterior"] = "";
+	$m->values["extra_prostatic_extension_apex"] = "";
+	$m->values["extra_prostatic_extension_base"] = "";
+	$m->values["extra_prostatic_extension_bladder_neck"] = "";
+	$m->values["extra_prostatic_extension_seminal_vesicles"] = "";
+	$extra_prostatic_ext_absent = strtolower($m->values[utf8_decode("Extension extraprostatique::Absente")]);
+	$extra_prostatic_ext_focal = strtolower($m->values[utf8_decode("Extension extraprostatique::prostate::Focale")]);
+	$extra_prostatic_ext_established = strtolower($m->values[utf8_decode("Extension extraprostatique::prostate::Établie")]);
+	$extra_prostatic_ext_seminal_vesic_1 = strtolower($m->values[utf8_decode("Extension extraprostatique::vésicules séminales::Unilatérale")]);
+	$extra_prostatic_ext_seminal_vesic_2 = strtolower($m->values[utf8_decode("Extension extraprostatique::vésicules séminales::Bilatérale")]);
+	if(strlen($extra_prostatic_ext_focal.$extra_prostatic_ext_established.$extra_prostatic_ext_seminal_vesic_1.$extra_prostatic_ext_seminal_vesic_2)) {
+		$m->values["extra_prostatic_extension"] = "present";
+		if(strlen($extra_prostatic_ext_absent)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension conflict (1)'][] = "Extra prostatic extension defined as both absent and present. See line: ".$m->line;
+		if(strlen($extra_prostatic_ext_focal)) {
+			if(strlen($extra_prostatic_ext_established)) {
+				Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension conflict (2)'][] = "Extra prostatic extension defined as both established and focal. See line: ".$m->line;
+			} else {
+				$m->values["extra_prostatic_extension_precision"] = "focal";
+			}
+		} else if(strlen($extra_prostatic_ext_established)) {
+			$m->values["extra_prostatic_extension_precision"] = "established";
+		}
+		//Localisation
+		$localisations = explode('+', ($extra_prostatic_ext_focal.'+'.$extra_prostatic_ext_established));
+		foreach($localisations as $new_site) {
+			switch(utf8_encode($new_site)) {
+				case '':
+				case 'x':
+					break;
+				case 'ant droit':
+					$m->values["extra_prostatic_extension_right_anterior"] = "1";
+					break;
+				case 'ant gauche':
+					$m->values["extra_prostatic_extension_left_anterior"] = "1";
+					break;
+				case 'post droit':
+					$m->values["extra_prostatic_extension_right_posterior"] = "1";
+					break;
+				case 'post gauche':
+					$m->values["extra_prostatic_extension_left_posterior"] = "1";
+					break;
+				case 'apex':
+					$m->values["extra_prostatic_extension_apex"] = "1";
+					break;
+				case 'base':
+					$m->values["extra_prostatic_extension_base"] = "1";
+					break;
+				case 'col vésical':
+					$m->values["extra_prostatic_extension_bladder_neck"] = "1";
+					break;
+				default:
+					Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value'][] = "Extra prostatic extension value '$new_site' is not supported. See line: ".$m->line;
+			}
+		}
+		if(strlen($extra_prostatic_ext_seminal_vesic_1) && strlen($extra_prostatic_ext_seminal_vesic_2)) {
+			
+		} else if(strlen($extra_prostatic_ext_seminal_vesic_1)) {
+			$m->values["extra_prostatic_extension_seminal_vesicles"] = "unilateral";
+			if($extra_prostatic_ext_seminal_vesic_1 != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension (seminal vesicles) value'][] = "Extra prostatic extension (seminal vesicles) value '$extra_prostatic_ext_seminal_vesic_1' is not supported. See line: ".$m->line;
+		} else if(strlen($extra_prostatic_ext_seminal_vesic_2)) {
+			$m->values["extra_prostatic_extension_seminal_vesicles"] = "bilateral";
+			if($extra_prostatic_ext_seminal_vesic_2 != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension (seminal vesicles) value'][] = "Extra prostatic extension (seminal vesicles) value '$extra_prostatic_ext_seminal_vesic_2' is not supported. See line: ".$m->line;
+		}
+	} else if(strlen($extra_prostatic_ext_absent)) {
+		if($extra_prostatic_ext_absent != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension absent value'][] = "Extra prostatic extension absent value '$extra_prostatic_ext_absent' different than 'x'. See line: ".$m->line;
+		$m->values["extra_prostatic_extension"] = "absent";
+	}
 	
+	// Pathologic Staging
 	
-	
-	<option value="cannot be assessed">Ne peuvent être évaluées</option>
-	<option value="negative">Négatif</option>
-	<option value="positive">Positif</option>
-	
-	<option value="focal">Focale:cancer touchant l'encre (=&lt;3mm) dans une lame seulement</option>
-	<option value="extensive">Extensive</option>
-	
-	
-	
-	"margins" => "#margins",
-	"margins_focal_or_extensive" => "#margins_focal_or_extensive",
-	"margins_extensive_anterior_left" => "#margins_extensive_anterior_left",
-	"margins_extensive_anterior_right" => "#margins_extensive_anterior_right",
-	"margins_extensive_posterior_left" => "#margins_extensive_posterior_left",
-	"margins_extensive_posterior_right" => "#margins_extensive_posterior_right",
-	"margins_extensive_apical_anterior_left" => "#margins_extensive_apical_anterior_left",
-	"margins_extensive_apical_anterior_right" => "#margins_extensive_apical_anterior_right",
-	"margins_extensive_apical_posterior_left" => "#margins_extensive_apical_posterior_left",
-	"margins_extensive_apical_posterior_right" => "#margins_extensive_apical_posterior_right",
-	"margins_extensive_bladder_neck" => "#margins_extensive_bladder_neck",
-	"margins_extensive_base" => "#margins_extensive_base",
-	"margins_gleason_score" => utf8_decode("Marges chirurgicales::Positives::Score de Gleason aux marges"),
-	
-
-	
-
+	$m->values["Définition pTNM (version)"] = utf8_encode($m->values[utf8_decode("Définition pTNM (version)")]);
+	$m->values["pathologic_staging_pn_collected"] = "";
+	$m->values["pathologic_staging_pn_lymph_node_examined"] = "";
+	$m->values["pathologic_staging_pn_lymph_node_involved"] = "";
+	$pn_no_collected = strtolower($m->values[utf8_decode("Ganglions lymphatiques / Adénopathies régionales::non récoltés")]);
+	$pn_examined = $m->values[utf8_decode("Ganglions lymphatiques / Adénopathies régionales::récoltés, nombre examinés")];
+	$pn_involved = $m->values[utf8_decode("Ganglions lymphatiques / Adénopathies régionales::Nombre atteints")];
+	if(strlen($pn_no_collected) && strlen($pn_examined.$pn_involved)) {
+		Config::$summary_msg['Patho Report']['@@ERROR@@']['pTNM : Lymph node collection conflict'][] = "Lymph nodes have been defined both as not collected and collected. See line: ".$m->line;
+	} else if(strlen($pn_no_collected)) {
+		$m->values["pathologic_staging_pn_collected"] = "n";
+		if($pn_no_collected != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']["pTNM : Lymph node 'not collected' value"][] = "The value '$pn_no_collected' for field 'Lymph node 'not collected' is different than 'x'. See line: ".$m->line;
+	} else if(strlen($pn_examined.$pn_involved)) {
+		$m->values["pathologic_staging_pn_collected"] = "y";
+		if(!preg_match('/^[0-9]+$/', ($pn_examined.$pn_involved))) {
+			Config::$summary_msg['Patho Report']['@@ERROR@@']['pTNM : Lymph nodes nbr'][] = "Either lymph nodes examined values '$pn_examined' or lymph nodes involved values '$pn_involved' is not numerical. See line: ".$m->line;
+		} else {
+			$m->values["pathologic_staging_pn_lymph_node_examined"] = $pn_examined;
+			$m->values["pathologic_staging_pn_lymph_node_involved"] = $pn_involved;
+		}	
+	}
 	
 	return true;
 }
