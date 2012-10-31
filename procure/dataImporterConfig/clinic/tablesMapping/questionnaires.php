@@ -88,6 +88,13 @@ function postQuestionnaireRead(Model $m){
 				Config::$summary_msg['Questionnaire']['@@ERROR@@']['Wrong version values (language)'][] = "The year ($version_language) of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
 				$version_language = null;
 			}
+			$old_version_date = $version_date;
+			if(in_array($version_date, array('2007','2008'))) {
+				$version_date = '2006';
+			} else if(in_array($version_date, array('2010','2011'))) {
+				$version_date = '2009';
+			}
+			if($old_version_date != $version_date) Config::$summary_msg['Questionnaire']['@@MESSAGE@@']['Version values updated (date)'][] = "The date ($old_version_date) of the questionnaire version '$version_values' has been changed to '$version_date'. See line: ".$m->line;
 			if($version_date && !array_key_exists($version_date, Config::$value_domains['procure_questionnaire_version_date']->values)) {
 				Config::$summary_msg['Questionnaire']['@@ERROR@@']['Wrong version values (date)'][] = "The date ($version_date) of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
 				$version_date = null;
