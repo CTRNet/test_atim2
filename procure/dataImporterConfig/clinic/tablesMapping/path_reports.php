@@ -96,6 +96,7 @@ $detail_fields = array(
 	"pathologic_staging_pn_lymph_node_examined" => "#pathologic_staging_pn_lymph_node_examined",
 	"pathologic_staging_pn_lymph_node_involved" => "#pathologic_staging_pn_lymph_node_involved",
 	"pathologic_staging_pm" => array(utf8_decode("Métastases à distance") => new ValueDomain("procure_pathologic_staging_pm", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)),
+
 );
 
 //see the Model class definition for more info
