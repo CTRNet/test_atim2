@@ -1251,3 +1251,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 (SELECT id FROM structure_fields WHERE `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='bile_ducts_specify'), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1');
 
 -- Update annotation report
+
+-- Add new consent
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'consent v2012-10', 1, 'qc_hb_consents_2012_10', 'qc_hb_consents', 1, 'consent v2012-10');
+INSERT INTO structures (`alias`) VALUES ('qc_hb_consents_2012_10');
+INSERT INTO i18n (id,en,fr) VALUES ('consent v2012-10', 'Consent v2012-10','Consentement v2012-10');
+SET @old_str_id = (SELECT id FROM structures WHERE alias = 'qc_hb_consents');
+SET @new_str_id = (SELECT id FROM structures WHERE alias = 'qc_hb_consents_2012_10');
+INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) 
+(SELECT @new_str_id, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary` FROM structure_formats WHERE structure_id =  @old_str_id); 
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_consents_2012_10')
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('contact_if_news_on_hb','contact_if_news_on_other_disease'));
+
+
+
