@@ -201,7 +201,7 @@ class ReportsControllerCustom extends ReportsController {
 					
 				FROM diagnosis_masters AS DiagnosisMaster
 				INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
-				INNER JOIN treatment_controls AS TreatmentControl ON treatmentControl.id = TreatmentMaster.treatment_control_id
+				INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
 				LEFT JOIN event_masters AS PsaEventMaster ON PsaEventMaster.diagnosis_master_id = DiagnosisMaster.id AND PsaEventMaster.deleted <> 1 AND PsaEventMaster.event_control_id = 52
 				LEFT JOIN qc_tf_ed_psa AS PsaEventDetail ON PsaEventDetail.event_master_id = PsaEventMaster.id
 				WHERE DiagnosisMaster.deleted <> 1 AND $primary_ids_condition 
