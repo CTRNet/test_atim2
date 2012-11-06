@@ -13,17 +13,17 @@ $fields = array(
 	"qc_tf_bank_participant_identifier" 		=> 'Patient # in biobank',
 		
 	"date_of_birth" 							=> "Date of Birth Date",
-	"date_of_birth_accuracy" 					=> array("Date of Birth Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"date_of_birth_accuracy" 					=> array("Date of Birth Accuracy" => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	
 	"vital_status" 								=> array("Death status" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
 	'qc_tf_death_from_prostate_cancer' 			=> array('Death from prostate cancer' => array('yes' => 'y', 'no' => 'n', 'unknown' => 'u', '' => '')),
 	"date_of_death" 							=> "Registered Date of Death Date",
-	"date_of_death_accuracy" 					=> array("Registered Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"date_of_death_accuracy" 					=> array("Registered Date of Death Accuracy" => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	"qc_tf_suspected_date_of_death" 			=> "Suspected Date of Death Date",
-	"qc_tf_suspected_date_of_death_accuracy"	=> array("Suspected Date of Death Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_suspected_date_of_death_accuracy"	=> array("Suspected Date of Death Accuracy" => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 		
 	"qc_tf_last_contact" 						=> "Date of last contact Date",
-	"qc_tf_last_contact_accuracy" 				=> array("Date of last contact Accuracy" => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	"qc_tf_last_contact_accuracy" 				=> array("Date of last contact Accuracy" => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 		
 	"qc_tf_family_history" 						=> array("Family History (prostatite/cancer)" => new ValueDomain("qc_tf_fam_hist_prostate_cancer", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
 );

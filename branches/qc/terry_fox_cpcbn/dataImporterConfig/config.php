@@ -25,13 +25,33 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-1a100-ATiM_20120629_nl_rev.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-1a119-Atim2012_nl_rev.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/McGill-1a100-Atim_nl_rev.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1a150-ATiM_nl_rev.xls';
-	//static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-1a150-Atim_nl_rev.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 Test TMA validated20121105.xls';
+//	static $use_windows_xls_offset = false;
 	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-Saad 1-100 validated20121105.xls';
+//	static $use_windows_xls_offset = false;
+	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe 1-119 validated20121105.xls';
+//	static $use_windows_xls_offset = true;
+	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA sans 305 validated20121105.xls';
+//	static $use_windows_xls_offset = true;
+	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/Mcgill 101-150 validated20121105.xls';
+//	static $use_windows_xls_offset = false;
+	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1-150 validated20121105.xls';
+//	static $use_windows_xls_offset = false;
+	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-test TMA 151-200 validated20121105.xls';
+//	static $use_windows_xls_offset = false;
+	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave 1-150 validated20121105.xls';
+//	static $use_windows_xls_offset = false;
+	
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave- Test TMA 151-200 validated20121105.xls';
 	static $use_windows_xls_offset = false;
+
 	
 	static $xls_header_rows = 2;
 
@@ -129,7 +149,9 @@ function addonFunctionStart(){
 	source_file = $file_name".Config::$line_break_tag."
 	".Config::$line_break_tag."=====================================================================
 	</FONT>".Config::$line_break_tag."";	
-	
+
+echo "<FONT COLOR=\"red\" >Nettoyer les collections... Elles sont temporaires pour démo</FONT>".Config::$line_break_tag."";
+
 	echo Config::$line_break_tag."<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>".Config::$line_break_tag.Config::$line_break_tag;
 
 	$query = "SELECT id, name FROM banks";
@@ -181,7 +203,7 @@ function addonFunctionStart(){
 	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
 	$last_rght = empty($row['last_rght'])? 0 : $row['last_rght'];
-	$tma_name = substr($file_name, 0, strpos($file_name, '-'));
+	$tma_name = substr($file_name, 0, strpos($file_name, '.xls'));
 	$user_id = Config::$db_created_id;
 	$query = "INSERT INTO `storage_masters` (`storage_control_id`, `short_label`, selection_label, `lft`, `rght`, `created`, `created_by`, `modified`, `modified_by`) 	VALUES (20, '$tma_name', '$tma_name', '".($last_rght+1)."', '".($last_rght+2)."', NOW(), $user_id, NOW(), $user_id);";
 	if(Config::$print_queries) echo $query.Config::$line_break_tag;

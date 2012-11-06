@@ -4,7 +4,7 @@ $child = array();
 $fields = array(
 	'participant_id' 		=> $pkey,
 	'dx_date' 				=> 'Date of diagnostics Date',
-	'dx_date_accuracy'		=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'dx_date_accuracy'		=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	'diagnosis_control_id'	=> '#diagnosis_control_id', 
 	'age_at_dx' 			=> 'Age at Time of Diagnosis (yr)'
 );

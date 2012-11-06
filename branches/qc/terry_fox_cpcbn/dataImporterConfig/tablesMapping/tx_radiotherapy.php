@@ -7,9 +7,9 @@ $fields = array(
 	'diagnosis_master_id'	=> $pkey,
 				
 	'start_date' 			=> 'Dates of event Date of event (beginning)',
-	'start_date_accuracy' 	=> array('Dates of event Accuracy (beginning)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'start_date_accuracy' 	=> array('Dates of event Accuracy (beginning)' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	'finish_date' 			=> 'Dates of event Date of event (end)',
-	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "y", "m" => "m", "" => "")),
+	'finish_date_accuracy'	=> array('Dates of event Accuracy (end)' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 		
 	'notes' 				=> 'note'
 );

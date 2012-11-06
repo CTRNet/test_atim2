@@ -11,8 +11,8 @@ class ParticipantCustom extends Participant {
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));	
 			$bank_model = AppModel::getInstance('Administrate', 'Bank', true);
 			$bank = $bank_model->find('first', array('conditions' => array('Bank.id' => $result['Participant']['qc_tf_bank_id'])));
-			
-			$label = $result['Participant']['participant_identifier'] . ' [' . $bank['Bank']['name'].']';
+	
+			$label = $bank['Bank']['name']. ' : '. $result['Participant']['qc_tf_bank_participant_identifier'] . ' ['. $result['Participant']['participant_identifier'] .']';
 			$return = array(
 					'menu'				=>	array( NULL, $label ),
 					'title'				=>	array( NULL, $label),
