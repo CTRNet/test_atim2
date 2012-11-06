@@ -6,7 +6,7 @@ $fields = array(
 	'treatment_control_id'	=> '#treatment_control_id', //biopsy
 	'diagnosis_master_id'	=> $pkey,
 	'start_date' 			=> 'Surgery/Biopsy Date of surgery/biopsy',
-	'start_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "y", "m" => "m", "" => "", " " => "")),
+	'start_date_accuracy'	=> array('Surgery/Biopsy Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "", " " => "")),
 );
 $detail_fields = array(		
 	'samples_number'	=> 'number of biospies (optional)'
