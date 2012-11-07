@@ -126,6 +126,7 @@ class ReportsControllerCustom extends ReportsController {
 			"SELECT DISTINCT
 				Participant.id AS participant_id,
 				Participant.qc_tf_bank_id,
+				Participant.participant_identifier,
 				Participant.qc_tf_bank_participant_identifier,
 				Participant.vital_status,
 				Participant.date_of_death,
