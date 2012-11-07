@@ -52,20 +52,14 @@ UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND
 UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND tablename='procure_ed_lab_diagnostic_information_worksheets' AND field='highest_gleason_score_observed' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND tablename='procure_ed_lab_diagnostic_information_worksheets' AND field='highest_gleason_score_percentage' AND `type`='float' AND structure_value_domain  IS NULL ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ALTER TABLE sd_spe_tissues 
+	CHANGE procure_number_to_slides_collected procure_number_of_slides_collected int(6) DEFAULT NULL,
+	CHANGE procure_number_to_slides_collected_for_procure procure_number_of_slides_collected_for_procure int(6) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs
+	CHANGE procure_number_to_slides_collected procure_number_of_slides_collected int(6) DEFAULT NULL,
+	CHANGE procure_number_to_slides_collected_for_procure procure_number_of_slides_collected_for_procure int(6) DEFAULT NULL;	
+UPDATE structure_fields SET field = 'procure_number_of_slides_collected' WHERE field = 'procure_number_to_slides_collected';
+UPDATE structure_fields SET field = 'procure_number_of_slides_collected_for_procure' WHERE field = 'procure_number_to_slides_collected_for_procure';
 
 
 
