@@ -96,7 +96,4 @@ UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id
 
 
 
-DELETE FROM datamart_structure_functions WHERE link LIKE 'Datamart/Reports/manageReport%';
-
-
 
