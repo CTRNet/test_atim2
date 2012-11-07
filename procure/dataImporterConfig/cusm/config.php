@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CUSM';
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/procure/data/cusm/Donnees_clinico_patho_CUSM_21082012.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/procure/data/cusm/Donnees_cusm_2012.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -52,12 +52,14 @@ class Config{
 	static $event_controls = array();	
 	static $sample_aliquot_controls = array();
 	
+	static $participant_collections = array();
 	static $next_sample_code = 0;
- 	
+	static $storage_controls = array();
+	
 // 	static $diagnosis_controls = array();
 // 	static $treatment_controls = array();
 // 	static $event_controls = array();
-// 	static $storage_controls = array();
+// 	
 	
 // 	static $cytoreduction_values = array();
 	
@@ -84,13 +86,13 @@ class Config{
 Config::$parent_models[] = "Participant";
 
 //add your configs
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/participants.php';
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/consents.php'; 
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/questionnaires.php';
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/path_reports.php';
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/diagnostics.php'; 
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/treatments.php'; 
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/clinic/tablesMapping/surgeries.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/participants.php';
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/consents.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/questionnaires.php';
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/path_reports.php';
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/diagnostics.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/treatments.php'; 
+Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/collections.php'; 
 
 //=========================================================================================================
 // START functions
@@ -144,102 +146,17 @@ function addonFunctionStart(){
 	Config::$value_domains['procure_questionnaire_version'] = new ValueDomain("procure_questionnaire_version", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 	Config::$value_domains['procure_questionnaire_version_date'] = new ValueDomain("procure_questionnaire_version_date", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
+	// LOAD COLLECTIONS
+	
+	$query = "select id,storage_type,detail_tablename from storage_controls where flag_active = '1';";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
+	
+	loadCollections();
+	
 	return;
-	
-	// ** Data check ** 
-	
-// 	$query = "SELECT COUNT(*) FROM participants;";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-// 	$row = $results->fetch_assoc();
-// 	if($row['COUNT(*)'] < 1) {
-// 		die("Step2: Participant table should be completed");
-// 	}
-	
-// 	$query = "SELECT COUNT(*) FROM misc_identifiers;";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-// 	$row = $results->fetch_assoc();
-// 	if($row['COUNT(*)'] < 1) {
-// 		die("Step2: Identifiers table should be completed");
-// 	}	
-	
-// 	$query = "SELECT COUNT(*) FROM diagnosis_masters;";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-// 	$row = $results->fetch_assoc();
-// 	if($row['COUNT(*)'] > 0) {
-// 		die("Step2: Diagnoses table should be empty");
-// 	}	
-
-// 	$query = "SELECT COUNT(*) FROM collections;";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die("addonFunctionStart [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-// 	$row = $results->fetch_assoc();
-// 	if($row['COUNT(*)'] > 0) {
-// 		die("Step2: Collections table should be empty");
-// 	}	
-	
-
-	
-// 	// ** Set diagnosis controls **
-	
-// 	$query = "select id,category,controls_type,detail_tablename from diagnosis_controls where flag_active = '1' AND category IN ('primary','secondary');";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$diagnosis_controls[$row['category']][$row['controls_type']] = array('diagnosis_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
-// 	}
-	
-// 	// ** Set treatment controls **
-	
-// 	$query = "select id,tx_method,disease_site,detail_tablename from treatment_controls where flag_active = '1';";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$treatment_controls[$row['tx_method']][$row['disease_site']] = array('treatment_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
-// 	}
-	
-// 	// ** Set event controls **
-	
-// 	$query = "select id,disease_site,event_group,event_type,detail_tablename from event_controls where flag_active = '1';";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$event_controls[$row['event_group']][$row['disease_site']][$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
-// 	}
-	
-// 	// ** Set cytoreduction value **
-	
-// 	$query = "select value from structure_permissible_values_customs where control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'cytoreductions values');";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$cytoreduction_values[] = $row['value'];
-// 	}
-
-// 	// ** Set participant_id / identifier values links array **
-	
-// 	$query = "SELECT ident.id, ctrl.misc_identifier_name, ident.identifier_value, ident.participant_id
-// 	FROM misc_identifier_controls AS ctrl INNER JOIN misc_identifiers AS ident ON ident.misc_identifier_control_id = ctrl.id
-// 	WHERE ctrl.misc_identifier_name LIKE '%FRSQ%' AND ident.deleted != 1";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		if(isset(Config::$ids_from_frsq_nbr[$row['identifier_value']])) {
-// 			pr($row);
-// 			die('ERR 99887399.1');
-// 		}
-// 		Config::$ids_from_frsq_nbr[$row['identifier_value']]['participant_id'] = $row['participant_id'];
-// 		Config::$ids_from_frsq_nbr[$row['identifier_value']]['misc_identifier_id'] = $row['id'];
-		
-// 		if(preg_match('/^OV[A-Z]{0,1}([0-9]+)$/', $row['identifier_value'], $matches)) {
-// 			Config::$participant_id_from_ov_nbr['OV'.$matches[1]] = $row['participant_id'];
-// 		}
-		
-// 		if(!isset(Config::$data_for_import_from_participant_id[$row['participant_id']])) Config::$data_for_import_from_participant_id[$row['participant_id']] = array('data_imported_from_ov_file' => false);
-// 		Config::$data_for_import_from_participant_id[$row['participant_id']][$row['misc_identifier_name']][] = $row['identifier_value'];
-// 	}
-	
-// 	// ** Set storage controls **
-	
-// 	$query = "select id,storage_type,detail_tablename from storage_controls where flag_active = '1';";
-// 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-// 	while($row = $results->fetch_assoc()){
-// 		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
-// 	}
-	
 }
 
 //=========================================================================================================
@@ -407,41 +324,5 @@ function getDateAndAccuracy($date, $data_type, $field, $line) {
 		return null;
 	}	
 }
-
-
-
-
-
-//=========================================================================================================
-// Collections Creation
-//=========================================================================================================
-
-function getStorageId($aliquot_description, $storage_control_type, $selection_label) {
-	global $storage_list;
-	
-	$selection_label = str_replace(' ', '', $selection_label)."[OV/$aliquot_description]";
-	
-	$storage_key = $aliquot_description.$storage_control_type.$selection_label;
-	if(isset($storage_list[$storage_key])) return $storage_list[$storage_key];
-	
-	$next_id = sizeof($storage_list) + 1;
-	
-	$master_fields = array(
-		"code" => "'$next_id'",
-		"storage_control_id"	=> Config::$storage_controls[$storage_control_type]['storage_control_id'],
-		"short_label"			=> "'".$selection_label."'",
-		"selection_label"		=> "'".$selection_label."'",
-		"lft"		=> "'".(($next_id*2)-1)."'",
-		"rght"		=> "'".($next_id*2)."'",
-		"notes" => "'$aliquot_description'"
-	);
-	$storage_master_id = customInsertRecord($master_fields, 'storage_masters');	
-	customInsertRecord(array("storage_master_id" => $storage_master_id), Config::$storage_controls[$storage_control_type]['detail_tablename'], true);	
-		
-	$storage_list[$storage_key] = $storage_master_id;
-	
-	return $storage_master_id;	
-}
-
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 $pkey = "Identification";
 
-$child = array('Consent','Questionnaire','PathReport','Diagnostic','Treatment','Surgery');
+$child = array('Consent','Questionnaire','PathReport','Diagnostic','Treatment');
 
 $fields = array(	
 	"participant_identifier" => $pkey
