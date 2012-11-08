@@ -245,7 +245,11 @@ function addonFunctionEnd(){
 		"UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
 		"UPDATE participants SET date_of_death = NULL WHERE date_of_death LIKE '0000-00-00';",
 		"UPDATE participants SET qc_tf_suspected_date_of_death = NULL WHERE qc_tf_suspected_date_of_death LIKE '0000-00-00';",
-		"UPDATE participants SET qc_tf_last_contact = NULL WHERE qc_tf_last_contact LIKE '0000-00-00';");
+		"UPDATE participants SET qc_tf_last_contact = NULL WHERE qc_tf_last_contact LIKE '0000-00-00';",
+		"UPDATE participants SET date_of_birth_accuracy = 'c' WHERE date_of_birth IS NOT NULL AND date_of_birth_accuracy LIKE '';",
+		"UPDATE participants SET date_of_death_accuracy = 'c' WHERE date_of_death IS NOT NULL AND date_of_death_accuracy LIKE '';",
+		"UPDATE participants SET qc_tf_suspected_date_of_death_accuracy = 'c' WHERE qc_tf_suspected_date_of_death IS NOT NULL AND qc_tf_suspected_date_of_death_accuracy LIKE '';",
+		"UPDATE participants SET qc_tf_last_contact_accuracy = 'c' WHERE qc_tf_last_contact IS NOT NULL AND qc_tf_last_contact_accuracy LIKE '';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
@@ -256,7 +260,8 @@ function addonFunctionEnd(){
 	$queries = array(
 		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL AND parent_id IS NULL;",
 		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
-		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';");
+		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';",
+		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
@@ -267,7 +272,8 @@ function addonFunctionEnd(){
 	$queries = array(
 		"UPDATE treatment_masters SET start_date = NULL WHERE start_date LIKE '0000-00-00';",
 		"UPDATE treatment_masters SET start_date_accuracy = 'c' WHERE start_date IS NOT NULL AND start_date_accuracy LIKE '';",
-		"UPDATE treatment_masters SET finish_date = NULL WHERE finish_date LIKE '0000-00-00';");
+		"UPDATE treatment_masters SET finish_date = NULL WHERE finish_date LIKE '0000-00-00';",
+		"UPDATE treatment_masters SET finish_date_accuracy = 'c' WHERE finish_date IS NOT NULL AND finish_date_accuracy LIKE '';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
@@ -277,6 +283,7 @@ function addonFunctionEnd(){
 	//  ** Clean-up EVENT_MASTERS ** 
 	$queries = array(
 		"UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';",
+		"UPDATE event_masters SET event_date_accuracy = 'c' WHERE event_date IS NOT NULL AND event_date_accuracy LIKE '';",
 		"UPDATE event_masters ev, diagnosis_masters rec
 		SET ev.diagnosis_master_id = rec.id
 		WHERE rec.diagnosis_control_id = ".Config::$dx_controls['recurrence']['biochemical recurrence']['id']."
@@ -289,6 +296,16 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
 		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace(array('event_masters', 'diagnosis_masters'),array('event_masters_revs','diagnosis_masters_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}
+	
+	//  ** Clean-up COLLECTIONS **
+	$queries = array(
+		"UPDATE collections SET collection_datetime = NULL WHERE collection_datetime LIKE '0000-00-00';",
+		"UPDATE collections SET collection_datetime_accuracy = 'c' WHERE collection_datetime IS NOT NULL AND collection_datetime_accuracy LIKE '';");
+	foreach($queries as $query)	{
+		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		if(Config::$print_queries) echo $query.Config::$line_break_tag;
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace(array('collections'),array('collections_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
 	// ** SURVIVAL & BCR **
