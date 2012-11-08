@@ -151,10 +151,6 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.survival_in_months,
 				DiagnosisDetail.bcr_in_months,
 				
-				FstBcrDiagnosisMaster.dx_date AS first_bcr_date,
-				FstBcrDiagnosisMaster.dx_date_accuracy AS first_bcr_date_accuracy,
-				FstBcrDiagnosisDetail.type AS first_bcr_type,
-								
 				StorageMaster.selection_label,
 				AliquotMaster.storage_coord_x,
 				AliquotMaster.storage_coord_y
@@ -167,10 +163,7 @@ class ReportsControllerCustom extends ReportsController {
 							
 			LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
 			LEFT JOIN qc_tf_dxd_cpcbn AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
-			
-			LEFT JOIN diagnosis_masters AS FstBcrDiagnosisMaster ON DiagnosisMaster.id = FstBcrDiagnosisMaster.primary_id AND Participant.id = FstBcrDiagnosisMaster.participant_id AND FstBcrDiagnosisMaster.diagnosis_control_id = 22 AND FstBcrDiagnosisMaster.deleted <> 1
-			LEFT JOIN qc_tf_dxd_recurrence_bio AS FstBcrDiagnosisDetail ON FstBcrDiagnosisDetail.diagnosis_master_id = FstBcrDiagnosisMaster.id AND FstBcrDiagnosisDetail.first_biochemical_recurrence = 1
-				
+
 			WHERE Participant.deleted <> 1 AND ($conditions_str)
 			
 			ORDER BY Participant.qc_tf_bank_id ASC, Participant.qc_tf_bank_participant_identifier ASC, StorageMaster.selection_label ASC, AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC;";
@@ -182,6 +175,38 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($main_results as $new_participant) if(!empty($new_participant['DiagnosisMaster']['primary_id'])) $primary_ids[] = $new_participant['DiagnosisMaster']['primary_id'];	
 		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
 				
+		// *********** Get Fst Bcr ***********		
+		
+		$fst_bcr_results_from_primary_id = array();
+		if($primary_ids_condition) {
+			$sql =
+				"SELECT DISTINCT
+					DiagnosisMaster.primary_id,
+					DiagnosisMaster.participant_id,
+					FstBcrDiagnosisMaster.dx_date AS first_bcr_date,
+					FstBcrDiagnosisMaster.dx_date_accuracy AS first_bcr_date_accuracy,
+					FstBcrDiagnosisDetail.type AS first_bcr_type
+				FROM diagnosis_masters AS DiagnosisMaster
+				INNER JOIN diagnosis_masters AS FstBcrDiagnosisMaster ON DiagnosisMaster.id = FstBcrDiagnosisMaster.primary_id AND FstBcrDiagnosisMaster.diagnosis_control_id = 22 AND FstBcrDiagnosisMaster.deleted <> 1
+				INNER JOIN qc_tf_dxd_recurrence_bio AS FstBcrDiagnosisDetail ON FstBcrDiagnosisDetail.diagnosis_master_id = FstBcrDiagnosisMaster.id AND FstBcrDiagnosisDetail.first_biochemical_recurrence = 1
+				WHERE DiagnosisMaster.deleted <> 1 AND $primary_ids_condition
+				ORDER BY DiagnosisMaster.primary_id ASC;";
+				
+			$fst_bcr_results = $this->Report->tryCatchQuery($sql);
+					
+			$tmp_new_primary_id = '';
+			foreach($fst_bcr_results as $new_res) {
+				$studied_primary_id = $new_res['DiagnosisMaster']['primary_id'];
+				if($tmp_new_primary_id != $studied_primary_id) {
+					$tmp_new_primary_id = $studied_primary_id;
+					unset($new_res['DiagnosisMaster']);
+					$fst_bcr_results_from_primary_id[$studied_primary_id] = $new_res;
+				} else {
+					die('ERR 19938939323');
+				}
+			}
+		}
+		
 		// *********** Get DFS start & PSA PreDFS ***********
 		
 		$dfs_start_results_from_primary_id = array();
@@ -203,10 +228,9 @@ class ReportsControllerCustom extends ReportsController {
 				FROM diagnosis_masters AS DiagnosisMaster
 				INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
 				INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
-				LEFT JOIN event_masters AS PsaEventMaster ON PsaEventMaster.diagnosis_master_id = DiagnosisMaster.id AND PsaEventMaster.deleted <> 1 AND PsaEventMaster.event_control_id = 52
+				LEFT JOIN event_masters AS PsaEventMaster ON PsaEventMaster.diagnosis_master_id = DiagnosisMaster.id AND PsaEventMaster.deleted <> 1 AND PsaEventMaster.event_control_id = 52 AND PsaEventMaster.event_date LIKE '%-%-%' AND PsaEventMaster.event_date <= TreatmentMaster.start_date
 				LEFT JOIN qc_tf_ed_psa AS PsaEventDetail ON PsaEventDetail.event_master_id = PsaEventMaster.id
 				WHERE DiagnosisMaster.deleted <> 1 AND $primary_ids_condition 
-				AND PsaEventMaster.event_date LIKE '%-%-%' AND PsaEventMaster.event_date <= TreatmentMaster.start_date
 				ORDER BY DiagnosisMaster.primary_id ASC, PsaEventMaster.event_date DESC;";
 			
 			$dfs_start_results = $this->Report->tryCatchQuery($sql);
@@ -311,7 +335,14 @@ class ReportsControllerCustom extends ReportsController {
 				'other_types' => ''
 			)
 		);
-		
+		$fst_bcr_template = array(
+			'FstBcrDiagnosisMaster' => array(
+				'first_bcr_date' => '',
+				'first_metastasfirst_bcr_date_accuracyis_dx_date' => ''),
+			'FstBcrDiagnosisDetail' => array(
+					'first_bcr_type' => ''
+			)
+		);				
 		foreach($main_results as &$new_participant) {
 			if(isset($dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$new_participant = array_merge($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
@@ -325,6 +356,11 @@ class ReportsControllerCustom extends ReportsController {
 			} else {
 				$new_participant = array_merge($new_participant, $metastasis_template);
 			}
+			if(isset($fst_bcr_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
+				$new_participant = array_merge($new_participant, $fst_bcr_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
+			} else {
+				$new_participant = array_merge($new_participant, $fst_bcr_template);
+			}	
 		}
 		
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
