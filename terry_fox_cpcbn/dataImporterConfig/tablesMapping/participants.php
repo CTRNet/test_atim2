@@ -15,7 +15,7 @@ $fields = array(
 	"date_of_birth" 							=> "Date of Birth Date",
 	"date_of_birth_accuracy" 					=> array("Date of Birth Accuracy" => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	
-	"vital_status" 								=> array("Death status" => array("alive" => "alive", "dead" => "deceased", "unknown" => "unknown", "" => "unknown", "deceased" => "deceased")),
+	"vital_status" 								=> array("Death status" => array("alive" => "alive", "dead" => "deceased", "unknown" => "alive", "" => "alive", "deceased" => "deceased")),
 	'qc_tf_death_from_prostate_cancer' 			=> array('Death from prostate cancer' => array('yes' => 'y', 'no' => 'n', 'unknown' => '', '' => '')),
 	"date_of_death" 							=> "Registered Date of Death Date",
 	"date_of_death_accuracy" 					=> array("Registered Date of Death Accuracy" => array("c" => "c", "y" => "m", "m" => "d", "" => "")),

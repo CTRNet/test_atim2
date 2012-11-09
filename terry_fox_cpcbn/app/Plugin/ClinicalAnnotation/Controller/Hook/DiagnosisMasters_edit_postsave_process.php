@@ -4,3 +4,4 @@
 		$this->DiagnosisMaster->calculateSurvivalAndBcr($diagnosis_master_id);
 	}
 	
+	$this->DiagnosisMaster->updateAgeAtDx('DiagnosisMaster', $diagnosis_master_id);

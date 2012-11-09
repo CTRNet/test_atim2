@@ -13,3 +13,9 @@
 		$all_prostat_primaries = $this->DiagnosisMaster->find('all', array('conditions'=>$conditions));	
 		foreach($all_prostat_primaries as $new_primary) $this->DiagnosisMaster->calculateSurvivalAndBcr($new_primary['DiagnosisMaster']['id']);
 	}
+	
+	if($participant_data['Participant']['date_of_birth'] != $new_participant_data['Participant']['date_of_birth']
+	|| $participant_data['Participant']['date_of_birth_accuracy'] != $new_participant_data['Participant']['date_of_birth_accuracy']) {
+		$this->DiagnosisMaster->updateAgeAtDx('Participant',$participant_id);
+	}
+	

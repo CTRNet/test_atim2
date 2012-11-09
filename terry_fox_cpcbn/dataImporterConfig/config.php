@@ -152,6 +152,8 @@ function addonFunctionStart(){
 
 echo "<FONT COLOR=\"red\" >Nettoyer les collections... Elles sont temporaires pour démo</FONT>".Config::$line_break_tag."";
 
+calculer age at dx
+
 	echo Config::$line_break_tag."<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>".Config::$line_break_tag.Config::$line_break_tag;
 
 	$query = "SELECT id, name FROM banks";
