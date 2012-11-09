@@ -133,6 +133,7 @@ class ReportsControllerCustom extends ReportsController {
 				Participant.date_of_death_accuracy,
 				Participant.qc_tf_last_contact,
 				Participant.qc_tf_last_contact_accuracy,
+				Participant.qc_tf_death_from_prostate_cancer,
 				
 				DiagnosisMaster.id AS primary_id,
 				DiagnosisMaster.dx_date,

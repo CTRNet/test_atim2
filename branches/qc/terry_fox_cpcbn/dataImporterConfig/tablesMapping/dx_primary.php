@@ -72,6 +72,8 @@ function postDxRead(Model $m){
 	}
 	$m->custom_data['previous_line'] = $m->line;
 	
+	if($m->custom_data['hormonorefractory status status'] != 'HR') $m->custom_data['hormonorefractory status status'] = 'not HR';
+	
 	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
 	excelDateFix($m);
 	
