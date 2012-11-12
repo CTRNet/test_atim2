@@ -26,32 +26,32 @@ class Config{
 	//if reading excel file
 	
 //	old static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 Test TMA validated20121105.xls';
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 date modif.xls';	
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 final_20121112.xls';	
 //	static $use_windows_xls_offset = false;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-Saad 1-100 validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-Saad 1-100 final_20121112.xls';
 //	static $use_windows_xls_offset = false;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe 1-119 validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe 1-119 final_20121112.xls';
 //	static $use_windows_xls_offset = true;
 	
 //	old static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA sans 305 validated20121105.xls';
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA +patient 10.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA final_20121112.xls';
 //	static $use_windows_xls_offset = true;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/Mcgill 101-150 validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/Mcgill 101-150 final_20121112.xls';
 //	static $use_windows_xls_offset = false;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1-150 validated20121105.xls';
+//Todo	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1-150 final_20121112.xls';
 //	static $use_windows_xls_offset = false;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-test TMA 151-200 validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-test TMA 151-200  final_20121112.xls';
 //	static $use_windows_xls_offset = false;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave 1-150 validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave 1-150 final_20121112.xls';
 //	static $use_windows_xls_offset = false;
 	
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave- Test TMA 151-200 validated20121105.xls';
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave- Test TMA 151-200 final_20121112.xls';
 	static $use_windows_xls_offset = false;
 
 	
@@ -151,10 +151,6 @@ function addonFunctionStart(){
 	source_file = $file_name".Config::$line_break_tag."
 	".Config::$line_break_tag."=====================================================================
 	</FONT>".Config::$line_break_tag."";	
-
-echo "<FONT COLOR=\"red\" >Nettoyer les collections... Elles sont temporaires pour démo</FONT>".Config::$line_break_tag."";
-
-	echo Config::$line_break_tag."<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>".Config::$line_break_tag.Config::$line_break_tag;
 
 	$query = "SELECT id, name FROM banks";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -264,12 +260,15 @@ function addonFunctionEnd(){
 		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
 		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';",
 		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';",
-		"UPDATE diagnosis_masters SET age_at_dx = NULL WHERE age_at_dx LIKE '0';");
+		"UPDATE diagnosis_masters SET age_at_dx = NULL WHERE age_at_dx LIKE '0';",
+		"UPDATE qc_tf_dxd_cpcbn dd, diagnosis_masters dm SET dd.hormonorefractory_status = 'not HR' 
+		WHERE dm.participant_id IN (".implode(',', Config::$create_participant_ids).") AND dm.id = dd.diagnosis_master_id AND (dd.hormonorefractory_status IS NULL OR dd.hormonorefractory_status = '');");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
-		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('diagnosis_masters','diagnosis_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-	}	
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace(array('diagnosis_masters','qc_tf_dxd_cpcbn'),array('diagnosis_masters_revs','qc_tf_dxd_cpcbn_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	}
+	
 	
 	//  ** Clean-up TREAMTENT_MASTERS ** 
 	$queries = array(

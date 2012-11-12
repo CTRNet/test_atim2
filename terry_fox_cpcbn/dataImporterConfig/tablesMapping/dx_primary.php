@@ -45,7 +45,7 @@ $model->custom_data = array(
 	'prostate_dx_fields' => array(
 		'dx_date' => 'Date of diagnostics Date',
 		'dx_date_accuracy' => 'Date of diagnostics Accuracy',
-		'age_at_dx' => 'Age at Time of Diagnosis (yr)',
+//		'age_at_dx' => 'Age at Time of Diagnosis (yr)',
 
 		'tool' => 'Date of diagnostics  diagnostic tool',
 		'gleason_score_biopsy' => 'Gleason score at biopsy',
@@ -74,7 +74,7 @@ function postDxRead(Model $m){
 	}
 	$m->custom_data['previous_line'] = $m->line;
 	
-	if($m->values['hormonorefractory status status'] != 'HR') $m->values['hormonorefractory status status'] = 'not HR';
+//	if($m->values['hormonorefractory status status'] != 'HR') $m->values['hormonorefractory status status'] = 'not HR';
 	
 	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
 	excelDateFix($m);
@@ -163,7 +163,7 @@ function manageManyRows(Model $m){
 						
 					case 'Date of diagnostics Date':
 					case 'Date of diagnostics Accuracy':
-					case 'Age at Time of Diagnosis (yr)':
+//					case 'Age at Time of Diagnosis (yr)':
 						$value_to_add['diagnosis_masters'][] = $db_field.'="'.$m->values[$new_field].'"';	
 						break;
 						
