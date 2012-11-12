@@ -35,6 +35,7 @@ function txBiopsyPostRead(Model $m){
 	}
 	excelDateFix($m);
 	if(empty($m->values['Surgery/Biopsy Date of surgery/biopsy'])) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
+	$m->values['number of biospies (optional)'] = str_replace(' ', '', $m->values['number of biospies (optional)']);
 	if(!preg_match('/^[0-9]*$/', $m->values['number of biospies (optional)'], $matches)) {
 		Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']['Number of biospies: wrong format'][] = "Integer expected. See value [".$m->values['number of biospies (optional)']."] at line ".$m->line.".";
 		$m->values['number of biospies (optional)'] = '';

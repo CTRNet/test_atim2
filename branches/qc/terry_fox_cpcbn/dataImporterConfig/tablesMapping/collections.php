@@ -62,8 +62,8 @@ function getCollectionSite($values) {
 }
 
 function dxCollectionPostWrite(Model $m){
-	createTissue($m->last_id, 'normal', isset($m->values['Sample ID number'])? $m->values['Sample ID number'] : '-');
-	createTissue($m->last_id, 'tumoral',  isset($m->values['Sample ID number'])? $m->values['Sample ID number'] : '-');
+//	createTissue($m->last_id, 'normal', isset($m->values['Sample ID number'])? $m->values['Sample ID number'] : '-');
+//	createTissue($m->last_id, 'tumoral',  isset($m->values['Sample ID number'])? $m->values['Sample ID number'] : '-');
 	return true;
 }
 	
