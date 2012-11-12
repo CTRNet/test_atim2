@@ -102,3 +102,5 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=
 INSERT INTO i18n (id,en) VALUES 
 ('age at diagnosis has been calculated with at least one unaccuracy date','Age at diagnosis has been calculated with at least one unaccuracy date'),
 ('unable to calculate age at diagnosis','Unable to calculate age at diagnosis');
+
+UPDATE versions SET build_number = '4999' WHERE version_number = '2.5.3';
