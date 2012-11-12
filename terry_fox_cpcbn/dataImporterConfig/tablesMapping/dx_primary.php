@@ -17,7 +17,8 @@ $fields = array(
 	'dx_date' 				=> 'Date of diagnostics Date',
 	'dx_date_accuracy'		=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	'diagnosis_control_id'	=> '#diagnosis_control_id', //CPCBN dx
-	'age_at_dx' 			=> 'Age at Time of Diagnosis (yr)'
+//	'age_at_dx' 			=> 'Age at Time of Diagnosis (yr)'
+	'age_at_dx' 			=> '#age_at_dx'	
 );
 
 $detail_fields = array(
@@ -59,6 +60,7 @@ $model->custom_data = array(
 );
 
 $model->post_read_function = 'postDxRead';
+$model->insert_condition_function = 'preDxWrite';
 $model->post_write_function = 'postDxWrite';
 Config::addModel($model, 'dx_primary');
 
@@ -72,18 +74,18 @@ function postDxRead(Model $m){
 	}
 	$m->custom_data['previous_line'] = $m->line;
 	
-	if($m->custom_data['hormonorefractory status status'] != 'HR') $m->custom_data['hormonorefractory status status'] = 'not HR';
+	if($m->values['hormonorefractory status status'] != 'HR') $m->values['hormonorefractory status status'] = 'not HR';
 	
 	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
 	excelDateFix($m);
 	
-	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['Age at Time of Diagnosis (yr)'], $matches)) {
-		Config::$summary_msg['diagnosis: primary']['@@WARNING@@']['Age at Time of Diagnosis: wrong format'][] = "Decimal expected. See value [".$m->values['Age at Time of Diagnosis (yr)']."] at line ".$m->line.".";
-		$m->values['Age at Time of Diagnosis (yr)'] = '';
-	} else if(isset($matches[2])) {
-		Config::$summary_msg['diagnosis: primary']['@@MESSAGE@@']['Age at Time of Diagnosis: decimal'][] = "See value [".$m->values['Age at Time of Diagnosis (yr)']."] changed to [".$matches[1]."] at line ".$m->line.".";
-		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
-	}
+// 	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['Age at Time of Diagnosis (yr)'], $matches)) {
+// 		Config::$summary_msg['diagnosis: primary']['@@WARNING@@']['Age at Time of Diagnosis: wrong format'][] = "Decimal expected. See value [".$m->values['Age at Time of Diagnosis (yr)']."] at line ".$m->line.".";
+// 		$m->values['Age at Time of Diagnosis (yr)'] = '';
+// 	} else if(isset($matches[2])) {
+// 		Config::$summary_msg['diagnosis: primary']['@@MESSAGE@@']['Age at Time of Diagnosis: decimal'][] = "See value [".$m->values['Age at Time of Diagnosis (yr)']."] changed to [".$matches[1]."] at line ".$m->line.".";
+// 		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
+// 	}
 	$m->values['pTNM'] =str_replace(array('III','II','I'), array('3','2','1'),$m->values['pTNM']);
 	$m->values['Gleason score at biopsy'] =str_replace(array('.00'), array(''),$m->values['Gleason score at biopsy']);
 	$m->values['Gleason sum RP'] =str_replace(array('.00'), array(''),$m->values['Gleason sum RP']);
@@ -104,6 +106,11 @@ function postDxRead(Model $m){
 	
 	$m->custom_data['last_pkey'] = $m->values['Patient # in biobank'];
 		
+	return true;
+}
+
+function preDxWrite(Model $m){
+	$m->values['age_at_dx'] = getAgeAtDx($m->parent_model->values['Date of Birth Date'], $m->parent_model->values['Date of Birth Accuracy'], $m->values['Date of diagnostics Date'], $m->values['Date of diagnostics Accuracy'], 'diagnosis: primary', $m->line);
 	return true;
 }
 
@@ -182,4 +189,46 @@ function manageManyRows(Model $m){
 			if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		}
 	}
+}
+
+function getAgeAtDx($date_of_birth, $date_of_birth_accuracy, $dx_date, $dx_date_accuracy, $summary_title, $line) {
+	$age_at_dx = '';
+	if(empty($date_of_birth) || empty($dx_date)) {
+		Config::$summary_msg[$summary_title]['@@WARNING@@']['No Age At Dx (empty date)'][] = "Unable to calculate age at dx on empty date. See line $line";
+	} else {
+		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date_of_birth)) die('ERR 998389393 '.$summary_title.' ' .$date_of_birth. ' line '.$line);
+		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$dx_date)) die('ERR 999222999222 '.$summary_title.' ' .$dx_date. ' line '.$line);
+		
+		if(!(in_array($date_of_birth_accuracy, array('','c')) && in_array($dx_date_accuracy, array('','c')))) Config::$summary_msg[$summary_title]['@@WARNING@@']['Age At Dx on unaccuracy date'][] = "Age at dx has been calculated on unaccuracy date. See line $line";
+		
+		$start_date = $date_of_birth.' 00:00:00';
+		$end_date = $dx_date.' 00:00:00';
+		$start = getTimeStamp($start_date);
+		$end = getTimeStamp($end_date);
+		$spent_time = $end - $start;
+			
+		if(($start === false)||($end === false)){
+			die('ERR 007008700 '.$summary_title ."$start_date $end_date  line : $line  ");
+		} else if($spent_time < 0){
+			// Error in the date
+			Config::$summary_msg[$summary_title]['@@ERROR@@']['Age At Dx : date defintion error'][] = "Dx Date < Birth date. See line $line";
+		} else if($spent_time == 0){
+			// Nothing to change to $arr_spent_time
+			$age_at_dx = '0';
+		} else {
+			// Return spend time
+			$age_at_dx = substr($end_date, 0, 4)  - substr($start_date, 0, 4);
+			if(strtotime($end_date) < strtotime(substr($end_date, 0, 4).substr($start_date, 4))) $age_at_dx --;
+		}
+	}
+	
+	return $age_at_dx;
+}
+
+function getTimeStamp($date_string){
+	list($date, $time) = explode(' ', $date_string);
+	list($year, $month, $day) = explode('-', $date);
+	list($hour, $minute, $second) = explode(':',$time);
+
+	return mktime($hour, $minute, $second, $month, $day, $year);
 }

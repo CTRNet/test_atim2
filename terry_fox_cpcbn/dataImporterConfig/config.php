@@ -25,7 +25,8 @@ class Config{
 	
 	//if reading excel file
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 Test TMA validated20121105.xls';
+//	old static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 Test TMA validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 date modif.xls';	
 //	static $use_windows_xls_offset = false;
 	
 //	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-Saad 1-100 validated20121105.xls';
@@ -34,7 +35,8 @@ class Config{
 //	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe 1-119 validated20121105.xls';
 //	static $use_windows_xls_offset = true;
 	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA sans 305 validated20121105.xls';
+//	old static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA sans 305 validated20121105.xls';
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA +patient 10.xls';
 //	static $use_windows_xls_offset = true;
 	
 //	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/Mcgill 101-150 validated20121105.xls';
@@ -152,8 +154,6 @@ function addonFunctionStart(){
 
 echo "<FONT COLOR=\"red\" >Nettoyer les collections... Elles sont temporaires pour démo</FONT>".Config::$line_break_tag."";
 
-calculer age at dx
-
 	echo Config::$line_break_tag."<FONT COLOR=\"red\" >Check config var use_windows_xls_offset for each import : date format issue</FONT>".Config::$line_break_tag.Config::$line_break_tag;
 
 	$query = "SELECT id, name FROM banks";
@@ -263,7 +263,8 @@ function addonFunctionEnd(){
 		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL AND parent_id IS NULL;",
 		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
 		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';",
-		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';");
+		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';",
+		"UPDATE diagnosis_masters SET age_at_dx = NULL WHERE age_at_dx LIKE '0';");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
