@@ -247,7 +247,8 @@ function postCollectionWrite(Model $m){
 		Database::insertRev('sample_masters', $sample_master_id);
 		
 		$insert = array(
-			"sample_master_id"	=> $sample_master_id
+			"sample_master_id"	=> $sample_master_id,
+			"collected_volume_unit" => "'ml'"
 		);
 		$query = "INSERT INTO sd_spe_ascites (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
