@@ -51,23 +51,10 @@ class Config{
 	static $consent_control_id = null;
 	static $event_controls = array();	
 	static $sample_aliquot_controls = array();
-	
 	static $participant_collections = array();
 	static $next_sample_code = 0;
 	static $storage_controls = array();
-	
-// 	static $diagnosis_controls = array();
-// 	static $treatment_controls = array();
-// 	static $event_controls = array();
-// 	
-	
-// 	static $cytoreduction_values = array();
-	
-// 	static $ids_from_frsq_nbr = array();
-// 	static $participant_id_from_ov_nbr = array();
-// 	static $ovary_surgery_id_from_participant_id = array();
-	
-//	static $data_for_import_from_participant_id = array();
+	static $storage_id_from_keys = array();
 	
 	static $summary_msg = array();	
 	
@@ -299,7 +286,6 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false/*, 
 	return $record_id;	
 }
 
-
 function getDateAndAccuracy($date, $data_type, $field, $line) {
 	if(empty($date)) {
 		return null;
@@ -324,5 +310,33 @@ function getDateAndAccuracy($date, $data_type, $field, $line) {
 		return null;
 	}	
 }
+
+function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_time, $line) {
+	$formatted_date = "''";
+	$formatted_date_accuracy = "''";
+	$tmp_date = getDateAndAccuracy($date, $data_type, $field_date, $line);
+	if($tmp_date) {
+		$formatted_date = $tmp_date['date'];
+		$formatted_date_accuracy = $tmp_date['accuracy'];
+	} else {
+		if(!empty($time)) Config::$summary_msg[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line]";
+		return null;
+	}
+	
+	if(empty($time)) {
+		return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
+	} else {
+		if($formatted_date_accuracy != 'c') {
+			Config::$summary_msg[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line]";
+			return null;
+		} else if(!preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
+			Config::$summary_msg[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [fields '$field_date' & '$field_time' - line: $line]";
+			return null;
+		} else {
+			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
+		}
+	}
+}
+
 
 ?>
