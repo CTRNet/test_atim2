@@ -61,5 +61,33 @@ ALTER TABLE sd_spe_tissues_revs
 UPDATE structure_fields SET field = 'procure_number_of_slides_collected' WHERE field = 'procure_number_to_slides_collected';
 UPDATE structure_fields SET field = 'procure_number_of_slides_collected_for_procure' WHERE field = 'procure_number_to_slides_collected_for_procure';
 
+ALTER TABLE ad_blocks ADD COLUMN procure_classification varchar(10) DEFAULT null;
+ALTER TABLE ad_blocks_revs ADD COLUMN procure_classification varchar(10) DEFAULT null;
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("procure_block_classification", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'procure block classifications\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('procure block classifications', 1, 10);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'procure block classifications');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('C', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('NC', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('ND', '', '', '1', @control_id, NOW(), NOW(), 1, 1);	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'procure_classification', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name='procure_block_classification') , '0', '', '', '', 'classification', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_classification' AND `type`='select'), '1', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('classification','Classification','Classification');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'procure block classifications');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('NC+C', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'box100', 'position', 'integer', 100, NULL, NULL, NULL, 1, 10, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box100', 1);
+INSERT INTO i18n (id,en,fr) VALUES ('box100','Box100 1-100','Boîte100 1-100');
+UPDATE storage_controls SET coord_x_title = 'column', coord_x_type = 'integer' WHERE storage_type = 'rack16';
 
 

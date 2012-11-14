@@ -41,31 +41,13 @@ function postConsentRead(Model $m){
 	$m->values['consent_control_id'] = Config::$consent_control_id;
 	$m->values['procure_form_identification'] = $m->values['Identification']. ' V01 -CSF1';
 
-	$tmp_consent_signed_date = getDateAndAccuracy($m->values['Date de signature'], 'Consent', 'Date de signature', $m->line);
+	$tmp_consent_signed_date = getDateTimeAndAccuracy($m->values['Date de signature'], $m->values['Heure'], 'Consent', 'Date de signature', 'Heure', $m->line);
 	if($tmp_consent_signed_date) {
-		$m->values['consent_signed_date'] = $tmp_consent_signed_date['date'];
+		$m->values['consent_signed_date'] = $tmp_consent_signed_date['datetime'];
 		$m->values['consent_signed_date_accuracy'] = $tmp_consent_signed_date['accuracy'];
 	} else {
 		$m->values['consent_signed_date'] = "''";
 		$m->values['consent_signed_date_accuracy'] = "''";
-	}
-	
-	if(!empty($m->values['Heure'])) {
-		if($m->values['consent_signed_date_accuracy'] != 'c') {
-			Config::$summary_msg['Consent']['@@ERROR@@']['Time set for an unaccuracy consent signed date'][] = "No date will be imported. See line: ".$m->line;
-			$m->values['consent_signed_date'] = "''";
-			$m->values['consent_signed_date_accuracy'] = "''";
-		
-		} else if(!preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$m->values['Heure'], $matches)) {
-			Config::$summary_msg['Consent']['@@ERROR@@']['Consent signed date time format error'][] = "Format of time '".$m->values['Heure']."' is not supported. No date will be imported. See line: ".$m->line;
-			$m->values['consent_signed_date'] = "''";
-			$m->values['consent_signed_date_accuracy'] = "''";
-		
-		} else {
-			$m->values['consent_signed_date'] .= ' '.$m->values['Heure'];
-		}
-	} else if($m->values['consent_signed_date_accuracy']) {
-		$m->values['consent_signed_date_accuracy'] = 'h';
 	}
 	
 	// Set detail data
