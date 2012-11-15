@@ -1265,5 +1265,12 @@ INSERT INTO structure_formats (`structure_id`, `structure_field_id`, `display_co
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_hb_consents_2012_10')
 AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('contact_if_news_on_hb','contact_if_news_on_other_disease'));
 
+-- add "hepatic peliosis to qc_hb_adjacent_liver_parenchyma
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("hepatic peliosis", "hepatic peliosis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_adjacent_liver_parenchyma"), (SELECT id FROM structure_permissible_values WHERE value="hepatic peliosis" AND language_alias="hepatic peliosis"), "2", "1");
+
+
+
 
 
