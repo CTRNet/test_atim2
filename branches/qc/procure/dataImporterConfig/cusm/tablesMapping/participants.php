@@ -12,6 +12,7 @@ $model = new Model(0, $pkey, $child, false, NULL, NULL, 'participants', $fields)
 
 $model->custom_data = array();
 $model->post_read_function = 'postParticipantRead';
+$model->post_write_function = 'postParticipantWrite';
 
 Config::$models['Participant'] = $model;
 
@@ -22,3 +23,11 @@ function postParticipantRead(Model $m){
 	}
 	return true;
 }
+
+function postParticipantWrite(Model $m){
+	recordParticipantCollection($m->values['Identification'], $m->last_id);
+}
+
+
+
+
