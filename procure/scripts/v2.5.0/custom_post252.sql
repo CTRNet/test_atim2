@@ -90,4 +90,6 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_
 INSERT INTO i18n (id,en,fr) VALUES ('box100','Box100 1-100','Boîte100 1-100');
 UPDATE storage_controls SET coord_x_title = 'column', coord_x_type = 'integer' WHERE storage_type = 'rack16';
 
-
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'box49', 'position', 'integer', 49, NULL, NULL, NULL, 7, 7, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box81', 1);
+INSERT INTO i18n (id,en,fr) VALUES ('box49','Box49 7x7','Boîte49 7x7');
