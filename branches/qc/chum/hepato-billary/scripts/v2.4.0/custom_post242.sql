@@ -1269,7 +1269,9 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('cont
 
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("hepatic peliosis", "hepatic peliosis");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_hb_adjacent_liver_parenchyma"), (SELECT id FROM structure_permissible_values WHERE value="hepatic peliosis" AND language_alias="hepatic peliosis"), "2", "1");
-
+INSERT INTO i18n (id,en) VALUES ("hepatic peliosis","Hepatic Peliosis");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="0" WHERE svd.domain_name='qc_hb_adjacent_liver_parenchyma' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="1" WHERE svd.domain_name='qc_hb_adjacent_liver_parenchyma' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="steatosis" AND language_alias="steatosis");
 
 
 
