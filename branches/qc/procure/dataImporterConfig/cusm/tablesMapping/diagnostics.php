@@ -97,7 +97,7 @@ function postDiagnosticRead(Model $m){
 		$val_to_test = $m->values[utf8_decode($field_to_test)];
 		if(strlen($val_to_test) && $val_to_test != 'non') {
 			if(!preg_match('/^([0-9]+)([\.\,][0-9]+){0,1}$/', $val_to_test)) {
-				Config::$summary_msg['Diagnostic']['@@ERROR@@']['Wrong float value'][] = "Value '$val_to_test' for field '".utf8_encode($field_to_test)."' is not a float. See line: ".$m->line;
+				Config::$summary_msg['Diagnostic']['@@ERROR@@']['Wrong float value'][] = "Value '$val_to_test' for field '$field_to_test' is not a float. See line: ".$m->line;
 				$m->values[utf8_decode($field_to_test)] = '';
 			}
 		} else {
@@ -172,7 +172,7 @@ function postDiagnosticRead(Model $m){
 		$m->values['collected_cores_nbr'] = $col_nbr;
 	} else if(strlen($received_nbr)) {
 		$m->values['collected_cores_nbr'] = $received_nbr;
-		Config::$summary_msg['Diagnostic']['@@MESSAGE@@']['Used cores received instead cores collected'][] = "Field '".utf8_decode("Nombre total de zones prélevées")."' was empty so used field 'Nombre total de fragments reçus' to define number of collected core in db. See line: ".$m->line;
+		Config::$summary_msg['Diagnostic']['@@MESSAGE@@']['Used cores received instead cores collected'][] = "Field 'Nombre total de zones prélevées' was empty so used field 'Nombre total de fragments reçus' to define number of collected core in db. See line: ".$m->line;
 	}
 	if(strlen($col_nbr_with_cancer)) {
 		$m->values['nbr_of_cores_with_cancer'] = $col_nbr_with_cancer;

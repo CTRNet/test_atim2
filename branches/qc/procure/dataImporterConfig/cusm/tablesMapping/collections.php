@@ -477,7 +477,7 @@ function getStorageData($storage, $sample_suffix, $visit, $warning_summary_msg_t
 				// storage 2-3-4-1-1-53 freez 2 tablette 3 rack 4 position(1-1) boite VO2 plasma ou serum to 4-4 boite dont tube a position 53
 				$tmp_storages = explode('-',$storage);
 				if(sizeof($tmp_storages) != 6) { 
-					Config::$summary_msg[$warning_summary_msg_title]['@@ERROR@@']['Wrong storage defintion'][] = "Too many values (separated by '-') in storage data. ALiquot won't be linked to a storage. See value '$storage' for field '$field' at line $line_counter";
+					Config::$summary_msg[$warning_summary_msg_title]['@@ERROR@@']['Wrong storage defintion'][] = "Too many values (separated by '-') in storage data. Aliquot won't be linked to a storage. See value '$storage' for field '$field' at line $line_counter";
 					return $res;
 				}
 				if(!preg_match('/^([1234])$/', $tmp_storages[3])) {

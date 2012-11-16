@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CUSM';
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/procure/data/cusm/Donnees_cusm_2012.xls";
+	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/procure/data/cusm/Donnees_cusm_2012_v2.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -220,6 +220,7 @@ function addonFunctionEnd(){
 
 	
 	if(!empty(Config::$participant_collections)) {
+		pr(Config::$participant_collections);
 		die('ERR 88383838292');
 	}
 	
@@ -244,7 +245,7 @@ function addonFunctionEnd(){
 						echo "...<br>";
 						break;
 					}
-					echo "$msg<br>";
+					echo utf8_decode($msg)."<br>";
 				}
 			}
 		}	
@@ -261,7 +262,7 @@ function addonFunctionEnd(){
 						echo "...<br>";
 						break;
 					}
-					echo "$msg<br>";
+					echo utf8_decode($msg)."<br>";
 				}
 			}
 		}	
@@ -278,7 +279,7 @@ function addonFunctionEnd(){
 						echo "...<br>";
 						break;
 					}
-					echo "$msg<br>";
+					echo utf8_decode($msg)."<br>";
 				}
 			}
 		}

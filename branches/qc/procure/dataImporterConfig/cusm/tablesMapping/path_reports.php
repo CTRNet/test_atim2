@@ -224,7 +224,7 @@ function postPathReportRead(Model $m){
 		$val_to_test = $m->values[utf8_decode($field_to_test)];
 		if(strlen($val_to_test) && $val_to_test != 'non') {
 			if(!preg_match('/^([0-9]+)([\.\,][0-9]+){0,1}$/', $val_to_test)) {
-				Config::$summary_msg['Patho Report']['@@ERROR@@']['Wrong float value'][] = "Value '$val_to_test' for field '".utf8_encode($field_to_test)."' is not a float. See line: ".$m->line;
+				Config::$summary_msg['Patho Report']['@@ERROR@@']['Wrong float value'][] = "Value '$val_to_test' for field '".utf8_decode($field_to_test)."' is not a float. See line: ".$m->line;
 				$m->values[utf8_decode($field_to_test)] = '';
 			}		
 		} else {
