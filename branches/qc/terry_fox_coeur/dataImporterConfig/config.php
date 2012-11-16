@@ -129,6 +129,7 @@ function mainDxCondition(Model $m){
 }
 
 function addonFunctionStart(){
+	
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -136,7 +137,10 @@ function addonFunctionStart(){
 	source_file = $file_path<br>
 	<br>=====================================================================
 	</FONT><br>";
-	
+
+echo "<br><FONT COLOR=\"red\" >Test and change to be v2.5 compliant</FONT><br>";
+exit;
+
 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
