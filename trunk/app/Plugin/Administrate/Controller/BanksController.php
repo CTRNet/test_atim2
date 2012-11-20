@@ -56,7 +56,7 @@ class BanksController extends AdministrateAppController {
 		if($this->Bank->isBeingUsed($bank_id)){
 			$this->flash( 'this bank is being used and cannot be deleted', '/Administrate/Banks/detail/'.$bank_id."/" );
 		}else{
-			$this->Bank->del( $bank_id );
+			$this->Bank->atimDelete( $bank_id );
 			$this->atimFlash( 'your data has been deleted', '/Administrate/Banks/index' );
 		}
 	}

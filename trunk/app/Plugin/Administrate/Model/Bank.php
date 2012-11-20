@@ -39,7 +39,7 @@ class Bank extends AdministrateAppModel {
 	}
 	
 	function isBeingUsed($bank_id){
-		$this->Group = AppModel::getInstance("Administrate", "Group", true);
+		$this->Group = AppModel::getInstance("", "Group", true);
 		$data = $this->Group->find('first', array('conditions' => array('Group.bank_id' => $bank_id)));
 		return !empty($data);
 	}
