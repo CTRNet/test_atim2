@@ -52,12 +52,22 @@ class BanksController extends AdministrateAppController {
 	}
 	
 	function delete( $bank_id ) {
-		$this->hook();
-		if($this->Bank->isBeingUsed($bank_id)){
-			$this->flash( 'this bank is being used and cannot be deleted', '/Administrate/Banks/detail/'.$bank_id."/" );
-		}else{
-			$this->Bank->atimDelete( $bank_id );
-			$this->atimFlash( 'your data has been deleted', '/Administrate/Banks/index' );
+		$arr_allow_deletion = $this->Bank->allowDeletion($bank_id);
+		
+		// CUSTOM CODE
+		$hook_link = $this->hook();
+		if ($hook_link) {
+			require($hook_link);
+		}
+		
+		if ($arr_allow_deletion['allow_deletion']) {
+			if ($this->Bank->atimDelete( $bank_id )) {
+				$this->atimFlash( 'your data has been deleted', '/Administrate/Banks/index');
+			} else {
+				$this->flash( 'error deleting data - contact administrator', '/Administrate/Banks/index');
+			}
+		} else {
+			$this->flash(__('this bank is being used and cannot be deleted').': '.__($arr_allow_deletion['msg']),  '/Administrate/Banks/detail/'.$bank_id."/");
 		}
 	}
 }
