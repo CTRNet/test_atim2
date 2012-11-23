@@ -139,6 +139,8 @@ function addonFunctionStart(){
 	</FONT><br>";
 
 echo "<br><FONT COLOR=\"red\" >Test and change to be v2.5 compliant</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >Manage aliquot label and bank_id deleted from collection</FONT><br>";
+echo "<br><FONT COLOR=\"red\" >Mettre une message si psa d'inventaire créé</FONT><br>";
 exit;
 
 	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
