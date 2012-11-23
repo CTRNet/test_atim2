@@ -1,6 +1,2 @@
-<?php 
-
-	unset($final_options['links']['bottom']['print barcode']);
+<?php
 	unset($structure_links['bottom']['print barcode']);
-	
-?>
