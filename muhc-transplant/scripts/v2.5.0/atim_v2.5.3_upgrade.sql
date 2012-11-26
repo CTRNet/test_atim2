@@ -9,3 +9,7 @@ CREATE VIEW `view_structure_formats_simplified` AS select `str`.`alias` AS `stru
 from (((`structure_formats` `sfo` join `structure_fields` `sfi` on((`sfo`.`structure_field_id` = `sfi`.`id`))) 
 join `structures` `str` on((`str`.`id` = `sfo`.`structure_id`))) 
 left join `structure_value_domains` `svd` on((`svd`.`id` = `sfi`.`structure_value_domain`)));
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('at least one collection is linked to that bank', 'At least one collection is linked to that bank', 'Au moins une collection est attachée à cette banque'),
+('at least one group is linked to that bank', 'At least one group is linked to that bank', 'Au moins un groupe est attaché à cette banque');

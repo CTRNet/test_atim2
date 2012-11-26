@@ -96,6 +96,7 @@ class ViewAliquot extends InventoryManagementAppModel {
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+LEFT JOIN misc_identifiers MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id and MiscIdentifier.deleted <> 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
 	static $min_value_fields = array('coll_to_stor_spent_time_msg', 'rec_to_stor_spent_time_msg', 'creat_to_stor_spent_time_msg');
