@@ -40,14 +40,16 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_cell_tubes' AND `field`='concentration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_concentration_unit') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='cell_viability' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- New request: 2012-11-22 add aliquot label
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
 -- Done 20121122
 
 ALTER TABLE qc_tf_ed_ca125s MODIFY precision_u decimal(10,2) DEFAULT NULL;
 ALTER TABLE qc_tf_ed_ca125s_revs MODIFY precision_u decimal(10,2) DEFAULT NULL;
 
 -- TODO 20121122
-
-UPDATE versions SET permissions_regenerated = 0;
 
 SELECT participant_id as id_of_part_having_more_than_one_ident, nbr_of_ids FROM (SELECT COUNT(*) as nbr_of_ids, participant_id FROM misc_identifiers GROUP BY participant_id) AS res WHERE res.nbr_of_ids > 1;
 
@@ -138,6 +140,9 @@ UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structur
 
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE model = 'AliquotMaster' AND field = 'aliquot_label'), 'notEmpty', "");
 
+SELECT 'next section should be done after view rebuild' as MSG;
+exit
+
 UPDATE aliquot_masters am, view_aliquots va, banks
 SET am.aliquot_label = CONCAT('FFPE', ' ', va.qc_tf_bank_identifier, '[', banks.name, ']')
 WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
@@ -174,13 +179,168 @@ WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
 AND va.sample_type = 'serum'
 AND va.aliquot_type = 'tube';
 
-SELECT id as aliquot_master_id_with_no_aliquot_label FROM aliquot_masters WHERE aliquot_label = '' OR aliquot_label IS NULL AND deleted <> 1;
+UPDATE versions SET permissions_regenerated = 0;
+
+SELECT al.id as aliquot_master_id_with_no_aliquot_label, col.id as collection_id, col.participant_id, col.deleted as col_deleted, al.deleted AS aliquot_deleted
+FROM aliquot_masters al 
+INNER JOIN collections col ON al.collection_id = col.id
+WHERE (al.aliquot_label = '' OR al.aliquot_label IS NULL) AND al.deleted <> 1;
 
 UPDATE structure_formats SET `flag_index`='1', `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_tf_bank_id');
 
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE model = 'Participant' AND field = 'qc_tf_bank_identifier'), 'notEmpty', "");
 
-Ajouter control pour verifier que bank-identifiant unique dans le code et dans le importer
+
+DROP VIEW IF EXISTS view_aliquot_uses;
+DROP TABLE IF EXISTS view_aliquot_uses;
+
+CREATE VIEW `view_aliquot_uses` AS 
+
+SELECT concat(`source`.`id`,1) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'sample derivative creation' AS `use_definition`,
+	CONCAT(sampc.sample_type, ' [', samp.sample_code,']') AS `use_code`,
+'' AS `use_details`,
+`source`.`used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`der`.`creation_datetime` AS `use_datetime`,
+`der`.`creation_datetime_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`der`.`creation_by` AS `used_by`,
+`source`.`created` AS `created`,
+concat('inventorymanagement/aliquot_masters/listAllSourceAliquots/',`samp`.`collection_id`,'/',`samp`.`id`) AS `detail_url`,
+`samp2`.`id` AS `sample_master_id`,
+`samp2`.`collection_id` AS `collection_id` 
+FROM `source_aliquots` `source` 
+JOIN `sample_masters` `samp` ON `samp`.`id` = `source`.`sample_master_id` AND `samp`.`deleted` <> 1
+JOIN `sample_controls` `sampc` ON `sampc`.`id` = `samp`.`sample_control_id`
+JOIN `derivative_details` `der` ON `samp`.`id` = `der`.`sample_master_id` 
+JOIN `aliquot_masters` `aliq` ON `aliq`.`id` = `source`.`aliquot_master_id` AND `aliq`.`deleted` <> 1
+JOIN `aliquot_controls` `aliqc` ON `aliq`.`aliquot_control_id` = `aliqc`.`id`
+JOIN `sample_masters` `samp2` ON `samp2`.`id` = `aliq`.`sample_master_id` AND `samp`.`deleted` <> 1 WHERE `source`.`deleted` <> 1
+			
+UNION ALL
+ 
+SELECT concat(`realiq`.`id`,2) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'realiquoted to' AS `use_definition`,
+CONCAT(child.aliquot_label,' [',child.barcode,']')  AS `use_code`,
+'' AS `use_details`,
+`realiq`.`parent_used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`realiq`.`realiquoting_datetime` AS `use_datetime`,
+`realiq`.`realiquoting_datetime_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`realiq`.`realiquoted_by` AS `used_by`,
+`realiq`.`created` AS `created`,
+concat('/inventorymanagement/aliquot_masters/listAllRealiquotedParents/',`child`.`collection_id`,'/',`child`.`sample_master_id`,'/',`child`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM ((((`realiquotings` `realiq` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `realiq`.`parent_aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `aliquot_masters` `child` ON (((`child`.`id` = `realiq`.`child_aliquot_master_id`) AND (`child`.`deleted` <> 1)))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`realiq`.`deleted` <> 1) 
+
+UNION ALL 
+
+SELECT concat(`qc`.`id`,3) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'quality control' AS `use_definition`,
+`qc`.`qc_code` AS `use_code`,
+'' AS `use_details`,
+`qc`.`used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`qc`.`date` AS `use_datetime`,
+`qc`.`date_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`qc`.`run_by` AS `used_by`,
+`qc`.`created` AS `created`,
+concat('/inventorymanagement/quality_ctrls/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`qc`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`quality_ctrls` `qc` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `qc`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`qc`.`deleted` <> 1)
+
+UNION ALL 
+
+SELECT concat(`item`.`id`,4) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'aliquot shipment' AS `use_definition`,
+CONCAT(sh.shipment_code, ' - ', sh.recipient) AS `use_code`,
+'' AS `use_details`,
+'' AS `used_volume`,
+'' AS `aliquot_volume_unit`,
+`sh`.`datetime_shipped` AS `use_datetime`,
+`sh`.`datetime_shipped_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+`sh`.`shipped_by` AS `used_by`,
+`sh`.`created` AS `created`,
+concat('/order/shipments/detail/',`sh`.`order_id`,'/',`sh`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`order_items` `item` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `item`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `shipments` `sh` ON (((`sh`.`id` = `item`.`shipment_id`) AND (`sh`.`deleted` <> 1)))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`item`.`deleted` <> 1) 
+
+UNION ALL 
+
+SELECT concat(`alr`.`id`,5) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+'specimen review' AS `use_definition`,
+`spr`.`review_code` AS `use_code`,
+'' AS `use_details`,
+'' AS `used_volume`,
+'' AS `aliquot_volume_unit`,
+`spr`.`review_date` AS `use_datetime`,
+`spr`.`review_date_accuracy` AS `use_datetime_accuracy`,
+'' AS `duration`,
+'' AS `duration_unit`,
+'' AS `used_by`,
+`alr`.`created` AS `created`,
+concat('/inventorymanagement/specimen_reviews/detail/',`aliq`.`collection_id`,'/',`aliq`.`sample_master_id`,'/',`spr`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`aliquot_review_masters` `alr` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `alr`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `specimen_review_masters` `spr` ON (((`spr`.`id` = `alr`.`specimen_review_master_id`) AND (`spr`.`deleted` <> 1)))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`alr`.`deleted` <> 1) 
+
+UNION ALL 
+
+SELECT concat(`aluse`.`id`,6) AS `id`,
+`aliq`.`id` AS `aliquot_master_id`,
+`aluse`.`type` AS `use_definition`,
+`aluse`.`use_code` AS `use_code`,
+`aluse`.`use_details` AS `use_details`,
+`aluse`.`used_volume` AS `used_volume`,
+`aliqc`.`volume_unit` AS `aliquot_volume_unit`,
+`aluse`.`use_datetime` AS `use_datetime`,
+`aluse`.`use_datetime_accuracy` AS `use_datetime_accuracy`,
+`aluse`.`duration` AS `duration`,
+`aluse`.`duration_unit` AS `duration_unit`,
+`aluse`.`used_by` AS `used_by`,
+`aluse`.`created` AS `created`,
+concat('/inventorymanagement/aliquot_masters/detailAliquotInternalUse/',`aliq`.`id`,'/',`aluse`.`id`) AS `detail_url`,
+`samp`.`id` AS `sample_master_id`,
+`samp`.`collection_id` AS `collection_id` 
+FROM (((`aliquot_internal_uses` `aluse` 
+JOIN `aliquot_masters` `aliq` ON (((`aliq`.`id` = `aluse`.`aliquot_master_id`) AND (`aliq`.`deleted` <> 1)))) 
+JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`))) 
+JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
+WHERE (`aluse`.`deleted` <> 1);
+
 
 
 
