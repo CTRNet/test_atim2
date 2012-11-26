@@ -15,7 +15,7 @@ class MiscIdentifierCustom extends MiscIdentifier {
 			return $arr_allow_deletion;
 		}
 	
-		return parent::allowDeletion($event_master_id);
+		return parent::allowDeletion($id);
 	}
 }
 
