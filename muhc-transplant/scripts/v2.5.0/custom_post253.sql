@@ -100,6 +100,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en) VALUES ('bank/project irb', 'IRB/REB#'),('at least one participant is linked to that bank','At least one participant is linked to that bank');
 INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='muhc_participant_bank_id'), 'notEmpty');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en) VALUES ('when other precaution exists, both other check box and specify text box should be completed',"When other precaution exists, both 'Other' check box and 'Specify' text box should be completed.");
+
 -- --------------------------------------------------------------------------------------------------------------------------
 -- Identifier
 -- --------------------------------------------------------------------------------------------------------------------------
@@ -113,6 +117,166 @@ VALUES
 (NULL , 'participant coded identifier', '1', '0', '', NULL , '0', '0', '0', '0', '', ''),
 (NULL , 'quebec transplant qtx#', '1', '0', '', NULL , '0', '0', '0', '0', '', '');
 INSERT INTO i18n (id,en) VALUES ('participant coded identifier','Participant Coded Identifier'),('quebec transplant qtx#','Quebec Transplant QTX#');
+
+INSERT INTO structures(`alias`) VALUES ('muhc_coded_identifiers_summary');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', '0', '', 'coded_identifiers', 'textarea',  NULL , '0', '', '', '', 'coded identifiers', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_coded_identifiers_summary'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='coded_identifiers'), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO i18n (id,en) VALUES ('coded identifiers','Coded Identifiers');
+
+-- --------------------------------------------------------------------------------------------------------------------------
+-- Biopsy/Transplant/...
+-- --------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `treatment_controls` (`tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `extend_tablename`, `extend_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+('transplant', 'muhc', 1, 'muhc_txd_transplants', 'muhc_txd_transplants', NULL, NULL, 0, NULL, NULL, 'transplant', 1),
+('transplant explant', 'muhc', 1, 'muhc_txd_transplants', 'muhc_txd_transplants', NULL, NULL, 0, NULL, NULL, 'transplant explant', 1),
+('transplant biopsy sampling', 'muhc', 1, 'muhc_txd_transplants', 'muhc_txd_transplant_biopsies', NULL, NULL, 0, NULL, NULL, 'transplant biopsy sampling', 1),
+('biopsy', 'muhc', 1, 'muhc_txd_biopsies', 'muhc_txd_biopsies', NULL, NULL, 0, NULL, NULL, 'biopsy', 1),
+('perfused liver', 'muhc', 1, 'muhc_txd_perfused_livers', 'muhc_txd_perfused_livers', NULL, NULL, 0, NULL, NULL, 'perfused liver', 1),
+('resection', 'muhc', 1, 'muhc_resections', 'muhc_resections', NULL, NULL, 0, NULL, NULL, 'resection', 1);
+
+CREATE TABLE IF NOT EXISTS `muhc_txd_transplants` (
+  `clamp_time` TIME DEFAULT NULL,
+  `biopsy_type` VARCHAR(50) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `muhc_txd_transplants_revs` (
+  `clamp_time` TIME DEFAULT NULL,
+  `biopsy_type` VARCHAR(50) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+ALTER TABLE `muhc_txd_transplants`
+  ADD CONSTRAINT `muhc_txd_transplants_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT structure_value_domains (domain_name,source) VALUES ('muhc_transplant_biopsies', "StructurePermissibleValuesCustom::getCustomDropdown('transplant biopsy type')");
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('transplant biopsy type', '1', '50');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'transplant biopsy type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('tru cut', 'Tru Cut', '', '1', @control_id),
+('tru cut of each segment', 'Tru Cut of each segment', '', '1', @control_id),
+('wedge biopsy', 'Wedge Biopsy', '', '1', @control_id),
+('cubes', 'Cubes', '', '1', @control_id); 
+INSERT INTO structures(`alias`) VALUES ('muhc_txd_transplant_biopsies');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_transplants', 'clamp_time', 'time',  NULL , '0', '', '', '', 'clamp time', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_transplants', 'biopsy_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_transplant_biopsies') , '0', '', '', '', 'biopsy type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_txd_transplant_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_transplants' AND `field`='clamp_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clamp time' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_txd_transplant_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_transplants' AND `field`='biopsy_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_transplant_biopsies')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy type' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES
+('clamp time','Clamp Time'),
+('biopsy type','Biopsy Type'),
+('transplant', 'Transplant'),
+('transplant explant', 'Transplant Explant'),
+('transplant biopsy sampling', 'Transplant Biopsy Sampling');
+INSERT INTO structures(`alias`) VALUES ('muhc_txd_transplants');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_txd_transplants'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_transplants' AND `field`='clamp_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clamp time' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+
+CREATE TABLE IF NOT EXISTS `muhc_txd_biopsies` (
+  `biopsy_type` VARCHAR(50) DEFAULT NULL,
+  `biopsy_type_precision` VARCHAR(50) DEFAULT NULL,
+  `gauge_nbr` VARCHAR(30) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `muhc_txd_biopsies_revs` (
+  `biopsy_type` VARCHAR(50) DEFAULT NULL,
+  `biopsy_type_precision` VARCHAR(50) DEFAULT NULL,
+  `gauge_nbr` VARCHAR(30) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+ALTER TABLE `muhc_txd_biopsies`
+  ADD CONSTRAINT `muhc_txd_biopsies_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT structure_value_domains (domain_name,source) VALUES 
+('muhc_biopsy_type', "StructurePermissibleValuesCustom::getCustomDropdown('biopsy type')"),
+('muhc_biopsy_type_precision', "StructurePermissibleValuesCustom::getCustomDropdown('biopsy type precision')");
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('biopsy type', '1', '50'),('biopsy type precision', '1', '50');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'biopsy type');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('percutaneous', 'Percutaneous', '', '1', @control_id),
+('transjugular', 'Transjugular', '', '1', @control_id),
+('intraoperative', 'Intraoperative', '', '1', @control_id); 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'biopsy type precision');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('na', 'NA', '', '1', @control_id),
+('ultrasound guided', 'Ultrasound guided', '', '1', @control_id),
+('ct guided', 'CT guided', '', '1', @control_id),
+('open', 'Open', '', '1', @control_id),
+('laparoscopic', 'Laparoscopic', '', '1', @control_id); 
+INSERT INTO structures(`alias`) VALUES ('muhc_txd_biopsies');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_biopsies', 'biopsy_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type') , '0', '', '', '', 'biopsy type', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_biopsies', 'biopsy_type_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type_precision') , '0', '', '', '', '', 'biopsy type precision'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_biopsies', 'gauge_nbr', 'input',  NULL , '0', 'size=10', '', '', 'gauge nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_txd_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_biopsies' AND `field`='biopsy_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy type' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_txd_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_biopsies' AND `field`='biopsy_type_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='biopsy type precision'), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_txd_biopsies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_biopsies' AND `field`='gauge_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='gauge nbr' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES
+('biopsy type precision','-'),
+('gauge nbr','Gauge#'),
+('biopsy','Biopsy');
+
+CREATE TABLE IF NOT EXISTS `muhc_txd_perfused_livers` (
+   duration_of_perfusion_mn int(6) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `muhc_txd_perfused_livers_revs` (
+   duration_of_perfusion_mn int(6) DEFAULT NULL,
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+ALTER TABLE `muhc_txd_perfused_livers`
+  ADD CONSTRAINT `muhc_txd_perfused_livers_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('muhc_txd_perfused_livers');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_perfused_livers', 'duration_of_perfusion_mn', 'input',  NULL , '0', 'size=6', '', '', 'duration of perfusion mn', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_txd_perfused_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_perfused_livers' AND `field`='duration_of_perfusion_mn' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='duration of perfusion mn' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('duration of perfusion mn','Duration of perfusion (mn)'),('perfused liver','Perfused Liver');
+ALTER TABLE muhc_txd_perfused_livers ADD COLUMN person_perfusing VARCHAR(50) DEFAULT NULL;
+ALTER TABLE muhc_txd_perfused_livers_revs ADD COLUMN person_perfusing VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_txd_perfused_livers', 'person_perfusing', 'input',  NULL , '0', 'size=30', '', '', 'person perfusing', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_txd_perfused_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_txd_perfused_livers' AND `field`='person_perfusing' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='person perfusing' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('person perfusing','Person Perfusing');
+
+CREATE TABLE IF NOT EXISTS `muhc_resections` (
+   ischemia char(1) DEFAULT '',
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `muhc_resections_revs` (
+   ischemia char(1) DEFAULT '',
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+ALTER TABLE `muhc_resections`
+  ADD CONSTRAINT `muhc_resections_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('muhc_resections');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'muhc_resections', 'ischemia', 'yes_no',  NULL , '0', '', '', '', 'ischemia', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_resections'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='muhc_resections' AND `field`='ischemia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ischemia' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('ischemia','Ischemia'),('resection','Resection'),('muhc','MUHC');
 
 -- --------------------------------------------------------------------------------------------------------------------------
 -- Clinical Collection Link
@@ -392,74 +556,36 @@ ALTER TABLE sd_spe_tissues
 ALTER TABLE sd_spe_tissues_revs
   ADD COLUMN muhc_surgeon_radiologist VARCHAR(50) DEFAULT NULL;
 
-INSERT structure_value_domains (domain_name,source) VALUES ('muhc_surgeon_pathologist', "StructurePermissibleValuesCustom::getCustomDropdown('surgeon and pathologist')");
-INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('surgeon and pathologist', '1', '50');
+INSERT structure_value_domains (domain_name,source) VALUES ('muhc_surgeon_radiologist', "StructurePermissibleValuesCustom::getCustomDropdown('surgeon and radiologist')");
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('surgeon and radiologist', '1', '50');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_surgeon_radiologist', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_surgeon_pathologist') , '0', '', '', '', 'surgeon or pathologist', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_surgeon_radiologist', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_surgeon_radiologist') , '0', '', '', '', 'surgeon or radiologist', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_surgeon_radiologist' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_surgeon_pathologist')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgeon or pathologist' AND `language_tag`=''), '0', '499', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en) VALUES ('surgeon or pathologist','Surgeon/Pathologist'); 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_surgeon_radiologist' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_surgeon_radiologist')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surgeon or radiologist' AND `language_tag`=''), '0', '499', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('surgeon or radiologist','Surgeon/Radiologist'); 
 
 ALTER TABLE sd_spe_tissues
   ADD COLUMN muhc_liver_procedure_type VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_clamp_time TIME DEFAULT NULL,
-  ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_biopsy_type VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_biopsy_type_precision VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_gauge_number VARCHAR(30) DEFAULT NULL,
-  ADD COLUMN muhc_liver_duration_of_perfusion_mn int(6) DEFAULT NULL,
-  ADD COLUMN muhc_liver_person_perfusing VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_ischemia char(1) DEFAULT '';  
+  ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL  
 ALTER TABLE sd_spe_tissues_revs
   ADD COLUMN muhc_liver_procedure_type VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_clamp_time TIME DEFAULT NULL,
-  ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_biopsy_type VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_biopsy_type_precision VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_gauge_number VARCHAR(30) DEFAULT NULL,
-  ADD COLUMN muhc_liver_duration_of_perfusion_mn int(6) DEFAULT NULL,
-  ADD COLUMN muhc_liver_person_perfusing VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_ischemia char(1) DEFAULT '';  
+  ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL;  
   
 INSERT structure_value_domains (domain_name,source) VALUES 
 ('muhc_procedure_type', "StructurePermissibleValuesCustom::getCustomDropdown('tissue procedure type')"),
-('muhc_liver_segment', "StructurePermissibleValuesCustom::getCustomDropdown('liver segment')"),
-('muhc_biopsy_type', "StructurePermissibleValuesCustom::getCustomDropdown('biopsy type')"),
-('muhc_biopsy_type_precision', "StructurePermissibleValuesCustom::getCustomDropdown('biopsy type precision')");
+('muhc_liver_segment', "StructurePermissibleValuesCustom::getCustomDropdown('liver segment')");
 INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES 
-('tissue procedure type', '1', '50'),('liver segment', '1', '50'),('biopsy type', '1', '50'),('biopsy type precision', '1', '50');
+('tissue procedure type', '1', '50'),('liver segment', '1', '50');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_procedure_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_procedure_type') , '0', '', '', '', 'procedure type', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_clamp_time', 'time',  NULL , '0', '', '', '', 'clamp time', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_segment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment') , '0', '', '', '', 'liver segment', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_biopsy_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type') , '0', '', '', '', 'biopsy type', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_biopsy_type_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type_precision') , '0', '', '', '', '', 'biopsy type precision'), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_gauge_number', 'input',  NULL , '0', 'size=10', '', '', 'gauge number', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_duration_of_perfusion_mn', 'integer',  NULL , '0', 'size=3', '', '', 'duration of perfusion mn', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_person_perfusing', 'input',  NULL , '0', 'size=30', '', '', 'person perfusing', ''), 
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_ischemia', 'yes_no',  NULL , '0', '', '', '', 'ischemia', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_segment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment') , '0', '', '', '', 'liver segment', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_procedure_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_procedure_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure type' AND `language_tag`=''), '2', '500', 'specific liver data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_clamp_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clamp time' AND `language_tag`=''), '2', '501', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_segment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver segment' AND `language_tag`=''), '2', '502', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_biopsy_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='biopsy type' AND `language_tag`=''), '2', '503', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_biopsy_type_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_biopsy_type_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='biopsy type precision'), '2', '504', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_gauge_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='gauge number' AND `language_tag`=''), '2', '505', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_duration_of_perfusion_mn' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='duration of perfusion mn' AND `language_tag`=''), '2', '506', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_person_perfusing' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='person perfusing' AND `language_tag`=''), '2', '507', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_ischemia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ischemia' AND `language_tag`=''), '2', '508', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_segment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver segment' AND `language_tag`=''), '2', '502', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES
 ('specific liver data','Liver Data'),
-('procedure type','Procedure'),  
-('clamp time','Clamp Time'),
-('liver segment','Liver Segment'),
-('biopsy type','Biopsy Type'),
-('biopsy type precision','-'),
-('gauge number','Gauge#'),
-('duration of perfusion mn','Duration of perfusion (mn)'),
-('person perfusing','Person Perfusing'),
-('ischemia','Ischemia');
+('procedure type','Procedure'), 
+('liver segment','Liver Segment');
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'tissue procedure type');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
@@ -487,25 +613,6 @@ VALUES
 ('6/7', '', '', '1', @control_id),
 ('7', '', '', '1', @control_id),
 ('8', '', '', '1', @control_id); 
-
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'biopsy type');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('percutaneous', 'Percutaneous', '', '1', @control_id),
-('transjugular', 'Transjugular', '', '1', @control_id),
-('intraoperative', 'Percutaneous', '', '1', @control_id),
-('tru cut', 'Tru Cut', '', '1', @control_id),
-('wedge biopsy', 'Wedge Biopsy', '', '1', @control_id),
-('cubes', 'Cubes', '', '1', @control_id); 
-
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'biopsy type precision');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('na', 'NA', '', '1', @control_id),
-('ultrasound guided', 'Ultrasound guided', '', '1', @control_id),
-('ct guided', 'CT guided', '', '1', @control_id),
-('open', 'Open', '', '1', @control_id),
-('laparoscopic', 'Laparoscopic', '', '1', @control_id); 
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(7, 130, 8, 9, 101, 102);
 UPDATE aliquot_controls SET flag_active=false WHERE id IN(9, 33, 10);
@@ -591,10 +698,6 @@ ALTER TABLE sd_spe_bloods_revs
   ADD COLUMN muhc_type_of_blood_draw VARCHAR(50) DEFAULT NULL,
   ADD COLUMN muhc_type_of_blood_draw_precision VARCHAR(50) DEFAULT NULL,
   ADD COLUMN muhc_inverted_8_times CHAR(1) DEFAULT '';
-    
-
-
-
 
 INSERT structure_value_domains (domain_name,source) VALUES 
 ('muhc_type_of_blood_procedure', "StructurePermissibleValuesCustom::getCustomDropdown('type of blood procedure')"),
@@ -621,7 +724,6 @@ VALUES
 ('during anesthesia', 'During Anesthesia', '', '1', @control_id),
 ('unknown', 'Unknown', '', '1', @control_id);
 
-
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'patient status at blood draw precision');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES 
@@ -629,14 +731,12 @@ VALUES
 ('post-incision', 'Post-incision', '', '1', @control_id),
 ('not applicable', 'Not applicable', '', '1', @control_id);
 
-
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'type of blood draw');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES 
 ('venous (arm)', 'Venous (Arm)', '', '1', @control_id),
 ('arterial (arterial line)', 'Arterial (Arterial Line)', '', '1', @control_id),
 ('venous (central line)', 'Venous (Central Line)', '', '1', @control_id);
-
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'type of blood draw precision');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
@@ -669,6 +769,87 @@ INSERT INTO i18n (id,en) VALUES
 UPDATE structure_fields SET language_tag = language_label WHERE field IN ('muhc_patient_status_precision','muhc_type_of_blood_draw_precision');
 UPDATE structure_fields SET language_label = '' WHERE field IN ('muhc_patient_status_precision','muhc_type_of_blood_draw_precision');
 
+UPDATE structure_formats SET `language_heading`='blood draw procedure' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_type_of_procedure' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_type_of_blood_procedure') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2', `display_order`='445' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_inverted_8_times' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='tube information' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='blood_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='blood_type') AND `flag_confidential`='0');
+
+ALTER TABLE sd_spe_bloods
+  ADD COLUMN muhc_storage_time TIME DEFAULT NULL,
+  ADD COLUMN muhc_storage_temperature VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN muhc_storage_temperature_other INT(6) DEFAULT NULL,
+  ADD COLUMN muhc_transport_time TIME DEFAULT NULL,
+  ADD COLUMN muhc_transport_temperature VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN muhc_transport_temperature_other INT(6) DEFAULT NULL;
+ALTER TABLE sd_spe_bloods_revs
+  ADD COLUMN muhc_storage_time TIME DEFAULT NULL,
+  ADD COLUMN muhc_storage_temperature VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN muhc_storage_temperature_other INT(6) DEFAULT NULL,
+  ADD COLUMN muhc_transport_time TIME DEFAULT NULL,
+  ADD COLUMN muhc_transport_temperature VARCHAR(20) DEFAULT NULL,
+  ADD COLUMN muhc_transport_temperature_other INT(6) DEFAULT NULL;
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("muhc_blood_tube_temperature", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("RT", "RT");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="muhc_blood_tube_temperature"), (SELECT id FROM structure_permissible_values WHERE value="RT" AND language_alias="RT"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("4°C", "4°C");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="muhc_blood_tube_temperature"), (SELECT id FROM structure_permissible_values WHERE value="4°C" AND language_alias="4°C"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("on ice", "on ice");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="muhc_blood_tube_temperature"), (SELECT id FROM structure_permissible_values WHERE value="on ice" AND language_alias="on ice"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="muhc_blood_tube_temperature"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "other", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_storage_time', 'time',  NULL , '0', '', '', '', 'storage', 'time'), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_storage_temperature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_blood_tube_temperature') , '0', '', '', '', '', 'temperature abbreviation'), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_storage_temperature_other', 'integer',  NULL , '0', 'size=3', '', '', '', 'other (celsius)'), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_transport_time', 'time',  NULL , '0', '', '', '', 'transport', 'time'), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_transport_temperature', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_blood_tube_temperature') , '0', '', '', '', '', 'temperature abbreviation'), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_transport_temperature_other', 'integer',  NULL , '0', 'size=3', '', '', '', 'other (celsius)');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_storage_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage' AND `language_tag`='time'), '2', '446', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_storage_temperature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_blood_tube_temperature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='temperature abbreviation'), '2', '447', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_storage_temperature_other' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other (celsius)'), '2', '448', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_transport_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='transport' AND `language_tag`='time'), '2', '449', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_transport_temperature' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_blood_tube_temperature')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='temperature abbreviation'), '2', '450', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_transport_temperature_other' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other (celsius)'), '2', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT IGNORE INTO i18n (id,en) VALUES 
+('blood draw procedure','Blood Draw Procedure'),
+('tube information','Tube Information'),
+('transport','Transport'),
+('other (celsius)','Other (°C)'),
+('on ice','On ice'),
+('RT','RT'),
+('4°C','4°C');
+
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en) VALUEs ('lot number','Lot#');
+
+UPDATE structure_fields SET setting='size=10' WHERE field = 'lot_number';
+
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias,',muhc_blood_tubes') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood') AND aliquot_type = 'tube';
+
+ALTER TABLE ad_tubes
+  ADD COLUMN muhc_pmek_number varchar(30) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs
+  ADD COLUMN muhc_pmek_number varchar(30) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('muhc_blood_tubes');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'muhc_pmek_number', 'input',  NULL , '0', 'size=10', '', '', 'pmek number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_blood_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='muhc_pmek_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='pmek number' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en) VALUES ('pmek number','PMEK#');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -682,4 +863,13 @@ SELECT 'Verifier regle gestion pour suppression, etc bank group pour que adminis
 exit
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
