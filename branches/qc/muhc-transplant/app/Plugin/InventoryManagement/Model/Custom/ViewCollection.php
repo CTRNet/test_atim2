@@ -54,14 +54,6 @@ Collection.muhc_collection_room	AS muhc_collection_room,
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
-	
-	
-	
-	
-	
-	
-	
-	
 	function summary($variables=array()) {
 		$return = false;
 		
