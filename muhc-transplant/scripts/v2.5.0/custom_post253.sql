@@ -364,6 +364,9 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '10', '', '1', 'participant coded identifier', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- ------------------------------------------------------------------------------------------------------------------
 -- Collections
 -- ------------------------------------------------------------------------------------------------------------------
@@ -460,7 +463,6 @@ UPDATE structure_formats SET `flag_summary`='0' WHERE structure_id=(SELECT id FR
 -- ------------------------------------------------------------------------------------------------------------------
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET display_column = 2 WHERE display_column = 1 AND structure_id = (SELECT id FROM structures WHERE alias = 'sample_masters');
 
 -- ------------------------------------------------------------------------------------------------------------------
 -- Specimens
@@ -481,6 +483,11 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 
 INSERT IGNORE INTO i18n (id,en) VALUES ('collecting by','Person collecting specimen');
 REPLACE INTO i18n (id,en) VALUES ('reception by','Harvesting by'),('reception date','Date/Time arrive at lab');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'laboratory staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('stephanie petrillo', 'Stephanie Petrillo', 'Stephanie Petrillo', '1', @control_id); 
 
 UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name IN ('specimen supplier departments ','sop versions ','consent form versions');
 
@@ -515,7 +522,7 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES 
 ('normal', 'Normal', '', '1', @control_id),
-('tumoral', 'Tumoral', '', '1', @control_id); 
+('tumour', 'Tumour', '', '1', @control_id); 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_tissue_type') , '0', '', '', '', 'tissue type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -558,6 +565,15 @@ ALTER TABLE sd_spe_tissues_revs
 
 INSERT structure_value_domains (domain_name,source) VALUES ('muhc_surgeon_radiologist', "StructurePermissibleValuesCustom::getCustomDropdown('surgeon and radiologist')");
 INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('surgeon and radiologist', '1', '50');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'surgeon and radiologist');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('dr g arena', 'Dr G Arena', 'Dr G Arena', '1', @control_id),
+('dr m hassanain', 'Dr M Hassanain', 'Dr M Hassanain', '1', @control_id),
+('dr g zogopoulos', 'Dr G Zogopoulos', 'Dr G Zogopoulos', '1', @control_id),
+('dr p chaudhury', 'Dr P Chaudhury', 'Dr P Chaudhury', '1', @control_id),
+('dr p metrakos', 'Dr P Metrakos', 'Dr P Metrakos', '1', @control_id); 
+
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_surgeon_radiologist', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_surgeon_radiologist') , '0', '', '', '', 'surgeon or radiologist', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -565,37 +581,19 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en) VALUES ('surgeon or radiologist','Surgeon/Radiologist'); 
 
 ALTER TABLE sd_spe_tissues
-  ADD COLUMN muhc_liver_procedure_type VARCHAR(50) DEFAULT NULL,
-  ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL  
+  ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL;  
 ALTER TABLE sd_spe_tissues_revs
-  ADD COLUMN muhc_liver_procedure_type VARCHAR(50) DEFAULT NULL,
   ADD COLUMN muhc_liver_segment VARCHAR(50) DEFAULT NULL;  
   
-INSERT structure_value_domains (domain_name,source) VALUES 
-('muhc_procedure_type', "StructurePermissibleValuesCustom::getCustomDropdown('tissue procedure type')"),
-('muhc_liver_segment', "StructurePermissibleValuesCustom::getCustomDropdown('liver segment')");
-INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES 
-('tissue procedure type', '1', '50'),('liver segment', '1', '50');
+INSERT structure_value_domains (domain_name,source) VALUES ('muhc_liver_segment', "StructurePermissibleValuesCustom::getCustomDropdown('liver segment')");
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('liver segment', '1', '50');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_procedure_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_procedure_type') , '0', '', '', '', 'procedure type', ''), 
 ('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'muhc_liver_segment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment') , '0', '', '', '', 'liver segment', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_procedure_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_procedure_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure type' AND `language_tag`=''), '2', '500', 'specific liver data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_segment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver segment' AND `language_tag`=''), '2', '502', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_liver_segment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_liver_segment')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='liver segment' AND `language_tag`=''), '2', '502', 'specific liver data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES
 ('specific liver data','Liver Data'),
-('procedure type','Procedure'), 
 ('liver segment','Liver Segment');
-
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'tissue procedure type');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES 
-('transplant explant', 'Transplant Explant', '', '1', @control_id),
-('transplant', 'Transplant', '', '1', @control_id),
-('transplant biopsy', 'Transplant Biopsy', '', '1', @control_id),
-('biopsy', 'Biopsy', '', '1', @control_id),
-('perfused liver', 'Perfused Liver', '', '1', @control_id),
-('resection', 'Resection', '', '1', @control_id); 
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'liver segment');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
@@ -655,6 +653,21 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='muhc_tissue_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='muhc_mn_in_isopentane' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='mn in isopentane' AND `language_tag`=''), '1', '1182', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
 INSERT INTO i18n (id,en) VALUES ('storage method','Storage Method'),('mn in isopentane','Mn in isopentane');
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("mg", "mg");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tissue_weight_unit"), (SELECT id FROM structure_permissible_values WHERE value="mg" AND language_alias="mg"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("mm3", "mm3");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tissue_size_unit"), (SELECT id FROM structure_permissible_values WHERE value="mm3" AND language_alias="mm3"), "3", "1");
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('mg','mg','mg'),('mm3','mm3','mm3');
+
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='tissue_source'), 'notEmpty');
+
+UPDATE structure_formats SET `language_heading`='tissue data' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('tissue data','Tissue Data');
+
+UPDATE structure_formats SET display_column ='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND display_column ='2';
+UPDATE structure_formats SET `display_column`='0', `display_order`='610' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_transported_on_ice' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='611' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_transported_in_sucrose_solution' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- ------------------------------------------------------------------------------------------------------------------
 -- Blood
@@ -840,6 +853,93 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='muhc_blood_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='muhc_pmek_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='pmek number' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT IGNORE INTO i18n (id,en) VALUES ('pmek number','PMEK#');
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `field`='blood_type'), 'notEmpty');
+
+UPDATE structure_formats SET display_column ='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND display_column ='2';
+UPDATE structure_formats SET `display_column`='0', `display_order`='610' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_type_of_procedure' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_type_of_blood_procedure') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='611' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_patient_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_patient_status_at_blood_draw') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='612' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_patient_status_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_patient_status_at_blood_draw_precision') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='613' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_type_of_blood_draw' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_type_of_blood_draw') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0', `display_order`='614' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_type_of_blood_draw_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_type_of_blood_draw_precision') AND `flag_confidential`='0');
+
+ALTER TABLE ad_whatman_papers
+  ADD COLUMN muhc_lot_nbr VARCHAR(30) DEFAULT NULL,
+  ADD COLUMN muhc_person_processing VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_datetime_card_completed DATETIME DEFAULT NULL,
+  ADD COLUMN muhc_datetime_card_sealed DATETIME DEFAULT NULL;
+ALTER TABLE ad_whatman_papers_revs
+  ADD COLUMN muhc_lot_nbr VARCHAR(30) DEFAULT NULL,
+  ADD COLUMN muhc_person_processing VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_datetime_card_completed DATETIME DEFAULT NULL,
+  ADD COLUMN muhc_datetime_card_sealed DATETIME DEFAULT NULL;  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_whatman_papers', 'muhc_lot_nbr', 'input',  NULL , '0', 'size=10', '', '', 'lot number', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_whatman_papers', 'muhc_person_processing', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'person processing', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_whatman_papers', 'muhc_datetime_card_completed', 'datetime',  NULL , '0', '', '', '', 'date card completed', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_whatman_papers', 'muhc_datetime_card_sealed', 'datetime',  NULL , '0', '', '', '', 'date card sealed', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='muhc_lot_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='lot number' AND `language_tag`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='muhc_person_processing' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='person processing' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='muhc_datetime_card_completed' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date card completed' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_whatman_papers'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='muhc_datetime_card_sealed' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date card sealed' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='used_blood_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='used_blood_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES
+('person processing','Person Processing'), 
+('date card completed','Date Card Completed'), 
+('date card sealed','Date Card Sealed');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(25, 3, 119, 19, 131, 133, 135, 134, 23, 136, 20, 21, 15, 16, 24, 132, 17, 18, 118);
+
+REPLACE INTO i18n (id,en) VALUES  ('pbmc','Buffy Coat');
+
+ALTER TABLE sd_spe_bloods
+  ADD COLUMN muhc_correctly_conserved_before_processing CHAR(1) DEFAULT '',
+  ADD COLUMN muhc_paxgene_person_processing VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_paxgen_storage_at_minus_20 datetime DEFAULT NULL;
+ALTER TABLE sd_spe_bloods_revs
+  ADD COLUMN muhc_correctly_conserved_before_processing CHAR(1) DEFAULT '',
+  ADD COLUMN muhc_paxgene_person_processing VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_paxgen_storage_at_minus_20 datetime DEFAULT NULL; 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_correctly_conserved_before_processing', 'yes_no',  NULL , '0', '', '', 'blood_correctly_conserved_before_processing_help', 'correctly conserved before processing', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_paxgene_person_processing', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'person processing paxgene tubes', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'muhc_paxgen_storage_at_minus_20', 'datetime', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'paxgen tube put at -20', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_correctly_conserved_before_processing' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='blood_correctly_conserved_before_processing_help' AND `language_label`='correctly conserved before processing' AND `language_tag`=''), '1', '455', 'tube processing', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_paxgene_person_processing' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='person processing paxgene tubes' AND `language_tag`=''), '1', '456', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='muhc_paxgen_storage_at_minus_20' AND `type`='datetime' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='paxgen tube put at -20' AND `language_tag`=''), '1', '457', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT IGNORE INTO i18n (id,en) VALUES
+('correctly conserved before processing','Correctly conserved before processing (see help)'),
+('blood_correctly_conserved_before_processing_help','- Plasma (lavender) Vacutainer(s) kept at 4ºC until processing, unless processed immediately.<br>- Serum (red) Vacutainer(s) kept at room temperature for 30-90 minutes before processing.<br>- PAXgene Vacutainer kept at room temperature for 2 hours before processing.'),
+('person processing paxgene tubes','PAXene: Person processing'),
+('paxgen tube put at -20','PAXene: Date put at -20°C'),
+('tube processing','Tube Processing');
+
+ALTER TABLE ad_whatman_papers
+  ADD COLUMN muhc_datetime_card_completed_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN muhc_datetime_card_sealed_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE ad_whatman_papers_revs
+  ADD COLUMN muhc_datetime_card_completed_accuracy char(1) NOT NULL DEFAULT '',
+  ADD COLUMN muhc_datetime_card_sealed_accuracy char(1) NOT NULL DEFAULT '';  
+ALTER TABLE sd_spe_bloods
+  ADD COLUMN muhc_paxgen_storage_at_minus_20_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE sd_spe_bloods_revs
+  ADD COLUMN muhc_paxgen_storage_at_minus_20_accuracy char(1) NOT NULL DEFAULT ''; 
+
+INSERT INTO i18n (id,en) VALUES ('paxgene tube fields should only be completed when type selected is equal to paxgene','Paxgene tube fields should only be completed when type selected is equal to paxgene.');
+
+
+
+
+
+
+
+
+
+
 
 
 

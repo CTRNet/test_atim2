@@ -59,21 +59,26 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			$label = (empty($collection_data['ViewCollection']['participant_identifier'])? '-' : $collection_data['ViewCollection']['participant_identifier']). 
-				' '.
-				substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
-			
+
+			$muhc_participant_coded_identifier = empty($collection_data['ViewCollection']['muhc_participant_coded_identifier'])? '?' : $collection_data['ViewCollection']['muhc_participant_coded_identifier'];
+			$muhc_irb_nbr = '?';
+			if($collection_data['ViewCollection']['bank_id']) {
+				$BankModel = AppModel::getInstance('Administrate', 'Bank', true);
+				$bank_result = $BankModel->find('first', array('conditions' => array('Bank.id' => $collection_data['ViewCollection']['bank_id'])));
+				$muhc_irb_nbr = $bank_result['Bank']['muhc_irb_nbr'];
+			}
+			$label_1 = "$muhc_irb_nbr #$muhc_participant_coded_identifier ";
+			$label_2 = $label_1.substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
 			$return = array(
-				'menu' => array(null, 'TODO : '.$label),
-				'title' => array(null, __('collection') . ' : ' . $label),
+				'menu' => array(null, $label_2),
+				'title' => array(null, __('collection') . ' : ' . $label_1),
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data
 			);
 		}
 		
 		return $return;
-	}
-	
+	}	
 }
 
 ?>
