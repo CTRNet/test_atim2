@@ -40,4 +40,19 @@ class ParticipantCustom extends Participant {
 		return $return;
 	}
 	
+	function validates($options = array()){
+		$result = parent::validates($options);	
+		if(isset($this->data['Participant']['qc_tf_bank_id']) && isset($this->data['Participant']['qc_tf_bank_identifier'])) {		
+			$conditions = array(
+				'Participant.qc_tf_bank_id'=>$this->data['Participant']['qc_tf_bank_id'],
+				'Participant.qc_tf_bank_identifier'=>$this->data['Participant']['qc_tf_bank_identifier']);
+			if($this->id) $conditions[] = 'Participant.id <> '.$this->id;
+			if($this->find('count', array('conditions'=>$conditions, 'recursive' => -1))) {
+				$this->validationErrors['qc_tf_bank_identifier'] = 'this bank identifier has already been recorded for this bank';
+				$result = false;
+			}
+		}	
+		return $result;
+	}
+	
 }
