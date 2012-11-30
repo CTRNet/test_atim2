@@ -341,6 +341,27 @@ JOIN `aliquot_controls` `aliqc` ON ((`aliq`.`aliquot_control_id` = `aliqc`.`id`)
 JOIN `sample_masters` `samp` ON (((`samp`.`id` = `aliq`.`sample_master_id`) AND (`samp`.`deleted` <> 1)))) 
 WHERE (`aluse`.`deleted` <> 1);
 
+-- TODO 20121130
 
+ALTER TABLE qc_tf_tx_empty DROP COLUMN id;
+ALTER TABLE qc_tf_tx_empty_revs DROP COLUMN id;
 
+ALTER TABLE qc_tf_ed_ca125s DROP COLUMN id, DROP COLUMN deleted;
+ALTER TABLE qc_tf_ed_ca125s_revs DROP COLUMN id;
+ALTER TABLE qc_tf_ed_ct_scans DROP COLUMN id, DROP COLUMN deleted;
+ALTER TABLE qc_tf_ed_ct_scans_revs DROP COLUMN id;  
+ALTER TABLE qc_tf_ed_no_details DROP COLUMN id, DROP COLUMN deleted;
+ALTER TABLE qc_tf_ed_no_details_revs DROP COLUMN id;  
 
+ALTER TABLE qc_tf_dxd_eocs DROP COLUMN id, DROP COLUMN deleted;
+ALTER TABLE qc_tf_dxd_eocs_revs DROP COLUMN id;  
+ALTER TABLE qc_tf_dxd_other_primary_cancers DROP COLUMN id, DROP COLUMN deleted;
+ALTER TABLE qc_tf_dxd_other_primary_cancers_revs DROP COLUMN id;  
+ALTER TABLE qc_tf_dxd_progression_and_recurrences DROP COLUMN id, DROP COLUMN deleted;
+ALTER TABLE qc_tf_dxd_progression_and_recurrences_revs DROP COLUMN id;  
+
+SELECT id as participant_id_with_missing_identifier FROM participants WHERE (qc_tf_bank_id IS NULL OR qc_tf_bank_id LIKE '' OR qc_tf_bank_identifier IS NULL OR qc_tf_bank_identifier LIKE '') AND deleted <> 1;
+
+SELECT res.* FROM (select count(*) as part_duplicated_identifier, qc_tf_bank_id, qc_tf_bank_identifier FROM participants where deleted <> 1 GROUP BY qc_tf_bank_id, qc_tf_bank_identifier ) res WHERE res.part_duplicated_identifier > 1;
+
+INSERT INTO i18n (id,en) VALUES ('this bank identifier has already been recorded for this bank','This bank identifier has already been recorded for this bank');

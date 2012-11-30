@@ -26,7 +26,7 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/McGill#3-COEUR-v3.0.xls";
+ 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#5-v3.0 2011-09-01_validated20121130.xls";
  	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#4-v3.0 2012-10.xls";
  	
  	
@@ -103,7 +103,6 @@ Config::$value_domains['qc_tf_tissue_type']= new ValueDomain("qc_tf_tissue_type"
 
 //add the parent models here
 Config::$parent_models[] = "participants";
-Config::$parent_models[] = "collections";
 
 //add your configs
 $relative_path = '../tfri_coeur/dataImporterConfig/tablesMapping/';
@@ -138,15 +137,12 @@ function addonFunctionStart(){
 	<br>=====================================================================
 	</FONT><br>";
 
-echo "<br><FONT COLOR=\"red\" >Test and change to be v2.5 compliant</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >Manage aliquot label and bank_id deleted from collection</FONT><br>";
-echo "<br><FONT COLOR=\"red\" >Mettre une message si psa d'inventaire créé</FONT><br>";
-exit;
-
-	$query = "SELECT identifier_value, misc_identifier_control_id FROM misc_identifiers";
+	$query = "SELECT qc_tf_bank_id, qc_tf_bank_identifier FROM participants WHERE deleted <> 1";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		checkAndAddIdentifier($row['identifier_value'], $row['misc_identifier_control_id'], ' Duplicate value into DB');
+		if(!checkAndAddBankIdentifier($row['qc_tf_bank_id'], $row['qc_tf_bank_identifier'], ' Duplicate value into DB')) { 
+			pr($row);
+			pr(Config::$identifiers);exit;} ;
 	}
 	
 	// SET banks
@@ -189,14 +185,16 @@ exit;
 	Config::$tissue_source[] = '';	
 }
 
-function checkAndAddIdentifier($identifier_value, $identifier_control_id, $error_precision){
-	$key = sprintf("%s-%d", $identifier_value, $identifier_control_id);
+function checkAndAddBankIdentifier($qc_tf_bank_id, $qc_tf_bank_identifier, $error_precision){
+	$key = $qc_tf_bank_id."-".$qc_tf_bank_identifier;
 	if(array_key_exists($key, Config::$identifiers)){
 		global $insert;
 		$insert = false;
-		echo "ERROR: identifier value [",$identifier_value,"] already exists for control id [",$identifier_control_id,"] ".$error_precision.Config::$line_break_tag;	
+		echo "ERROR: identifier value [$qc_tf_bank_identifier] already exists for bank id [$qc_tf_bank_id] $error_precision".Config::$line_break_tag;
+		return false;	
 	}else{
 		Config::$identifiers[$key] = null;
+		return true;
 	}
 }
 
@@ -239,23 +237,6 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
 	}	
 	
-	// COLLECTION / PARTICIPANTS LINKS CREATION
-	
-	$query = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
-		(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
-		FROM id_linking AS p 
-		INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
-	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
-	if(Config::$insert_revs){
-		$query = "INSERT INTO clinical_collection_links_revs (id, participant_id, collection_id, modified_by, version_created) "
-			."(SELECT id, participant_id, collection_id, modified_by, NOW() FROM clinical_collection_links WHERE collection_id IN (SELECT c.mysql_id FROM id_linking AS c WHERE c.csv_reference='collections'))";
-		mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	}
-	
-	$query = "TRUNCATE id_linking";
-	mysqli_query(Config::$db_connection, $query) or die("collection linking failed qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
 	// EMPTY DATES CLEAN UP
 	
 	$date_times_to_check = array(
@@ -290,12 +271,22 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	}
 	
+	$query = "UPDATE participants SET last_modification=created WHERE last_modification LIKE '0000-00-00%'";
+	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	if(Config::$insert_revs){
+		$query = "UPDATE participants_revs SET last_modification = version_created WHERE last_modification LIKE '0000-00-00%'";
+		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	}
+	
 	$query = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	if(Config::$insert_revs){
 		$query = "UPDATE aliquot_masters_revs SET barcode=CONCAT('', id) WHERE barcode=''";
 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	}
+	
+	$query = "UPDATE versions SET permissions_regenerated = 0";
+	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 }
 	
 function pr($arr) {
