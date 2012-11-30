@@ -931,45 +931,98 @@ ALTER TABLE sd_spe_bloods_revs
 
 INSERT INTO i18n (id,en) VALUES ('paxgene tube fields should only be completed when type selected is equal to paxgene','Paxgene tube fields should only be completed when type selected is equal to paxgene.');
 
+REPLACE INTO i18n (id,en) VALUES ('created by','Processing By'),('creation date','Process date');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DerivativeDetail' AND `tablename`='derivative_details' AND `field`='creation_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_site') AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+INSERT INTO structures(`alias`) VALUES ('muhc_blood_processing');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("muhc_centrifugation_spin_force_unit", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("G", "spin_force_G");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="muhc_centrifugation_spin_force_unit"), (SELECT id FROM structure_permissible_values WHERE value="G" AND language_alias="spin_force_G"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("RPM", "spin_force_RPM");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="muhc_centrifugation_spin_force_unit"), (SELECT id FROM structure_permissible_values WHERE value="RPM" AND language_alias="spin_force_RPM"), "", "1");
+INSERT structure_value_domains (domain_name,source) VALUES ('muhc_centrifugation_machine', "StructurePermissibleValuesCustom::getCustomDropdown('blood centrifugation machine')");
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('blood centrifugation machine', '1', '50');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'muhc_centrifugation_machine', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_centrifugation_machine') , '0', '', '', '', 'machine', ''), 
+('InventoryManagement', 'SampleDetail', '', 'muhc_centrifugation_spin_duration_mn', 'integer_positive',  NULL , '0', 'size=6', '', '', 'spin duration mn', ''), 
+('InventoryManagement', 'SampleDetail', '', 'muhc_centrifugation_temperature_celsius', 'float_positive',  NULL , '0', 'size=6', '', '', 'temperature celsius', ''), 
+('InventoryManagement', 'SampleDetail', '', 'muhc_centrifugation_spin_force', 'integer_positive',  NULL , '0', 'size=6', '', '', 'spin force', ''), 
+('InventoryManagement', 'SampleDetail', '', 'muhc_centrifugation_spin_force_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_centrifugation_spin_force_unit') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sop_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_sop_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample sop' AND `language_tag`=''), '1', '410', 'centrifugation', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_machine' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_centrifugation_machine')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='machine' AND `language_tag`=''), '1', '411', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_spin_duration_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='spin duration mn' AND `language_tag`=''), '1', '412', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_temperature_celsius' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='temperature celsius' AND `language_tag`=''), '1', '413', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_spin_force' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='spin force' AND `language_tag`=''), '1', '414', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_spin_force_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_centrifugation_spin_force_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '415', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE sd_der_pbmcs
+  ADD COLUMN muhc_centrifugation_machine VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_duration_mn int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_temperature_celsius  decimal(5,2) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force_unit VARCHAR(10) DEFAULT NULL;
+ALTER TABLE sd_der_pbmcs_revs
+  ADD COLUMN muhc_centrifugation_machine VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_duration_mn int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_temperature_celsius  decimal(5,2) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force_unit VARCHAR(10) DEFAULT NULL;
+ALTER TABLE sd_der_plasmas
+  ADD COLUMN muhc_centrifugation_machine VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_duration_mn int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_temperature_celsius  decimal(5,2) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force_unit VARCHAR(10) DEFAULT NULL;
+ALTER TABLE sd_der_plasmas_revs
+  ADD COLUMN muhc_centrifugation_machine VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_duration_mn int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_temperature_celsius  decimal(5,2) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force_unit VARCHAR(10) DEFAULT NULL;    
+ALTER TABLE sd_der_serums
+  ADD COLUMN muhc_centrifugation_machine VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_duration_mn int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_temperature_celsius  decimal(5,2) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force_unit VARCHAR(10) DEFAULT NULL;
+ALTER TABLE sd_der_serums_revs
+  ADD COLUMN muhc_centrifugation_machine VARCHAR(50) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_duration_mn int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_temperature_celsius  decimal(5,2) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force int(6) DEFAULT NULL,
+  ADD COLUMN muhc_centrifugation_spin_force_unit VARCHAR(10) DEFAULT NULL;  	
+UPDATE sample_controls SET detail_form_alias = CONCAT(detail_form_alias, ',muhc_blood_processing') WHERE sample_type IN ('serum','plasma','pbmc');
+INSERT INTO i18n (id,en) VALUES 
+('centrifugation','Centrifugation'),
+('machine','Machine'),
+('spin duration mn','Spin Duration (mn)'),
+('temperature celsius','Temperature (°C)'),
+('spin force','Spin Force'),
+('spin_force_G','G'),
+('spin_force_RPM','RPM');
 
+-- ------------------------------------------------------------------------------------------------------------------
+-- SOP
+-- ------------------------------------------------------------------------------------------------------------------
 
+UPDATE sop_controls SET flag_active = 0;
+INSERT INTO sop_controls (id,sop_group,type,detail_tablename,detail_form_alias,flag_active) VALUES (null,'Blood Processing','Inventory','sopd_inventory_alls','sopd_inventory_all','1');
 
+-- ------------------------------------------------------------------------------------------------------------------
+-- Study
+-- ------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SELECT 'Verifier regle gestion pour suppression, etc bank group pour que administrator reste le chef.
-exit
-
-------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='studysummaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ctrnet_submission_disease_site') AND `flag_confidential`='0');
+ALTER TABLE study_summaries ADD COLUMN muhc_irb_nbr varchar(100) DEFAULT '';
+ALTER TABLE study_summaries_revs ADD COLUMN muhc_irb_nbr varchar(100) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Study', 'StudySummary', 'study_summaries', 'muhc_irb_nbr', 'input',  NULL , '0', 'size=30', '', '', 'muhc irb reb nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='studysummaries'), (SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='muhc_irb_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='muhc irb reb nbr' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structure_validations(structure_field_id, rule) 
+VALUES 
+((SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `field`='title'), 'notEmpty'),
+((SELECT id FROM structure_fields WHERE `model`='StudySummary' AND `field`='muhc_irb_nbr'), 'notEmpty');
