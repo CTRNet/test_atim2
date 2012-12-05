@@ -34,12 +34,12 @@ function txPostRead(Model $m){
 	}
 
 	if(!in_array($m->values['Event Type'], $m->file_event_types)){
-		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
 	}
 	
 	if(!in_array($m->values['Event Type'], array('chemotherapy','radiotherapy'))) {
 		if(!empty($m->values['Date of event (end) Date']) && ($m->values['Date of event (beginning) Date'] != $m->values['Date of event (end) Date'])) {
-			echo "WARNING, START DATE AND END DATE ARE DIFFERENT FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+			echo "WARNING, START DATE AND END DATE ARE DIFFERENT FOR [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
 		}
 		$m->values['Date of event (end) Date'] = null;
 		$m->values['Date of event (end) Accuracy'] = null;	
@@ -47,7 +47,7 @@ function txPostRead(Model $m){
 	
 	if($m->values['Event Type'] != 'chemotherapy') {
 		if(!empty($m->values['Chemotherapy Precision Drug1'])) {
-			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
 		}
 		$m->values['Chemotherapy Precision Drug1'] = '';
 		$m->values['Chemotherapy Precision Drug2'] = '';
@@ -106,7 +106,7 @@ function txPostWrite(Model $m){
 				if(!empty($current_drug)){
 					$current_drug = trim($current_drug);
 					if(!in_array($current_drug,  Config::$drugs)) {
-						echo '<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line ['.$m->line."]\n";
+						echo '<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line ['.$m->line."]".Config::$line_break_tag;
 					}
 					
 					$query = "INSERT INTO txe_chemos(treatment_master_id, drug_id) VALUES "

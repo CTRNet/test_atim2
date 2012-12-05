@@ -35,7 +35,7 @@ function otherProgressionPostRead(Model $m){
 		$m->values['Site of Tumor Progression (metastasis)  If Applicable'] = 'unknown';
 	}else{
 		if(strtoupper($m->values['Site of Tumor Progression (metastasis)  If Applicable']) == 'CA125'){
-			echo "ERROR: [Site of Tumor Progression (metastasis)  If Applicable] value is [CA125] in file [",$m->file,"] at line [", $m->line,"]\n";
+			echo "ERROR: [Site of Tumor Progression (metastasis)  If Applicable] value is [CA125] in file [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 			global $insert;
 			$insert = false;
 		}

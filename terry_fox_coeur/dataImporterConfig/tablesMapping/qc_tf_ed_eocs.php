@@ -34,7 +34,7 @@ function edAfterRead(Model $m){
 	}
 	
 	if(!in_array($m->values['Event Type'], $m->file_event_types)){
-		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]\n";
+		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
 	}
 
 	$m->values['event group'] = $m->values['Event Type'] == 'ca125' ? 'lab' : 'clinical'; 
@@ -45,7 +45,7 @@ function edAfterRead(Model $m){
 function edPostWrite(Model $m){	
 	if($m->values['Event Type'] == 'ca125'){
 		if(!empty($m->values['CA125  Precision (U)']) && !is_numeric($m->values['CA125  Precision (U)'])) {
-			echo "ERROR: 'CA125  Precision (U)' should be numeric [",$m->file,"] at line [", $m->line,"]\n";
+			echo "ERROR: 'CA125  Precision (U)' should be numeric [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 		}
 		
 		$query = "INSERT INTO qc_tf_ed_ca125s (event_master_id, precision_u) VALUES "
@@ -62,7 +62,7 @@ function edPostWrite(Model $m){
 		$ct_scan_domain = Config::$value_domains['qc_tf_ct_scan_precision'];
 		$ct_scan_value = $ct_scan_domain->isValidValue($m->values['CT Scan Precision']);
 		if($ct_scan_value === null){
-			echo "WARNING: Unmatched ct scan value [",$m->values['CT Scan Precision'],"] at line [".$m->line."]\n";
+			echo "WARNING: Unmatched ct scan value [",$m->values['CT Scan Precision'],"] at line [".$m->line."]".Config::$line_break_tag;
 			$ct_scan_value = $m->values['CT Scan Precision'];
 		}
 		$query = "INSERT INTO qc_tf_ed_ct_scans (event_master_id, scan_precision) VALUES "
