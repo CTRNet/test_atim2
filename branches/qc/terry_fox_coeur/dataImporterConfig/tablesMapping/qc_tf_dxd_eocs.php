@@ -62,14 +62,14 @@ function dxdEocsPostRead(Model $m){
 	if(strtoupper($m->values['Site 1 of Primary Tumor Progression (metastasis)  If Applicable']) == 'CA125'
 		&& strtoupper($m->values['Site 2 of Primary Tumor Progression (metastasis)  If applicable']) == 'CA125'
 	){
-		echo "ERROR: both sites are CA125 in file [",$m->file,"] at line [", $m->line,"]\n";
+		echo "ERROR: both sites are CA125 in file [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 		global $insert;
 		$insert = false;
 	}
 	
 	foreach(array('progression time (months)', 'CA125 progression time (months)', 'Follow-up from ovarectomy (months)', 'Survival from diagnosis (months)') as $new_header) {
 		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
-			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]\n";
+			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 		}
 	}
 	
@@ -89,7 +89,7 @@ function progressionSiteInsertNow(Model $m){
 
 function isSameEocDxData($m_current, $m_reference, $m) {
 	if(empty($m_reference) || empty($m_current)) {
-		echo "ERROR: Wrong call to isSameEocDxData() function, one model is empty in file [",$m->file,"] at line [", $m->line,"]\n";
+		echo "ERROR: Wrong call to isSameEocDxData() function, one model is empty in file [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 		exit;
 	}	
 	$eoc_fields = array(

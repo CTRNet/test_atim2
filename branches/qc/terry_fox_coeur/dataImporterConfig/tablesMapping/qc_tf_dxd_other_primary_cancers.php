@@ -47,7 +47,7 @@ function otherDxPostRead(Model $m){
 	
 	foreach(array('Age at Time of Diagnosis (yr)', 'Survival (months)') as $new_header) {
 		if(!empty($m->values[$new_header]) && !is_numeric($m->values[$new_header])) {
-			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]\n";
+			echo "ERROR: $new_header should be numeric [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 		}
 	}
 	
@@ -74,7 +74,7 @@ function otherProgressionSiteInsertNow(Model $m){
 
 function isSameOtherDxData($m_current, $m_reference, $m) {
 	if(empty($m_reference) || empty($m_current)) {
-		echo "ERROR: Wrong call to isSameOtherDxData() function, one model is empty in file [",$m->file,"] at line [", $m->line,"]\n";
+		echo "ERROR: Wrong call to isSameOtherDxData() function, one model is empty in file [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 		exit;
 	}
 
@@ -100,7 +100,7 @@ function isSameOtherDxData($m_current, $m_reference, $m) {
 	}
 
 	if($all_current_fields_empty) return true;
-	if($diff_nbr == 1) echo "WARNING: 2 Other dx for same patient are defined as different because only values for field $diff_field are different [",$m->file,"] at line [", $m->line,"]\n";
+	if($diff_nbr == 1) echo "WARNING: 2 Other dx for same patient are defined as different because only values for field $diff_field are different [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
 	
 	return ($diff_nbr == 0)? true : false;
 }

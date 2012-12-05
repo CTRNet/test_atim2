@@ -26,8 +26,8 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#5-v3.0 2011-09-01_validated20121130.xls";
- 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#4-v3.0 2012-10.xls";
+ 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#5-v3.0 2012-11-15 revise_rev20121205.xls";
+ 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CHUQ#2-feb2012(K)_rev20121205.xls";
  	
  	
 	static $xls_header_rows = 2;
@@ -211,7 +211,7 @@ function addonFunctionEnd(){
 	mysqli_free_result($result);
 	
 	if(!empty($ids)){
-		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one.\n";
+		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one.".Config::$line_break_tag;
 	}
 	
 	$ids[] = 0;
