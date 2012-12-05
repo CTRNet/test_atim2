@@ -42,7 +42,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
 ('participant identifier','Identification','Identification'),
-('the identification format is wrong','Le format de l''identification n''est pas supporté!','The identification format is wrong!'),
+('the identification format is wrong','The identification format is wrong!','Le format de l''identification n''est pas supporté!'),
 ('hospital number','Hospital Number','Numéro hospitalier'),
 ('RAMQ','RAMQ','RAMQ');
 
