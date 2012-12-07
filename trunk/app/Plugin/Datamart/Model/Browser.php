@@ -127,7 +127,7 @@ class Browser extends DatamartAppModel {
 					$sub_menu = array();
 					foreach($data as $data_unit){
 						$sub_menu[] = array(
-							'value'	=> '/Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$data_unit['SavedBrowsingIndex']['id'],
+							'value'	=> 'Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$data_unit['SavedBrowsingIndex']['id'],
 							'label'	=> $data_unit['SavedBrowsingIndex']['name']
 						);
 					}
