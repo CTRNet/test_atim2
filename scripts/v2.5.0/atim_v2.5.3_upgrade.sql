@@ -13,3 +13,5 @@ left join `structure_value_domains` `svd` on((`svd`.`id` = `sfi`.`structure_valu
 INSERT INTO i18n (id,en,fr) VALUES 
 ('at least one collection is linked to that bank', 'At least one collection is linked to that bank', 'Au moins une collection est attachée à cette banque'),
 ('at least one group is linked to that bank', 'At least one group is linked to that bank', 'Au moins un groupe est attaché à cette banque');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('confidential data','Confidential Data','Données confidentielles');
