@@ -196,8 +196,8 @@ function getAgeAtDx($date_of_birth, $date_of_birth_accuracy, $dx_date, $dx_date_
 	if(empty($date_of_birth) || empty($dx_date)) {
 		Config::$summary_msg[$summary_title]['@@WARNING@@']['No Age At Dx (empty date)'][] = "Unable to calculate age at dx on empty date. See line $line";
 	} else {
-		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date_of_birth)) die('ERR 998389393 '.$summary_title.' ' .$date_of_birth. ' line '.$line);
-		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$dx_date)) die('ERR 999222999222 '.$summary_title.' ' .$dx_date. ' line '.$line);
+		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date_of_birth)) die('ERR 998389393 '.$summary_title.' [' .$date_of_birth. '] line '.$line);
+		if(!preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$dx_date)) die('ERR 999222999222 '.$summary_title.' [' .$dx_date. '] line '.$line);
 		
 		if(!(in_array($date_of_birth_accuracy, array('','c')) && in_array($dx_date_accuracy, array('','c')))) Config::$summary_msg[$summary_title]['@@WARNING@@']['Age At Dx on unaccuracy date'][] = "Age at dx has been calculated on unaccuracy date. See line $line";
 		

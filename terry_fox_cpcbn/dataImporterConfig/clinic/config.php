@@ -25,35 +25,11 @@ class Config{
 	
 	//if reading excel file
 	
-//	old static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 Test TMA validated20121105.xls';
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM- Saad 150-200 final_20121112.xls';	
-//	static $use_windows_xls_offset = false;
-	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUM-Saad 1-100 final_20121112.xls';
-//	static $use_windows_xls_offset = false;
-	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe 1-119 final_20121112.xls';
-//	static $use_windows_xls_offset = true;
-	
-//	old static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA sans 305 validated20121105.xls';
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/CHUQ-Lacombe test TMA final_20121112.xls';
-//	static $use_windows_xls_offset = true;
-	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/Mcgill 101-150 final_20121112.xls';
-//	static $use_windows_xls_offset = false;
-	
- //  	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-1-150 final_20121112.xls';
-//	static $use_windows_xls_offset = false;
-	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/UHN-Fleshner-test TMA 151-200 final_20121112.xls';
-//	static $use_windows_xls_offset = false;
-	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave 1-150 final_20121112.xls';
-//	static $use_windows_xls_offset = false;
-	
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/VPC-Gleave- Test TMA 151-200 final_20121112.xls';
-	static $use_windows_xls_offset = false;
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/mcgill151-160_final_20121210.xls';
+	static $use_windows_xls_offset = true;
 
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/TFRI VPCpatients200-300_final_2012121.xls';
+//	static $use_windows_xls_offset = false;
 	
 	static $xls_header_rows = 2;
 
@@ -127,7 +103,7 @@ Config::$parent_models[] = "participants";
 //*Config::$parent_models[] = "inventory";
 
 //add your configs
-$relative_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/dataImporterConfig/tablesMapping/';
+$relative_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/dataImporterConfig/clinic/tablesMapping/';
 Config::$config_files[] = $relative_path.'participants.php';
 Config::$config_files[] = $relative_path.'dx_primary.php';
 Config::$config_files[] = $relative_path.'dx_metastasis.php';
