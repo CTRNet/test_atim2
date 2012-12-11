@@ -9,14 +9,16 @@ class ViewAliquotCustom extends ViewAliquot {
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotMaster.sample_master_id AS sample_master_id,
 		AliquotMaster.collection_id AS collection_id, 
-		Collection.bank_id, 
+--		Collection.bank_id, 
 		AliquotMaster.storage_master_id AS storage_master_id,
 		Collection.participant_id, 
 		
 		Participant.participant_identifier, 
 Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifier,
+Participant.qc_tf_bank_id AS bank_id, 
 		
 		Collection.acquisition_label, 
+Collection.qc_tf_collection_type AS qc_tf_collection_type, 
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -74,4 +76,39 @@ Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifi
 		LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 		WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
+	function beforeFind($queryData){
+		if(($_SESSION['Auth']['User']['group_id'] != '1')
+				&& is_array($queryData['conditions'])
+				&& AppModel::isFieldUsedAsCondition("ViewAliquot.qc_tf_bank_participant_identifier", $queryData['conditions'])) {
+			AppController::addWarningMsg(__('your search will be limited to your bank'));
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			$queryData['conditions'][] = array("ViewAliquot.bank_id" => $user_bank_id);
+		}
+		return $queryData;
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			if(isset($results[0]) && isset($results[0]['ViewAliquot'])){
+				foreach($results as &$result){
+					if($result['ViewAliquot']['bank_id'] != $user_bank_id) {
+						$result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
+						$result['ViewAliquot']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+					}
+				}
+			} else if(isset($results['ViewAliquot'])){
+				pr('TODO afterFind ViewAliquot');
+				pr($results);
+				exit;
+			}
+		}
+	
+		return $results;
+	}
 }
