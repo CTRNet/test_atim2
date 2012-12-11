@@ -8,6 +8,13 @@ class ReportsControllerCustom extends ReportsController {
 		$warnings = array();	
 		$join_on_storage = 'LEFT JOIN';
 		
+		$user_bank_id = null;
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = (empty($group_data)? '' : $group_data['Group']['bank_id']);
+		}
+		
 		if(!isset($parameters['exact_search']) || $parameters['exact_search'] != 'on') {
 			$warnings[] = __('only exact search is supported');
 		}	
@@ -85,11 +92,15 @@ class ReportsControllerCustom extends ReportsController {
 			}
 			
 			// 3-PARTICIPANT IDENTIFIER
+			$participant_identifier_criteria_set = false;
 			if(isset($parameters['Participant']['qc_tf_bank_participant_identifier'])) {
 				$participant_ids = array();
 				foreach($parameters['Participant']['qc_tf_bank_participant_identifier']as $new_participant_id) if(strlen($new_participant_id)) $participant_ids[] = $new_participant_id;
-				if(!empty($participant_ids)) $conditions[] = 'Participant.qc_tf_bank_participant_identifier IN ('.implode($participant_ids, ',').')' ;
-			
+				if(!empty($participant_ids)) {
+					$conditions[] = 'Participant.qc_tf_bank_participant_identifier IN ('.implode($participant_ids, ',').')' ;
+					$participant_identifier_criteria_set = true;
+				}
+				
 			} else if(isset($parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload'])) {
 				$tmp_file_data = $parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload'];
 				$handle = fopen($parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload']['tmp_name'], "r");
@@ -102,11 +113,24 @@ class ReportsControllerCustom extends ReportsController {
 				fclose($handle);
 				unset($tmp_file_data);
 				unset($parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload']);
-				if(!empty($participant_ids)) $conditions[] = 'Participant.qc_tf_bank_participant_identifier IN ('.implode($participant_ids, ',').')' ;
+				if(!empty($participant_ids)) {
+					$conditions[] = 'Participant.qc_tf_bank_participant_identifier IN ('.implode($participant_ids, ',').')' ;
+					$participant_identifier_criteria_set = true;
+				}
 				
 			} else if(isset($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) {
-				if(strlen($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) $conditions[] = 'Participant.qc_tf_bank_participant_identifier >= '.$parameters['Participant']['qc_tf_bank_participant_identifier_start'];
-				if(strlen($parameters['Participant']['qc_tf_bank_participant_identifier_end'])) $conditions[] = 'Participant.qc_tf_bank_participant_identifier <= '.$parameters['Participant']['qc_tf_bank_participant_identifier_end'];
+				if(strlen($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) {
+					$participant_identifier_criteria_set = true;
+					$conditions[] = 'Participant.qc_tf_bank_participant_identifier >= '.$parameters['Participant']['qc_tf_bank_participant_identifier_start'];
+				}
+				if(strlen($parameters['Participant']['qc_tf_bank_participant_identifier_end'])) {
+					$participant_identifier_criteria_set = true;
+					$conditions[] = 'Participant.qc_tf_bank_participant_identifier <= '.$parameters['Participant']['qc_tf_bank_participant_identifier_end'];
+				}
+			}
+			if(($_SESSION['Auth']['User']['group_id'] != '1') && $participant_identifier_criteria_set) {
+				AppController::addWarningMsg(__('your search will be limited to your bank'));
+				$conditions[] = "Participant.qc_tf_bank_id = '$user_bank_id'";
 			}
 			
 			if(empty($conditions) && $matching_storage_issue) {
@@ -344,7 +368,7 @@ class ReportsControllerCustom extends ReportsController {
 					'first_bcr_type' => ''
 			)
 		);				
-		foreach($main_results as &$new_participant) {
+		foreach($main_results as &$new_participant) {		
 			if(isset($dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$new_participant = array_merge($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
@@ -361,7 +385,12 @@ class ReportsControllerCustom extends ReportsController {
 				$new_participant = array_merge($new_participant, $fst_bcr_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
 				$new_participant = array_merge($new_participant, $fst_bcr_template);
-			}	
+			}
+
+			if(($_SESSION['Auth']['User']['group_id'] != '1') && ($new_participant['Participant']['qc_tf_bank_id'] != $user_bank_id)) {
+				$new_participant['Participant']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
+				$new_participant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+			}
 		}
 		
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);

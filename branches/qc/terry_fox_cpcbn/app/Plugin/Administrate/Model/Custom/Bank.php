@@ -10,8 +10,8 @@ class BankCustom extends Bank {
 			$result = parent::getBankPermissibleValues();
 		} else {
 			$GroupModel = AppModel::getInstance("", "Group", true);
-			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
-			$bank_data = $this->find('first', array('Bank.id' => $group_data['Group']['bank_id']));
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);		
+			$bank_data = $this->find('first', array('conditions' => array('Bank.id' => $group_data['Group']['bank_id'])));		
 			$result = array();
 			if($bank_data) {
 				$result[$bank_data["Bank"]["id"]] = $bank_data["Bank"]["name"];

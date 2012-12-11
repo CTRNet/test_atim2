@@ -25,11 +25,11 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/mcgill151-160_final_20121210.xls';
-	static $use_windows_xls_offset = true;
+//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/mcgill151-160_final_20121210.xls';
+//	static $use_windows_xls_offset = true;
 
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/TFRI VPCpatients200-300_final_2012121.xls';
-//	static $use_windows_xls_offset = false;
+	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/TFRI VPCpatients200-300_final_2012121.xls';
+	static $use_windows_xls_offset = false;
 	
 	static $xls_header_rows = 2;
 
@@ -171,29 +171,6 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$collection_sites[strtolower($row['value'])] = $row['value'];
 	}
-	
-	//TODO	
-	$query = "SELECT MAX(rght) as last_rght FROM storage_masters;";
-	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
-	$row = $results->fetch_assoc();
-	$last_rght = empty($row['last_rght'])? 0 : $row['last_rght'];
-	$tma_name = substr($file_name, 0, strpos($file_name, '.xls'));
-	$user_id = Config::$db_created_id;
-	$query = "INSERT INTO `storage_masters` (`storage_control_id`, `short_label`, selection_label, `lft`, `rght`, `created`, `created_by`, `modified`, `modified_by`) 	VALUES (20, '$tma_name', '$tma_name', '".($last_rght+1)."', '".($last_rght+2)."', NOW(), $user_id, NOW(), $user_id);";
-	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	$storage_master_id = Config::$db_connection->insert_id;
-	$query = 'UPDATE storage_masters SET code=id WHERE id='.$storage_master_id;
-	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	Database::insertRev('storage_masters', $storage_master_id, 'id');
-	
-	Config::$storage_master_id = $storage_master_id;
-	
-	$query = "INSERT INTO `std_tma_blocks` (`storage_master_id`) VALUES ($storage_master_id);";
-	if(Config::$print_queries) echo $query.Config::$line_break_tag;
-	mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	Database::insertRev('std_tma_blocks', $storage_master_id, 'storage_master_id');
 	
 	$query = "select id,sample_type from sample_controls where sample_type in ('tissue');";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
