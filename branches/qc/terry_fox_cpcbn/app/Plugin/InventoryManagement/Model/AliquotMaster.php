@@ -396,7 +396,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		$barcode = $aliquot_data['AliquotMaster']['barcode'];
 		
 		// Check duplicated barcode into submited record
-		if(empty($barcode)) {
+		if(!strlen($barcode)) {
 			// Not studied
 		} else if(isset($this->barcodes[$barcode])) {
 			$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));
