@@ -213,6 +213,13 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("tumoral
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_nature"), (SELECT id FROM structure_permissible_values WHERE value="tumoral" AND language_alias="tumoral"), "", "1");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_tissue_nature"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "", "1");
 
+INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
+('2.5.3', NOW(), '5028');
 
+INSERT INTO i18n (id,en,fr) VALUES 
+('at least one collection is linked to that bank', 'At least one collection is linked to that bank', 'Au moins une collection est attachée à cette banque'),
+('at least one group is linked to that bank', 'At least one group is linked to that bank', 'Au moins un groupe est attaché à cette banque');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('confidential data','Confidential Data','Données confidentielles');
 
 
