@@ -222,4 +222,9 @@ INSERT INTO i18n (id,en,fr) VALUES
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('confidential data','Confidential Data','Données confidentielles');
 
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('OrderItem','Shipment'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('OrderItem','Shipment'));
+
+
 

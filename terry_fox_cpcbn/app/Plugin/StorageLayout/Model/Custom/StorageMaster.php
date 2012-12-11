@@ -25,16 +25,14 @@ class StorageMasterCustom extends StorageMaster{
 	
 	function getLabel(array $children_array, $type_key, $label_key) {
 		if(($type_key == 'AliquotMaster')) {
-			if(($_SESSION['Auth']['User']['group_id'] != '1')) {
+			if(($_SESSION['Auth']['User']['group_id'] == '1')) {
 				return $children_array['AliquotMaster']['aliquot_label'].' ['.$children_array['AliquotMaster']['barcode'].']';
 			} else {
 				$SampleModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
 				$sample_data = $SampleModel->find('first', array('conditions' => array('SampleMaster.id' => $children_array['AliquotMaster']['sample_master_id']), 'recursive' => '0'));
-				if($sample_data['ViewSample']['qc_tf_bank_participant_identifier'] != CONFIDENTIAL_MARKER) {
-					return( $sample_data['ViewSample']['qc_tf_bank_participant_identifier'].
-						(isset($sample_data['SampleDetail']['qc_tf_collected_specimen_nature'])? ' '.__($sample_data['SampleDetail']['qc_tf_collected_specimen_nature']) : '').
-						' ['.$children_array['AliquotMaster']['barcode'].']' );
-				}
+				$custom_label = (isset($sample_data['SampleDetail']['qc_tf_collected_specimen_nature'])? ' '.__($sample_data['SampleDetail']['qc_tf_collected_specimen_nature']) : '').' ['.$children_array['AliquotMaster']['barcode'].']';	
+				if($sample_data['ViewSample']['qc_tf_bank_participant_identifier'] != CONFIDENTIAL_MARKER) $custom_label = $sample_data['ViewSample']['qc_tf_bank_participant_identifier'].' '.$custom_label;
+				return $custom_label;
 			}
 		}
 		
