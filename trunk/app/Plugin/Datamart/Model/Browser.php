@@ -1208,7 +1208,7 @@ class Browser extends DatamartAppModel {
 				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
 				foreach($this->rows_buffer as $row_index => $row_data){
 					if(!empty($row_data[$model_index])){
-						$chunk[$row_index] = array_merge($chunk[$row_index], $model_data[$row_data[$model_index]][0]);
+						$chunk[$row_index] = array_merge($model_data[$row_data[$model_index]][0], $chunk[$row_index]);
 					}
 				}
 			}
