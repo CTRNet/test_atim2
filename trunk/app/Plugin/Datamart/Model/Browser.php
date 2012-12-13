@@ -1198,8 +1198,6 @@ class Browser extends DatamartAppModel {
 		}else{
 			$chunk = array_fill(0, count($this->rows_buffer), array());
 			$node = null;
-			//pr($this->models_buffer);
-			pr($this->rows_buffer);
 			foreach($this->models_buffer as $model_index => $model_ids){
 				$node = $this->nodes[$model_index];
 				$model_data = $node[self::MODEL]->find('all', array(
@@ -1207,7 +1205,6 @@ class Browser extends DatamartAppModel {
 					'conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 
 					'recursive' => 0)
 				);
-				//pr($model_data);
 				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
 				foreach($this->rows_buffer as $row_index => $row_data){
 					if(!empty($row_data[$model_index])){
@@ -1216,7 +1213,6 @@ class Browser extends DatamartAppModel {
 				}
 			}
 		}
-		//pr($chunk);
 		return $chunk;
 	}
 	
