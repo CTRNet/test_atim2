@@ -11,13 +11,14 @@ class AliquotMasterCustom extends AliquotMaster {
 	
 		$sample_type = $view_sample['ViewSample']['sample_type'];
 		$qc_tf_bank_id = empty($view_sample['ViewSample']['qc_tf_bank_id'])? null : $view_sample['ViewSample']['qc_tf_bank_id'];
-		$qc_tf_bank_name = '?';
-		if($qc_tf_bank_id) {
-			$bank_model = AppModel::getInstance('Administrate', 'Bank', true);
-			$bank_data = $bank_model->getOrRedirect($qc_tf_bank_id);
-			$qc_tf_bank_name = $bank_data['Bank']['name'];
-		}
-		$qc_tf_bank_identifier = empty($view_sample['ViewSample']['qc_tf_bank_identifier'])? '?' : $view_sample['ViewSample']['qc_tf_bank_identifier'];
+// 		$qc_tf_bank_name = '?';
+// 		if($qc_tf_bank_id) {
+// 			$bank_model = AppModel::getInstance('Administrate', 'Bank', true);
+// 			$bank_data = $bank_model->getOrRedirect($qc_tf_bank_id);
+// 			$qc_tf_bank_name = $bank_data['Bank']['name'];
+// 		}
+// 		$qc_tf_bank_identifier = empty($view_sample['ViewSample']['qc_tf_bank_identifier'])? '?' : $view_sample['ViewSample']['qc_tf_bank_identifier'];
+		$participant_identifier = $view_sample['ViewSample']['participant_identifier'];
 		
 		switch ($view_sample['ViewSample']['sample_type']) {
 			case 'blood':
@@ -57,7 +58,7 @@ class AliquotMasterCustom extends AliquotMaster {
     			$sample_label = '?';
 		}
 
-		$default_sample_label = $sample_label.' '.$qc_tf_bank_identifier.'['. $qc_tf_bank_name.']';
+		$default_sample_label = "$sample_label $participant_identifier";// [$qc_tf_bank_identifier $qc_tf_bank_name]";
 		
 		return $default_sample_label;
 	}

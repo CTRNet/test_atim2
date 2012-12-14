@@ -33,13 +33,14 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-
-			$BankModel = AppModel::getInstance("Administrate", "Bank", true);
-			$bank_data = $BankModel->find('first',array('conditions' => array('Bank.id' => $collection_data['ViewCollection']['qc_tf_bank_id'])));
-
-			$title = $collection_data['ViewCollection']['acquisition_label'];
-			if(AppController::getInstance()->Session->read('flag_show_confidential')) {
-				$title =  $bank_data['Bank']['name'].' #'.$collection_data['ViewCollection']['qc_tf_bank_identifier'].' ['. $title.']';
+			
+			$title = '';
+			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
+				$title = __('unlinked collection'). ' [id#'.$collection_data['ViewCollection']['collection_id'].']';
+			} else if($collection_data['ViewCollection']['qc_tf_bank_identifier'] == CONFIDENTIAL_MARKER) {
+				$title = __('participant identifier').' '.$collection_data['ViewCollection']['participant_identifier'];
+			} else {
+				$title = __('participant bank identifier').' '.$collection_data['ViewCollection']['qc_tf_bank_identifier'];
 			}
 
 			$return = array(
@@ -51,6 +52,42 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		}
 		
 		return $return;
+	}
+	
+	function beforeFind($queryData){
+		if(($_SESSION['Auth']['User']['group_id'] != '1')
+				&& is_array($queryData['conditions'])
+				&& AppModel::isFieldUsedAsCondition("ViewCollection.qc_tf_bank_identifier", $queryData['conditions'])) {
+			AppController::addWarningMsg(__('your search will be limited to your bank'));
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			$queryData['conditions'][] = array("ViewCollection.qc_tf_bank_id" => $user_bank_id);
+		}
+		return $queryData;
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			if(isset($results[0]['ViewCollection']['qc_tf_bank_id']) || isset($results[0]['ViewCollection']['qc_tf_bank_identifier'])){	
+				foreach($results as &$result){
+					if((!isset($result['ViewCollection']['qc_tf_bank_id'])) || $result['ViewCollection']['qc_tf_bank_id'] != $user_bank_id) {
+						$result['ViewCollection']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+						$result['ViewCollection']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
+					}
+				}
+			} else if(isset($results['ViewCollection'])){
+				pr('TODO afterFind ViewCollection');
+				pr($results);
+				exit;
+			}
+		}
+	
+		return $results;
 	}
 	
 }

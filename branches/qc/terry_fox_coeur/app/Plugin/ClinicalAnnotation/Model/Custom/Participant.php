@@ -55,4 +55,40 @@ class ParticipantCustom extends Participant {
 		return $result;
 	}
 	
+	function beforeFind($queryData){
+		if(($_SESSION['Auth']['User']['group_id'] != '1')
+				&& is_array($queryData['conditions'])
+				&& AppModel::isFieldUsedAsCondition("Participant.qc_tf_bank_identifier", $queryData['conditions'])) {
+			AppController::addWarningMsg(__('your search will be limited to your bank'));
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			$queryData['conditions'][] = array("Participant.qc_tf_bank_id" => $user_bank_id);
+		}
+		return $queryData;
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			if(isset($results[0]['Participant']['qc_tf_bank_id']) || isset($results[0]['Participant']['qc_tf_bank_identifier'])) {
+				foreach($results as &$result){
+					if((!isset($result['Participant']['qc_tf_bank_id'])) || $result['Participant']['qc_tf_bank_id'] != $user_bank_id) {
+						$result['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+						$result['Participant']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
+					}
+				}
+			} else if(isset($results['Participant'])){
+				pr('TODO afterFind participants');
+				pr($results);
+				exit;
+			}
+		}
+	
+		return $results;
+	}
+	
 }

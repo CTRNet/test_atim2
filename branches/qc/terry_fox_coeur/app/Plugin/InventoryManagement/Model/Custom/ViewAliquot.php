@@ -74,4 +74,39 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 		WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
+	function beforeFind($queryData){
+		if(($_SESSION['Auth']['User']['group_id'] != '1')
+				&& is_array($queryData['conditions'])
+				&& AppModel::isFieldUsedAsCondition("ViewAliquot.qc_tf_bank_identifier", $queryData['conditions'])) {
+			AppController::addWarningMsg(__('your search will be limited to your bank'));
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			$queryData['conditions'][] = array("ViewAliquot.qc_tf_bank_id" => $user_bank_id);
+		}
+		return $queryData;
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			if(isset($results[0]['ViewAliquot']['qc_tf_bank_id']) || isset($results[0]['ViewAliquot']['qc_tf_bank_identifier'])){
+				foreach($results as &$result){
+					if((!isset($result['ViewAliquot']['qc_tf_bank_id'])) || $result['ViewAliquot']['qc_tf_bank_id'] != $user_bank_id) {
+						$result['ViewAliquot']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+						$result['ViewAliquot']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
+					}
+				}
+			} else if(isset($results['ViewAliquot'])){
+				pr('TODO afterFind ViewAliquot');
+				pr($results);
+				exit;
+			}
+		}
+	
+		return $results;
+	}
 }
