@@ -129,6 +129,16 @@ function mainDxCondition(Model $m){
 
 function addonFunctionStart(){
 	
+TODO
+Patient McGill a deux EOC dx: voire BL080716
+TTR 0011-043 a plusieurs Presence of precursor
+verifier accuracy m y d	
+Mettre un warning si date eoc > date progression ,etc
+Netoyer date comme 0000-00-00	
+Link eoc to collection
+one eoc per participants
+	
+	
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>

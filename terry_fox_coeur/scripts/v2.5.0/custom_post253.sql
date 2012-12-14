@@ -365,3 +365,68 @@ SELECT id as participant_id_with_missing_identifier FROM participants WHERE (qc_
 SELECT res.* FROM (select count(*) as part_duplicated_identifier, qc_tf_bank_id, qc_tf_bank_identifier FROM participants where deleted <> 1 GROUP BY qc_tf_bank_id, qc_tf_bank_identifier ) res WHERE res.part_duplicated_identifier > 1;
 
 INSERT INTO i18n (id,en) VALUES ('this bank identifier has already been recorded for this bank','This bank identifier has already been recorded for this bank');
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- New request: 2012-12-10 add aliquot label
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('at least one collection is linked to that bank', 'At least one collection is linked to that bank', 'Au moins une collection est attachée à cette banque'),
+('at least one group is linked to that bank', 'At least one group is linked to that bank', 'Au moins un groupe est attaché à cette banque');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('confidential data','Confidential Data','Données confidentielles');
+
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE label = 'print barcodes';
+
+UPDATE structure_formats SET `language_heading`='', `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='quality control' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='run_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+
+UPDATE aliquot_masters am SET am.aliquot_label = 'xxx' where deleted <> 1;
+
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('FFPE', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'tissue'
+AND va.aliquot_type = 'block';
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('FT', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'tissue'
+AND va.aliquot_type = 'tube';
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('PLA', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'plasma'
+AND va.aliquot_type = 'tube';
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('DNA', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'dna'
+AND va.aliquot_type = 'tube';
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('ASC', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'ascite'
+AND va.aliquot_type = 'tube';
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('BC', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'blood cell'
+AND va.aliquot_type = 'tube';
+UPDATE aliquot_masters am, view_aliquots va, banks
+SET am.aliquot_label = CONCAT('SER', ' ', va.participant_identifier)
+WHERE am.id = va.aliquot_master_id AND banks.id = va.qc_tf_bank_id
+AND va.sample_type = 'serum'
+AND va.aliquot_type = 'tube';
+
+UPDATE versions SET permissions_regenerated = 0;
+
+SET @pwd = (select password from users WHERE username = 'NicoEn');
+UPDATE users SET flag_active = 0, username = CONCAT('TMP',id), password = @pwd WHERE group_id = 3;
+
+UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_search_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_batchedit`='0', `flag_batchedit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='acquisition_label');
+
+UPDATE structure_fields SET  `flag_confidential`='0' WHERE field IN ('qc_tf_bank_identifier','qc_tf_bank_id', 'aliquot_label');
+
+INSERT i8n (id,en) VALUES ('your search will be limited to your bank', 'Your search will be limited to your bank'),('unlinked collection','Unlinked Collection');

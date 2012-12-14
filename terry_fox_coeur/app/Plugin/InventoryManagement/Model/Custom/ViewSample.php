@@ -52,4 +52,39 @@ Participant.qc_tf_bank_id AS qc_tf_bank_id,
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
+	function beforeFind($queryData){
+		if(($_SESSION['Auth']['User']['group_id'] != '1')
+				&& is_array($queryData['conditions'])
+				&& AppModel::isFieldUsedAsCondition("ViewSample.qc_tf_bank_identifier", $queryData['conditions'])) {
+			AppController::addWarningMsg(__('your search will be limited to your bank'));
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			$queryData['conditions'][] = array("ViewSample.qc_tf_bank_id" => $user_bank_id);
+		}
+		return $queryData;
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];		
+			if(isset($results[0]['ViewSample']['qc_tf_bank_id']) || isset($results[0]['ViewSample']['qc_tf_bank_identifier'])){		
+				foreach($results as &$result){
+					if((!isset($result['ViewSample']['qc_tf_bank_id'])) || $result['ViewSample']['qc_tf_bank_id'] != $user_bank_id) {
+						$result['ViewSample']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+						$result['ViewSample']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
+					}
+				}
+			} else if(isset($results['ViewSample'])){
+				pr('TODO afterFind ViewSample');
+				pr($results);
+				exit;
+			}
+		}
+	
+		return $results;
+	}
 }
