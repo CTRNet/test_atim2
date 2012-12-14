@@ -95,9 +95,9 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 			$GroupModel = AppModel::getInstance("", "Group", true);
 			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
 			$user_bank_id = $group_data['Group']['bank_id'];
-			if(isset($results[0]) && isset($results[0]['ViewAliquot'])){
+			if(isset($results[0]['ViewAliquot']['bank_id']) || isset($results[0]['ViewAliquot']['qc_tf_bank_participant_identifier'])) {
 				foreach($results as &$result){
-					if($result['ViewAliquot']['bank_id'] != $user_bank_id) {
+					if((!isset($result['ViewAliquot']['bank_id'])) || $result['ViewAliquot']['bank_id'] != $user_bank_id) {						
 						$result['ViewAliquot']['bank_id'] = CONFIDENTIAL_MARKER;
 						$result['ViewAliquot']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 					}
