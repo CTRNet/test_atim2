@@ -429,4 +429,9 @@ UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit
 
 UPDATE structure_fields SET  `flag_confidential`='0' WHERE field IN ('qc_tf_bank_identifier','qc_tf_bank_id', 'aliquot_label');
 
-INSERT i8n (id,en) VALUES ('your search will be limited to your bank', 'Your search will be limited to your bank'),('unlinked collection','Unlinked Collection');
+INSERT INTO i18n (id,en) VALUES ('your search will be limited to your bank', 'Your search will be limited to your bank'),('unlinked collection','Unlinked Collection');
+
+UPDATE versions SET build_number = '5037' , permissions_regenerated = 0 WHERE version_number = '2.5.3';
+
+
+

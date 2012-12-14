@@ -234,6 +234,9 @@ class Browser extends DatamartAppModel {
 					if(array_key_exists($to_val, $stack)){
 						//already treated that
 						continue;
+					}else if(!isset($browsing_structures[$to_val])){
+						//permissions denied
+						continue;
 					}
 					$stack[$to_val] = null;
 					$tmp_result = array(
@@ -1210,7 +1213,6 @@ class Browser extends DatamartAppModel {
 				}
 			}
 		}
-		
 		return $chunk;
 	}
 	
