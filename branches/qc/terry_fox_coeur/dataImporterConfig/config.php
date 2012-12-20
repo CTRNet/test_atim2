@@ -26,8 +26,9 @@ class Config{
 	
 	//if reading excel file
 	
- 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CBCF#5-v3.0 2012-11-15 revise_rev20121205.xls";
- 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CHUQ#2-feb2012(K)_rev20121205.xls";
+ 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/OVCARE#3-138pts (June 11_2012) TFRI-COEUR -v3.0 2011-09-01(kim)_r20121217.xls";
+ 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CHUQ#3-20 new samples 10.10.2012- 3_r20121217.xls";
+ 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/Test.xls";
  	
  	
 	static $xls_header_rows = 2;
@@ -60,6 +61,8 @@ class Config{
 		}
 		Config::$models[$ref_name] = $m;
 	}
+	
+	static $summary_msg = array();
 
 	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chemotherapy', 'radiotherapy');
 	static $opc_file_event_types	= array('biopsy', 'surgery', 'chemotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
@@ -75,27 +78,13 @@ class Config{
 	
 	static $coeur_accuracy_def = array("c" => "c", "y" => "m", "m" => "d", "d" => "c", "" => "");
 
+	static $eoc_dx_id_from_participant_id = array();
+	
+	static $studied_participant_ids = array('qc_tf_bank_identifier' => null, 'eoc_diagnosis_master_id' => null);
 }
-
-//add you start queries here
-Config::$addon_queries_start[] = "DROP TABLE IF EXISTS start_time";
-Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start_time)";
 
 //add your end queries here
 Config::$addon_queries_end[] = "UPDATE diagnosis_masters SET primary_id=id WHERE parent_id IS NULL";
-//Config::$addon_queries_end[] = "INSERT INTO clinical_collection_links (participant_id, collection_id, created, created_by, modified, modified_by) 
-//	(SELECT p.mysql_id, c.mysql_id, 1, NOW(), 1, NOW() 
-//	FROM id_linking AS p 
-//	INNER JOIN id_linking AS c ON c.csv_reference='collections' AND p.csv_id=c.csv_id WHERE p.csv_reference='participants')";
-//Config::$addon_queries_end[] = "TRUNCATE id_linking";
-//Config::$addon_queries_end[] = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
-//Config::$addon_queries_end[] = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
-//add some value domains names that you want to use in post read/write functions
-//Config::$value_domains[] = "...";
-
-//Config::$value_domains[] = new ValueDomain("qc_tf_eoc_event_drug", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-//Config::$value_domains[] = new ValueDomain("qc_tf_surgery_type", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-//Config::$value_domains[] = new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 
 Config::$value_domains['qc_tf_ct_scan_precision']= new ValueDomain("qc_tf_ct_scan_precision", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
 Config::$value_domains['tissue_laterality']= new ValueDomain("tissue_laterality", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
@@ -107,38 +96,23 @@ Config::$parent_models[] = "participants";
 //add your configs
 $relative_path = '../tfri_coeur/dataImporterConfig/tablesMapping/';
 Config::$config_files[] = $relative_path.'participants.php';
-Config::$config_files[] = $relative_path.'qc_tf_dxd_eocs.php';
-Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_no_site.php';
-Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_site1.php';
-Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_site2.php';
-Config::$config_files[] = $relative_path.'qc_tf_dxd_progression_site_ca125.php';
-Config::$config_files[] = $relative_path.'qc_tf_dxd_other_primary_cancers.php';
+
+Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc_progression_no_site.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc_progression_site1.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc_progression_site2.php';
+Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc_progression_ca125.php';
+Config::$config_files[] = $relative_path.'qc_tf_ed_eoc.php';
+Config::$config_files[] = $relative_path.'qc_tf_tx_eoc.php';
+
+Config::$config_files[] = $relative_path.'qc_tf_dxd_other_primary_cancer.php';
 Config::$config_files[] = $relative_path.'qc_tf_dxd_other_progression.php';
-Config::$config_files[] = $relative_path.'qc_tf_ed_eocs.php';
-Config::$config_files[] = $relative_path.'qc_tf_tx_eocs.php';
 Config::$config_files[] = $relative_path.'qc_tf_ed_other.php';
 Config::$config_files[] = $relative_path.'qc_tf_tx_other.php';
+
 Config::$config_files[] = $relative_path.'collections.php';
 
-
-function mainDxCondition(Model $m){
-	//used as pre insert, not a real test
-	$m->custom_data['last_participant_id'] = $m->parent_model->last_id;
-	return true;
-}
-
 function addonFunctionStart(){
-	
-TODO
-Patient McGill a deux EOC dx: voire BL080716
-TTR 0011-043 a plusieurs Presence of precursor
-verifier accuracy m y d	
-Mettre un warning si date eoc > date progression ,etc
-Netoyer date comme 0000-00-00	
-Link eoc to collection
-one eoc per participants
-	
-	
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -151,8 +125,8 @@ one eoc per participants
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		if(!checkAndAddBankIdentifier($row['qc_tf_bank_id'], $row['qc_tf_bank_identifier'], ' Duplicate value into DB')) { 
-			pr($row);
-			pr(Config::$identifiers);exit;} ;
+			die('ERR 8894989390 qc_tf_bank_identifier='.$row['qc_tf_bank_identifier']);
+		}
 	}
 	
 	// SET banks
@@ -185,7 +159,7 @@ one eoc per participants
 		}	
 	}
 
-	$query = "SELECT value FROM structure_permissible_values_customs INNEr JOIN structure_permissible_values_custom_controls "
+	$query = "SELECT value FROM structure_permissible_values_customs INNER JOIN structure_permissible_values_custom_controls "
 		."ON structure_permissible_values_custom_controls.id = structure_permissible_values_customs.control_id "
 		."WHERE name LIKE 'tissue source'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -200,7 +174,7 @@ function checkAndAddBankIdentifier($qc_tf_bank_id, $qc_tf_bank_identifier, $erro
 	if(array_key_exists($key, Config::$identifiers)){
 		global $insert;
 		$insert = false;
-		echo "ERROR: identifier value [$qc_tf_bank_identifier] already exists for bank id [$qc_tf_bank_id] $error_precision".Config::$line_break_tag;
+		Config::$summary_msg['Patients']['@@ERROR@@']['Duplicate Patient Bank Identifier'][] = "identifier value [$qc_tf_bank_identifier] already exists for bank id [$qc_tf_bank_id] $error_precision".Config::$line_break_tag;
 		return false;	
 	}else{
 		Config::$identifiers[$key] = null;
@@ -209,43 +183,15 @@ function checkAndAddBankIdentifier($qc_tf_bank_id, $qc_tf_bank_identifier, $erro
 }
 
 function addonFunctionEnd(){
-	
+//TODO to review
+//pr(Config::$summary_msg);
+//die('addonFunctionEnd TO REVIEW' );	
 	// DIAGNOSIS / TRT / EVENT LINKS CREATION
 	
-	$query  ="SELECT participant_id, COUNT(*) AS c FROM diagnosis_masters WHERE created >= (SELECT start_time FROM start_time) GROUP BY participant_id HAVING c > 1";
-	$result = mysqli_query(Config::$db_connection, $query) or die("reading in addonFunctionEnd failed");
-	$ids = array();
-	while($row = $result->fetch_assoc()){
-		$ids[] = $row['participant_id'];
-	}
-	mysqli_free_result($result);
+pr('TODO : Follow-up from ovarectomy (months)');	
+pr('Lier ca125 si progression ca 125');
+pr('Warning si date < eoc dx date');
 	
-	if(!empty($ids)){
-		echo "MESSAGE: The tx and events for participants with ids (".implode(", ", $ids).") couldn't be linked to a dx because they have more than one.".Config::$line_break_tag;
-	}
-	
-	$ids[] = 0;
-	$query = "UPDATE event_masters "
-		."LEFT JOIN diagnosis_masters ON event_masters.participant_id=diagnosis_masters.participant_id "
-		."SET event_masters.diagnosis_master_id=diagnosis_masters.id "
-		."WHERE event_masters.created >= (SELECT start_time FROM start_time) AND event_masters.participant_id NOT IN(".implode(", ", $ids).")";
-	mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed");
-	
-	if(Config::$insert_revs){
-		$query = "UPDATE event_masters_revs INNER JOIN event_masters ON event_masters.id = event_masters_revs.id SET event_masters_revs.diagnosis_master_id = event_masters.diagnosis_master_id";
-		mysqli_query(Config::$db_connection, $query) or die("update 1 in addonFunctionEnd failed (revs table)");
-	}	
-
-	$query = "UPDATE treatment_masters "
-		."LEFT JOIN diagnosis_masters ON treatment_masters.participant_id=diagnosis_masters.participant_id "
-		."SET treatment_masters.diagnosis_master_id=diagnosis_masters.id "
-		."WHERE treatment_masters.created >= (SELECT start_time FROM start_time) AND treatment_masters.participant_id NOT IN(".implode(", ", $ids).")";
-	mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed");
-
-	if(Config::$insert_revs){
-		$query = "UPDATE treatment_masters_revs INNER JOIN treatment_masters ON treatment_masters.id = treatment_masters_revs.id SET treatment_masters_revs.diagnosis_master_id = treatment_masters.diagnosis_master_id";
-		mysqli_query(Config::$db_connection, $query) or die("update 2 in addonFunctionEnd failed (revs table)");
-	}	
 	
 	// EMPTY DATES CLEAN UP
 	
@@ -262,24 +208,26 @@ function addonFunctionEnd(){
 
 	foreach($date_times_to_check as $table_field) {
 		$names = explode(".", $table_field);
+		$table = $names[0];
+		$field = $names[1];
 		
-		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+		$query = "UPDATE $table SET $field = null WHERE $field LIKE '0000-00-00%'";
 		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
-		
 		if(Config::$insert_revs){
-			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+			$query = "UPDATE ".$table."_revs SET $field = null WHERE $field LIKE '0000-00-00%'";
 			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");			
+		}
+		
+		$field_accuracy = $field.'_accuracy';
+		$query = "UPDATE $table SET $field_accuracy = 'c' WHERE $field_accuracy = '' AND $field IS NOT NULL";
+		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
+		if(Config::$insert_revs){
+			$query = "UPDATE ".$table."_revs SET $field = null WHERE $field LIKE '0000-00-00%'";
+			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");
 		}
 	}
 	
 	// LAST DATA UPDATE
-	
-	$query = "UPDATE participants SET vital_status='deceased' WHERE vital_status='dead'";
-	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
-	if(Config::$insert_revs){
-		$query = "UPDATE participants_revs SET vital_status='deceased' WHERE vital_status='dead'";
-		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
-	}
 	
 	$query = "UPDATE participants SET last_modification=created WHERE last_modification LIKE '0000-00-00%'";
 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
@@ -288,15 +236,35 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	}
 	
-	$query = "UPDATE aliquot_masters SET barcode=CONCAT('', id) WHERE barcode=''";
+	$query = "UPDATE aliquot_masters SET barcode=id WHERE barcode=''";
 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	if(Config::$insert_revs){
-		$query = "UPDATE aliquot_masters_revs SET barcode=CONCAT('', id) WHERE barcode=''";
+		$query = "UPDATE aliquot_masters_revs SET barcode=id WHERE barcode=''";
 		mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	}
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0";
 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	
+	global $insert;
+	foreach(Config::$summary_msg as $data_type => $msg_arr) {
+		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
+		=====================================================================".Config::$line_break_tag."".Config::$line_break_tag."
+		PROCESS SUMMARY: $data_type
+		".Config::$line_break_tag."".Config::$line_break_tag."=====================================================================
+		</FONT>".Config::$line_break_tag."";
+			
+		foreach($msg_arr AS $msg_type => $msg_sub_arr) {
+		if(!in_array($msg_type, array('@@ERROR@@','@@WARNING@@','@@MESSAGE@@'))) die('ERR 89939393 '.$msg_type);
+			//TODO (if error)			$insert = false;
+			$color = str_replace(array('@@ERROR@@','@@WARNING@@','@@MESSAGE@@'),array('red','orange','green'),$msg_type);
+			echo "".Config::$line_break_tag."<FONT COLOR=\"$color\" ><b> ** $msg_type summary ** </b> </FONT>".Config::$line_break_tag."";
+			foreach($msg_sub_arr as $type => $msgs) {
+				echo "".Config::$line_break_tag." --> <FONT COLOR=\"$color\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
+				foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
+			}
+		}
+	}
 }
 	
 function pr($arr) {

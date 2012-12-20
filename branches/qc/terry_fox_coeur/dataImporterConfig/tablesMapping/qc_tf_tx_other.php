@@ -11,17 +11,21 @@ $fields = array(
 );
 
 $model = new Model(4, $pkey, array(), false, "participant_id", $pkey, 'treatment_masters', $fields);
-$model->custom_data = array("date_fields" => array(
-	$fields["start_date"]				=> 'Date of event (beginning) Accuracy',
-	$fields["finish_date"]				=> 'Date of event (end) Accuracy'
-));
+
+$model->custom_data = array(
+	"date_fields" => array(
+		$fields["start_date"] => current(array_keys($fields["start_date_accuracy"])),
+		$fields["finish_date"] => current(array_keys($fields["finish_date_accuracy"]))),
+	'disease' => 'Other'
+);
+
 $model->post_read_function = 'txPostRead';
 $model->post_write_function = 'txPostWrite';
 
 $model->file_event_types = Config::$opc_file_event_types;
 $model->event_types_to_import = array_keys($fields['treatment_control_id']['Event Type']);
 
-Config::addModel($model, 'qc_tf_tx_other');
+Config::addModel($model, 'other_tx');
 
 function txPostRead(Model $m){
 	excelDateFix($m);
@@ -34,20 +38,20 @@ function txPostRead(Model $m){
 	}
 
 	if(!in_array($m->values['Event Type'], $m->file_event_types)){
-		echo "WARNING, UNMATCHED EVENT TYPE [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
+		Config::$summary_msg[$m->custom_data['disease'].' - Treatment']['@@ERROR@@']['Unknown treatment type'][] = "Treatment type [".$m->values['Event Type']."] is not supported for ".$m->custom_data['disease']." disease. See line ". $m->line;
 	}
 	
 	if(!in_array($m->values['Event Type'], array('chemotherapy','radiotherapy'))) {
 		if(!empty($m->values['Date of event (end) Date']) && ($m->values['Date of event (beginning) Date'] != $m->values['Date of event (end) Date'])) {
-			echo "WARNING, START DATE AND END DATE ARE DIFFERENT FOR [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
+			Config::$summary_msg[$m->custom_data['disease'].' - Treatment']['@@WARNING@@']['Start date & End date issue'][] = "Start date & End date are different for treatment ".$m->values['Event Type'].". See line ". $m->line;
 		}
 		$m->values['Date of event (end) Date'] = null;
 		$m->values['Date of event (end) Accuracy'] = null;	
 	}	
 	
 	if($m->values['Event Type'] != 'chemotherapy') {
-		if(!empty($m->values['Chemotherapy Precision Drug1'])) {
-			echo "WARNING, NO DRUG TO COMPLETE FOR [",$m->values['Event Type'],"] at line [".$m->line."]".Config::$line_break_tag;
+		if(!(empty($m->values['Chemotherapy Precision Drug1']) && empty($m->values['Chemotherapy Precision Drug2']) && empty($m->values['Chemotherapy Precision Drug3']) && empty($m->values['Chemotherapy Precision Drug4']))) {	
+			Config::$summary_msg[$m->custom_data['disease'].' - Treatment']['@@WARNING@@']['No drug to complete'][] = "No drug should be defined for ".$m->values['Event Type'].". See line [".$m->line."]";
 		}
 		$m->values['Chemotherapy Precision Drug1'] = '';
 		$m->values['Chemotherapy Precision Drug2'] = '';
@@ -63,68 +67,53 @@ function txPostWrite(Model $m){
 		case 'surgery':
 		case 'surgery(other)':
 		case 'surgery(ovarectomy)':
-			$query = "INSERT INTO txd_surgeries (treatment_master_id) VALUES "
-				."(".$m->last_id.")";
-			mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-			
-			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_surgeries_revs (treatment_master_id,  version_created)  "
-					."SELECT treatment_master_id,NOW() FROM txd_surgeries WHERE treatment_master_id='".$m->last_id."'";
-				mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-			}
-			
-			break;
-			
+			insertIntoTrtDetail('txd_surgeries', $m->last_id, array());
+			break;	
 		case 'radiology':
 		case 'radiotherapy':
 		case 'hormonal therapy':
-			$query = "INSERT INTO qc_tf_tx_empty (treatment_master_id) VALUES "
-				."(".$m->last_id.")";
-			mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-			
-			if(Config::$insert_revs){
-				$query = "INSERT INTO qc_tf_tx_empty_revs (treatment_master_id, version_created)  "
-					."SELECT treatment_master_id,  NOW() FROM qc_tf_tx_empty WHERE treatment_master_id='".$m->last_id."'";
-				mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-				
-			}
-			break;
-			
+			insertIntoTrtDetail('qc_tf_tx_empty', $m->last_id, array());
+			break;	
 		case 'chemotherapy':
-			$query = "INSERT INTO txd_chemos (treatment_master_id) VALUES "
-				."(".$m->last_id.")";
-			mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-			
-			if(Config::$insert_revs){
-				$query = "INSERT INTO txd_chemos_revs (treatment_master_id,  version_created)  "
-				."SELECT treatment_master_id,  NOW() FROM txd_chemos WHERE treatment_master_id='".$m->last_id."'";
-				mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-			}
-			
+			insertIntoTrtDetail('txd_chemos', $m->last_id, array());
 			for($i = 1; $i <= 4; $i ++){
 				$current_drug = $m->values['Chemotherapy Precision Drug'.$i];
 				if(!empty($current_drug)){
 					$current_drug = trim($current_drug);
 					if(!in_array($current_drug,  Config::$drugs)) {
-						echo '<br>WARNING, DRUG ['.$current_drug.'] UNKNOWN at line ['.$m->line."]".Config::$line_break_tag;
-					}
-					
-					$query = "INSERT INTO txe_chemos(treatment_master_id, drug_id) VALUES "
-						."(".$m->last_id.", (SELECT id FROM drugs WHERE generic_name='".$current_drug."'))";
-					mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-					
-					if(Config::$insert_revs){
-						$query = "INSERT INTO txe_chemos_revs(id, treatment_master_id, drug_id,  version_created)  "
-						."SELECT id, treatment_master_id, drug_id,  NOW() FROM txe_chemos WHERE id='".mysqli_insert_id(Config::$db_connection)."'";
+						Config::$summary_msg[$m->custom_data['disease'].' - Treatment']['@@WARNING@@']['Drug Unknown'][] = " DRUG ['.$current_drug.'] UNKNOWN at line [".$m->line."]";
+					} else {
+						$query = "INSERT INTO txe_chemos(treatment_master_id, drug_id) VALUES (".$m->last_id.", (SELECT id FROM drugs WHERE generic_name='".$current_drug."'))";
 						mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+						if(Config::$insert_revs) {
+							$query = "INSERT INTO txe_chemos_revs (id, treatment_master_id, drug_id,  version_created) SELECT id, treatment_master_id, drug_id,  NOW() FROM txe_chemos WHERE id = '".mysqli_insert_id(Config::$db_connection)."'";
+							mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+						}
 					}
 				}
 			}
-			
 			break;
-			
 		default:
 			die("Invalid event type in ".__FILE__." at line ".__LINE__);
 	}
+	
+	if($m->custom_data['disease'] == 'EOC' && Config::$studied_participant_ids['eoc_diagnosis_master_id']) {
+		$query = "UPDATE treatment_masters SET diagnosis_master_id = ".Config::$studied_participant_ids['eoc_diagnosis_master_id']." WHERE id = ".$m->last_id;
+		mysqli_query(Config::$db_connection, $query) or die("edEocsPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		if(Config::$insert_revs){
+			$query = str_replace('treatment_masters','treatment_masters_revs',$query);
+			mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		}
+	}
 }
 
+function insertIntoTrtDetail($table_name, $treatment_master_id, $fields) {
+	$fields_strg = 'treatment_master_id'.(empty($fields)? '' : ','.implode(',', array_keys($fields)));
+	$values_strg = $treatment_master_id.(empty($fields)? '' : ", '".implode("','",$fields)."'");
+	$query = "INSERT INTO $table_name ($fields_strg) VALUES ($values_strg)";
+	mysqli_query(Config::$db_connection, $query) or die("insertIntoTrtDetail [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	if(Config::$insert_revs){
+		$query = "INSERT INTO ".$table_name."_revs ($fields_strg, version_created) VALUES ($values_strg, NOW())";
+		mysqli_query(Config::$db_connection, $query) or die("insertIntoTrtDetail [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	}
+}

@@ -2,9 +2,9 @@
 $pkey = "Patient Biobank Number (required)";
 
 $fields = array(
-	"participant_id" => "#participant_id",
+	"parent_id" => $pkey,
+	"participant_id" => '#participant_id',
 	"primary_id" => "#primary_id",
-	"parent_id" => "#parent_id",
 	"diagnosis_control_id" => "@16",
 	"dx_date" => "Date of Progression/Recurrence Date",
 	"dx_date_accuracy" => array("Date of Progression/Recurrence Accuracy" => Config::$coeur_accuracy_def),
@@ -13,32 +13,26 @@ $fields = array(
 	"qc_tf_progression_detection_method" => "@site detection"
 );
 
-$model = new MasterDetailModel(3, $pkey, array(), false, null, $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_progression_and_recurrences', 'diagnosis_master_id', array());
-$model->custom_data['last_participant_id'] = null;
+$model = new MasterDetailModel(3, $pkey, array(), false, 'parent_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_progression_and_recurrences', 'diagnosis_master_id', array());
+
 $model->post_read_function = 'otherProgressionPostRead';
 $model->insert_condition_function = 'otherProgressionSiteInsertNow';
-$model->custom_data = array("date_fields" => array(
-	$fields["dx_date"]									=> current(array_keys($fields["dx_date_accuracy"])),
-	'Date of Diagnosis Date'							=> 'Date of Diagnosis Accuracy')
+
+$model->custom_data = array(
+	"date_fields" => array(
+		$fields["dx_date"] => current(array_keys($fields["dx_date_accuracy"])))
 ); 
 				 
 Config::addModel($model, 'qc_tf_dxd_other_progression_site');
 
-
 function otherProgressionPostRead(Model $m){
 	excelDateFix($m);
-	if(empty($m->values['Date of Progression/Recurrence Date'])){
+	
+	if(empty($m->values['Date of Progression/Recurrence Date']) && empty($m->values['Site of Tumor Progression (metastasis)  If Applicable'])){
 		return false;
-	}
-
-	if(empty($m->values['Site of Tumor Progression (metastasis)  If Applicable'])){
+	} else if(empty($m->values['Site of Tumor Progression (metastasis)  If Applicable'])){
 		$m->values['Site of Tumor Progression (metastasis)  If Applicable'] = 'unknown';
-	}else{
-		if(strtoupper($m->values['Site of Tumor Progression (metastasis)  If Applicable']) == 'CA125'){
-			echo "ERROR: [Site of Tumor Progression (metastasis)  If Applicable] value is [CA125] in file [",$m->file,"] at line [", $m->line,"]".Config::$line_break_tag;
-			global $insert;
-			$insert = false;
-		}
+		Config::$summary_msg['Other Diagnosis Progression']['@@WARNING@@']['Unknown Progression'][] = "An other diagnosis progression date is set but no site has been defined. Unknown progression has been created. See line [". $m->line."]";
 	}
 	
 	$field = key($m->fields['qc_tf_tumor_site']);
@@ -48,3 +42,13 @@ function otherProgressionPostRead(Model $m){
 	
 	return true;
 }
+
+function otherProgressionSiteInsertNow(Model $m){
+	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
+	$m->values['primary_id'] = $m->parent_model->last_id;
+	return isSameOtherDxData($m->values, $m->parent_model->values, $m)? true : false;
+}
+
+
+
+
