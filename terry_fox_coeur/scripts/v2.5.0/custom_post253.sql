@@ -433,5 +433,23 @@ INSERT INTO i18n (id,en) VALUES ('your search will be limited to your bank', 'Yo
 
 UPDATE versions SET build_number = '5037' , permissions_regenerated = 0 WHERE version_number = '2.5.3';
 
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- New request: 2012-12-17
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_tf_dxd_eocs
+  MODIFY ca125_progression_time_in_months int(10) DEFAULT NULL,
+  MODIFY progression_time_in_months int(10) DEFAULT NULL,
+  MODIFY follow_up_from_ovarectomy_in_months int(10) DEFAULT NULL,
+  MODIFY survival_from_ovarectomy_in_months int(10) DEFAULT NULL;
+ALTER TABLE qc_tf_dxd_eocs_revs
+  MODIFY ca125_progression_time_in_months int(10) DEFAULT NULL,
+  MODIFY progression_time_in_months int(10) DEFAULT NULL,
+  MODIFY follow_up_from_ovarectomy_in_months int(10) DEFAULT NULL,
+  MODIFY survival_from_ovarectomy_in_months int(10) DEFAULT NULL;
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='survival_from_ovarectomy_in_months' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='progression_time_in_months' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='follow_up_from_ovarectomy_in_months' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='integer_positive',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='ca125_progression_time_in_months' AND `type`='float_positive' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator');
 
 
