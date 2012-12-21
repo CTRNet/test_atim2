@@ -59,7 +59,7 @@ function dxdOtherPreWrite(Model $m) {
 				Config::$summary_msg['Other Diagnosis']['@@ERROR@@']['Wrong numeric value'][] = "$new_header should be > 0. See patient ".$m->values["Patient Biobank Number (required)"]." line ". $m->line;
 				$m->values[$new_header] = '';
 			}
-			$m->values[$new_header] = substr($m->values[$new_header], 0 , strpos($m->values[$new_header], '.'));
+			if(strpos($m->values[$new_header], '.') != false) $m->values[$new_header] = substr($m->values[$new_header], 0 , strpos($m->values[$new_header], '.'));
 		}
 	}
 	return true;

@@ -26,9 +26,9 @@ class Config{
 	
 	//if reading excel file
 	
- 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/OVCARE#3-138pts (June 11_2012) TFRI-COEUR -v3.0 2011-09-01(kim)_r20121217.xls";
- 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CHUQ#3-20 new samples 10.10.2012- 3_r20121217.xls";
- 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/Test.xls";
+ 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/OVCARE#3-138pts (June 11_2012) TFRI-COEUR -v3.0 2011-09-01(kim)_rev20121221.xls";
+ 	static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/TFRI-COEUR-CHUQ#3-20 new samples 10.10.2012- 3_rev20121221.xls";
+ 	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/Test.xls";
  	
  	
 	static $xls_header_rows = 2;
@@ -78,7 +78,7 @@ class Config{
 	
 	static $coeur_accuracy_def = array("c" => "c", "y" => "m", "m" => "d", "d" => "c", "" => "");
 
-	static $eoc_dx_id_from_participant_id = array();
+	static $eoc_dx_ids = array();
 	
 	static $studied_participant_ids = array('qc_tf_bank_identifier' => null, 'eoc_diagnosis_master_id' => null);
 }
@@ -183,15 +183,6 @@ function checkAndAddBankIdentifier($qc_tf_bank_id, $qc_tf_bank_identifier, $erro
 }
 
 function addonFunctionEnd(){
-//TODO to review
-//pr(Config::$summary_msg);
-//die('addonFunctionEnd TO REVIEW' );	
-	// DIAGNOSIS / TRT / EVENT LINKS CREATION
-	
-pr('TODO : Follow-up from ovarectomy (months)');	
-pr('Lier ca125 si progression ca 125');
-pr('Warning si date < eoc dx date');
-	
 	
 	// EMPTY DATES CLEAN UP
 	
@@ -227,6 +218,112 @@ pr('Warning si date < eoc dx date');
 		}
 	}
 	
+	// FOLLOW-UP
+	
+	$query = "
+		SELECT
+		Participant.id AS part_id,
+		Participant.qc_tf_bank_identifier,
+		Participant.qc_tf_last_contact,
+		Participant.qc_tf_last_contact_accuracy,
+		DiagnosisMaster.id AS dx_id,
+		DiagnosisMaster.dx_date,
+		DiagnosisMaster.dx_date_accuracy
+		FROM diagnosis_masters DiagnosisMaster
+		INNER JOIN diagnosis_controls DiagnosisControl ON DiagnosisMaster.diagnosis_control_id = DiagnosisControl.id AND DiagnosisControl.category = 'primary' AND DiagnosisControl.controls_type = 'EOC'
+		INNER JOIN qc_tf_dxd_eocs DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
+		INNER JOIN participants Participant ON Participant.id = DiagnosisMaster.participant_id AND Participant.deleted != 1
+		WHERE DiagnosisMaster.deleted != 1 
+		AND (DiagnosisDetail.follow_up_from_ovarectomy_in_months LIKE '' OR DiagnosisDetail.follow_up_from_ovarectomy_in_months IS NULL)
+		AND DiagnosisMaster.id IN (".implode(',', Config::$eoc_dx_ids).")";
+	$res_eoc_dxs_to_update = mysqli_query(Config::$db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
+	while($new_eoc = mysqli_fetch_assoc($res_eoc_dxs_to_update)){
+		$eoc_diagnosis_master_id = $new_eoc['dx_id'];
+		$qc_tf_bank_identifier = $new_eoc['qc_tf_bank_identifier'];
+		$qc_tf_last_contact = $new_eoc['qc_tf_last_contact'];
+		$qc_tf_last_contact_accuracy = $new_eoc['qc_tf_last_contact_accuracy'];
+		if(!$qc_tf_last_contact) {
+			Config::$summary_msg['EOC Diagnosis']['@@WARNING@@']['Follow-up: Last contact missing'][] = "Date is missing. Unable to calculate 'Follow-up'. See patient $qc_tf_bank_identifier";
+		} else if(!in_array($qc_tf_last_contact_accuracy, array('','c'))) {
+			Config::$summary_msg['EOC Diagnosis']['@@WARNING@@']['Follow-up: Last contact accuracy issue'][] = "Date accuracy != c (=$qc_tf_last_contact_accuracy). Unable to calculate 'Follow-up'. See patient $qc_tf_bank_identifier";
+		} else	{
+			//First Ovarectomy Selection
+			$query = "
+				SELECT
+				TreatmentMaster.id,
+				TreatmentMaster.participant_id,
+				TreatmentMaster.start_date,
+				TreatmentMaster.start_date_accuracy
+				FROM treatment_masters TreatmentMaster
+				INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id AND TreatmentControl.disease_site = 'EOC' AND TreatmentControl.tx_method = 'ovarectomy'
+				WHERE TreatmentMaster.deleted != 1 AND TreatmentMaster.diagnosis_master_id = $eoc_diagnosis_master_id
+				ORDER BY TreatmentMaster.start_date ASC";
+			$res_first_ovarectomy = mysqli_query(Config::$db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
+			if($res_first_ovarectomy->num_rows == 0) {
+				Config::$summary_msg['EOC Diagnosis']['@@WARNING@@']['Follow-up: No ovarectomy'][] = 'No ovarectomy. Unable to calculate "followup". See patient '.$qc_tf_bank_identifier;
+			} else {
+				$first_ovarectomy_date = null;
+				$first_ovarectomy_date_accuracy = null;
+				if($res_first_ovarectomy->num_rows > 1) {
+					$empty_date = false;
+					while($new_ovarectomy = mysqli_fetch_assoc($res_first_ovarectomy)) {
+						if(empty($new_ovarectomy['start_date'])) $empty_date = true;
+						if(!$first_ovarectomy_date) {
+							$first_ovarectomy_date = $new_ovarectomy['start_date'];
+							$first_ovarectomy_date_accuracy = $new_ovarectomy['start_date_accuracy'];
+						}
+					}
+					if($empty_date) {
+						Config::$summary_msg['EOC Diagnosis']['@@WARNING@@']['Follow-up: Overectomy & empty date'][] = 'At least one ovarectomy date is empty. Can have a consequence on first ovarectomy selection for "follow up" defintion. See patient '.$qc_tf_bank_identifier;
+					}
+				} else {
+					$first_ovarectomy = mysqli_fetch_assoc($res_first_ovarectomy);
+					$first_ovarectomy_date = $first_ovarectomy['start_date'];
+					$first_ovarectomy_date_accuracy = $first_ovarectomy['start_date_accuracy'];
+				} 
+				//First Ovarectomy Selection
+				if(!$first_ovarectomy_date) {
+					Config::$summary_msg['EOC Diagnosis']['@@WARNING@@']['Follow-up: Ovarectomy date is missing'][] = "Date is missing. Unable to calculate 'Follow-up'. See patient $qc_tf_bank_identifier";
+				} else if ($first_ovarectomy_date_accuracy != 'c') {
+					Config::$summary_msg['EOC Diagnosis']['@@WARNING@@']['Follow-up: Ovarectomy accuracy issue'][] = "Date accuracy != c (=$first_ovarectomy_date_accuracy). Unable to calculate 'Follow-up'. See patient $qc_tf_bank_identifier";
+				} else {
+					if($qc_tf_last_contact < $first_ovarectomy_date) {
+						Config::$summary_msg['EOC Diagnosis']['@@ERROR@@']['Follow-up: Ovarectomy & last contact dates error'][] = 'Last Contact Date < ovarectomy date. nable to calculate "followup". See patient '.$qc_tf_bank_identifier;
+					} else {
+						$datetime1 = new DateTime($first_ovarectomy_date);
+						$datetime2 = new DateTime($qc_tf_last_contact);
+						$interval = $datetime1->diff($datetime2);
+						$follow_up_from_ovarectomy_in_months = (($interval->format('%y')*12) + $interval->format('%m'));
+						
+						$query = "UPDATE qc_tf_dxd_eocs SET follow_up_from_ovarectomy_in_months = $follow_up_from_ovarectomy_in_months WHERE diagnosis_master_id = $eoc_diagnosis_master_id";
+						mysqli_query(Config::$db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
+						$query = str_replace("qc_tf_dxd_eocs", "qc_tf_dxd_eocs_revs", $query);
+						mysqli_query(Config::$db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
+						
+						Config::$summary_msg['EOC Diagnosis']['@@MESSAGE@@']['Follow-up: Calculate'][] = "Follow-up value has been calculated (=$follow_up_from_ovarectomy_in_months). See patient $qc_tf_bank_identifier";
+					}
+				}
+			}
+		}
+	}
+	
+	// Link CA 125
+	
+	$query = 
+		"UPDATE diagnosis_masters dx_eoc, diagnosis_masters dx_ca125, event_masters ev_ca125
+		SET ev_ca125.diagnosis_master_id = dx_ca125.id
+		WHERE dx_eoc.diagnosis_control_id = 14 AND dx_eoc.deleted <> 1 AND dx_eoc.id IN (".implode(',', Config::$eoc_dx_ids).")
+		AND dx_eoc.id = dx_ca125.primary_id AND dx_ca125.deleted != 1 AND dx_ca125.diagnosis_control_id = 16 AND dx_ca125.qc_tf_progression_detection_method = 'ca125'
+		AND dx_eoc.id = ev_ca125.diagnosis_master_id AND ev_ca125.deleted != 1 AND ev_ca125.event_control_id = 37 
+		AND dx_ca125.dx_date = ev_ca125.event_date";
+	mysqli_query(Config::$db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
+	$query = 
+		"UPDATE event_masters ev_ca125, event_masters_revs ev_ca125_revs
+		SET ev_ca125_revs.diagnosis_master_id = ev_ca125.diagnosis_master_id
+		WHERE ev_ca125.id = ev_ca125_revs.id
+		AND ev_ca125.event_control_id = 37 AND ev_ca125_revs.diagnosis_master_id IN (".implode(',', Config::$eoc_dx_ids).")";
+	mysqli_query(Config::$db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");	
+	
 	// LAST DATA UPDATE
 	
 	$query = "UPDATE participants SET last_modification=created WHERE last_modification LIKE '0000-00-00%'";
@@ -245,6 +342,8 @@ pr('Warning si date < eoc dx date');
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0";
 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
+	
+	// Summary Message Display
 	
 	global $insert;
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {

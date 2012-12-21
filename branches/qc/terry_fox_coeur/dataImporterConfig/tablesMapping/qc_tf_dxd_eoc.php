@@ -98,7 +98,7 @@ function dxdEocPreWrite(Model $m) {
 				Config::$summary_msg['EOC Diagnosis']['@@ERROR@@']['Wrong numeric value'][] = "$new_header should be > 0. See patient ".$m->values["Patient Biobank Number (required)"]." line ". $m->line;
 				$m->values[$new_header] = '';
 			}
-			$m->values[$new_header] = substr($m->values[$new_header], 0 , strpos($m->values[$new_header], '.'));
+			if(strpos($m->values[$new_header], '.') != false) $m->values[$new_header] = substr($m->values[$new_header], 0 , strpos($m->values[$new_header], '.'));
 		}
 	}
 	
@@ -146,6 +146,7 @@ function checkSameEocDxData($m_current, $m_reference, $m) {
 
 function dxdEocPostWrite(Model $m){
 	Config::$studied_participant_ids['eoc_diagnosis_master_id'] = $m->last_id;
+	Config::$eoc_dx_ids[] = $m->last_id; 
 }
 
 function eocProgressionInsertNow(Model $m) {
