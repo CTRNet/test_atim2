@@ -5,10 +5,9 @@ $fields = array(
 //	"bank_id" 						=> "#bank_id",
 	"participant_id" => $pkey,
 	"collection_datetime" 			=> "Date of Specimen Collection Date",
-	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => Config::$coeur_accuracy_def),
+	"collection_datetime_accuracy"	=> array("Date of Specimen Collection Accuracy" => array("c" => "h", "y" => "m", "m" => "d", "" => "")),
 	"collection_notes"				=> "notes"
 );
-
 
 $model = new Model(5, $pkey, array(), false, "participant_id", $pkey, 'collections', $fields);
 
