@@ -156,7 +156,7 @@ class AppController extends Controller {
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	
-		define('CONFIDENTIAL_MARKER', 'Confidential Data');
+		define('CONFIDENTIAL_MARKER', __('confidential data'));
 	
 		// ATiM2 configuration variables from Datatable
 	
@@ -943,12 +943,23 @@ class AppController extends Controller {
 				AppModel::getInstance('InventoryManagement', 'ViewCollection'),
 				AppModel::getInstance('InventoryManagement', 'ViewSample'),
 				AppModel::getInstance('InventoryManagement', 'ViewAliquot'),
-				AppModel::getInstance('StorageLayout', 'ViewStorageMaster')
+				AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
+				AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
 		);
 		foreach($view_models as $view_model){
 			$this->Version->query('DROP TABLE IF EXISTS '.$view_model->table);
 			$this->Version->query('DROP VIEW IF EXISTS '.$view_model->table);
-			$this->Version->query('CREATE TABLE '.$view_model->table. '('.str_replace('%%WHERE%%', '', $view_model::$table_query).')');
+			if(isset($view_model::$table_create_query)){
+				//Must be done with multiple queries
+				$this->Version->query($view_model::$table_create_query);
+				$queries = explode("UNION ALL", $view_model::$table_query);
+				foreach($queries as $query){
+					$this->Version->query('INSERT INTO '.$view_model->table. '('.str_replace('%%WHERE%%', '', $query).')');
+				}
+				
+			}else{
+				$this->Version->query('CREATE TABLE '.$view_model->table. '('.str_replace('%%WHERE%%', '', $view_model::$table_query).')');
+			}
 			$desc = $this->Version->query('DESC '.$view_model->table);
 			$fields = array();
 			$field = array_shift($desc);
