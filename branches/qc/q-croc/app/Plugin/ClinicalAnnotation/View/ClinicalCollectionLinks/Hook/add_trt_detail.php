@@ -1,4 +1,2 @@
 <?php 
-
-	$final_options['settings']['actions'] = true;
-	$final_options['settings']['form_bottom'] = true;
+	$display_next_sub_form=false;
