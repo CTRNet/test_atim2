@@ -1193,11 +1193,6 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/Adhocs/%';
 
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE label LIKE 'print barcodes';
 
-SELECT 'TODO: qualityctrls_volume_for_detail?' AS msg;
-SELECT 'TODO: SHOULD SAMPLE ID MOVED TO SAMPLE LEVEL?' AS msg;
-SELECT 'TODO: PRe/POST biopsy can be empty?' AS msg;
-SELECT 'TODO: Add path review in batch?' AS msg;
-
 -- -------------------------------------------------------------------------------------------
 -- OTHER
 -- -------------------------------------------------------------------------------------------
@@ -1210,30 +1205,3 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/%';
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ParticipantContact','EventMaster','FamilyHistory','DiagnosisMaster','ConsentMaster','MiscIdentifier'))
 OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ParticipantContact','EventMaster','FamilyHistory','DiagnosisMaster','ConsentMaster','MiscIdentifier'));
-
--- -------------------------------------------------------------------------------------------
--- Example values to delete
--- -------------------------------------------------------------------------------------------
-
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : Sites');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
-VALUES 
-('site staff 1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
-('site staff 2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : HDQ');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
-VALUES 
-('HDQ staff 1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
-('HDQ staff 2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Staff : JGH');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
-VALUES 
-('JGH staff 1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
-('JGH staff 2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
-
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name =  'SOP : Versions');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
-VALUES 
-('sv1','', '', '1', @control_id, NOW(), NOW(), 1, 1),
-('sv2','', '', '1', @control_id, NOW(), NOW(), 1, 1);
-

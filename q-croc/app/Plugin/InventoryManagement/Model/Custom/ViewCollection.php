@@ -36,11 +36,15 @@ Collection.qcroc_prior_to_chemo_specify AS  qcroc_prior_to_chemo_specify,
 Collection.qcroc_cycle AS qcroc_cycle,
 Collection.qcroc_is_baseline AS qcroc_is_baseline,
 
-TreatmentMaster.qcroc_biopsy_type AS qcroc_biopsy_type
+Collection.qcroc_biopsy_type AS qcroc_biopsy_type,
+Collection.qcroc_liver_segment AS qcroc_liver_segment,
+Collection.qcroc_lesion_size_sup_2_cm AS qcroc_lesion_size_sup_2_cm,
+Collection.qcroc_lesion_size_cm AS qcroc_lesion_size_cm,
+Collection.qcroc_radiologist AS qcroc_radiologist,
+Collection.qcroc_coordinator AS qcroc_coordinator
 	
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN treatment_masters AS TreatmentMaster ON Collection.treatment_master_id = TreatmentMaster.id AND TreatmentMaster.deleted <> 1
 	
 		WHERE Collection.deleted <> 1 %%WHERE%%';	
 		
