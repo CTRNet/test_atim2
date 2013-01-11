@@ -498,12 +498,11 @@ class AppModel extends Model {
 				list($year, $month, $day) = explode("-", trim($current));
 				$hour = null;
 				$minute = null;
+				$time = null;
 				if(strpos($day, ' ') !== false){
-					$time = null;
 					list($day, $time) = explode(" ", $day);
 					list($hour, $minute) = explode(":", $time);
 				}
-				
 				
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
