@@ -3,7 +3,7 @@
 
 	$structure_build_options = array(
 		'type' => 'edit',
-		'links' => array('top' => '/InventoryManagement/collections/templateInit/'.$collection_id.'/'.$template_id),
+		'links' => array('top' => '/InventoryManagement/Collections/templateInit/'.$collection_id.'/'.$template_id),
 		'settings' => empty($template_init_structure['Sfs'])? 
 			array(): 
 			array('header' => __('default values'),

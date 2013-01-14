@@ -8,23 +8,19 @@ class User extends AppModel {
 	const PASSWORD_MINIMAL_LENGTH = 6;
 	
 	function parentNode() {    
-		
-		if (!$this->id && empty($this->data)) {        
-			return null;    
+		if (!$this->id && empty($this->data)){
+			throw new Exception('Insufficient data to determine parentNode');
 		}
 		
-		$data = $this->data;    
-		
-		if (empty($this->data)) {        
-			$data = $this->read();    
-		}    
-		
-		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {        
-			return null;    
-		} else {        
-			return array('Group' => array('id' => $data['User']['group_id']));    
+		if(empty($this->data) || !isset($this->data['User']['group_id'])){
+			$data = $this->read();
 		}
 		
+		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {
+			throw new Exception('User must always have a group_id');
+		} else {
+			return array('Group' => array('id' => $data['User']['group_id']));
+		}
 	}
 	
 	function summary( $variables=array() ) {

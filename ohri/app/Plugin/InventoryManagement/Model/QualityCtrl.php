@@ -9,6 +9,10 @@ class QualityCtrl extends InventoryManagementAppModel {
 			'className'   => 'InventoryManagement.AliquotMaster',
 			 	'foreignKey'  => 'aliquot_master_id')
 	);
+  
+  var $registered_view = array(
+  		'InventoryManagement.ViewAliquotUse' => array('QualityCtrl.id')
+  );
 			
 	function summary($variables=array()) {
 		$return = false;

@@ -3,7 +3,7 @@
 		'index'=>array(
 			'detail'=>'/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$atim_menu_variables['Participant.id'].'/%%Collection.id%%/',
 			'collection' => array(
-				'link' => '/InventoryManagement/collections/detail/%%Collection.id%%/',
+				'link' => '/InventoryManagement/Collections/detail/%%Collection.id%%/',
 				'icon' => 'collection'
 			)
 		),

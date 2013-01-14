@@ -206,20 +206,20 @@ class AdhocsController extends DatamartAppController {
 			);
 			$checklist_key = $adhoc['Adhoc']['model'].'.id';
 		}else{
+			$dm_model = $this->DatamartStructure->getModel($dm_structure['DatamartStructure']['id'], $dm_structure['DatamartStructure']['model']);
 			$actions = $this->BatchSet->getDropdownOptions(
 				$adhoc['Adhoc']['plugin'], 
 				$adhoc['Adhoc']['model'], 
 				"id", 
 				$adhoc['Adhoc']['form_alias_for_results'], 
 				$dm_structure['DatamartStructure']['model'], 
-				$dm_structure['DatamartStructure']['use_key']
+				$dm_model->primaryKey
 			);
 			$actions[] = array(
-				"value"		=> 0,
-				"default"	=> __("initiate browsing"),
-				"action"	=> "Datamart/Browser/batchToDatabrowser/".$adhoc['Adhoc']['model']."/"
+				"label"	=> __("initiate browsing"),
+				"value"	=> "Datamart/Browser/batchToDatabrowser/".$adhoc['Adhoc']['model']."/"
 			);
-			$checklist_key = $dm_structure['DatamartStructure']['model'].'.'.$dm_structure['DatamartStructure']['use_key'];
+			$checklist_key = $dm_structure['DatamartStructure']['model'].'.'.$dm_model->primaryKey;
 		}
 		$this->set('checklist_key', $checklist_key);
 		$this->set('actions', $actions);

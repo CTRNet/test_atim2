@@ -127,7 +127,7 @@ class Browser extends DatamartAppModel {
 					$sub_menu = array();
 					foreach($data as $data_unit){
 						$sub_menu[] = array(
-							'value'	=> '/Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$data_unit['SavedBrowsingIndex']['id'],
+							'value'	=> 'Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$data_unit['SavedBrowsingIndex']['id'],
 							'label'	=> $data_unit['SavedBrowsingIndex']['name']
 						);
 					}
@@ -234,6 +234,9 @@ class Browser extends DatamartAppModel {
 					if(array_key_exists($to_val, $stack)){
 						//already treated that
 						continue;
+					}else if(!isset($browsing_structures[$to_val])){
+						//permissions denied
+						continue;
 					}
 					$stack[$to_val] = null;
 					$tmp_result = array(
@@ -261,13 +264,13 @@ class Browser extends DatamartAppModel {
 	function buildItemOptions(array &$result, array &$browsing_structures, &$current_id, array &$sub_models_id_filter){
 		$result['children'] = array(
 			array(
-				'value' => $result['value'],
-				'label' => __('filter'),
-				'style'	=> 'filter'),
-			array(
 				'value' => $result['value']."/true/",
 				'label' => __('no filter'),
-				'style' => 'no_filter')
+				'style' => 'no_filter'),
+			array(
+				'value' => $result['value'],
+				'label' => __('all with filter'),
+				'style'	=> 'filter')
 		);
 		$browsing_model = AppModel::getInstance($browsing_structures[$current_id]['plugin'], $browsing_structures[$current_id]['model'], true);
 		if($control_name = $browsing_model->getControlName()){
@@ -1103,9 +1106,15 @@ class Browser extends DatamartAppModel {
 				$this->checklist_model = $current_model;
 			}
 
+			$prefix = '';
+			if($iteration_count > 1){
+				//prefix all models with their node id, except for the first node
+				$prefix = $node.'-';
+			}
 			//structure merge, add 100 * iteration count to display column
 			foreach($structure['Sfs'] as $sfs){
 				$sfs['display_column'] += 100 * $iteration_count;
+				$sfs['model'] = $prefix.$sfs['model'];
 				$result_structure['Sfs'][] = $sfs;
 			}
 			//copy accuracy settings
@@ -1195,18 +1204,41 @@ class Browser extends DatamartAppModel {
 		}else{
 			$chunk = array_fill(0, count($this->rows_buffer), array());
 			$node = null;
+			$count = 0;
 			foreach($this->models_buffer as $model_index => $model_ids){
 				$node = $this->nodes[$model_index];
-				$model_data = $node[self::MODEL]->find('all', array('conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 'recursive' => 0));
-				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
+				$prefix = '';
+				if($count){
+					//set a prefix when model != 0 (the first one cannot be prefixed because of links and checkboxes)
+					$prefix = $node[self::NODE_ID].'-';
+				}
+				$model_data_tmp = $node[self::MODEL]->find('all', array(
+					'fields'	=> '*',
+					'conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 
+					'recursive' => 0)
+				);
+				
+				if($prefix){
+					$model_data = array();
+					while($models = array_shift($model_data_tmp)){
+						foreach($models as $model_name => $data){
+							$tmp_arr[$prefix.$model_name] = $data;
+						}
+						$model_data[] = $tmp_arr;
+					}
+					unset($model_data_tmp);
+				}else{
+					$model_data = $model_data_tmp;
+				}
+				$model_data = AppController::defineArrayKey($model_data, $prefix.$node[self::MODEL]->name, $node[self::USE_KEY]);
 				foreach($this->rows_buffer as $row_index => $row_data){
 					if(!empty($row_data[$model_index])){
 						$chunk[$row_index] = array_merge($model_data[$row_data[$model_index]][0], $chunk[$row_index]);
 					}
 				}
+				++ $count;
 			}
 		}
-		
 		return $chunk;
 	}
 	
@@ -1336,7 +1368,7 @@ class Browser extends DatamartAppModel {
 				);
 				foreach($result_structure['Sfs'] as &$field){
 					if($field['model'] == $detail_model_name && $field['tablename'] != $alternate_info['detail_tablename']){
-						if(Config::read('debug') > 0 && !empty($field['tablename']) && $field['tablename'] != $alternate_info['detail_tablename']){
+						if(Configure::read('debug') > 0 && !empty($field['tablename']) && $field['tablename'] != $alternate_info['detail_tablename']){
 							AppController::addWarningMsg('A loaded detail field has a different tablename ['.$field['tablename'].'] than what the control table states ['.$alternate_info['detail_tablename'].']', true);
 						}
 						$field['tablename'] = $alternate_info['detail_tablename'];

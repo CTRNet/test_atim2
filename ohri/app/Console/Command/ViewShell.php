@@ -34,23 +34,16 @@ class ViewShell extends AppShell{
 				}catch(Exception $e){
 					//table doesn't exists
 				}
-				$self->User->query('CREATE TABLE console_stored_views (name VARCHAR(50) NOT NULL DEFAULT "", command TEXT, is_table BOOLEAN NOT NULL DEFAULT false)Engine=InnoDb');
+				$self->User->query('CREATE TABLE console_stored_views (name VARCHAR(50) NOT NULL DEFAULT "", command TEXT)Engine=InnoDb');
 				
 				$db_conf = new DATABASE_CONFIG();
 					
 				foreach($views as $result){
 					$create = $self->User->query('SHOW CREATE TABLE '.$result);
-					if(isset($create[0][0]['Create View'])){
-						$index = strpos($create[0][0]['Create View'], " VIEW ");
-						$create_view_str = str_replace("`$db_conf->default['database']`.", '', $create[0][0]['Create View']);
-						$create_view_str = "CREATE ".substr($create_view_str, $index + 1);
-						$self->User->query('INSERT INTO console_stored_views VALUES ("'.$result.'", "'.$create_view_str.'", 0)');
-					}else if(isset($create[0][0]['Create Table'])){
-						$self->User->query('INSERT INTO console_stored_views VALUES ("'.$result.'", "", 1)');
-					}else{
-						$self->out('Error: View and Table were found.');
-						exit;
-					}
+					$index = strpos($create[0][0]['Create View'], " VIEW ");
+					$create_view_str = str_replace('`'.$db_conf->default['database'].'`.', '', $create[0][0]['Create View']);
+					$create_view_str = "CREATE ".substr($create_view_str, $index + 1);
+					$self->User->query('INSERT INTO console_stored_views VALUES ("'.$result.'", "'.$create_view_str.'")');
 				}
 				$self->out('Views have been stored. Any previous entries in console_stored_views have been deleted.');
 			}else{
@@ -60,12 +53,7 @@ class ViewShell extends AppShell{
 		$this->commands['delete'] = function($self){
 			$views = $self->getViews();
 			foreach($views as $view){
-				try{
-					$self->User->query('DROP TABLE '.$view);
-				}catch(Exception $e){
-					//not a table
-					$self->User->query('DROP VIEW '.$view);
-				}
+				$self->User->query('DROP VIEW '.$view);
 			}
 			$self->out('Views have been deleted.');
 		};
@@ -74,25 +62,10 @@ class ViewShell extends AppShell{
 			if($views){
 				$self->out('Cannot rebuild views. They already exist.');
 			}else{
-				$results = $self->User->query('SELECT command FROM console_stored_views WHERE is_table=false');
+				$results = $self->User->query('SELECT command FROM console_stored_views', false);
 				$results = Set::flatten($results);
 				foreach($results as $result){
 					$self->User->query($result);
-				}
-				$results = $self->User->query('SELECT name FROM console_stored_views WHERE is_table=true');
-				$results = Set::flatten($results);
-				foreach($results as $result){
-					$self->User->query('CREATE TABLE '.$result.' (SELECT * FROM '.$result.'_view)');
-					$desc = $self->User->query('DESC '.$result);
-					$fields = array();
-					$field = array_shift($desc);
-					$pkey = $field['COLUMNS']['Field'];
-					foreach($desc as $field){
-						if($field['COLUMNS']['Type'] != 'text'){
-							$fields[] = $field['COLUMNS']['Field'];
-						}
-					}
-					$self->User->query('ALTER TABLE '.$result.' ADD PRIMARY KEY('.$pkey.'), ADD KEY ('.implode('), ADD KEY (', $fields).')');
 				}
 				$self->out('Views have been rebuilt.');
 			}
@@ -130,7 +103,14 @@ class ViewShell extends AppShell{
 	
 	function getViews(){
 		$results = $this->User->query("SHOW TABLES LIKE 'view_%'");
-		return Set::flatten($results);
+		$results = Set::flatten($results);
+		foreach($results as $index => $result){
+			$create = $this->User->query('SHOW CREATE TABLE '.$result);
+			if(!isset($create[0][0]['Create View'])){
+				unset($results[$index]);
+			}
+		}
+		return $results;
 	}
 	
 }

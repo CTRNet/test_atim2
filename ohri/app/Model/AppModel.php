@@ -208,6 +208,42 @@ class AppModel extends Model {
 	function atimDelete($model_id, $cascade = true){
 		$this->id = $model_id;
 		
+		//prior to deletion, fetch all affected view data
+		$registered_models = array();
+		if($this->registered_view){
+			foreach($this->registered_view as $registered_view => $foreign_keys){
+				list($plugin_name, $model_name) = explode('.', $registered_view);
+				$model = AppModel::getInstance($plugin_name, $model_name);
+				$pkeys_to_check = array();
+				foreach($foreign_keys as $foreign_key){
+					$at_least_one = false;
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $foreign_key) === false){
+							continue;
+						}
+						$at_least_one = true;
+						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+						if($this->name == 'SourceAliquot'){
+							pr($this->tryCatchQuery('SELECT * FROM source_aliquots WHERE id=11'));
+						}
+						
+						$results = $this->tryCatchQuery($table_query);
+						foreach($results as $result){
+							$pkeys_to_check[] = current(current($result));
+						}
+					}
+					if(!$at_least_one){
+						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
+					}
+				}
+				if($pkeys_to_check){
+					$registered_models[] = array(
+						'model' => $model,
+						'pkeys_to_check' => array_unique($pkeys_to_check)	
+					);
+				}
+			}
+		}
 		// delete DATA as normal
 		$this->addWritableField('deleted');
 		$this->delete($model_id, $cascade);
@@ -216,13 +252,25 @@ class AppModel extends Model {
 		if($this->read()){
 			return false; 
 		}else{
-			if($this->registered_view){
-				foreach($this->registered_view as $registered_view => $foreign_keys){
-					list($plugin_name, $model_name) = explode('.', $registered_view);
-					$model = AppModel::getInstance($plugin_name, $model_name);
-					foreach($foreign_keys as $foreign_key){
-						$query = sprintf('DELETE FROM %1$s WHERE %2$s=%3$d', $model->table, $foreign_key, $this->id);
-						$this->tryCatchquery($query);
+			foreach($registered_models as $registered_model){
+				//try to find the row
+				$model = $registered_model['model'];
+				foreach($pkeys_to_check as $pkey_to_check){
+					$pkeys_to_check = $registered_model['pkeys_to_check'];
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $model->base_model) === false){
+							continue;
+						}
+						$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $query_part);
+						$data = $this->tryCatchQuery($table_query);
+	 					if($data){
+	 						//update
+	 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+	 						$this->tryCatchquery($query);
+	 					}else{
+	 						//delete
+	 						$model->delete($pkey_to_check, false);
+	 					}
 					}
 				}
 			}
@@ -468,12 +516,11 @@ class AppModel extends Model {
 				list($year, $month, $day) = explode("-", trim($current));
 				$hour = null;
 				$minute = null;
+				$time = null;
 				if(strpos($day, ' ') !== false){
-					$time = null;
 					list($day, $time) = explode(" ", $day);
 					list($hour, $minute) = explode(":", $time);
 				}
-				
 				
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
@@ -657,7 +704,7 @@ class AppModel extends Model {
 		}
 		if($instance === false && $error_view_on_null){
 			pr(AppController::getStackTrace());
-			die('died in AppModel::getInstance ['.$plugin_name.$class_name.']');//TODO: remove me!
+			die('died in AppModel::getInstance ['.$plugin_name.$class_name.'] (If you are displaying a form with master & detail fields, please check structure_fields.plugin is not empty)');//TODO: remove me!
 			AppController::getInstance()->redirect( '/Pages/err_model_import_failed?p[]='.$class_name, NULL, TRUE );
 		}
 		
@@ -1157,8 +1204,19 @@ class AppModel extends Model {
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				foreach($foreign_keys as $foreign_key){
-					$query = sprintf('REPLACE INTO %1$s (SELECT * FROM %1$s_view WHERE %2$s=%3$d)', $model->table, $foreign_key, $this->id);
-					$this->tryCatchquery($query);
+					$at_least_one = false;
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $foreign_key) === false){
+							continue;
+						}
+						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+						$at_least_one = true;
+						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+						$this->tryCatchquery($query);
+					}
+					if(!$at_least_one){
+						throw Exception("No queries part fitted with the foreign key ".$foreign_key);
+					}
 				}
 			}
 		}
@@ -1188,7 +1246,7 @@ class AppModel extends Model {
 	function getPluginName(){
 		$class = new ReflectionClass($this);
 		$matches = array();
-		if(preg_match('#'.str_replace('/','[\\\/]',AppController::getInstance()->request->webroot.'app/Plugin/([\w\d]+)/').'#', $class->getFileName(), $matches)){
+		if(preg_match('#'.str_replace('/','[\\\/]','/app/Plugin/([\w\d]+)/').'#', $class->getFileName(), $matches)){
 			return $matches[1];
 		}
 		return null;
@@ -1219,12 +1277,36 @@ class AppModel extends Model {
 		}
 	}
 	
-	function tryCatchQuery($sql){
+	function tryCatchQuery($sql, $cache = false){
 		try{
-			return parent::query($sql);
+			return parent::query($sql, $cache);
 		}catch(Exception $e){
-			$bt = debug_backtrace();
-			AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.$bt[1]['function'].',line='.$bt[0]['line'], null, true );
+			if(Configure::read('debug') > 0){
+				pr('QUERY ERROR:');
+				pr($sql);
+				pr(AppController::getStackTrace());
+				exit;
+			} else {
+				AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+			}
 		}
+	}
+	
+	/**
+	 * Will sort data based on the given primary key order.
+	 * @param array $data The data to sort.
+	 * @param array|string $order The ordered pkeys in either an array or a comma separated string.
+	 */
+	function sortForDisplay(array &$data, $order){
+		$tmp_data = AppController::defineArrayKey($data, $this->name, $this->primaryKey, true);
+		if(is_string($order)){
+			$order = explode(',', $order);
+		}
+		$order = array_unique(array_filter($order));
+		$data = array();
+		foreach($order as $key){
+			$data[] = $tmp_data[$key];
+		}
+		unset($tmp_data);
 	}
 }

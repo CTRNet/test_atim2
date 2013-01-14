@@ -67,7 +67,7 @@ class StructuresComponent extends Component {
 			if(isset($struct_unit['structure']['Sfs'])){
 				$structure['Sfs'] = array_merge($struct_unit['structure']['Sfs'], $structure['Sfs']);
 				$structure['Structure'][] = $struct_unit['structure']['Structure'];
-				$structure['Accuracy'] = array_merge($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
+				$structure['Accuracy'] = array_merge_recursive($struct_unit['structure']['Accuracy'], $structure['Accuracy']);
 				$structure['Structure']['CodingIcdCheck'] = $struct_unit['structure']['Structure']['CodingIcdCheck'];
 			}
 		}
@@ -132,10 +132,12 @@ class StructuresComponent extends Component {
 		}
 
 		foreach($alias as $alias_unit){
-			$tmp = $this->getSingleStructure($alias_unit);
-			$result['structure']['Sfs'] = array_merge($tmp['structure']['Sfs'], $result['structure']['Sfs']);
-			$result['structure']['Structure'][] = $tmp['structure']['Structure'];
-			$result['rules'] = array_merge($tmp['rules'], $result['rules']);
+			if(!empty($alias_unit)) {
+				$tmp = $this->getSingleStructure($alias_unit);			
+				$result['structure']['Sfs'] = array_merge($tmp['structure']['Sfs'], $result['structure']['Sfs']);
+				$result['structure']['Structure'][] = $tmp['structure']['Structure'];
+				$result['rules'] = array_merge($tmp['rules'], $result['rules']);
+			}
 		}
 		if(count($alias) > 1){
 			self::sortStructure($result['structure']);

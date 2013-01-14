@@ -97,8 +97,8 @@ while($data = array_shift($this->request->data)){
 	
 	$final_options_children['settings']['name_prefix'] = $prefix;
 	$final_options_children['data'] = $data['children'];
-	$final_options_children['dropdown_options']['SampleMaster.parent_id'] = array($parent['ViewSample']['sample_master_id'] => $parent['ViewSample']['sample_code']);
-	$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];
+	$final_options_children['dropdown_options'] = $dropdown_options;
+	$final_options_children['override']['SampleMaster.parent_id'] = $parent['ViewSample']['sample_master_id'];	
 	if(isset($parent['AliquotMaster']) && !empty($parent['AliquotControl']['volume_unit'])){
 		$final_options_children['override']['AliquotControl.volume_unit'] = $parent['AliquotControl']['volume_unit'];
 	}

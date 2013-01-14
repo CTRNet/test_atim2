@@ -3,7 +3,7 @@ class MergeController extends AdministrateAppController {
 	
 	function index(){
 		$this->Structures->set('merge_index');
-		AppController::addWarningMsg('merge operations are not reversible');
+		AppController::addWarningMsg(__('merge operations are not reversible'));
 	}
 	
 	function mergeCollections(){

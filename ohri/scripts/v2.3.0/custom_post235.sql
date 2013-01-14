@@ -1,0 +1,1 @@
+ALTER TABLE users ADD FOREIGN KEY (group_id) REFERENCES groups(id);

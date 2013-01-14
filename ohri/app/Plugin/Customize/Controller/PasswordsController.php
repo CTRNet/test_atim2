@@ -15,7 +15,7 @@ class PasswordsController extends CustomizeAppController {
 		if ( empty($this->request->data) ) {
 			$this->set( 'data', $this->User->read() );
 		}else {
-			$flash_link = '/Customize/passwords/index';
+			$flash_link = '/Customize/Passwords/index';
 			$this->User->savePassword($this->request->data, $flash_link, $flash_link);
 		}
 		

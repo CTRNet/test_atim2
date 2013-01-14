@@ -3,7 +3,7 @@
 		'index' => array('detail' => '/Order/OrderLines/detail/%%OrderLine.order_id%%/%%OrderLine.id%%/'),
 		'bottom' => array(
 			'new search' => OrderAppController::$search_links,
-			'add order' => '/Order/orders/add/'
+			'add order' => '/Order/Orders/add/'
 		)
 	);
 	

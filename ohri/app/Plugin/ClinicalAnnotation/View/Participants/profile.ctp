@@ -10,11 +10,11 @@
 	}
 	array_multisort($sort_0, SORT_ASC, $sort_1, SORT_ASC, $identifier_controls_list);
 		
-	foreach($identifier_controls_list as $option){
-		$identifiers_menu[$option['MiscIdentifierControl']['misc_identifier_name']] =
-		isset($option['reusable']) && $link_availability ?
-		'javascript:miscIdPopup('.$atim_menu_variables['Participant.id'].' ,'.$option['MiscIdentifierControl']['id'].');' :
-		'/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$option['MiscIdentifierControl']['id'].'/';
+	foreach($identifier_controls_list as $new_option){
+		$identifiers_menu[$new_option['MiscIdentifierControl']['misc_identifier_name']] =
+		isset($new_option['reusable']) && $link_availability ?
+		'javascript:miscIdPopup('.$atim_menu_variables['Participant.id'].' ,'.$new_option['MiscIdentifierControl']['id'].');' :
+		'/ClinicalAnnotation/MiscIdentifiers/add/'.$atim_menu_variables['Participant.id'].'/'.$new_option['MiscIdentifierControl']['id'].'/';
 	}
 	
 	if(empty($identifiers_menu)){

@@ -15,7 +15,7 @@ class ShipmentsController extends OrderAppController {
 	var $paginate = array('Shipment'=>array('limit' => pagination_amount,'order'=>'Shipment.datetime_shipped DESC'));
 
 	function search($search_id = 0){
-		$this->set('atim_menu', $this->Menus->get('/Order/orders/search'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
 		$this->searchHandler($search_id, $this->Shipment, 'shipments', '/InventoryManagement/Shipments/search');
 
 		$hook_link = $this->hook('format');
@@ -430,7 +430,7 @@ class ShipmentsController extends OrderAppController {
 		
 		if(!empty($this->request->data) && isset($this->request->data['Shipment'])){
 			$contacts_model = AppModel::getInstance("Order", "ShipmentContact", true);
-			$shipment_contact_keys = array_fill_keys(array("recipient", "facility", "delivery_street_address", "delivery_city", "delivery_province", "delivery_postal_code", "delivery_country"), null);
+			$shipment_contact_keys = array_fill_keys(array("recipient", "facility", "delivery_street_address", "delivery_city", "delivery_province", "delivery_postal_code", "delivery_country", "delivery_phone_number", "delivery_notes", "delivery_department_or_door"), null);
 			$shipment_data = array_intersect_key($this->request->data['Shipment'], $shipment_contact_keys);
 			
 			$contacts_model->save($shipment_data);

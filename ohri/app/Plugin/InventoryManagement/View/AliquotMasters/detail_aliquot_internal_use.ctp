@@ -8,7 +8,7 @@
 		)
 	);
 	
-	$structure_settings = array('header' => __('internal use', null));
+	$structure_settings = array('header' => __('aliquot use/event', null));
 			
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 

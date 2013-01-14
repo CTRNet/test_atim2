@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/Order/orders/add/',
-		'bottom'=>array('cancel'=>'/Order/orders/search/')
+		'top'=>'/Order/Orders/add/',
+		'bottom'=>array('cancel'=>'/Order/Orders/search/')
 	);
 	
 	$structure_override = array();

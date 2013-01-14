@@ -9,10 +9,11 @@ class StorageMaster extends StorageLayoutAppModel {
 		)    
 	);
 	
-	var $actsAs = array('Tree');
+	var $actsAs = array('Tree', 'StoredItem');
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot' => array('storage_master_id')
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.storage_master_id'),
+		'StorageLayout.ViewStorageMaster' => array('StorageMaster.id')
 	);
 	
 	var $used_storage_pos = array();
@@ -843,9 +844,7 @@ class StorageMaster extends StorageLayoutAppModel {
 		if(array_key_exists("AliquotMaster", $exception)){
 			$conditions['AliquotMaster.id !='] = $exception['AliquotMaster'];
 		}
-		if(!$aliquot_master_model = ClassRegistry::getObject('AliquotMaster')){
-			$aliquot_master_model = ClassRegistry::init('AliquotMaster');
-		}
+		$aliquot_master_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
 		$tmp = $aliquot_master_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
 		if(!empty($tmp)){
 			return StorageMaster::POSITION_OCCUPIED;
@@ -879,9 +878,7 @@ class StorageMaster extends StorageLayoutAppModel {
 		if(array_key_exists("TmaSlide", $exception)){
 			$conditions['TmaSlide.id !='] = $exception['TmaSlide'];
 		}
-		if(!$tma_slide_model = ClassRegistry::getObject('TmaSlide')){
-			$tma_slide_model = ClassRegistry::init('TmaSlide');
-		}
+		$tma_slide_model = AppModel::getInstance("StorageLayout", "TmaSlide", true);
 		$tmp = $tma_slide_model->find('first', array('conditions' => $conditions, 'recursive' => -1));
 		if(!empty($tmp)){
 			return StorageMaster::POSITION_OCCUPIED;

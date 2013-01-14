@@ -111,6 +111,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
+		$this->set('ev_header', __($event_control_data['EventControl']['event_type']) . ' - ' . __($event_control_data['EventControl']['disease_site']));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set('empty', 'empty_structure');

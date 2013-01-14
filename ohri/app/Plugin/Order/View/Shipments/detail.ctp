@@ -21,14 +21,14 @@
 		'aliquot details' => array(
 			'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/',
 			'icon' => 'aliquot'),
-		'remove'=>'/Order/shipments/deleteFromShipment/%%OrderLine.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
+		'remove'=>'/Order/Shipments/deleteFromShipment/%%OrderLine.order_id%%/%%OrderItem.id%%/%%Shipment.id%%/',
 	);
 
 	$structure_links['bottom'] = array(
 		'new search' => OrderAppController::$search_links,
-		'edit' => '/Order/shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
-		'add items to shipment' => array('link' => '/Order/shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'add_to_shipment'),
-		'delete' => '/Order/shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
+		'edit' => '/Order/Shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+		'add items to shipment' => array('link' => '/Order/Shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/', 'icon' => 'add_to_shipment'),
+		'delete' => '/Order/Shipments/delete/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'
 	);
 	
 	$final_atim_structure = $atim_structure_for_shipped_items; 

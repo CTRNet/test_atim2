@@ -3,9 +3,9 @@
 class Bank extends AdministrateAppModel {
 	
 	var $registered_view = array(
-			'InventoryManagement.ViewCollection' => array('bank_id'),
-			'InventoryManagement.ViewSample' => array('bank_id'),
-			'InventoryManagement.ViewAliquot' => array('bank_id')
+			'InventoryManagement.ViewCollection' => array('Collection.bank_id'),
+			'InventoryManagement.ViewSample' => array('Collection.bank_id'),
+			'InventoryManagement.ViewAliquot' => array('Collection.bank_id')
 	);
 	
 	function summary( $variables=array() ) {
@@ -38,10 +38,20 @@ class Bank extends AdministrateAppModel {
 		return $result;
 	}
 	
-	function isBeingUsed($bank_id){
-		$this->Group = AppModel::getInstance("Administrate", "Group", true);
-		$data = $this->Group->find('first', array('conditions' => array('Group.bank_id' => $bank_id)));
-		return !empty($data);
+	function allowDeletion($bank_id){
+		$GroupModel = AppModel::getInstance("", "Group", true);
+		$data = $GroupModel->find('first', array('conditions' => array('Group.bank_id' => $bank_id)));
+		if($data) {
+			return array('allow_deletion' => false, 'msg' => 'at least one group is linked to that bank');
+		}
+
+		$CollectionModel = AppModel::getInstance('InventoryManagement', 'Collection', true);
+		$data = $CollectionModel->find('first', array('conditions' => array('Collection.bank_id' => $bank_id)));
+		if($data) {
+			return array('allow_deletion' => false, 'msg' => 'at least one collection is linked to that bank');
+		}
+		
+		return array('allow_deletion' => true, 'msg' => '');
 	}
 }
 

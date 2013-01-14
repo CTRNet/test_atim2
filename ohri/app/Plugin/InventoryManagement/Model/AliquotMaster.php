@@ -2,7 +2,7 @@
 
 class AliquotMaster extends InventoryManagementAppModel {
 	
-	var $actsAs = array('MinMax');
+	var $actsAs = array('MinMax', 'StoredItem');
 
 	var $belongsTo = array(       
 		'AliquotControl' => array(           
@@ -46,7 +46,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'LEFT', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot' => array('aliquot_master_id')
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.id')
 	);
 		
 	function summary($variables=array()) {
@@ -396,7 +396,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		$barcode = $aliquot_data['AliquotMaster']['barcode'];
 		
 		// Check duplicated barcode into submited record
-		if(empty($barcode)) {
+		if(!strlen($barcode)) {
 			// Not studied
 		} else if(isset($this->barcodes[$barcode])) {
 			$this->validationErrors['barcode'][] = str_replace('%s', $barcode, __('you can not record barcode [%s] twice'));

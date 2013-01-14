@@ -81,11 +81,10 @@ class TemplateController extends AppController {
 					foreach($level as $sharing => &$value){
 						switch($sharing){
 							case "user":
-								$value = $_SESSION['Auth']['User']['id'];
+								$value = $this->Session->read('Auth.User.id');
 								break;
 							case "bank":
-								$group_data = $this->Group->findById($_SESSION['Auth']['User']['group_id']);
-								$value = $group_data['Group']['bank_id'];
+								$value = $this->Session->read('Auth.User.group_id');
 								break;
 							default:
 								$value = null;

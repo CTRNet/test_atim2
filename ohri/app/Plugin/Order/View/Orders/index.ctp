@@ -3,14 +3,14 @@
 	$structure_links = array(
 		'bottom'=>array(
 			'new search' => OrderAppController::$search_links,
-			'add'=>'/Order/orders/add/'
+			'add'=>'/Order/Orders/add/'
 		)
 	);
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
 		'type'=>'search', 
-		'links'=> array('top'=>array('search'=>'/Order/orders/search/'.AppController::getNewSearchId())), 
+		'links'=> array('top'=>array('search'=>'/Order/Orders/search/'.AppController::getNewSearchId())), 
 		'settings' => array('header' => __('search type', null).': '.__('order', null), 'actions' => false)
 	);
 	

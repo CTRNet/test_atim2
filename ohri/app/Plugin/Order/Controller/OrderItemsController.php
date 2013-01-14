@@ -20,7 +20,7 @@ class OrderItemsController extends OrderAppController {
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/Order/orders/search'));
+		$this->set('atim_menu', $this->Menus->get('/Order/Orders/search'));
 		$this->searchHandler($search_id, $this->OrderItem, 'orderitems', '/InventoryManagement/OrderItems/search');
 
 		$hook_link = $this->hook('format');
@@ -314,7 +314,7 @@ class OrderItemsController extends OrderAppController {
 		$this->Structures->set('orderlines', 'atim_structure');
 		
 		// Menu
-		$this->set('atim_menu', $this->Menus->get("/Order/orders/search/"));
+		$this->set('atim_menu', $this->Menus->get("/Order/Orders/search/"));
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){

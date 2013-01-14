@@ -14,13 +14,14 @@ function manageContacts(){
 					var clean = function(str){
 						return str == "- " ? "" : str;
 					};
-					$("input[name=data\\[Shipment\\]\\[recipient\\]]").val(clean($(cells[1]).html()));
-					$("input[name=data\\[Shipment\\]\\[facility\\]]").val(clean($(cells[2]).html()));
-					$("input[name=data\\[Shipment\\]\\[delivery_street_address\\]]").val(clean($(cells[3]).html()));
-					$("input[name=data\\[Shipment\\]\\[delivery_city\\]]").val(clean($(cells[4]).html()));
-					$("input[name=data\\[Shipment\\]\\[delivery_province\\]]").val(clean($(cells[5]).html()));
-					$("input[name=data\\[Shipment\\]\\[delivery_postal_code\\]]").val(clean($(cells[6]).html()));
-					$("input[name=data\\[Shipment\\]\\[delivery_country\\]]").val(clean($(cells[7]).html()));
+
+					var fields = ['recipient', 'delivery_phone_number', 'facility', 'delivery_department_or_door', 'delivery_street_address', 'delivery_city', 'delivery_province', 'delivery_postal_code', 'delivery_country'];
+					for(i in fields){
+						//console.log(i + " - " + fields[i]);
+						//console.log($("input[name=data\\[Shipment\\]\\[" + fields[i] + "\\]]"));
+						$("input[name=data\\[Shipment\\]\\[" + fields[i] + "\\]]").val(clean($(cells[parseInt(i) + 1]).html()));
+					}
+					$("textarea[name=data\\[Shipment\\]\\[delivery_notes\\]]").html(clean($(cells[fields.length + 1]).html().replace(/<br(\/)?>/g, "\n")));
 				}
 				$("#manageContactPopup").popup('close');
 			});

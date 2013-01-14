@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
-		'top'=>'/Order/orders/edit/' . $atim_menu_variables['Order.id'],
-		'bottom'=>array('cancel'=>'/Order/orders/detail/' . $atim_menu_variables['Order.id'])
+		'top'=>'/Order/Orders/edit/' . $atim_menu_variables['Order.id'],
+		'bottom'=>array('cancel'=>'/Order/Orders/detail/' . $atim_menu_variables['Order.id'])
 	);
 	
 	$structure_override = array();
