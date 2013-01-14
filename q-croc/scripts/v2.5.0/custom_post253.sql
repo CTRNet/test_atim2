@@ -168,13 +168,38 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='qcroc_max_carrot_size_mm' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total carrot size mm' AND `language_tag`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('carrot cut during processing','Carrot cut during processing'),('total carrot size mm','Total carrot size (mm)');
 	
-	
-	
-	
-	
+ALTER TABLE collections 
+  ADD COLUMN `qcroc_collection_date_accuracy`  char(1) NOT NULL DEFAULT '';
+ALTER TABLE collections_revs
+  ADD COLUMN `qcroc_collection_date_accuracy`  char(1) NOT NULL DEFAULT '';
+ALTER TABLE aliquot_masters
+  	ADD COLUMN qcroc_transfer_date_sample_received_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE aliquot_masters_revs
+  	ADD COLUMN qcroc_transfer_date_sample_received_accuracy char(1) NOT NULL DEFAULT ''; 
+  	
+REPLACE INTO i18n (id,en) VALUES ('time remained in rna later (days)', 'Time sample remained in RNALater (days)');	
+
+ALTER TABLE aliquot_masters
+	ADD COLUMN qcroc_transfer_shipping_date_accuracy  char(1) NOT NULL DEFAULT '';
+ALTER TABLE aliquot_masters_revs
+	ADD COLUMN qcroc_transfer_shipping_date_accuracy  char(1) NOT NULL DEFAULT '';
+
+DELETE FROM i18n WHERE id IN ('collection date can not be estimated when the time is set for at least one specimen',
+'specimen collection time can not be set when collection date is estimated',
+'time sample remained in rnalater has been calulcated on estimated dates',
+'unable to calculate time sample remained in rnalater with estimated dates',
+'unable to calculate time sample remained in rnalater',
+'see tissue tube(s) # %s',
+'unable to calculate time sample remained in rnalater on estimated collection dates');
+INSERT INTO i18n (id,en) VALUES
+('collection date can not be estimated when the time is set for at least one specimen', 'Collection date can not be estimated when the time is set'),
+('specimen collection time can not be set when collection date is estimated','Specimen collection time can not be set when collection date is estimated'),
+('time sample remained in rnalater has been calulcated on estimated dates','Time sample remained in rnalater has been calulcated on estimated dates'),
+('unable to calculate time sample remained in rnalater on estimated collection dates','Unable to calculate time sample remained in rnalater on estimated collection dates'),
+('unable to calculate time sample remained in rnalater','Unable to calculate time sample remained in rnalater'),
+('see tissue tube(s) # %s','See tissue tube(s) # %s');
 
 SELECT 'TODO: qualityctrls_volume_for_detail?' AS msg;
 SELECT 'TODO: SHOULD SAMPLE ID MOVED TO SAMPLE LEVEL?' AS msg;
-SELECT 'TODO: PRe/POST biopsy can be empty?' AS msg;
 SELECT 'TODO: Add path review in batch?' AS msg;
 

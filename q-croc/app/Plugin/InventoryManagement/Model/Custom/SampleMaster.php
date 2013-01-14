@@ -49,4 +49,10 @@ class SampleMasterCustom extends SampleMaster {
 		return $return;
 	}
 	
+	function validateCollectionDateAndTime($collection_id, $sample_master_id = null) {
+		
+		
+		
+	}
+		
 }

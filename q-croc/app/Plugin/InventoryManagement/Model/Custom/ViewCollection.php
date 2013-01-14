@@ -27,6 +27,7 @@ Collection.qcroc_protocol AS qcroc_protocol,
 Collection.qcroc_banking_nbr AS qcroc_banking_nbr,
 Participant.qcroc_initials AS qcroc_initials,
 Collection.qcroc_collection_date AS qcroc_collection_date,
+Collection.qcroc_collection_date_accuracy AS qcroc_collection_date_accuracy,
 
 Collection.qcroc_sop_followed AS qcroc_sop_followed,
 Collection.qcroc_sop_deviations AS qcroc_sop_deviations,
