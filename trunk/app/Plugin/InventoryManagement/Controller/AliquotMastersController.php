@@ -2355,25 +2355,30 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
-		
+		// Check deletion is allowed
+		$arr_allow_deletion = $this->Realiquoting->allowDeletion($realiquoting_data['Realiquoting']['id']);
+			
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { require($hook_link); }
-			
-		// LAUNCH DELETION
-		$deletion_done = true;
 		
-		// -> Delete Realiquoting
-		if(!$this->Realiquoting->atimDelete($realiquoting_data['Realiquoting']['id'])) { $deletion_done = false; }	
+		if($arr_allow_deletion['allow_deletion']) {
+			if($this->Realiquoting->atimDelete($realiquoting_data['Realiquoting']['id'])) {
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
 		
-		// -> Update volume
-		if($deletion_done) {
-			if(!$this->AliquotMaster->updateAliquotUseAndVolume($realiquoting_data['AliquotMaster']['id'], true, true)) { $deletion_done = false; }
-		}
-		
-		if($deletion_done) {
-			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
+				if($this->AliquotMaster->updateAliquotUseAndVolume($realiquoting_data['AliquotMaster']['id'], true, true)) {
+					$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url);
+				} else {
+					$this->flash('error deleting data - contact administrator', $flash_url);
+				}
+			} else {
+				$this->flash('error deleting data - contact administrator', $flash_url);
+			}
 		} else {
-			$this->flash('error deleting data - contact administrator', $flash_url); 
+			$this->flash($arr_allow_deletion['msg'], $flash_url);
 		}
 	}
 	
