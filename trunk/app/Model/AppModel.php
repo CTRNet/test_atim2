@@ -216,10 +216,24 @@ class AppModel extends Model {
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				$pkeys_to_check = array();
 				foreach($foreign_keys as $foreign_key){
-					$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $model::$table_query);
-					$results = $this->tryCatchQuery($table_query);
-					foreach($results as $result){
-						$pkeys_to_check[] = current(current($result));
+					$at_least_one = false;
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $foreign_key) === false){
+							continue;
+						}
+						$at_least_one = true;
+						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+						if($this->name == 'SourceAliquot'){
+							pr($this->tryCatchQuery('SELECT * FROM source_aliquots WHERE id=11'));
+						}
+						
+						$results = $this->tryCatchQuery($table_query);
+						foreach($results as $result){
+							$pkeys_to_check[] = current(current($result));
+						}
+					}
+					if(!$at_least_one){
+						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
 					}
 				}
 				if($pkeys_to_check){
@@ -230,7 +244,6 @@ class AppModel extends Model {
 				}
 			}
 		}
-		
 		// delete DATA as normal
 		$this->addWritableField('deleted');
 		$this->delete($model_id, $cascade);
@@ -242,18 +255,23 @@ class AppModel extends Model {
 			foreach($registered_models as $registered_model){
 				//try to find the row
 				$model = $registered_model['model'];
-				$pkeys_to_check = $registered_model['pkeys_to_check'];
 				foreach($pkeys_to_check as $pkey_to_check){
-					$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $model::$table_query);
-					$data = $this->tryCatchQuery($table_query);
- 					if($data){
- 						//update
- 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
- 						$this->tryCatchquery($query);
- 					}else{
- 						//delete
- 						$model->delete($pkey_to_check);
- 					}
+					$pkeys_to_check = $registered_model['pkeys_to_check'];
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $model->base_model) === false){
+							continue;
+						}
+						$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $query_part);
+						$data = $this->tryCatchQuery($table_query);
+	 					if($data){
+	 						//update
+	 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+	 						$this->tryCatchquery($query);
+	 					}else{
+	 						//delete
+	 						$model->delete($pkey_to_check, false);
+	 					}
+					}
 				}
 			}
 			
@@ -1186,9 +1204,19 @@ class AppModel extends Model {
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				foreach($foreign_keys as $foreign_key){
-					$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $model::$table_query);
-					$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
-					$this->tryCatchquery($query);
+					$at_least_one = false;
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $foreign_key) === false){
+							continue;
+						}
+						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+						$at_least_one = true;
+						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+						$this->tryCatchquery($query);
+					}
+					if(!$at_least_one){
+						throw Exception("No queries part fitted with the foreign key ".$foreign_key);
+					}
 				}
 			}
 		}

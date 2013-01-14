@@ -9,7 +9,9 @@ class Realiquoting extends InventoryManagementAppModel {
 		'AliquotMasterChildren' => array(
 			'className' => 'InventoryManagement.AliquotMaster',
 			'foreignKey' => 'child_aliquot_master_id'));
-	
+	var $registered_view = array(
+			'InventoryManagement.ViewAliquotUse' => array('Realiquoting.id')
+	);
 }
 
 ?>

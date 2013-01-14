@@ -1,4 +1,5 @@
 <?php 
+
 	$structure_links = array(
 		'top'=>'/Customize/Profiles/edit',
 		'bottom'=>array(
@@ -7,4 +8,3 @@
 	);
 	
 	$this->Structures->build( $atim_structure, array('links'=>$structure_links) );
-?>

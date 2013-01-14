@@ -14,6 +14,10 @@ class AliquotReviewMaster extends InventoryManagementAppModel {
 			'foreignKey' => 'specimen_review_master_id'
 		)
 	);
+	
+	var $registered_view = array(
+			'InventoryManagement.ViewAliquotUse' => array('AliquotReviewMaster.id')
+	);
 		
 	/**
 	 * Get permissible values array gathering all existing aliquots that could be used for review.

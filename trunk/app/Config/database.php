@@ -65,10 +65,10 @@ class DATABASE_CONFIG {
 		'host' => '127.0.0.1',
 		'login' => 'root',
 		'password' => 'root',
-		'database' => 'atim_new',
+		'database' => 'atim_250',
 		'prefix' => '',
 		'encoding' => 'utf8',
-		'port'		=> 8889
+		'port'	=> 3306
 	);
 
 }
