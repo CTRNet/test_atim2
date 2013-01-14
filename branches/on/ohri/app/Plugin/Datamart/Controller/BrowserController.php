@@ -443,7 +443,7 @@ class BrowserController extends DatamartAppController {
 					$this->request->data[$key] = AppController::defineArrayKey($data, $models[$node_id]->name, $models[$node_id]->primaryKey);
 				}
 				$offset += $base_fetch_limit;
-				$this->render('../csv/csv_same_line');
+				$this->render('../Csv/csv_same_line');
 				$this->set('csv_header', false);
 			}
 			
@@ -459,7 +459,7 @@ class BrowserController extends DatamartAppController {
 			
 			$this->set('csv_header', true);
 			while($this->request->data = $this->Browser->getDataChunk(300)){
-				$this->render('../csv/csv');
+				$this->render('../Csv/csv');
 				$this->set('csv_header', false);
 			}
 		}

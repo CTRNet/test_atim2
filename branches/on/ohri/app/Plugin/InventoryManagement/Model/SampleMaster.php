@@ -42,8 +42,8 @@ class SampleMaster extends InventoryManagementAppModel {
 	static public $join_sample_control_on_dup = array('table' => 'sample_controls', 'alias' => 'SampleControl', 'type' => 'LEFT', 'conditions' => array('sample_masters_dup.sample_control_id =SampleControl.id'));
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewSample' => array('sample_master_id', 'parent_sample_id', 'initial_specimen_sample_id'),
-		'InventoryManagement.ViewAliquot' => array('sample_master_id')
+		'InventoryManagement.ViewSample' => array('SampleMaster.id', 'SampleMaster.parent_id', 'SampleMaster.initial_specimen_sample_id'),
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.sample_master_id')
 	);
 	
 	function specimenSummary($variables=array()) {
@@ -231,10 +231,15 @@ class SampleMaster extends InventoryManagementAppModel {
 	 */	
 	function formatParentSampleDataForDisplay($parent_sample_data) {
 		$formatted_data = array();
-		if(!empty($parent_sample_data) && isset($parent_sample_data['SampleMaster'])) {
-			$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+		if(!empty($parent_sample_data)) {
+			if(isset($parent_sample_data['SampleMaster'])) {
+				$formatted_data[$parent_sample_data['SampleMaster']['id']] = $parent_sample_data['SampleMaster']['sample_code'] . ' [' . __($parent_sample_data['SampleControl']['sample_type'], TRUE) . ']';
+			} else if(isset($parent_sample_data[0]['ViewSample'])){
+				foreach($parent_sample_data as $new_parent) {
+					$formatted_data[$new_parent['ViewSample']['sample_master_id']] = $new_parent['ViewSample']['sample_code'] . ' [' . __($new_parent['ViewSample']['sample_type'], TRUE) . ']';
+				}
+			}
 		}
-		
 		return $formatted_data;
 	}
 	

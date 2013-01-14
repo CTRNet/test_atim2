@@ -6,7 +6,7 @@ class BanksController extends AdministrateAppController {
 	var $paginate = array('Bank'=>array('limit' => pagination_amount,'order'=>'Bank.name ASC')); 
 	
 	function add(){
-		$this->set( 'atim_menu', $this->Menus->get('/Administrate/banks/index') );
+		$this->set( 'atim_menu', $this->Menus->get('/Administrate/Banks/index') );
 		
 		$this->hook();
 		
@@ -16,7 +16,7 @@ class BanksController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/banks/detail/'.$this->Bank->id );
+				$this->atimFlash( 'your data has been updated','/Administrate/Banks/detail/'.$this->Bank->id );
 			}
 		}
 	}
@@ -44,7 +44,7 @@ class BanksController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/banks/detail/'.$bank_id );
+				$this->atimFlash( 'your data has been updated','/Administrate/Banks/detail/'.$bank_id );
 			}
 		} else {
 			$this->request->data = $this->Bank->find('first',array('conditions'=>array('Bank.id'=>$bank_id)));
@@ -52,12 +52,22 @@ class BanksController extends AdministrateAppController {
 	}
 	
 	function delete( $bank_id ) {
-		$this->hook();
-		if($this->Bank->isBeingUsed($bank_id)){
-			$this->flash( 'this bank is being used and cannot be deleted', '/Administrate/banks/detail/'.$bank_id."/" );
-		}else{
-			$this->Bank->del( $bank_id );
-			$this->atimFlash( 'your data has been deleted', '/Administrate/banks/index' );
+		$arr_allow_deletion = $this->Bank->allowDeletion($bank_id);
+		
+		// CUSTOM CODE
+		$hook_link = $this->hook();
+		if ($hook_link) {
+			require($hook_link);
+		}
+		
+		if ($arr_allow_deletion['allow_deletion']) {
+			if ($this->Bank->atimDelete( $bank_id )) {
+				$this->atimFlash( 'your data has been deleted', '/Administrate/Banks/index');
+			} else {
+				$this->flash( 'error deleting data - contact administrator', '/Administrate/Banks/index');
+			}
+		} else {
+			$this->flash(__('this bank is being used and cannot be deleted').': '.__($arr_allow_deletion['msg']),  '/Administrate/Banks/detail/'.$bank_id."/");
 		}
 	}
 }

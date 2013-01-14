@@ -87,7 +87,7 @@ class SoftDeletableBehavior extends ModelBehavior
 
             if ($deleted && $cascade) 
             { 
-                $model->_deleteDependent($id, $cascade); 
+                $this->_atimDeleteDependent($model, $id, $cascade); 
                 $model->_deleteLinks($id); 
             } 
 
@@ -95,7 +95,61 @@ class SoftDeletableBehavior extends ModelBehavior
         } 
 
         return true; 
-    } 
+    }
+    
+    /**
+     * Cascades model deletes through associated hasMany and hasOne child records.
+     * Altered model._atimDeleteDependent to ignore tables withoud the "delete" field.
+     *
+     * @param string $id ID of record that was deleted
+     * @param boolean $cascade Set to true to delete records that depend on this record
+     * @return void
+     */
+    private function _atimDeleteDependent(Model $model, $id, $cascade) {
+    	if (!empty($model->__backAssociation)) {
+    		$savedAssociatons = $model->__backAssociation;
+    		$model->__backAssociation = array();
+    	}
+    	if ($cascade === true) {
+    		foreach (array_merge($model->hasMany, $model->hasOne) as $assoc => $data) {
+    			if ($data['dependent'] === true) {
+    
+    				$assoc_model = $model->{$assoc};
+    
+    				if ($data['foreignKey'] === false && $data['conditions'] && in_array($model->name, $assoc_model->getAssociated('belongsTo'))) {
+    					$assoc_model->recursive = 0;
+    					$conditions = array($model->escapeField(null, $model->name) => $id);
+    				} else {
+    					$assoc_model->recursive = -1;
+    					$conditions = array($assoc_model->escapeField($data['foreignKey']) => $id);
+    					if ($data['conditions']) {
+    						$conditions = array_merge((array)$data['conditions'], $conditions);
+    					}
+    				}
+    
+    				if (isset($data['exclusive']) && $data['exclusive']) {
+    					$assoc_model->deleteAll($conditions);
+    				} else {
+    					$records = $assoc_model->find('all', array(
+    							'conditions' => $conditions, 'fields' => $assoc_model->primaryKey
+    					));
+    
+    					if (!empty($records)) {
+    						foreach ($records as $record) {
+    							$schema = $assoc_model->schema();
+    							if(isset($schema["deleted"])){
+    								$assoc_model->delete($record[$assoc_model->alias][$assoc_model->primaryKey]);
+    							}
+    						}
+    					}
+    				}
+    			}
+    		}
+    	}
+    	if (isset($savedAssociatons)) {
+    		$model->__backAssociation = $savedAssociatons;
+    	}
+    }
 
     /** 
      * Permanently deletes a record. 

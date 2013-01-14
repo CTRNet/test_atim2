@@ -11,6 +11,8 @@ class TmaSlide extends StorageLayoutAppModel {
 		)	    
 	);
 	
+	var $actsAs = array('StoredItem');
+	
 	public static $storage = null;
 		
 	function validates($options = array()){

@@ -11,7 +11,7 @@ $parent_settings = array(
 		'actions' => false,
 		'form_top' => false,
 		'form_bottom' => false,
-		'header' => __('internal use'),
+		'header' => __('aliquot use/event'),
 		'stretch' => false,
 		"language_heading" => __('used aliquot (for update)'),
 		'section_start' => true
@@ -27,7 +27,7 @@ $children_settings = array(
 		'form_bottom' => false,
 		"add_fields"	=> true, 
 		"del_fields"	=> true,
-		"language_heading" => __('internal use creation'),
+		"language_heading" => __('use/event creation'),
 		'section_end' => true
 	)
 );

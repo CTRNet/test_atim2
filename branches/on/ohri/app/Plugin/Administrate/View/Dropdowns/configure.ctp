@@ -1,11 +1,11 @@
 <?php 
 	$links = array(
-		'top' => '/Administrate/dropdowns/configure/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/',
+		'top' => '/Administrate/Dropdowns/configure/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/',
 		'radiolist' => array(
 			'StructurePermissibleValuesCustom.id'=>'%%StructurePermissibleValuesCustom.id%%'
 		),
 		'bottom' => array(
-			'cancel' => '/Administrate/dropdowns/view/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/'
+			'cancel' => '/Administrate/Dropdowns/view/'.$atim_menu_variables['StructurePermissibleValuesCustom.control_id'].'/'
 		)
 	);
 	

@@ -6,10 +6,10 @@
 		'index'=>array(),
 		'bottom'=>array(
 			'new search' => OrderAppController::$search_links,
-			'edit'=>'/Order/orders/edit/' . $atim_menu_variables['Order.id'] . '/',
+			'edit'=>'/Order/Orders/edit/' . $atim_menu_variables['Order.id'] . '/',
 			'add order line'=>'/Order/OrderLines/add/' . $atim_menu_variables['Order.id'] . '/',
 			'add shipment'=>array('link'=> '/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/', 'icon' => 'create_shipment'),
-			'delete'=>'/Order/orders/delete/' . $atim_menu_variables['Order.id'] . '/'
+			'delete'=>'/Order/Orders/delete/' . $atim_menu_variables['Order.id'] . '/'
 		)
 	);
 	

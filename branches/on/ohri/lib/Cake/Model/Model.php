@@ -2422,7 +2422,7 @@ class Model extends Object implements CakeEventListener {
  * @param boolean $cascade Set to true to delete records that depend on this record
  * @return void
  */
-	public function _deleteDependent($id, $cascade) {//ATiM ----- made public to allow soft deletable behavior to work
+	private function _deleteDependent($id, $cascade) {
 		if (!empty($this->__backAssociation)) {
 			$savedAssociatons = $this->__backAssociation;
 			$this->__backAssociation = array();

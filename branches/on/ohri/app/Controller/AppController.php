@@ -156,7 +156,7 @@ class AppController extends Controller {
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
 	
-		define('CONFIDENTIAL_MARKER', 'Confidential Data');
+		define('CONFIDENTIAL_MARKER', __('confidential data'));
 	
 		// ATiM2 configuration variables from Datatable
 	
@@ -546,13 +546,15 @@ class AppController extends Controller {
 			return array('error' => "batch init - number of submitted records too big");
 		}
 		//extract valid ids
-		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->request->data[$data_model_name][$data_key]), 'fields' => array('GROUP_CONCAT('.$model->name.'.id) AS ids'), 'recursive' => -1));
-		$ids = $ids[0][0]['ids'];
+		$ids = $model->find('all', array('conditions' => array($model->name.'.id' => $this->request->data[$data_model_name][$data_key]), 'fields' => array($model->name.'.id'), 'recursive' => -1));
 		if(empty($ids)){
 			return array('error' => "batch init no data");
 		}
+		$model->sortForDisplay($ids, $this->request->data[$data_model_name][$data_key]);
+		$ids = self::defineArrayKey($ids, $model->name, 'id');
+		$ids = array_keys($ids);
 	
-		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => explode(',', $ids)), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
+		$controls = $model->find('all', array('conditions' => array($model->name.'.id' => $ids), 'fields' => array($model->name.'.'.$control_key_name), 'group' => array($model->name.'.'.$control_key_name), 'recursive' => -1));
 		if(count($controls) != 1){
 			return array('error' => "you must select elements with a common type");
 		}
@@ -563,7 +565,7 @@ class AppController extends Controller {
 			return array('error' => $no_possibilities_msg);
 		}
 	
-		return array('ids' => $ids, 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
+		return array('ids' => implode(',', $ids), 'possibilities' => $possibilities, 'control_id' => $controls[0][$model->name][$control_key_name]);
 	}
 	
 	/**
@@ -935,6 +937,42 @@ class AppController extends Controller {
 		fclose($filef);
 			
 		AppController::addWarningMsg(__('language files have been rebuilt'));
+		
+		//rebuild views
+		$view_models = array(
+				AppModel::getInstance('InventoryManagement', 'ViewCollection'),
+				AppModel::getInstance('InventoryManagement', 'ViewSample'),
+				AppModel::getInstance('InventoryManagement', 'ViewAliquot'),
+				AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
+				AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
+		);
+		foreach($view_models as $view_model){
+			$this->Version->query('DROP TABLE IF EXISTS '.$view_model->table);
+			$this->Version->query('DROP VIEW IF EXISTS '.$view_model->table);
+			if(isset($view_model::$table_create_query)){
+				//Must be done with multiple queries
+				$this->Version->query($view_model::$table_create_query);
+				$queries = explode("UNION ALL", $view_model::$table_query);
+				foreach($queries as $query){
+					$this->Version->query('INSERT INTO '.$view_model->table. '('.str_replace('%%WHERE%%', '', $query).')');
+				}
+				
+			}else{
+				$this->Version->query('CREATE TABLE '.$view_model->table. '('.str_replace('%%WHERE%%', '', $view_model::$table_query).')');
+			}
+			$desc = $this->Version->query('DESC '.$view_model->table);
+			$fields = array();
+			$field = array_shift($desc);
+			$pkey = $field['COLUMNS']['Field'];
+			foreach($desc as $field){
+				if($field['COLUMNS']['Type'] != 'text'){
+					$fields[] = $field['COLUMNS']['Field'];
+				}
+			}
+			$this->Version->query('ALTER TABLE '.$view_model->table.' ADD PRIMARY KEY('.$pkey.'), ADD KEY ('.implode('), ADD KEY (', $fields).')');
+		}
+		
+		AppController::addWarningMsg(__('views have been rebuilt'));
 			
 		//clear cache
 		Cache::clear(false);

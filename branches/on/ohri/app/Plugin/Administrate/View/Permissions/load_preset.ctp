@@ -20,7 +20,7 @@ $this->Structures->build($atim_structure, array(
 	'links' => array(
 		'index' => array('detail' => array('link' => '#', 'icon' => 'detail jsApplyPreset', 'json' => '%%PermissionsPreset.json%%'), 'delete' => $can_delete ? 'javascript:deletePreset(%%PermissionsPreset.id%%);' : '/underdev/'),
 		'bottom' => array(
-			__('save preset') => array('link' => AppController::checkLinkPermission('/Administrate/permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
+			__('save preset') => array('link' => AppController::checkLinkPermission('/Administrate/Permissions/savePreset/') ? 'javascript:savePresetPopup();' : '/noright', 'icon' => 'submit')
 		)
 	), 
 	'settings' => array(
@@ -88,7 +88,7 @@ function savePresetPopup(){
 	if($("#savePresetPopup").length == 0){
 		buildDialog("savePresetPopup", null, null, null);
 		$("#savePresetPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
-		$.get(root_url + "/Administrate/Permissions/savePreset/", null, function(data){
+		$.get(root_url + "Administrate/Permissions/savePreset/", null, function(data){
 			var isOpened = $("#savePresetPopup:visible").length; 
 			$("#savePresetPopup").popup('close');
 			$("#savePresetPopup").find("div").first().html(data);
