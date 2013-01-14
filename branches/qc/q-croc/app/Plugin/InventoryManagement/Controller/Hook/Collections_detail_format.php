@@ -20,8 +20,8 @@
 				$qcroc_conditions = array(
 						'AliquotMaster.collection_id' => $collection_id,
 						'SampleControl.sample_type' => 'tissue',
-						'AliquotControl.aliquot_type' => array('tube'),
-						'AliquotDetail.tube_type' => array('rnalater'));
+						'AliquotControl.aliquot_type' => array('tube')
+						);			
 				$joins = array(array(
 						'table' => 'qcroc_ad_tissue_tubes',
 						'alias'	=> 'AliquotDetail',

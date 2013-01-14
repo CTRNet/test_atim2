@@ -1,8 +1,7 @@
 <?php
 	
-	foreach($aliquots_to_update as $new_aliquot_to_update_2) {
-		$this->AliquotMaster->data = array();
-		$this->AliquotMaster->id = $new_aliquot_to_update_2['AliquotMaster']['id'];
-		if(!$this->AliquotMaster->save($new_aliquot_to_update_2, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+	if($sample_data['SampleControl']['sample_type'] == 'tissue' 
+	&& (($sample_data['SpecimenDetail']['qcroc_collection_time'] != $this->request->data['SpecimenDetail']['qcroc_collection_time']) || ($sample_data['SampleDetail']['qcroc_tissue_storage_solution'] != $this->request->data['SampleDetail']['qcroc_tissue_storage_solution']))) {
+		$this->AliquotMaster->updateTimeRemainedInRNAlater($collection_id, $sample_master_id);
 	}
 	

@@ -1,7 +1,8 @@
 <?php
 
-	foreach($aliquots_to_update as $new_aliquot_to_update_2) {		
-		$this->AliquotMaster->data = array();
-		$this->AliquotMaster->id = $new_aliquot_to_update_2['AliquotMaster']['id'];
-		if(!$this->AliquotMaster->save($new_aliquot_to_update_2, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+	$new_collection_data = $this->Collection->find('first', array('conditions' => array('id' => $collection_id), 'recursive' => '-1'));
+	if($collection_data['Collection']['qcroc_collection_date'] != $new_collection_data['Collection']['qcroc_collection_date'] 
+	|| $collection_data['Collection']['qcroc_collection_date_accuracy'] != $new_collection_data['Collection']['qcroc_collection_date_accuracy']) {
+		$this->AliquotMaster->updateTimeRemainedInRNAlater($collection_id);
 	}
+		
