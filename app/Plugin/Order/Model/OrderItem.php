@@ -20,7 +20,9 @@ class OrderItem extends OrderAppModel {
 			'type'			=> 'INNER')
 	);
 	
-	
+	var $registered_view = array(
+			'InventoryManagement.ViewAliquotUse' => array('OrderItem.id')
+	);
 
 	/**
 	 * Check if an item can be deleted.

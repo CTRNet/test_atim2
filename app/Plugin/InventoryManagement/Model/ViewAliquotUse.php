@@ -23,6 +23,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	var $base_plugin = 'InventoryManagement';
 	var $useTable = false;
 	
+	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
 		  id varchar(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
@@ -39,7 +40,14 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		  created datetime NOT NULL,
 		  detail_url varchar(250) NOT NULL DEFAULT '',
 		  sample_master_id int(11) NOT NULL,
-		  collection_id int(11) NOT NULL
+		  collection_id int(11) NOT NULL,
+			
+		  aliquot_internal_use_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
+		  source_aliquot_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
+		  realiquoting_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
+		  quality_control_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
+		  order_item_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
+		  aliquot_review_master_id int(10) UNSIGNED DEFAULT NULL UNIQUE
 		)";
 
 	static $table_query =
@@ -59,11 +67,17 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		AliquotInternalUse.created AS created,
 		CONCAT('/inventorymanagement/aliquot_masters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id
+		SampleMaster.collection_id AS collection_id,
+		AliquotInternalUse.id AS aliquot_internal_use_id,
+		NULL AS source_aliquot_id,
+		NULL AS realiquoting_id,
+		NULL AS quality_ctrl_id,
+		NULL AS order_item_id,
+		NULL AS aliquot_review_master_id
 		FROM aliquot_internal_uses AS AliquotInternalUse
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id AND AliquotMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted <> 1
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotInternalUse.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -83,13 +97,19 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		SourceAliquot.created AS created,
 		CONCAT('inventorymanagement/aliquot_masters/listAllSourceAliquots/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
-		SampleMaster2.collection_id AS collection_id
+		SampleMaster2.collection_id AS collection_id,
+		NULL AS aliquot_internal_use_id,
+		SourceAliquot.id AS source_aliquot_id,
+		NULL AS realiquoting_id,
+		NULL AS quality_ctrl_id,
+		NULL AS order_item_id,
+		NULL AS aliquot_review_master_id
 		FROM source_aliquots AS SourceAliquot
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id AND SourceAliquot.deleted <> 1
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
 		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id AND AliquotMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id AND SampleMaster.deleted <> 1
+		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
 		WHERE SourceAliquot.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -109,12 +129,18 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		Realiquoting.created AS created,
 		CONCAT('/inventorymanagement/aliquot_masters/listAllRealiquotedParents/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id
+		SampleMaster.collection_id AS collection_id,
+		NULL AS aliquot_internal_use_id,
+		NULL AS source_aliquot_id,
+		Realiquoting.id AS realiquoting_id,
+		NULL AS quality_ctrl_id,
+		NULL AS order_item_id,
+		NULL AS aliquot_review_master_id
 		FROM realiquotings AS Realiquoting
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id AND AliquotMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id AND AliquotMasterChild.deleted <> 1
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE Realiquoting.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -134,11 +160,17 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		QualityControl.created AS created,
 		concat('/inventorymanagement/quality_ctrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityControl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id
+		SampleMaster.collection_id AS collection_id,
+		NULL AS aliquot_internal_use_id,
+		NULL AS source_aliquot_id,
+		NULL AS realiquoting_id,
+		QualityControl.id AS quality_control_id,
+		NULL AS order_item_id,
+		NULL AS aliquot_review_master_id
 		FROM quality_ctrls AS QualityControl
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityControl.aliquot_master_id AND AliquotMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityControl.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted <> 1
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE QualityControl.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -158,11 +190,17 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		Shipment.created AS created,
 		CONCAT('/order/shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id
+		SampleMaster.collection_id AS collection_id,
+		NULL AS aliquot_internal_use_id,
+		NULL AS source_aliquot_id,
+		NULL AS realiquoting_id,
+		NULL AS quality_ctrl_id,
+		OrderItem.id AS order_item_id,
+		NULL AS aliquot_review_master_id
 		FROM order_items OrderItem
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id AND AliquotMaster.deleted <> 1
-		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id AND Shipment.deleted <> 1
-		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE OrderItem.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
@@ -182,11 +220,17 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		AliquotReviewMaster.created AS created,
 		CONCAT('/inventorymanagement/specimen_reviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id
+		SampleMaster.collection_id AS collection_id,
+		NULL AS aliquot_internal_use_id,
+		NULL AS source_aliquot_id,
+		NULL AS realiquoting_id,
+		NULL AS quality_ctrl_id,
+		NULL AS order_item_id,
+		AliquotReviewMaster.id AS aliquot_review_master_id
 		FROM aliquot_review_masters AS AliquotReviewMaster
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id AND AliquotMaster.deleted <> 1
-		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id AND SpecimenReviewMaster.deleted <> 1
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted <> 1
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
+		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 
 	static protected $models_details = null;
