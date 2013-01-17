@@ -1,11 +1,8 @@
 <?php
  
- 	// --------------------------------------------------------------------------------
-	// Set Default Barcode
+	// --------------------------------------------------------------------------------
+	// Regenerate default barcodes
 	// -------------------------------------------------------------------------------- 	
-
-	$this->AliquotMaster->updateAll(
-				array('AliquotMaster.barcode' => 'AliquotMaster.id'),
-				array('AliquotMaster.barcode' => 'tmp'));
+	$this->AliquotMaster->regenerateAliquotBarcode();
 			
 ?>

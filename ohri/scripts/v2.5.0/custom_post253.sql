@@ -59,6 +59,30 @@ UPDATE participants SET participant_identifier = id;
 UPDATE participants_revs SET date_of_birth = NULL WHERE date_of_birth = '0000-00-00';
 UPDATE participants_revs SET participant_identifier = id;
 
+SELECT '****************** CHECK PARTICIPANT WHITH MANY BANK # **********************************' AS MSG;
+SELECT res.nbr_of_bank_nbr, res.participant_id FROM (
+SELECT count(*) AS nbr_of_bank_nbr, participant_id FROM misc_identifiers m, misc_identifier_controls mc
+WHERE m.deleted <> 1 AND m.misc_identifier_control_id = mc.id AND mc.misc_identifier_name = 'ohri_bank_participant_id' AND mc.flag_active = 1
+GROUP BY participant_id) res WHERE res.nbr_of_bank_nbr > 1;
+
+UPDATE participants p, misc_identifiers m, misc_identifier_controls mc
+SET p.participant_identifier = m.identifier_value
+WHERE p.id = m.participant_id AND m.deleted <> 1 AND m.misc_identifier_control_id = mc.id AND mc.misc_identifier_name = 'ohri_bank_participant_id' AND mc.flag_active = 1;
+
+UPDATE structure_fields SET language_label = 'participant identifier' WHERE field = 'participant_identifier';
+REPLACE INTO i18n (id,en) VALUES ('participant identifier', 'Bank#');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='0', `language_heading`='', `flag_add`='1', `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE misc_identifiers m, misc_identifier_controls mc
+SET m.deleted = 1
+WHERE m.misc_identifier_control_id = mc.id AND mc.misc_identifier_name = 'ohri_bank_participant_id';
+
+UPDATE misc_identifier_controls mc
+SET mc.flag_active = 0
+WHERE mc.misc_identifier_name = 'ohri_bank_participant_id';
+
 -- CLINICAL-ANNOTATION.MISC-IDENTIFIERS
 
 UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='title' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='person title') AND `flag_confidential`='0');
@@ -387,5 +411,100 @@ UPDATE structure_permissible_values SET value = '< 1cm', language_alias = '< 1cm
 UPDATE ohri_txd_surgeries SET residual_disease = '> 2cm' WHERE residual_disease = '&gt; 2cm';
 UPDATE ohri_txd_surgeries SET residual_disease = '< 1cm' WHERE residual_disease = '&lt; 1cm';
 
--- 
+-- Family History
+
+-- CLINICAL-ANNOTATION.FAMILY-HISTO
+
+SELECT '******** PARTICIPANT HAVING DUPLICATED  ****************************' AS MSG;
+select count(*) as duplicated_rows, participant_id, relation, family_domain, primary_icd10_code, age_at_dx, age_at_dx_precision, ohri_disease_site 
+from family_histories 
+where deleted <> 1
+group by participant_id, relation, family_domain, primary_icd10_code, age_at_dx, age_at_dx_precision, ohri_disease_site
+order by duplicated_rows DESC;
+UPDATE family_histories SET deleted = 1 WHERE participant_id IN (61,31) AND id IN (21,22,3,4);
+SELECT 'after clean up' as msg;
+select count(*) as duplicated_rows, participant_id, relation, family_domain, primary_icd10_code, age_at_dx, age_at_dx_precision, ohri_disease_site 
+from family_histories 
+where deleted <> 1 AND participant_id IN (61,31)
+group by participant_id, relation, family_domain, primary_icd10_code, age_at_dx, age_at_dx_precision, ohri_disease_site
+order by duplicated_rows DESC;
+
+-- CLINICAL-ANNOTATION.REPRO-HISTO
+
+-- CLINICAL-ANNOTATION.CONTACTS
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE event_controls SET flag_use_for_ccl = 0 WHERE flag_active = 1 AND event_type != 'pathology';
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field = 'ohri_bank_participant_id');
+DELETE FROM structure_fields WHERE field = 'ohri_bank_participant_id';
+
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='acquisition_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='participant identifier' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`=' ' AND `field`='field1' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en) VALUES ('unlinked','Unlinked');
+
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_tissue_review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_p53' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_review_result') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ohri_wt1' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_tissue_review_result') AND `flag_confidential`='0');
+
+INSERT IGNORE INTO i18n (id,en) VALUES 
+('tissue nature','Nature'),
+('tissue review','Tissue Review'),
+('tissue review status','Review Status'),
+('agree','Agree'),
+('disagree','Disagree'),
+('tumoral','Tumoral'),
+('omenteum','Omenteum'),
+('peritoneal nodule','Peritoneal nodule');
+
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='view_samples' AND `field`='coll_to_rec_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_undetailed_derivatives');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='derivatives') AND  `display_column`='1';
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') AND  `display_column`='1';
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue: Source\')" WHERE domain_name = 'tissue_source_list';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Tissue: Source', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue: Source');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('omenteum', 'Omenteum', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('ovary', 'Ovary', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('peritoneal nodule', 'Peritoneal nodule', '', '1', @control_id, NOW(), NOW(), 1, 1);
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='1200', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en) VALUES ('aliquot barcode', 'Aliquot System #');
+UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en) VALUES ('ohri storage method','Storage method'),('flash frozen','Flash frozen');
+
+UPDATE structure_formats SET `flag_add` = 0, `flag_add_readonly` = 0, `flag_edit` = 0, `flag_edit_readonly` = 0, `flag_search` = 0, `flag_search_readonly` = 0, `flag_addgrid` = 0, `flag_addgrid_readonly` = 0, `flag_editgrid` = 0, `flag_editgrid_readonly` = 0, `flag_batchedit` = 0, `flag_batchedit_readonly` = 0, `flag_index` = 0, `flag_detail` = 0, `flag_summary`= 0 
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` = 'sop_master_id' );
+
+UPDATE structure_formats SET `display_order`='50', `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_override_label`='0', `language_label`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='1200', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO i18n (id,en) VALUES ('ohri storage solution','Storage solution'),('dmso','DMSO');
+
+
+
 
