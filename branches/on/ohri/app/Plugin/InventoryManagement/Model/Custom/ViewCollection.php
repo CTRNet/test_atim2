@@ -11,9 +11,22 @@ class ViewCollectionCustom extends ViewCollection {
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
 
-			$collection_title = (empty($collection_data['ViewCollection']['ohri_bank_participant_id']))? __('unlinked') : $collection_data['ViewCollection']['ohri_bank_participant_id'];
+			$collection_title = __('participant identifier').': '.(empty($collection_data['ViewCollection']['participant_identifier'])? __('unlinked') : $collection_data['ViewCollection']['participant_identifier']);
 			if(!empty($collection_data['ViewCollection']['collection_datetime'])) {
-				$collection_title .= ' ' . substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
+				$formatted_collection_date = substr($collection_data['ViewCollection']['collection_datetime'], 0, strpos($collection_data['ViewCollection']['collection_datetime'], ' '));
+				switch($collection_data['ViewCollection']['collection_datetime_accuracy']) {
+					case 'y':
+						$formatted_collection_date = '+/-'.substr($formatted_collection_date, 0, strpos($formatted_collection_date, '-'));
+						break;
+					case 'm':
+						$formatted_collection_date = substr($formatted_collection_date, 0, strpos($formatted_collection_date, '-'));
+						break;
+					case 'd':
+						$formatted_collection_date = substr($formatted_collection_date, 0, strrpos($formatted_collection_date, '-'));
+						break;
+					default:
+				}
+				$collection_title .= ' [' . $formatted_collection_date .']';
 			}
 			
 			$return = array(

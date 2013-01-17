@@ -14,12 +14,11 @@ class AliquotMasterCustom extends AliquotMaster {
 			if(!isset($result['AliquotMaster']['storage_coord_y'])){
 				$result['AliquotMaster']['storage_coord_y'] = "";
 			}
-			
 			$return = array(
-					'menu'	        	=> array(null, __($result['AliquotMaster']['aliquot_type']) . ' : '. $result['AliquotMaster']['barcode']),
-					'title'		  		=> array(null, __($result['AliquotMaster']['aliquot_type']) . ($result['AliquotMaster']['aliquot_type'] == "block" ? " (".__($result['AliquotDetail']['block_type']).")" : '') . ' : '. $result['AliquotMaster']['barcode']),
+					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type']) . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type']) . ' : '. $result['AliquotMaster']['aliquot_label']),
 					'data'				=> $result,
-					'structure alias'	=> 'aliquotmasters'
+					'structure alias'	=> 'aliquot_masters'
 			);
 		}
 		
@@ -32,7 +31,7 @@ class AliquotMasterCustom extends AliquotMaster {
 		if(in_array($view_sample_data['sample_type'], array('ascite supernatant', 'ascite cell', 'cell culture', 'tissue'))) {
 				
 			// Participant participant_id and Bank Number
-			$bank_number = empty($view_sample_data['ohri_bank_participant_id'])? 'n/a' : $view_sample_data['ohri_bank_participant_id'];
+			$bank_number = empty($view_sample_data['participant_identifier'])? 'n/a' : $view_sample_data['participant_identifier'];
 			$participant_id = empty($view_sample_data['participant_id'])? null : $view_sample_data['participant_id'];
 	
 			// Get aliquot already created
@@ -102,6 +101,19 @@ class AliquotMasterCustom extends AliquotMaster {
 		}
 	
 		return $inital_data;
+	}
+	
+	function regenerateAliquotBarcode() {
+		$aliquots_to_update = $this->find('all', array('conditions' => array("AliquotMaster.barcode IS NULL OR AliquotMaster.barcode LIKE ''"), 'fields' => array('AliquotMaster.id')));
+		foreach($aliquots_to_update as $new_aliquot) {
+			$new_aliquot_id = $new_aliquot['AliquotMaster']['id'];
+			$aliquot_data = array('AliquotMaster' => array('barcode' => $new_aliquot_id), 'AliquotDetail' => array());
+				
+			$this->id = $new_aliquot_id;
+			$this->data = null;
+			$this->addWritableField(array('barcode'));
+			$this->save($aliquot_data, false);
+		}
 	}
 	
 }
