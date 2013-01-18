@@ -1215,7 +1215,7 @@ class AppModel extends Model {
 						$this->tryCatchquery($query);
 					}
 					if(!$at_least_one){
-						throw Exception("No queries part fitted with the foreign key ".$foreign_key);
+						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
 					}
 				}
 			}
