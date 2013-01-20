@@ -49,6 +49,8 @@ class AppModel extends Model {
 	
 	public $pkey_safeguard = true;//whether to prevent data to be saved if the data array contains a pkey different than model->id
 	
+	private $registered_models;//use related to views
+	
 	/**
 	 * @desc Used to store the previous model when a model is recreated for detail search
 	 * @var SampleMaster
@@ -119,6 +121,8 @@ class AppModel extends Model {
 		$this->setTrackability();
 		
 		$this->checkFloats();
+		
+		$this->registerModelsToCheck();
 		
 		return true;
 	}
@@ -199,17 +203,8 @@ class AppModel extends Model {
 		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
 	}
 	
-	
-	/*
-		ATiM 2.0 function
-		used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
-	*/
-	
-	function atimDelete($model_id, $cascade = true){
-		$this->id = $model_id;
-		
-		//prior to deletion, fetch all affected view data
-		$registered_models = array();
+	private function registerModelsToCheck(){
+		$this->registered_models = array();
 		if($this->registered_view){
 			foreach($this->registered_view as $registered_view => $foreign_keys){
 				list($plugin_name, $model_name) = explode('.', $registered_view);
@@ -226,7 +221,7 @@ class AppModel extends Model {
 						if($this->name == 'SourceAliquot'){
 							pr($this->tryCatchQuery('SELECT * FROM source_aliquots WHERE id=11'));
 						}
-						
+		
 						$results = $this->tryCatchQuery($table_query);
 						foreach($results as $result){
 							$pkeys_to_check[] = current(current($result));
@@ -237,13 +232,49 @@ class AppModel extends Model {
 					}
 				}
 				if($pkeys_to_check){
-					$registered_models[] = array(
-						'model' => $model,
-						'pkeys_to_check' => array_unique($pkeys_to_check)	
+					$this->registered_models[] = array(
+							'model' => $model,
+							'pkeys_to_check' => array_unique($pkeys_to_check)
 					);
 				}
 			}
 		}
+	}
+	
+	private function updateRegisteredModels(){
+		foreach($this->registered_models as $registered_model){
+			//try to find the row
+			$model = $registered_model['model'];
+			foreach($registered_model['pkeys_to_check'] as $pkey_to_check){
+				$pkeys_to_check = $registered_model['pkeys_to_check'];
+				foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+					if(strpos($query_part, $model->base_model) === false){
+						continue;
+					}
+					$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $query_part);
+					$data = $this->tryCatchQuery($table_query);
+					if($data){
+						//update
+						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+						$this->tryCatchquery($query);
+					}else{
+						//delete
+						$model->delete($pkey_to_check, false);
+					}
+				}
+			}
+		}
+	}
+	
+	/*
+		ATiM 2.0 function
+		used instead of Model->delete, because SoftDelete Behaviour will always return a FALSE
+	*/
+	
+	function atimDelete($model_id, $cascade = true){
+		$this->id = $model_id;
+		$this->registerModelsToCheck();
+		
 		// delete DATA as normal
 		$this->addWritableField('deleted');
 		$this->delete($model_id, $cascade);
@@ -251,32 +282,9 @@ class AppModel extends Model {
 		// do a FIND of the same DATA, return FALSE if found or TRUE if not found
 		if($this->read()){
 			return false; 
-		}else{
-			foreach($registered_models as $registered_model){
-				//try to find the row
-				$model = $registered_model['model'];
-				foreach($pkeys_to_check as $pkey_to_check){
-					$pkeys_to_check = $registered_model['pkeys_to_check'];
-					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
-						if(strpos($query_part, $model->base_model) === false){
-							continue;
-						}
-						$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $query_part);
-						$data = $this->tryCatchQuery($table_query);
-	 					if($data){
-	 						//update
-	 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
-	 						$this->tryCatchquery($query);
-	 					}else{
-	 						//delete
-	 						$model->delete($pkey_to_check, false);
-	 					}
-					}
-				}
-			}
-			
-			return true; 
 		}
+		$this->updateRegisteredModels();
+		return true; 
 		
 	}
 	
@@ -1220,6 +1228,8 @@ class AppModel extends Model {
 				}
 			}
 		}
+		
+		$this->updateRegisteredModels();
 	}
 
 	function makeTree(array &$in){
