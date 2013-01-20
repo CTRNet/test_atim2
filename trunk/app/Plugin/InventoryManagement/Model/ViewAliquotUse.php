@@ -21,7 +21,6 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 
 	var $base_model = "AliquotInternalUse";
 	var $base_plugin = 'InventoryManagement';
-	var $useTable = false;
 	
 	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
@@ -51,7 +50,6 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		)";
 
 	static $table_query =
-		//This must be the first table, otherwise creation based on '' AS pwet makes pwet a CHAR(0) 
 		"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
