@@ -21,7 +21,6 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 
 	var $base_model = "AliquotInternalUse";
 	var $base_plugin = 'InventoryManagement';
-	var $useTable = false;
 	
 	//Don't put extra delete != 1 check on joined tables or this might result in deletion issues.
 	static $table_create_query = "CREATE TABLE view_aliquot_uses (
@@ -51,7 +50,6 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		)";
 
 	static $table_query =
-		//This must be the first table, otherwise creation based on '' AS pwet makes pwet a CHAR(0) 
 		"SELECT CONCAT(AliquotInternalUse.id,6) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		AliquotInternalUse.type AS use_definition,
@@ -145,33 +143,33 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	
 		UNION ALL
 	
-		SELECT CONCAT(QualityControl.id,3) AS id,
+		SELECT CONCAT(QualityCtrl.id,3) AS id,
 		AliquotMaster.id AS aliquot_master_id,
 		'quality control' AS use_definition,
-		QualityControl.qc_code AS use_code,
+		QualityCtrl.qc_code AS use_code,
 		'' AS use_details,
-		QualityControl.used_volume AS used_volume,
+		QualityCtrl.used_volume AS used_volume,
 		AliquotControl.volume_unit AS aliquot_volume_unit,
-		QualityControl.date AS use_datetime,
-		QualityControl.date_accuracy AS use_datetime_accuracy,
+		QualityCtrl.date AS use_datetime,
+		QualityCtrl.date_accuracy AS use_datetime_accuracy,
 		'' AS duration,
 		'' AS duration_unit,
-		QualityControl.run_by AS used_by,
-		QualityControl.created AS created,
-		concat('/inventorymanagement/quality_ctrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityControl.id) AS detail_url,
+		QualityCtrl.run_by AS used_by,
+		QualityCtrl.created AS created,
+		concat('/inventorymanagement/quality_ctrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id,
 		NULL AS aliquot_internal_use_id,
 		NULL AS source_aliquot_id,
 		NULL AS realiquoting_id,
-		QualityControl.id AS quality_control_id,
+		QualityCtrl.id AS quality_control_id,
 		NULL AS order_item_id,
 		NULL AS aliquot_review_master_id
-		FROM quality_ctrls AS QualityControl
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityControl.aliquot_master_id
+		FROM quality_ctrls AS QualityCtrl
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		WHERE QualityControl.deleted <> 1 %%WHERE%%
+		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
 		UNION ALL
 	
@@ -180,7 +178,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'aliquot shipment' AS use_definition,
 		Shipment.shipment_code AS use_code,
 		'' AS use_details,
-		'' AS used_volume,
+		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
 		Shipment.datetime_shipped AS use_datetime,
 		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
@@ -210,7 +208,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'specimen review' AS use_definition,
 		SpecimenReviewMaster.review_code AS use_code,
 		'' AS use_details,
-		'' AS used_volume,
+		NULL AS used_volume,
 		'' AS aliquot_volume_unit,
 		SpecimenReviewMaster.review_date AS use_datetime,
 		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
