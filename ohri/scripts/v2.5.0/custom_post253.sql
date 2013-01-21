@@ -505,6 +505,8 @@ UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id
 
 INSERT INTO i18n (id,en) VALUES ('ohri storage solution','Storage solution'),('dmso','DMSO');
 
+UPDATE versions SET permissions_regenerated = 0;
+
 
 
 

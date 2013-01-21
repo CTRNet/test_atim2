@@ -312,7 +312,7 @@ class ShipmentsController extends OrderAppController {
 		}	
 	}
 	
-	function formatDataForShippedItemsSelection($order_items) {
+	function formatDataForShippedItemsSelection($order_items){
 		$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
 		$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
 		foreach($order_items as $order_item){
@@ -331,7 +331,7 @@ class ShipmentsController extends OrderAppController {
 			$data[$order_item['OrderLine']['id']]['data'][] = $order_item;
 		}
 		
-		return $data;
+		return isset($data) ? $data : array();
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
