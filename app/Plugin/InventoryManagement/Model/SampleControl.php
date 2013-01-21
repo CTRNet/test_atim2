@@ -56,7 +56,7 @@ class SampleControl extends InventoryManagementAppModel {
 		return $this->getSamplesPermissibleValues(true, true);
 	}
 	
-	function getSamplesPermissibleValues($by_id, $only_specimen, $all = true){
+	function getSamplesPermissibleValues($by_id, $only_specimen, $dont_limit_to_samples_that_can_be_parents = true){
 		$result = array();
 		
 		// Build tmp array to sort according translation
@@ -67,7 +67,7 @@ class SampleControl extends InventoryManagementAppModel {
 		}
 		$controls = null;
 		$model_name = null;
-		if($all){
+		if($dont_limit_to_samples_that_can_be_parents){
 			$model_name = 'DerivativeControl';
 			$controls = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions, 'fields' => array('DerivativeControl.*')));
 		}else{
