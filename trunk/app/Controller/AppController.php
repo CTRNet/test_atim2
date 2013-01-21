@@ -983,6 +983,27 @@ class AppController extends Controller {
 		Cache::clear(false, '_cake_model_');
 		AppController::addWarningMsg(__('cache has been cleared'));
 			
+		// Clean up parent to sample control + aliquot control
+		$studied_sample_control_id = array();
+		$active_sample_control_ids = array();
+		$this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+		
+		$conditions = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL,
+				'ParentToDerivativeSampleControl.flag_active' => true);
+		while($active_parent_sample_types = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions))) {
+			foreach($active_parent_sample_types as $new_parent_sample_type) {
+				$active_sample_control_ids[] = $new_parent_sample_type['DerivativeControl']['id'];
+				$studied_sample_control_id[] = $new_parent_sample_type['DerivativeControl']['id'];
+			}
+			$conditions = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => $active_sample_control_ids,
+				'ParentToDerivativeSampleControl.flag_active' => true,
+				'not' => array('ParentToDerivativeSampleControl.derivative_sample_control_id' => $studied_sample_control_id));
+		}
+		$this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		$this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 		$this->Version->check_writable_fields = false;

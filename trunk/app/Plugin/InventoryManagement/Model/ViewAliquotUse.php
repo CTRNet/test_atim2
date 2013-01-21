@@ -82,7 +82,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	
 		SELECT CONCAT(SourceAliquot.id,1) AS `id`,
 		AliquotMaster.id AS aliquot_master_id,
-		'sample derivative creation' AS use_definition,
+		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
 		SampleMaster.sample_code AS use_code,
 		'' AS `use_details`,
 		SourceAliquot.used_volume AS used_volume,
@@ -249,7 +249,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 									array('table' => 'derivative_details', 'alias' => 'DerivativeDetail', 'type' => 'INNER', 'conditions' => array('sample_derivative.id = DerivativeDetail.sample_master_id')),
 									array('table' => 'sample_masters', 'alias' => 'sample_source', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = sample_source.id'))),
 							self::SOURCE_ID			=> 'CONCAT(SourceAliquot.id, 1)',
-							self::USE_DEFINITION	=> '"sample derivative creation"',
+							self::USE_DEFINITION	=> 'CONCAT("sample derivative creation#", SampleMaster.sample_control_id)',
 							self::USE_CODE			=> 'SampleMaster.sample_code',
 							self::USE_DETAIL		=> '""',
 							self::USE_VOLUME		=> 'SourceAliquot.used_volume',
@@ -421,16 +421,22 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 				'aliquot shipment'	=> __('aliquot shipment'),
 				'quality control'	=> __('quality control'),
 				'internal use'	=> __('internal use'),
-				'sample derivative creation'	=> __('sample derivative creation'),
 				'realiquoted to'	=> __('realiquoted to'),
 				'specimen review'	=> __('specimen review'));
 
+		// Add custom uses
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-
 		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
 		$use_and_event_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
-
 		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
+		
+		// Develop sample derivative creation
+		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+		$sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+		foreach($sample_controls as $sampl_control_id => $sample_type) {
+			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
+		}
+		
 		asort($result);
 
 		return $result;
