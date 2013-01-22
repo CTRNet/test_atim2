@@ -441,7 +441,9 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 
 		return $result;
 	}
+	
+	function getPkeyToCheck($data){
+		return substr(current(current($data)), 0, -1);
+	}
 
 }
-
-?>
