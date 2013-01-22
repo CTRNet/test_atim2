@@ -205,7 +205,7 @@ class AppModel extends Model {
 	
 	private function registerModelsToCheck(){
 		$this->registered_models = array();
-		if($this->registered_view){
+		if($this->registered_view && $this->id){
 			foreach($this->registered_view as $registered_view => $foreign_keys){
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
@@ -218,7 +218,7 @@ class AppModel extends Model {
 						}
 						$at_least_one = true;
 						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
-								
+
 						$results = $this->tryCatchQuery($table_query);
 						foreach($results as $result){
 							$pkeys_to_check[] = current(current($result));
@@ -424,7 +424,7 @@ class AppModel extends Model {
 					}
 				}else{
 					if(isset($data['year_accuracy'])){
-						$data['year'] = 'Â±'.$data['year'];
+						$data['year'] = '±'.$data['year'];
 					}
 					
 					if(!isset($data['sec']) || strlen($data['sec']) == 0){
@@ -530,7 +530,7 @@ class AppModel extends Model {
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
 				$plus_minus = false;
-				if(strpos($year, 'Â±') === 0){
+				if(strpos($year, '±') === 0){
 					$plus_minus = true;
 					$year = substr($year, 2);
 					$month = $day = $hour = $minute = null;
