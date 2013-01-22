@@ -222,11 +222,13 @@ class AppModel extends Model {
 								
 						$results = $this->tryCatchQuery($table_query);
 						foreach($results as $result){
-								$pkeys_for_deletion[] = current(current($result));
-							if(method_exists($model, "getPkeyToCheck")){
-								$pkeys_to_check[] = $model->getPkeyToCheck($result);
+							$pkeys_for_deletion[] = current(current($result));
+							if(method_exists($model, "getPkeyAndModelToCheck")){
+								$pkeys_to_check[] = $model->getPkeyAndModelToCheck($result);
 							}else{
-								$pkeys_to_check[] = current(current($result));
+								$pkeys_to_check[] = array(
+									'pkey' => current(current($result)),
+									'base_model' => $model->base_model);
 							}
 						}
 					}
@@ -249,14 +251,16 @@ class AppModel extends Model {
 		foreach($this->registered_models as $registered_model){
 			//try to find the row
 			$model = $registered_model['model'];
-			foreach($registered_model['pkeys_to_check'] as $pkey_to_check){
+			foreach($registered_model['pkeys_to_check'] as $pkey_and_model_to_check){
+				$pkey_to_check = $pkey_and_model_to_check['pkey'];
+				$base_model = $pkey_and_model_to_check['base_model'];
 				$pkey_for_deletion = array_shift($registered_model['pkeys_for_deletion']);
 				foreach(explode("UNION ALL", $model::$table_query) as $query_part){
-					if(strpos($query_part, $model->base_model) === false){
+					if(strpos($query_part, $base_model) === false){
 						continue;
 					}
-					$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $query_part);
-					$data = $this->tryCatchQuery($table_query);
+					$table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id='.$pkey_to_check, $query_part);
+					$data = $this->tryCatchQuery($table_query);							
 					if($data){
 						//update
 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
@@ -431,7 +435,7 @@ class AppModel extends Model {
 					}
 				}else{
 					if(isset($data['year_accuracy'])){
-						$data['year'] = '±'.$data['year'];
+						$data['year'] = 'ï¿½'.$data['year'];
 					}
 					
 					if(!isset($data['sec']) || strlen($data['sec']) == 0){
@@ -537,7 +541,7 @@ class AppModel extends Model {
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
 				$plus_minus = false;
-				if(strpos($year, '±') === 0){
+				if(strpos($year, 'ï¿½') === 0){
 					$plus_minus = true;
 					$year = substr($year, 2);
 					$month = $day = $hour = $minute = null;

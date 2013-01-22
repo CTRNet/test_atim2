@@ -442,8 +442,20 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		return $result;
 	}
 	
-	function getPkeyToCheck($data){
-		return substr(current(current($data)), 0, -1);
+	function getPkeyAndModelToCheck($data){
+		$pkey = null;
+		$model = null;
+		if(preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches )) {
+			$pkey = $matches[1];
+			$model_id = $matches[2];
+			foreach(self::$models_details as $studied_model => $model_data) {
+				if(strpos($model_data[self::SOURCE_ID], $model_id.')')) $model = $studied_model;
+			}
+			if(!$model) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else {
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		return array('pkey' => $pkey, 'base_model' => $model);
 	}
 
 }
