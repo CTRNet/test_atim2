@@ -218,10 +218,7 @@ class AppModel extends Model {
 						}
 						$at_least_one = true;
 						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
-						if($this->name == 'SourceAliquot'){
-							pr($this->tryCatchQuery('SELECT * FROM source_aliquots WHERE id=11'));
-						}
-		
+								
 						$results = $this->tryCatchQuery($table_query);
 						foreach($results as $result){
 							$pkeys_to_check[] = current(current($result));
