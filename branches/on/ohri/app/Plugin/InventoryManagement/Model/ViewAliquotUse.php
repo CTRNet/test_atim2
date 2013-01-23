@@ -39,14 +39,8 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		  created datetime NOT NULL,
 		  detail_url varchar(250) NOT NULL DEFAULT '',
 		  sample_master_id int(11) NOT NULL,
-		  collection_id int(11) NOT NULL,
+		  collection_id int(11) NOT NULL
 			
-		  aliquot_internal_use_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
-		  source_aliquot_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
-		  realiquoting_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
-		  quality_control_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
-		  order_item_id int(10) UNSIGNED DEFAULT NULL UNIQUE,
-		  aliquot_review_master_id int(10) UNSIGNED DEFAULT NULL UNIQUE
 		)";
 
 	static $table_query =
@@ -63,15 +57,9 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		AliquotInternalUse.duration_unit AS duration_unit,
 		AliquotInternalUse.used_by AS used_by,
 		AliquotInternalUse.created AS created,
-		CONCAT('/inventorymanagement/aliquot_masters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
+		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		AliquotInternalUse.id AS aliquot_internal_use_id,
-		NULL AS source_aliquot_id,
-		NULL AS realiquoting_id,
-		NULL AS quality_ctrl_id,
-		NULL AS order_item_id,
-		NULL AS aliquot_review_master_id
+		SampleMaster.collection_id AS collection_id
 		FROM aliquot_internal_uses AS AliquotInternalUse
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -82,7 +70,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 	
 		SELECT CONCAT(SourceAliquot.id,1) AS `id`,
 		AliquotMaster.id AS aliquot_master_id,
-		'sample derivative creation' AS use_definition,
+		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
 		SampleMaster.sample_code AS use_code,
 		'' AS `use_details`,
 		SourceAliquot.used_volume AS used_volume,
@@ -93,15 +81,9 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS `duration_unit`,
 		DerivativeDetail.creation_by AS used_by,
 		SourceAliquot.created AS created,
-		CONCAT('inventorymanagement/aliquot_masters/listAllSourceAliquots/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
+		CONCAT('/InventoryManagement/AliquotMasters/listAllSourceAliquots/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
-		SampleMaster2.collection_id AS collection_id,
-		NULL AS aliquot_internal_use_id,
-		SourceAliquot.id AS source_aliquot_id,
-		NULL AS realiquoting_id,
-		NULL AS quality_ctrl_id,
-		NULL AS order_item_id,
-		NULL AS aliquot_review_master_id
+		SampleMaster2.collection_id AS collection_id
 		FROM source_aliquots AS SourceAliquot
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
 		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
@@ -125,15 +107,9 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS duration_unit,
 		Realiquoting.realiquoted_by AS used_by,
 		Realiquoting.created AS created,
-		CONCAT('/inventorymanagement/aliquot_masters/listAllRealiquotedParents/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		CONCAT('/InventoryManagement/AliquotMasters/listAllRealiquotedParents/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		NULL AS aliquot_internal_use_id,
-		NULL AS source_aliquot_id,
-		Realiquoting.id AS realiquoting_id,
-		NULL AS quality_ctrl_id,
-		NULL AS order_item_id,
-		NULL AS aliquot_review_master_id
+		SampleMaster.collection_id AS collection_id
 		FROM realiquotings AS Realiquoting
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -156,15 +132,9 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS duration_unit,
 		QualityCtrl.run_by AS used_by,
 		QualityCtrl.created AS created,
-		concat('/inventorymanagement/quality_ctrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
+		concat('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		NULL AS aliquot_internal_use_id,
-		NULL AS source_aliquot_id,
-		NULL AS realiquoting_id,
-		QualityCtrl.id AS quality_control_id,
-		NULL AS order_item_id,
-		NULL AS aliquot_review_master_id
+		SampleMaster.collection_id AS collection_id
 		FROM quality_ctrls AS QualityCtrl
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
 		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
@@ -186,15 +156,9 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS duration_unit,
 		Shipment.shipped_by AS used_by,
 		Shipment.created AS created,
-		CONCAT('/order/shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		NULL AS aliquot_internal_use_id,
-		NULL AS source_aliquot_id,
-		NULL AS realiquoting_id,
-		NULL AS quality_ctrl_id,
-		OrderItem.id AS order_item_id,
-		NULL AS aliquot_review_master_id
+		SampleMaster.collection_id AS collection_id
 		FROM order_items OrderItem
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
 		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
@@ -216,226 +180,60 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS duration_unit,
 		'' AS used_by,
 		AliquotReviewMaster.created AS created,
-		CONCAT('/inventorymanagement/specimen_reviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
+		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		NULL AS aliquot_internal_use_id,
-		NULL AS source_aliquot_id,
-		NULL AS realiquoting_id,
-		NULL AS quality_ctrl_id,
-		NULL AS order_item_id,
-		AliquotReviewMaster.id AS aliquot_review_master_id
+		SampleMaster.collection_id AS collection_id
 		FROM aliquot_review_masters AS AliquotReviewMaster
 		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 
-	static protected $models_details = null;
-
-	function __construct(){
-		parent::__construct();
-		if(self::$models_details == null){
-			if(!class_exists('AliquotMaster', false)){
-				AppModel::getInstance('InventoryManagement', 'AliquotMaster', true);
-			}
-			self::$models_details = array(
-					"SourceAliquot" => array(
-							self::PLUGIN			=> "InventoryManagement",
-							self::JOINS				=> array(
-									AliquotMaster::joinOnAliquotDup('SourceAliquot.aliquot_master_id'),
-									AliquotMaster::$join_aliquot_control_on_dup,
-									array('table' => 'sample_masters', 'alias' => 'sample_derivative', 'type' => 'INNER', 'conditions' => array('SourceAliquot.sample_master_id = sample_derivative.id')),
-									array('table' => 'derivative_details', 'alias' => 'DerivativeDetail', 'type' => 'INNER', 'conditions' => array('sample_derivative.id = DerivativeDetail.sample_master_id')),
-									array('table' => 'sample_masters', 'alias' => 'sample_source', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = sample_source.id'))),
-							self::SOURCE_ID			=> 'CONCAT(SourceAliquot.id, 1)',
-							self::USE_DEFINITION	=> '"sample derivative creation"',
-							self::USE_CODE			=> 'SampleMaster.sample_code',
-							self::USE_DETAIL		=> '""',
-							self::USE_VOLUME		=> 'SourceAliquot.used_volume',
-							self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
-							self::USE_DATETIME		=> 'DerivativeDetail.creation_datetime',
-							self::USE_DATETIME_ACCU	=> 'DerivativeDetail.creation_datetime_accuracy',
-							self::DURATION			=> '""',
-							self::DURATION_UNIT			=> '""',
-							self::USE_BY			=> 'DerivativeDetail.creation_by',
-							self::CREATED			=> 'SourceAliquot.created',
-							self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/SampleMasters/detail/",sample_derivative.collection_id ,"/",sample_derivative.id)',
-							self::SAMPLE_MASTER_ID	=> 'sample_source.id',
-							self::COLLECTION_ID		=> 'sample_source.collection_id'),
-						
-					"Realiquoting" => array(
-							self::PLUGIN			=> "InventoryManagement",
-							self::JOINS				=> array(
-									AliquotMaster::joinOnAliquotDup('Realiquoting.parent_aliquot_master_id'),
-									AliquotMaster::$join_aliquot_control_on_dup,
-									array('table' => 'sample_masters', 'alias' => 'SampleMaster', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = SampleMaster.id'))),
-							self::SOURCE_ID			=> 'CONCAT(Realiquoting.id, 2)',
-							self::USE_DEFINITION	=> '"realiquoted to"',
-							self::USE_CODE			=> 'AliquotMasterChildren.barcode',
-							self::USE_DETAIL		=> '""',
-							self::USE_VOLUME		=> 'Realiquoting.parent_used_volume',
-							self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
-							self::USE_DATETIME		=> 'Realiquoting.realiquoting_datetime',
-							self::USE_DATETIME_ACCU	=> 'Realiquoting.realiquoting_datetime_accuracy',
-							self::DURATION			=> '""',
-							self::DURATION_UNIT			=> '""',
-							self::USE_BY			=> 'Realiquoting.realiquoted_by',
-							self::CREATED			=> 'Realiquoting.created',
-							self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/AliquotMasters/detail/",AliquotMasterChildren.collection_id,"/",AliquotMasterChildren.sample_master_id,"/",AliquotMasterChildren.id)',
-							self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
-							self::COLLECTION_ID		=> 'SampleMaster.collection_id'),
-
-					"QualityCtrl" => array(
-							self::PLUGIN			=> "InventoryManagement",
-							self::JOINS				=> array(
-									AliquotMaster::joinOnAliquotDup('QualityCtrl.aliquot_master_id'),
-									AliquotMaster::$join_aliquot_control_on_dup),
-							self::SOURCE_ID			=> 'CONCAT(QualityCtrl.id, 3)',
-							self::USE_DEFINITION	=> '"quality control"',
-							self::USE_CODE			=> 'QualityCtrl.qc_code',
-							self::USE_DETAIL		=> '""',
-							self::USE_VOLUME		=> 'QualityCtrl.used_volume',
-							self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
-							self::DURATION			=> '""',
-							self::DURATION_UNIT			=> '""',
-							self::USE_DATETIME		=> 'QualityCtrl.date',
-							self::USE_DATETIME_ACCU	=> 'QualityCtrl.date_accuracy',
-							self::USE_BY			=> 'QualityCtrl.run_by',
-							self::CREATED			=> 'QualityCtrl.created',
-							self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/QualityCtrls/detail/",AliquotMaster.collection_id,"/",AliquotMaster.sample_master_id,"/",QualityCtrl.id)',
-							self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
-							self::COLLECTION_ID		=> 'SampleMaster.collection_id'),
-						
-					"OrderItem" => array(
-							self::PLUGIN			=> "Order",
-							self::JOINS				=> array(
-									AliquotMaster::joinOnAliquotDup('OrderItem.aliquot_master_id'),
-									AliquotMaster::$join_aliquot_control_on_dup,
-									array('table' => 'sample_masters' ,'alias' => 'SampleMaster', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = SampleMaster.id', 'OrderItem.shipment_id IS NOT NULL'))),
-							self::SOURCE_ID			=> 'CONCAT(OrderItem.id, 4)',
-							self::USE_DEFINITION	=> '"aliquot shipment"',
-							self::USE_CODE			=> 'Shipment.shipment_code',
-							self::USE_DETAIL		=> '""',
-							self::USE_VOLUME		=> '""',
-							self::VOLUME_UNIT		=> '""',
-							self::USE_DATETIME		=> 'Shipment.datetime_shipped',
-							self::USE_DATETIME_ACCU	=> 'Shipment.datetime_shipped_accuracy',
-							self::DURATION			=> '""',
-							self::DURATION_UNIT			=> '""',
-							self::USE_BY			=> 'Shipment.shipped_by',
-							self::CREATED			=> 'Shipment.created',
-							self::DETAIL_URL		=> 'CONCAT("/Order/Shipments/detail/",Shipment.order_id,"/",Shipment.id)',
-							self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
-							self::COLLECTION_ID		=> 'SampleMaster.collection_id'),
-						
-					"AliquotReviewMaster" => array(
-							self::PLUGIN			=> "InventoryManagement",
-							self::JOINS				=> array(
-									AliquotMaster::joinOnAliquotDup('AliquotReviewMaster.aliquot_master_id'),
-									AliquotMaster::$join_aliquot_control_on_dup,
-									array('table' => 'sample_masters' ,'alias' => 'SampleMaster', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = SampleMaster.id'))),
-							self::SOURCE_ID			=> 'CONCAT(AliquotReviewMaster.id, 5)',
-							self::USE_DEFINITION	=> '"specimen review"',
-							self::USE_CODE			=> 'SpecimenReviewMaster.review_code',
-							self::USE_DETAIL		=> '""',
-							self::USE_VOLUME		=> '""',
-							self::VOLUME_UNIT		=> '""',
-							self::USE_DATETIME		=> 'SpecimenReviewMaster.review_date',
-							self::USE_DATETIME_ACCU	=> 'SpecimenReviewMaster.review_date_accuracy',
-							self::DURATION			=> '""',
-							self::DURATION_UNIT			=> '""',
-							self::USE_BY			=> '""',
-							self::CREATED			=> 'AliquotReviewMaster.created',
-							self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/SpecimenReviews/detail/",AliquotMaster.collection_id,"/",AliquotMaster.sample_master_id,"/",SpecimenReviewMaster.id)',
-							self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
-							self::COLLECTION_ID		=> 'SampleMaster.collection_id'),
-						
-					"AliquotInternalUse" => array(
-							self::PLUGIN			=> "InventoryManagement",
-							self::JOINS				=> array(
-									AliquotMaster::joinOnAliquotDup('AliquotInternalUse.aliquot_master_id'),
-									AliquotMaster::$join_aliquot_control_on_dup,
-									array('table' => 'sample_masters' ,'alias' => 'SampleMaster', 'type' => 'INNER', 'conditions' => array('aliquot_masters_dup.sample_master_id = SampleMaster.id'))),
-							self::SOURCE_ID			=> 'CONCAT(AliquotInternalUse.id, 6)',
-							self::USE_DEFINITION	=> 'AliquotInternalUse.type',
-							self::USE_CODE			=> 'AliquotInternalUse.use_code',
-							self::USE_DETAIL		=> 'AliquotInternalUse.use_details',
-							self::USE_VOLUME		=> 'AliquotInternalUse.used_volume',
-							self::VOLUME_UNIT		=> 'AliquotControl.volume_unit',
-							self::USE_DATETIME		=> 'AliquotInternalUse.use_datetime',
-							self::USE_DATETIME_ACCU	=> 'AliquotInternalUse.use_datetime_accuracy',
-							self::DURATION			=> 'AliquotInternalUse.duration',
-							self::DURATION_UNIT		=> 'AliquotInternalUse.duration_unit',
-							self::USE_BY			=> 'AliquotInternalUse.used_by',
-							self::CREATED			=> 'AliquotInternalUse.created',
-							self::DETAIL_URL		=> 'CONCAT("/InventoryManagement/AliquotMasters/detailAliquotInternalUse/",AliquotMaster.id,"/",AliquotInternalUse.id)',
-							self::SAMPLE_MASTER_ID	=> 'SampleMaster.id',
-							self::COLLECTION_ID		=> 'SampleMaster.collection_id'
-					)
-			);
-		}
-	}
-
-	function findFastFromAliquotMasterId($aliquot_master_id){
-
-		$data = array();
-		foreach(self::$models_details as $model_name => $model_conf){
-			$model = AppModel::getInstance($model_conf[self::PLUGIN], $model_name, true);
-			$tmp_data = $model->find('all', array(
-					'conditions' => array('AliquotMaster.id' => $aliquot_master_id),
-					'joins' => $model_conf[self::JOINS],
-					'fields' => array(
-							$model_conf[self::SOURCE_ID].' AS id',
-							'AliquotMaster.id AS aliquot_master_id',
-							$model_conf[self::USE_DEFINITION].' AS use_definition',
-							$model_conf[self::USE_CODE].' AS use_code',
-							$model_conf[self::USE_DETAIL].' AS use_details',
-							$model_conf[self::USE_VOLUME].' AS used_volume',
-							$model_conf[self::VOLUME_UNIT].' AS aliquot_volume_unit',
-							$model_conf[self::USE_DATETIME].' AS use_datetime',
-							$model_conf[self::USE_DATETIME_ACCU].' AS use_datetime_accuracy',
-							$model_conf[self::DURATION].' AS duration',
-							$model_conf[self::DURATION_UNIT].' AS duration_unit',
-							$model_conf[self::USE_BY].' AS used_by',
-							$model_conf[self::CREATED],
-							$model_conf[self::DETAIL_URL].' AS detail_url',
-							$model_conf[self::SAMPLE_MASTER_ID].' AS sample_master_id',
-							$model_conf[self::COLLECTION_ID].' AS collection_id'
-					)
-			));
-				
-			foreach($tmp_data as $result_unit){
-				$current = array();
-				foreach($result_unit as $fields){
-					$current += $fields;
-				}
-				$data[]['ViewAliquotUse'] = $current;
-			}
-		}
-		return $data;
-	}
 
 	function getUseDefinitions() {
 		$result = array(
 				'aliquot shipment'	=> __('aliquot shipment'),
 				'quality control'	=> __('quality control'),
 				'internal use'	=> __('internal use'),
-				'sample derivative creation'	=> __('sample derivative creation'),
 				'realiquoted to'	=> __('realiquoted to'),
 				'specimen review'	=> __('specimen review'));
 
+		// Add custom uses
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-
 		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
 		$use_and_event_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
-
 		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
+		
+		// Develop sample derivative creation
+		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+		$sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+		foreach($sample_controls as $sampl_control_id => $sample_type) {
+			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
+		}
+		
 		asort($result);
 
 		return $result;
 	}
+	
+	//must respect concat(id, #) order
+	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse');
+	
+	function getPkeyAndModelToCheck($data){
+		$pkey = null;
+		$model = null;
+		if(preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches )){
+			$pkey = $matches[1];
+			$model_id = $matches[2];
+			if($model_id < 7 && $model_id > 1){
+				$model = $this->models[$model_id - 1];
+			}else{
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+		}else{
+			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		return array('pkey' => $pkey, 'base_model' => $model);
+	}
 
 }
-
-?>

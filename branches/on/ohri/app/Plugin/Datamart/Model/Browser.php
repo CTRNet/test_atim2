@@ -886,6 +886,7 @@ class Browser extends DatamartAppModel {
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}else{
+			/*
 			$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
 			$sample_controls = $sample_control_model->getPermissibleSamplesArray(null);
 			$sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
@@ -902,7 +903,7 @@ class Browser extends DatamartAppModel {
 				)	
 			)));
 			$sub_models_id_filter['AliquotControl'] = array_keys(AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true));
-			
+			*/
 		}
 		
 		return $sub_models_id_filter;

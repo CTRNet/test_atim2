@@ -18,10 +18,5 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES ('confidential data','Confidential Dat
 
 SELECT 'WARNING: Change all QualityControl model references to QualityCtrl in both ViewAliquotUse and ViewAliquotUseCustom models' AS MSG;
 
-
-
-
-
-
-
+INSERT INTO i18n (id,en,fr) VALUES ('sample derivative creation#', 'Sample Derivative Creation | ', 'Création de dérivé | ');
 
