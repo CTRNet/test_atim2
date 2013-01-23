@@ -2580,7 +2580,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($aliquot['AliquotMaster']['sample_master_id'] != $sample_master_id || $aliquot['AliquotMaster']['collection_id'] != $collection_id){
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		$this->request->data = $this->ViewAliquotUse->findFastFromAliquotMasterId($aliquot_master_id);
+		$this->request->data = $this->ViewAliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
 		$this->Structures->set('viewaliquotuses');
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
