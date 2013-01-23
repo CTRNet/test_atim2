@@ -81,7 +81,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS `duration_unit`,
 		DerivativeDetail.creation_by AS used_by,
 		SourceAliquot.created AS created,
-		CONCAT('/InventoryManagement/AliquotMasters/listAllSourceAliquots/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
+		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
 		SampleMaster2.id AS sample_master_id,
 		SampleMaster2.collection_id AS collection_id
 		FROM source_aliquots AS SourceAliquot
@@ -107,7 +107,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS duration_unit,
 		Realiquoting.realiquoted_by AS used_by,
 		Realiquoting.created AS created,
-		CONCAT('/InventoryManagement/AliquotMasters/listAllRealiquotedParents/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id
 		FROM realiquotings AS Realiquoting
@@ -132,7 +132,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		'' AS duration_unit,
 		QualityCtrl.run_by AS used_by,
 		QualityCtrl.created AS created,
-		concat('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
+		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
 		SampleMaster.id AS sample_master_id,
 		SampleMaster.collection_id AS collection_id
 		FROM quality_ctrls AS QualityCtrl
