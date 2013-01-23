@@ -27,7 +27,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		  id varchar(20) NOT NULL,
 		  aliquot_master_id int NOT NULL,
 		  use_definition varchar(50) NOT NULL DEFAULT '',
-		  use_code varchar(50) NOT NULL DEFAULT '',
+		  use_code varchar(250) NOT NULL DEFAULT '',
 		  use_details VARchar(250) NOT NULL DEFAULT '',
 		  used_volume decimal(10,5) DEFAULT NULL,
 		  aliquot_volume_unit varchar(20) DEFAULT NULL,
