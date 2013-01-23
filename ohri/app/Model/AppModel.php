@@ -205,11 +205,12 @@ class AppModel extends Model {
 	
 	private function registerModelsToCheck(){
 		$this->registered_models = array();
-		if($this->registered_view){
+		if($this->registered_view && $this->id){
 			foreach($this->registered_view as $registered_view => $foreign_keys){
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				$pkeys_to_check = array();
+				$pkeys_for_deletion = array();
 				foreach($foreign_keys as $foreign_key){
 					$at_least_one = false;
 					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
@@ -218,13 +219,17 @@ class AppModel extends Model {
 						}
 						$at_least_one = true;
 						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
-						if($this->name == 'SourceAliquot'){
-							pr($this->tryCatchQuery('SELECT * FROM source_aliquots WHERE id=11'));
-						}
-		
+								
 						$results = $this->tryCatchQuery($table_query);
 						foreach($results as $result){
-							$pkeys_to_check[] = current(current($result));
+							$pkeys_for_deletion[] = current(current($result));
+							if(method_exists($model, "getPkeyAndModelToCheck")){
+								$pkeys_to_check[] = $model->getPkeyAndModelToCheck($result);
+							}else{
+								$pkeys_to_check[] = array(
+									'pkey' => current(current($result)),
+									'base_model' => $model->base_model);
+							}
 						}
 					}
 					if(!$at_least_one){
@@ -234,7 +239,8 @@ class AppModel extends Model {
 				if($pkeys_to_check){
 					$this->registered_models[] = array(
 							'model' => $model,
-							'pkeys_to_check' => array_unique($pkeys_to_check)
+							'pkeys_to_check' => $pkeys_to_check,
+							'pkeys_for_deletion' => $pkeys_for_deletion,
 					);
 				}
 			}
@@ -245,21 +251,23 @@ class AppModel extends Model {
 		foreach($this->registered_models as $registered_model){
 			//try to find the row
 			$model = $registered_model['model'];
-			foreach($registered_model['pkeys_to_check'] as $pkey_to_check){
-				$pkeys_to_check = $registered_model['pkeys_to_check'];
+			foreach($registered_model['pkeys_to_check'] as $pkey_and_model_to_check){
+				$pkey_to_check = $pkey_and_model_to_check['pkey'];
+				$base_model = $pkey_and_model_to_check['base_model'];
+				$pkey_for_deletion = array_shift($registered_model['pkeys_for_deletion']);
 				foreach(explode("UNION ALL", $model::$table_query) as $query_part){
-					if(strpos($query_part, $model->base_model) === false){
+					if(strpos($query_part, $base_model) === false){
 						continue;
 					}
-					$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $query_part);
-					$data = $this->tryCatchQuery($table_query);
+					$table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id='.$pkey_to_check, $query_part);
+					$data = $this->tryCatchQuery($table_query);							
 					if($data){
 						//update
 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
 						$this->tryCatchquery($query);
 					}else{
 						//delete
-						$model->delete($pkey_to_check, false);
+						$model->delete($pkey_for_deletion, false);
 					}
 				}
 			}
@@ -427,7 +435,7 @@ class AppModel extends Model {
 					}
 				}else{
 					if(isset($data['year_accuracy'])){
-						$data['year'] = '±'.$data['year'];
+						$data['year'] = '�'.$data['year'];
 					}
 					
 					if(!isset($data['sec']) || strlen($data['sec']) == 0){
@@ -533,7 +541,7 @@ class AppModel extends Model {
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
 				$plus_minus = false;
-				if(strpos($year, '±') === 0){
+				if(strpos($year, '�') === 0){
 					$plus_minus = true;
 					$year = substr($year, 2);
 					$month = $day = $hour = $minute = null;
