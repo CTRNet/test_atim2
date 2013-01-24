@@ -231,69 +231,79 @@ pr('TO Review');exit;
 	}
 	
 	function participantIdentificationsList(array $parameters){
-
-		// Check parameters
-		
-		$no_labo_min = (!empty($parameters['0']['no_labo_value_start']))? $parameters['0']['no_labo_value_start']: null;
-		$no_labo_max = (!empty($parameters['0']['no_labo_value_end']))? $parameters['0']['no_labo_value_end']: null;
-		
-		if((!empty($no_labo_min) && !is_numeric($no_labo_min))|| (!empty($no_labo_max) && !is_numeric($no_labo_max))) {
-			return array(
-				'header' => null, 
-				'data' => null, 
-				'columns_names' => null,
-				'error_msg' => 'no labo should be a numeric value');
-		}
-		
-		$misc_identifier_control_ids = array();
-		foreach($parameters['0']['no_labo_misc_identifier_control_id'] as $new_id) {
-			if(!empty($new_id)) $misc_identifier_control_ids[] = $new_id;
-		}
-
-		if(empty($misc_identifier_control_ids)) {
-			return array(
-				'header' => null, 
-				'data' => null, 
-				'columns_names' => null,
-				'error_msg' => 'a no labo type should be selected');
-		}
-
-		// Build titles
-		
-		$title = '';
-		$separator = '';
-		$control_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
-		$misc_identifier_control_data = $control_model->find('all', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_ids)));
-		foreach($misc_identifier_control_data as $new_data) {
-			$title .= $separator.__($new_data['MiscIdentifierControl']['misc_identifier_name'], true);	
-			$separator = ' & ';	
-		}
-				
-		$description = __('no labo', true).' : ';
-		if($no_labo_min|| $no_labo_max) {
-			if($no_labo_min) $description .= $no_labo_min.' < ';
-			if($no_labo_max) $description .= ' < '.$no_labo_max;
-		} else {
-			$description .= __('all',true);
-		}
-		
-		$header = array(
-			'title' => $title,
-			'description' => $description);
-		
-		// Build data
+		$participant_ids = '';
+		$header = '';
 		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
-		
-		$conditions = array('MiscIdentifier.misc_identifier_control_id' => $misc_identifier_control_ids);
-		if($no_labo_min) $conditions[] = 'MiscIdentifier.identifier_value >='. $no_labo_min;
-		if($no_labo_max) $conditions[] = 'MiscIdentifier.identifier_value <='. $no_labo_max;
-		$misc_identifier_participant_ids = $misc_identifier_model->find('all', array('conditions' => $conditions, 'fields' => array('DISTINCT MiscIdentifier.participant_id'), 'recursive' => '-1'));
-		
-		$participant_ids = array();
-		foreach($misc_identifier_participant_ids as $new_id) $participant_ids[] = $new_id['MiscIdentifier']['participant_id'];
-		
-		if(sizeof($misc_identifier_participant_ids) > 3000) {
+	
+		if($parameters['Participant']['id']) {
+			//From databrowser
+			$participant_ids = $parameters['Participant']['id'];
+			$header = array(
+					'title' => __('from databrowser'),
+					'description' => 'n/a');
+			
+		} else {
+			// Check parameters
+			
+			$no_labo_min = (!empty($parameters['0']['no_labo_value_start']))? $parameters['0']['no_labo_value_start']: null;
+			$no_labo_max = (!empty($parameters['0']['no_labo_value_end']))? $parameters['0']['no_labo_value_end']: null;
+			
+			if((!empty($no_labo_min) && !is_numeric($no_labo_min))|| (!empty($no_labo_max) && !is_numeric($no_labo_max))) {
+				return array(
+					'header' => null, 
+					'data' => null, 
+					'columns_names' => null,
+					'error_msg' => 'no labo should be a numeric value');
+			}
+			
+			$misc_identifier_control_ids = array();
+			foreach($parameters['0']['no_labo_misc_identifier_control_id'] as $new_id) {
+				if(!empty($new_id)) $misc_identifier_control_ids[] = $new_id;
+			}
+	
+			if(empty($misc_identifier_control_ids)) {
+				return array(
+					'header' => null, 
+					'data' => null, 
+					'columns_names' => null,
+					'error_msg' => 'a no labo type should be selected');
+			}
+	
+			// Build titles
+			
+			$title = '';
+			$separator = '';
+			$control_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
+			$misc_identifier_control_data = $control_model->find('all', array('conditions' => array('MiscIdentifierControl.id' => $misc_identifier_control_ids)));
+			foreach($misc_identifier_control_data as $new_data) {
+				$title .= $separator.__($new_data['MiscIdentifierControl']['misc_identifier_name'], true);	
+				$separator = ' & ';	
+			}
+					
+			$description = __('no labo', true).' : ';
+			if($no_labo_min|| $no_labo_max) {
+				if($no_labo_min) $description .= $no_labo_min.' < ';
+				if($no_labo_max) $description .= ' < '.$no_labo_max;
+			} else {
+				$description .= __('all',true);
+			}
+			
+			$header = array(
+				'title' => $title,
+				'description' => $description);
+			
+			// Build data
+			
+			$conditions = array('MiscIdentifier.misc_identifier_control_id' => $misc_identifier_control_ids);
+			if($no_labo_min) $conditions[] = 'MiscIdentifier.identifier_value >='. $no_labo_min;
+			if($no_labo_max) $conditions[] = 'MiscIdentifier.identifier_value <='. $no_labo_max;
+			$misc_identifier_participant_ids = $misc_identifier_model->find('all', array('conditions' => $conditions, 'fields' => array('DISTINCT MiscIdentifier.participant_id'), 'recursive' => '-1'));
+			
+			$participant_ids = array();
+			foreach($misc_identifier_participant_ids as $new_id) $participant_ids[] = $new_id['MiscIdentifier']['participant_id'];
+		}
+		if(sizeof($participant_ids) > 3000) {
 			return array(
 				'header' => null, 
 				'data' => null, 

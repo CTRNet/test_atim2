@@ -396,15 +396,8 @@ DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
 (SELECT DISTINCT contact, '','', '1', @control_id, NOW(), NOW(), 1, 1 FROM orders WHERE contact NOT LIKE '' AND contact IS NOT NULL);
 
-
-
-
-
-
-
-
-
-
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 'participant identifications list', '/Datamart/Reports/manageReport/9', 1, '');
 
 
 
