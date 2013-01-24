@@ -507,6 +507,44 @@ INSERT INTO i18n (id,en) VALUES ('ohri storage solution','Storage solution'),('d
 
 UPDATE versions SET permissions_regenerated = 0;
 
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/Adhocs/%';
+
+UPDATE datamart_reports SET form_alias_for_search = 'terry_fox_export_bank_nbr_definition', form_alias_for_results = 'n/a' WHERE id = 7;
+
+
+DELETE FROM i18n WHERE id IN ('terry fox export','terry_fox_report_no_participant','terry_fox_report_no_participant','terry_fox_export_description');
+INSERT IGNORE INTO i18n (id,en) VALUES 
+('terry fox export','TFRI export'),
+('terry_fox_report_no_participant', 'No participant has been found based on your criteria!'),
+("terry_fox_export_description", "Report to submit data to the TFRI COEUR project!");
+
+INSERT INTO structures(`alias`) VALUES ('terry_fox_export_bank_nbr_definition');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='terry_fox_export_bank_nbr_definition'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='help_participant identifier' AND `language_label`='participant identifier' AND `language_tag`=''), '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_fields SET setting = 'size=20,tool=csv' WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier';
+
+UPDATE datamart_structure_functions SET label = 'terry fox export', link = '/Datamart/Reports/manageReport/7' WHERE label = 'Terry Fox Report';
+
+
+
+
+
+
+
+
+
+INSERT IGNORE INTO i18n (id,en) VALUES 
+('terryFox_report_no_participant', 'Report should be launched from either participants batch set or participants set defined by databrowser tool!'),
+("terry_fox_export_description", "To generate the Terry Fox report, you have to build a participants set then select 'Terry Fox Report' in 'Batch Actions'.");
+
+
+ 
+ 
+ 
+
+
 
 
 
