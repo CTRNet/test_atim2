@@ -18,9 +18,9 @@ class ReportsControllerCustom extends ReportsController {
 		$tfri_report_allowed_values['residual_disease'] = array('1-2cm' => '1-2cm', '< 1cm' => '<1cm', '> 2cm' => '>2cm', 'none visible' => 'none', 'undefined'	=> 'unknown');
 		$tfri_report_allowed_values['progression'] = array('no', 'yes', 'progressive disease', 'bouncer', 'unknown');
 		$tfri_report_allowed_values['stage'] = array('Ia', 'Ib', 'Ic', 'IIa', 'IIb', 'IIc', 'IIIa', 'IIIb', 'IIIc', 'IV', 'unknown', 'III');
+		//Sheet 3
+		$tfri_report_allowed_values['ct_scan'] = array('negative', 'positive', 'unknown');
 			
-		
-		
 		
 		
 		
@@ -28,7 +28,6 @@ class ReportsControllerCustom extends ReportsController {
 			$tfri_report_allowed_values['fallopian_tube_lesions'] = array('benign tumors', 'malignant tumors', 'no', 'salpingitis', 'unknown', 'yes');
 			$tfri_report_allowed_values['tumor_site'] = array('Breast-Breast', 'Central Nervous System-Brain', 'Central Nervous System-Other Central Nervous System', 'Central Nervous System-Spinal Cord', 'Digestive-Anal', 'Digestive-Appendix', 'Digestive-Bile Ducts', 'Digestive-Colonic', 'Digestive-Esophageal', 'Digestive-Gallbladder', 'Digestive-Liver', 'Digestive-Other Digestive', 'Digestive-Pancreas', 'Digestive-Rectal', 'Digestive-Small Intestine', 'Digestive-Stomach', 'Female Genital-Cervical', 'Female Genital-Endometrium', 'Female Genital-Fallopian Tube', 'Female Genital-Gestational Trophoblastic Neoplasia', 'Female Genital-Other Female Genital', 'Female Genital-Ovary', 'Female Genital-Peritoneal Pelvis Abdomen', 'Female Genital-Uterine', 'Female Genital-Vagina', 'Female Genital-Vulva', "Haematological-Hodgkin's Disease", 'Haematological-Leukemia', 'Haematological-Lymphoma', "Haematological-Non-Hodgkin's Lymphomas", 'Haematological-Other Haematological', 'Head & Neck-Larynx', 'Head & Neck-Lip and Oral Cavity', 'Head & Neck-Nasal Cavity and Sinuses', 'Head & Neck-Other Head & Neck', 'Head & Neck-Pharynx', 'Head & Neck-Salivary Glands', 'Head & Neck-Thyroid', 'Musculoskeletal Sites-Bone', 'Musculoskeletal Sites-Other Bone', 'Musculoskeletal Sites-Soft Tissue Sarcoma', 'Ophthalmic-Eye', 'Ophthalmic-Other Eye', 'Other-Gross Metastatic Disease', 'Other-Primary Unknown', 'Skin-Melanoma', 'Skin-Non Melanomas', 'Skin-Other Skin', 'Thoracic-Lung', 'Thoracic-Mesothelioma', 'Thoracic-Other Thoracic', 'Urinary Tract-Bladder', 'Urinary Tract-Kidney', 'Urinary Tract-Other Urinary Tract', 'Urinary Tract-Renal Pelvis and Ureter', 'Urinary Tract-Urethra', 'not applicable', 'unknown', 'ascite');
 			$tfri_report_allowed_values['drugs'] = array('cisplatinum ', 'carboplatinum ', 'oxaliplatinum ', 'paclitaxel ', 'topotecan ', 'ectoposide ', 'tamoxifen ', 'doxetaxel ', 'doxorubicin ', 'other ', 'etoposide ', 'gemcitabine ', 'procytox ', 'vinorelbine ', 'cyclophosphamide');
-			$tfri_report_allowed_values['ct_scan'] = array('negative', 'positive', 'unknown');
 			$tfri_report_allowed_values['collected_tissue_type'] = array('ovary', 'peritoneum', 'omentum', 'normal fallopian tub', 'normal endometrium');
 			$tfri_report_allowed_values['tissue_laterality'] = array('left', 'right', 'unknown', 'not applicable');
 			$tfri_report_allowed_values['fft_volume_unit'] = array('tube', 'ml', 'mm3', 'gr');
@@ -63,6 +62,9 @@ class ReportsControllerCustom extends ReportsController {
 		
 		if(empty($participant_data)) {
 			return array('header' => null, 'data' => null, 'columns_names' => null, 'error_msg' => 'terry_fox_report_no_participant');
+		} else if(sizeof($participant_data) > 200) {
+//TODO change to 100?			
+			return array('header' => null, 'data' => null, 'columns_names' => null, 'error_msg' => 'terry_fox_report_too_many_participants');
 		}
 		
 		// terry_fox_export_description
@@ -70,14 +72,15 @@ class ReportsControllerCustom extends ReportsController {
 		$pid_bid_assoc = array();
 		$participant_ids = array();
 				
-	if(true) {	
+if(false) {	
 		header ( "Content-Type: application/force-download" ); 
 		header ( "Content-Type: application/octet-stream" ); 
 		header ( "Content-Type: application/download" ); 
 		header ( "Content-Type: text/csv" ); 
 		header( "Content-disposition:attachment;filename=terry_fox_".date('YMd_Hi').'.csv');
-	}
-		// ** SHEET 1 - Patients **
+}
+		
+		// *********************************************** SHEET 1 - Patients ***********************************************
 		
 		{
 			$sheet = "SHEET 1 - Patients";
@@ -179,66 +182,18 @@ class ReportsControllerCustom extends ReportsController {
 				echo implode(csv_separator, $line), "\n";
 			}
 
+			if(!empty($bank_nbrs) && sizeof($bank_nbrs) != sizeof($participant_ids)) {
+				foreach($bank_nbrs as $new_bank_nbr) {
+					if($new_bank_nbr && !in_array($new_bank_nbr, $pid_bid_assoc)) $tfri_report_warnings[$sheet]["Not all Bank# submitted match a participant of your bank"][$new_bank_nbr] = $new_bank_nbr;
+				}
+			}
+			
 			$this->displayTfriReportWarning($sheet);
 			echo "\n";
 		}	
 		
-		// ** SHEET 2 - EOC - Diagnosis **
-
-
-		/*
+		// *********************************************** SHEET 2 - EOC - Diagnosis ***********************************************
 		
-		$submitted_participant_ids = array_filter($parameters['Participant']['id']);
-		$participant_ids = array_keys($pid_bid_assoc);
-
-
-		//Get statistics on dx_origin to allow following data extraction
-		$paticipants_multi_primary = array();
-		$tmp_data = $this->Report->query("SELECT res.participant_id FROM ( 
-				SELECT count( * ) AS nbr, participant_id FROM `diagnosis_masters` 
-				WHERE deleted !=1 AND dx_origin IN ('primary','unknown') AND participant_id IN(".implode(", ", $participant_ids).") GROUP BY participant_id
-			) AS res WHERE res.nbr > 1", false);
-		foreach($tmp_data as $res) $paticipants_multi_primary[] = $res['res']['participant_id'];
-		$paticipants_multi_primary[] = 0;
-		
-		$paticipants_only_eoc_primary = array();
-		$tmp_data = $this->Report->query("SELECT DISTINCT participant_id FROM diagnosis_masters 
-		WHERE participant_id NOT IN (
-			SELECT participant_id FROM diagnosis_masters WHERE dx_origin = 'unknown' OR (dx_origin = 'primary' AND ohri_tumor_site != 'Female Genital-Ovary') AND deleted != 1
-		) AND participant_id IN(".implode(", ", $participant_ids).") AND deleted != 1", false);
-		foreach($tmp_data as $res) $paticipants_only_eoc_primary[] = $res['diagnosis_masters']['participant_id'];		
-		$paticipants_only_eoc_primary[] = 0;
-		
-		$paticipants_only_other_primary = array();
-		$tmp_data = $this->Report->query("SELECT DISTINCT participant_id FROM diagnosis_masters 
-			WHERE participant_id NOT IN (
-				SELECT participant_id FROM diagnosis_masters WHERE dx_origin = 'unknown' OR (dx_origin = 'primary' AND ohri_tumor_site = 'Female Genital-Ovary') AND deleted != 1
-			) AND participant_id IN(".implode(", ", $participant_ids).") AND deleted != 1", false);
-		foreach($tmp_data as $res) $paticipants_only_other_primary[] = $res['diagnosis_masters']['participant_id'];		
-		$paticipants_only_other_primary[] = 0;
-		
-		$paticipants_unknown_eoc_other_primary = array();
-		$tmp_data = $this->Report->query("SELECT DISTINCT participant_id FROM diagnosis_masters 
-			WHERE participant_id NOT IN (".implode(", ", $paticipants_only_eoc_primary).") AND participant_id NOT IN (".implode(", ", $paticipants_only_other_primary).") 
-			AND participant_id IN(".implode(", ", $participant_ids).") AND deleted != 1", false);
-		foreach($tmp_data as $res) $paticipants_unknown_eoc_other_primary[] = $res['diagnosis_masters']['participant_id'];
-		$paticipants_unknown_eoc_other_primary[] = 0;
-		
-		$eoc_diagnosis_master_ids = array('primary'=>array('0'), 'secondary' => array('0'));
-		$other_diagnosis_master_ids = array('primary'=>array('0'), 'secondary' => array('0'));
-		
-		if(!empty($paticipants_unknown_eoc_other_primary)) {
-			$participants = $this->Report->query("SELECT participant_identifier FROM participants WHERE deleted != 1 AND id IN (".implode(", ", $paticipants_unknown_eoc_other_primary).")", false);
-			$echo_string = '';
-			foreach($participants as $tmp) {
-				$echo_string .= ' ['.$tmp['participants']['participant_identifier'].']';
-			}
-			echo "\n", implode(csv_separator, array("CANNOT FETCH ALL EOC/OTHER EVENT CORRECTLY (PROBABLY) - CHECK MORE IN DEEP PARTICIPANTS HAVING FOLLOWING SYSTEM CODES : $echo_string")), "\n";
-		}
-		
-		*/
-		
-		//sheet 2 - EOC dx
 		{
 			$sheet = 'SHEET 2 - EOC - Diagnosis';
 			echo "\n\n$sheet\n";
@@ -361,6 +316,7 @@ class ReportsControllerCustom extends ReportsController {
 					$line[] = "";//progression time (months)
 					$line[] = "";//Date of Progression of CA125 Date
 					$line[] = "";//Date of Progression of CA125 Accuracy
+//TODO get flag 					
 					$line[] = "";//CA125 progression time (months)
 					$line[] = "";//Follow-up from ovarectomy (months)
 					$line[] = $unit['DiagnosisMaster']['survival_time_months'];
@@ -389,6 +345,7 @@ class ReportsControllerCustom extends ReportsController {
 						$line[] = (!empty($unit['DiagnosisMaster']['dx_date'])? $unit['DiagnosisMaster']['dx_date_accuracy']: '');
 						$line[] = "";//Presence of precursor of benign lesions
 						$line[] = "";//fallopian tube lesions	
+//TODO ohri_dx_ovaries.fallopian_tube_lesions						
 						$line[] = "";//$unit['DiagnosisMaster']['age_at_dx'];//Age at Time of Diagnosis (yr)
 						$line[] = "";//$unit['DiagnosisDetail']['laterality'];
 						$line[] = "";//$unit['DiagnosisDetail']['histopathology'];
@@ -401,7 +358,8 @@ class ReportsControllerCustom extends ReportsController {
 						$line[] = $progression_site_1;//Site 1 of Primary Tumor Progression (metastasis)  If Applicable
 						$line[] = $progression_site_2;//Site 2 of Primary Tumor Progression (metastasis)  If applicable
 						$line[] = "";//progression time (months)
-						$line[] = "";//Date of Progression of CA125 Date
+						$line[] = "";//Date of Progression of CA125 Date 
+//TODO ohri_ed_lab_chemistries.ca125_progression
 						$line[] = "";//Date of Progression of CA125 Accuracy
 						$line[] = "";//CA125 progression time (months)
 						$line[] = "";//Follow-up from ovarectomy (months)
@@ -412,16 +370,15 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			}
 
+			foreach($pid_bid_assoc as $new_participant_id => $new_bank_nbr) {
+				if(!isset($all_eoc_dx_mst_id_from_participant_id[$new_participant_id])) $tfri_report_warnings[$sheet]["Not all participants are linked to an EOC diagnosis"][$new_bank_nbr] = $new_bank_nbr;
+			}
+
 			$this->displayTfriReportWarning($sheet);
 			echo "\n";
 		}	
-		
-		
-		
-		//TODO ici
-		exit;
-		
-		//sheet 3 - EOC Event
+			
+		// *********************************************** SHEET 3 - EOC Event ***********************************************
 		
 		{
 			$sheet = "SHEET 3 - EOC";
@@ -443,133 +400,128 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			
 			echo implode(csv_separator, $title_row),"\n";
+			
+			$eoc_event_from_participant_id = array();
 
-			$i = 0;
-			$data = array();
-			do{
-				// CT-Scan
+			// CT-Scan
+			
+			$ct_scan_data = $this->Report->query("
+				SELECT * FROM event_masters AS EventMaster 
+				INNER JOIN ohri_ed_clinical_ctscans AS EventDetail ON EventDetail.event_master_id=EventMaster.id
+				INNER JOIN event_controls AS EventControl ON EventControl.id = EventMaster.event_control_id 
+				WHERE EventMaster.deleted=0 AND EventControl.event_type = 'ctscan' AND EventControl.flag_active = 1
+				AND EventMaster.diagnosis_master_id IN(".implode(", ", $all_eoc_prim_and_sec_dx_mst_ids).")
+				ORDER BY EventMaster.participant_id ASC, EventMaster.event_date ASC", false);
+			foreach($ct_scan_data as $index => $unit){
+				$participant_id = $unit['EventMaster']['participant_id'];
 				
-				$ct_scan_data = $this->Report->query("
-					SELECT * FROM event_masters AS EventMaster 
-					INNER JOIN ohri_ed_clinical_ctscans AS ed_with_ctscan ON ed_with_ctscan.event_master_id=EventMaster.id
-					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id IN(39) 
-					AND (EventMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).") 
-					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
-					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
-					LIMIT 10 OFFSET ".$i * 10, false
-				);
-						
-				foreach($ct_scan_data as $index => $unit){
-					$ct_scan_precision = null;
-					if($unit['ed_with_ctscan']['response'] == 'unknown'){
-						$ct_scan_precision = 'unknown'; 
-					}else if($unit['ed_with_ctscan']['response'] == "complete"){
-						$ct_scan_precision = 'negative';
-					}else if(strlen($unit['ed_with_ctscan']['response']) > 0){
-						$ct_scan_precision = 'positive';
-					}else{
-						$ct_scan_precision = '';
-					}
-					//complet = negative
-					// other = positive
-					
-					$data[sprintf("%010s_%s_%s_%s_ct_scan", $unit['EventMaster']['participant_id'], $unit['EventMaster']['event_date'], $i, $index)] = array(
-						"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
-						"event"						=> 'CT scan',
-						"event_start"				=> $unit['EventMaster']['event_date'],
-						"event_start_accuracy"		=> "",
-						"event_end"					=> "",
-						"event_end_accuracy"		=> "",
-						"drug1"						=> "",
-						"drug2"						=> "",
-						"drug3"						=> "",
-						"drug4"						=> "",
-						"ca125"						=> "",
-						"ctscan precision"			=> $ct_scan_precision
-					);
-				}				
-				
-				// CA 125
-				
-				$ca_125_data = $this->Report->query("
-					SELECT * FROM event_masters AS EventMaster 
-					INNER JOIN ohri_ed_lab_chemistries AS ed_with_ca125 ON ed_with_ca125.event_master_id=EventMaster.id
-					WHERE EventMaster.deleted=0 AND EventMaster.event_control_id IN(37) 
-					AND (EventMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).")
-					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
-					OR EventMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
-					LIMIT 10 OFFSET ".$i * 10, false
-				);
-				
-				foreach($ca_125_data as $index => $unit){
-					$data[sprintf("%010s_%s_%s_%s_ca125", $unit['EventMaster']['participant_id'], $unit['EventMaster']['event_date'], $i, $index)] = array(
-						"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
-						"event"						=> 'CA125',
-						"event_start"				=> $unit['EventMaster']['event_date'],
-						"event_start_accuracy"		=> "",
-						"event_end"					=> "",
-						"event_end_accuracy"		=> "",
-						"drug1"						=> "",
-						"drug2"						=> "",
-						"drug3"						=> "",
-						"drug4"						=> "",
-						"ca125"						=> $unit['ed_with_ca125']['CA125_u_ml'],
-						"ctscan precision"			=> "",
-					);
+				$ct_scan_precision = null;
+				if($unit['EventDetail']['response'] == 'unknown'){
+					$ct_scan_precision = 'unknown'; 
+				}else if($unit['EventDetail']['response'] == "complete"){
+					$ct_scan_precision = 'negative';
+				}else if(strlen($unit['EventDetail']['response']) > 0){
+					$ct_scan_precision = 'positive';
+				}else{
+					$ct_scan_precision = '';
 				}
+				$this->validateTfriReportValue($ct_scan_precision, 'ct_scan', "CT Scan Precision", $sheet, $pid_bid_assoc[$participant_id]);
 				
-				// Trt
-				
-				$tx_data = $this->Report->query("
-					SELECT * FROM treatment_masters AS TxMaster 
-					WHERE TxMaster.deleted=0 AND TxMaster.tx_control_id IN(5, 7) 
-					AND (TxMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).") 
-					OR TxMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
-					OR TxMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
-					LIMIT 10 OFFSET ".$i * 10, false
+				$eoc_event_from_participant_id[$participant_id][] = array(
+					"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
+					"event"						=> 'CT scan',
+					"event_start"				=> $unit['EventMaster']['event_date'],
+					"event_start_accuracy"		=> (empty($unit['EventMaster']['event_date'])? '' : (empty($unit['EventMaster']['event_date_accuracy'])? 'c' : $unit['EventMaster']['event_date_accuracy'])),
+					"event_end"					=> "",
+					"event_end_accuracy"		=> "",
+					"drug1"						=> "",
+					"drug2"						=> "",
+					"drug3"						=> "",
+					"drug4"						=> "",
+					"ca125"						=> "",
+					"ctscan precision"			=> $ct_scan_precision
 				);
-								
-				foreach($tx_data as $index => $unit){
-					$drugs = array();
-					if($unit['TxMaster']['tx_control_id'] == 7){
-						$tmp_data = $this->Report->query("
-							SELECT * FROM txe_chemos 
-							INNER JOIN drugs ON txe_chemos.drug_id=drugs.id
-							WHERE txe_chemos.treatment_master_id = ".$unit['TxMaster']['id']."
-							AND txe_chemos.deleted = 0"
-						);											
-						$drug_id = 0;
-						$tmp_unit = current($tmp_data);
-						while(($tmp_unit != null) && ($drug_id < 4)) {
-							$drug = $tmp_unit['drugs']['generic_name'];
-							if(array_key_exists(strtolower($drug), $supported_drugs)) {
-								$drugs[] = $supported_drugs[strtolower($drug)];
-							} else {
-								$unsupported_drugs[$drug] = $drug;
-							}
-							$drug_id++;	
-							$tmp_unit = next($tmp_data);
+			}	
+			
+			// CA 125
+			
+			$ca_125_data = $this->Report->query("
+				SELECT * FROM event_masters AS EventMaster 
+				INNER JOIN ohri_ed_lab_chemistries AS EventDetail ON EventDetail.event_master_id=EventMaster.id
+				INNER JOIN event_controls AS EventControl ON EventControl.id = EventMaster.event_control_id 
+				WHERE EventMaster.deleted=0 AND EventControl.event_type = 'chemistry' AND EventControl.flag_active = 1
+				AND EventMaster.diagnosis_master_id IN(".implode(", ", $all_eoc_prim_and_sec_dx_mst_ids).")
+				ORDER BY EventMaster.participant_id ASC, EventMaster.event_date ASC", false);	
+			foreach($ca_125_data as $index => $unit){
+				$participant_id = $unit['EventMaster']['participant_id'];
+				$eoc_event_from_participant_id[$participant_id][] = array(
+					"participant_biobank_id"	=> $pid_bid_assoc[$unit['EventMaster']['participant_id']],
+					"event"						=> 'CA125',
+					"event_start"				=> $unit['EventMaster']['event_date'],
+					"event_start_accuracy"		=> (empty($unit['EventMaster']['event_date'])? '' : (empty($unit['EventMaster']['event_date_accuracy'])? 'c' : $unit['EventMaster']['event_date_accuracy'])),
+					"event_end"					=> "",
+					"event_end_accuracy"		=> "",
+					"drug1"						=> "",
+					"drug2"						=> "",
+					"drug3"						=> "",
+					"drug4"						=> "",
+					"ca125"						=> $unit['EventDetail']['CA125_u_ml'],
+					"ctscan precision"			=> "",
+				);
+//TODO here
+// take drug in consideration
+		
+			// Trt
+			
+			$tx_data = $this->Report->query("
+				SELECT * FROM treatment_masters AS TxMaster 
+				WHERE TxMaster.deleted=0 AND TxMaster.tx_control_id IN(5, 7) 
+				AND (TxMaster.participant_id IN(".implode(", ", $paticipants_only_eoc_primary).") 
+				OR TxMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['primary']).") 
+				OR TxMaster.diagnosis_master_id IN (".implode(", ", $eoc_diagnosis_master_ids['secondary'])."))
+				LIMIT 10 OFFSET ".$i * 10, false
+			);
+							
+			foreach($tx_data as $index => $unit){
+				$drugs = array();
+				if($unit['TxMaster']['tx_control_id'] == 7){
+					$tmp_data = $this->Report->query("
+						SELECT * FROM txe_chemos 
+						INNER JOIN drugs ON txe_chemos.drug_id=drugs.id
+						WHERE txe_chemos.treatment_master_id = ".$unit['TxMaster']['id']."
+						AND txe_chemos.deleted = 0"
+					);											
+					$drug_id = 0;
+					$tmp_unit = current($tmp_data);
+					while(($tmp_unit != null) && ($drug_id < 4)) {
+						$drug = $tmp_unit['drugs']['generic_name'];
+						if(array_key_exists(strtolower($drug), $supported_drugs)) {
+							$drugs[] = $supported_drugs[strtolower($drug)];
+						} else {
+							$unsupported_drugs[$drug] = $drug;
 						}
+						$drug_id++;	
+						$tmp_unit = next($tmp_data);
 					}
-					
-					$data[sprintf("%010s_%s_%s_%s_tx", $unit['TxMaster']['participant_id'], $unit['TxMaster']['start_date'], $i, $index)] = array(
-						"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
-						"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery(other)' : 'chemotherapy',
-						"event_start"				=> $unit['TxMaster']['start_date'],
-						"event_start_accuracy"		=> (!empty($unit['TxMaster']['start_date'])? $unit['TxMaster']['start_date_accuracy']: ''),
-						"event_end"					=> $unit['TxMaster']['finish_date'],
-						"event_end_accuracy"		=> (!empty($unit['TxMaster']['finish_date'])? $unit['TxMaster']['finish_date_accuracy']: ''),
-						"drug1"						=> (isset($drugs[0])? $drugs[0] : ''),
-						"drug2"						=> (isset($drugs[1])? $drugs[1] : ''),
-						"drug3"						=> (isset($drugs[2])? $drugs[2] : ''),
-						"drug4"						=> (isset($drugs[3])? $drugs[3] : ''),
-						"ca125"						=> "",
-						"ctscan precision"			=> ""
-					);
 				}
+				
+				$data[sprintf("%010s_%s_%s_%s_tx", $unit['TxMaster']['participant_id'], $unit['TxMaster']['start_date'], $i, $index)] = array(
+					"participant_biobank_id" 	=> $pid_bid_assoc[$unit['TxMaster']['participant_id']],
+					"event"						=> $unit['TxMaster']['tx_control_id'] == 5 ? 'surgery(other)' : 'chemotherapy',
+					"event_start"				=> $unit['TxMaster']['start_date'],
+					"event_start_accuracy"		=> (!empty($unit['TxMaster']['start_date'])? $unit['TxMaster']['start_date_accuracy']: ''),
+					"event_end"					=> $unit['TxMaster']['finish_date'],
+					"event_end_accuracy"		=> (!empty($unit['TxMaster']['finish_date'])? $unit['TxMaster']['finish_date_accuracy']: ''),
+					"drug1"						=> (isset($drugs[0])? $drugs[0] : ''),
+					"drug2"						=> (isset($drugs[1])? $drugs[1] : ''),
+					"drug3"						=> (isset($drugs[2])? $drugs[2] : ''),
+					"drug4"						=> (isset($drugs[3])? $drugs[3] : ''),
+					"ca125"						=> "",
+					"ctscan precision"			=> ""
+				);
+			}
 
-				++ $i;
-			}while(!empty($tx_data) || !empty($ca_125_data) || !empty($ct_scan_data));
+
 			
 			ksort($data);
 			
@@ -577,6 +529,11 @@ class ReportsControllerCustom extends ReportsController {
 				echo implode(csv_separator, $line), "\n";
 			}
 		}
+
+		
+		//TODO ici
+		exit;
+		
 		
 		//sheet 4 - Other Primary Cancer - Dx
 		
