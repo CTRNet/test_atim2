@@ -513,12 +513,12 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Datamart/Adhocs/%';
 
 UPDATE datamart_reports SET form_alias_for_search = 'terry_fox_export_bank_nbr_definition', form_alias_for_results = 'n/a' WHERE id = 7;
 
-
 DELETE FROM i18n WHERE id IN ('terry fox export','terry_fox_report_no_participant','terry_fox_report_no_participant','terry_fox_export_description');
 INSERT IGNORE INTO i18n (id,en) VALUES 
 ('terry fox export','TFRI export'),
-('terry_fox_report_no_participant', 'No participant has been found based on your criteria!'),
-("terry_fox_export_description", "Report to submit data to the TFRI COEUR project!");
+('terry_fox_report_no_participant', 'No participant matches criteria!'),
+('terry_fox_report_too_many_participants','The process does not allow to export more than 100 patients in one step!'),
+("terry_fox_export_description", "Report to submit data to the TFRI COEUR project! To generate the Terry Fox report, you have to build a participants set then select 'Terry Fox Report' in 'Batch Actions' or browse a csv file with bank# in one column.");
 
 INSERT INTO structures(`alias`) VALUES ('terry_fox_export_bank_nbr_definition');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -527,22 +527,148 @@ UPDATE structure_fields SET setting = 'size=20,tool=csv' WHERE `model`='Particip
 
 UPDATE datamart_structure_functions SET label = 'terry fox export', link = '/Datamart/Reports/manageReport/7' WHERE label = 'Terry Fox Report';
 
+-- TREATMENT
 
+SELECT 'Existing drug before migration should be Taxol & Carboplatin' AS drug_check
+UNION 
+SELECT '**************************************************'  AS drug_check
+UNION 
+SELECT generic_name FROM drugs;
 
+SELECT 'No drug should be linked to protocol chemo' AS protocol_check
+UNION 
+SELECT '**************************************************'  AS protocol_check
+UNION 
+SELECT count(*) FROM pe_chemos;
 
+SELECT 'Changed Carboplatin to carboplatinum & taxol to paclitaxel';
 
-
-
-
-
-INSERT IGNORE INTO i18n (id,en) VALUES 
-('terryFox_report_no_participant', 'Report should be launched from either participants batch set or participants set defined by databrowser tool!'),
-("terry_fox_export_description", "To generate the Terry Fox report, you have to build a participants set then select 'Terry Fox Report' in 'Batch Actions'.");
-
-
+UPDATE drugs SET generic_name = 'Carboplatinum' WHERE generic_name = 'Carboplatin';
+UPDATE drugs SET generic_name = 'Paclitaxel' WHERE generic_name = 'Taxol';
+INSERT INTO `drugs` (`generic_name`, `type`, `created`, `modified`,`deleted`) 
+VALUES
+('Cisplatinum ', 'chemotherapy', NOW(),NOW(), 0), 
+('Oxaliplatinum ', 'chemotherapy', NOW(),NOW(), 0), 
+('Topotecan ', 'chemotherapy', NOW(),NOW(), 0), 
+('Ectoposide ', 'chemotherapy', NOW(),NOW(), 0), 
+('Tamoxifen ', 'chemotherapy', NOW(),NOW(), 0), 
+('Doxetaxel ', 'chemotherapy', NOW(),NOW(), 0), 
+('Doxorubicin ', 'chemotherapy', NOW(),NOW(), 0), 
+('Etoposide ', 'chemotherapy', NOW(),NOW(), 0), 
+('Gemcitabine ', 'chemotherapy', NOW(),NOW(), 0), 
+('Procytox', 'chemotherapy', NOW(),NOW(), 0), 
+('Vinorelbine', 'chemotherapy', NOW(),NOW(), 0), 
+('Cyclophosphamide', 'chemotherapy', NOW(),NOW(), 0),
  
- 
- 
+('Halichondrin', 'chemotherapy', NOW(),NOW(), 0);
+UPDATE drugs SET description = 'Taxol' WHERE generic_name = 'Paclitaxel';
+TRUNCATE drugs_revs;
+INSERT INTO `drugs_revs` (`id`, `generic_name`, `trade_name`, `type`, `description`, `modified_by`, `version_created`)  
+(SELECT `id`, `generic_name`, `trade_name`, `type`, `description`, `modified_by`, `created` FROM drugs);
+
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Carboplatin/Taxol%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Carboplatinum'), @protocol_master_id),
+((SELECT id FROM drugs WHERE generic_name = 'Paclitaxel'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Cisplatnum/Taxol%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Cisplatinum'), @protocol_master_id),
+((SELECT id FROM drugs WHERE generic_name = 'Paclitaxel'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Carbo');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Carboplatinum'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Taxol%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Paclitaxel'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Topotecan%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Topotecan'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Gemcitabine/Halichondrin%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Gemcitabine'), @protocol_master_id),
+((SELECT id FROM drugs WHERE generic_name = 'Halichondrin'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Gemcitabine');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Gemcitabine'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Cisplatin - single agent%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Cisplatinum'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Etoposide - oral');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Etoposide'), @protocol_master_id);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code LIKE 'Tamoxifen%');
+INSERT INTO pe_chemos (drug_id, protocol_master_id)
+VALUES
+((SELECT id FROM drugs WHERE generic_name = 'Tamoxifen'), @protocol_master_id);
+INSERT INTO `pe_chemos_revs` (id, `drug_id`, `protocol_master_id`, `modified_by`, `version_created`)  
+(SELECT `id`, `drug_id`, `protocol_master_id`, `modified_by`, `created` FROM pe_chemos);
+
+SELECT '******** EXISTING DRUG LNKED TO PARTICIPANT ****************************' AS MSG;
+SELECT participants.participant_identifier AS bank_nbr, treatment_masters.start_date, protocol_masters.code, drugs.generic_name
+FROM participants
+INNER JOIN treatment_masters ON treatment_masters.participant_id = participants.id
+INNER JOIN txe_chemos ON txe_chemos.treatment_master_id=treatment_masters.id
+INNER JOIN drugs ON txe_chemos.drug_id=drugs.id
+LEFT JOIN protocol_masters ON protocol_masters.id = treatment_masters.protocol_master_id
+ORDER BY participants.participant_identifier, protocol_masters.code, treatment_masters.start_date;
+
+INSERT INTO txe_chemos (drug_id, treatment_master_id)
+(SELECT pe_chemos.drug_id, treatment_masters.id
+FROM treatment_masters
+INNER JOIN protocol_masters ON protocol_masters.id = treatment_masters.protocol_master_id
+INNER JOIN pe_chemos ON pe_chemos.protocol_master_id = protocol_masters.id);
+
+TRUNCATE txe_chemos_revs;
+INSERT INTO txe_chemos_revs (id, drug_id, treatment_master_id) (SELECT id, drug_id, treatment_master_id FROM txe_chemos);
+
+ALTER TABLE ohri_ed_lab_chemistries ADD COLUMN ca125_progression char(1) DEFAULT '';
+ALTER TABLE ohri_ed_lab_chemistries_revs ADD COLUMN ca125_progression char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ohri_ed_lab_chemistries', 'ca125_progression', 'yes_no',  NULL , '0', '', '', '', 'progression', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_ed_lab_chemistries'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ohri_ed_lab_chemistries' AND `field`='ca125_progression' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='progression' AND `language_tag`=''), '2', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+ALTER TABLE ohri_dx_ovaries ADD COLUMN fallopian_tube_lesions VARCHAR (50) DEFAULT NULL;
+ALTER TABLE ohri_dx_ovaries_revs ADD COLUMN fallopian_tube_lesions VARCHAR (50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ohri_fallopian_tube_lesions", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("benign tumors", "benign tumors");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_fallopian_tube_lesions"), (SELECT id FROM structure_permissible_values WHERE value="benign tumors" AND language_alias="benign tumors"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("malignant tumors", "malignant tumors");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_fallopian_tube_lesions"), (SELECT id FROM structure_permissible_values WHERE value="malignant tumors" AND language_alias="malignant tumors"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_fallopian_tube_lesions"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("salpingitis", "salpingitis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_fallopian_tube_lesions"), (SELECT id FROM structure_permissible_values WHERE value="salpingitis" AND language_alias="salpingitis"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_fallopian_tube_lesions"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_fallopian_tube_lesions"), (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'ohri_dx_ovaries', 'fallopian_tube_lesions', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_fallopian_tube_lesions') , '0', '', '', '', 'fallopian tube lesions', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ohri_dx_ovaries' AND `field`='fallopian_tube_lesions' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_fallopian_tube_lesions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fallopian tube lesions' AND `language_tag`=''), '2', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO i18n (id,en) VALUES
+('fallopian tube lesions','Fallopian tube lesions'),
+('benign tumors','Benign tumors'),
+('malignant tumors','Malignant tumors'),
+('salpingitis','Salpingitis');
+
+-- ajouter progression flag to ca125
+-- importer + drug importer
+-- fallopian tube lesion dans note aujourd'hui a ajouter
+-- il n'y aura pas de présence de précurseur.
+-- ajouter drug link between chemotherapy and drug dans databrowser
+
+
+
+						
 
 
 
