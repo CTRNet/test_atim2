@@ -20,3 +20,4 @@ SELECT 'WARNING: Change all QualityControl model references to QualityCtrl in bo
 
 INSERT INTO i18n (id,en,fr) VALUES ('sample derivative creation#', 'Sample Derivative Creation | ', 'Création de dérivé | ');
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/ProtocolExtends%';

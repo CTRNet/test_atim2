@@ -72,6 +72,8 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		$this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
 		
+		$this->set('display_precisions', (empty($protocol_data['ProtocolControl']['extend_tablename'])? false : true));
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
 	}

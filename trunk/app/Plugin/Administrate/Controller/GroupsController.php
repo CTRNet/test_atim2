@@ -13,6 +13,8 @@ class GroupsController extends AdministrateAppController {
 	}
 	
 	function detail($group_id) {
+		$this->set( 'display_edit_button', (($group_id == 1)? false : true));
+		if($group_id == 1) AppController::addWarningMsg('the group administrators cannot be edited');
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		$this->hook();
 		$this->request->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
