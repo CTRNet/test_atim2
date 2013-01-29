@@ -225,10 +225,12 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 		if(preg_match('/^([0-9]+)([0-9])$/', current(current($data)), $matches )){
 			$pkey = $matches[1];
 			$model_id = $matches[2];
-			if($model_id < 7 && $model_id > 1){
+			if($model_id < 7 && $model_id > 0){
 				$model = $this->models[$model_id - 1];
 			}else{
-				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				pr($matches);
+				die($model_id);
+				//AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}else{
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
