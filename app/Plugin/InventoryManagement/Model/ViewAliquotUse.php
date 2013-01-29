@@ -228,9 +228,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 			if($model_id < 7 && $model_id > 0){
 				$model = $this->models[$model_id - 1];
 			}else{
-				pr($matches);
-				die($model_id);
-				//AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}else{
 			AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
