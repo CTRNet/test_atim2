@@ -47,9 +47,6 @@ class GroupsController extends AdministrateAppController {
 	}
 
 	function edit($group_id) {
-		//TODO
-		$this->atimFlash( 'this function is temporarily unusable', '/Administrate/Groups/detail/'.$group_id);
-		
 		if($group_id == 1){
 			$this->flash('the group administrators cannot be edited', '/Administrate/Groups/detail/1');
 		}
