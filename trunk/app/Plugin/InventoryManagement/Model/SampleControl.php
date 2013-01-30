@@ -88,7 +88,7 @@ class SampleControl extends InventoryManagementAppModel {
 				$result[$control[$model_name]['sample_type']] = __($control[$model_name]['sample_type']);
 			}
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}

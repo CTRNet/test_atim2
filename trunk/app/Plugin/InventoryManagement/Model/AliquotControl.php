@@ -55,7 +55,7 @@ class AliquotControl extends InventoryManagementAppModel {
 				$result[$aliquot_control['AliquotControl']['aliquot_type']] = __($aliquot_control['AliquotControl']['aliquot_type']);
 			}
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
@@ -123,7 +123,7 @@ class AliquotControl extends InventoryManagementAppModel {
 			// New Sample-Aliquot
 			$working_array[$sample_control_id.'|'.$aliquot_control_id] = __($sample_type) . ' - '. __($aliquot_type);
 		}
-		asort($working_array);
+		natcasesort($working_array);
 		
 		return $working_array;
 	}

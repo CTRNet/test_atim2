@@ -211,7 +211,7 @@ class ViewAliquotUse extends InventoryManagementAppModel {
 			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
 		}
 		
-		asort($result);
+		natcasesort($result);
 
 		return $result;
 	}

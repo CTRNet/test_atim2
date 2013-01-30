@@ -18,7 +18,7 @@ class ConsentControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $consent_control) {
 			$result[$consent_control['ConsentControl']['id']] = __($consent_control['ConsentControl']['controls_type']);
 		}
-		asort($result);
+		natcasesort($result);
 					
 		return $result;
 	}
