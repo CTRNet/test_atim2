@@ -18,7 +18,7 @@ class ProtocolControl extends ProtocolAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $protocol_control) {
 			$result[$protocol_control['ProtocolControl']['type']] = __($protocol_control['ProtocolControl']['type']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
@@ -37,7 +37,7 @@ class ProtocolControl extends ProtocolAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $protocol_control) {
 			$result[$protocol_control['ProtocolControl']['tumour_group']] = __($protocol_control['ProtocolControl']['tumour_group']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
