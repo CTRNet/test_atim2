@@ -309,13 +309,19 @@ class Browser extends DatamartAppModel {
 			$conditions[$control_model->name.'.flag_active'] = 1;
 		}
 		$children_data = $control_model->find('all', array('order' => $control_model->name.'.databrowser_label', 'conditions' => $conditions, 'recursive' => 0));
-		$children_arr = array();
+		$tmp_children_arr = array();
 		foreach($children_data as $child_data){
-			$label = self::getTranslatedDatabrowserLabel($child_data[$control_model->name]['databrowser_label']);
-			$children_arr[] = array(
+			$label = self::getTranslatedDatabrowserLabel($child_data[$control_model->name]['databrowser_label']);			
+			$tmp_children_arr[$label] = array(
 				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$control_model->name]['id'],
 				'label' => $label
 			);
+		}
+		$sorted_labels = array_keys($tmp_children_arr);
+		natcasesort($sorted_labels);
+		$children_arr = array();
+		foreach($sorted_labels as $next_label) {
+			$children_arr[] = $tmp_children_arr[$next_label];
 		}
 		return $children_arr;
 	}
