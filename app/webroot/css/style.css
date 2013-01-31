@@ -1107,6 +1107,10 @@ span.help {
 				div.nodeBlock .rightPart.disabled{
 					color: grey;
 				}
+				div.nodeBlock .rightPart.sample_disabled{
+					color: grey;
+					font-style: italic;
+				}
 				div.at, tr.at{ 
 					background-color: #ffc; 
 				}
