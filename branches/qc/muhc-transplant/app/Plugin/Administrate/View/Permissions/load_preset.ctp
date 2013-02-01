@@ -88,7 +88,7 @@ function savePresetPopup(){
 	if($("#savePresetPopup").length == 0){
 		buildDialog("savePresetPopup", null, null, null);
 		$("#savePresetPopup").find("div").first().html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
-		$.get(root_url + "/Administrate/Permissions/savePreset/", null, function(data){
+		$.get(root_url + "Administrate/Permissions/savePreset/", null, function(data){
 			var isOpened = $("#savePresetPopup:visible").length; 
 			$("#savePresetPopup").popup('close');
 			$("#savePresetPopup").find("div").first().html(data);

@@ -7,8 +7,10 @@
 		)
 	);
 	
+	$structure_settings = array('header' => __('precision'));
+
 	$final_atim_structure = $atim_structure; 
-	$final_options = array('links'=>$structure_links);
+	$final_options = array('links'=>$structure_links, 'settings' => $structure_settings);
 	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
