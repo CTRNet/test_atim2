@@ -7,6 +7,9 @@ class AliquotInternalUse extends InventoryManagementAppModel {
 			'className'    => 'InventoryManagement.AliquotMaster',            
 			'foreignKey'    => 'aliquot_master_id'));
 	
+	var $registered_view = array(
+		'InventoryManagement.ViewAliquotUse' => array('AliquotInternalUse.id')
+	);
 }
 
 ?>

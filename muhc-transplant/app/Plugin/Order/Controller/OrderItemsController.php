@@ -510,9 +510,7 @@ class OrderItemsController extends OrderAppController {
 		$hook_link = $this->hook('delete');
 		if( $hook_link ) { 
 			require($hook_link); 
-		}		
-		
-		$url = 'javascript:history.go(-1)';
+		}
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			// Launch deletion
@@ -552,12 +550,12 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been deleted - update the aliquot in stock data', $url);
+				$this->atimFlash('your data has been deleted - update the aliquot in stock data', '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', $url);
+				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], $url);
+			$this->flash($arr_allow_deletion['msg'], 'javascript:history.go(-1)');
 		}
 	}
 }

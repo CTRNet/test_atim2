@@ -30,7 +30,7 @@
 	
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
-		$settings['header'] = __('aliquot', null);
+		$settings['header'] = __('aliquot', null) . ': '.__('details');
 		
 	} else if($is_from_tree_view_or_layout == 2) {
 		// Storage Layout

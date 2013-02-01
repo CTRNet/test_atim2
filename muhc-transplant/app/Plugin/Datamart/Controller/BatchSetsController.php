@@ -218,12 +218,12 @@ class BatchSetsController extends DatamartAppController {
 			
 			$tmp = array(0 => array(
 					'label' => __('remove from batch set'),
-					'value' => '/Datamart/BatchSets/remove/'.$batch_set_id.'/'
+					'value' => 'Datamart/BatchSets/remove/'.$batch_set_id.'/'
 			));
 			if(!is_numeric($batch_set['BatchSet']['datamart_structure_id'])){
 				$tmp[1] = array(
 					'label' => __('create generic batch set'),
-					'value' => '/Datamart/BatchSets/add/-1'
+					'value' => 'Datamart/BatchSets/add/-1'
 				);
 			}	
 			$actions[0]['children'] = array_merge(

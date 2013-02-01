@@ -54,6 +54,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 	  	
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtend.id'=>$protocol_extend_id));
+		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -74,6 +75,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
+		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -94,7 +96,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved', '/Protocol/ProtocolExtends/listall/'.$protocol_master_id );
+				$this->atimFlash( 'your data has been saved', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id );
 			}
 		}
 	}
@@ -120,6 +122,7 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		$this->Structures->set($protocol_master_data['ProtocolControl']['extend_form_alias']);
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id,'ProtocolExtend.id'=>$protocol_extend_id));
+		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -168,9 +171,9 @@ class ProtocolExtendsController extends ProtocolAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->ProtocolExtend->atimDelete( $protocol_extend_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Protocol/ProtocolExtends/listall/'.$protocol_master_id);
+				$this->atimFlash( 'your data has been deleted', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolExtends/listall/'.$protocol_master_id);
+				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			}
 		} else {
 			$this->flash($arr_allow_deletion['msg'], '/Protocol/ProtocolExtends/detail/'.$protocol_master_id.'/'.$protocol_extend_id);
