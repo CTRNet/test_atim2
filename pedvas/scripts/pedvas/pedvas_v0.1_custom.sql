@@ -19,6 +19,9 @@ UPDATE `users` SET `flag_active`='1' WHERE `username`='user';
 	------------------------------------------------------------
 */
 
+-- Disable consent national form
+UPDATE `consent_controls` SET `flag_active`='0' WHERE `controls_type`='Consent National';
+
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('PedVas - Consent', 'PedVas - Consent', '');
 
@@ -202,6 +205,13 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='expiry_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2463 - Diagnosis
+	------------------------------------------------------------
+*/
+
 -- Add value domain for diagnosis type
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("pv diagnosis type", "", "", NULL);
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("granulomatosis with polyangiitis (wegener’s granulomatosis)", "granulomatosis with polyangiitis (wegener’s granulomatosis)");
@@ -242,5 +252,59 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	('unclassified primary vasculitis', 'Unclassified primary vasculitis', ''),
 	('primary cns vasculitis - medium/large vessel', 'Primary CNS vasculitis - medium/large vessel', ''),
 	('primary cns vasculitis - small vessel', 'Primary CNS vasculitis - small vessel', '');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2464 - Disable samples types
+	------------------------------------------------------------
+*/
     
- 
+-- Disable sample types 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 23, 136, 25, 3, 24, 4, 5, 142, 143, 141, 144, 139, 11, 10);
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2465 - Collection Customization
+	------------------------------------------------------------
+*/
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('acquisition_label', 'PedVas Barcode', ''),
+	('pv visit', 'Visit', ''),
+	('pv date shipment', 'Shipment Date', ''),
+	('pv time of diagnosis', 'Time of Diagnosis', ''),
+	('pv 3-6 month visit', '3-6 Month Visit', ''),
+	('pv 12 month visit', '12 Month Visit', ''),
+	('pv disease flare', 'Disease Flare', ''),
+	('pv flare follow-up', 'Flare Follow-up', '');
+
+-- Add new fields visit and date of shipment	
+ALTER TABLE `collections` 
+	ADD COLUMN `pv_visit` VARCHAR(45) NULL DEFAULT NULL AFTER `collection_notes` ,
+	ADD COLUMN `pv_date_shipment` DATE NULL AFTER `pv_visit` ;
+	
+ALTER TABLE `collections_revs` 
+	ADD COLUMN `pv_visit` VARCHAR(45) NULL DEFAULT NULL AFTER `collection_notes` ,
+	ADD COLUMN `pv_date_shipment` DATE NULL AFTER `pv_visit` ;
+
+-- Value domain for visit
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("pv_visit", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("time of diagnosis", "pv time of diagnosis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="time of diagnosis" AND language_alias="pv time of diagnosis"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("3-6 month visit", "pv 3-6 month visit");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="3-6 month visit" AND language_alias="pv 3-6 month visit"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("12 month visit", "pv 12 month visit");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="12 month visit" AND language_alias="pv 12 month visit"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("disease flare", "pv disease flare");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="disease flare" AND language_alias="pv disease flare"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("flare follow-up", "pv flare follow-up");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="flare follow-up" AND language_alias="pv flare follow-up"), "5", "1");
+
+
+-- Date of shipment	
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'pv_date_shipment', 'date',  NULL , '0', '', '', '', 'pv date shipment', ''), 
+('InventoryManagement', 'Collection', 'collections', 'pv_visit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='pv_visit') , '0', '', '', '', 'pv visit', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='pv_date_shipment' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv date shipment' AND `language_tag`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='pv_visit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='pv_visit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv visit' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
