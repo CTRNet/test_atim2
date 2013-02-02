@@ -435,7 +435,7 @@ class AppModel extends Model {
 					}
 				}else{
 					if(isset($data['year_accuracy'])){
-						$data['year'] = '�'.$data['year'];
+						$data['year'] = '±'.$data['year'];
 					}
 					
 					if(!isset($data['sec']) || strlen($data['sec']) == 0){
@@ -541,7 +541,7 @@ class AppModel extends Model {
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
 				$plus_minus = false;
-				if(strpos($year, '�') === 0){
+				if(strpos($year, '±') === 0){
 					$plus_minus = true;
 					$year = substr($year, 2);
 					$month = $day = $hour = $minute = null;

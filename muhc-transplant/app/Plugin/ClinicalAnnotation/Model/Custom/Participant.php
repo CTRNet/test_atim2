@@ -15,19 +15,19 @@ class ParticipantCustom extends Participant {
 					'type'	=> 'INNER',
 					'conditions' => 'Bank.id = Participant.muhc_participant_bank_id'));
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id']), 'joins' => $joins, 'fields' => array('Bank.*, Participant.*'),));	
-			$result[0]['coded_identifiers'] = "";
+			$result[0]['coded_identifiers_transplant_nbr'] = "";
 			$title = $result['Bank']['muhc_irb_nbr'].' #? ('.$result['Participant']['participant_identifier'].')';
 				
 			$identifier_model = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifier', true);
 			$identifier_results = $identifier_model->find('all', array('conditions' => array(
 					'MiscIdentifier.participant_id' => $variables['Participant.id'],
-					'MiscIdentifierControl.misc_identifier_name' => 'participant coded identifier'))
+					'MiscIdentifierControl.misc_identifier_name' => array('participant coded identifier','quebec transplant qtx#')))
 			);
 			if(!empty($identifier_results)){
 				$first_id = '';
 				foreach($identifier_results as $ir){
 					if(!$first_id) $first_id = $ir['MiscIdentifier']['identifier_value'];
-					$result[0]['coded_identifiers'] .= $ir['MiscIdentifier']['identifier_value']."\n";
+					$result[0]['coded_identifiers_transplant_nbr'] .= $ir['MiscIdentifier']['identifier_value']."\n";
 				}
 				$title = $result['Bank']['muhc_irb_nbr'].' #'.$first_id.((sizeof($identifier_results) > 1)?',etc':'');
 			}
@@ -35,7 +35,7 @@ class ParticipantCustom extends Participant {
 			$return = array(
 					'menu'				=>	array( NULL, $title),
 					'title'				=>	array( NULL, $title),
-					'structure alias' 	=> 'participants,muhc_coded_identifiers_summary',
+					'structure alias' 	=> 'participants,muhc_coded_identifiers_transplant_nbr_summary',
 					'data'				=> $result
 			);
 		}

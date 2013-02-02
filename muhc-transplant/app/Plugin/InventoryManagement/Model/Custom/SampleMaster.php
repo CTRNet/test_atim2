@@ -48,7 +48,7 @@ class SampleMasterCustom extends SampleMaster {
 	function validatePaxgeneTubesFields($sample_control_data, $sample_data){
 		$process_validates= true; 
 		if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
-			if(($sample_data['SampleDetail']['blood_type'] != 'paxgene') && strlen($sample_data['SampleDetail']['muhc_paxgene_person_processing'].$sample_data['SampleDetail']['muhc_paxgen_storage_at_minus_20'])) {
+			if(($sample_data['SampleDetail']['blood_type'] != 'paxgene') && strlen($sample_data['SampleDetail']['muhc_paxgene_person_processing'].$sample_data['SampleDetail']['muhc_paxgen_storage_at_minus_20'].$sample_data['SampleDetail']['muhc_paxgen_storage_at_minus_80'])) {
 				$process_validates= false;
 				$this->validationErrors['blood_type'][] = 'paxgene tube fields should only be completed when type selected is equal to paxgene';
 			}
