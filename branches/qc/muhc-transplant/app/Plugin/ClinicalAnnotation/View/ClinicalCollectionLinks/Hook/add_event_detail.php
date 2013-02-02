@@ -4,7 +4,7 @@
 	
 	$structure_links['radiolist'] = array('Collection.misc_identifier_id' => '%%MiscIdentifier.id%%');
 	
-	$structure_settings['header'] = __('participant coded identifier');
+	$structure_settings['header'] = __('coded identifiers - transplant #');
 	$structure_settings['form_bottom'] = true;
 	$structure_settings['actions'] = true;
 	$structure_settings['form_top'] = false;

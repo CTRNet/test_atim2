@@ -8,7 +8,7 @@
 	$conditions = array(
 		'MiscIdentifier.deleted' => '0', 
 		'MiscIdentifier.participant_id' => $participant_id, 
-		"MiscIdentifierControl.misc_identifier_name = 'participant coded identifier'");
+		'MiscIdentifierControl.misc_identifier_name' => array('participant coded identifier','quebec transplant qtx#'));
 	$miscidentifier_data = $this->MiscIdentifier->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.created DESC')));
 	$found_misc_identifier = false;
 	

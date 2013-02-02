@@ -41,7 +41,7 @@ class ViewAliquotCustom extends ViewAliquot {
 		
 		Participant.participant_identifier, 
 Collection.misc_identifier_id AS misc_identifier_id,
-MiscIdentifier.identifier_value AS muhc_participant_coded_identifier,
+MiscIdentifier.identifier_value AS muhc_coded_identifier_transplant_nbr,
 Participant.muhc_participant_bank_id AS muhc_participant_bank_id,
 		
 		Collection.acquisition_label, 
