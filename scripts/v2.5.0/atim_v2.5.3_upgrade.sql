@@ -21,3 +21,12 @@ SELECT 'WARNING: Change all QualityControl model references to QualityCtrl in bo
 INSERT INTO i18n (id,en,fr) VALUES ('sample derivative creation#', 'Sample Derivative Creation | ', 'Création de dérivé | ');
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/ProtocolExtends%';
+
+ALTER TABLE templates
+	ADD COLUMN  `created` datetime DEFAULT NULL,
+	ADD COLUMN  `created_by` int(10) unsigned NOT NULL;
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('you do not own that template','You do not own that template','Vous n''êtes pas propiétaire du modèle'),
+('edit properties', 'Edit Properties', 'Modifier propriétés');
+SELECT 'Update templates.created_by to set it to the id of the user who created the templates' AS MSG;
