@@ -30,6 +30,10 @@ if($controls){
 		), 'settings' => array('return' => true, 'form_bottom' => true),
 		'extras' => $tree_html
 	);
+	if($edit_properties) {
+		$final_options['links']['bottom']['edit properties'] = '/Tools/Template/editProperties/'.$template_id;
+		$final_options['links']['bottom']['delete'] = '/Tools/Template/delete/'.$template_id;
+	}
 	if(isset($is_ajax)){
 		$final_options['settings']['actions'] = false;
 	}
