@@ -134,7 +134,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	------------------------------------------------------------
 */
 
-UPDATE menus SET flag_active=false WHERE id IN('clin_CAN_10', 'clin_CAN_4', 'clin_CAN_68', 'clin_CAN_75');
+UPDATE menus SET flag_active=false WHERE id IN('clin_CAN_10', 'clin_CAN_68', 'clin_CAN_75');
 
 /*
 	------------------------------------------------------------
@@ -212,6 +212,51 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 	------------------------------------------------------------
 */
 
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('pedvas', 'PedVas Diagnosis', ''),
+	('pv diagnosis type', 'Diagnosis Type', '');
+
+-- Diagnosis Control Record
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES ('primary', 'pedvas', '1', 'dxd_pv_diagnosis', 'dxd_pv_diagnosis', '0', 'pedvas|diagnosis', '0');
+
+INSERT INTO `structures` (`alias`) VALUES ('dxd_pv_diagnosis');
+
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='19';
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='18';
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='17';
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='16';
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='15';
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='2';
+UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='1';
+
+DROP TABLE IF EXISTS `dxd_pv_diagnosis`;
+CREATE TABLE `dxd_pv_diagnosis` (
+  `id` INT NOT NULL ,
+  `pv_diagnosis_type` VARCHAR(200) ,	
+  `diagnosis_master_id` INT(11) NOT NULL ,
+  `deleted` TINYINT(3) DEFAULT 0 ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB;
+
+DROP TABLE IF EXISTS `dxd_pv_diagnosis_revs`;
+CREATE TABLE `dxd_pv_diagnosis_revs` (
+  `id` INT NOT NULL ,
+  `pv_diagnosis_type` VARCHAR(200) ,	
+  `diagnosis_master_id` INT(11) NOT NULL ,
+  `deleted` TINYINT(3) DEFAULT 0 ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB;
+
+-- Add field diagnosis type
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'dxd_pv_diagnosis', 'pv_diagnosis_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='pv diagnosis type') , '0', '', '', '', 'pv diagnosis type', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dxd_pv_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_pv_diagnosis' AND `field`='pv_diagnosis_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='pv diagnosis type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv diagnosis type' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+
+
+
 -- Add value domain for diagnosis type
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("pv diagnosis type", "", "", NULL);
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("granulomatosis with polyangiitis (wegener’s granulomatosis)", "granulomatosis with polyangiitis (wegener’s granulomatosis)");
@@ -240,18 +285,19 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("primary
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv diagnosis type"), (SELECT id FROM structure_permissible_values WHERE value="primary cns vasculitis - small vessel" AND language_alias="primary cns vasculitis - small vessel"), "12", "1");
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
-	('granulomatosis with polyangiitis (wegener’s granulomatosis)', 'Granulomatosis with polyangiitis (Wegener’s granulomatosis)', ''),
-	('limited granulomatosis with polyangiitis (limited wegener’s granulomatosis)', 'Limited granulomatosis with polyangiitis (Limited Wegener’s granulomatosis)', ''),
-	('microscopic polyangiitis', 'Microscopic polyangiitis', ''),
-	('microscopic polyangiitis with isolated renal involvement', 'Microscopic polyangiitis with isolated renal involvement', ''),
-	('eosinophilic granulomatosis with polyangiitis (churg-strauss syndrome)', 'Eosinophilic granulomatosis with polyangiitis (Churg-Strauss syndrome)', ''),
-	('anca positive pauci-immune glomerulonephritis', 'ANCA positive pauci-immune glomerulonephritis', ''),
-	('polyarteritis nodosa', 'Polyarteritis nodosa', ''),
-	('cutaneous polyarteritis nodosa', 'Cutaneous polyarteritis nodosa', ''),
-	('takayasu’s arteritis', 'Takayasu’s arteritis', ''),
-	('unclassified primary vasculitis', 'Unclassified primary vasculitis', ''),
-	('primary cns vasculitis - medium/large vessel', 'Primary CNS vasculitis - medium/large vessel', ''),
-	('primary cns vasculitis - small vessel', 'Primary CNS vasculitis - small vessel', '');
+	("granulomatosis with polyangiitis (wegener\'s granulomatosis)", "Granulomatosis with polyangiitis (Wegener\'s granulomatosis)", ''),
+	("limited granulomatosis with polyangiitis (limited wegener\'s granulomatosis)", "Limited granulomatosis with polyangiitis (Limited Wegener\'s granulomatosis)", ''),
+	("microscopic polyangiitis", "Microscopic polyangiitis", ''),
+	("microscopic polyangiitis with isolated renal involvement", "Microscopic polyangiitis with isolated renal involvement", ''),
+	("eosinophilic granulomatosis with polyangiitis (churg-strauss syndrome)", "Eosinophilic granulomatosis with polyangiitis (Churg-Strauss syndrome)", ''),
+	("anca positive pauci-immune glomerulonephritis", "ANCA positive pauci-immune glomerulonephritis", ''),
+	("polyarteritis nodosa", "Polyarteritis nodosa", ''),
+	("cutaneous polyarteritis nodosa", "Cutaneous polyarteritis nodosa", ''),
+	("takayasu\'s arteritis", "Takayasu\'s arteritis", ''),
+	("unclassified primary vasculitis", "Unclassified primary vasculitis", ''),
+	("primary cns vasculitis - medium/large vessel", "Primary CNS vasculitis - medium/large vessel", ''),
+	("primary cns vasculitis - small vessel", "Primary CNS vasculitis - small vessel", '');
+
 
 /*
 	------------------------------------------------------------
