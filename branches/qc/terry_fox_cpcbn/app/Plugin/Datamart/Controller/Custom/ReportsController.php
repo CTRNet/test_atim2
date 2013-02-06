@@ -2,7 +2,11 @@
 class ReportsControllerCustom extends ReportsController {
 //	var $name = 'ReportsController';
 
-	function buildCpcbnSummary($parameters) {
+	function buildFullCpcbnSummary($parameters) {
+		return $this->buildCpcbnSummary($parameters, true);
+	}
+
+	function buildCpcbnSummary($parameters, $display_storage_data = false) {
 		
 		$conditions = array();
 		$warnings = array();	
@@ -21,7 +25,6 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// *********** Get Conditions from parameters *********** 
 		
-
 		if(isset($parameters['Browser'])) {
 			
 			// 0-REPORT LAUNCHED FROM DATA BROWSER
@@ -174,13 +177,11 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.margin,
 				DiagnosisDetail.hormonorefractory_status,
 				DiagnosisDetail.survival_in_months,
-				DiagnosisDetail.bcr_in_months,
+				DiagnosisDetail.bcr_in_months".
 				
-				StorageMaster.selection_label,
-				AliquotMaster.storage_coord_x,
-				AliquotMaster.storage_coord_y
-			
-			FROM participants AS Participant 
+				($display_storage_data?  ', StorageMaster.selection_label, AliquotMaster.storage_coord_x, AliquotMaster.storage_coord_y ' : ' ')
+				
+			."FROM participants AS Participant 
 
 			$join_on_storage collections AS Collection ON Collection.participant_id = Participant.id AND Collection.deleted <> 1
 			$join_on_storage aliquot_masters AS AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1 AND aliquot_control_id = 33
