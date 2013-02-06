@@ -272,3 +272,10 @@ UPDATE datamart_reports SET  description = 'Include both TMA and clinical data' 
 UPDATE datamart_reports SET  description = 'Include distinct clinical data' WHERE name = 'CPCBN Summary';
 INSERT INTO i18n (id,en) VALUES ('Full CPCBN Summary','Full CPCBN Summary'),('Include both TMA and clinical data','Include both TMA and clinical data'),('Include distinct clinical data','Include distinct clinical data');
 INSERT INTO i18n (id,en) VALUES ('build full cpcbn summary','Build full CPCBN summary');
+
+ALTER TABLE participants MODIFY participant_identifier  int(11) NOT NULL DEFAULT '0';
+ALTER TABLE participants_revs MODIFY participant_identifier  int(11) NOT NULL DEFAULT '0';
+UPDATE structure_formats SET `flag_override_type`='1', `type`='integer_positive', `flag_override_setting`='1', `setting`='size=10' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='participant_identifier');
+UPDATE versions SET permissions_regenerated = 0;
+
+
