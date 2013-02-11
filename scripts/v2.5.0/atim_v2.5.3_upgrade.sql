@@ -1,5 +1,5 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.5.3', NOW(), '4976');
+('2.5.3', NOW(), '5107');
 
 ALTER TABLE structure_formats
  ADD COLUMN margin TINYINT UNSIGNED DEFAULT 0;
