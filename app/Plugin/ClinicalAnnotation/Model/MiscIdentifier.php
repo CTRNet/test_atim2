@@ -55,25 +55,25 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			$lt_key = array_key_exists('MiscIdentifier.identifier_value <=', $query['conditions']);
 			if($gt_key || $lt_key) {
 				$inf_value = $gt_key ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value >=']) : '';
-				$sup_value = $lt_key ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value <=']) : '';
+				$sup_value = $lt_key ? str_replace(',', '.', $query['conditions']['MiscIdentifier.identifier_value <=']) : '';				
 				if(strlen($inf_value.$sup_value) && (is_numeric($inf_value) || !strlen($inf_value)) && (is_numeric($sup_value) || !strlen($sup_value))) {
 					// Return just numeric
 					$query['conditions']['MiscIdentifier.identifier_value REGEXP'] =  "^[0-9]+([\,\.][0-9]+){0,1}$";
 					// Define range
 					if($gt_key) {
-						$query['conditions']['(MiscIdentifier.identifier_value * 1) >='] = $query['conditions']['MiscIdentifier.identifier_value >='];
+						$query['conditions']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1) >="] = $inf_value;
 						unset($query['conditions']['MiscIdentifier.identifier_value >=']);
 					}
 					if($lt_key) {
-						$query['conditions']['(MiscIdentifier.identifier_value * 1) <='] = $query['conditions']['MiscIdentifier.identifier_value <='];
+						$query['conditions']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1) <="] = $sup_value;
 						unset($query['conditions']['MiscIdentifier.identifier_value <=']);
 					}
 					//Manage Order
 					if(!isset($query['order'])){
 						//supperfluou?s
-						$query['order'][] = '(MiscIdentifier.identifier_value * 1)';
+						$query['order'][] = "(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)";
 					}else if(isset($query['order']['MiscIdentifier.identifier_value'])) {
-						$query['order']['(MiscIdentifier.identifier_value * 1)'] = $query['order']['MiscIdentifier.identifier_value'];
+						$query['order']["(REPLACE(MiscIdentifier.identifier_value, ',','.') * 1)"] = $query['order']['MiscIdentifier.identifier_value'];
 						unset($query['order']['MiscIdentifier.identifier_value']);
 					}
 				}
