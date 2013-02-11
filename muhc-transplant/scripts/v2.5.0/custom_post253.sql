@@ -1103,6 +1103,28 @@ VALUES
 
 REPLACE INTO i18n (id,en) VALUES ('tube','Cryovial');
 
+UPDATE users SET password = 'ddeaa159a89375256a02d1cfbd9a1946ad01a979', username = 'NicoEn', first_name = 'Nicolas L' WHERE id = 1;
 
+UPDATE versions SET branch_build_number = '5110' where version_number = '2.5.3';
 
+UPDATE menus SET flag_active = 0 WHERE use_link like '/Datamart/Adhocs/%';
+
+UPDATE structure_formats SET `language_heading`='', `flag_edit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='specimen data' WHERE structure_id=(SELECT id FROM structures WHERE alias='template_init_structure') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='reception_by' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') AND `flag_confidential`='0');
+
+UPDATE menus SET flag_active = 0 WHERE use_link like '/Drug/%';
+UPDATE menus SET flag_active = 0 WHERE use_link like '/Protocol/%';
+UPDATE menus SET flag_active = 0 WHERE use_link like '/InventoryManagement/SpecimenReviews%';
+
+UPDATE aliquot_review_controls SET flag_active = 0;
+UPDATE specimen_review_controls SET flag_active = 0;
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = '0', flag_active_2_to_1 = '0' 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ConsentMaster','FamilyHistory','SpecimenReviewMaster','OrderItem','Shipment'))
+OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ReproductiveHistory','ConsentMaster','FamilyHistory','SpecimenReviewMaster','OrderItem','Shipment'));
+
+UPDATE datamart_structure_functions 
+SET flag_active = '0' 
+WHERE label = 'print barcodes';
 
