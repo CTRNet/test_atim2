@@ -1092,7 +1092,6 @@ INSERT IGNORE INTO i18n (id,en) VALUES ('paxgen tube put at -80','PAXene: Date p
 
 UPDATE structure_value_domains_permissible_values SET flag_active = 0 WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="blood_type");
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('blood type')" WHERE domain_name = 'blood_type';
-INSERT structure_value_domains (domain_name,source) VALUES ('muhc_transplant_biopsies', "StructurePermissibleValuesCustom::getCustomDropdown('transplant biopsy type')");
 INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('blood type', '1', '30');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'blood type');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
