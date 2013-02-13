@@ -164,4 +164,107 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0', 
 	------------------------------------------------------------
 */
 
-UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(136);	
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(136);
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2494 - Diagnosis - Add disease code back to form
+	------------------------------------------------------------
+*/
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dxd_pv_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '15', '', '0', '', '0', '', '1', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');	
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2487 - Consent form not saving (Invalid Date)
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `cd_pv_consents` CHANGE COLUMN `pv_date_assent` `pv_date_assent` DATE NULL DEFAULT NULL  ;
+ALTER TABLE `cd_pv_consents_revs` CHANGE COLUMN `pv_date_assent` `pv_date_assent` DATE NULL DEFAULT NULL  ;
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2498 - Fix detail table definitions
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `cd_pv_consents` CHANGE COLUMN `id` `id` INT(11) NOT NULL AUTO_INCREMENT  ;
+ALTER TABLE `cd_pv_consents_revs` CHANGE COLUMN `version_id` `version_id` INT(11) NOT NULL AUTO_INCREMENT  ;
+ALTER TABLE `dxd_pv_diagnosis` CHANGE COLUMN `id` `id` INT(11) NOT NULL AUTO_INCREMENT  ;
+
+DROP TABLE IF EXISTS `dxd_pv_diagnosis_revs`;
+CREATE TABLE `dxd_pv_diagnosis_revs` (
+  `id` INT(11) NOT NULL ,
+  `pv_prelim_diagnosis_type` varchar(200) DEFAULT NULL,
+  `pv_dx_method` varchar(45) DEFAULT NULL,
+  `pv_dx_method_other` varchar(200) DEFAULT NULL,
+  `pv_sub_type` varchar(45) DEFAULT NULL,
+  `version_id` INT(11) NOT NULL AUTO_INCREMENT ,
+  `version_created` DATETIME NOT NULL,
+  PRIMARY KEY (`version_id`) )
+ENGINE = InnoDB;
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2477 - Fix quote issue on Diagnosis Type drop down
+	------------------------------------------------------------
+*/
+
+-- Remove values from value domain with wrong apostrophe
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value LIKE "granulomatosis with polyangiitis%";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value LIKE "limited granulomatosis with polyangiitis%";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value LIKE "takaya%";
+
+DELETE FROM structure_permissible_values WHERE value LIKE "granulomatosis with polyangiitis%";
+DELETE FROM structure_permissible_values WHERE value LIKE "limited granulomatosis with polyangiitis%";
+DELETE FROM structure_permissible_values WHERE value LIKE "takaya%";
+
+-- Add them back correctly
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("granulomatosis with polyangiitis (wegener\'s granulomatosis)", "pv granulomatosis with polyangiitis (wegener\'s granulomatosis)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv diagnosis type"), (SELECT id FROM structure_permissible_values WHERE value="granulomatosis with polyangiitis (wegener\'s granulomatosis)" AND language_alias="pv granulomatosis with polyangiitis (wegener\'s granulomatosis)"), "1", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("limited granulomatosis with polyangiitis (limited wegener\'s granulomatosis)", "pv limited granulomatosis with polyangiitis (limited wegener\'s granulomatosis)");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv diagnosis type"), (SELECT id FROM structure_permissible_values WHERE value="limited granulomatosis with polyangiitis (limited wegener\'s granulomatosis)" AND language_alias="pv limited granulomatosis with polyangiitis (limited wegener\'s granulomatosis)"), "2", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("takayasu\'s arteritis", "pv takayasu\'s arteritis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv diagnosis type"), (SELECT id FROM structure_permissible_values WHERE value="takayasu\'s arteritis" AND language_alias="pv takayasu\'s arteritis"), "9", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	("pv granulomatosis with polyangiitis (wegener\'s granulomatosis)", "Granulomatosis with polyangiitis (Wegener\'s granulomatosis)", ''),
+	("pv limited granulomatosis with polyangiitis (limited wegener\'s granulomatosis)", "Limited granulomatosis with polyangiitis (Limited Wegener\'s granulomatosis)", ''),
+	("pv takayasu\'s arteritis", "Takayasu\'s arteritis", '');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2470 - Samples - Add Saliva
+	------------------------------------------------------------
+*/
+
+-- Add new saliva sample	
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES ('saliva', 'specimen', 'sd_spe_salivas,specimens', 'sd_spe_salivas', '1', 'saliva');
+
+-- New blank structure for saliva specimen
+INSERT INTO `structures` (`alias`) VALUES ('sd_spe_salivas');
+
+-- Table structure for saliva
+CREATE TABLE `sd_spe_salivas` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_spe_salivas_sample_masters` (`sample_master_id`),
+  CONSTRAINT `FK_sd_spe_salivas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB;
+
+-- Tube for new saliva
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `detail_form_alias`, `detail_tablename`, `flag_active`, `databrowser_label`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'saliva|tube');
+
+-- Allow DNA creation from new saliva sample and enable saliva
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), '12', '1');
+INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), '1');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	("saliva)", "Saliva", '');
+	
