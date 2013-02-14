@@ -1128,3 +1128,17 @@ UPDATE datamart_structure_functions
 SET flag_active = '0' 
 WHERE label = 'print barcodes';
 
+INSERT INTO `storage_controls` VALUES 
+(null,'box100','position','integer',100,NULL,NULL,NULL,10,10,0,0,1,0,0,1,'storage_w_spaces','std_boxs','box100',1),
+(null,'box169','position','integer',169,NULL,NULL,NULL,13,13,0,0,1,0,0,1,'storage_w_spaces','std_boxs','box169',1);
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('box100','Box100 1-100', 'Boîte100 1-100'),
+('box169','Box169 1-169', 'Boîte169 1-169');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE aliquot_masters SET barcode = CONCAT('tmp-',id);
+UPDATE aliquot_masters_revs SET barcode = CONCAT('tmp-',id);
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
