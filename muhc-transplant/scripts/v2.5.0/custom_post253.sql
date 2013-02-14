@@ -1142,3 +1142,27 @@ UPDATE aliquot_masters_revs SET barcode = CONCAT('tmp-',id);
 
 UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- Update 2013-02-14
+
+UPDATE versions SET branch_build_number = '5116' where version_number = '2.5.3';
+UPDATE versions SET permissions_regenerated = 0;
+
+ALTER TABLE sd_der_pbmcs
+  ADD COLUMN muhc_centrifugation_room_temperature  char(1) DEFAULT '';
+ALTER TABLE sd_der_pbmcs_revs
+  ADD COLUMN muhc_centrifugation_room_temperature  char(1) DEFAULT '';
+ALTER TABLE sd_der_plasmas
+  ADD COLUMN muhc_centrifugation_room_temperature  char(1) DEFAULT '';
+ALTER TABLE sd_der_plasmas_revs
+  ADD COLUMN muhc_centrifugation_room_temperature  char(1) DEFAULT '';    
+ALTER TABLE sd_der_serums
+  ADD COLUMN muhc_centrifugation_room_temperature  char(1) DEFAULT '';
+ALTER TABLE sd_der_serums_revs
+  ADD COLUMN muhc_centrifugation_room_temperature  char(1) DEFAULT ''; 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'muhc_centrifugation_room_temperature', 'yes_no', NULL , '0', '', '', '', '', 'room temperature');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='muhc_blood_processing'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_room_temperature' AND `type`='yes_no' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='room temperature'), '1', '414', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('room temperature','Room T°');
+UPDATE structure_formats SET `display_order`='415' WHERE structure_id=(SELECT id FROM structures WHERE alias='muhc_blood_processing') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_spin_force' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='416' WHERE structure_id=(SELECT id FROM structures WHERE alias='muhc_blood_processing') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_centrifugation_spin_force_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_centrifugation_spin_force_unit') AND `flag_confidential`='0');
