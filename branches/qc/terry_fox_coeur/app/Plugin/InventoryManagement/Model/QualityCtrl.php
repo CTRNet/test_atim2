@@ -9,6 +9,10 @@ class QualityCtrl extends InventoryManagementAppModel {
 			'className'   => 'InventoryManagement.AliquotMaster',
 			 	'foreignKey'  => 'aliquot_master_id')
 	);
+  
+  var $registered_view = array(
+  		'InventoryManagement.ViewAliquotUse' => array('QualityCtrl.id')
+  );
 			
 	function summary($variables=array()) {
 		$return = false;
@@ -69,6 +73,19 @@ class QualityCtrl extends InventoryManagementAppModel {
 		
 		return $qc_code;
 	}
+	
+	function generateQcCode() {
+		$qc_to_update = $this->find('all', array('conditions' => array('QualityCtrl.qc_code IS NULL'), 'fields' => array('QualityCtrl.id'), 'recursive' => 1));
+		foreach($qc_to_update as $new_qc) {
+			$new_qc_id = $new_qc['QualityCtrl']['id'];
+			$qc_data = array('QualityCtrl' => array('qc_code' => 'QC - ' . $new_qc_id));
+			$this->id = $new_qc_id;
+			$this->data = null;
+			$this->addWritableField(array('qc_code'));
+			$this->save($qc_data, false);			
+		}		
+	}
+	
 }
 
 ?>

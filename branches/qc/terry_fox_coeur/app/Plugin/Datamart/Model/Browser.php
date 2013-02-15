@@ -309,13 +309,19 @@ class Browser extends DatamartAppModel {
 			$conditions[$control_model->name.'.flag_active'] = 1;
 		}
 		$children_data = $control_model->find('all', array('order' => $control_model->name.'.databrowser_label', 'conditions' => $conditions, 'recursive' => 0));
-		$children_arr = array();
+		$tmp_children_arr = array();
 		foreach($children_data as $child_data){
-			$label = self::getTranslatedDatabrowserLabel($child_data[$control_model->name]['databrowser_label']);
-			$children_arr[] = array(
+			$label = self::getTranslatedDatabrowserLabel($child_data[$control_model->name]['databrowser_label']);			
+			$tmp_children_arr[$label] = array(
 				'value' => $prepend_value.self::$sub_model_separator_str.$child_data[$control_model->name]['id'],
 				'label' => $label
 			);
+		}
+		$sorted_labels = array_keys($tmp_children_arr);
+		natcasesort($sorted_labels);
+		$children_arr = array();
+		foreach($sorted_labels as $next_label) {
+			$children_arr[] = $tmp_children_arr[$next_label];
 		}
 		return $children_arr;
 	}
@@ -886,6 +892,7 @@ class Browser extends DatamartAppModel {
 			}
 			$sub_models_id_filter['SampleControl'] = $ids;
 		}else{
+			/*
 			$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
 			$sample_controls = $sample_control_model->getPermissibleSamplesArray(null);
 			$sample_controls = AppController::defineArrayKey($sample_controls, 'SampleControl', 'id', true);
@@ -902,7 +909,7 @@ class Browser extends DatamartAppModel {
 				)	
 			)));
 			$sub_models_id_filter['AliquotControl'] = array_keys(AppController::defineArrayKey($aliquot_controls, 'AliquotControl', 'id', true));
-			
+			*/
 		}
 		
 		return $sub_models_id_filter;
@@ -1106,9 +1113,15 @@ class Browser extends DatamartAppModel {
 				$this->checklist_model = $current_model;
 			}
 
+			$prefix = '';
+			if($iteration_count > 1){
+				//prefix all models with their node id, except for the first node
+				$prefix = $node.'-';
+			}
 			//structure merge, add 100 * iteration count to display column
 			foreach($structure['Sfs'] as $sfs){
 				$sfs['display_column'] += 100 * $iteration_count;
+				$sfs['model'] = $prefix.$sfs['model'];
 				$result_structure['Sfs'][] = $sfs;
 			}
 			//copy accuracy settings
@@ -1198,19 +1211,39 @@ class Browser extends DatamartAppModel {
 		}else{
 			$chunk = array_fill(0, count($this->rows_buffer), array());
 			$node = null;
+			$count = 0;
 			foreach($this->models_buffer as $model_index => $model_ids){
 				$node = $this->nodes[$model_index];
-				$model_data = $node[self::MODEL]->find('all', array(
+				$prefix = '';
+				if($count){
+					//set a prefix when model != 0 (the first one cannot be prefixed because of links and checkboxes)
+					$prefix = $node[self::NODE_ID].'-';
+				}
+				$model_data_tmp = $node[self::MODEL]->find('all', array(
 					'fields'	=> '*',
 					'conditions' => array($node[self::MODEL]->name.".".$node[self::USE_KEY] => $model_ids), 
 					'recursive' => 0)
 				);
-				$model_data = AppController::defineArrayKey($model_data, $node[self::MODEL]->name, $node[self::USE_KEY]);
+				
+				if($prefix){
+					$model_data = array();
+					while($models = array_shift($model_data_tmp)){
+						foreach($models as $model_name => $data){
+							$tmp_arr[$prefix.$model_name] = $data;
+						}
+						$model_data[] = $tmp_arr;
+					}
+					unset($model_data_tmp);
+				}else{
+					$model_data = $model_data_tmp;
+				}
+				$model_data = AppController::defineArrayKey($model_data, $prefix.$node[self::MODEL]->name, $node[self::USE_KEY]);
 				foreach($this->rows_buffer as $row_index => $row_data){
 					if(!empty($row_data[$model_index])){
 						$chunk[$row_index] = array_merge($model_data[$row_data[$model_index]][0], $chunk[$row_index]);
 					}
 				}
+				++ $count;
 			}
 		}
 		return $chunk;

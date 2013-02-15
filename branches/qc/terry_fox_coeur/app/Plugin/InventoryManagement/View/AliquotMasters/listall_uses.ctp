@@ -10,6 +10,8 @@ $final_options = array(
 	)
 );
 
+if($is_from_tree_view)  $final_options['settings']['header'] =  __('aliquot') . ': '. __('uses and events');
+
 $hook_link = $this->Structures->hook();
 if($hook_link){
 	require($hook_link);
