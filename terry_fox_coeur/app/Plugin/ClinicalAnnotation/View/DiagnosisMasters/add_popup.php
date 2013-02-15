@@ -12,7 +12,7 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/DiagnosisMasters/add/'
 			}
 		}
 	}
-	asort($current);
+	natcasesort($current);
 	$options[] = array('grpName' => __('diagnosis'), 'data' => $current, 'link' => 'ClinicalAnnotation/DiagnosisMasters/add/'.$atim_menu_variables['Participant.id'].'/');
 }
 if(AppController::checkLinkPermission('ClinicalAnnotation/TreatmentMasters/add/')){
@@ -20,7 +20,7 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/TreatmentMasters/add/'
 	foreach($treatment_controls_list as $tx_ctrl){
 		$current[$tx_ctrl['TreatmentControl']['id']] = __($tx_ctrl['TreatmentControl']['tx_method']) . ' - '.__($tx_ctrl['TreatmentControl']['disease_site']);
 	}
-	asort($current);
+	natcasesort($current);
 	$options[] = array('grpName' => __('treatment'), 'data' => $current, 'link' => 'ClinicalAnnotation/TreatmentMasters/add/'.$atim_menu_variables['Participant.id'].'/');
 }
 if(AppController::checkLinkPermission('ClinicalAnnotation/EventMasters/add/')){
@@ -30,7 +30,7 @@ if(AppController::checkLinkPermission('ClinicalAnnotation/EventMasters/add/')){
 	}
 	ksort($current);
 	foreach($current as $group_name => $grp_options){
-		asort($grp_options);
+		natcasesort($grp_options);
 		$options[] = array('grpName' => __('event').' - '.__($group_name), 'data' => $grp_options, 'link' => 'ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id'].'/');
 	}
 }
