@@ -452,4 +452,13 @@ UPDATE structure_fields SET  `type`='integer_positive' WHERE model='DiagnosisDet
 UPDATE structure_fields SET  `type`='integer_positive' WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='follow_up_from_ovarectomy_in_months' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `type`='integer_positive',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator')  WHERE model='DiagnosisDetail' AND tablename='qc_tf_dxd_eocs' AND field='ca125_progression_time_in_months' AND `type`='float_positive' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='datetime_accuracy_indicator');
 
+-- ---------------------------------------------------------------------------------------------------------------------------------------
+-- New request: 2013-02-15
+-- ---------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=10,class=range file' WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='participant_identifier');
+ALTER TABLE participants MODIFY participant_identifier  int(11) NOT NULL DEFAULT '0';
+ALTER TABLE participants_revs MODIFY participant_identifier  int(11) NOT NULL DEFAULT '0';
+ALTER TABLE event_masters_revs MODIFY event_date_accuracy char(1) NOT NULL DEFAULT '';
+
+UPDATE versions SET branch_build_number = '5120' WHERE version_number = '2.5.3';
