@@ -10,7 +10,7 @@ class AliquotMasterCustom extends AliquotMaster {
 		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 	
 		$default_barcode = 
-			(empty($view_sample['ViewSample']['participant_identifier'])? '?' : $view_sample['ViewSample']['participant_identifier']).'-'.
+			(empty($view_sample['ViewSample']['participant_identifier'])? '?' : str_replace('-','', $view_sample['ViewSample']['participant_identifier'])).'-'.
 			$view_sample['ViewSample']['acquisition_label'].'-'.
 			$view_sample['ViewSample']['qc_gastro_specimen_code'];
 	
@@ -28,7 +28,7 @@ class AliquotMasterCustom extends AliquotMaster {
 
 		}
 		
-		return $default_barcode;
+		return strtoupper($default_barcode);
 	}
 	
 }
