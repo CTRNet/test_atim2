@@ -1,5 +1,5 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.5.3', NOW(), '4976');
+('2.5.3', NOW(), '5107');
 
 ALTER TABLE structure_formats
  ADD COLUMN margin TINYINT UNSIGNED DEFAULT 0;
@@ -45,3 +45,5 @@ UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id F
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('trunk build number','Build Number (Trunk)', 'Numéro Version (application principal)'), 
 ('branch build number','Bank Version/Build','Banque Version/Numéro Version'); 
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('access to aliquot','Access to Aliquot','Accéder à l''aliquot');
