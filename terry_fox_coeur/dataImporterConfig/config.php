@@ -113,6 +113,9 @@ Config::$config_files[] = $relative_path.'qc_tf_tx_other.php';
 Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){
+	
+TODO: CALCULER PROGRESSIONS SI VALEUR MANQUANTE
+	
 	$file_path = Config::$xls_file_path;
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
