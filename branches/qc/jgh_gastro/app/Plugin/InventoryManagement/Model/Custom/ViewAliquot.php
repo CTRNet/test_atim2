@@ -58,7 +58,7 @@ class ViewAliquotCustom extends ViewAliquot {
 			 
 			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
 -- MiscIdentifier.identifier_value AS participant_ramq,
-InitialSpecimenDetail.specimen_biobank_id AS specimen_biobank_id,
+-- InitialSpecimenDetail.specimen_biobank_id AS specimen_biobank_id,
 InitialSpecimenDetail.qc_gastro_specimen_code AS qc_gastro_specimen_code
 
 			FROM aliquot_masters AS AliquotMaster
