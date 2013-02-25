@@ -4,6 +4,10 @@
 
 -- This script must be run against a v2.5.2 ATiM database with all previous custom scripts applied.
 
+-- Update bank name for version tracking during customization
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('core_installname', 'Clark H. Smith NPTTB - v0.4 DEV', '');
+
 /*
 	------------------------------------------------------------
 	Eventum ID: 2322 - Consent - Fix form version
@@ -37,7 +41,7 @@ ALTER TABLE `cd_npttb_consent_sno_calgary_revs` CHANGE COLUMN `version_id` `vers
 	------------------------------------------------------------
 */
 
-UPDATE `structure_validations` SET `rule`='/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{4}$/' WHERE `id`= (SELECT `id` FROM `structure_fields` WHERE model = 'TreatmentDetail' AND tablename = 'txd_surgeries' AND field = 'path_num');
+UPDATE `structure_validations` SET `rule`='/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{4}$/' WHERE `structure_field_id`= (SELECT `id` FROM `structure_fields` WHERE model = 'TreatmentDetail' AND tablename = 'txd_surgeries' AND field = 'path_num');
 
 /*
 	------------------------------------------------------------
