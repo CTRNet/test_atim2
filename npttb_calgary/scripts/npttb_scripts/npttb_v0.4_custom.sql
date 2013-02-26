@@ -67,6 +67,8 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='npttb_age_at_tx' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb age treatment' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '1', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+UPDATE structure_formats SET `flag_add`='1', `flag_add_readonly`='0', `flag_edit`='1', `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='npttb_age_at_tx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 	
 /*
 	------------------------------------------------------------
@@ -80,7 +82,9 @@ UPDATE `misc_identifier_controls` SET `reg_exp_validation`='\\A\\d{3}$', `user_r
 UPDATE `misc_identifier_controls` SET `reg_exp_validation`='\\A\\d{12}$', `user_readable_format`='is 12 digits' WHERE `misc_identifier_name`='Medical Record Number';
 UPDATE `misc_identifier_controls` SET `reg_exp_validation`='^[0-9]+$', `user_readable_format`='a numeric value' WHERE `misc_identifier_name`='MRN (Pre-2008)';
 
-UPDATE `structure_validations` SET `rule`='/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{5}$/' WHERE `id`='192';
+UPDATE `structure_validations` SET `rule`='/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{5}$/' WHERE `id`=(SELECT `id` FROM structure_fields where field = 'path_num');
+
+
 
 
 
