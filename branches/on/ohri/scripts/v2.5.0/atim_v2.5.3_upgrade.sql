@@ -1,5 +1,5 @@
 INSERT INTO `versions` (version_number, date_installed, build_number) VALUES
-('2.5.3', NOW(), '4976');
+('2.5.3', NOW(), '5107');
 
 ALTER TABLE structure_formats
  ADD COLUMN margin TINYINT UNSIGNED DEFAULT 0;
@@ -20,3 +20,30 @@ SELECT 'WARNING: Change all QualityControl model references to QualityCtrl in bo
 
 INSERT INTO i18n (id,en,fr) VALUES ('sample derivative creation#', 'Sample Derivative Creation | ', 'Création de dérivé | ');
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/ProtocolExtends%';
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('you do not own that template','You do not own that template','Vous n''êtes pas propiétaire du modèle'),
+('edit properties', 'Edit Properties', 'Modifier propriétés');
+ALTER TABLE templates ADD COLUMN  `created_by` int(10) unsigned NOT NULL;
+
+UPDATE templates SET created_by = owning_entity_id WHERE owner = 'user' AND flag_system = 0 AND created_by = 0;
+SELECT IF(COUNT(*) > 0, 
+"WARNING: UPDATE templates.created_by field for following tempalte by the user_id of the person who created the template to be sure no functional bug will happen!", 'Templates table is ok!') AS msg 
+FROM templates WHERE flag_system = 0 AND created_by = 0;
+SELECT name AS 'template to update' FROM templates WHERE flag_system = 0 AND created_by = 0;
+
+ALTER TABLE versions CHANGE build_number trunk_build_number varchar(45) NOT NULL;
+ALTER TABLE versions ADD COLUMN  branch_build_number varchar(45) DEFAULT '';
+UPDATE structure_fields SET `language_label`='trunk build number', `language_tag`='', field = 'trunk_build_number' WHERE model='Version' AND tablename='versions' AND field='build_number';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Version', 'versions', 'branch_build_number', 'input-readonly',  NULL , '0', 'size=25', '', '', 'branch build number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='versions'), (SELECT id FROM structure_fields WHERE `model`='Version' AND `tablename`='versions' AND `field`='branch_build_number'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='versions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Version' AND `tablename`='versions' AND `field`='date_installed' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES 
+('trunk build number','Build Number (Trunk)', 'Numéro Version (application principal)'), 
+('branch build number','Bank Version/Build','Banque Version/Numéro Version'); 
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('access to aliquot','Access to Aliquot','Accéder à l''aliquot');

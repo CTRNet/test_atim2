@@ -155,9 +155,7 @@ class AppController extends Controller {
 		Configure::write('Config.language', 'eng');
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
-	
-		define('CONFIDENTIAL_MARKER', __('confidential data'));
-	
+		
 		// ATiM2 configuration variables from Datatable
 	
 		define('VALID_INTEGER', '/^[-+]?[\\s]?[0-9]+[\\s]?$/');
@@ -256,6 +254,9 @@ class AppController extends Controller {
 				}
 			}
 		}
+		
+		define('CONFIDENTIAL_MARKER', __('confidential data')); // Moved here to allow translation
+		
 		if(Configure::read('debug') == 0){
 			set_error_handler("myErrorHandler");
 		}

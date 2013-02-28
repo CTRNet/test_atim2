@@ -15,6 +15,7 @@ class User extends AppModel {
 		if(empty($this->data) || !isset($this->data['User']['group_id'])){
 			$data = $this->read();
 		}
+		$data = $this->data;
 		
 		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {
 			throw new Exception('User must always have a group_id');

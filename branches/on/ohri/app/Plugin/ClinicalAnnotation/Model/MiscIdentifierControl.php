@@ -16,7 +16,7 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
 			$result[$ident_ctrl['MiscIdentifierControl']['misc_identifier_name']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
@@ -35,7 +35,7 @@ class MiscIdentifierControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $ident_ctrl) {
 			$result[$ident_ctrl['MiscIdentifierControl']['id']] = __($ident_ctrl['MiscIdentifierControl']['misc_identifier_name']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}

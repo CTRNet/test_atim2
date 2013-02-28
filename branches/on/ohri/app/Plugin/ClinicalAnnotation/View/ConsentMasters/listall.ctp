@@ -3,7 +3,7 @@
 	foreach ($consent_controls_list as $consent_control) {
 		$add_links[__($consent_control['ConsentControl']['controls_type'])] = '/ClinicalAnnotation/ConsentMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$consent_control['ConsentControl']['id'].'/';
 	}
-	asort($add_links);
+	natcasesort($add_links);
 	
 	$structure_links = array(
 		'top'=>NULL,
