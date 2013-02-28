@@ -313,3 +313,84 @@ UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id F
 
 ALTER TABLE structure_permissible_values_customs_revs CHANGE value value varchar(100) NOT NULL;
 
+-- NEW REQUESTS 20130228
+
+UPDATE structure_formats SET flag_add = 0, flag_edit = 0, flag_search = 0, flag_addgrid = 0, flag_editgrid = 0, flag_batchedit = 0, flag_index = 0, flag_detail = 0, flag_summary = 0
+WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('sop_master_id'));
+
+ALTER TABLE participants 
+	ADD COLUMN qc_gastro_ramq VARCHAR(40) DEFAULT NULL,
+	ADD COLUMN qc_gastro_hospital_number VARCHAR(40) DEFAULT NULL;
+ALTER TABLE participants_revs 
+	ADD COLUMN qc_gastro_ramq VARCHAR(40) DEFAULT NULL,
+	ADD COLUMN qc_gastro_hospital_number VARCHAR(40) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_gastro_ramq', 'input',  NULL , '1', 'size=10', '', '', 'RAMQ', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_gastro_hospital_number', 'input',  NULL , '1', 'size=10', '', '', 'hospital number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_gastro_ramq' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='RAMQ' AND `language_tag`=''), '3', '-2', 'identifications', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_gastro_hospital_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='hospital number' AND `language_tag`=''), '3', '-1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_column`='3', `flag_override_setting`='0', `setting`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET  `setting`='size=10,class=range file' WHERE model='Participant' AND tablename='participants' AND field='participant_identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en) VALUES ('identifications','Identifications'),('RAMQ','RAMQ');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='qc_gastro_ramq'), 'isUnique');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `model`='Participant' AND `field`='qc_gastro_hospital_number'), 'isUnique');
+UPDATE participants par, misc_identifiers mi, misc_identifier_controls mic
+SET par.qc_gastro_ramq = mi.identifier_value
+WHERE par.id = mi.participant_id 
+AND mi.deleted <> 1
+AND mi.misc_identifier_control_id = mic.id
+AND mic.misc_identifier_name = 'RAMQ';
+UPDATE participants par, misc_identifiers mi, misc_identifier_controls mic
+SET par.qc_gastro_hospital_number = mi.identifier_value
+WHERE par.id = mi.participant_id 
+AND mi.deleted <> 1
+AND mi.misc_identifier_control_id = mic.id
+AND mic.misc_identifier_name = 'hospital number';
+UPDATE misc_identifiers SET deleted = 1;
+UPDATE misc_identifier_controls SET flag_active = 0;
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/MiscIdentifiers%';
+
+SET @st_id = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier');
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE datamart_structure_id = @st_id;
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 = @st_id OR id2 = @st_id;
+
+UPDATE structure_formats SET `display_order`='11', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_gastro_biobankid_prefix' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='collection_site');
+
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantMessages%';
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='qc_gastro_biobankid_prefix' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET flag_index = 0, flag_search = 0 WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('topography'));
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list')  AND `flag_confidential`='0'), '0', '3', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

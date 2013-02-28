@@ -19,7 +19,7 @@
 		'settings'=> array('pagination' => false), 
 		'type' => 'index', 
 		'links' => $links, 
-		'extras' => array(10 => '<div id="frame">vive mich</div>')
+		'extras' => array(10 => '<div id="frame"></div>')
 	);
 	
 	$hook_link = $this->Structures->hook();

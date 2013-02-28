@@ -6,7 +6,7 @@ class SampleMasterCustom extends SampleMaster {
 
 	function validates($options = array()){
 		$errors = parent::validates($options);
-		if(array_key_exists('qc_gastro_specimen_code', $this->data['SpecimenDetail'])) {
+		if(array_key_exists('SpecimenDetail', $this->data) && array_key_exists('qc_gastro_specimen_code', $this->data['SpecimenDetail'])) {
 			$validated_code = true;
 			switch($this->data['SampleControl']['sample_type']) {
 				case 'tissue':
