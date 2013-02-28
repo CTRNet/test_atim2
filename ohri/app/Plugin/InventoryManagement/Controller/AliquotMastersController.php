@@ -2416,6 +2416,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->layout = 'ajax';
 			Configure::write('debug', 0);
 		}
+		$atim_structure['SampleMaster'] = $this->Structures->get('form','sample_masters_for_collection_tree_view');		
 		$atim_structure['AliquotMaster'] = $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
 		$this->set('atim_structure', $atim_structure);
 		$this->set("collection_id", $collection_id);
@@ -2425,15 +2426,44 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
 		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 		
-		$ids = $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)));
-		$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($ids));
+		// Get list of children aliquot realiquoted from studied aliquot
+		$children_aliquot_master_ids = $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)));
+		$children_aliquot_master_ids[] = 0;//counters Eventum 1353
+		$this->request->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $children_aliquot_master_ids, 'AliquotMaster.collection_id' => $collection_id)));
 		
-		$ids[] = 0;//counters Eventum 1353
-		$this->request->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $ids, 'AliquotMaster.collection_id' => $collection_id)));
+		// Get list of realiquoted children having been realiquoted too: To disable or not the expand icon
+		$aliquot_ids_having_child = array_flip($this->AliquotMaster->hasChild($children_aliquot_master_ids));
+		
+		// Get list of realiquoted children having been used to create derivative: To disable or not expand icon
+		$source_aliquot_joins = array(array(
+				'table' => 'source_aliquots',
+				'alias' => 'SourceAliquot',
+				'type' => 'INNER',
+				'conditions' => array('SampleMaster.id = SourceAliquot.sample_master_id', 'SourceAliquot.deleted != 1')
+		));
+		$aliquot_ids_having_derivative = $this->SampleMaster->find('list', array(
+				'fields' => array('SourceAliquot.aliquot_master_id'),
+				'conditions' => array('SampleMaster.collection_id'=>$collection_id, 'SourceAliquot.aliquot_master_id' => $children_aliquot_master_ids),
+				'group' => array('SourceAliquot.aliquot_master_id'),
+				'joins'	=> $source_aliquot_joins)
+		);
+		$aliquot_ids_having_derivative = array_flip($aliquot_ids_having_derivative);
 		foreach($this->request->data as &$aliquot){
-			$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
+			$aliquot['children'] = (array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_having_child) || array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_having_derivative));
 			$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 		}
+		
+		// Get list of derivatives created from studied aliquot
+		$derivatives = $this->SampleMaster->find('all', array(
+				'fields' => '*',
+				'conditions' => array('SampleMaster.collection_id'=>$collection_id, 'SourceAliquot.aliquot_master_id' => $aliquot_master_id),
+				'joins'	=> $source_aliquot_joins)
+		);
+		foreach($derivatives as &$new_derivative){
+			$new_derivative['children'] = array();
+			$new_derivative['css'][] = 'sample_disabled';
+		}
+		$this->request->data = array_merge($this->request->data, $derivatives);
 	}
 	
 	function editInBatch(){
@@ -2575,13 +2605,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 	 * @param int $sample_master_id
 	 * @param int $aliquot_master_id
 	 */
-	function listallUses($collection_id, $sample_master_id, $aliquot_master_id){
+	function listallUses($collection_id, $sample_master_id, $aliquot_master_id, $is_from_tree_view = false){
 		$aliquot = $this->AliquotMaster->getOrRedirect($aliquot_master_id);
 		if($aliquot['AliquotMaster']['sample_master_id'] != $sample_master_id || $aliquot['AliquotMaster']['collection_id'] != $collection_id){
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		$this->request->data = $this->ViewAliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
 		$this->Structures->set('viewaliquotuses');
+		$this->set('is_from_tree_view',$is_from_tree_view);
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
 			require($hook_link);

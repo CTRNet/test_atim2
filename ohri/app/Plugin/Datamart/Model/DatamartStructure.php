@@ -19,7 +19,7 @@ class DatamartStructure extends DatamartAppModel {
 		foreach($data as $new_ds) {
 			$result[$new_ds['DatamartStructure']['id']] = __($new_ds['DatamartStructure']['display_name']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;		
 	}
