@@ -547,15 +547,15 @@ UPDATE drugs SET generic_name = 'Carboplatinum' WHERE generic_name = 'Carboplati
 UPDATE drugs SET generic_name = 'Paclitaxel' WHERE generic_name = 'Taxol';
 INSERT INTO `drugs` (`generic_name`, `type`, `created`, `modified`,`deleted`) 
 VALUES
-('Cisplatinum ', 'chemotherapy', NOW(),NOW(), 0), 
-('Oxaliplatinum ', 'chemotherapy', NOW(),NOW(), 0), 
-('Topotecan ', 'chemotherapy', NOW(),NOW(), 0), 
-('Ectoposide ', 'chemotherapy', NOW(),NOW(), 0), 
-('Tamoxifen ', 'chemotherapy', NOW(),NOW(), 0), 
-('Doxetaxel ', 'chemotherapy', NOW(),NOW(), 0), 
-('Doxorubicin ', 'chemotherapy', NOW(),NOW(), 0), 
-('Etoposide ', 'chemotherapy', NOW(),NOW(), 0), 
-('Gemcitabine ', 'chemotherapy', NOW(),NOW(), 0), 
+('Cisplatinum', 'chemotherapy', NOW(),NOW(), 0), 
+('Oxaliplatinum', 'chemotherapy', NOW(),NOW(), 0), 
+('Topotecan', 'chemotherapy', NOW(),NOW(), 0), 
+('Ectoposide', 'chemotherapy', NOW(),NOW(), 0), 
+('Tamoxifen', 'chemotherapy', NOW(),NOW(), 0), 
+('Doxetaxel', 'chemotherapy', NOW(),NOW(), 0), 
+('Doxorubicin', 'chemotherapy', NOW(),NOW(), 0), 
+('Etoposide', 'chemotherapy', NOW(),NOW(), 0), 
+('Gemcitabine', 'chemotherapy', NOW(),NOW(), 0), 
 ('Procytox', 'chemotherapy', NOW(),NOW(), 0), 
 ('Vinorelbine', 'chemotherapy', NOW(),NOW(), 0), 
 ('Cyclophosphamide', 'chemotherapy', NOW(),NOW(), 0),
@@ -660,10 +660,104 @@ INSERT INTO i18n (id,en) VALUES
 ('malignant tumors','Malignant tumors'),
 ('salpingitis','Salpingitis');
 
+ALTER TABLE ohri_dx_ovaries ADD COLUMN precursor_of_benign_lesions VARCHAR (50) DEFAULT NULL;
+ALTER TABLE ohri_dx_ovaries_revs ADD COLUMN precursor_of_benign_lesions VARCHAR (50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ohri_precursor_of_benign_lesions", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("benign or borderline tumours", "benign or borderline tumours");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_precursor_of_benign_lesions"), (SELECT id FROM structure_permissible_values WHERE value="benign or borderline tumours" AND language_alias="benign or borderline tumours"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("endometriosis", "endometriosis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_precursor_of_benign_lesions"), (SELECT id FROM structure_permissible_values WHERE value="endometriosis" AND language_alias="endometriosis"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("endosalpingiosis", "endosalpingiosis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_precursor_of_benign_lesions"), (SELECT id FROM structure_permissible_values WHERE value="endosalpingiosis" AND language_alias="endosalpingiosis"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_precursor_of_benign_lesions"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("ovarian cysts", "ovarian cysts");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_precursor_of_benign_lesions"), (SELECT id FROM structure_permissible_values WHERE value="ovarian cysts" AND language_alias="ovarian cysts"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_precursor_of_benign_lesions"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'ohri_dx_ovaries', 'precursor_of_benign_lesions', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_precursor_of_benign_lesions') , '0', '', '', '', 'presence of precursor of benign lesions', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ohri_dx_ovaries' AND `field`='precursor_of_benign_lesions' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_precursor_of_benign_lesions')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='presence of precursor of benign lesions' AND `language_tag`=''), '2', '28', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES
+('benign or borderline tumours','Benign or borderline tumours'),
+('endometriosis','Endometriosis'),
+('endosalpingiosis','Endosalpingiosis'),
+('ovarian cysts','Ovarian cysts'),
+('presence of precursor of benign lesions','Presence of precursor of benign lesions');
+REPLACE INTO i18n (id,en) VALUES ('survival time months','Survival Time (months)');
+
+ALTER TABLE ohri_dx_ovaries ADD COLUMN progression_status VARCHAR (50) DEFAULT NULL;
+ALTER TABLE ohri_dx_ovaries_revs ADD COLUMN progression_status VARCHAR (50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ohri_progression_status", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_progression_status"), (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_progression_status"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_progression_status"), (SELECT id FROM structure_permissible_values WHERE value="progressive disease" AND language_alias="progressive disease"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("bouncer", "bouncer");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_progression_status"), (SELECT id FROM structure_permissible_values WHERE value="bouncer" AND language_alias="bouncer"), "", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ohri_progression_status"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'ohri_dx_ovaries', 'progression_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_progression_status') , '0', '', '', '', 'progression status', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ohri_dx_ovaries' AND `field`='progression_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_progression_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='progression status' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ohri_dx_ovaries' AND `field`='progression_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_progression_status') AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en) VALUES
+('progressive disease','Progressive disease'),
+('bouncer','Bouncer'),
+('progression status','Progression status');
+
+SELECT IF(COUNT(*) > 0, "ERROR 889933", 'OK') AS dx_clean_up_msg 
+FROM diagnosis_masters dm
+INNER JOIN diagnosis_controls dc ON dm.diagnosis_control_id=dc.id
+WHERE dc.flag_active = 1 AND dc.category NOT IN ('primary','secondary');
+UPDATE diagnosis_controls SET flag_active = 0 WHERE flag_active = 1 AND category NOT IN ('primary','secondary');
+
+ALTER TABLE ohri_txd_surgeries ADD COLUMN description VARCHAR (50) DEFAULT NULL;
+ALTER TABLE ohri_txd_surgeries_revs ADD COLUMN description VARCHAR (50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name,source) VALUES ('ohri_surgery_description',"StructurePermissibleValuesCustom::getCustomDropdown(\'Surgery: Description\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) 
+VALUES 
+('Surgery: Description', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Surgery: Description');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('ovarectomy', 'Ovarectomy', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('biopsy', 'Biopsy', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('other', 'Other', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'ohri_txd_surgeries', 'description', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ohri_surgery_description') , '0', '', '', '', 'description', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ohri_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ohri_txd_surgeries' AND `field`='description' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_surgery_description')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='description' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='ohri_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='ohri_txd_surgeries' AND `field`='residual_disease' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ohri_residual_disease') AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- fallopian tube lesion dans note aujourd'hui a ajouter on ne pourra pas les migrer. le champ a été créé.
+-- ajouter progression time (months) ou verifier que ce n'est pas le free... non on les laissera calculer par atim lors de l'import
+
 -- ajouter progression flag to ca125
 -- importer + drug importer
--- fallopian tube lesion dans note aujourd'hui a ajouter
--- il n'y aura pas de présence de précurseur.
 -- ajouter drug link between chemotherapy and drug dans databrowser
 
 
