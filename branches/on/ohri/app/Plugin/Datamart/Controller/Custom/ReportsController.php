@@ -281,13 +281,15 @@ if(true) {
 					// Get residual disease
 					$residual_disease = '';
 					$tx_data = $this->Report->query("SELECT residual_disease 
-						FROM ohri_txd_surgeries AS TxDetail
-						INNER JOIN treatment_masters ON TxDetail.treatment_master_id=treatment_masters.id
-						WHERE treatment_masters.deleted = 0 AND treatment_masters.diagnosis_master_id IN (".implode(',',$prim_and_sec_dx_mst_ids_of_studied_eoc).")", false);
+						FROM ohri_txd_surgeries AS TreatmentDetail
+						INNER JOIN treatment_masters ON TreatmentDetail.treatment_master_id=treatment_masters.id
+						WHERE treatment_masters.deleted = 0 
+						AND TreatmentDetail.description = 'ovarectomy'
+						AND treatment_masters.diagnosis_master_id IN (".implode(',',$prim_and_sec_dx_mst_ids_of_studied_eoc).")", false);
 					if(count($tx_data) == 1){
-						$residual_disease = $tx_data[0]['TxDetail']['residual_disease'];
+						$residual_disease = $tx_data[0]['TreatmentDetail']['residual_disease'];
 					}else if(count($tx_data) > 1){
-						$tfri_report_warnings[$sheet]["Too many surgeries to define the residual disease value: data not imported"][$pid_bid_assoc[$participant_id]] = $pid_bid_assoc[$participant_id];
+						$tfri_report_warnings[$sheet]["Too many ovarectomies to define the residual disease value: data not imported"][$pid_bid_assoc[$participant_id]] = $pid_bid_assoc[$participant_id];
 					}
 					$residual_disease = str_replace(array('< 1cm', '> 2cm', 'undefined'), array('<1cm', '>2cm', 'none', 'unknown'), $residual_disease);
 					
