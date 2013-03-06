@@ -661,7 +661,7 @@ if(true) {
 				FROM diagnosis_masters AS DiagnosisMaster
 				INNER JOIN diagnosis_controls AS DiagnosisControl ON DiagnosisControl.id = DiagnosisMaster.diagnosis_control_id
 				LEFT JOIN ohri_dx_others AS DiagnosisDetail ON DiagnosisMaster.id=DiagnosisDetail.diagnosis_master_id
-				WHERE DiagnosisMaster.deleted != 1 AND DiagnosisControl.controls_type != 'ovary' AND DiagnosisControl.category != 'primary'
+				WHERE DiagnosisMaster.deleted != 1 AND DiagnosisControl.controls_type != 'ovary' AND DiagnosisControl.category = 'primary'
 				AND DiagnosisMaster.participant_id IN(".implode(", ", $participant_ids).")
 				ORDER BY DiagnosisMaster.participant_id ASC");
 			foreach($data as $unit){
@@ -807,7 +807,7 @@ if(true) {
 						$event = 'biopsy';
 						break;
 					default:
-						$event = 'surger';
+						$event = 'surgery';
 				}
 				$other_event_from_participant_id[$participant_id][] = array(
 					"participant_biobank_id"	=> $pid_bid_assoc[$participant_id],
