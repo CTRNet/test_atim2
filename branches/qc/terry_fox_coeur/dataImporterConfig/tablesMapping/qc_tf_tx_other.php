@@ -81,7 +81,7 @@ function txPostWrite(Model $m){
 				if(!empty($current_drug)){
 					$current_drug = trim($current_drug);
 					if(!in_array($current_drug,  Config::$drugs)) {
-						Config::$summary_msg[$m->custom_data['disease'].' - Treatment']['@@WARNING@@']['Drug Unknown'][] = " DRUG ['.$current_drug.'] UNKNOWN at line [".$m->line."]";
+						Config::$summary_msg[$m->custom_data['disease'].' - Treatment']['@@WARNING@@']['Drug Unknown'][] = " Drug [$current_drug] unknown at line [".$m->line."]";
 					} else {
 						$query = "INSERT INTO txe_chemos(treatment_master_id, drug_id) VALUES (".$m->last_id.", (SELECT id FROM drugs WHERE generic_name='".$current_drug."'))";
 						mysqli_query(Config::$db_connection, $query) or die("txPostWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
