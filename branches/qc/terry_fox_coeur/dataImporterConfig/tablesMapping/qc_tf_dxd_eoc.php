@@ -65,7 +65,7 @@ function dxdEocPostRead(Model $m){
 
 function dxdEocPreWrite(Model $m) {
 	
-	if(!strlen($m->values['Survival from diagnosis (months)'])) {
+	/*if(!strlen($m->values['Survival from diagnosis (months)'])) {
 		$qc_tf_last_contact = $m->parent_model->values['Date of Last Contact Date'];
 		$qc_tf_last_contact_accuracy = $m->parent_model->values['Date of Last Contact date accuracy'];
 		$eoc_dx_date = $m->values['Date of EOC Diagnosis Date'];
@@ -87,7 +87,7 @@ function dxdEocPreWrite(Model $m) {
 			$m->values['Survival from diagnosis (months)'] = (($interval->format('%y')*12) + $interval->format('%m'));
 			Config::$summary_msg['EOC Diagnosis']['@@MESSAGE@@']['Survival: Calculate'][] = "Survival value has been calculated (=".$m->values['Survival from diagnosis (months)']." ). See patient ".$m->values["Patient Biobank Number (required)"]." line ". $m->line;
 		}
-	}
+	}*/
 	
 	foreach(array('Age at Time of Diagnosis (yr)','progression time (months)', 'CA125 progression time (months)', 'Follow-up from ovarectomy (months)', 'Survival from diagnosis (months)') as $new_header) {
 		if(!empty($m->values[$new_header])) {
