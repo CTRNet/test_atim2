@@ -62,12 +62,13 @@ class DATABASE_CONFIG {
 	public $default = array(
 		'datasource' => 'Database/Mysql',
 		'persistent' => true,
-		'host' => 'localhost',
+		'host' => '127.0.0.1',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'procure',
+		'password' => 'root',
+		'database' => 'atim_250',
 		'prefix' => '',
-		'encoding' => 'utf8'
+		'encoding' => 'utf8',
+		'port'	=> 3306
 	);
 
 }

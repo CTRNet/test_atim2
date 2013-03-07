@@ -50,9 +50,10 @@ class StructurePermissibleValuesCustom extends AppModel {
 		}
 		if($data[0]['StructurePermissibleValuesCustom']['display_order'] == 0){
 			//sort alphabetically
-			asort($result['defined']);
-			asort($result['previously_defined']);
+			natcasesort($result['defined']);
+			natcasesort($result['previously_defined']);
 		}
+		
 		return $result;
 	}
 }

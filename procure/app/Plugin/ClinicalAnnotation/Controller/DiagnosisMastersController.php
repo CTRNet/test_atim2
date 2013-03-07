@@ -94,7 +94,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		$this->set('can_have_child', $can_have_child);
 		
 		$external_link_model = AppModel::getInstance('', 'ExternalLink', true);
-		$help_url = $external_link_model->find('first', array('conditions' => array('name' => 'inventory_elements_defintions')));
+		$help_url = $external_link_model->find('first', array('conditions' => array('name' => 'diagnosis_module_wiki')));
 		$this->set('help_url', $help_url['ExternalLink']['link']);
 		
 		$this->request->data = $curr_data;

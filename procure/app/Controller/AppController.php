@@ -53,7 +53,9 @@ class AppController extends Controller {
 		$log_activity_model->save($log_activity_data);
 		
 		// menu grabbed for HEADER
-		if(!$this->request->is('ajax')){
+		if($this->request->is('ajax')){
+			Configure::write ('debug', 0);
+		}else{
 			$atim_sub_menu_for_header = array();
 			$menu_model = AppModel::getInstance("", "Menu", true);
 			
@@ -155,9 +157,7 @@ class AppController extends Controller {
 		Configure::write('Config.language', 'eng');
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
-	
-		define('CONFIDENTIAL_MARKER', 'Confidential Data');
-	
+		
 		// ATiM2 configuration variables from Datatable
 	
 		define('VALID_INTEGER', '/^[-+]?[\\s]?[0-9]+[\\s]?$/');
@@ -256,6 +256,9 @@ class AppController extends Controller {
 				}
 			}
 		}
+		
+		define('CONFIDENTIAL_MARKER', __('confidential data')); // Moved here to allow translation
+		
 		if(Configure::read('debug') == 0){
 			set_error_handler("myErrorHandler");
 		}
@@ -943,12 +946,23 @@ class AppController extends Controller {
 				AppModel::getInstance('InventoryManagement', 'ViewCollection'),
 				AppModel::getInstance('InventoryManagement', 'ViewSample'),
 				AppModel::getInstance('InventoryManagement', 'ViewAliquot'),
-				AppModel::getInstance('StorageLayout', 'ViewStorageMaster')
+				AppModel::getInstance('StorageLayout', 'ViewStorageMaster'),
+				AppModel::getInstance('InventoryManagement', 'ViewAliquotUse')
 		);
 		foreach($view_models as $view_model){
 			$this->Version->query('DROP TABLE IF EXISTS '.$view_model->table);
 			$this->Version->query('DROP VIEW IF EXISTS '.$view_model->table);
-			$this->Version->query('CREATE TABLE '.$view_model->table. '('.str_replace('%%WHERE%%', '', $view_model::$table_query).')');
+			if(isset($view_model::$table_create_query)){
+				//Must be done with multiple queries
+				$this->Version->query($view_model::$table_create_query);
+				$queries = explode("UNION ALL", $view_model::$table_query);
+				foreach($queries as $query){
+					$this->Version->query('INSERT INTO '.$view_model->table. '('.str_replace('%%WHERE%%', '', $query).')');
+				}
+				
+			}else{
+				$this->Version->query('CREATE TABLE '.$view_model->table. '('.str_replace('%%WHERE%%', '', $view_model::$table_query).')');
+			}
 			$desc = $this->Version->query('DESC '.$view_model->table);
 			$fields = array();
 			$field = array_shift($desc);
@@ -972,6 +986,27 @@ class AppController extends Controller {
 		Cache::clear(false, '_cake_model_');
 		AppController::addWarningMsg(__('cache has been cleared'));
 			
+		// Clean up parent to sample control + aliquot control
+		$studied_sample_control_id = array();
+		$active_sample_control_ids = array();
+		$this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+		
+		$conditions = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL,
+				'ParentToDerivativeSampleControl.flag_active' => true);
+		while($active_parent_sample_types = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions))) {
+			foreach($active_parent_sample_types as $new_parent_sample_type) {
+				$active_sample_control_ids[] = $new_parent_sample_type['DerivativeControl']['id'];
+				$studied_sample_control_id[] = $new_parent_sample_type['DerivativeControl']['id'];
+			}
+			$conditions = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => $active_sample_control_ids,
+				'ParentToDerivativeSampleControl.flag_active' => true,
+				'not' => array('ParentToDerivativeSampleControl.derivative_sample_control_id' => $studied_sample_control_id));
+		}
+		$this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		$this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 		$this->Version->check_writable_fields = false;

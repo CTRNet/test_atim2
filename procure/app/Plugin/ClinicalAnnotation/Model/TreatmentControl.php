@@ -18,7 +18,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $tx_ctrl) {
 			$result[$tx_ctrl['TreatmentControl']['disease_site']] = __($tx_ctrl['TreatmentControl']['disease_site']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
@@ -37,7 +37,7 @@ class TreatmentControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $tx_ctrl) {
 			$result[$tx_ctrl['TreatmentControl']['tx_method']] = __($tx_ctrl['TreatmentControl']['tx_method']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}

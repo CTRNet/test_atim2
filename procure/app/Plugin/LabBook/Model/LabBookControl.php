@@ -12,7 +12,7 @@ class LabBookControl extends LabBookAppModel {
 		foreach($controls as $control) {
 			$result[$control['LabBookControl']['id']] = __($control['LabBookControl']['book_type']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
