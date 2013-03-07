@@ -18,7 +18,7 @@ class EventControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $event_control) {
 			$result[$event_control['EventControl']['disease_site']] = __($event_control['EventControl']['disease_site']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
@@ -30,7 +30,7 @@ class EventControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $event_control) {
 			$result[$event_control['EventControl']['event_group']] = __($event_control['EventControl']['event_group']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
@@ -49,7 +49,7 @@ class EventControl extends ClinicalAnnotationAppModel {
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $event_control) {
 			$result[$event_control['EventControl']['event_type']] = __($event_control['EventControl']['event_type']);
 		}
-		asort($result);
+		natcasesort($result);
 		
 		return $result;
 	}
