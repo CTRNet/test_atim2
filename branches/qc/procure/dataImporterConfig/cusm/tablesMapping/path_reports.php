@@ -39,13 +39,13 @@ $detail_fields = array(
 		
 	// Tumor location
 
-	"tumour_location_right_anterior" => array(utf8_decode("Localisation des foyers tumoraux::Antérieur Droit") => array(""=>""," "=>"","x"=>"1")),
-	"tumour_location_left_anterior" => array(utf8_decode("Localisation des foyers tumoraux::Antérieur Gauche") => array(""=>""," "=>"","x"=>"1")),
-	"tumour_location_right_posterior" => array(utf8_decode("Localisation des foyers tumoraux::Postérieur Droit") => array(""=>""," "=>"","x"=>"1")),
-	"tumour_location_left_posterior" => array(utf8_decode("Localisation des foyers tumoraux::Postérieur Gauche") => array(""=>""," "=>"","x"=>"1")),
-	"tumour_location_apex" => array("Localisation des foyers tumoraux::Apex" => array(""=>""," "=>"","x"=>"1")),
-	"tumour_location_base" => array("Localisation des foyers tumoraux::Base" => array(""=>""," "=>"","x"=>"1")),
-	"tumour_location_bladder_neck" => array(utf8_decode("Localisation des foyers tumoraux::Col vésical") => array(""=>""," "=>"","x"=>"1")),
+	"tumour_location_right_anterior" => array(utf8_decode("Localisation des foyers tumoraux::Antérieur Droit") => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
+	"tumour_location_left_anterior" => array(utf8_decode("Localisation des foyers tumoraux::Antérieur Gauche") => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
+	"tumour_location_right_posterior" => array(utf8_decode("Localisation des foyers tumoraux::Postérieur Droit") => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
+	"tumour_location_left_posterior" => array(utf8_decode("Localisation des foyers tumoraux::Postérieur Gauche") => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
+	"tumour_location_apex" => array("Localisation des foyers tumoraux::Apex" => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
+	"tumour_location_base" => array("Localisation des foyers tumoraux::Base" => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
+	"tumour_location_bladder_neck" => array(utf8_decode("Localisation des foyers tumoraux::Col vésical") => array(""=>""," "=>"","x"=>"1", "X"=>"1")),
 		
 	// Tumoral volume 
 
@@ -309,7 +309,7 @@ function postPathReportRead(Model $m){
 			$m->values["margins_focal_or_extensive"] = 'focal';
 		} else if(strlen($margin_positive_extensive)) {
 			$m->values["margins_focal_or_extensive"] = 'extensive';
-			$extensions = explode('+', $margin_positive_extensive);
+			$extensions = explode('+', (str_replace(',','+',$margin_positive_extensive)));
 			foreach($extensions as $new_site) {
 				switch(utf8_encode($new_site)) {
 					case 'ant gauche':
@@ -343,7 +343,8 @@ function postPathReportRead(Model $m){
 						$m->values["margins_extensive_base"] = "1";	
 						break;
 					default:
-						Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value'][] = "Positive extensive margin '$new_site' is not supported. See line: ".$m->line;
+						Config::$extensive_margin_unkw_value[$new_site] = $new_site;
+						Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported'][] = "Positive extensive margin '$new_site' is not supported. See line: ".$m->line;
 				}
 			}
 		}
@@ -392,7 +393,7 @@ function postPathReportRead(Model $m){
 			$m->values["extra_prostatic_extension_precision"] = "established";
 		}
 		//Localisation
-		$localisations = explode('+', ($extra_prostatic_ext_focal.'+'.$extra_prostatic_ext_established));
+		$localisations = explode('+', (str_replace(',','+',($extra_prostatic_ext_focal.'+'.$extra_prostatic_ext_established))));
 		foreach($localisations as $new_site) {
 			switch(utf8_encode($new_site)) {
 				case '':
@@ -420,7 +421,8 @@ function postPathReportRead(Model $m){
 					$m->values["extra_prostatic_extension_bladder_neck"] = "1";
 					break;
 				default:
-					Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value'][] = "Extra prostatic extension value '$new_site' is not supported. See line: ".$m->line;
+					Config::$extra_prostatic_extension_unkw_value[$new_site] = $new_site;
+					Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][] = "Value '$new_site' is not supported. See line: ".$m->line;
 			}
 		}
 		if(strlen($extra_prostatic_ext_seminal_vesic_1) && strlen($extra_prostatic_ext_seminal_vesic_2)) {

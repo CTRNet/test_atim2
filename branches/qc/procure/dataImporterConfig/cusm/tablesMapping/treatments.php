@@ -44,7 +44,6 @@ function postTreatmentRead(Model $m){
 		}
 	}	
 	if(!$data_to_record) {
-//		Config::$summary_msg['Treatment']['@@MESSAGE@@']['No Treatment data recorded'][] = "For partient '".$m->values['Code du Patient']."'. See line: ".$m->line;
 		return false;
 	} 
 	
@@ -53,7 +52,10 @@ function postTreatmentRead(Model $m){
 	$m->values['event_control_id'] = Config::$event_controls['procure follow-up worksheet']['event_control_id'];
 	$m->values['procure_form_identification'] = $m->values['Code du Patient']. ' V01 -FSP1';
 	
-	//TODO
+	//TODO: Develop treatment data import
+	//  Procure CUSM did not recorded treatment into their excel file. 
+	//	So this section has not been developped for CUSM data migration. 
+	//	Perhaps development will be required by another bank.
 	
 	return true;
 }

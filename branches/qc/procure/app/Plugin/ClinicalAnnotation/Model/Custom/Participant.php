@@ -3,7 +3,7 @@
 class ParticipantCustom extends Participant {
 	var $useTable = 'participants';
 	var $name = 'Participant';
-	var $bank_identification = 'PS1P0';
+	var $bank_identification = 'PS3P0';
 	
 	function beforeValidate($options) {
 		$result = parent::beforeValidate($options);	

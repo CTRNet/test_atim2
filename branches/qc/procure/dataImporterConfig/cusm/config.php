@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CUSM';
-	static $xls_file_path	= "C:/_My_Directory/Local_Server/ATiM/procure/data/cusm/Donnees_cusm_2012_v2.xls";
+	static $xls_file_path	= "C:/_Perso/Server/procure/data/cusm/Donnees_cusm_2012_v2(1)for ATiM Jan 15.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -64,6 +64,9 @@ class Config{
 	
 	static $summary_msg = array();	
 	
+	static $extra_prostatic_extension_unkw_value = array();
+	static $extensive_margin_unkw_value = array();
+	
 }
 
 //add you start queries here
@@ -79,13 +82,14 @@ class Config{
 Config::$parent_models[] = "Participant";
 
 //add your configs
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/participants.php';
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/consents.php'; 
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/questionnaires.php';
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/path_reports.php';
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/diagnostics.php'; 
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/treatments.php'; 
-Config::$config_files[] = 'C:/_My_Directory/Local_Server/ATiM/procure/dataImporterConfig/cusm/tablesMapping/collections.php'; 
+$table_mapping_path = 'C:/_Perso/Server/procure/dataImporterConfig/cusm/tablesMapping/';
+Config::$config_files[] = $table_mapping_path.'participants.php';
+Config::$config_files[] = $table_mapping_path.'consents.php'; 
+Config::$config_files[] = $table_mapping_path.'questionnaires.php';
+Config::$config_files[] = $table_mapping_path.'path_reports.php';
+Config::$config_files[] = $table_mapping_path.'diagnostics.php'; 
+Config::$config_files[] = $table_mapping_path.'treatments.php'; 
+Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
 //=========================================================================================================
 // START functions
@@ -213,16 +217,25 @@ function addonFunctionEnd(){
 	$query = "UPDATE versions SET permissions_regenerated = 0;";
 	mysqli_query(Config::$db_connection, $query) or die("versions update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
-// //	$query = "UPDATE aliquot_masters SET barcode=id;";
-// //	mysqli_query(Config::$db_connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-// //	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
-// //	mysqli_query(Config::$db_connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-
+	// ADD MISSING ERROR MESSAGE
+	
+	if(Config::$extensive_margin_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported'][-1] = 'See values : '. implode(', ', Config::$extensive_margin_unkw_value);
+	if(Config::$extra_prostatic_extension_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][-1] = 'See values : '. implode(', ', Config::$extra_prostatic_extension_unkw_value);
+	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported']);
+	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported']);
+	
+	// END Query
+	
+	$query = "UPDATE versions SET permissions_regenerated=0;";
+	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
 	if(!empty(Config::$participant_collections)) {
 		pr(Config::$participant_collections);
 		die('ERR 88383838292');
 	}
+	
+	//TODO Check sample used with inv config to be sure all will be consistent (check key = 'used'
+	pr(Config::$sample_aliquot_controls);
 	
 	$max_nbr_of_msg_displayed = (Config::$limit_warning_display)? '20' : '';
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
