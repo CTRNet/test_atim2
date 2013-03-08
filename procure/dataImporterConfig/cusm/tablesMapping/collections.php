@@ -62,7 +62,29 @@ function loadCollections() {
 		}
 	}
 	
-	// Load data from : V01 F10 à F15
+	// Load data from : V01 F10 à F15 (AND tissue storage)
+
+	if(!array_key_exists(utf8_decode('tissue storage'), $sheets_nbr)) die("ERROR: tissue storage!\n");
+	
+	$block_to_strage = array();
+	$headers = array();
+	$line_counter = 0;
+	foreach($tmp_xls_reader->sheets[$sheets_nbr[utf8_decode('tissue storage')]]['cells'] as $line => $new_line) {
+		$line_counter++;
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);		
+			$patient_nbr = $new_line_data['Code du Patient'];
+			if(!$patient_nbr) die('ERR Missing Code du Patient into tissue storage worksheet! See line '.$line_counter);
+			foreach(array('FRZ','PAR') as $prefix) {
+				for($slide_nbr=1;$slide_nbr<9;$slide_nbr++) {
+					$slide_key = $prefix.$slide_nbr;
+					if(isset($new_line_data[$slide_key]) && !empty($new_line_data[$slide_key])) $block_to_strage[$patient_nbr][$slide_key] = $new_line_data[$slide_key];
+				}
+			}
+		}
+	}
 	
 	if(!array_key_exists(utf8_decode('V01 F10 à F15'), $sheets_nbr)) die("ERROR: V01 F10 à F15!\n");
 	
@@ -115,14 +137,24 @@ function loadCollections() {
 							if(!in_array($procure_classification, array('C','NC','NC+C','ND',''))) {
 								Config::$summary_msg['Tissue V01']['@@WARNING@@']['Block classification'][] = "Block classification '$procure_classification' is not supported. See patient '$patient_identification' line: $line_counter";
 								$procure_classification = '';
-							}									
+							}	
+							$tmp_storage_data =  array();						
+							if(isset($block_to_strage[$patient_identification]) && isset($block_to_strage[$patient_identification][$prefix.$slide_nbr])) {
+								$tmp_storage_data = $block_to_strage[$patient_identification][$prefix.$slide_nbr];
+								unset($block_to_strage[$patient_identification][$prefix.$slide_nbr]);
+								if(empty($block_to_strage[$patient_identification])) unset($block_to_strage[$patient_identification]);
+							}		
+							$tmp_storage_master_data = getStorageData($tmp_storage_data, $prefix, $slide_nbr, 'Tissue V01', "Boîte d'entreposage", $line_counter);
 							$new_aliquots[] = array(
 								'***aliquot_type***' => 'block',
 								'AliquotMaster' => array(
 									'barcode' => "$patient_identification V01 -$prefix$slide_nbr",
 									'in_stock' => 'yes - available',
 									'storage_datetime' => "''",
-									'storage_datetime_accuracy'	=> "''"),
+									'storage_datetime_accuracy'	=> "''",
+									'storage_master_id' => $tmp_storage_master_data['storage_master_id'],
+									'storage_coord_x' => $tmp_storage_master_data['pos_x_into_storage'],
+									'storage_coord_y' => $tmp_storage_master_data['pos_y_into_storage']),
 								'AliquotDetail' => array(
 									'procure_dimensions' => $procure_dimensions, 
 									'time_spent_collection_to_freezing_end_mn' => $time_spent_collection_to_freezing_end_mn,
@@ -141,7 +173,7 @@ function loadCollections() {
 					Config::$summary_msg['Tissue V01']['@@MESSAGE@@']['No surgery date & No tissue for PROCURE'][] = "No tissue slide has been collected for PROCURE and no surgery date has been set for patient $patient_identification. No tissue collection will be created. See line: $line_counter";
 				}
 				unset(Config::$participant_collections[$patient_identification]);
-			}
+			}			
 		}
 	}
 	
@@ -163,7 +195,8 @@ function loadCollections() {
 					'suffix' => 'SRB',
 					'in_stock' => 'no',
 					'storage_datetime_field' => '',
-					'derivatives' => array(array('sample_type' => 'serum', 'suffix' => 'SER', 'max_nbr_of_tube' => 5, 'storage_datetime_field' => 'Heure de congélation des aliquots de sérum'))),
+					'derivatives' => array(
+						array('sample_type' => 'serum', 'suffix' => 'SER', 'max_nbr_of_tube' => 5, 'storage_datetime_field' => 'Heure de congélation des aliquots de sérum'))),
 				array(
 					'blood_type' => 'paxgene',
 					'nbr_of_tube_field' => 'Tube Paxgene',
@@ -333,7 +366,7 @@ function loadCollections() {
 					// Check no DNA or RNA data	
 					if(!empty($new_line_data['DNA extrait Volume (uL)'])) die("ERR8949393939932 See line: $line_counter");
 					if(!empty($new_line_data['Tube Paxgene deux heures à T pièce'])) die("ERR8949393939933 See line: $line_counter");
-					if(!empty($new_line_data['RNA extrait Volume (uL)'])) die("ERR8949393939931 See line: $line_counter");
+					if(!empty($new_line_data['RNA extrait Volume (uL)'])) die("ERR8949393939931 See line: $line_counter");				
 				} // End new excel line
 			}
 		}
@@ -374,7 +407,7 @@ function loadCollections() {
 						$collected_colume = $new_line_data['Volume total'];
 						if(strlen($collected_colume)) {
 							if(!preg_match('/^([0-9]+)([,\.][0-9]+){0,1}$/', $collected_colume)) die('ERR32232339 '.$line_counter.'/'.'URN'.$tube_id.' '.$collected_colume);
-							$tmp_urine_details = array('collected_volume_unit' => $collected_colume, 'collected_volume_unit' => 'ml');
+							$tmp_urine_details = array('collected_volume' => $collected_colume, 'collected_volume_unit' => 'ml');
 						}
 						
 						$tmp_derivative_aliquots = array();
@@ -460,7 +493,7 @@ function customArrayCombineAndUtf8Encode($headers, $data) {
 	return $line_data;
 }
 
-function getStorageData($storage, $sample_suffix, $visit, $warning_summary_msg_title, $field, $line_counter) {
+function getStorageData($storage, $sample_suffix, $visit_or_id, $warning_summary_msg_title, $field, $line_counter) {
 	$res = array('storage_master_id' => '', 'pos_x_into_storage' => '', 'pos_y_into_storage' => '');
 	if(!empty($storage)) {
 		switch($sample_suffix) {
@@ -481,21 +514,21 @@ function getStorageData($storage, $sample_suffix, $visit, $warning_summary_msg_t
 					return $res;
 				}
 				if(!preg_match('/^([1234])$/', $tmp_storages[3])) {
-					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong rack position'][] = "Column ".$tmp_storages[3]." for rack 16 does not exists. No postion into the rack will be assigned for the box [$sample_suffix $visit]. See value '$storage' for field '$field' at line $line_counter";
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong rack position'][] = "Column ".$tmp_storages[3]." for rack 16 does not exists. No postion into the rack will be assigned for the box [$sample_suffix $visit_or_id]. See value '$storage' for field '$field' at line $line_counter";
 					$tmp_storages[3] = '';
 				}
 				if(!preg_match('/^([1234])$/', $tmp_storages[4])) {
-					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong rack position'][] = "Row ".$tmp_storages[4]." for rack 16 does not exists. No postion into the rack will be assigned for the box [$sample_suffix $visit]. See value '$storage' for field '$field' at line $line_counter";
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong rack position'][] = "Row ".$tmp_storages[4]." for rack 16 does not exists. No postion into the rack will be assigned for the box [$sample_suffix $visit_or_id]. See value '$storage' for field '$field' at line $line_counter";
 					$tmp_storages[4] = '';
 				}	
 				if(!preg_match('/^([1-9]|[1-9][0-9]|100)$/', $tmp_storages[5]))	{
-					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong box100 position'][] = "Position ".$tmp_storages[5]." into box100 does not exists. No postion into the box [$sample_suffix $visit] will be assigned for the aliquot. See value '$storage' for field '$field' at line $line_counter";
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong box100 position'][] = "Position ".$tmp_storages[5]." into box100 does not exists. No postion into the box [$sample_suffix $visit_or_id] will be assigned for the aliquot. See value '$storage' for field '$field' at line $line_counter";
 					$tmp_storages[5] = '';
 				}	
 				$freezer_label = "freezer[".$tmp_storages[0]."](-)";
 				$shelf_label = "shelf[".$tmp_storages[1]."](-)";
 				$rack_label = "rack16[".$tmp_storages[2]."](-)";
-				$box_label = "box100[$sample_suffix $visit](".$tmp_storages[3]."-".$tmp_storages[4].")";
+				$box_label = "box100[$sample_suffix $visit_or_id](".$tmp_storages[3]."-".$tmp_storages[4].")";
 				if(!isset(Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'])) Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'] = (getNewtStorageId());
 				$res['storage_master_id'] = Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'];				
 				$res['pos_x_into_storage'] = $tmp_storages[5];
@@ -520,8 +553,54 @@ function getStorageData($storage, $sample_suffix, $visit, $warning_summary_msg_t
 				$res['pos_x_into_storage'] = $tmp_storages[3];
 				break;
 				
+			case 'FRZ':
+				// storage 1-2-4-1-114-13 freez 1 tablette 2 rack 4 column(1-) boite 114 a position 13
+				$tmp_storages = explode('-',$storage);
+				if(sizeof($tmp_storages) != 6) { 
+					Config::$summary_msg[$warning_summary_msg_title]['@@ERROR@@']['Wrong storage defintion'][] = "Too many values (separated by '-') in storage data. Aliquot won't be linked to a storage. See value '$storage' for field '$field' at line $line_counter";
+					return $res;
+				}
+				if(!preg_match('/^([1234])$/', $tmp_storages[3])) {
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong tissue rack position'][] = "Column ".$tmp_storages[3]." for tissue rack does not exists. No postion into the rack will be assigned for the box. See value '$storage' for field '$field' at line $line_counter";
+					$tmp_storages[3] = '';
+				}
+				if(!preg_match('/^([1-9]|[1][0-6])$/', $tmp_storages[5]))	{
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong tissue box position'][] = "Position ".$tmp_storages[5]." into tissue box does not exists. No postion will be assigned for the aliquot. See value '$storage' for field '$field' at line $line_counter";
+					$tmp_storages[5] = '';
+				}	
+				$freezer_label = "freezer[".$tmp_storages[0]."](-)";
+				$shelf_label = "shelf[".$tmp_storages[1]."](-)";
+				$rack_label = "rack4[".$tmp_storages[2]."](-)";
+				$box_label = "box16[".$tmp_storages[4]."](".$tmp_storages[3]."-)";
+				if(!isset(Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'])) Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'] = (getNewtStorageId());
+				$res['storage_master_id'] = Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'];				
+				$res['pos_x_into_storage'] = $tmp_storages[5];
+				break;
+				
+			case 'PAR':
+				// storage 6-5-2-470-1 box 6 drawer 5 row 2 patient 470 PAR1
+				$tmp_storages = explode('-',$storage);
+				if(sizeof($tmp_storages) != 5) {
+					Config::$summary_msg[$warning_summary_msg_title]['@@ERROR@@']['Wrong storage defintion'][] = "Too many values (separated by '-') in storage data. Aliquot won't be linked to a storage. See value '$storage' for field '$field' at line $line_counter";
+					return $res;
+				}
+				if(!preg_match('/^([1-8])$/', $tmp_storages[1])) {
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong drawer'][] = "Drawer ".$tmp_storages[1]." does not exists. Aliquot won't be linked to a storage. See value '$storage' for field '$field' at line $line_counter";
+					return $res;
+				}
+				if(!preg_match('/^([12])$/', $tmp_storages[2]))	{
+					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong drawer position'][] = "Position ".$tmp_storages[2]." into drawer does not exists. No postion will be assigned for the aliquot. See value '$storage' for field '$field' at line $line_counter";
+					$tmp_storages[3] = '';
+				}
+				$box_label = "boxPAR[".$tmp_storages[0]."](-)";
+				$drawer = "drawer2[".$tmp_storages[1]."]($tmp_storages[1]-)";
+				if(!isset(Config::$storages[$box_label][$drawer]['id'])) Config::$storages[$box_label][$drawer]['id'] = (getNewtStorageId());
+				$res['storage_master_id'] = Config::$storages[$box_label][$drawer]['id'];
+				$res['pos_x_into_storage'] = $tmp_storages[2];
+				break;
+				
 			default:
-				die("ERR 88493939 $storage, $sample_suffix, $visit");
+				die("ERR 88493939 $storage, $sample_suffix, $visit_or_id");
 		}
 	}
 	return $res;
@@ -544,7 +623,7 @@ function recordChildrenStorage($children_storages, $parent_selection_label = '',
 			$storage_master_id = getNewtStorageId();
 		}
 		
-		if(!preg_match('/^([a-z0-9]+)\[(.+)\]\((.*)-(.*)\)$/', $storage_label, $matches)) die('ERR 8839939393 '.$storage_label);
+		if(!preg_match('/^([a-zA-Z0-9\ ]+)\[(.+)\]\((.*)-(.*)\)$/', $storage_label, $matches)) die('ERR 8839939393 '.$storage_label);
 		if(!isset(Config::$storage_controls[$matches[1]])) die('ERR 8111119393 '.$storage_label);
 		
 		$storage_control = Config::$storage_controls[$matches[1]];
@@ -614,7 +693,7 @@ function recordCollection($collection_to_create) {
 			pr(Config::$sample_aliquot_controls);
 			die('ERR 773883393932');
 		}
-//TODO
+//TODO to delete after check
 Config::$sample_aliquot_controls[$specimen_type]['used'] = '1';	
 		$additional_data = array(
 			'sample_code' =>  getNextSampleCode(),
@@ -641,7 +720,7 @@ function recordDerivative($collection_id, $initial_specimen_sample_id, $initial_
 			pr(Config::$sample_aliquot_controls);
 			die('ERR 773883393931');
 		}		
-//TODO
+//TODO to delete after check
 Config::$sample_aliquot_controls[$derivative_type]['used'] = '1';				
 		$additional_data = array(
 				'sample_code' => getNextSampleCode(),
@@ -672,7 +751,7 @@ function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot
 			pr(Config::$sample_aliquot_controls);
 			die('ERR 7738833939344');
 		}
-//TODO
+//TODO to delete after check
 Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type]['used'] = '1';		
 		$additional_data = array(
 				'collection_id' => $collection_id,
