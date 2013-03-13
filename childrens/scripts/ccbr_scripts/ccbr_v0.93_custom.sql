@@ -58,7 +58,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`)
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`) VALUES ((SELECT id FROM structure_fields where field = 'sample_code' AND model = 'SampleMaster'), 'notEmpty');
 
 --  --------------------------------------------------------------------------
---	EVENTUM ISSUE: #2516 - TEST THIS INSTEAD
+--	EVENTUM ISSUE: #2516 - Update blood tube type to match bone marrow tubes
 --	--------------------------------------------------------------------------
 
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="gel CSA" AND language_alias="gel CSA");
@@ -70,5 +70,22 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('ccbr citrate', 'Citrate', '');
 
+--  --------------------------------------------------------------------------
+--	EVENTUM ISSUE: #2520 - Turn off PBMC derivative from blood
+--	--------------------------------------------------------------------------
 
-	
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(4);
+
+--  --------------------------------------------------------------------------
+--	EVENTUM ISSUE: #2521 - Enable Blood -> Blood Cells -> DNA
+--	--------------------------------------------------------------------------	
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(3);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(119, 16);
+
+--  --------------------------------------------------------------------------
+--	EVENTUM ISSUE: #2519 - Enable Blood Cells from Bone Marrow
+--	--------------------------------------------------------------------------	
+
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES ('120', '7', '1');
+
