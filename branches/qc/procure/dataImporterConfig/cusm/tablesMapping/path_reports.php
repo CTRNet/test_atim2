@@ -305,50 +305,58 @@ function postPathReportRead(Model $m){
 		if(strlen($margin_positive_focal) && strlen($margin_positive_extensive)) {
 			Config::$summary_msg['Patho Report']['@@ERROR@@']['Postive margin conflict (1)'][] = "Margin defined as both focal and not extensive. See line: ".$m->line;
 		} else if(strlen($margin_positive_focal)) {
-			if($margin_positive_focal != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Focal margin value'][] = "Focal margin value '$margin_positive_focal' different than 'x'. See line: ".$m->line;
 			$m->values["margins_focal_or_extensive"] = 'focal';
 		} else if(strlen($margin_positive_extensive)) {
 			$m->values["margins_focal_or_extensive"] = 'extensive';
-			$extensions = explode('+', (str_replace(',','+',$margin_positive_extensive)));
-			foreach($extensions as $new_site) {
-				switch(utf8_encode($new_site)) {
-					case 'ant gauche':
-						$m->values["margins_extensive_anterior_left"] = "1";
-						break;
-					case 'ant droit':
-						$m->values["margins_extensive_anterior_right"] = "1";
-						break;
-					case 'post gauche':
-						$m->values["margins_extensive_posterior_left"] = "1";
-						break;
-					case 'post droit':
-						$m->values["margins_extensive_posterior_right"] = "1";
-						break;
-					case 'apex ant gauche':
-						$m->values["margins_extensive_apical_anterior_left"] = "1";
-						break;
-					case 'apex ant droit':
-						$m->values["margins_extensive_apical_anterior_right"] = "1";
-						break;
-					case 'apex post gauche':
-						$m->values["margins_extensive_apical_posterior_left"] = "1";
-						break;
-					case 'apex post droit':
-						$m->values["margins_extensive_apical_posterior_right"] = "1";
-						break;
-					case 'col vésical':
-						$m->values["margins_extensive_bladder_neck"] = "1";
-						break;
-					case 'base':
-						$m->values["margins_extensive_base"] = "1";	
-						break;
-					default:
+		}
+		$extensions = explode(',', (str_replace(' ','',utf8_encode($margin_positive_extensive.','.$margin_positive_focal))));
+		foreach($extensions as $new_site) {
+			switch($new_site) {
+				case 'laapx':
+					$m->values["margins_extensive_apical_anterior_left"] = "1";
+					break;
+				case 'raapx':
+					$m->values["margins_extensive_apical_anterior_right"] = "1";
+					break;
+				case 'lpapx':
+					$m->values["margins_extensive_apical_posterior_left"] = "1";
+					break;
+				case 'rpapx':
+					$m->values["margins_extensive_apical_posterior_right"] = "1";
+					break;
+				case 'la':
+					$m->values["margins_extensive_anterior_left"] = "1";
+					break;
+				case 'ra':
+					$m->values["margins_extensive_anterior_right"] = "1";
+					break;			
+				case 'lp':
+					$m->values["margins_extensive_posterior_left"] = "1";
+					break;
+				case 'rp':
+					$m->values["margins_extensive_posterior_right"] = "1";
+					break;		
+				case 'bn':
+					$m->values["margins_extensive_bladder_neck"] = "1";
+					break;
+				case 'lsv':
+					$m->values["cusm_marg_ext_seminal_vesicles_left"] = "1";
+					break;
+				case 'rsv':
+					$m->values["cusm_marg_ext_seminal_vesicles_right"] = "1";
+					break;
+//				case '??????':
+//					$m->values["margins_extensive_base"] = "1";	
+//					break;
+				default:
+					if($new_site) {
 						Config::$extensive_margin_unkw_value[$new_site] = $new_site;
 						Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported'][] = "Positive extensive margin '$new_site' is not supported. See line: ".$m->line;
-				}
+					}
 			}
+
 		}
-		if(strlen($margin_negative.$margin_not_assessed)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Postive margin conflict (2)'][] = "Margin defined as both positive and negtaive or not be assessed. See line: ".$m->line;
+		if(strlen($margin_negative.$margin_not_assessed)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Postive margin conflict (2)'][] = "Margin defined as positive and either negative or not be assessed. See line: ".$m->line;
 	} else if(strlen($margin_negative)) {
 		if($margin_negative != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Negative margin value'][] = "Negative margin value '$margin_negative' different than 'x'. See line: ".$m->line;
 		if(strlen($margin_not_assessed)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Negative margin conflict'][] = "Margin defined as both negative and not be assessed. See line: ".$m->line;
@@ -375,12 +383,22 @@ function postPathReportRead(Model $m){
 	$m->values["extra_prostatic_extension_base"] = "";
 	$m->values["extra_prostatic_extension_bladder_neck"] = "";
 	$m->values["extra_prostatic_extension_seminal_vesicles"] = "";
+	$m->values["cusm_e_p_ext_seminal_vesicles_left"] = "";
+	$m->values["cusm_e_p_ext_seminal_vesicles_right"] = "";
+	$m->values["cusm_e_p_ext_base_left_posterior"] = "";
+	$m->values["cusm_e_p_ext_base_right_anterior"] = "";
+	$m->values["cusm_e_p_ext_base_right_posterior"] = "";
+	$m->values["cusm_e_p_ext_base_left_anterior"] = "";
+	$m->values["cusm_e_p_ext_apex_right_anterior"] = "";
+	$m->values["cusm_e_p_ext_apex_right_posterior"] = "";
+	$m->values["cusm_e_p_ext_apex_left_anterior"] = "";
+	$m->values["cusm_e_p_ext_apex_left_posterior"] = "";
 	$extra_prostatic_ext_absent = strtolower($m->values[utf8_decode("Extension extraprostatique::Absente")]);
 	$extra_prostatic_ext_focal = strtolower($m->values[utf8_decode("Extension extraprostatique::prostate::Focale")]);
 	$extra_prostatic_ext_established = strtolower($m->values[utf8_decode("Extension extraprostatique::prostate::Établie")]);
-	$extra_prostatic_ext_seminal_vesic_1 = strtolower($m->values[utf8_decode("Extension extraprostatique::vésicules séminales::Unilatérale")]);
-	$extra_prostatic_ext_seminal_vesic_2 = strtolower($m->values[utf8_decode("Extension extraprostatique::vésicules séminales::Bilatérale")]);
-	if(strlen($extra_prostatic_ext_focal.$extra_prostatic_ext_established.$extra_prostatic_ext_seminal_vesic_1.$extra_prostatic_ext_seminal_vesic_2)) {
+	$extra_prostatic_ext_seminal_vesic_unilateral = strtolower($m->values[utf8_decode("Extension extraprostatique::vésicules séminales::Unilatérale")]);
+	$extra_prostatic_ext_seminal_vesic_bilateral = strtolower($m->values[utf8_decode("Extension extraprostatique::vésicules séminales::Bilatérale")]);
+	if(strlen($extra_prostatic_ext_focal.$extra_prostatic_ext_established.$extra_prostatic_ext_seminal_vesic_unilateral.$extra_prostatic_ext_seminal_vesic_bilateral)) {
 		$m->values["extra_prostatic_extension"] = "present";
 		if(strlen($extra_prostatic_ext_absent)) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension conflict (1)'][] = "Extra prostatic extension defined as both absent and present. See line: ".$m->line;
 		if(strlen($extra_prostatic_ext_focal)) {
@@ -393,46 +411,71 @@ function postPathReportRead(Model $m){
 			$m->values["extra_prostatic_extension_precision"] = "established";
 		}
 		//Localisation
-		$localisations = explode('+', (str_replace(',','+',($extra_prostatic_ext_focal.'+'.$extra_prostatic_ext_established))));
+		$localisations = explode(',', (str_replace(' ','',utf8_encode($extra_prostatic_ext_focal.','.$extra_prostatic_ext_established))));
 		foreach($localisations as $new_site) {
 			switch(utf8_encode($new_site)) {
-				case '':
-				case 'x':
-					break;
-				case 'ant droit':
-					$m->values["extra_prostatic_extension_right_anterior"] = "1";
-					break;
-				case 'ant gauche':
+				case 'la':
 					$m->values["extra_prostatic_extension_left_anterior"] = "1";
 					break;
-				case 'post droit':
-					$m->values["extra_prostatic_extension_right_posterior"] = "1";
+				case 'ra':
+					$m->values["extra_prostatic_extension_right_anterior"] = "1";
 					break;
-				case 'post gauche':
+				case 'lp':
 					$m->values["extra_prostatic_extension_left_posterior"] = "1";
 					break;
-				case 'apex':
+				case 'rp':
+					$m->values["extra_prostatic_extension_right_posterior"] = "1";
+					break;
+				case 'lpapx':
+				case 'rpapx':
+				case 'laapx':
+				case 'raapx':
 					$m->values["extra_prostatic_extension_apex"] = "1";
+					if($new_site == 'raapx') $m->values["cusm_e_p_ext_apex_right_anterior"] = "1";
+					if($new_site == 'rpapx') $m->values["cusm_e_p_ext_apex_right_posterior"] = "1";
+					if($new_site == 'laapx') $m->values["cusm_e_p_ext_apex_left_anterior"] = "1";
+					if($new_site == 'lpapx') $m->values["cusm_e_p_ext_apex_left_posterior"] = "1";
 					break;
-				case 'base':
+				case 'lpbase':
+				case 'rabase':
+				case 'rpbase':
+				case 'labase':
 					$m->values["extra_prostatic_extension_base"] = "1";
+					if($new_site == 'lpbase') $m->values["cusm_e_p_ext_base_left_posterior"] = "1";
+					if($new_site == 'rabase') $m->values["cusm_e_p_ext_base_right_anterior"] = "1";
+					if($new_site == 'rpbase') $m->values["cusm_e_p_ext_base_right_posterior"] = "1";
+					if($new_site == 'labase') $m->values["cusm_e_p_ext_base_left_anterior"] = "1";
 					break;
-				case 'col vésical':
+				case 'bn':
 					$m->values["extra_prostatic_extension_bladder_neck"] = "1";
 					break;
+				case 'rsv':
+				case 'lsv':
+					$m->values["extra_prostatic_extension_seminal_vesicles"] = "1";
+					if($new_site == 'lsv') $m->values["cusm_e_p_ext_seminal_vesicles_left"] = "1";
+					if($new_site == 'rsv') $m->values["cusm_e_p_ext_seminal_vesicles_right"] = "1";
+					break;
 				default:
-					Config::$extra_prostatic_extension_unkw_value[$new_site] = $new_site;
-					Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][] = "Value '$new_site' is not supported. See line: ".$m->line;
+					if($new_site) {
+						Config::$extra_prostatic_extension_unkw_value[$new_site] = $new_site;
+						Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][] = "Value '$new_site' is not supported. See line: ".$m->line;
+					}
 			}
-		}
-		if(strlen($extra_prostatic_ext_seminal_vesic_1) && strlen($extra_prostatic_ext_seminal_vesic_2)) {
-			
-		} else if(strlen($extra_prostatic_ext_seminal_vesic_1)) {
+		}			
+		if(strlen($extra_prostatic_ext_seminal_vesic_unilateral) && strlen($extra_prostatic_ext_seminal_vesic_bilateral)) {
+			Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension conflict (3)'][] = "Extra prostatic extension to seminal vesicles defined as both unilateral and bilateral. See line: ".$m->line;
+		} else if(strlen($extra_prostatic_ext_seminal_vesic_unilateral)) {
 			$m->values["extra_prostatic_extension_seminal_vesicles"] = "unilateral";
-			if($extra_prostatic_ext_seminal_vesic_1 != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension (seminal vesicles) value'][] = "Extra prostatic extension (seminal vesicles) value '$extra_prostatic_ext_seminal_vesic_1' is not supported. See line: ".$m->line;
-		} else if(strlen($extra_prostatic_ext_seminal_vesic_2)) {
+			if($extra_prostatic_ext_seminal_vesic_unilateral != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension (seminal vesicles) value'][] = "Extra prostatic extension (seminal vesicles) value '$extra_prostatic_ext_seminal_vesic_unilateral' is not supported. See line: ".$m->line;
+			if($m->values["cusm_e_p_ext_seminal_vesicles_left"]  && $m->values["cusm_e_p_ext_seminal_vesicles_right"]) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension conflict (4)'][] = "Extra prostatic extension to seminal vesicles defined unilateral but both right and left vesicles have been defined n previous column. See line: ".$m->line;
+		} else if(strlen($extra_prostatic_ext_seminal_vesic_bilateral)) {
 			$m->values["extra_prostatic_extension_seminal_vesicles"] = "bilateral";
-			if($extra_prostatic_ext_seminal_vesic_2 != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension (seminal vesicles) value'][] = "Extra prostatic extension (seminal vesicles) value '$extra_prostatic_ext_seminal_vesic_2' is not supported. See line: ".$m->line;
+			if($extra_prostatic_ext_seminal_vesic_bilateral != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension (seminal vesicles) value'][] = "Extra prostatic extension (seminal vesicles) value '$extra_prostatic_ext_seminal_vesic_bilateral' is not supported. See line: ".$m->line;
+			if(!($m->values["cusm_e_p_ext_seminal_vesicles_left"]  && $m->values["cusm_e_p_ext_seminal_vesicles_right"])) {
+				$m->values["cusm_e_p_ext_seminal_vesicles_left"] = "1";
+				$m->values["cusm_e_p_ext_seminal_vesicles_right"] = "1";
+				Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension to left & right seminal vesicles'][] = "Extra prostatic extension to seminal vesicles defined bilateral but at least one side has not been checked. System will check both (right and left). See line: ".$m->line;
+			}
 		}
 	} else if(strlen($extra_prostatic_ext_absent)) {
 		if($extra_prostatic_ext_absent != 'x') Config::$summary_msg['Patho Report']['@@WARNING@@']['Extra prostatic extension absent value'][] = "Extra prostatic extension absent value '$extra_prostatic_ext_absent' different than 'x'. See line: ".$m->line;
