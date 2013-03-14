@@ -5,6 +5,28 @@ class ParticipantCustom extends Participant {
 	var $name = 'Participant';
 	var $bank_identification = 'PS3P0';
 	
+	function summary($variables=array()){
+		$return = false;
+	
+		if ( isset($variables['Participant.id']) ) {
+			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
+			
+			$MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+			$identifiers = $MiscIdentifier->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $result['Participant']['id'])));
+			$result[0] = array('RAMQ' => '', 'hospital_number' => '');
+			foreach($identifiers as $new_id) $result['0'][str_replace(' ', '_',$new_id['MiscIdentifierControl']['misc_identifier_name'])] = $new_id['MiscIdentifier']['identifier_value'];
+			
+			$return = array(
+					'menu'				=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'title'				=>	array( NULL, ($result['Participant']['participant_identifier']) ),
+					'structure alias' 	=> 'participants,procure_miscidentifiers_for_participant_summary',
+					'data'				=> $result
+			);
+		}
+	
+		return $return;
+	}
+	
 	function beforeValidate($options) {
 		$result = parent::beforeValidate($options);	
 		if(isset($this->data['Participant']['participant_identifier']) && !preg_match("/^($this->bank_identification)([0-9]+)$/", $this->data['Participant']['participant_identifier'], $matches)) {

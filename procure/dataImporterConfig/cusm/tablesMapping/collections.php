@@ -156,6 +156,8 @@ function loadCollections() {
 									'storage_coord_x' => $tmp_storage_master_data['pos_x_into_storage'],
 									'storage_coord_y' => $tmp_storage_master_data['pos_y_into_storage']),
 								'AliquotDetail' => array(
+									'block_type' => (($prefix == 'FRZ')? 'frozen' : 'paraffin'), 
+									'procure_freezing_type' => (($prefix == 'FRZ')? 'ISO+OCT' : ''),
 									'procure_dimensions' => $procure_dimensions, 
 									'time_spent_collection_to_freezing_end_mn' => $time_spent_collection_to_freezing_end_mn,
 									'procure_classification' => $procure_classification,
@@ -256,6 +258,9 @@ function loadCollections() {
 									}
 								}
 								if($specimen_tubes_and_derivatives_config['blood_type'] == 'serum' && $new_line_data['Carte Whatman WHT1'] == 'oui') $completed_fields[] = 'Carte Whatman WHT1';
+								if($specimen_tubes_and_derivatives_config['blood_type'] == 'paxgene') {								
+									foreach(array('RNA extrait Volume (uL)','Quantité totale de RNA (ug)','RNA1 (rangement)') as $rna_fields) if(strlen($new_line_data[$rna_fields])) $completed_fields[] = $rna_fields;
+								}	
 								if($completed_fields) Config::$summary_msg[$warning_summary_msg_title]['@@ERROR@@']['No specimen tubes but aliquot & derivative data'][] = "No '".$specimen_tubes_and_derivatives_config['blood_type']."' tube has been defined but following fields [".implode('|',$completed_fields)."] contains data. No '".$specimen_tubes_and_derivatives_config['blood_type']."', derivatives and aliquots will be created. See line $line_counter";	
 							} else {
 								if(!preg_match('/^([0-9]+)$/', $nbr_of_tubes_received)) die('ERR 992839329329 '.$line_counter);
@@ -295,7 +300,40 @@ function loadCollections() {
 											'AliquotDetail' => array()
 										);
 								}
-								// Create derivatives
+								if($specimen_tubes_and_derivatives_config['blood_type'] == 'paxgene' && strlen($new_line_data['RNA extrait Volume (uL)'].$new_line_data['Quantité totale de RNA (ug)'].$new_line_data['RNA1 (rangement)'])) {							
+									$tmp_storage_master_data = getStorageData($new_line_data['RNA1 (rangement)'], 'RNA', $visit, $warning_summary_msg_title, "RNA1 (rangement)", $line_counter);								
+									$initial_volume = $new_line_data['RNA extrait Volume (uL)'];
+									$initial_quantity = $new_line_data['Quantité totale de RNA (ug)'];
+									if($initial_volume && !preg_match('/^([0-9]+)([,\.][0-9]+){0,1}$/', $initial_volume)) die('ERR 67439929102.1 '.$blood_worksheet.'/'.$line_counter.'/RNA extrait Volume (uL) = ['.$initial_volume.']');
+									if($initial_quantity && !preg_match('/^([0-9]+)([,\.][0-9]+){0,1}$/', $initial_quantity)) die('ERR 67439929102.2 '.$blood_worksheet.'/'.$line_counter.'/Quantité totale de RNA (ug) = ['.$initial_quantity.']');
+									$missing_rna_data = array();
+									if(!$initial_volume) $missing_rna_data[] = 'volume';
+									if(!$initial_quantity) $missing_rna_data[] = 'quantity';
+									if(!$new_line_data['RNA1 (rangement)']) $missing_rna_data[] = 'storage';
+									if($missing_rna_data) Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['RNA missing information'][] = "RNA has been created but ".implode (', ', $missing_rna_data)." is(are) missing. See line $line_counter";										
+									$new_specimen_and_derivative_data['Derivatives'][] =array(
+										'***tmp_sample_type***' => 'rna',
+										'SampleMaster' => array(),
+										'SampleDetail' => array(),
+										'DerivativeDetail' => array(),
+										'Derivatives' => array(),
+										'Aliquots' => array(array(
+											'***aliquot_type***' => 'tube',
+											'AliquotMaster' => array(
+												'barcode' => "$patient_identification $visit -RNA1",
+												'in_stock' => 'yes - available',
+												'storage_datetime' => "''",
+												'storage_datetime_accuracy'	=> "''",
+												'storage_master_id' => $tmp_storage_master_data['storage_master_id'],
+												'storage_coord_x' => $tmp_storage_master_data['pos_x_into_storage'],
+												'storage_coord_y' => $tmp_storage_master_data['pos_y_into_storage'],
+												'initial_volume' => $initial_volume,
+												'current_volume' => $initial_volume),
+											'AliquotDetail' => array('procure_total_quantity_ug' => $initial_quantity))
+										)
+									);
+								}
+								// Create plasma pbmc serum derivatives 
 								foreach($specimen_tubes_and_derivatives_config['derivatives'] as $derivative_config) {
 									$tmp_derivative_aliquots = array();
 									$tmp_storage_date = getDateTimeAndAccuracy($new_line_data['Date de prélèvement de sang'], $new_line_data[$derivative_config['storage_datetime_field']], $warning_summary_msg_title, 'Date de prélèvement de sang', $derivative_config['storage_datetime_field'], $line_counter);
@@ -357,7 +395,7 @@ function loadCollections() {
 									'collection_datetime_accuracy' => $collection_datetime_accuracy),
 							'Specimens' => $new_collection_specimens
 						);
-					} else if(strlen(str_replace(' ', '', ($new_line_data['Tubes sérum'].$new_line_data['Tubes K2-EDTA'].$new_line_data['Tube Paxgene'].$new_line_data['Tube Paxgene'])))) {
+					} else if(strlen(str_replace(' ', '', ($new_line_data['Tubes sérum'].$new_line_data['Tubes K2-EDTA'].$new_line_data['Tube Paxgene'])))) {
 						// No date of collection but at least one speciemn blood tube is defined as received
 						Config::$summary_msg[$warning_summary_msg_title]['@@ERROR@@']['No Collection Date'][] = "No collection date has been defined but at least one specimen tube has been defined as received. No blood collection will be created for patient $patient_identification. See line $line_counter";
 					} else {
@@ -366,7 +404,6 @@ function loadCollections() {
 					// Check no DNA or RNA data	
 					if(!empty($new_line_data['DNA extrait Volume (uL)'])) die("ERR8949393939932 See line: $line_counter");
 					if(!empty($new_line_data['Tube Paxgene deux heures à T pièce'])) die("ERR8949393939933 See line: $line_counter");
-					if(!empty($new_line_data['RNA extrait Volume (uL)'])) die("ERR8949393939931 See line: $line_counter");				
 				} // End new excel line
 			}
 		}
@@ -418,7 +455,7 @@ function loadCollections() {
 								if(!strlen($initial_volume)) {
 									Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Storage with no volume'][] = "No tube volume has been defined but a storage '$storage' has been defined. Tube has been created. See '".'URN'.$tube_id."' at line $line_counter";
 								} else if(!preg_match('/^([0-9]+)([,\.][0-9]+){0,1}$/', $initial_volume)) {
-									die('ERR 783893939 '.$line_counter.'/'.'URN'.$tube_id.' '.$initial_volume);
+									die('ERR 783893939 '.$urine_worksheet.'/'.$line_counter.'/'.'URN'.$tube_id.' initial_volume=['.$initial_volume.']');
 								}
 								if(!strlen($storage)) Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['No storage defined'][] = "No tube storage has been defined but volume has been assigned to a tube. Tube has been created. See '".'URN'.$tube_id."' at line $line_counter";
 								$tmp_storage_master_data = getStorageData($storage, 'URN', $visit, $warning_summary_msg_title, 'URN'.$tube_id.' (rangement)', $line_counter);
@@ -507,6 +544,7 @@ function getStorageData($storage, $sample_suffix, $visit_or_id, $warning_summary
 			case 'SER':
 			case 'PLA':
 			case 'BFC':
+			case 'RNA':
 				// storage 2-3-4-1-1-53 freez 2 tablette 3 rack 4 position(1-1) boite VO2 plasma ou serum to 4-4 boite dont tube a position 53
 				$tmp_storages = explode('-',$storage);
 				if(sizeof($tmp_storages) != 6) { 
@@ -517,18 +555,18 @@ function getStorageData($storage, $sample_suffix, $visit_or_id, $warning_summary
 					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong rack position'][] = "Column ".$tmp_storages[3]." for rack 16 does not exists. No postion into the rack will be assigned for the box [$sample_suffix $visit_or_id]. See value '$storage' for field '$field' at line $line_counter";
 					$tmp_storages[3] = '';
 				}
-				if(!preg_match('/^([1234])$/', $tmp_storages[4])) {
+				/*if(!preg_match('/^([1234])$/', $tmp_storages[4])) {
 					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong rack position'][] = "Row ".$tmp_storages[4]." for rack 16 does not exists. No postion into the rack will be assigned for the box [$sample_suffix $visit_or_id]. See value '$storage' for field '$field' at line $line_counter";
 					$tmp_storages[4] = '';
-				}	
+				}*/
 				if(!preg_match('/^([1-9]|[1-9][0-9]|100)$/', $tmp_storages[5]))	{
 					Config::$summary_msg[$warning_summary_msg_title]['@@WARNING@@']['Wrong box100 position'][] = "Position ".$tmp_storages[5]." into box100 does not exists. No postion into the box [$sample_suffix $visit_or_id] will be assigned for the aliquot. See value '$storage' for field '$field' at line $line_counter";
 					$tmp_storages[5] = '';
 				}	
 				$freezer_label = "freezer[".$tmp_storages[0]."](-)";
 				$shelf_label = "shelf[".$tmp_storages[1]."](-)";
-				$rack_label = "rack16[".$tmp_storages[2]."](-)";
-				$box_label = "box100[$sample_suffix $visit_or_id](".$tmp_storages[3]."-".$tmp_storages[4].")";
+				$rack_label = "rack4[".$tmp_storages[2]."](-)";
+				$box_label = "box100[$sample_suffix $visit_or_id (".$tmp_storages[4]."](".$tmp_storages[3]."-)";
 				if(!isset(Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'])) Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'] = (getNewtStorageId());
 				$res['storage_master_id'] = Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'];				
 				$res['pos_x_into_storage'] = $tmp_storages[5];
@@ -693,8 +731,8 @@ function recordCollection($collection_to_create) {
 			pr(Config::$sample_aliquot_controls);
 			die('ERR 773883393932');
 		}
-//TODO to delete after check
-Config::$sample_aliquot_controls[$specimen_type]['used'] = '1';	
+		// To control sample and aliquot types imported
+		Config::$sample_aliquot_controls[$specimen_type]['used'] = '1';	
 		$additional_data = array(
 			'sample_code' =>  getNextSampleCode(),
 			'sample_control_id' => Config::$sample_aliquot_controls[$specimen_type]['sample_control_id'],
@@ -720,8 +758,8 @@ function recordDerivative($collection_id, $initial_specimen_sample_id, $initial_
 			pr(Config::$sample_aliquot_controls);
 			die('ERR 773883393931');
 		}		
-//TODO to delete after check
-Config::$sample_aliquot_controls[$derivative_type]['used'] = '1';				
+		// To control sample and aliquot types imported
+		Config::$sample_aliquot_controls[$derivative_type]['used'] = '1';				
 		$additional_data = array(
 				'sample_code' => getNextSampleCode(),
 				'sample_control_id' => Config::$sample_aliquot_controls[$derivative_type]['sample_control_id'],
@@ -751,8 +789,8 @@ function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot
 			pr(Config::$sample_aliquot_controls);
 			die('ERR 7738833939344');
 		}
-//TODO to delete after check
-Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type]['used'] = '1';		
+		// To control sample and aliquot types imported
+		Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type]['used'] = '1';		
 		$additional_data = array(
 				'collection_id' => $collection_id,
 				'aliquot_control_id' => Config::$sample_aliquot_controls[$sample_type]['aliquots'][$aliquot_type]['aliquot_control_id'],
