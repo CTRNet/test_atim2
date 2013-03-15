@@ -78,34 +78,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='cusm_marg_ext_seminal_vesicles_left'), '3', '90', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
 ((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='cusm_marg_ext_seminal_vesicles_right'), '3', '90', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'); 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-add lab people
-change rack 4 columns -> row and col
-Finish change on parafin block without frozen
-
-
-
-
-SELECT participant_identifier FROM participants WHERE id NOT IN (
-SELECT col.participant_id
-FROM collections col
-INNER JOIN aliquot_masters am ON am.collection_id = col.id
-INNER JOIN ad_blocks ad ON ad.aliquot_master_id = am.id
-WHERE block_type = 'paraffin');
-
-
-
-
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'laboratory staff');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('jin song chen', 'Jin Song Chen', 'Jin Song Chen', '1', @control_id, NOW(), NOW(), 1, 1),
+('lucie hamel', 'Lucie Hamel', 'Lucie Hamel', '1', @control_id, NOW(), NOW(), 1, 1),
+('eleonora scarlat', ' Eleonora Scarlata', ' Eleonora Scarlata', '1', @control_id, NOW(), NOW(), 1, 1);
