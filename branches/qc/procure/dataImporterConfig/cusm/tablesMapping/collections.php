@@ -98,7 +98,7 @@ function loadCollections() {
 			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
 			$patient_identification = $new_line_data['Identification'];
 			if($new_line_data['Date de la visite'] != 'V01') die('ERR 8949944 Tissue collection visit error '.$patient_identification);
-			if(!empty($new_line_data['Nombre de tranches prélevées pour PROCURE'])) {
+			if($new_line_data['Date de la chirurgie']) {	
 				if(!isset(Config::$participant_collections[$patient_identification]['V01'])) die('ERR 89922228344 Patient not defined in patho data '.$patient_identification);
 				$collection_datetime = "''";
 				$collection_datetime_accuracy = "''";
@@ -114,7 +114,7 @@ function loadCollections() {
 				$collection_datetime = $collection_datetime_from_previous_worksheet;
 				$procure_number_of_slides_collected_for_procure = $new_line_data['Nombre de tranches prélevées pour PROCURE'];
 				$time_spent_collection_to_freezing_end_mn = $new_line_data["Temps écoulé entre sortie de l'abdomen et congélation (min)"];
-				if(!preg_match('/^([0-9]+)$/', $procure_number_of_slides_collected_for_procure)) {
+				if($procure_number_of_slides_collected_for_procure && !preg_match('/^([0-9]+)$/', $procure_number_of_slides_collected_for_procure)) {
 					Config::$summary_msg['Tissue V01']['@@WARNING@@']['Nbr of collected slides'][] = "Number of slides collected for procure is not an integer. See patient '$patient_identification' line: $line_counter";
 					$procure_number_of_slides_collected_for_procure = '';
 				}
@@ -169,12 +169,16 @@ function loadCollections() {
 				}
 				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime]['Specimens'][0]['Aliquots'] = $new_aliquots;
 			} else {
-				if(strlen($new_line_data['Date de la chirurgie'])) {
-					Config::$summary_msg['Tissue V01']['@@MESSAGE@@']['Surgery date & No tissue for PROCURE'][] = "No tissue slide has been collected for PROCURE but a surgery date has been set for patient $patient_identification. No tissue collection will be created. See line: $line_counter";
-				} else {
-					Config::$summary_msg['Tissue V01']['@@MESSAGE@@']['No surgery date & No tissue for PROCURE'][] = "No tissue slide has been collected for PROCURE and no surgery date has been set for patient $patient_identification. No tissue collection will be created. See line: $line_counter";
+				Config::$summary_msg['Tissue V01']['@@MESSAGE@@']['No surgery date & No tissue for PROCURE'][] = "No tissue slide has been collected for PROCURE and no surgery date has been set for patient $patient_identification. No tissue collection will be created. See line: $line_counter";
+				foreach(array('FRZ','PAR') as $prefix) {
+					for($slide_nbr=1;$slide_nbr<9;$slide_nbr++) {
+						$procure_origin_of_slice = $new_line_data["$prefix$slide_nbr::".(($prefix == 'FRZ')? "Origine de la tranche" : "Origine du bloc")];
+						$procure_classification =  str_replace('NT','NC',$new_line_data["$prefix$slide_nbr::C, NC, ND"]);
+						$procure_dimensions = $new_line_data["$prefix$slide_nbr::".(($prefix == 'FRZ')? "Dimensions (cm x cm x cm)" : "Tranche congelée correspondante")];
+						if($procure_origin_of_slice.$procure_classification.$procure_dimensions) die('ERR8389393838383. See line: '.$line_counter);
+					}
 				}
-				unset(Config::$participant_collections[$patient_identification]);
+				if(isset(Config::$participant_collections[$patient_identification])) die('ERR83894444444. See line: '.$line_counter); // Means a surgery date exists into Tissue patho sheet
 			}			
 		}
 	}
@@ -516,6 +520,7 @@ function loadCollections() {
 	}
 	
 	recordChildrenStorage(Config::$storages);
+	cleanUpRack4();
 }
 
 function customArrayCombineAndUtf8Encode($headers, $data) {
@@ -566,7 +571,7 @@ function getStorageData($storage, $sample_suffix, $visit_or_id, $warning_summary
 				$freezer_label = "freezer[".$tmp_storages[0]."](-)";
 				$shelf_label = "shelf[".$tmp_storages[1]."](-)";
 				$rack_label = "rack4[".$tmp_storages[2]."](-)";
-				$box_label = "box100[$sample_suffix $visit_or_id (".$tmp_storages[4]."](".$tmp_storages[3]."-)";
+				$box_label = "box100[$sample_suffix $visit_or_id (".$tmp_storages[4].")](".$tmp_storages[3]."-)";
 				if(!isset(Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'])) Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'] = (getNewtStorageId());
 				$res['storage_master_id'] = Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'];				
 				$res['pos_x_into_storage'] = $tmp_storages[5];
@@ -703,6 +708,51 @@ function getNewtStorageId() {
 function getNextLeftRight() {
 	Config::$previous_left_right++;
 	return Config::$previous_left_right;
+}
+
+
+function cleanUpRack4() {
+	$query = "
+		SELECT 
+			rack_sm.id as rack_id, 
+			rack_sm.selection_label AS rack_selection_label, 
+			box_sm.id as box_id, 
+			box_sm.short_label AS box_short_label, 
+			box_sm.parent_storage_coord_x, box_sm.parent_storage_coord_y
+		FROM storage_controls rack_sc
+		INNER JOIN storage_masters rack_sm ON rack_sm.storage_control_id = rack_sc.id
+		INNER JOIN storage_masters box_sm ON box_sm.parent_id = rack_sm.id
+		WHERE rack_sc.storage_type = 'rack4'
+		ORDER BY rack_sm.id, box_sm.parent_storage_coord_x, box_sm.id";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$box_per_column_counters = array();
+	$racks_to_review = array();
+	while($row = $results->fetch_assoc()){
+		$rack_id = $row['rack_id'];
+		$rack_selection_label = $row['rack_selection_label'];
+		$box_id = $row['box_id'];
+		$box_box_short_label = $row['box_short_label'];
+		$column_id = $row['parent_storage_coord_x'];
+		$row_id = $row['parent_storage_coord_y'];
+		if($row_id) die('ERR 9383893938282332');
+		$box_per_column_counters[$rack_id][$column_id][] = $box_id;
+		$query = '';
+		if(sizeof($box_per_column_counters[$rack_id][$column_id]) > 4) {
+			//Config::$summary_msg['Rack Box Positions Update']['@@WARNING@@']['More than 4 boxes per row'][] = "The rack $rack_selection_label contains more than 4 boxes in column $column_id. Box $box_box_short_label has been un-positioned.";
+			//$query = "UPDATE storage_masters SET parent_storage_coord_x = null WHERE id = $box_id";
+			$racks_to_review[$rack_selection_label] = $rack_selection_label;
+			$query = "UPDATE storage_masters SET parent_storage_coord_y = 4 WHERE id = $box_id";
+		} else {
+			$row_id = sizeof($box_per_column_counters[$rack_id][$column_id]);
+			$query = "UPDATE storage_masters SET parent_storage_coord_y = $row_id WHERE id = $box_id";
+		}
+		mysqli_query(Config::$db_connection, $query) or die("Error on rack4 update. [$query] ");
+		if(Config::$insert_revs){
+			$query = str_replace('storage_masters', 'storage_masters_revs', $query);
+			mysqli_query(Config::$db_connection, $query) or die("Error on rack4 update. [$query] ");
+		}
+	}
+	if($racks_to_review) Config::$summary_msg['Rack Box Positions Update']['@@ERROR@@']['More than 4 boxes per row'][] = "The racks (".implode(' | ', $racks_to_review).") contain more than 4 boxes in at least one column. Please review.";
 }
 
 //=========================================================================================================

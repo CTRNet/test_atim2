@@ -129,4 +129,4 @@ UPDATE structure_formats SET `display_order`='102', `language_heading`='7) locat
 UPDATE structure_formats SET `display_order`='105' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_right_posterior' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='104' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='extra_prostatic_extension_left_posterior' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
+UPDATE storage_controls SET `coord_y_title` = 'row', `coord_y_type` = 'integer', `coord_y_size` = 4, reverse_y_numbering = 1 WHERE storage_type = 'rack4';

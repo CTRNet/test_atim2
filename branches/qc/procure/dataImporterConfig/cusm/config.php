@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CUSM';
-	static $xls_file_path	= "C:/_Perso/Server/procure/data/cusm/DonneesCusmForATiM_rev_20120314_1200.xls";
+	static $xls_file_path	= "C:/_Perso/Server/procure/data/cusm/DonneesCusmForATiM_rev_20120315_1203.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -67,6 +67,7 @@ class Config{
 	static $extra_prostatic_extension_unkw_value = array();
 	static $extensive_margin_unkw_value = array();
 	
+	static $participant_nominal_data = array();
 }
 
 //add you start queries here
@@ -105,7 +106,7 @@ function addonFunctionStart(){
 	Bank : $bank<br>
 	source_file = $file_path<br>
 	<br>=====================================================================
-	</FONT><br>";		
+	</FONT><br>";	
 	
 	// GET CONTROL DATA
 	
@@ -152,6 +153,10 @@ function addonFunctionStart(){
 	}
 	
 	loadCollections();
+	
+	//LOAD PARTICIPANT FIRST NAME, etc
+	
+	loadParticipantNominalData();
 	
 	return;
 }
@@ -213,6 +218,8 @@ function addonFunctionEnd(){
  		$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
  		mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
 	}
+	
+	// TO PERMISSIONS REGENERATE
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0;";
 	mysqli_query(Config::$db_connection, $query) or die("versions update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));

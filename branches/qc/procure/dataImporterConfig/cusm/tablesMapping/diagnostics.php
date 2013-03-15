@@ -31,12 +31,18 @@ $detail_fields = array(
 	"nbr_of_cores_with_cancer" => "#nbr_of_cores_with_cancer",     
 	"affected_core_localisation" => utf8_decode("Localisation des zones atteintes"),    
 	"affected_core_total_percentage" => utf8_decode("% total atteint"),
+		
 	"highest_gleason_score_observed" => utf8_decode("Gleason le plus élevé"),
 	"highest_gleason_score_percentage" => utf8_decode("% d'atteinte du Gleason le plus élevé"),       
 	
-	"histologic_grade_primary_pattern" => array(utf8_decode("Gleason::primaire") => array(""=>"","1"=>"1","2"=>"2","3"=>"3","4"=>"4","5"=>"5")),
-	"histologic_grade_secondary_pattern" => array(utf8_decode("Gleason::secondaire") => array(""=>"","1"=>"1","2"=>"2","3"=>"3","4"=>"4","5"=>"5")),
-	"histologic_grade_gleason_total" => array(utf8_decode("Gleason::Total") => array(""=>"","6"=>"6","7"=>"7","8"=>"8","9"=>"9","10"=>"10"))
+//	"histologic_grade_primary_pattern" => array(utf8_decode("Gleason::primaire") => array(""=>"","1"=>"1","2"=>"2","3"=>"3","4"=>"4","5"=>"5")),
+//	"histologic_grade_secondary_pattern" => array(utf8_decode("Gleason::secondaire") => array(""=>"","1"=>"1","2"=>"2","3"=>"3","4"=>"4","5"=>"5")),
+//	"histologic_grade_gleason_total" => array(utf8_decode("Gleason::Total") => array(""=>"","6"=>"6","7"=>"7","8"=>"8","9"=>"9","10"=>"10"))
+		
+	"histologic_grade_primary_pattern" => array(utf8_decode("Gleason primaire le plus eleve") => array(""=>"","1"=>"1","2"=>"2","3"=>"3","4"=>"4","5"=>"5")),
+	"histologic_grade_secondary_pattern" => array(utf8_decode("Gleason secondaire plus élevé") => array(""=>"","1"=>"1","2"=>"2","3"=>"3","4"=>"4","5"=>"5")),
+	"histologic_grade_gleason_total" => array(utf8_decode("Gleason le plus élevé") => array(""=>"","6"=>"6","7"=>"7","8"=>"8","9"=>"9","10"=>"10"))
+
 );
 
 //see the Model class definition for more info
