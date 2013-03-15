@@ -85,3 +85,27 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
+
+
+
+
+
+
+
+add lab people
+change rack 4 columns -> row and col
+Finish change on parafin block without frozen
+
+
+
+
+SELECT participant_identifier FROM participants WHERE id NOT IN (
+SELECT col.participant_id
+FROM collections col
+INNER JOIN aliquot_masters am ON am.collection_id = col.id
+INNER JOIN ad_blocks ad ON ad.aliquot_master_id = am.id
+WHERE block_type = 'paraffin');
+
+
+
+

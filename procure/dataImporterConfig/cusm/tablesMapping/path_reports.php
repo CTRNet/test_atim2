@@ -14,7 +14,7 @@ $master_fields = array(
 );
 
 $detail_fields = array(
-//	"path_number" => 
+	"path_number" => "#path_number",
 	"pathologist_name" => "Nom du pathologiste",
 		
 	// Dimensions	
@@ -194,11 +194,14 @@ function postPathReportRead(Model $m){
 	
 	$m->values['event_control_id'] = Config::$event_controls['procure pathology report']['event_control_id'];
 	$m->values['procure_form_identification'] = $m->values['Code du Patient']. ' V01 -PST1';
+	if(isset(Config::$participant_nominal_data[$m->values['Code du Patient']]) && Config::$participant_nominal_data[$m->values['Code du Patient']]['path_number']) {
+		$m->values['path_number'] = Config::$participant_nominal_data[$m->values['Code du Patient']]['path_number'];
+	}
 	
 	$m->values['Nom du pathologiste'] = utf8_encode($m->values['Nom du pathologiste']);
 	$m->values['Commentaires du pathologiste'] = utf8_encode($m->values['Commentaires du pathologiste']);
 	
-	$tmp_event_date = getDateAndAccuracy($m->values[utf8_decode("Date de relevé des données (jj/mm/aaaa)")], 'Patho Report', "Date de relevé des données (jj/mm/aaaa)", $m->line);
+	$tmp_event_date = getDateAndAccuracy($m->values[utf8_decode("report date")], 'Patho Report', "report date", $m->line);
 	if($tmp_event_date) {
 		$m->values['event_date'] = $tmp_event_date['date'];
 		$m->values['event_date_accuracy'] = $tmp_event_date['accuracy'];
