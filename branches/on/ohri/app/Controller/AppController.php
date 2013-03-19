@@ -53,7 +53,9 @@ class AppController extends Controller {
 		$log_activity_model->save($log_activity_data);
 		
 		// menu grabbed for HEADER
-		if(!$this->request->is('ajax')){
+		if($this->request->is('ajax')){
+			Configure::write ('debug', 0);
+		}else{
 			$atim_sub_menu_for_header = array();
 			$menu_model = AppModel::getInstance("", "Menu", true);
 			
