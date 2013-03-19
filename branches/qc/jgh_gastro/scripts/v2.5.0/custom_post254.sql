@@ -1,5 +1,5 @@
 
-UPDATE `versions` SET branch_build_number = '5156' WHERE version_number = '2.5.4';
+UPDATE `versions` SET branch_build_number = '5158' WHERE version_number = '2.5.4';
 
 UPDATE event_controls SET detail_tablename = 'qc_gastro_ed_cap_report_lungs' WHERE detail_tablename = 'qc_gastro_dxd_cap_lungs';
 UPDATE event_controls SET detail_tablename = 'qc_gastro_ed_cap_report_melanomas' WHERE detail_tablename = 'qc_gastro_dxd_cap_melanomas';
