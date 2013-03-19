@@ -190,7 +190,8 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			'd'	=> 3,
 			'h'	=> 4,
 			'i'	=> 5,
-			'c'	=> 6
+			'c'	=> 6,
+			'' => 7
 		);
 		
 		$add_to_tmp_array = function(array $in) use($a_s, &$tmp_array){
