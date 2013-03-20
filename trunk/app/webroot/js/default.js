@@ -823,14 +823,13 @@ function initActions(){
 		$(".root_menu_for_header, .main_menu_for_header").css("right", r_pos);
 		
 		//cells
-		$("div.floatingCell").css("left", scrollLeft);
-		$(".floatingBckGrnd").css("left", scrollLeft + contentMargin);
 		if(scrollLeft > contentMargin){
 			$(".floatingBckGrnd .left").css("opacity", 1);
 		}else{
 			$(".floatingBckGrnd .left").css("opacity", 0);
 		}
 		$(".floatingBckGrnd .right div").css("opacity", Math.min(15, scrollLeft) * 0.03);
+		$(".testScroll").css("left", scrollLeft);
 	}
 	
 	function initAutoHideVolume(){
@@ -1146,88 +1145,53 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
-		$("body").append('<div class="hidden" id="initFlyOverCells"></div>');
-		var tmpDiv = $("#initFlyOverCells");
-		$(scope).find("table").find("th.floatingCell:last").each(function(){
-			//floaintCells are headers. Make their column float for thead and tbody
-			$(this).children().appendTo(tmpDiv);
-			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
-			var lastDiv = $(this).find("div:last");
-			$(tmpDiv).children().appendTo(lastDiv);
-			$(this).prevAll().each(function(){
-				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>');
-			});
-			initFlyOverCellsLines($(this).parents("table:first"));
-		});
-		$("#tmpDiv").remove();
-	}
-	
-	function initFlyOverCellsLines(scope){
-		var table = null;
-		if(scope[0].nodeName == "TABLE"){
-			table = scope;
-			scope = $(scope).find("tbody");
-		}else{
-			table = $(scope).parents("table:first");
-		}
-		table.find("th.floatingCell:last").each(function(){
-			//from the last floatingCell index
-			var prevNodes = $(this).prevAll();
-			var length = prevNodes.length + 1;
-			if(prevNodes.length > 0 && $(prevNodes[prevNodes.length - 1]).attr("colspan") > 1){
-				length += $(prevNodes[prevNodes.length - 1]).attr("colspan") - 1;
+		$(scope).find("table.structure").each(function(){
+			if($(this).find("th.floatingCell:first").length == 0){
+				return true;
 			}
-			
-			$("body").append('<div id="initFlyOverCellsLines" class="hidden"></div>');
-			var tmpDiv = $("#initFlyOverCellsLines");
-			$(scope).find("td:nth-child(" + length + ")").each(function(){
-				//for every lines within the scope
-				
-				//apply the rule to self and previous cells
-				var targets = new Array();
-				targets = [this];
-				targets = targets.concat($.makeArray($(this).prevAll()));
-				for(i in targets){
-					$(targets[i]).children().appendTo(tmpDiv);
-					$(targets[i]).html('<div class="floatingCell">' + $(targets[i]).html() + '</div>').find(".floatingCell").css({ 
-						"padding-top" : $(targets[i]).css("padding-top"), 
-						"padding-right" : $(targets[i]).css("padding-right"),
-						"padding-bottom" : $(targets[i]).css("padding-bottom"),
-						"padding-left" : $(targets[i]).css("padding-left")
-					});
-					$(targets[i]).css("padding", 0);
-					var returnTo = $(targets[i]).find(".floatingCell");
-					$(tmpDiv).children().appendTo(returnTo);
+			$(this).find("th.floatingCell:last").each(function(){
+				var i = 1;
+				$(this).addClass("testScroll");
+				$(this).prevAll().each(function(){
+					++ i;
+					$(this).addClass("testScroll");
+				});
+				for(var j = 1; j <= i; ++ j){
+					$(this).parents("table").eq(0).find("td:nth-child(" + j + ")").addClass("testScroll");
 				}
 			});
+			firstTh = $(this).find("table").find("th.floatingCell:first").prev();
+			firstTh.append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
+			lastTh = $(this).find("th.floatingCell:last");
+			lastTd = $(this).find("tr:last td.testScroll:last");
+			computeSum = function(obj, cssArr){
+				total = 0;
+				for(var i in cssArr){
+					total += parseFloat(obj.css(cssArr[i]));
+				}
+				return total;
+			};
+			psSize = function(obj, direction){
+				arr = ["margin-%s", "padding-%s", "border-%s-width"];
+				newArr = [];
+				for(var i in arr){
+					newArr.push(arr[i].replace("%s", direction));
+				}
+				return computeSum(obj, newArr);
+			};
+			width = lastTh.width() + lastTh.position().left + psSize(lastTh, "right") - firstTh.position().left + psSize(firstTh, "left");
+			height = Math.ceil(lastTd.height() + lastTd.position().top + psSize(lastTd, "bottom") - firstTh.position().top + psSize(firstTh, "top"));
+			$(this).find(".floatingBckGrnd").css({
+				"top" : 0,
+				"left" : 0,
+				"width" : width + "px",
+				"height" : height + "px"
+			});
 		});
 
-		if($(table).find(".floatingBckGrnd").length){
-			resizeFloatingBckGrnd($(table).find(".floatingBckGrnd"));
-		}
+		$(".testScroll").css("position", "relative");
 	}
 	
-	function resizeFloatingBckGrnd(floatingBckGrnd){
-		if(floatingBckGrnd && floatingBckGrnd.length){
-			var table = floatingBckGrnd.parents("table:first");
-			if(floatingBckGrnd.data("initialized")){
-				floatingBckGrnd.css({
-					height: (table.find("thead").height() + table.find("tbody").height()) + "px"
-				});
-			}else{
-				floatingBckGrnd.css({
-					width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
-					height: (table.find("thead").height() + table.find("tbody").height()) + "px",
-					left: table.find("th.floatingCell:first").offset().left + "px"
-				}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
-			}
-		}
-		$(".floatingBckGrnd").each(function(){
-			$(this).css('top', $(this).parents('table:first').offset().top + "px");
-		});
-	}
-	
-
 	function globalInit(scope){
 		if(window.copyControl){
 			initCopyControl();
