@@ -1,8 +1,8 @@
 <?php
 	
 	$structure_links = array(
-		'top'	=>'/Order/shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
-		'bottom'=>array('cancel' => '/Order/shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'),
+		'top'	=>'/Order/Shipments/addToShipment/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+		'bottom'=>array('cancel' => '/Order/Shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/'),
 		'checklist' => array('OrderItem.id][' => '%%OrderItem.id%%')
 	);
 	

@@ -13,6 +13,8 @@ class GroupsController extends AdministrateAppController {
 	}
 	
 	function detail($group_id) {
+		$this->set( 'display_edit_button', (($group_id == 1)? false : true));
+		if($group_id == 1) AppController::addWarningMsg('the group administrators cannot be edited');
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id) );
 		$this->hook();
 		$this->request->data = $this->Group->find('first',array('conditions'=>array('Group.id'=>$group_id)));
@@ -38,9 +40,7 @@ class GroupsController extends AdministrateAppController {
 					$this->Aro->id = $aro_data['Aro']['id'];
 					$this->Aro->save($aro_data);
 					
-					$this->atimFlash('your data has been saved', '/Administrate/permissions/tree/'.$group_id);
-				} else {
-					$this->flash('The Group could not be saved. Please, try again.', '/Administrate/Groups/add/');
+					$this->atimFlash('your data has been saved', '/Administrate/Permissions/tree/'.$group_id);
 				}
 			}else{
 				$this->Group->validationErrors['name'][] = 'this name is already in use';
@@ -67,20 +67,23 @@ class GroupsController extends AdministrateAppController {
 		$this->hook();
 		
 		if (!empty($this->request->data)) {
-			$this->Group->id = $group_id;
-			$this->Group->data = array();
-			$this->Aco->pkey_safeguard = false;
-			$this->Aro->pkey_safeguard = false;
-			$this->Aco->check_writable_fields = false;
-			$this->Aro->check_writable_fields = false;
-			if ($this->Group->save($this->request->data)) {
-				$hook_link = $this->hook('postsave_process');
-				if( $hook_link ) { 
-					require($hook_link); 
-				}
-				$this->atimFlash('your data has been updated', '/Administrate/Groups/detail/'.$group_id);
+			$duplicated_name = $this->Group->find('count', array('conditions' => array("Group.id != $group_id", 'Group.name' => $this->request->data['Group']['name'])));
+			if($duplicated_name){
+				$this->Group->validationErrors['name'][] = 'this name is already in use';
 			} else {
-				$this->flash('The Group could not be saved. Please, try again.', '/Administrate/Groups/edit/'.$group_id);
+				$this->Group->id = $group_id;
+				$this->Group->data = array();
+				$this->Aco->pkey_safeguard = false;
+				$this->Aro->pkey_safeguard = false;
+				$this->Aco->check_writable_fields = false;
+				$this->Aro->check_writable_fields = false;
+				if ($this->Group->save($this->request->data)) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) { 
+						require($hook_link); 
+					}
+					$this->atimFlash('your data has been updated', '/Administrate/Groups/detail/'.$group_id);
+				}
 			}
 		}
 		if (empty($this->request->data)) {

@@ -33,7 +33,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		'AliquotMaster' => array('limit' =>pagination_amount , 'order' => 'AliquotMaster.barcode DESC'));
 
 	function search($search_id = 0) {
-		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/collections/search'));
+		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		
 		//lazy load
 		$this->SampleControl;

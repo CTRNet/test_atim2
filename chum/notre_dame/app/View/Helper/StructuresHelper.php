@@ -229,6 +229,10 @@ class StructuresHelper extends Helper {
 			foreach($data as &$data_line){
 				foreach($structure['Accuracy'] as $model => $fields){
 					foreach($fields as $date_field => $accuracy_field){
+						if(is_array($accuracy_field)) {
+							// Fixe issue #2517: Duplicated date field in same structure: accuracy issue
+							$accuracy_field = array_shift($accuracy_field);
+						}					
 						if(isset($data_line[$model][$accuracy_field])){
 							$accuracy = $data_line[$model][$accuracy_field];
 							if($accuracy != 'c'){
@@ -623,7 +627,11 @@ class StructuresHelper extends Helper {
 								$end_of_line = "";
 							}
 							$help = null;
-							echo '<td class="label">
+							$margin = '';
+							if($table_row_part['margin'] > 0){
+								$margin = 'style="padding-left: '.($table_row_part['margin'] * 10 + 10).'px"';
+							}
+							echo '<td class="label" '.$margin.'>
 										'.$table_row_part['label'].'
 								</td>
 							';
@@ -1821,7 +1829,8 @@ class StructuresHelper extends Helper {
 						"default"			=> $sfs['default'],
 						"flag_confidential"	=> $sfs['flag_confidential'],
 						"flag_float"		=> $sfs['flag_float'],
-						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"]
+						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"],
+						"margin"			=> $sfs['margin']
 					);
 					$settings = $my_default_settings_arr;
 					

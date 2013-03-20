@@ -49,12 +49,14 @@
 		$final_options = array('data' => $tx_extend_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);
 		$final_atim_structure = $extend_form_alias;
 		
+		$display_next_sub_form = true;
+		
 		$hook_link = $this->Structures->hook('tx_extend_list');
 		if( $hook_link ) {
 			require($hook_link);
 		}
 		
-		$this->Structures->build( $final_atim_structure, $final_options);
+		if($display_next_sub_form) $this->Structures->build( $final_atim_structure, $final_options);
 	}
 	
 	if(!$is_ajax){
@@ -83,12 +85,14 @@
 			$final_options['extras'] = '<div>'.__('You are not authorized to access that location.').'</div>';
 		}
 		
+		$display_next_sub_form = true;
+		
 		$hook_link = $this->Structures->hook('dx_list');
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
 		 
-		$this->Structures->build( $final_atim_structure,  $final_options);
+		if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
 		
 		
 		
@@ -98,12 +102,14 @@
 		$final_options['settings']['actions'] = true;
 		$final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$atim_menu_variables['Participant.id'].'/noActions:/filterModel:TreatmentMaster/filterId:'.$atim_menu_variables['TreatmentMaster.id']);
 		
+		$display_next_sub_form = true;
+		
 		$hook_link = $this->Structures->hook('ccl');
 		if( $hook_link ) {
 			require($hook_link);
 		}
 		
-		$this->Structures->build(array(), $final_options);
+		if($display_next_sub_form) $this->Structures->build(array(), $final_options);
 	}	
 	
 ?>

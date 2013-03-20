@@ -40,12 +40,12 @@ class PermissionsController extends AdministrateAppController {
 		list($type,$id) = split('::',$aro['Aro']['alias']);
 		switch($type){
 		case 'Group':
-			$this->redirect('/Administrate/permissions/tree/'.$id);
+			$this->redirect('/Administrate/Permissions/tree/'.$id);
 			break;
 		case 'User':
 			$parent = $this->Aro->find('first', array('conditions' => 'Aro.id = "'.$aro['Aro']['parent_id'].'"', 'order'=>'alias ASC', 'recursive' => -1));
 			list($type,$gid) = split('::',$parent['Aro']['alias']);
-			$this->redirect('/Administrate/permissions/tree/'.$gid.'/'.$id);
+			$this->redirect('/Administrate/Permissions/tree/'.$gid.'/'.$id);
 			break;
 		}
 		exit();
@@ -173,7 +173,7 @@ class PermissionsController extends AdministrateAppController {
 			$this->SystemVar->setVar('permission_timestamp', time());
 			Cache::clear(false, "menus");
 			//straight flash because we redirect to the edit screen
-			$this->flash('your data has been updated', '/Administrate/permissions/tree/'.$group_id.'/'.$user_id);
+			$this->flash('your data has been updated', '/Administrate/Permissions/tree/'.$group_id.'/'.$user_id);
 			return;
 		}
 		

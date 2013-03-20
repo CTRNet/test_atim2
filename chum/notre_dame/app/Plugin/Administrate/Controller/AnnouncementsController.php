@@ -7,7 +7,7 @@ class AnnouncementsController extends AdministrateAppController {
 	
 	function beforeFilter() {
 		parent::beforeFilter(); 
-		$this->set('atim_menu', $this->Menus->get('/Administrate/announcements/index/%%Group.id%%/%%User.id%%/'));
+		$this->set('atim_menu', $this->Menus->get('/Administrate/Announcements/index/%%Group.id%%/%%User.id%%/'));
 		
 	}
 	
@@ -25,7 +25,7 @@ class AnnouncementsController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/announcements/detail/'.$group_id.'/'.$user_id.'/'.$this->Announcement->id );
+				$this->atimFlash( 'your data has been updated','/Administrate/Announcements/detail/'.$group_id.'/'.$user_id.'/'.$this->Announcement->id );
 			}
 		}
 	}
@@ -54,7 +54,7 @@ class AnnouncementsController extends AdministrateAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/announcements/detail/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
+				$this->atimFlash( 'your data has been updated','/Administrate/Announcements/detail/'.$group_id.'/'.$user_id.'/'.$announcement_id.'/');
 			}
 		} else {
 			$this->request->data = $this->Announcement->find('first',array('conditions'=>array('Announcement.group_id'=>$group_id, 'Announcement.user_id'=>$user_id, 'Announcement.id'=>$announcement_id)));
@@ -65,9 +65,9 @@ class AnnouncementsController extends AdministrateAppController {
 		$this->hook();
 		
 		if( $this->Announcement->atimDelete( $announcement_id ) ) {
-			$this->atimFlash( 'your data has been deleted', '/Administrate/announcements/index/'.$group_id.'/'.$user_id.'/');
+			$this->atimFlash( 'your data has been deleted', '/Administrate/Announcements/index/'.$group_id.'/'.$user_id.'/');
 		} else {
-			$this->flash( 'error deleting data - contact administrator', '/Administrate/announcements/index/'.$group_id.'/'.$user_id.'/');
+			$this->flash( 'error deleting data - contact administrator', '/Administrate/Announcements/index/'.$group_id.'/'.$user_id.'/');
 		}
 	}
 

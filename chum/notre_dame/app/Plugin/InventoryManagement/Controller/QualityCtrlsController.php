@@ -271,11 +271,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->QualityCtrl->saveAll($qc_data_to_save, array('validate' => false));
 				$last_qc_id = $this->QualityCtrl->getLastInsertId();
 				
-				//using updateAll means that the revs won't have the qc_code until the next save
-				$this->QualityCtrl->updateAll(
-					array('qc_code' => 'CONCAT("QC - ", QualityCtrl.id)'),
-					array('qc_code IS NULL')
-				);
+				$this->QualityCtrl->generateQcCode();
+				
 				if(!empty($aliquot_data_to_save)){
 					$this->AliquotMaster->pkey_safeguard = false;
 					$this->AliquotMaster->saveAll($aliquot_data_to_save, array('validate' => false));
@@ -329,8 +326,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$this->request->data = $display_data;
 			}
 		}else{
-			//probably a direct access, not supposed to do that
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
+			return;
 		}
 	}
 	

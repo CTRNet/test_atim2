@@ -33,7 +33,7 @@ class MenusController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/menus/detail/'.$menu_id );
+				$this->atimFlash( 'your data has been updated','/Administrate/Menus/detail/'.$menu_id );
 			}
 		} else {
 			$this->request->data = $this->Menu->find('first',array('conditions'=>array('Menu.id'=>$menu_id)));
