@@ -1,4 +1,4 @@
-UPDATE `versions` SET branch_build_number = '5161' WHERE version_number = '2.5.4';
+UPDATE `versions` SET branch_build_number = '5162' WHERE version_number = '2.5.4';
 
 UPDATE templates SET created_by = 14 WHERE name IN ('prostate-blood','prostate-urine','prostate-tissu');
 
