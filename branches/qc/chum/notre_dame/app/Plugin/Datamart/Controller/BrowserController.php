@@ -220,7 +220,7 @@ class BrowserController extends DatamartAppController {
 				$this->Browser->checklist_sub_models_id_filter
 			);
 			foreach($dropdown_options as $key => $option){
-				if(isset($option['value']) && strpos($option['value'], 'javascript:setCsvPopup(\'Datamart/csv/csv') === 0){
+				if(isset($option['value']) && strpos($option['value'], 'javascript:setCsvPopup(\'Datamart/Csv/csv') === 0){
 					unset($dropdown_options[$key]);
 				}
 			}
@@ -324,6 +324,7 @@ class BrowserController extends DatamartAppController {
 							'default' => '',
 							'flag_confidential' => '',
 							'flag_float' => '',
+							'margin' => '',
 							'StructureValidation' => array()
 						);
 						$current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];

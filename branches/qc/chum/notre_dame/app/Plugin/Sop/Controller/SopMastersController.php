@@ -20,7 +20,8 @@ class SopMastersController extends SopAppController {
 		$this_data = $this->SopControl->find('first',array('conditions'=>array('SopControl.id'=>$sop_control_id, 'SopControl.flag_active' => '1')));
 		if(empty($this_data)) { 
 			$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
-		}		
+		}	
+		$this->set('sop_control_data', $this_data['SopControl']);	
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set($this_data['SopControl']['form_alias']);

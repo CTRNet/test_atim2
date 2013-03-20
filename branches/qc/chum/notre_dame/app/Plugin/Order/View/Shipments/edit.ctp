@@ -1,12 +1,12 @@
 <?php 
 	
 $structure_links = array(
-	'top'=>'/Order/shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+	'top'=>'/Order/Shipments/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 	'bottom'=>array(
-		'cancel' => '/Order/shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
+		'cancel' => '/Order/Shipments/detail/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['Shipment.id'].'/',
 		'manage recipients' => array(
-			'select recipient' => array('icon' => 'detail', 'link' => AppController::checkLinkPermission('/Order/shipments/manageContact') ? 'javascript:manageContacts();' : '/notallowed/'),
-			'save recipient' => array('icon' => 'disk', 'link' => AppController::checkLinkPermission('/Order/shipments/saveContact/') ? 'javascript:saveContact();' : '/notallowed/')
+			'select recipient' => array('icon' => 'detail', 'link' => AppController::checkLinkPermission('/Order/Shipments/manageContact') ? 'javascript:manageContacts();' : '/notallowed/'),
+			'save recipient' => array('icon' => 'disk', 'link' => AppController::checkLinkPermission('/Order/Shipments/saveContact/') ? 'javascript:saveContact();' : '/notallowed/')
 		)	
 	)
 );

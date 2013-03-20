@@ -13,11 +13,11 @@
 		'tree'=>array(
 			'Collection' => array(
 				'detail' => array(
-					'link' => '/InventoryManagement/collections/detail/%%Collection.id%%/1',
+					'link' => '/InventoryManagement/Collections/detail/%%Collection.id%%/1',
 					'icon' => 'collection'
 				),
 				'access to all data' => array(
-					'link'=> '/InventoryManagement/collections/detail/%%Collection.id%%/',
+					'link'=> '/InventoryManagement/Collections/detail/%%Collection.id%%/',
 					'icon' => 'detail'
 				)
 			)

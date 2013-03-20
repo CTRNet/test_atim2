@@ -1,8 +1,8 @@
 <?php 
 	$structure_links = array(
-		'index'=>array('detail'=>'/Administrate/banks/detail/%%Bank.id%%'),
+		'index'=>array('detail'=>'/Administrate/Banks/detail/%%Bank.id%%'),
 		'bottom'=>array(
-			'add'=>'/Administrate/banks/add'
+			'add'=>'/Administrate/Banks/add'
 		)
 	);
 	

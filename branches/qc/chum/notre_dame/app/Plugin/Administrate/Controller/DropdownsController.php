@@ -132,7 +132,7 @@ class DropdownsController extends AdministrateAppController {
 						 $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 					}
 				}
-				$this->atimFlash('your data has been updated', '/Administrate/dropdowns/view/'.$control_id);
+				$this->atimFlash('your data has been updated', '/Administrate/Dropdowns/view/'.$control_id);
 			
 			} else {
 				$this->StructurePermissibleValuesCustomControl->validationErrors = array();
@@ -200,7 +200,7 @@ class DropdownsController extends AdministrateAppController {
 				if(!$this->StructurePermissibleValuesCustom->save($this->request->data)){
 					$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				}
-				$this->atimFlash('your data has been updated', '/Administrate/dropdowns/view/'.$control_id);
+				$this->atimFlash('your data has been updated', '/Administrate/Dropdowns/view/'.$control_id);
 			}
 		}
 	}
@@ -252,7 +252,7 @@ class DropdownsController extends AdministrateAppController {
 				$this->StructurePermissibleValuesCustom->save($data_unit);
 			}
 			$this->StructurePermissibleValuesCustom->getDataSource()->commit();
-			$this->atimFlash('your data has been updated', '/Administrate/dropdowns/view/'.$control_id);
+			$this->atimFlash('your data has been updated', '/Administrate/Dropdowns/view/'.$control_id);
 		}
 	}
 }

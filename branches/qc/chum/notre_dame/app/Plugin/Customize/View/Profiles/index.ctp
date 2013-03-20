@@ -1,7 +1,7 @@
 <?php 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/Customize/profiles/edit'
+			'edit'=>'/Customize/Profiles/edit'
 		)
 	);
 	
