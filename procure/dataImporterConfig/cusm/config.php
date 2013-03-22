@@ -20,7 +20,7 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CUSM';
-	static $xls_file_path	= "C:/_Perso/Server/procure/data/cusm/DonneesCusmForATiM_rev_20120315_1203.xls";
+	static $xls_file_path	= "C:/_Perso/Server/procure/data/cusm/DonneesCusmForATiM_rev_20120322_final.xls";
 	
 	static $xls_header_rows = 1;
 	
