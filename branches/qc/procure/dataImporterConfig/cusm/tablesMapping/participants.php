@@ -6,9 +6,9 @@ $child = array('Consent','Questionnaire','PathReport','Diagnostic','Treatment');
 $fields = array(	
 	"participant_identifier" => $pkey,
 	"first_name" => "#first_name",
-	"last_name" => "#last_name",
+	"last_name" => "#last_name"/*,
 	"date_of_birth" => "#date_of_birth",
-	"date_of_birth_accuracy" => "#date_of_birth_accuracy",
+	"date_of_birth_accuracy" => "#date_of_birth_accuracy",*/
 );
 
 //see the Model class definition for more info
@@ -34,8 +34,8 @@ function preParticipantWrite(Model $m){
 	if(isset(Config::$participant_nominal_data[$participant_identification])) {
 		$m->values['first_name'] = Config::$participant_nominal_data[$participant_identification]['first_name'];
 		$m->values['last_name'] = Config::$participant_nominal_data[$participant_identification]['last_name'];
-		$m->values['date_of_birth'] = Config::$participant_nominal_data[$participant_identification]['date_of_birth'];
-		$m->values['date_of_birth_accuracy'] = Config::$participant_nominal_data[$participant_identification]['date_of_birth_accuracy'];
+		//$m->values['date_of_birth'] = Config::$participant_nominal_data[$participant_identification]['date_of_birth'];
+		//$m->values['date_of_birth_accuracy'] = Config::$participant_nominal_data[$participant_identification]['date_of_birth_accuracy'];
 	}
 	return true;
 }
