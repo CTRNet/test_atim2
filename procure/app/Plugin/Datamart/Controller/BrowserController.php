@@ -324,6 +324,7 @@ class BrowserController extends DatamartAppController {
 							'default' => '',
 							'flag_confidential' => '',
 							'flag_float' => '',
+							'margin' => '',
 							'StructureValidation' => array()
 						);
 						$current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
