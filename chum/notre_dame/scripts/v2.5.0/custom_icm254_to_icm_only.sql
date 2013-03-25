@@ -1,7 +1,7 @@
 -- to run after custom254.sql
--- use to delete all data not flagged as procure
+-- use to delete all procure data
 
-SELECT 'SCRIPT TO DELETE ALL RECORDS NOT LINKED TO PROCURE' as message;
+SELECT 'SCRIPT TO DELETE ALL PROCURE RECORDS' as message;
 
 SET @procure_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'PROCURE');
 
@@ -13,16 +13,16 @@ SET @procure_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'P
 
 -- ALIQUOT CLEAN UP ----------------------------------------------------------
 
-DELETE FROM aliquot_internal_uses WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM aliquot_internal_uses WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM aliquot_internal_uses_revs WHERE id NOT IN (SELECT id FROM aliquot_internal_uses);
-DELETE FROM source_aliquots WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM source_aliquots WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM source_aliquots_revs WHERE id NOT IN (SELECT id FROM source_aliquots);
-DELETE FROM quality_ctrls WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM quality_ctrls WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM quality_ctrls_revs WHERE id NOT IN (SELECT id FROM quality_ctrls);
-DELETE FROM order_items WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM order_items WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM order_items_revs WHERE id NOT IN (SELECT id FROM order_items);
 SELECT IF(COUNT(*) = 0, 'No aliquot review errors', 'Please check table aliquot_review_masters') AS msg FROM aliquot_review_masters;
--- DELETE FROM aliquot_review_masters WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+-- DELETE FROM aliquot_review_masters WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
 
 SELECT IF(COUNT(*) = 0, "No error on realiquoting table", "Error on realiquoting table") AS msg 
 FROM realiquotings AS Realiquoting
@@ -31,32 +31,32 @@ JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoti
 WHERE (AliquotMaster.id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id) OR AliquotMasterChild.id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id))
 AND AliquotMaster.study_summary_id != AliquotMasterChild.study_summary_id;
 
-DELETE FROM realiquotings WHERE parent_aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
-DELETE FROM realiquotings WHERE child_aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM realiquotings WHERE parent_aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM realiquotings WHERE child_aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM realiquotings_revs WHERE id NOT IN (SELECT id FROM realiquotings);
 
-DELETE FROM ad_tubes WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_tubes_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_tubes);
-DELETE FROM ad_blocks WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_blocks WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_blocks_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_blocks);
-DELETE FROM ad_tissue_slides WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_tissue_slides WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_tissue_slides_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_tissue_slides);
-DELETE FROM ad_whatman_papers WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_whatman_papers WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_whatman_papers_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_whatman_papers);
-DELETE FROM ad_cell_slides WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_cell_slides WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_cell_slides_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_cell_slides);
-DELETE FROM ad_tissue_cores WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_tissue_cores WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_tissue_cores_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_tissue_cores);
-DELETE FROM ad_gel_matrices WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_gel_matrices WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_gel_matrices_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_gel_matrices);
-DELETE FROM ad_cell_cores WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
+DELETE FROM ad_cell_cores WHERE aliquot_master_id IN (SELECT id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
    DELETE FROM ad_cell_cores_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_cell_cores);
 
 SET @aliquot_total = (SELECT count(*) FROM aliquot_masters WHERE deleted != 1);
 SET @aliquot_deleted = (SELECT count(*) FROM aliquot_masters WHERE deleted != 1 AND study_summary_id = @procure_study_summary_id);
 SELECT CONCAT(@aliquot_deleted, '/' , @aliquot_total, ' have been deleted') AS aliquot_deletion_message;
 
-DELETE FROM aliquot_masters WHERE study_summary_id != @procure_study_summary_id OR study_summary_id IS NULL;
+DELETE FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id;
    DELETE FROM aliquot_masters_revs WHERE id NOT IN (SELECT id FROM aliquot_masters);
 
 -- SAMPLE CLEAN UP -----------------------------------------------------------
@@ -178,10 +178,10 @@ SELECT IF(COUNT(*) = 0, 'No treatment errors', 'Please check treatments') AS msg
 
 -- EVENT ---------------------------------------------------------------------
 
-DELETE FROM qc_nd_ed_all_procure_lifestyles WHERE event_master_id NOT IN (SELECT EventMaster.id FROM event_masters EventMaster INNER JOIN collections Collection ON Collection.participant_id = EventMaster.participant_id);
-   DELETE FROM qc_nd_ed_all_procure_lifestyles_revs WHERE event_master_id NOT IN (SELECT event_master_id FROM qc_nd_ed_all_procure_lifestyles);
-DELETE FROM event_masters WHERE participant_id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
-   DELETE FROM event_masters_revs WHERE id NOT IN (SELECT id FROM event_masters);
+DELETE FROM qc_nd_ed_all_procure_lifestyles;;
+   DELETE FROM qc_nd_ed_all_procure_lifestyles_revs;
+DELETE FROM event_masters;
+   DELETE FROM event_masters_revs;
 
 -- MISC IDENTFIERS -----------------------------------------------------------
 
@@ -239,6 +239,7 @@ CREATE TABLE studies_for_deletion(
 );
 INSERT INTO studies_for_deletion (study_summary_id) (SELECT DISTINCT study_summary_id FROM aliquot_masters);
 INSERT INTO studies_for_deletion (study_summary_id) (SELECT DISTINCT study_summary_id FROM order_lines) ;
+INSERT INTO studies_for_deletion (study_summary_id) (SELECT DISTINCT default_study_summary_id FROM orders) ;
 INSERT INTO studies_for_deletion (study_summary_id) (SELECT DISTINCT study_summary_id FROM aliquot_internal_uses);
 DELETE FROM study_summaries WHERE id NOT IN (SELECT DISTINCT study_summary_id FROM studies_for_deletion);
    DELETE FROM study_summaries_revs WHERE id NOT IN (SELECT id FROM study_summaries);
@@ -333,8 +334,3 @@ DROP TABLE storage_masters_for_deletion;
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-
-
-
-
-
