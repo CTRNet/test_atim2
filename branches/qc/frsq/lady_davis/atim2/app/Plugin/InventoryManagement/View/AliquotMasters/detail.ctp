@@ -30,13 +30,13 @@
 	
 	if($is_from_tree_view_or_layout == 1) {
 		// Tree view
-		$settings['header'] = __('aliquot', null);
+		$settings['header'] = __('aliquot', null) . ': '.__('details');
 		
 	} else if($is_from_tree_view_or_layout == 2) {
 		// Storage Layout
 		$structure_links = array();
-		$structure_links['bottom']['access to all data'] = '/InventoryManagement/AliquotMasters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
-
+		$structure_links['bottom']['access to aliquot'] = '/InventoryManagement/AliquotMasters/detail/' . $atim_menu_variables['Collection.id'] . '/' . $atim_menu_variables['SampleMaster.id'] . '/' . $atim_menu_variables['AliquotMaster.id'];
+		if($aliquot_master_data['Collection']['participant_id']) $structure_links['bottom']['access to participant'] = '/ClinicalAnnotation/Participants/profile/' . $aliquot_master_data['Collection']['participant_id'];
 		$settings['header'] = __('aliquot', null);
 		
 	}

@@ -977,36 +977,34 @@ function initActions(){
 			$(".ajax_search_results").parent().hide();
 			if(history.replaceState){
 				//doesn't work for IE < 10
-				$("input.submit").click(function(){
-					var submit_button = $(this);
+				//TODO: prevent over clicking the submit btn
+				beforeSubmitFct = function(){
 					$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 					$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 					$(".ajax_search_results").parent().show();
 					flyOverComponents();
-					successFct = function(data){
-						try{
-							data = $.parseJSON(data);
-							$(".ajax_search_results").html(data.page);
-							history.replaceState(data.page, "foo");//storing result in history
-							//update the form action
-							$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
-							handleSearchResultLinks();
-							//stop submit button animation
-							$(submit_button).siblings("a").find("span").removeClass('fetching');
-							flyOverComponents();
-						}catch(exception){
-							//simply submit the form then
-							$("form").submit();
-						}
-					};
-					$.ajax({
-						type	: "POST",
-						url		: $("form").attr("action"),
-						data	: $("form").serialize(),
-						success	: successFct,
-						error	: function(){ $("form").submit(); }
-					});
-					return false;
+				};
+				successFct = function(data){
+					try{
+						data = $.parseJSON(data);
+						$(".ajax_search_results").html(data.page);
+						history.replaceState(data.page, "foo");//storing result in history
+						//update the form action
+						$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
+						handleSearchResultLinks();
+						//stop submit button animation
+						$("input.submit").siblings("a").find("span").removeClass('fetching');
+						flyOverComponents();
+					}catch(exception){
+						$(".ajax_search_results").html(data)
+						$("input.submit").siblings("a").find("span").removeClass('fetching');
+					}
+				};
+				$("form").ajaxForm({
+					url		: $("form").attr("action"),
+					success	: successFct,
+					beforeSubmit: beforeSubmitFct,
+					error : function(){console.log("ERROR");}
 				});
 			}
 		}
