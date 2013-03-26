@@ -56,7 +56,7 @@ class DatamartAppModel extends AppModel {
 				);
 			}
 		}
-		$csv_action = 'Datamart/csv/csv/%d/plugin:'.$plugin_name.'/model:'.$model_name.'/modelPkey:'.$model_pkey.'/structure:'.$structure_name.'/';
+		$csv_action = 'Datamart/Csv/csv/%d/plugin:'.$plugin_name.'/model:'.$model_name.'/modelPkey:'.$model_pkey.'/structure:'.$structure_name.'/';
 		if(strlen($data_model)){
 			$csv_action .= 'dataModel:'.$data_model.'/';
 			if(strlen($data_pkey)){
