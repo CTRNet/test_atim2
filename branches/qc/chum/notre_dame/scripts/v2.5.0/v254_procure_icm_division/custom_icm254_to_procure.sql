@@ -53,7 +53,7 @@ DELETE FROM ad_cell_cores WHERE aliquot_master_id NOT IN (SELECT id FROM aliquot
    DELETE FROM ad_cell_cores_revs WHERE aliquot_master_id NOT IN (SELECT aliquot_master_id FROM ad_cell_cores);
 
 SET @aliquot_total = (SELECT count(*) FROM aliquot_masters WHERE deleted != 1);
-SET @aliquot_deleted = (SELECT count(*) FROM aliquot_masters WHERE deleted != 1 AND study_summary_id = @procure_study_summary_id);
+SET @aliquot_deleted = (SELECT count(*) FROM aliquot_masters WHERE deleted != 1 AND (study_summary_id != @procure_study_summary_id OR study_summary_id IS NULL));
 SELECT CONCAT(@aliquot_deleted, '/' , @aliquot_total, ' have been deleted') AS aliquot_deletion_message;
 
 DELETE FROM aliquot_masters WHERE study_summary_id != @procure_study_summary_id OR study_summary_id IS NULL;
