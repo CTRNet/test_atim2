@@ -1,7 +1,7 @@
 <?php
 
 	/*
-	 * STEP 1 OF PROCURE ICM DIVISION
+	 * STEP 2 OF PROCURE ICM DIVISION
 	 * 
 	 * To RUN after custom_post254_for_division.sql
 	 * 
