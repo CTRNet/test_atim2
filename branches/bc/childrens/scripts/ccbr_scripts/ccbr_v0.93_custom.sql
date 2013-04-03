@@ -89,3 +89,10 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(11
 
 INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES ('120', '7', '1');
 
+
+--  --------------------------------------------------------------------------
+--	EVENTUM ISSUE: #2528 - Unable to search by Verbal Consent
+--	--------------------------------------------------------------------------
+	
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_ccbr_consents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_ccbr_consents' AND `field`='ccbr_verbal_consent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_consent_status') AND `flag_confidential`='0');
+
