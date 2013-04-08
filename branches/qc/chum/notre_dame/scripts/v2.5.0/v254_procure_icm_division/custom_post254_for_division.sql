@@ -42,6 +42,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
  INSERT INTO i18n (id,en,fr) VALUES ('tumor presence', 'Tumor Presence', 'Présence tumeur');
 
-
+Done on April, 8th
 
 
