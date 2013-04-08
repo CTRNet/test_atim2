@@ -11,7 +11,9 @@
 	 *   - Search all tissu blocks having note like #patho: 0000000000 - 00
 	 *   - Add 0000000000 to sample_position_code AND patho_dpt_block_code
 	 */
-	
+
+Done on April, 8th
+
 	//-- DB PARAMETERS ---------------------------------------------------------------------------------------------------------------------------
 	
 	$db_ip			= "127.0.0.1";
