@@ -12,8 +12,9 @@
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
 $file_path = "C:/_Perso/Server/icm/data/Selection blocs paraffine - ProCure - NL - test.xls";
-
+//$file_path = "/ATiM/procure/ATiM-Prod/ProCure.xls";
 require_once 'Excel/reader.php';
+//require_once '/ATiM/procure/ATiM-Prod/Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
@@ -456,8 +457,13 @@ function loadNewBlocks($new_line_data, $line_counter) {
 					switch($model) {
 						case 'AliquotMaster':
 							$set_arr = array("modified = '$modified'", "modified_by = '$modified_by'");
-							foreach($data as $field => $value) {
-								$set_arr[] = ($field != 'notes')? "$field = '$value'" : "$field = $value";
+								if($field == 'notes') {
+									$set_arr[] = "$field = $value";
+								} else if($field == 'study_summary_id' && empty($value)) {
+									$set_arr[] = "$field = null";
+								} else {
+									$set_arr[] = "$field = '$value'";
+								}
 							}
 							$queries_to_update[] = "UPDATE aliquot_masters SET ".implode(', ', $set_arr)." WHERE id = $aliquot_master_id";
 							$queries_to_update[] = "INSERT INTO aliquot_masters_revs (id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, stored_by, product_code, notes, modified_by, version_created)
