@@ -35,6 +35,7 @@ class ViewCollectionCustom extends ViewCollection {
 		Collection.diagnosis_master_id AS diagnosis_master_id,
 		Collection.consent_master_id AS consent_master_id,
 		Collection.treatment_master_id AS treatment_master_id,
+TreatmentControl.tx_method AS tx_method,			
 		Collection.event_master_id AS event_master_id,
 Collection.misc_identifier_id AS misc_identifier_id,
 MiscIdentifier.identifier_value AS muhc_coded_identifier_transplant_nbr,
@@ -51,6 +52,8 @@ Collection.muhc_collection_room	AS muhc_collection_room,
 		Collection.created AS created 
 		FROM collections AS Collection 
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
+LEFT JOIN treatment_masters AS TreatmentMaster ON Collection.treatment_master_id = TreatmentMaster.id AND TreatmentMaster.deleted <> 1 
+LEFT JOIN treatment_controls AS TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1 
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 
