@@ -609,11 +609,13 @@ function initActions(){
 				
 				if($(link).data('cached_result')){
 					$("#frame").html($(link).data('cached_result'));
+					initActions();
 				}else{
 					$("#frame").html("<div class='loading'></div>");
 					$.get($(this).attr("href") + "?t=" + new Date().getTime(), function(data){
 						$("#frame").html(data);
 						$(link).data('cached_result', data);
+						initActions();
 					});
 				}
 				return false;
