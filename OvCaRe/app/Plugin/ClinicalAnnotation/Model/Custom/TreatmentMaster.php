@@ -6,10 +6,11 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	
 	var $ovcareIsTreatmentDeletion = false;
 	
-	function beforeDelete() {
-		//TODO afterSave
-		pr('TODO TreatmentMaster.beforeDelete()');
-		return true;
+	function beforeDelete($cascade) {
+		$res = parent::beforeDelete($cascade);
+		
+pr('TODO TreatmentMaster.beforeDelete()');
+return $res;
 		
 		if($this->id != $this->data['TreatmentMaster']['id']) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		if(($this->data['TreatmentControl']['disease_site'] == 'ovcare') && ($this->data['TreatmentControl']['tx_method'] == 'surgery')) {
@@ -25,9 +26,10 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	}
 	
 	function beforeSave($options) {
-		//TODO afterSave
-		pr('TODO TreatmentMaster.beforeSave()');
-		return true;
+		$res = parent::beforeSave($options);
+
+pr('TODO TreatmentMaster.beforeSave()');
+return $res;
 		
 		if(array_key_exists('start_date', $this->data['TreatmentMaster']) && (!$this->ovcareIsTreatmentDeletion)) { 
 			// User just clicked on submit button of Treatment form : Treatment is being created or updated
@@ -85,10 +87,11 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		return true;
 	}
 	
-	function afterSave() {
-		//TODO afterSave
-		pr('TODO TreatmentMaster.afterSave()');
-		return true;
+	function afterSave($created) {
+		$res = parent::afterSave($created);
+		
+pr('TODO TreatmentMaster.afterSave()');
+return $res;
 		
 		if(array_key_exists('OvcareTrtFunctionManagement', $this->data)) {
 			// *** LAUNCH DIAGNOSES UPDATE : INTIAL SURGERY DATE ***

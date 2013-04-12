@@ -28,9 +28,10 @@ class ParticipantCustom extends Participant {
 	}
 	
 	function beforeSave($options) {
-		//TODO beforeSave
-		pr('TODO Participant.beforeSave()');
-		return true;
+		$res = parent::beforeSave($options);
+		
+pr('TODO Participant.beforeSave()');
+return  $res;
 		
 		// Set Data For Diagnosis and surgery Update
 		$this->data['OvcareParticipantFunctionManagement']['is_last_followup_date_updated'] = false;
@@ -58,9 +59,10 @@ class ParticipantCustom extends Participant {
 	}
 	
 	function afterSave($created) {
-		//TODO afterSave
-		pr('TODO Participant.afterSave()');
-		return true;
+		$res = parent::afterSave($created);
+		
+pr('TODO Participant.afterSave()');
+return $res;
 		
 		if($this->data['OvcareParticipantFunctionManagement']['is_last_followup_date_updated']) {
 			$diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
