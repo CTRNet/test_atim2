@@ -6,10 +6,11 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	
 	var $ovcareIsDxDeletion = false;
 	
-	function beforeDelete() {
-		//TODO afterSave
-		pr('TODO DiagnosisMaster.beforeDelete()');
-		return true;
+	function beforeDelete($cascade) {
+		$res = parent::beforeDelete($cascade);
+		
+pr('TODO DiagnosisMaster.beforeDelete()');
+return $res;
 		
 		if(empty($this->data)) {
 			$this->data = $this->find('first', array('conditions' => array('DiagnosisMaster.id' => $this->id), 'recursive' => '0'));
@@ -27,9 +28,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	}
 	
 	function beforeSave($options) {
-		//TODO afterSave
-		pr('TODO DiagnosisMaster.beforeSave()');
-		return true;
+		$res = parent::beforeSave($options);
+		
+pr('TODO DiagnosisMaster.beforeSave()');
+return $res;
 		
 		if(array_key_exists('dx_date', $this->data['DiagnosisMaster']) && (!$this->ovcareIsDxDeletion)) { 
 			// User just clicked on submit button of diagnosis form (don't run follwing code when save is launched from other model)
@@ -60,10 +62,11 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return true;
 	}
 	
-	function afterSave() {	
-		//TODO afterSave
-		pr('TODO DiagnosisMaster.afterSave()');
-		return true;
+	function afterSave($created) {
+		$res = parent::afterSave($created);
+			
+pr('TODO DiagnosisMaster.afterSave()');
+return $res;
 		
 		if(array_key_exists('OvcareDiagFunctionManagement', $this->data)) {		
 			// *** LAUNCH DIAGNOSES UPDATE : INTIAL RECURRENCE DATE ***									

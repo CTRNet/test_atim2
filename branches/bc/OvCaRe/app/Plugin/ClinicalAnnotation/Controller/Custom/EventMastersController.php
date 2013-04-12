@@ -10,7 +10,7 @@ class EventMastersControllerCustom extends EventMastersController {
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$event_control_data = $this->EventControl->getOrRedirect($event_control_id);
-		if($event_control_data['EventControl']['event_type'] != 'experimental tests') $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
+		if($event_control_data['EventControl']['event_type'] != 'experimental tests') $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
 		$event_group = $event_control_data['EventControl']['event_group'];
 		
 		// Set diagnosis data for diagnosis selection (radio button)
@@ -40,7 +40,7 @@ class EventMastersControllerCustom extends EventMastersController {
 				$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
 				$StructurePermissibleValuesCustomControl = AppModel::getInstance("", "StructurePermissibleValuesCustomControl", true);
 				$control_data = $StructurePermissibleValuesCustomControl->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'experimental tests'), 'recursive' => 0));
-				if(empty($control_data)) $this->redirect( '/pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
+				if(empty($control_data)) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				$custom_tests_list = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustom.control_id' => $control_data['StructurePermissibleValuesCustomControl']['id'], 'StructurePermissibleValuesCustom.use_as_input' => '1'), 'order' => array('display_order', 'en'), 'recursive' => -1));
 				foreach($custom_tests_list as $new_test) {
 					$tests_data[]['EventDetail']['test'] = $new_test['StructurePermissibleValuesCustom']['value'];
@@ -92,7 +92,7 @@ class EventMastersControllerCustom extends EventMastersController {
 					$this->EventMaster->id = null;
 					$this->EventMaster->data = array(); // *** To guaranty no merge will be done with previous data ***
 					$new_test['EventMaster']['id'] = null;
-					if(!$this->EventMaster->save($new_test, false)) $this->redirect('/pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+					if(!$this->EventMaster->save($new_test, false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 				} 
 				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id);
 		
