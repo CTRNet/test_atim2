@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `ovcare_ed_pathology_reports` (
 	event_master_id int(11) NOT NULL,
   KEY `event_master_id` (`event_master_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-CREATE TABLE IF NOT EXISTS `ovcare_ed_study_inclusions_revs` (	
+CREATE TABLE IF NOT EXISTS `ovcare_ed_pathology_reports_revs` (	
 	phn varchar(50) default null,
 	pathologist_msc_nbr varchar(50) default null,
 	report_type varchar(50) default null,
@@ -308,48 +308,244 @@ INSERT INTO i18n (id,en) VALUES
 ('histologic specimen precision', 'Specimen type'),
 ('cytologic specimen result precision', 'Cytologic precision '),
 ('histologic specimen classification precision', 'Histologic precision');
-INSERT INTO i18n (id,en) VALUES ('ovcare_apparent_pathological_stage_help',
-'pX: Cannot be assessed<br>	
-pI: Tumour limited to one or both ovaries<br>
- - Ia: Limited to one ovary; capsule intact. No tumour on ovarian surface. No malignant cells in ascites or peritoneal washings.<br>	
- - Ib: Tumour limited to both ovaries; capsule intact. No tumour on ovarian surface. No malignant cells in ascites or peritoneal washings.<br>
- - Ic: Tumour limited to one or both ovaries with any of the following: capsule ruptured, tumour on ovarian surface, malignant cells in ascites or peritoneal washings.<br>
-pII: Tumour involves ovaries with pelvic extensions and/or implants.<br>
- - IIa: Extension and/or implants on uterus and/or tube(s). No malignant cells in ascites or peritoneal washings.<br>	
- - IIb: Extension to other pelvic tissues. No malignant cells in ascites or peritoneal washings.<br>	
- - IIc: Pelvic extension and/or implants (IIa or IIb) with malignant cells in ascites or peritoneal washings.<br>
-pIII:Tumour involves ovaries with microscopically confirmed peritoneal metastasis outside the pelvis (including liver capsule metastasis) and/or regional lymph node metastasis.');
+INSERT INTO i18n (id,en) VALUES ('ovcare_apparent_pathological_stage_help', 'pX: Cannot be assessed<br><br>pI: Tumour limited to one or both ovaries<br> - Ia: Limited to one ovary; capsule intact. No tumour on ovarian surface. No malignant cells in ascites or peritoneal washings.<br> - Ib: Tumour limited to both ovaries; capsule intact. No tumour on ovarian surface. No malignant cells in ascites or peritoneal washings.<br> - Ic: Tumour limited to one or both ovaries with any of the following: capsule ruptured, tumour on ovarian surface, malignant cells in ascites or peritoneal washings.<br><br>pII: Tumour involves ovaries with pelvic extensions and/or implants.<br> - IIa: Extension and/or implants on uterus and/or tube(s). No malignant cells in ascites or peritoneal washings.<br> - IIb: Extension to other pelvic tissues. No malignant cells in ascites or peritoneal washings.<br> - IIc: Pelvic extension and/or implants (IIa or IIb) with malignant cells in ascites or peritoneal washings.<br><br>pIII:Tumour involves ovaries with microscopically confirmed peritoneal metastasis outside the pelvis (including liver capsule metastasis) and/or regional lymph node metastasis.');
 UPDATE structure_fields SET model = 'EventDetail' WHERE tablename = 'ovcare_ed_pathology_reports';
 UPDATE structure_formats SET `language_heading`='cytology' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_pathology_reports') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_pathology_reports' AND `field`='cytologic_specimen' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='histology' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_pathology_reports') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_pathology_reports' AND `field`='histologic_specimen' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_pathological_stage') ,  `setting`='' WHERE model='EventDetail' AND tablename='ovcare_ed_pathology_reports' AND field='apparent_pathological_stage' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_pathological_stage');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_pathological_stage') ,  `language_help`='ovcare_apparent_pathological_stage_help' WHERE model='EventDetail' AND tablename='ovcare_ed_pathology_reports' AND field='apparent_pathological_stage' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_pathological_stage');
 
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_study_inclusions') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_study_inclusions' AND `field`='study_summary_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list') AND `flag_confidential`='0');
 
+DELETE FROM structure_formats WHERE 
+structure_id=(SELECT id FROM structures WHERE alias='ovcare_ed_lab_experimental_tests') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `language_label`='date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0')
+AND `language_label`!='last update date';
 
+INSERT INTO i18n (id,en) VALUES ('ovcare_event_masters_date_help', 'According to data:<br> - Report Date<br> - Inclusion Date<br> - Last Update Date');
 
+ALTER TABLE ovcare_ed_pathology_reports	ADD COLUMN apparent_pathological_stage_precision varchar(50) default null AFTER apparent_pathological_stage;
+ALTER TABLE ovcare_ed_pathology_reports_revs ADD COLUMN apparent_pathological_stage_precision varchar(50) default null AFTER apparent_pathological_stage;
+INSERT structure_value_domains (domain_name,source) VALUES ('ovcare_apparent_pathological_stage_precision', "StructurePermissibleValuesCustom::getCustomDropdown('Pathological stage precision')");
+INSERT INTO structure_permissible_values_custom_controls (name,flag_active, values_max_length) VALUES ('Pathological stage precision', '1', '50');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Pathological stage precision');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('capsule rupture','Capsule rupture', '', '1', @control_id),
+('ovarian surface involvement','Ovarian surface involvement', '', '1', @control_id),
+('malignant cells in ascites or peritoneal washings','Malignant cells in ascites or peritoneal washings', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ovcare_ed_pathology_reports', 'apparent_pathological_stage_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_apparent_pathological_stage_precision') , '0', '', '', '', 'stage precision', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_ed_pathology_reports'), (SELECT id FROM structure_fields WHERE `tablename`='ovcare_ed_pathology_reports' AND `field`='apparent_pathological_stage_precision'), '2', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('stage precision','Stage precision');
 
+REPLACE INTO i18n (id,en) VALUES ('personal health number','PHN');
 
+DELETE FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE field = 'phn' AND tablename = 'ovcare_ed_pathology_reports');
+DELETE FROM structure_fields WHERE field = 'phn' AND tablename = 'ovcare_ed_pathology_reports';
+ALTER TABLE ovcare_ed_pathology_reports DROP COLUMN phn;
+ALTER TABLE ovcare_ed_pathology_reports_revs DROP COLUMN phn;
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename`='ovcare_dxd_ovaries' AND `field` IN ('review_grade','review_comment','review_diagnosis'));
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename`='ovcare_dxd_ovaries' AND `field` IN ('review_grade','review_comment','review_diagnosis'));
+DELETE FROM structure_fields WHERE `tablename`='ovcare_dxd_ovaries' AND `field` IN ('review_grade','review_comment','review_diagnosis');
+ALTER TABLE ovcare_dxd_ovaries DROP COLUMN review_grade, DROP COLUMN review_comment, DROP COLUMN review_diagnosis;
+ALTER TABLE ovcare_dxd_ovaries_revs DROP COLUMN review_grade, DROP COLUMN review_comment, DROP COLUMN review_diagnosis;
 
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `tablename`='txd_surgeries' AND `field`='ovcare_procedure_performed');
+DELETE FROM structure_validations WHERE structure_field_id=(SELECT id FROM structure_fields WHERE `tablename`='txd_surgeries' AND `field`='ovcare_procedure_performed');
+DELETE FROM structure_fields WHERE `tablename`='txd_surgeries' AND `field`='ovcare_procedure_performed';
+ALTER TABLE txd_surgeries DROP COLUMN ovcare_procedure_performed;
+ALTER TABLE txd_surgeries_revs DROP COLUMN ovcare_procedure_performed;
 
-//TODO
-Complete....
-		If Ic selected: select all that apply:
-		Capsule rupture
-		Ovarian surface involvement
-		Malignant cells in ascites or peritoneal washings
-		
-				If IIc selected: Select all that apply:
-		Capsule rupture
-		Ovarian surface involvement
-		Malignant cells in ascites or peritoneal washings
-Check help message
-	ovcare_event_masters_date_help
-	ovcare_apparent_pathological_stage_help
-	
-	
+ALTER TABLE participants ADD COLUMN ovcare_neoadjuvant_chemotherapy char(1) DEFAULT '';
+ALTER TABLE participants_revs ADD COLUMN ovcare_neoadjuvant_chemotherapy char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'ovcare_neoadjuvant_chemotherapy', 'yes_no',  NULL , '0', '', '', '', 'neoadjuvant chemotherapy', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_neoadjuvant_chemotherapy' ), '3', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('neoadjuvant chemotherapy','Neoadjuvant chemotherapy given', '');
 
+INSERT INTO structure_value_domains (domain_name) VALUES ("ovcare_tumor_site");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
+('breast-breast', 'breast-breast'),
+('central nervous system-brain', 'central nervous system-brain'),
+('central nervous system-other central nervous system', 'central nervous system-other central nervous system'),
+('central nervous system-spinal cord', 'central nervous system-spinal cord'),
+('digestive-anal', 'digestive-anal'),
+('digestive-appendix', 'digestive-appendix'),
+('digestive-bile ducts', 'digestive-bile ducts'),
+('digestive-colonic', 'digestive-colonic'),
+('digestive-esophageal', 'digestive-esophageal'),
+('digestive-gallbladder', 'digestive-gallbladder'),
+('digestive-liver', 'digestive-liver'),
+('digestive-other digestive', 'digestive-other digestive'),
+('digestive-pancreas', 'digestive-pancreas'),
+('digestive-rectal', 'digestive-rectal'),
+('digestive-small intestine', 'digestive-small intestine'),
+('digestive-stomach', 'digestive-stomach'),
+('female genital-cervical', 'female genital-cervical'),
+('female genital-endometrium', 'female genital-endometrium'),
+('female genital-fallopian tube', 'female genital-fallopian tube'),
+('female genital-gestational trophoblastic neoplasia', 'female genital-gestational trophoblastic neoplasia'),
+('female genital-other female genital', 'female genital-other female genital'),
+('female genital-ovary', 'female genital-ovary'),
+('female genital-peritoneal pelvis abdomen', 'female genital-peritoneal pelvis abdomen'),
+('female genital-uterine', 'female genital-uterine'),
+('female genital-vagina', 'female genital-vagina'),
+('female genital-vulva', 'female genital-vulva'),
+('haematological-hodgkin''s disease', 'haematological-hodgkin''s disease'),
+('haematological-leukemia', 'haematological-leukemia'),
+('haematological-lymphoma', 'haematological-lymphoma'),
+('haematological-non-hodgkin''s lymphomas', 'haematological-non-hodgkin''s lymphomas'),
+('haematological-other haematological', 'haematological-other haematological'),
+('head & neck-larynx', 'head & neck-larynx'),
+('head & neck-lip and oral cavity', 'head & neck-lip and oral cavity'),
+('head & neck-nasal cavity and sinuses', 'head & neck-nasal cavity and sinuses'),
+('head & neck-other head & neck', 'head & neck-other head & neck'),
+('head & neck-pharynx', 'head & neck-pharynx'),
+('head & neck-salivary glands', 'head & neck-salivary glands'),
+('head & neck-thyroid', 'head & neck-thyroid'),
+('musculoskeletal sites-bone', 'musculoskeletal sites-bone'),
+('musculoskeletal sites-other bone', 'musculoskeletal sites-other bone'),
+('musculoskeletal sites-soft tissue sarcoma', 'musculoskeletal sites-soft tissue sarcoma'),
+('ophthalmic-eye', 'ophthalmic-eye'),
+('ophthalmic-other eye', 'ophthalmic-other eye'),
+('other-gross metastatic disease', 'other-gross metastatic disease'),
+('other-primary unknown', 'other-primary unknown'),
+('skin-melanoma', 'skin-melanoma'),
+('skin-non melanomas', 'skin-non melanomas'),
+('skin-other skin', 'skin-other skin'),
+('thoracic-lung', 'thoracic-lung'),
+('thoracic-mesothelioma', 'thoracic-mesothelioma'),
+('thoracic-other thoracic', 'thoracic-other thoracic'),
+('urinary tract-bladder', 'urinary tract-bladder'),
+('urinary tract-kidney', 'urinary tract-kidney'),
+('urinary tract-other urinary tract', 'urinary tract-other urinary tract'),
+('urinary tract-renal pelvis and ureter', 'urinary tract-renal pelvis and ureter'),
+('urinary tract-urethra', 'urinary tract-urethra'),
+('unknown', 'unknown');
 
-
-
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='breast-breast' and language_alias='breast-breast'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='central nervous system-brain' and language_alias='central nervous system-brain'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='central nervous system-other central nervous system' and language_alias='central nervous system-other central nervous system'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='central nervous system-spinal cord' and language_alias='central nervous system-spinal cord'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-anal' and language_alias='digestive-anal'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-appendix' and language_alias='digestive-appendix'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-bile ducts' and language_alias='digestive-bile ducts'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-colonic' and language_alias='digestive-colonic'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-esophageal' and language_alias='digestive-esophageal'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-gallbladder' and language_alias='digestive-gallbladder'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-liver' and language_alias='digestive-liver'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-other digestive' and language_alias='digestive-other digestive'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-pancreas' and language_alias='digestive-pancreas'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-rectal' and language_alias='digestive-rectal'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-small intestine' and language_alias='digestive-small intestine'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='digestive-stomach' and language_alias='digestive-stomach'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-cervical' and language_alias='female genital-cervical'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-endometrium' and language_alias='female genital-endometrium'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-fallopian tube' and language_alias='female genital-fallopian tube'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-gestational trophoblastic neoplasia' and language_alias='female genital-gestational trophoblastic neoplasia'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-other female genital' and language_alias='female genital-other female genital'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-ovary' and language_alias='female genital-ovary'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-peritoneal pelvis abdomen' and language_alias='female genital-peritoneal pelvis abdomen'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-uterine' and language_alias='female genital-uterine'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-vagina' and language_alias='female genital-vagina'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='female genital-vulva' and language_alias='female genital-vulva'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='haematological-hodgkin''s disease' and language_alias='haematological-hodgkin''s disease'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='haematological-leukemia' and language_alias='haematological-leukemia'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='haematological-lymphoma' and language_alias='haematological-lymphoma'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='haematological-non-hodgkin''s lymphomas' and language_alias='haematological-non-hodgkin''s lymphomas'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='haematological-other haematological' and language_alias='haematological-other haematological'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-larynx' and language_alias='head & neck-larynx'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-lip and oral cavity' and language_alias='head & neck-lip and oral cavity'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-nasal cavity and sinuses' and language_alias='head & neck-nasal cavity and sinuses'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-other head & neck' and language_alias='head & neck-other head & neck'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-pharynx' and language_alias='head & neck-pharynx'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-salivary glands' and language_alias='head & neck-salivary glands'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='head & neck-thyroid' and language_alias='head & neck-thyroid'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='musculoskeletal sites-bone' and language_alias='musculoskeletal sites-bone'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='musculoskeletal sites-other bone' and language_alias='musculoskeletal sites-other bone'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='musculoskeletal sites-soft tissue sarcoma' and language_alias='musculoskeletal sites-soft tissue sarcoma'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='ophthalmic-eye' and language_alias='ophthalmic-eye'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='ophthalmic-other eye' and language_alias='ophthalmic-other eye'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='other-gross metastatic disease' and language_alias='other-gross metastatic disease'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='other-primary unknown' and language_alias='other-primary unknown'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='skin-melanoma' and language_alias='skin-melanoma'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='skin-non melanomas' and language_alias='skin-non melanomas'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='skin-other skin' and language_alias='skin-other skin'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='thoracic-lung' and language_alias='thoracic-lung'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='thoracic-mesothelioma' and language_alias='thoracic-mesothelioma'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='thoracic-other thoracic' and language_alias='thoracic-other thoracic'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='urinary tract-bladder' and language_alias='urinary tract-bladder'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='urinary tract-kidney' and language_alias='urinary tract-kidney'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='urinary tract-other urinary tract' and language_alias='urinary tract-other urinary tract'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='urinary tract-renal pelvis and ureter' and language_alias='urinary tract-renal pelvis and ureter'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='urinary tract-urethra' and language_alias='urinary tract-urethra'), "0", "1"),
+((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='unknown' and language_alias='unknown'), "0", "1");
+ALTER TABLE dxd_secondaries ADD COLUMN ovcare_tumor_site VARCHAR(100) DEFAULT NULL;
+ALTER TABLE dxd_secondaries_revs ADD COLUMN ovcare_tumor_site VARCHAR(100) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'dxd_secondaries', 'ovcare_tumor_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site') , '0', '', '', '', 'tumor site', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_secondaries' AND `field`='ovcare_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT IGNORE INTO i18n (id, en) VALUES
+('breast-breast', 'Breast-Breast'), 
+('central nervous system-brain', 'Central Nervous System-Brain'), 
+('central nervous system-other central nervous system', 'Central Nervous System-Other Central Nervous System'), 
+('central nervous system-spinal cord', 'Central Nervous System-Spinal Cord'), 
+('digestive-anal', 'Digestive-Anal'), 
+('digestive-appendix', 'Digestive-Appendix'), 
+('digestive-bile ducts', 'Digestive-Bile Ducts'), 
+('digestive-colonic', 'Digestive-Colonic'), 
+('digestive-esophageal', 'Digestive-Esophageal'), 
+('digestive-gallbladder', 'Digestive-Gallbladder'), 
+('digestive-liver', 'Digestive-Liver'), 
+('digestive-other digestive', 'Digestive-Other Digestive'), 
+('digestive-pancreas', 'Digestive-Pancreas'), 
+('digestive-rectal', 'Digestive-Rectal'), 
+('digestive-small intestine', 'Digestive-Small Intestine'), 
+('digestive-stomach', 'Digestive-Stomach'), 
+('female genital-cervical', 'Female Genital-Cervical'), 
+('female genital-endometrium', 'Female Genital-Endometrium'), 
+('female genital-fallopian tube', 'Female Genital-Fallopian Tube'), 
+('female genital-gestational trophoblastic neoplasia', 'Female Genital-Gestational Trophoblastic Neoplasia'), 
+('female genital-other female genital', 'Female Genital-Other Female Genital'), 
+('female genital-ovary', 'Female Genital-Ovary'), 
+('female genital-peritoneal pelvis abdomen', 'Female Genital-Peritoneal Pelvis Abdomen'), 
+('female genital-uterine', 'Female Genital-Uterine'), 
+('female genital-vagina', 'Female Genital-Vagina'), 
+('female genital-vulva', 'Female Genital-Vulva'), 
+('haematological-hodgkin''s disease', 'Haematological-Hodgkin''s Disease'), 
+('haematological-leukemia', 'Haematological-Leukemia'), 
+('haematological-lymphoma', 'Haematological-Lymphoma'), 
+('haematological-non-hodgkin''s lymphomas', 'Haematological-Non-Hodgkin''s Lymphomas'), 
+('haematological-other haematological', 'Haematological-Other Haematological'), 
+('head & neck-larynx', 'Head & Neck-Larynx'), 
+('head & neck-lip and oral cavity', 'Head & Neck-Lip and Oral Cavity'), 
+('head & neck-nasal cavity and sinuses', 'Head & Neck-Nasal Cavity and Sinuses'), 
+('head & neck-other head & neck', 'Head & Neck-Other Head & Neck'), 
+('head & neck-pharynx', 'Head & Neck-Pharynx'), 
+('head & neck-salivary glands', 'Head & Neck-Salivary Glands'), 
+('head & neck-thyroid', 'Head & Neck-Thyroid'), 
+('musculoskeletal sites-bone', 'Musculoskeletal Sites-Bone'), 
+('musculoskeletal sites-other bone', 'Musculoskeletal Sites-Other Bone'), 
+('musculoskeletal sites-soft tissue sarcoma', 'Musculoskeletal Sites-Soft Tissue Sarcoma'), 
+('ophthalmic-eye', 'Ophthalmic-Eye'), 
+('ophthalmic-other eye', 'Ophthalmic-Other Eye'), 
+('other-gross metastatic disease', 'Other-Gross Metastatic Disease'), 
+('other-primary unknown', 'Other-Primary Unknown'), 
+('skin-melanoma', 'Skin-Melanoma'), 
+('skin-non melanomas', 'Skin-Non Melanomas'), 
+('skin-other skin', 'Skin-Other Skin'), 
+('thoracic-lung', 'Thoracic-Lung'), 
+('thoracic-mesothelioma', 'Thoracic-Mesothelioma'), 
+('thoracic-other thoracic', 'Thoracic-Other Thoracic'), 
+('urinary tract-bladder', 'Urinary Tract-Bladder'), 
+('urinary tract-kidney', 'Urinary Tract-Kidney'), 
+('urinary tract-other urinary tract', 'Urinary Tract-Other Urinary Tract'), 
+('urinary tract-renal pelvis and ureter', 'Urinary Tract-Renal Pelvis and Ureter'), 
+('urinary tract-urethra', 'Urinary Tract-Urethra');
