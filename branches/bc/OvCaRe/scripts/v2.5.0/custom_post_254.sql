@@ -426,7 +426,6 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES
 ('urinary tract-renal pelvis and ureter', 'urinary tract-renal pelvis and ureter'),
 ('urinary tract-urethra', 'urinary tract-urethra'),
 ('unknown', 'unknown');
-
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
 VALUES 
 ((select id from structure_value_domains where domain_name="ovcare_tumor_site"), (select id from structure_permissible_values where value='breast-breast' and language_alias='breast-breast'), "0", "1"),
@@ -549,3 +548,275 @@ INSERT IGNORE INTO i18n (id, en) VALUES
 ('urinary tract-other urinary tract', 'Urinary Tract-Other Urinary Tract'), 
 ('urinary tract-renal pelvis and ureter', 'Urinary Tract-Renal Pelvis and Ureter'), 
 ('urinary tract-urethra', 'Urinary Tract-Urethra');
+
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='initial_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='initial_recurrence_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='progression_free_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='survival and progression' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='initial_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('survival and progression','Survival and Progression');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_vital_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_chart_checked_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+DELETE FROM diagnosis_controls WHERE `category` = 'secondary' AND `controls_type` = 'ovcare';
+ALTER TABLE diagnosis_masters 
+	ADD COLUMN `ovcare_clinical_history` text,
+	ADD COLUMN `ovcare_clinical_diagnosis` text,	
+	ADD COLUMN `ovcare_tumor_site` varchar(100) DEFAULT NULL;
+ALTER TABLE diagnosis_masters_revs
+	ADD COLUMN `ovcare_clinical_history` text,
+	ADD COLUMN `ovcare_clinical_diagnosis` text,	
+	ADD COLUMN `ovcare_tumor_site` varchar(100) DEFAULT NULL;
+ALTER TABLE ovcare_dxd_ovaries 
+	DROP COLUMN clinical_history,
+	DROP COLUMN clinical_diagnosis; 
+ALTER TABLE ovcare_dxd_ovaries_revs 
+	DROP COLUMN clinical_history,
+	DROP COLUMN clinical_diagnosis; 
+ALTER TABLE dxd_secondaries 
+	DROP COLUMN ovcare_tumor_site; 
+ALTER TABLE dxd_secondaries_revs 
+	DROP COLUMN ovcare_tumor_site; 
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields 
+WHERE tablename IN ('dxd_secondaries','ovcare_dxd_ovaries') AND field IN ('clinical_history','clinical_diagnosis','ovcare_tumor_site'));
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields 
+WHERE tablename IN ('dxd_secondaries','ovcare_dxd_ovaries') AND field IN ('clinical_history','clinical_diagnosis','ovcare_tumor_site'));
+DELETE FROM structure_fields WHERE tablename IN ('dxd_secondaries','ovcare_dxd_ovaries') AND field IN ('clinical_history','clinical_diagnosis','ovcare_tumor_site');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'ovcare_clinical_history', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'clinical history', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'ovcare_clinical_diagnosis', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'clinical diagnosis', ''),
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'ovcare_tumor_site', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site') , '0', '', '', '', 'tumor site', '');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE model='DiagnosisMaster' AND field='ovcare_tumor_site'), 'notEmpty');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_history' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical history' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_history' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical history' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_diagnosis' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='clinical diagnosis' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='diagnosismasters'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='20', `language_heading`='summary' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_history' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_secondary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_diagnosis' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='20', `language_heading`='summary' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_history' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='3', `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_diagnosis' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE diagnosis_controls SET `controls_type` = 'ovary' WHERE `controls_type` = 'ovcare';
+INSERT IGNORE INTO i18n (id,en) 
+VALUES 
+('ovary','Ovary'),
+('updated automatically tumor site to appropriated value','Updated automatically tumor site to appropriated value');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_diagnosis') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `field` IN ('topography','icd10_code'));
+ALTER TABLE ovcare_dxd_ovaries 
+  CHANGE `stage` `tumor_grade` varchar(10) DEFAULT NULL,
+  CHANGE `substage` `figo` varchar(10) DEFAULT NULL;
+ALTER TABLE ovcare_dxd_ovaries_revs 
+  CHANGE `stage` `tumor_grade` varchar(10) DEFAULT NULL,
+  CHANGE `substage` `figo` varchar(10) DEFAULT NULL;
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_stage"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "5", "1");
+UPDATE structure_value_domains SET domain_name="ovcare_tumor_grade" WHERE domain_name="ovcare_stage";
+UPDATE structure_value_domains SET domain_name="ovcare_figo" WHERE domain_name="ovcare_substage";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="A" AND spv.language_alias="A";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="B" AND spv.language_alias="B";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="C" AND spv.language_alias="C";
+DELETE FROM structure_permissible_values WHERE value="A" AND language_alias="A";
+DELETE FROM structure_permissible_values WHERE value="B" AND language_alias="B";
+DELETE FROM structure_permissible_values WHERE value="C" AND language_alias="C";
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+VALUES
+("Ia", "Ia"),
+("Ib", "Ib"),
+("Ic", "Ic"),
+("IIa", "IIa"),
+("IIb", "IIb"),
+("IIc", "IIc"),
+("IIIa", "IIIa"),
+("IIIb", "IIIb"),
+("IIIc", "IIIc");
+SET @structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ovcare_figo");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="Ia" AND language_alias="Ia"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="Ib" AND language_alias="Ib"), "2", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="Ic" AND language_alias="Ic"), "3", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIa" AND language_alias="IIa"), "4", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIb" AND language_alias="IIb"), "5", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIc" AND language_alias="IIc"), "6", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIa" AND language_alias="IIIa"), "7", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIb" AND language_alias="IIIb"), "8", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIc" AND language_alias="IIIc"), "9", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "10", "1");
+UPDATE structure_fields SET `field` = 'figo', `language_label` = 'figo', `language_tag` = '' WHERE `field` = 'substage' AND tablename = 'ovcare_dxd_ovaries';
+UPDATE structure_fields SET `field` = 'tumor_grade', `language_label` = 'tumor grade', `language_tag` = '' WHERE `field` = 'stage' AND tablename = 'ovcare_dxd_ovaries';
+INSERT INTO i18n (id,en) VALUES ('tumor grade', 'Tumor grade'), ('figo','Figo'),("Ia", "Ia"),
+("Ib", "Ib"),
+("Ic", "Ic"),
+("IIa", "IIa"),
+("IIb", "IIb"),
+("IIc", "IIc"),
+("IIIa", "IIIa"),
+("IIIb", "IIIb"),
+("IIIc", "IIIc");
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='tumor_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_grade') AND `flag_confidential`='0');
+ALTER TABLE ovcare_dxd_ovaries DROP COLUMN tumor_grade;
+ALTER TABLE ovcare_dxd_ovaries_revs DROP COLUMN tumor_grade;
+UPDATE structure_fields SET `model`='DiagnosisMaster', field='tumour_grade', `tablename`='diagnosis_masters' WHERE model='DiagnosisDetail' AND tablename='ovcare_dxd_ovaries' AND field='tumor_grade' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_grade');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='dx_laterality' AND `language_label`='laterality' AND `language_tag`=''), '1', '5', 'tissue specific', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ovcare_laterality", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_laterality"), (SELECT id FROM structure_permissible_values WHERE value="right" AND language_alias="right"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_laterality"), (SELECT id FROM structure_permissible_values WHERE value="left" AND language_alias="left"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_laterality"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "4", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_laterality"), (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_laterality') , '0', '', '', '', 'laterality', '');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-102' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='dxd_tissues' AND `field`='laterality' AND `language_label`='laterality' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='laterality') AND `language_help`='dx_laterality' AND `validation_control`='open' AND `value_domain_control`='extend' AND `field_control`='locked' AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE ovcare_dxd_ovaries 
+  ADD COLUMN `laterality` varchar(10) DEFAULT NULL;
+ALTER TABLE ovcare_dxd_ovaries_revs 
+  ADD COLUMN `laterality` varchar(10) DEFAULT NULL;
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='initial_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='initial_recurrence_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='34' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='progression_free_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(12, 19, 23, 136, 20, 21, 13, 14, 119, 15, 16, 24, 118, 7, 8, 9);
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE sd_spe_tissues ADD COLUMN ovcare_ischemia_time_mn int(6) DEFAULT null;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN ovcare_ischemia_time_mn int(6) DEFAULT null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', '', 'ischemia time mn');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ischemia time mn'), '1', '440', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET language_label = 'ischemia time mn', language_tag = '' WHERE field = 'ovcare_ischemia_time_mn';
+INSERT INTO i18n (id,en) VALUES ('ischemia time mn','Ischemia time (mn)');
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("FFPE", "FFPE");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="block_type"), (SELECT id FROM structure_permissible_values WHERE value="FFPE" AND language_alias="FFPE"), "0", "1");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- - TFRI-COEUR FIELDS ----------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE participants ADD ovcare_brca_status VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE participants_revs ADD ovcare_brca_status VARCHAR(50) NOT NULL DEFAULT '';
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+('BRCA mutation known but not identified', 'BRCA mutation known but not identified'),
+('BRCA1 mutated', 'BRCA1 mutated'),
+('BRCA2 mutated', 'BRCA2 mutated'),
+('BRCA1/2 mutated', 'BRCA1/2 mutated'),
+('wild type', 'wild type');
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ovcare_brca', '', '', NULL);
+INSERT INTO structure_value_domains_permissible_values (`structure_value_domain_id`, `structure_permissible_value_id`, `display_order`, `flag_active`)
+(SELECT (SELECT id FROM structure_value_domains WHERE domain_name="ovcare_brca"),  id, "", "1" FROM structure_permissible_values WHERE
+(value='wild type' AND language_alias='wild type') OR
+(value='BRCA mutation known but not identified' AND language_alias='BRCA mutation known but not identified') OR
+(value='BRCA1 mutated' AND language_alias='BRCA1 mutated') OR
+(value='BRCA2 mutated' AND language_alias='BRCA2 mutated') OR
+(value='BRCA1/2 mutated' AND language_alias='BRCA1/2 mutated') OR
+(value='unknown' AND language_alias='unknown'));
+INSERT INTO i18n (id,en) VALUES
+('BRCA mutation known but not identified', 'BRCA mutation known but not identified'),
+('BRCA1 mutated', 'BRCA1 mutated'),
+('BRCA2 mutated', 'BRCA2 mutated'),
+('BRCA1/2 mutated', 'BRCA1/2 mutated'),
+("brca status", "BRCA status"),
+('wild type', 'Wild type');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'ovcare_brca_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_brca') , '0', '', '', '', 'brca status', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_brca_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_brca')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='brca status' AND `language_tag`=''), '3', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+ALTER TABLE txd_surgeries CHANGE `ovcare_macroscopic_residual` `ovcare_residual_disease` varchar(10) DEFAULT NULL;
+ALTER TABLE txd_surgeries_revs CHANGE `ovcare_macroscopic_residual` `ovcare_residual_disease` varchar(10) DEFAULT NULL;
+INSERT IGNORE INTO structure_permissible_values (`value`, `language_alias`) VALUES
+("none","none"),
+("1-2cm","1-2cm"),
+("<1cm","<1cm"),
+(">2cm",">2cm"),
+("miliary","miliary"),
+("suboptimal","suboptimal"),
+("yes unknown","yes unknown"),
+("unknown","unknown");
+INSERT INTO structure_value_domains(`domain_name`, `override`, `category`, `source`) VALUES ('ovcare_residual_disease', '', '', NULL);
+SET @structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ovcare_residual_disease");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="none"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="1-2cm" AND language_alias="1-2cm"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="<1cm" AND language_alias="<1cm"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value=">2cm" AND language_alias=">2cm"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="miliary" AND language_alias="miliary"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="suboptimal" AND language_alias="suboptimal"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="yes unknown" AND language_alias="yes unknown"), "1", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+UPDATE structure_fields SET `field` = 'ovcare_residual_disease', `type` = 'select', `structure_value_domain` = (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_residual_disease'), `language_label` = 'residual disease', `language_tag` = '' WHERE field = 'ovcare_macroscopic_residual';
+INSERT IGNORE INTO i18n (id,en) VALUES
+("none","None"),
+("1-2cm","1-2cm"),
+("<1cm","<1cm"),
+(">2cm",">2cm"),
+("miliary","Miliary"),
+("suboptimal","Suboptimal"),
+("yes unknown","Yes Unknown"),
+("unknown","Unknown"),
+('residual disease','Residual disease');
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+(null, 'ovcare', 'lab', 'ca125', 1, 'ovcare_ed_ca125s', 'ovcare_ed_ca125s', 0, 'ca125', 1);
+INSERT INTO structures(`alias`) VALUES ('ovcare_ed_ca125s');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ovcare_ed_ca125s', 'ca125', 'float_positive', null, '0', 'size=3', '', '', 'ca125', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_ed_ca125s'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_ca125s' AND `field`='ca125'), '2', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+CREATE TABLE IF NOT EXISTS `ovcare_ed_ca125s` (
+  `ca125` decimal(8,2) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `ovcare_ed_ca125s_revs` (
+  `ca125` decimal(8,2) DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ovcare_ed_ca125s`
+  ADD CONSTRAINT `ovcare_ed_ca125s_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ovcare_ed_ca125s' AND `field`='ca125'), 'notEmpty');
+INSERT INTO i18n (id,en) VALUES ('ca125','CA125 (u)');
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('ovcare_clin_CAN_3', 'clin_CAN_4', 0, 6, 'ca125', 'ca125', '/ClinicalAnnotation/EventMasters/listall/ca125/%%Participant.id%%', 'ClinicalAnnotation.EventMaster::summary', 1, 1);
+UPDATE event_controls SET `event_group` = 'ca125' WHERE detail_form_alias = 'ovcare_ed_ca125s';
+
+
+
