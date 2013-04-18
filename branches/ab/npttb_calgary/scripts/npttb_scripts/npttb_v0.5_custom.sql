@@ -27,14 +27,14 @@ UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permiss
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown");
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="ZCSA" AND language_alias="ZCSA");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("ACB", "npttb ACB");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="ACB" AND language_alias="npttb ACB"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="ACD" AND language_alias="npttb ACD"), "1", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("serum", "npttb serum");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="npttb serum"), "4", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("lithium heparin", "npttb lithium heparin");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="lithium heparin" AND language_alias="npttb lithium heparin"), "3", "1");
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('npttb ACB', 'ACB', ''),
+ ('npttb ACD', 'ACD', ''),
  ('npttb serum', 'Serum', ''),
  ('npttb lithium heparin', 'Lithium Heparin', '');
 
