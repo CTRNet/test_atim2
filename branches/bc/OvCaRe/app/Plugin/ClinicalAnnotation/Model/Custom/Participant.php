@@ -26,52 +26,6 @@ class ParticipantCustom extends Participant {
 		
 		return $return;
 	}
-	
-	function beforeSave($options) {
-		$res = parent::beforeSave($options);
-		
-pr('TODO Participant.beforeSave()');
-return  $res;
-		
-		// Set Data For Diagnosis and surgery Update
-		$this->data['OvcareParticipantFunctionManagement']['is_last_followup_date_updated'] = false;
-		$this->data['OvcareParticipantFunctionManagement']['is_date_of_birth_updated'] = false;
-		
-		if(!empty($this->id)) {
-			// Participant data has just been updated
-			$previous_participant_data = $this->find('first', array('conditions' => array('Participant.id' => $this->id), 'recursive' => '-1'));
-			if(empty($previous_participant_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			
-			// Date of birth
-			if($this->data['Participant']['date_of_birth'] != $previous_participant_data['Participant']['date_of_birth']) {
-				$this->data['OvcareParticipantFunctionManagement']['is_date_of_birth_updated'] = true;
-			}
-			
-			// Date of followup
-			$previous_followup_date = $previous_participant_data['Participant']['ovcare_last_followup_date'].'-'.$previous_participant_data['Participant']['ovcare_last_followup_date_accuracy'];
-			$followup_date = $this->data['Participant']['ovcare_last_followup_date'].'-'.$this->data['Participant']['ovcare_last_followup_date_accuracy'];		
-			if($previous_followup_date != $followup_date) {
-				$this->data['OvcareParticipantFunctionManagement']['is_last_followup_date_updated'] = true;
-			}
-		}
-		
-		return true;
-	}
-	
-	function afterSave($created) {
-		$res = parent::afterSave($created);
-		
-pr('TODO Participant.afterSave()');
-return $res;
-		
-		if($this->data['OvcareParticipantFunctionManagement']['is_last_followup_date_updated']) {
-			$diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
-			$diagnosis_master_model->updateAllSurvivaleTimes($this->id);
-		}
-		if($this->data['OvcareParticipantFunctionManagement']['is_date_of_birth_updated']) {
-			$treatment_master_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-			$treatment_master_model->updateAllAgesAtSurgery($this->id);
-		}
-	}
+
 }
 ?>

@@ -6,304 +6,166 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	
 	var $ovcareIsDxDeletion = false;
 	
-	function beforeDelete($cascade) {
-		$res = parent::beforeDelete($cascade);
-		
-pr('TODO DiagnosisMaster.beforeDelete()');
-return $res;
-		
-		if(empty($this->data)) {
-			$this->data = $this->find('first', array('conditions' => array('DiagnosisMaster.id' => $this->id), 'recursive' => '0'));
+	function atimDelete($model_id, $cascade = true){
+		$dx_to_delete = $this->find('first', array('conditions' => array('DiagnosisMaster.id' => $model_id), 'recursive' => '0'));
+		if(parent::atimDelete($model_id, $cascade)){
+			if($dx_to_delete['DiagnosisControl']['category'] == 'recurrence') {
+				$this->updateCalculatedFields($dx_to_delete['DiagnosisMaster']['participant_id']);
+			}
+			return true;
 		}
-		if($this->id != $this->data['DiagnosisMaster']['id']) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		if($this->data['DiagnosisControl']['category'] == 'recurrence') {	
-			// *** SET DATA FOR DIAGNOSES UPDATE ***
-			// (User is deleting a reccurrence)
-			$this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence'] = $this->data['DiagnosisMaster']['parent_id'];
-		}
-		
-		$this->ovcareIsDxDeletion = true;
-		
-		return true;
+		return false;
 	}
 	
-	function beforeSave($options) {
-		$res = parent::beforeSave($options);
+	function updateCalculatedFields($participant_id) {
+		// MANAGE OVARY DIAGNOSIS CALCULATED FIELDS
 		
-pr('TODO DiagnosisMaster.beforeSave()');
-return $res;
+		$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		
-		if(array_key_exists('dx_date', $this->data['DiagnosisMaster']) && (!$this->ovcareIsDxDeletion)) { 
-			// User just clicked on submit button of diagnosis form (don't run follwing code when save is launched from other model)
-			
-			$diagnosis_control_data = array();
-			
-			$parent_id = null;
-			if(array_key_exists('participant_id', $this->data['DiagnosisMaster'])) {
-				// Diagnosis is just being created
-				$diagnosis_control_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisControl", true);
-				$diagnosis_control_data = $diagnosis_control_model->find('first', array('conditions' => array ('DiagnosisControl.id' => $this->data['DiagnosisMaster']['diagnosis_control_id'])));				
-				$parent_id = $this->data['DiagnosisMaster']['parent_id'];
-			} else {
-				// Diagnosis is being updated
-				$previous_diagnosis_data = $this->find('first', array('conditions' => array('DiagnosisMaster.id' => $this->id), 'recursive' => '0'));
-				if(empty($previous_diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				$diagnosis_control_data['DiagnosisControl'] = $previous_diagnosis_data['DiagnosisControl'];	
-				$parent_id = $previous_diagnosis_data['DiagnosisMaster']['parent_id'];
-			}
-			if(empty($diagnosis_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			
-			if($diagnosis_control_data['DiagnosisControl']['category'] == 'recurrence') {	
-				// *** SET DATA FOR DIAGNOSES UPDATE ***
-				$this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence'] = $parent_id;
-			}
-		}
-				
-		return true;
-	}
-	
-	function afterSave($created) {
-		$res = parent::afterSave($created);
-			
-pr('TODO DiagnosisMaster.afterSave()');
-return $res;
+		// Get Participant Data
 		
-		if(array_key_exists('OvcareDiagFunctionManagement', $this->data)) {		
-			// *** LAUNCH DIAGNOSES UPDATE : INTIAL RECURRENCE DATE ***									
-			$tmp_id = $this->id;
-			$tmp_data = $this->data;
-			
-			$parent_id_of_reccurrence = $this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence'];
-			unset($this->data['OvcareDiagFunctionManagement']['parent_id_of_reccurrence']);
-			$this->setInitialRecurrenceDate($parent_id_of_reccurrence);
-			
-			$this->id = $tmp_id;
-			$this->data = $tmp_data;
-		}
-	}
-
-	function setInitialRecurrenceDate($diagnosis_master_id) {
-		$diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
-		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		$particpant_data = $Participant->find('first', array('conditions' => array('Participant.id' => $participant_id), 'recursive' => '-1'));
+		$ovcare_last_followup_date = $particpant_data['Participant']['ovcare_last_followup_date'];
+		$ovcare_last_followup_date_accuracy = $particpant_data['Participant']['ovcare_last_followup_date_accuracy'];
 		
-		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
-            
-			// *** SET INITIAL DIAGNOSIS RECURRENCE DATE ***
-			
-			$initial_recurrence_date = $diagnosis_data['DiagnosisDetail']['initial_recurrence_date'];
-			$initial_recurrence_date_accuracy = $diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy'];
-			
-			$conditions =  array (
-				'DiagnosisMaster.parent_id' => $diagnosis_master_id,
-				'DiagnosisControl.category' => 'recurrence',
-				"DiagnosisMaster.dx_date != ''",
-				"DiagnosisMaster.dx_date IS NOT NULL"		
-			);
-			$recurrences_list = $this->find('first', array('conditions' =>$conditions, 'order' => array('DiagnosisMaster.dx_date ASC'),'recursive' => '0'));
+		// Get & work on all Ovary Diagnoses
 		
-			$new_min_recurrence_date = empty($recurrences_list)? '' : $recurrences_list['DiagnosisMaster']['dx_date'];
-			$new_min_recurrence_date_accuracy = empty($recurrences_list)? '' : $recurrences_list['DiagnosisMaster']['dx_date_accuracy'];	
+		$conditions = array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisControl.category' => 'primary', 'DiagnosisControl.controls_type' => 'ovary');
+		$all_ovary_diagnoses = $this->find('all', array('conditions' => $conditions, 'recursive' => '0'));
+		foreach($all_ovary_diagnoses as $new_dx) {
+			$diagnosis_master_id = $new_dx['DiagnosisMaster']['id'];
+			$participant_id = $new_dx['DiagnosisMaster']['participant_id'];
+			$diagnosis_control_id = $new_dx['DiagnosisControl']['id'];
 			
-			if(($initial_recurrence_date.$initial_recurrence_date_accuracy) != ($new_min_recurrence_date.$new_min_recurrence_date_accuracy)) {
-				$arr_new_min_recurrence_date = explode('-',$new_min_recurrence_date);
-				
-				$set_year_acc = false;
-				switch($new_min_recurrence_date_accuracy) {
-					case 'y':
-						$set_year_acc = true;
-					case 'm':
-						$arr_new_min_recurrence_date[1] = '';
-					case 'd':
-						$arr_new_min_recurrence_date[2] = '';
-						break;
-					case 'c':
-						break;
-					case '':
-						if(!empty($new_min_recurrence_date)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-						$arr_new_min_recurrence_date = array('','','');
-						break;
-					default:
-						AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				
-				$arr_new_min_recurrence_date = array_combine(array('year','month','day'), $arr_new_min_recurrence_date);
-				if($set_year_acc) $arr_new_min_recurrence_date['year_accuracy'] = 1;
-
-				$new_diag_data = array();
-				$new_diag_data['DiagnosisMaster']['id'] = $diagnosis_master_id;
-				$new_diag_data['DiagnosisDetail']['initial_recurrence_date'] = $arr_new_min_recurrence_date;	
-				$this->data = array();
-				$this->id = $diagnosis_master_id;
-				$this->save($new_diag_data,false);
-					
-				// *** LAUNCH DIAGNOSIS PROGRESSION FREE TIME CALCULATION ***
-				
-				$this->updateProgressionFreeTime($diagnosis_master_id);
-			}
-		}
-	}
-	
-	function setInitialSurgeryDate($diagnosis_master_id) {
-		if(empty($diagnosis_master_id)) return;
-
-		$diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
-		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
+			$initial_surgery_date = $new_dx['DiagnosisDetail']['initial_surgery_date'];
+			$initial_surgery_date_accuracy = $new_dx['DiagnosisDetail']['initial_surgery_date_accuracy'];
+			$new_initial_surgery_date = '';
+			$new_initial_surgery_date_accuracy = '';
+			$existing_empty_surgery_date = false;
+						
+			$initial_recurrence_date = $new_dx['DiagnosisDetail']['initial_recurrence_date'];
+			$initial_recurrence_date_accuracy = $new_dx['DiagnosisDetail']['initial_recurrence_date_accuracy'];
+			$new_initial_recurrence_date = '';
+			$new_initial_recurrence_date_accuracy = '';
+			$existing_empty_recurrence_date = false;
 			
-			// *** SET INITIAL DIAGNOSIS SURGERY DATE ***
-			
-			$initial_surgery_date = $diagnosis_data['DiagnosisDetail']['initial_surgery_date'];
-			$initial_surgery_date_accuracy = $diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'];
-			
-			$treatment_master_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-			$conditions =  array (
-				'TreatmentMaster.diagnosis_master_id' => $diagnosis_master_id,
-				'TreatmentControl.disease_site' => 'ovcare',
-				'TreatmentControl.tx_method' => 'surgery',
-				"TreatmentMaster.start_date != ''",
-				"TreatmentMaster.start_date IS NOT NULL"		
-			);
-			$surgeries_list = $treatment_master_model->find('first', array('conditions' =>$conditions, 'order' => array('TreatmentMaster.start_date ASC'),'recursive' => '0'));
-			
-			$new_min_surgery_date = empty($surgeries_list)? '' : $surgeries_list['TreatmentMaster']['start_date'];
-			$new_min_surgery_date_accuracy = empty($surgeries_list)? '' : $surgeries_list['TreatmentMaster']['start_date_accuracy'];	
-
-			if(($initial_surgery_date.$initial_surgery_date_accuracy) != ($new_min_surgery_date.$new_min_surgery_date_accuracy)) {
-				$arr_new_min_surgery_date = explode('-',$new_min_surgery_date);
-				
-				$set_year_acc = false;
-				switch($new_min_surgery_date_accuracy) {
-					case 'y':
-						$set_year_acc = true;
-					case 'm':
-						$arr_new_min_surgery_date[1] = '';
-					case 'd':
-						$arr_new_min_surgery_date[2] = '';
-						break;
-					case 'c':
-						break;
-					case '':
-						if(!empty($new_min_surgery_date)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-						$arr_new_min_surgery_date = array('','','');
-						break;
-					default:
-						AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				}
-				
-				$arr_new_min_surgery_date = array_combine(array('year','month','day'), $arr_new_min_surgery_date);
-				if($set_year_acc) $arr_new_min_surgery_date['year_accuracy'] = 1;
-
-				$new_diag_data = array();
-				$new_diag_data['DiagnosisMaster']['id'] = $diagnosis_master_id;
-				$new_diag_data['DiagnosisDetail']['initial_surgery_date'] = $arr_new_min_surgery_date;	
-				$this->data = array();
-				$this->id = $diagnosis_master_id;
-				$this->save($new_diag_data,false);
-				
-				// *** LAUNCH DIAGNOSIS SURVIVAL TIME CALCULATION ***
-				
-				$this->updateSurvivalTime($diagnosis_master_id, false);
-				
-				// *** LAUNCH DIAGNOSIS PROGRESSION FREE TIME CALCULATION ***
-				
-				$this->updateProgressionFreeTime($diagnosis_master_id);
-			}
-		}
-	}
-	
-	function updateAllSurvivaleTimes($participant_id) {
-		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-		$participant_data = $participant_model->find('first', array('conditions' => array ('Participant.id' => $participant_id), 'recursive' => '-1'));
-		if(empty($participant_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		$diagnoses_list = $this->find('all',array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisControl.controls_type' => 'ovcare'), 'recursive' => '0'));
-		foreach($diagnoses_list as $new_diagnosis) $this->updateSurvivalTime($new_diagnosis['DiagnosisMaster']['id'], true, $new_diagnosis, $participant_data);
-	}	
-	
-	function updateSurvivalTime($diagnosis_master_id, $launch_update_progression_free_time,$diagnosis_data = array(), $participant_data = array()) {
-		if(empty($diagnosis_data)) $diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
-		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
-			if(empty($participant_data)) {
-				$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-				$participant_data = $participant_model->find('first', array('conditions' => array ('Participant.id' => $diagnosis_data['DiagnosisMaster']['participant_id']), 'recursive' => '-1'));
-			}
-			if(empty($participant_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-
-			$previous_survival_time_months = $diagnosis_data['DiagnosisMaster']['survival_time_months'];
-			$survival_time_months = '';
-			if(!empty($participant_data['Participant']['ovcare_last_followup_date']) && !empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date'])) {
-				if((in_array($participant_data['Participant']['ovcare_last_followup_date_accuracy'], array('d','c')) || empty($participant_data['Participant']['ovcare_last_followup_date_accuracy'])) 
-				&& (in_array($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'], array('d','c')) || empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy']))) {
-					$initialSurgeryDateObj = new DateTime($diagnosis_data['DiagnosisDetail']['initial_surgery_date']);
-					$lastFollDateObj = new DateTime($participant_data['Participant']['ovcare_last_followup_date']);
-					$interval = $initialSurgeryDateObj->diff($lastFollDateObj);
-					$survival_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
-					if($survival_time_months < 0) {
-						$survival_time_months = '';
-						AppController::addWarningMsg(str_replace('%%field%%', __('survival time months',true), __('error in the dates definitions: the field [%%field%%] can not be generated', true)));
-					}
-				} else {
-					AppController::addWarningMsg(str_replace('%%field%%', __('survival time months',true), __('the dates accuracy is not sufficient: the field [%%field%%] can not be generated', true)));
-				}
-			}
-							
-			if($previous_survival_time_months != $survival_time_months) {
-				
-				// *** UPDATE SURVIVAL TIME ***
-				
-				$new_diag_data = array();
-				$new_diag_data['DiagnosisMaster']['id'] = $diagnosis_master_id;
-				$new_diag_data['DiagnosisMaster']['survival_time_months'] = $survival_time_months;	
-				$this->data = array();
-				$this->id = $diagnosis_master_id;
-				$this->save($new_diag_data,false);
-				
-				// *** LAUNCH DIAGNOSIS PROGRESSION FREE TIME CALCULATION ***
-				
-				if($launch_update_progression_free_time) $this->updateProgressionFreeTime($diagnosis_master_id);
-			}
-		}
-	}
-
-	function updateProgressionFreeTime($diagnosis_master_id) {
-		$diagnosis_data = $this->find('first',array('conditions' => array('DiagnosisMaster.id' => $diagnosis_master_id), 'recursive' => '0'));
-		if(empty($diagnosis_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		if($diagnosis_data['DiagnosisControl']['controls_type'] == 'ovcare') {
-			$previous_progression_free_time_months = $diagnosis_data['DiagnosisDetail']['progression_free_time_months'];
-			
+			$progression_free_time_months = $new_dx['DiagnosisDetail']['progression_free_time_months'];
+			$progression_free_time_months_precision = $new_dx['DiagnosisDetail']['progression_free_time_months_precision'];
 			$new_progression_free_time_months = '';
-			if(!empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date']) && !empty($diagnosis_data['DiagnosisDetail']['initial_recurrence_date'])) {
-				if((in_array($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'], array('d','c')) || empty($diagnosis_data['DiagnosisDetail']['initial_surgery_date_accuracy'])) 
-				&& (in_array($diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy'], array('d','c')) || empty($diagnosis_data['DiagnosisDetail']['initial_recurrence_date_accuracy']))) {
-					$initialSurgeryDateObj = new DateTime($diagnosis_data['DiagnosisDetail']['initial_surgery_date']);
-					$initialRecurrenceDateObj = new DateTime($diagnosis_data['DiagnosisDetail']['initial_recurrence_date']);
+			$new_progression_free_time_months_precision = 'missing information';
+				
+			$survival_time_months = $new_dx['DiagnosisMaster']['survival_time_months'];
+			$survival_time_months_precision = $new_dx['DiagnosisMaster']['survival_time_months_precision'];
+			$new_survival_time_months = '';
+			$new_survival_time_months_precision = 'missing information';
+			
+			//Get recurrences + all diagnosis_master_ids linked to the tumor group
+			
+			$linked_ovary_diagnoses = $this->find('all', array(
+				'conditions' => array('DiagnosisMaster.primary_id' => $diagnosis_master_id),
+				'order' => array('DiagnosisMaster.dx_date ASC'),
+				'fields' => array('DiagnosisMaster.id', 'DiagnosisMaster.dx_date', 'DiagnosisMaster.dx_date_accuracy', 'DiagnosisControl.category'), 
+				'recursive' => '0'));
+			$linked_ovary_diagnosis_master_ids = array();
+			foreach($linked_ovary_diagnoses as $linked_dx) {
+				// Get all linked diagnosis ids
+				$linked_ovary_diagnosis_master_ids[] = $linked_dx['DiagnosisMaster']['id'];
+				// Manage recurrences date
+				if($linked_dx['DiagnosisControl']['category'] == 'recurrence') {
+					if(empty($linked_dx['DiagnosisMaster']['dx_date'])) {
+						$existing_empty_recurrence_date = true;
+					} else if(empty($new_initial_recurrence_date)) {
+						$new_initial_recurrence_date = $linked_dx['DiagnosisMaster']['dx_date'];
+						$new_initial_recurrence_date_accuracy = $linked_dx['DiagnosisMaster']['dx_date_accuracy'];
+					}
+				}
+			}
+			
+			// Get surgeries
+			
+			$linked_surgeries = $TreatmentMaster->find('all', array(
+				'conditions' => array('TreatmentMaster.diagnosis_master_id' => $linked_ovary_diagnosis_master_ids, 'TreatmentControl.tx_method' => 'surgery'),
+				'order' => array('TreatmentMaster.start_date ASC'),
+				'fields' => array('TreatmentMaster.id', 'TreatmentMaster.start_date', 'TreatmentMaster.start_date_accuracy'), 
+				'recursive' => '0'));			
+			foreach($linked_surgeries as $new_surgery) {						
+				if(empty($new_surgery['TreatmentMaster']['start_date'])) {
+					$existing_empty_surgery_date = true;
+				} else if(empty($new_initial_surgery_date)) {
+					$new_initial_surgery_date = $new_surgery['TreatmentMaster']['start_date'];
+					$new_initial_surgery_date_accuracy = $new_surgery['TreatmentMaster']['start_date_accuracy'];
+				}				
+			}
+			
+			// Calculate new value
+			
+			if($new_initial_surgery_date) {
+				if($ovcare_last_followup_date) {
+					$initialSurgeryDateObj = new DateTime($new_initial_surgery_date);
+					$lastFollDateObj = new DateTime($ovcare_last_followup_date);
+					$interval = $initialSurgeryDateObj->diff($lastFollDateObj);
+					$new_survival_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
+					if($new_survival_time_months < 0) {
+						$new_survival_time_months = '';
+						$new_survival_time_months_precision = "date error";
+						AppController::addWarningMsg(str_replace('%%field%%', __('survival time months'), __('error in the dates definitions: the field [%%field%%] can not be generated')));
+					} else if(!(in_array($new_initial_surgery_date_accuracy, array('c')) && in_array($ovcare_last_followup_date_accuracy, array('c')))) {
+						$new_survival_time_months_precision = "approximate";
+					} else if($existing_empty_surgery_date) {
+						$new_survival_time_months_precision = "some surgery dates empty";
+					} else {
+						$new_survival_time_months_precision = "exact";
+					}
+				}
+				if($new_initial_recurrence_date) {
+					$initialSurgeryDateObj = new DateTime($new_initial_surgery_date);
+					$initialRecurrenceDateObj = new DateTime($new_initial_recurrence_date);
 					$interval = $initialSurgeryDateObj->diff($initialRecurrenceDateObj);
-					$new_progression_free_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
+					$new_progression_free_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');
 					if($new_progression_free_time_months < 0) {
 						$new_progression_free_time_months = '';
-						AppController::addWarningMsg(str_replace('%%field%%', __('progression free time months',true), __('error in the dates definitions: the field [%%field%%] can not be generated', true)));
-					}
-				} else {
-					AppController::addWarningMsg(str_replace('%%field%%', __('progression free time months',true), __('the dates accuracy is not sufficient: the field [%%field%%] can not be generated', true)));
+						$new_progression_free_time_months_precision = "date error";
+						AppController::addWarningMsg(str_replace('%%field%%', __('progression free time months'), __('error in the dates definitions: the field [%%field%%] can not be generated')));
+					} else if(!in_array($new_initial_surgery_date_accuracy, array('c')) || !in_array($new_initial_recurrence_date_accuracy, array('c'))) {
+						$new_progression_free_time_months_precision = "approximate";
+					} else if($existing_empty_recurrence_date) {
+						$new_progression_free_time_months_precision = "some recurrence dates empty";
+					} else {
+						$new_progression_free_time_months_precision = "exact";
+					}					
 				}
-			} else {
-				$new_progression_free_time_months = $diagnosis_data['DiagnosisMaster']['survival_time_months'];
 			}
 			
-			if($new_progression_free_time_months != $previous_progression_free_time_months) {
-				// *** UPDATE PROGRESSION FREE TIME ***
-				$new_diag_data = array();
-				$new_diag_data['DiagnosisMaster']['id'] = $diagnosis_master_id;
-				$new_diag_data['DiagnosisDetail']['progression_free_time_months'] = $new_progression_free_time_months;
-				$this->data = array();
-				$this->id = $diagnosis_master_id;
-				$this->save($new_diag_data,false);
-			}
+			// Data to update
+			
+			$versions = $this->tryCatchQuery("SELECT MAX(diagnosis_masters_revs.version_id) AS master_version_id, MAX(ovcare_dxd_ovaries_revs.version_id) AS detail_version_id
+				FROM diagnosis_masters_revs
+				INNER JOIN ovcare_dxd_ovaries_revs ON diagnosis_masters_revs.id = ovcare_dxd_ovaries_revs.diagnosis_master_id
+				WHERE diagnosis_masters_revs.id = $diagnosis_master_id;");
+			$master_version_id = $versions[0][0]['master_version_id'];
+			$detail_version_id = $versions[0][0]['detail_version_id'];
+			
+			$data_to_update = array();
+			if($new_survival_time_months != $survival_time_months) $data_to_update[] = (empty($new_survival_time_months)? "survival_time_months = null" : "survival_time_months = '$new_survival_time_months'"); 
+			if($new_survival_time_months_precision != $survival_time_months_precision) $data_to_update[] = "survival_time_months_precision = '$new_survival_time_months_precision'";
+			if($data_to_update) {
+				$this->tryCatchQuery("UPDATE diagnosis_masters SET ".implode(', ', $data_to_update)." WHERE id = $diagnosis_master_id");
+				$this->tryCatchQuery("UPDATE diagnosis_masters_revs SET ".implode(', ', $data_to_update)." WHERE id = $diagnosis_master_id AND version_id = $master_version_id");
+			}		
+			$data_to_update = array();
+			if($new_initial_surgery_date != $initial_surgery_date) $data_to_update[] = "initial_surgery_date = '$new_initial_surgery_date'";
+			if($new_initial_surgery_date_accuracy != $initial_surgery_date_accuracy) $data_to_update[] = "initial_surgery_date_accuracy = '$new_initial_surgery_date_accuracy'";
+			if($new_initial_recurrence_date != $initial_recurrence_date) $data_to_update[] = "initial_recurrence_date = '$new_initial_recurrence_date'";
+			if($new_initial_recurrence_date_accuracy != $initial_recurrence_date_accuracy) $data_to_update[] = "initial_recurrence_date_accuracy = '$new_initial_recurrence_date_accuracy'";
+			if($new_progression_free_time_months != $progression_free_time_months) $data_to_update[] = (empty($new_progression_free_time_months)? "progression_free_time_months = null" : "progression_free_time_months = '$new_progression_free_time_months'");
+			if($new_progression_free_time_months_precision != $progression_free_time_months_precision) $data_to_update[] = "progression_free_time_months_precision = '$new_progression_free_time_months_precision'";
+			if($data_to_update) {
+				$this->tryCatchQuery("UPDATE ovcare_dxd_ovaries SET ".implode(', ', $data_to_update)." WHERE diagnosis_master_id = $diagnosis_master_id");
+				$this->tryCatchQuery("UPDATE ovcare_dxd_ovaries_revs SET ".implode(', ', $data_to_update)." WHERE diagnosis_master_id = $diagnosis_master_id AND version_id = $detail_version_id");
+			}						
 		}
 	}
+	
 }
 ?>

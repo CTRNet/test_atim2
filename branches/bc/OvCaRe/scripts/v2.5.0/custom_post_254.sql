@@ -695,34 +695,50 @@ INSERT INTO i18n (id,en) VALUES ('ischemia time mn','Ischemia time (mn)');
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("FFPE", "FFPE");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="block_type"), (SELECT id FROM structure_permissible_values WHERE value="FFPE" AND language_alias="FFPE"), "0", "1");
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='dx_secondary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tumor_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor site' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_tumor_site');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ALTER TABLE ovcare_dxd_ovaries
+  ADD COLUMN progression_free_time_months_precision varchar(50) DEFAULT NULL;
+ALTER TABLE ovcare_dxd_ovaries_revs
+  ADD COLUMN progression_free_time_months_precision varchar(50) DEFAULT NULL;  
+ALTER TABLE diagnosis_masters
+  ADD COLUMN survival_time_months_precision varchar(50) DEFAULT NULL;
+ALTER TABLE diagnosis_masters_revs
+  ADD COLUMN survival_time_months_precision varchar(50) DEFAULT NULL;   
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ovcare_calculated_time_precision", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES
+("exact", "exact"),
+("approximate", "approximate"),
+("missing information", "missing information"),
+("some recurrence dates empty", "some recurrence dates empty"),
+("some surgery dates empty", "some surgery dates empty"),
+("date error", "date error");
+INSERT IGNORE INTO i18n (id,en) VALUES 
+("exact", "Exact"),
+("approximate", "Approximate"),
+("missing information", "Missing information"),
+("some recurrence dates empty", "Some recurrence dates empty"),
+("some surgery dates empty", "Some surgery dates empty"),
+("date error", "Date error");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_calculated_time_precision"), (SELECT id FROM structure_permissible_values WHERE value="exact" AND language_alias="exact"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_calculated_time_precision"), (SELECT id FROM structure_permissible_values WHERE value="approximate" AND language_alias="approximate"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_calculated_time_precision"), (SELECT id FROM structure_permissible_values WHERE value="missing information" AND language_alias="missing information"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_calculated_time_precision"), (SELECT id FROM structure_permissible_values WHERE value="some recurrence dates empty" AND language_alias="some recurrence dates empty"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_calculated_time_precision"), (SELECT id FROM structure_permissible_values WHERE value="some surgery dates empty" AND language_alias="some surgery dates empty"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_calculated_time_precision"), (SELECT id FROM structure_permissible_values WHERE value="date error" AND language_alias="date error"), "6", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'progression_free_time_months_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_calculated_time_precision') , '0', '', '', '', '', '-'),
+('InventoryManagement', 'DiagnosisMaster', 'diagnosis_masters', 'survival_time_months_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_calculated_time_precision') , '0', '', '', '', '', '-');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='progression_free_time_months_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_calculated_time_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '3', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), 
+(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months_precision' ), '3', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 -- - TFRI-COEUR FIELDS ----------------------------------------------------------------------------------------------------------------
 
@@ -817,6 +833,49 @@ INSERT INTO i18n (id,en) VALUES ('ca125','CA125 (u)');
 INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
 ('ovcare_clin_CAN_3', 'clin_CAN_4', 0, 6, 'ca125', 'ca125', '/ClinicalAnnotation/EventMasters/listall/ca125/%%Participant.id%%', 'ClinicalAnnotation.EventMaster::summary', 1, 1);
 UPDATE event_controls SET `event_group` = 'ca125' WHERE detail_form_alias = 'ovcare_ed_ca125s';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
