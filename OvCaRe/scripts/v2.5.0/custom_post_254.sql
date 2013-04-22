@@ -834,6 +834,9 @@ INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_ti
 ('ovcare_clin_CAN_3', 'clin_CAN_4', 0, 6, 'ca125', 'ca125', '/ClinicalAnnotation/EventMasters/listall/ca125/%%Participant.id%%', 'ClinicalAnnotation.EventMaster::summary', 1, 1);
 UPDATE event_controls SET `event_group` = 'ca125' WHERE detail_form_alias = 'ovcare_ed_ca125s';
 
+UPDATE event_controls SET databrowser_label = event_type WHERE flag_active = 1;
+UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 1;
+
 
 
 
