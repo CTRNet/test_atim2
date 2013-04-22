@@ -80,7 +80,7 @@ class EventMasterCustom extends EventMaster {
 			$result = $this->find('first', array('conditions'=>array('EventMaster.id'=>$variables['EventMaster.id'])));
 				
 			$return = array(
-					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+					'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE)),
 					'title'			=>	array( NULL, __('annotation', TRUE) ),
 					'data'				=> $result,
 					'structure alias'	=> 'eventmasters'
@@ -92,7 +92,7 @@ class EventMasterCustom extends EventMaster {
 			$result = $event_control_model->find('first', array('conditions'=>array('EventControl.id'=>$variables['EventControl.id'])));
 				
 			$return = array(
-					'menu'			=>	array( NULL, __($result['EventControl']['disease_site'], TRUE).' - '.__($result['EventControl']['event_type'], TRUE) ),
+					'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE) ),
 					'title'			=>	null,
 					'data'				=> null,
 					'structure alias'	=> null
