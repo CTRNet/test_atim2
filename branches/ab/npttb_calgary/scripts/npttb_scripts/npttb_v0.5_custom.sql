@@ -13,6 +13,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`)
 */
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 142, 143, 141, 144);
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(184, 167, 170, 168, 171, 169, 172);
 
 
 /*
@@ -26,7 +27,7 @@ UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permiss
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="paxgene" AND language_alias="paxgene");
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown");
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='blood_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="ZCSA" AND language_alias="ZCSA");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("ACB", "npttb ACB");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("ACD", "npttb ACD");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="ACD" AND language_alias="npttb ACD"), "1", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("serum", "npttb serum");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="npttb serum"), "4", "1");
@@ -149,16 +150,14 @@ CREATE TABLE `ed_npttb_clinical_tests_revs` (
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_egfr_amp", "", "", NULL);
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("highly amplified", "npttb highly amplified");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_egfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="highly amplified" AND language_alias="npttb highly amplified"), "1", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("abnormal- not amplified", "npttb abnormal - not amplified");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_egfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="abnormal- not amplified" AND language_alias="npttb abnormal - not amplified"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("abnormal - not amplified", "npttb abnormal - not amplified");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_egfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="abnormal - not amplified" AND language_alias="npttb abnormal - not amplified"), "2", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("normal", "npttb normal");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_egfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="npttb normal"), "3", "1");
 
 -- Create value domain: PDGFR Amplification
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_pdgfr_amp", "", "", NULL);
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("highly amplified", "npttb highly amplified");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_pdgfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="highly amplified" AND language_alias="npttb highly amplified"), "1", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("abnormal - not amplified", "npttb abnormal - not amplified");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_pdgfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="abnormal - not amplified" AND language_alias="npttb abnormal - not amplified"), "2", "1");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_pdgfr_amp"), (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="npttb normal"), "3", "1");
 
@@ -325,3 +324,69 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	('npttb 19q loss only', '19q loss only', ''),
 	('npttb no 19q loss', 'No 19q loss', ''),
 	('npttb 19q polyploidy', '19q polyploidy', '');	
+	
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_npttb_clinical_tests'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `language_heading`='npttb clinical test results' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_npttb_clinical_tests') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_npttb_clinical_tests' AND `field`='npttb_egfr_amplification' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_egfr_amp') AND `flag_confidential`='0');	
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb clinical test results', 'Clinical Test Results', '');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2544 - Diagnosis - Add field Grade
+	------------------------------------------------------------
+*/
+	
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_grade", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("I", "npttb I");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_grade"), (SELECT id FROM structure_permissible_values WHERE value="I" AND language_alias="npttb I"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("II", "npttb II");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_grade"), (SELECT id FROM structure_permissible_values WHERE value="II" AND language_alias="npttb II"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("III", "npttb III");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_grade"), (SELECT id FROM structure_permissible_values WHERE value="III" AND language_alias="npttb III"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("IV", "npttb IV");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_grade"), (SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="npttb IV"), "4", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb I', 'I', ''),
+	('npttb II', 'II', ''),
+	('npttb III', 'III', ''),
+	('npttb IV', 'IV', '');			
+
+ALTER TABLE `dxd_npttb_tissue` ADD COLUMN `npttb_grade` VARCHAR(45) NULL DEFAULT NULL  AFTER `npttb_ttb_diagnosis` ;
+ALTER TABLE `dxd_npttb_tissue_revs` ADD COLUMN `npttb_grade` VARCHAR(45) NULL DEFAULT NULL  AFTER `npttb_ttb_diagnosis` ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'dxd_npttb_tissue', 'npttb_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_grade') , '0', '', '', '', '', 'npttb grade');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_npttb_tissue'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='dxd_npttb_tissue' AND `field`='npttb_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='npttb grade'), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb grade', 'Grade', '');
+	
+/*
+	------------------------------------------------------------
+	Eventum ID: 2545 - Fix Surgery path number
+	------------------------------------------------------------
+*/	
+
+UPDATE `structure_validations` SET `rule`='/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{5}$/' WHERE `structure_field_id`= (SELECT `id` FROM `structure_fields` where `field` = 'path_num' AND tablename = 'txd_surgeries');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+	('npttb error surgery path number', 'Validation error - Pathology Number must be AA DD-DDDDD', '');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2546 - Enable study plugin
+	------------------------------------------------------------
+*/	
+
+UPDATE menus SET flag_active=true WHERE id IN('tool_CAN_100');
+
+INSERT INTO `study_summaries` (`disease_site`,`study_type`,`study_science`,`study_use`,`title`,`start_date`,`start_date_accuracy`,`end_date`,`end_date_accuracy`,`summary`,`abstract`,`hypothesis`,`approach`,`analysis`,`significance`,`additional_clinical`,`created`,`created_by`,`modified`,`modified_by`,`path_to_file`,`deleted`) VALUES ('',NULL,NULL,NULL,'3T MRI LGG',NULL,'',NULL,'','Dr. Greg Cairncross',NULL,NULL,NULL,NULL,NULL,NULL,'2013-04-23 11:32:31',1,'2013-04-23 11:32:31',1,NULL,0);
+INSERT INTO `study_summaries` (`disease_site`,`study_type`,`study_science`,`study_use`,`title`,`start_date`,`start_date_accuracy`,`end_date`,`end_date_accuracy`,`summary`,`abstract`,`hypothesis`,`approach`,`analysis`,`significance`,`additional_clinical`,`created`,`created_by`,`modified`,`modified_by`,`path_to_file`,`deleted`) VALUES ('',NULL,NULL,NULL,'Differential Biopsy/XYZ',NULL,'',NULL,'','Dr. Mark Hamilton',NULL,NULL,NULL,NULL,NULL,NULL,'2013-04-23 11:32:55',1,'2013-04-23 11:32:55',1,NULL,0);
+INSERT INTO `study_summaries` (`disease_site`,`study_type`,`study_science`,`study_use`,`title`,`start_date`,`start_date_accuracy`,`end_date`,`end_date_accuracy`,`summary`,`abstract`,`hypothesis`,`approach`,`analysis`,`significance`,`additional_clinical`,`created`,`created_by`,`modified`,`modified_by`,`path_to_file`,`deleted`) VALUES ('',NULL,NULL,NULL,'Metabolomics CSF',NULL,'',NULL,'','Dr. Mark Hamilton',NULL,NULL,NULL,NULL,NULL,NULL,'2013-04-23 11:33:18',1,'2013-04-23 11:33:18',1,NULL,0);
+INSERT INTO `study_summaries` (`disease_site`,`study_type`,`study_science`,`study_use`,`title`,`start_date`,`start_date_accuracy`,`end_date`,`end_date_accuracy`,`summary`,`abstract`,`hypothesis`,`approach`,`analysis`,`significance`,`additional_clinical`,`created`,`created_by`,`modified`,`modified_by`,`path_to_file`,`deleted`) VALUES ('',NULL,NULL,NULL,'Pseudoprogression',NULL,'',NULL,'','Dr. Jay Easaw',NULL,NULL,NULL,NULL,NULL,NULL,'2013-04-23 11:33:37',1,'2013-04-23 11:33:37',1,NULL,0);
+
