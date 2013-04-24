@@ -154,7 +154,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='name' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_specimen_nbr_report_res') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='RAMQ' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_specimen_nbr_report_res') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
-UPDATE `versions` SET branch_build_number = 'xxx' WHERE version_number = '2.5.4';
-
-
+UPDATE `versions` SET branch_build_number = '5204' WHERE version_number = '2.5.4';
