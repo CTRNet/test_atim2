@@ -37,14 +37,35 @@ INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_
 `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) 
 VALUES
 (null, 'box40', 'position', 'integer', 40, NULL, NULL, NULL, 10, 4, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box40', 1),
-(null, 'box100 10x10', 'row', 'integer', 10, 'column', 'integer', 10, 10, 10, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box100 10x10', 1)
-(null, 'box30 3x10', 'row', 'integer', 3, 'column', 'integer', 10, 3, 10, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box30 3x10', 1);
-INSERT INTO i18n (id,en,fr)
+(null, 'box100 10x10', 'row', 'integer', 10, 'column', 'integer', 10, 10, 0, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box100 10x10', 1),
+(null, 'box30 3x10', 'row', 'integer', 3, 'column', 'integer', 10, 3, 0, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box30 3x10', 1),
+(null, 'box49 7x7', 'row', 'integer', 3, 'column', 'integer', 7, 7, 0, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box49 7x7', 1);
+INSERT IGNORE INTO i18n (id,en,fr)
  VALUES 
 ('box40','Box40 1-40', 'Boîte40 1-40'),
 ('box100 10x10','Box100 10x10', 'Boîte100 10x10'),
-('box30 3x10','Box30 3x10', 'Boîte30 3x10');
+('box30 3x10','Box30 3x10', 'Boîte30 3x10'),
+('box49 7x7','Box49 7x7', 'Boîte49 7x7');
 
+
+
+
+
+
+
+
+
+
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, 
+`display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) 
+VALUES
+(null, 'box49 7x7', 'row', 'integer', 3, 'column', 'integer', 7, 7, 0, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_boxs', 'box49 7x7', 1);
+
+
+
+
+UPDATE storage_controls SET flag_active = 1 WHERE storage_type NOT IN ('room', 'freezer', 'rack16', 'shelf');
 
 
 
