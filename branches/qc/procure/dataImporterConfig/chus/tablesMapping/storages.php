@@ -5,73 +5,211 @@ function loadStorages() {
 	Config::$storages = array();
 	Config::$storage_data_from_label = array();
 	
+	Config::$summary_msg['Load Storage']['@@WARNING@@']['Check cell with diagonal'][] = "System will be unable to track cell diagonal. Ex: box R19-B9";
+	
+	// *** LOAD PLASMA, SERUM, etc  *** 
+if(false) {	
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path_storage_all);	
-	
 	$sheets_nbr = array();
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) {
-		if(in_array($tmp['name'], array(utf8_decode('Résumé'), utf8_decode('Schéma')))) continue;
-		$work_sheet = $tmp['name'];
+		$work_sheet_name = str_replace(' ','', $tmp['name']);
+		if(in_array($work_sheet_name, array(utf8_decode('Résumé'), utf8_decode('Schéma')))) continue;
 		
-		
+		$box_storage_master_id = getNewtStorageId();
 		$box_label = '';
-		$box_storage_master_id = null;
-		$line_counter = 0;
-		$box_row = 0;
+		$box_notes = array();;
+		$studied_box_row = 0;
+		$box_row_nbr = 0;
+		$box_column_nbr = 0;
+		
+		$excel_line_counter = 0;
 		foreach($tmp_xls_reader->sheets[$key]['cells'] as $line => $new_line) {
-			$line_counter++;
-			if($line_counter == 1) {
-				if($new_line['1'] != utf8_decode('Boîte')) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_1'); }
-				$box_label = $new_line['2'];
-				if(!$box_label) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_1(1)'); }
-				if(!preg_match('/^(C[0-9]+\-){0,1}(R[0-9]+\-B[0-9]+)(\ {0,1})(.*)$/', $box_label, $matches)) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_1(2)'); }
-				$box_label = $matches[1].$matches[2];
-				if(isset($matches[4]) && $matches[4]) { 
-//TODO Ajouter un message de warning ou ajouter le commentaire dans la note
-					
-				}
-				//test format
-			} else if($line_counter == 2) {
-				if($new_line['1'] != utf8_decode('Contenu')) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_1'); }
-				if(!$new_line['2']) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_1(1)'); }
+			$excel_line_counter++;
+			if($excel_line_counter == 1) {
+				if($new_line['1'] != utf8_decode('Boîte')) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1'); }
+				if(!$new_line['2']) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1(1)'); }
+				if(!preg_match('/^(C[0-9]+\-){0,1}(R[0-9]+\-B[0-9]+)(\-C[0-9]+){0,1}(\ {0,1})(.*)$/', $new_line['2'], $matches)) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1(2)'); }
+				$box_label = $matches[1].$matches[2].$matches[3];
+				if($work_sheet_name != $box_label) Config::$summary_msg['Load Storage']['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [$box_label].";
+			if(isset($matches[5]) && $matches[5]) $box_notes[] = $matches[5];
+				unset($new_line['1']);
+				unset($new_line['2']);
+				if($new_line) $box_notes[] = str_replace(array("\n", '  '), array(' ', ' '), implode(' | ', $new_line));		
+			} else if($excel_line_counter == 2) {
+				if($new_line['1'] != utf8_decode('Contenu')) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1'); }
+				if(!$new_line['2']) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1(1)'); }
 				$box_label .= ' '.$new_line['2'];
-			} else if($line_counter == 3) {
-				if(implode('-',$new_line) != utf8_decode("Emplacement-Congélateur-Étagère-Râtelier-Colonne-Rangée")) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_3'); }
-			} else if($line_counter == 4) {				
+			} else if($excel_line_counter == 3) {
+				if(implode('-',$new_line) != utf8_decode("Emplacement-Congélateur-Étagère-Râtelier-Colonne-Rangée")) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_3'); }
+			} else if($excel_line_counter == 4) {				
 				$freezer_label = "freezer[".$new_line['2']."](-)";
 				$shelf_label = "shelf[".$new_line['3']."](-)";
 				$rack_label = "rack16[".$new_line['4']."](-)";
-				$box_label = "box100 10x10[$box_label](".$new_line['5']."-".$new_line['6'].")";
-				$box_storage_master_id = getNewtStorageId();
-				Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'] = $box_storage_master_id;
-			} else if($line_counter == 5) {
-				for($key = 2; $key < 12; $key++) if($new_line[$key] != ($key-1)) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_5'); }
-//TODO box 3X10		
-//TODO des commentaire dnas R20-B5		
-			} else {
-				$box_row++;
-				if($box_row < 11) {
-					if($new_line['1'] != $box_row) { pr($new_line);die('ERR_parse_all_boxes_['.$work_sheet.']_line_>5'); }
-					unset($new_line['1']);
-					foreach($new_line as $key => $value) {
-						$box_column = ($key - 1);
-						if($box_column > 10) continue;
-						$value = str_replace(array("\n", '  '), array(' ', ' '), $value);
-						Config::$storage_data_from_label[$value] = array('excel_value' => $value, 'x' => $box_column, 'y' => $box_row);
-					}
+				$box_label = "[$box_label](".$new_line['5']."-".((isset($new_line['6']) && strtolower($new_line['6']) != 'x')? $new_line['6'] : '').")";
+			} else if($excel_line_counter == 5) {
+				$box_column_nbr = 0;
+				if(sizeof($new_line) == 3) {
+					$box_column_nbr = 3;
+					$box_row_nbr = 10;
+					$box_label = 'box30 3x10'.$box_label;
+				} else if(sizeof($new_line) == 10) {
+					$box_column_nbr = 10;
+					$box_row_nbr = 10;
+					$box_label = 'box100 10x10'.$box_label;
+				} else if(sizeof($new_line) == 7) {
+					$box_column_nbr = 7;
+					$box_row_nbr = 7;
+					$box_label = 'box49 7x7'.$box_label;				
 				} else {
-					
-//TODO Ajouter un message de warning ou ajouter le commentaire dans la note
-					
-					
-					
+					pr($new_line);
+					die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_5');
+				}
+				for($key = 2; $key < ($box_column_nbr+2); $key++) {
+					if(in_array($new_line[$key], array('6A', '6B'))) {
+						$box_notes[] = 'Changed column '.$new_line[$key].' to '.($key-1);
+					} else if($new_line[$key] != ($key-1)) { 
+						die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_5.2'); 
+					}	
+				}
+			} else {
+				$studied_box_row++;
+				if($studied_box_row <= $box_row_nbr) {
+					if($new_line['1'] != $studied_box_row) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_>5'); }
+					unset($new_line['1']);
+					$line_notes = array();
+					foreach($new_line as $key => $value) {
+						$value = str_replace(array("\n"), array(' '), $value);
+						$value = preg_replace('/(\ ){2,100}/', ' ', $value);
+						$studied_box_column = ($key - 1);
+						if($studied_box_column <= $box_column_nbr) {
+							$aliquot_note = '';
+							$aliquot_label = str_replace(
+								array('PS4O', '-V0', 'PS4PO', 'PS4POO', '-O8', 'PS4PP', 'VO1', 'PA4P', 'P0 290'), 
+								array('PS4P', ' V0', 'PS4P0', 'PS4P0', '-08', 'PS4P', 'V01', 'PS4P', 'P0290'),
+								$value);
+							$aliquot_label = preg_replace('/(\ ){2,100}/', ' ', $aliquot_label);
+							if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}((PLA|URC|BRC|URN|SER|BFC|BCF|DNA|RNA|FRZ|\-miR|UNC)(\ ){0,1}([0-9]){0,2})(\ )*(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {								
+								$aliquot_label = $matches[1].' '.$matches[3].' '.$matches[5];
+								if(!empty($matches[10]))$aliquot_note = $matches[10];
+								Config::$storage_data_from_label[$aliquot_label][] = array(
+									'aliquot_label' => $aliquot_label, 
+									'x' => $studied_box_column, 
+									'y' => $studied_box_row, 
+									'notes' => $aliquot_note,
+									'tmp_work_sheet_name' => $work_sheet_name,
+									'tmp_cell_value' => $value);
+							} else {							
+								Config::$summary_msg['Load Storage']['@@ERROR@@']['Wrong aliquot label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$studied_box_column/$studied_box_row]. Format is not recognized. Aliquot positon won't be imported.";
+							}
+						} else {
+							$line_notes[] = $value;
+						}
+					}
+					$box_notes[] = implode(' | ', $line_notes);
+				} else {
+					$box_notes[] = str_replace(array("\n", '  '), array(' ', ' '), implode(' | ', $new_line));	
 				}
 			}
 		}
+		$box_label = utf8_encode($box_label);
+		if(isset(Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]))	die('ERR_parse_all_boxes_dup : '.$box_label); 
+		Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['id'] = $box_storage_master_id;
+		Config::$storages[$freezer_label][$shelf_label][$rack_label][$box_label]['notes'] = utf8_encode(str_replace("'", "''", implode("\n", array_filter($box_notes))));
+	}
+}	
+	// *** LOAD WHATMAN PAPER ***
+	
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
+	$tmp_xls_reader->read( Config::$xls_file_path_storage_whatman_paper);
+	$sheets_nbr = array();
+	foreach($tmp_xls_reader->boundsheets as $key => $tmp) {
+		$work_sheet_name = $tmp['name'];
+pr(" -------------> $work_sheet_name")	;
+		$box_label_from_work_sheet_name = str_replace(array('Boîte', ' '), array('', ''), utf8_encode($tmp['name']));
+		$box_label = '';
+		$first_box_line = null;
+		$box_data = array();
+		foreach($tmp_xls_reader->sheets[$key]['cells'] as $line => $new_line) {			
+			//Get baox label
+			if(in_array(utf8_decode('Boîte'), $new_line)) { 
+				$new_line = array_values($new_line);			
+				if($new_line['0'] != utf8_decode('Boîte')) die('ERR_whatman_paper.1 - '.$work_sheet_name);
+				$new_line['1'] = str_replace(' et ', '-', $new_line['1']);
+				if(!preg_match('/^[0-9]+(\-[0-9]+){0,1}$/', $new_line['1'], $matches)) die('ERR_whatman_paper.2 - '.$work_sheet_name);
+				$box_label = $new_line['1'];
+				if($box_label_from_work_sheet_name != $box_label) Config::$summary_msg['Load Storage']['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [$box_label].";
+			}		
+			if(implode('',$new_line) == "12345678910") { 
+				if(!$box_label) die('ERR_whatman_paper.3 - '.$work_sheet_name);
+				$first_box_line = $line;
+			}	
+			if($first_box_line) {		
+				if($line == $first_box_line) {		
+					$box_data[0] = array('header' => $new_line, 'data' => array());
+				} else if($line == ($first_box_line + 2)) {
+					if(implode('',$new_line) != "11121314151617181920") die('ERR_whatman_paper.4 - '.$work_sheet_name);
+					$box_data[1] = array('header' => $new_line, 'data' => array());
+				} else if($line == ($first_box_line + 4)) {
+					if(implode('',$new_line) != "21222324252627282930") die('ERR_whatman_paper.5 - '.$work_sheet_name);
+					$box_data[2] = array('header' => $new_line, 'data' => array());
+				} else if($line == ($first_box_line + 6)) {
+					if(implode('',$new_line) != "31323334353637383940") die('ERR_whatman_paper.6 - '.$work_sheet_name);
+					$box_data[3] = array('header' => $new_line, 'data' => array());
+				} else if($line < ($first_box_line + 8)) {
+					$box_key = ($line - $first_box_line -1)/2;
+					if(!isset($box_data[$box_key])) die('ERR_whatman_paper.7 - '.$work_sheet_name);
+					$box_data[$box_key]['data'] = $new_line;
+				} else {
+					die('ERR_whatman_paper.8 - '.$work_sheet_name);
+				}
+			}
+		}	
+		if(empty($box_data)) die('ERR_whatman_paper.9 - '.$work_sheet_name);
+		foreach($box_data as $new_row_data) {
+			$positions = $new_row_data['header'];
+			$aliquots = $new_row_data['data'];
+			foreach($positions as $tmp_key => $x_position) {
+				if(isset($aliquots[$tmp_key])) {
+					$aliquot_label = str_replace(array("\n"), array(' '), $aliquots[$tmp_key]);
+					$aliquot_label = preg_replace('/(\ ){2,100}/', ' ', $aliquot_label);
+echo("Pos $x_position : $aliquot_label<br>");				
+					unset($aliquots[$tmp_key]);
+				}
+			}
+			if(!empty($aliquots))  die('ERR_whatman_paper.10 - '.$work_sheet_name);
+		}
+	}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	
+pr('DONE');exit;	
+	
+	
+	// *** End of process ***
+	
+	// Check same label
+	foreach(Config::$storage_data_from_label AS $label => $aliquots) {
+		if(sizeof($aliquots) > 1) {
+			$msg = "<br>Aliquot label $label has been associated to many positoned aliquots:";
+			foreach($aliquots as $new_aliquot) {
+				$msg .= "<br> - - - > See worksheet [".$new_aliquot['tmp_work_sheet_name']."] cell (".$new_aliquot['x']."/".$new_aliquot['y'].") value [".$new_aliquot['tmp_cell_value']."]";
+			}
+			Config::$summary_msg['Load Storage']['@@ERROR@@']['Duplicated aliquot label'][] = $msg;
+		}
 	}
 	
-	//recordChildrenStorage(Config::$storages);
-	exit;
+	recordChildrenStorage(Config::$storages);
 }
 
 //=========================================================================================================
@@ -82,11 +220,18 @@ function recordChildrenStorage($children_storages, $parent_selection_label = '',
 	if(empty($children_storages)) die('ERR 88838383');
 	
 	foreach($children_storages as $storage_label => $storage_content) {
+		$storage_notes = '';
+		if(isset($storage_content['notes'])) {
+			$storage_notes = $storage_content['notes'];
+			unset($storage_content['notes']);
+		}
 		$storage_master_id = null;
 		if(isset($storage_content['id'])) {
 			$storage_master_id = $storage_content['id'];
 			unset($storage_content['id']);
-			if(!empty($storage_content)) die('ERR 9988998');
+			if(!empty($storage_content)) {
+				pr($storage_content);die('ERR 9988998');
+			}
 		} else {
 			$storage_master_id = getNewtStorageId();
 		}
@@ -107,7 +252,8 @@ function recordChildrenStorage($children_storages, $parent_selection_label = '',
 				"parent_id" => $parent_id,
 				"parent_storage_coord_x" => $matches[3],
 				"parent_storage_coord_y" => $matches[4],
-				"lft" => getNextLeftRight()
+				"lft" => getNextLeftRight(),
+				"notes" => $storage_notes
 		);
 		$storage_master_id = customInsertRecord($master_fields, 'storage_masters');
 		customInsertRecord(array("storage_master_id" => $storage_master_id), $storage_control['detail_tablename'], true);
