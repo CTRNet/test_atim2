@@ -5,11 +5,19 @@ function loadStorages() {
 	Config::$storages = array();
 	Config::$storage_data_from_sample_type_and_label = array();
 	
-	Config::$summary_msg['Load Storage']['@@WARNING@@']['Check cell with diagonal'][] = "System will be unable to track cell diagonal. Ex: box R19-B9";
+	$summary_msg_title = 'Questionnaire  - Files: '.
+		substr(Config::$xls_file_path_storage_whatman_paper, (strrpos(Config::$xls_file_path_storage_whatman_paper,'/')+1)).
+		' & '.
+		substr(Config::$xls_file_path_storage_all, (strrpos(Config::$xls_file_path_storage_all,'/')+1));
 	
+	Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Check cell with diagonal'][] = "System will be unable to track cell diagonal. Ex: box R19-B9";
+				
 	// *** LOAD PLASMA, SERUM, etc  *** 
 	
 	$sample_type_controls = array(
+		'Tissu congelé OCT' => array('sample_type' => 'tissue', 'precision' => 'ISO+OCT'),
+		'Tissu congelé ISOPENTANE' => array('sample_type' => 'tissue', 'precision' => 'ISO'),
+		
 		'Plasma' => array('sample_type' => 'plasma', 'precision' => ''),
 		'Sérum' => array('sample_type' => 'serum', 'precision' => ''),
 		'Buffy Coat' => array('sample_type' => 'pbmc', 'precision' => ''),
@@ -18,8 +26,7 @@ function loadStorages() {
 		'ADN3' => array('sample_type' => 'dna', 'precision' => ''),
 		'ARN' => array('sample_type' => 'rna', 'precision' => ''),
 		'miRNA' => array('sample_type' => 'dna', 'precision' => 'miRNA'),
-		'Tissu congelé OCT' => array('sample_type' => 'tissue', 'precision' => 'OCT'),
-		'Tissu congelé ISOPENTANE' => array('sample_type' => 'tissue', 'precision' => 'ISO+OCT'),
+//TODO clarifier		
 		'Urine non-clarifiée' => array('sample_type' => 'urine', 'precision' => 'non-clarifiée'),
 		'Urine clarifiée' => array('sample_type' => 'urine', 'precision' => 'clarifiée'),
 		'Urine concentrée' => array('sample_type' => 'centrifuged urine', 'precision' => '')
@@ -53,7 +60,7 @@ function loadStorages() {
 				if(!$new_line['2']) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1(1)'); }
 				if(!preg_match('/^(C[0-9]+\-){0,1}(R[0-9]+\-B[0-9]+)(\-C[0-9]+){0,1}(\ {0,1})(.*)$/', $new_line['2'], $matches)) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1(2)'); }
 				$box_label = $matches[1].$matches[2].$matches[3];
-				if($work_sheet_name != $box_label) Config::$summary_msg['Load Storage']['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [$box_label].";
+				if($work_sheet_name != $box_label) Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [$box_label].";
 				if(isset($matches[5]) && $matches[5]) $box_notes[] = $matches[5];
 				unset($new_line['1']);
 				unset($new_line['2']);
@@ -119,7 +126,7 @@ function loadStorages() {
 								$storage_datetime_accuracy = "''";
 								if(!empty($matches[10])) {
 									if(preg_match('/^([0123][0-9])\-(0[1-9]|1[0-2])\-([0-9]{4})$/', $matches[10], $matches_2)) $matches[10] = $matches_2[3].'-'.$matches_2[2].'-'.$matches_2[1];
-									$storage_date_data = getDateAndAccuracy($matches[10], 'Load Storage', '-', "'-' - worksheet : '$work_sheet_name' + cell [$studied_box_column-$studied_box_row]");
+									$storage_date_data = getDateAndAccuracy($matches[10], $summary_msg_title, '-', "'-' - worksheet : '$work_sheet_name' + cell [$studied_box_column-$studied_box_row]");
 									if($storage_date_data) {
 										$storage_datetime = $storage_date_data['date'];
 										$storage_datetime_accuracy = str_replace('c','h', $storage_date_data['accuracy']);
@@ -138,7 +145,7 @@ function loadStorages() {
 									'tmp_work_sheet_name' => $work_sheet_name,
 									'tmp_cell_value' => $value);
 							} else {							
-								Config::$summary_msg['Load Storage']['@@ERROR@@']['Wrong aliquot label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$studied_box_column/$studied_box_row]. Format is not recognized. Aliquot positon won't be imported.";
+								Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong aliquot label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$studied_box_column/$studied_box_row]. Format is not recognized. Aliquot positon won't be imported.";
 							}
 						} else {
 							$line_notes[] = $value;
@@ -177,7 +184,7 @@ function loadStorages() {
 				if($new_line['0'] != utf8_decode('Boîte')) die('ERR_whatman_paper.1 - '.$work_sheet_name);
 				$new_line['1'] = str_replace(' et ', '-', $new_line['1']);
 				if(!preg_match('/^[0-9]+(\-[0-9]+){0,1}$/', $new_line['1'], $matches)) die('ERR_whatman_paper.2 - '.$work_sheet_name);
-				if($box_label_from_work_sheet_name != $new_line['1']) Config::$summary_msg['Load Storage']['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [".$new_line['1']."].";
+				if($box_label_from_work_sheet_name != $new_line['1']) Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [".$new_line['1']."].";
 				$box_label = "box40[".$new_line['1']."](-)";
 			}		
 			if(implode('',$new_line) == "12345678910") { 
@@ -225,7 +232,7 @@ function loadStorages() {
 						$storage_datetime_accuracy = "''";
 						if(!empty($matches[9])) {			
 							if(preg_match('/^([0123][0-9])\-(0[1-9]|1[0-2])\-([0-9]{4})$/', $matches[9], $matches_2)) $matches[9] = $matches_2[3].'-'.$matches_2[2].'-'.$matches_2[1];
-							$storage_date_data = getDateAndAccuracy($matches[9], 'Load Storage', '-', "'-' - worksheet : '$work_sheet_name' + cell [$x_position]");
+							$storage_date_data = getDateAndAccuracy($matches[9], $summary_msg_title, '-', "'-' - worksheet : '$work_sheet_name' + cell [$x_position]");
 							if($storage_date_data) {	
 								$storage_datetime = $storage_date_data['date'];
 								$storage_datetime_accuracy = str_replace('c','h', $storage_date_data['accuracy']);
@@ -243,7 +250,7 @@ function loadStorages() {
 							'tmp_work_sheet_name' => $work_sheet_name,
 							'tmp_cell_value' => $value);
 					} else {
-						Config::$summary_msg['Load Storage']['@@ERROR@@']['Wrong whatman paper label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$x_position]. Format is not recognized. Aliquot positon won't be imported.";
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong whatman paper label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$x_position]. Format is not recognized. Aliquot positon won't be imported.";
 					}
 					unset($aliquots[$tmp_key]);
 				}
@@ -265,14 +272,14 @@ function loadStorages() {
 				foreach($aliquots as $new_aliquot) {
 					$msg .= "<br> - - - > See worksheet [".$new_aliquot['tmp_work_sheet_name']."] cell (".$new_aliquot['x']."/".$new_aliquot['y'].") value [".$new_aliquot['tmp_cell_value']."]";
 				}
-				Config::$summary_msg['Load Storage']['@@ERROR@@']['Duplicated aliquot label'][] = $msg;
+				Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Duplicated aliquot label'][] = $msg;
 			}
 		}
 	}
 	
-//TODO	recordChildrenStorage(Config::$storages);
+	recordChildrenStorage(Config::$storages);
 	foreach(Config::$storages as $key => $val) unset(Config::$storages[$key]);
-pr(Config::$summary_msg);	
+
 }
 
 //=========================================================================================================

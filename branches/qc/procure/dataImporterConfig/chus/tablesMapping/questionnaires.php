@@ -42,13 +42,15 @@ $model->custom_data = array();
 Config::$models['Questionnaire'] = $model;
 	
 function postQuestionnaireRead(Model $m){
+	$summary_msg_title = 'Questionnaire  - File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1));
+	
 	if(empty($m->values['Date de remise du questionnaire au participant']) &&
 	empty($m->values[utf8_decode('Date de réception du questionnaire')]) &&
 	empty($m->values[utf8_decode('Date de vérification du questionnaire')]) &&
 	empty($m->values[utf8_decode('Date de révision du questionnaire')]) &&
 	empty($m->values[utf8_decode('Version du questionnaire')]) &&
 	empty($m->values[utf8_decode('Temps écoulé entre remise et récupération du questionnaire (jour)')])) {
-		Config::$summary_msg['Questionnaire']['@@MESSAGE@@']['No questionnaire recorded'][] = "For partient '".$m->values['Identification']."'. See line: ".$m->line;
+		Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No questionnaire recorded'][] = "For partient '".$m->values['Identification']."'. See line: ".$m->line;
 		return false;
 	}
 
@@ -96,7 +98,7 @@ function postQuestionnaireRead(Model $m){
 		if($version_language || $version_date) {
 			$version_language = str_replace(array('Anglais','Francais'), array('english','french'), $version_language);
 			if($version_language && !array_key_exists($version_language, Config::$value_domains['procure_questionnaire_version']->values)) {
-				Config::$summary_msg['Questionnaire']['@@ERROR@@']['Wrong version values (language)'][] = "The year ($version_language) of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
+				Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong version values (language)'][] = "The year ($version_language) of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
 				$version_language = null;
 			}
 			$old_version_date = $version_date;
@@ -105,13 +107,13 @@ function postQuestionnaireRead(Model $m){
 			} else if(in_array($version_date, array('2010','2011'))) {
 				$version_date = '2009';
 			}
-			if($old_version_date != $version_date) Config::$summary_msg['Questionnaire']['@@MESSAGE@@']['Version values updated (date)'][] = "The date ($old_version_date) of the questionnaire version '$version_values' has been changed to '$version_date'. See line: ".$m->line;
+			if($old_version_date != $version_date) Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['Version values updated (date)'][] = "The date ($old_version_date) of the questionnaire version '$version_values' has been changed to '$version_date'. See line: ".$m->line;
 			if($version_date && !array_key_exists($version_date, Config::$value_domains['procure_questionnaire_version_date']->values)) {
-				Config::$summary_msg['Questionnaire']['@@ERROR@@']['Wrong version values (date)'][] = "The date ($version_date) of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
+				Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong version values (date)'][] = "The date ($version_date) of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
 				$version_date = null;
 			}
 		} else {
-			Config::$summary_msg['Questionnaire']['@@ERROR@@']['Wrong version values'][] = "The format of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
+			Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong version values'][] = "The format of the questionnaire version '$version_values' is not supported. See line: ".$m->line;
 		}
 	}
 	$m->values['version'] = $version_language? $version_language  :"";
@@ -120,7 +122,7 @@ function postQuestionnaireRead(Model $m){
 	if(preg_match('/^([0-9]*)$/', $m->values[utf8_decode('Temps écoulé entre remise et récupération du questionnaire (jour)')], $matches)) {
 		$m->values['spent_time_delivery_to_recovery'] = "'".$matches[1]."'";
 	} else {
-		Config::$summary_msg['Questionnaire']['@@ERROR@@']['Wrong spent time'][] = "The format of the spent time from delivery to recovery is wrong : '".$m->values[utf8_decode('Temps écoulé entre remise et récupération du questionnaire (jour)')]."'.See line: ".$m->line;
+		Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong spent time'][] = "The format of the spent time from delivery to recovery is wrong : '".$m->values[utf8_decode('Temps écoulé entre remise et récupération du questionnaire (jour)')]."'.See line: ".$m->line;
 		$m->values['spent_time_delivery_to_recovery'] = "''";
 	}
 	
