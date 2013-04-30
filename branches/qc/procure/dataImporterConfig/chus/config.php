@@ -23,6 +23,8 @@ class Config{
 	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-04-17.xls";
 	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-04-22.xls";
 	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-04-22.xls";
+	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-04-17.xls";
+	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-04-17.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -63,7 +65,7 @@ class Config{
 	static $storages = array();
 	static $previous_storage_master_id = 0;
 	static $previous_left_right = 0;
-	static $storage_data_from_label = array();
+	static $storage_data_from_sample_type_and_label = array();
 	
 	static $summary_msg = array();	
 	
@@ -82,12 +84,11 @@ Config::$config_files[] = $table_mapping_path.'participants.php';
 Config::$config_files[] = $table_mapping_path.'consents.php'; 
 Config::$config_files[] = $table_mapping_path.'questionnaires.php';
 Config::$config_files[] = $table_mapping_path.'storages.php';
-
+Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
 //Config::$config_files[] = $table_mapping_path.'path_reports.php';
 //Config::$config_files[] = $table_mapping_path.'diagnostics.php'; 
 //Config::$config_files[] = $table_mapping_path.'treatments.php'; 
-//Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
 //=========================================================================================================
 // START functions
@@ -151,7 +152,7 @@ function addonFunctionStart(){
 	
 	loadStorages();
 	
-//TODO	loadCollections();
+	loadCollections();
 	
 	//LOAD PARTICIPANT FIRST NAME, etc
 	
@@ -253,7 +254,7 @@ function addonFunctionEnd(){
 		}
 	}
 	
-	$max_nbr_of_msg_displayed = (Config::$limit_warning_display)? '20' : '';
+	$max_nbr_of_msg_displayed = (Config::$limit_warning_display)? '2000' : '';
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		
 		echo "<br><br><FONT COLOR=\"blue\" >

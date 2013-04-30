@@ -21,6 +21,7 @@ function loadStorages() {
 		'Plasma' => array('sample_type' => 'plasma', 'precision' => ''),
 		'Sérum' => array('sample_type' => 'serum', 'precision' => ''),
 		'Buffy Coat' => array('sample_type' => 'pbmc', 'precision' => ''),
+		
 		'ADN' => array('sample_type' => 'dna', 'precision' => ''),
 		'ADN dilué 50 ng/ul' => array('sample_type' => 'dna', 'precision' => '50 ng/ul'),
 		'ADN3' => array('sample_type' => 'dna', 'precision' => ''),
@@ -121,7 +122,7 @@ function loadStorages() {
 								$value);
 							$aliquot_label = preg_replace('/(\ ){2,100}/', ' ', $aliquot_label);
 							if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}((PLA|URC|BRC|URN|SER|BFC|BCF|DNA|RNA|FRZ|\-miR|UNC)(\ ){0,1}([0-9]){0,2})(\ )*(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {								
-								$aliquot_label = $matches[1].' '.$matches[3].' '.$matches[5];
+								$aliquot_label = $matches[1].' '.$matches[3].' -'.$matches[5];
 								$storage_datetime = "''";
 								$storage_datetime_accuracy = "''";
 								if(!empty($matches[10])) {
@@ -215,7 +216,7 @@ function loadStorages() {
 		if(empty($box_data)) die('ERR_whatman_paper.9 - '.$work_sheet_name);
 		
 		$box_storage_master_id = getNewtStorageId();
-		$box_sample_type = 'tissue';
+		$box_sample_type = 'blood';
 		$box_sample_type_details = 'whatman paper';
 		
 		foreach($box_data as $new_row_data) {
@@ -225,8 +226,8 @@ function loadStorages() {
 				if(isset($aliquots[$tmp_key])) {
 					$value = str_replace(array("\n"), array(' '), $aliquots[$tmp_key]);
 					$value = preg_replace('/(\ ){2,100}/', ' ', $value);	
-					$aliquot_label = str_replace(array('WTH-1','WHT1'), array('WHT-1','WHT-1'), $value);
-					if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}(WHT\-1)(\ ){0,1}(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {
+					$aliquot_label = str_replace(array('WTH-1','WHT1', 'WHT-1'), array('-WHT1','-WHT1','-WHT1'), $value);
+					if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}(\-WHT1)(\ ){0,1}(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {
 						$aliquot_label = $matches[1].' '.$matches[3].' '.$matches[5];
 						$storage_datetime = "''";
 						$storage_datetime_accuracy = "''";
@@ -277,7 +278,7 @@ function loadStorages() {
 		}
 	}
 	
-	recordChildrenStorage(Config::$storages);
+//TODO	recordChildrenStorage(Config::$storages);
 	foreach(Config::$storages as $key => $val) unset(Config::$storages[$key]);
 
 }
