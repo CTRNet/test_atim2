@@ -42,7 +42,7 @@ $model->custom_data = array();
 Config::$models['Questionnaire'] = $model;
 	
 function postQuestionnaireRead(Model $m){
-	$summary_msg_title = 'Questionnaire  - File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1));
+	$summary_msg_title = 'Questionnaire  <br>  File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1));
 	
 	if(empty($m->values['Date de remise du questionnaire au participant']) &&
 	empty($m->values[utf8_decode('Date de réception du questionnaire')]) &&

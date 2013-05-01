@@ -38,7 +38,7 @@ Config::$models['Consent'] = $model;
 	
 function postConsentRead(Model $m){
 	if(empty($m->values['Date de signature']) && empty($m->values['Version du consentement']) && empty($m->values[utf8_decode("Date de révision du consentement")])) {
-		Config::$summary_msg['Consent - File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1))]['@@WARNING@@']['No consent recorded'][] = "For partient '".$m->values['Identification']."'. See line: ".$m->line;
+		Config::$summary_msg['Consent <br>  File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1))]['@@WARNING@@']['No consent recorded'][] = "For partient '".$m->values['Identification']."'. See line: ".$m->line;
 		return false;
 	}
 		
