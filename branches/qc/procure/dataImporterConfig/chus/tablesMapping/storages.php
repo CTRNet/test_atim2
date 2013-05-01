@@ -5,7 +5,7 @@ function loadStorages() {
 	Config::$storages = array();
 	Config::$storage_data_from_sample_type_and_label = array();
 	
-	$summary_msg_title = 'Questionnaire  - Files: '.
+	$summary_msg_title = 'Storage data <br>  Files: '.
 		substr(Config::$xls_file_path_storage_whatman_paper, (strrpos(Config::$xls_file_path_storage_whatman_paper,'/')+1)).
 		' & '.
 		substr(Config::$xls_file_path_storage_all, (strrpos(Config::$xls_file_path_storage_all,'/')+1));
@@ -226,7 +226,7 @@ function loadStorages() {
 				if(isset($aliquots[$tmp_key])) {
 					$value = str_replace(array("\n"), array(' '), $aliquots[$tmp_key]);
 					$value = preg_replace('/(\ ){2,100}/', ' ', $value);	
-					$aliquot_label = str_replace(array('WTH-1','WHT1', 'WHT-1'), array('-WHT1','-WHT1','-WHT1'), $value);
+					$aliquot_label = str_replace(array('WHT1', 'WTH-1','WHT-1'), array('-WHT1','-WHT1','-WHT1'), $value);
 					if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}(\-WHT1)(\ ){0,1}(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {
 						$aliquot_label = $matches[1].' '.$matches[3].' '.$matches[5];
 						$storage_datetime = "''";
@@ -251,7 +251,7 @@ function loadStorages() {
 							'tmp_work_sheet_name' => $work_sheet_name,
 							'tmp_cell_value' => $value);
 					} else {
-						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong whatman paper label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$x_position]. Format is not recognized. Aliquot positon won't be imported.";
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong aliquot label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$x_position]. Format is not recognized. Aliquot positon won't be imported.";
 					}
 					unset($aliquots[$tmp_key]);
 				}
@@ -278,7 +278,7 @@ function loadStorages() {
 		}
 	}
 	
-//TODO	recordChildrenStorage(Config::$storages);
+	recordChildrenStorage(Config::$storages);
 	foreach(Config::$storages as $key => $val) unset(Config::$storages[$key]);
 
 }

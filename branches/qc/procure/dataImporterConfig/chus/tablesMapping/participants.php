@@ -23,7 +23,7 @@ Config::$models['Participant'] = $model;
 
 function postParticipantRead(Model $m){
 	if($m->values['Visite'] != 'V01') {
-		Config::$summary_msg['Visit - File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1))]['@@ERROR@@']['Wrong visite'][] = "Should be V01. No data will be imported. See line: ".$m->line;
+		Config::$summary_msg['Visit <br>  File: '.substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path,'/')+1))]['@@ERROR@@']['Wrong visite'][] = "Should be V01. No data will be imported. See line: ".$m->line;
 		return false;
 	}
 	return true;
