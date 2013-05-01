@@ -124,6 +124,7 @@ class SampleMasterCustom extends SampleMaster {
     		case 'cystic fluid':
     		case 'other fluid':
     		case 'pleural fluid':
+    		case 'pericardial fluid':
 				$new_sample_label = $specimen_type_code. ' - ' . $bank_participant_identifier . 
 					(empty($specimen_sequence_number)? '' : ' ' . $specimen_sequence_number);
     			break;
@@ -164,6 +165,9 @@ class SampleMasterCustom extends SampleMaster {
     		case 'plasma':
 			case 'serum':
 			case 'pleural fluid cell':
+			case 'pleural fluid supernatant':
+			case 'pericardial fluid cell':
+			case 'pericardial fluid supernatant':
 				$new_sample_label = $qc_nd_sample_type_code. ' ' . $initial_specimen_label;
     			break;
     							
