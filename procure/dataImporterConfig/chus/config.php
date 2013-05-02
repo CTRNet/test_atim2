@@ -73,6 +73,7 @@ class Config{
 	static $extensive_margin_unkw_value = array();
 	
 	static $participant_nominal_data = array();
+	static $participant_notes = array();
 }
 
 //add the parent models here
@@ -204,6 +205,18 @@ function addonFunctionEnd(){
 		$query = "UPDATE participants_revs rev, participants part SET rev.last_modification = part.last_modification WHERE rev.last_modification LIKE '0000-00-00%' AND rev.id = part.id";
 		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
 	}	
+	
+	// ADD PARTICIPANT NOTES
+	
+	foreach(Config::$participant_notes as $participant_identifier => $notes) {
+		$query = "UPDATE participants SET notes = '".str_replace("'", "''", implode('\n', $notes))."' WHERE participant_identifier = '$participant_identifier'";
+		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update participant notes [$query] ");
+		if(Config::$insert_revs){
+			$query = str_replace("participants", "participants_revs", $query)."' WHERE participant_identifier = $participant_identifier'";
+			mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+		}
+	}
+	
 	
    	// INVENTORY COMPLETION
 		
@@ -418,7 +431,7 @@ function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_ti
 			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
 		} else {		
 			//Config::$summary_msg[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [fields '$field_date' & '$field_time' - line: $line]";
-			die("ERR time format should be Custom h:mm see value $time for field $field_time' line '$line'");
+			die("ERR time format should be h:mm see value $time for field $field_time' line '$line'");
 			//return null;
 		}
 	}

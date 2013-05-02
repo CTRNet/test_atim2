@@ -1,12 +1,12 @@
 <?php
 
 function loadCollections() {
-	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	Config::$participant_collections = array();
 	Config::$next_sample_code = 0;
 	
 	// ******************* Load Visist 01 **********************************
 	
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path_collection_v01);
 	$filename = substr(Config::$xls_file_path_collection_v01, (strrpos(Config::$xls_file_path_collection_v01,'/')+1));
 		
@@ -21,9 +21,34 @@ function loadCollections() {
 	if(!isset($tmp_xls_reader->sheets[$sheets_nbr[utf8_decode('F3 à F6')]])) die('ERR loadCollections 84444444383');
 	loadBlood($tmp_xls_reader->sheets[$sheets_nbr[utf8_decode('F3 à F6')]]['cells'], $filename, 'F3 à F6', 'V01');
 	
+	// ******************* Load Suvi **********************************
+	
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
+	$tmp_xls_reader->read( Config::$xls_file_path_collection_suivi);
+	$filename = substr(Config::$xls_file_path_collection_suivi, (strrpos(Config::$xls_file_path_collection_suivi,'/')+1));
+	
+	$sheets_nbr = array();
+	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	
+	for($id=2; $id < 8; $id++) {
+		$visit = 'V0'.$id;
+	
+		// Vn: Blood
+		$worksheet_name = $visit.utf8_decode(' - F3 à F6');
+		if(!isset($tmp_xls_reader->sheets[$sheets_nbr[$worksheet_name]])) die('ERR loadCollections 84444444382 - '.$visit.' - '.$worksheet_name);
+		loadBlood($tmp_xls_reader->sheets[$sheets_nbr[$worksheet_name]]['cells'], $filename, $worksheet_name, $visit);
+	}
 
-	//TODO load other collections
+	// ******************* Display unused storage information **********************************
+	
+	displayUnusedStorageInformation();
+	
+
 }
+
+//=========================================================================================================
+// Inventroy load
+//=========================================================================================================
 
 function loadTissue(&$workSheetCells, $filename, $worksheetname) {	
 	$summary_msg_title = 'Tissue V01 <br>  File: '.$filename;
@@ -81,6 +106,7 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 				foreach(array('FRZ' => 10,'PAR' => 8) as $prefix => $slide_nbr_max) {
 					for($slide_nbr=1;$slide_nbr<=$slide_nbr_max;$slide_nbr++) {					
 						if($slide_nbr < 5 && !empty($new_line_data[$prefix.$slide_nbr.' (rangement)'])) die("ERR 832122112212112 See worksheet [$worksheetname] line $line_counter");
+						$aliquot_label = "$patient_identification V01 -$prefix$slide_nbr";
 						$procure_origin_of_slice = $new_line_data["$prefix$slide_nbr::".(($prefix == 'FRZ')? "Origine de la tranche" : "Origine du bloc")];
 						$procure_origin_of_slice = str_replace(array('N/A') , array(''),$procure_origin_of_slice);
 						$procure_origin_of_slice = preg_replace(array('/\ +$/', '/^\-$/') , array('',''), $procure_origin_of_slice);
@@ -126,7 +152,6 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 								Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Block classification'][] = "Block classification '$procure_classification' is not supported. See worksheet [$worksheetname] line $line_counter";
 								$procure_classification = '';
 							}					
-							$aliquot_label = "$patient_identification V01 -$prefix$slide_nbr";
 							$aliquot_storage_data = getStorageData($aliquot_label, 'tissue', $summary_msg_title, $worksheetname, $line_counter);
 							if($aliquot_storage_data['sample_type_precision']) {
 								if(!$procure_freezing_type) {
@@ -158,6 +183,8 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 									'procure_origin_of_slice' => $procure_origin_of_slice,
 									'procure_chus_origin_of_slice_precision' => $procure_chus_origin_of_slice_precision)
 							);
+						} else {
+							validateNoStorageData($aliquot_label, 'tissue', $summary_msg_title, $worksheetname, $line_counter);						
 						}
 					}
 				}
@@ -177,7 +204,7 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 	}
 }
 		
-function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {	
+function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 	$tmp_all_blood_config = array(
 		array(
 			'blood_type' => 'serum',
@@ -191,7 +218,7 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 			'blood_type' => 'paxgene',
 			'nbr_of_tube_field' => 'Tube Paxgene',
 			'suffix' => 'RNB',
-			'in_stock' => 'no',
+			'in_stock' => 'yes - available',
 			'storage_datetime_field' => "Heure de congélation du tube Paxgene",
 			'derivatives' => array()),
 		array(
@@ -221,9 +248,8 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 			$patient_identification = $new_line_data['Identification'];
 			if(isset($duplicated_participant_check[$patient_identification]))  die("ERR 89499324 Duplicated participant [$patient_identification]. Check value is not a #REF. See worksheet [$worksheetname] line $line_counter & ".$duplicated_participant_check[$patient_identification]); 
 			$duplicated_participant_check[$patient_identification] = $line_counter;
-			if($new_line_data['Visite'] != $visit) die("ERR 89499788344 collection visit error. See worksheet [$worksheetname] line $line_counter");
-			$new_line_data['Date de prélèvement de sang'] = str_replace('refus', '', $new_line_data['Date de prélèvement de sang']);
-			if($new_line_data['Date de prélèvement de sang']) {
+			if($new_line_data['Date de prélèvement de sang'] && !preg_match('/[a-zA-Z]/', $new_line_data['Date de prélèvement de sang'])) {
+				if($new_line_data['Visite'] != $visit) die("ERR 89499788344 collection visit error. See worksheet [$worksheetname] line $line_counter");
 				// Get collection date
 				$tmp_collection_date = getDateTimeAndAccuracy($new_line_data['Date de prélèvement de sang'], $new_line_data['Heure'], $summary_msg_title, 'Date de prélèvement de sang', 'Heure', $line_counter);
 				$collection_datetime = ($tmp_collection_date? $tmp_collection_date['datetime'] : "''");
@@ -231,13 +257,8 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 				//Get reception date
 				$real_xls_reception_date_field  = 'Date de prélèvement de sang';
 				$real_xls_reception_date = $new_line_data['Date de prélèvement de sang'];
-				$real_xls_reception_heure = $new_line_data['Heure de réception du  sang'];			
-				if(preg_match('/^[0-9]+\ (jours|heures)\ \((([0-9]{4}\-[0-9]{2}\-[0-9]{2})\ ([0-9]{1,2}\:[0-9]{2}))\)$/', $real_xls_reception_heure, $matches)) {
-					$real_xls_reception_date_field  = 'Heure de réception du  sang';
-					$real_xls_reception_date = $matches[3];
-					$real_xls_reception_heure = $matches[4];
-					if(strlen($real_xls_reception_heure) == 4) $real_xls_reception_heure = '0'.$real_xls_reception_heure;
-				}
+				$real_xls_reception_heure = $new_line_data['Heure de réception du  sang'];	
+				getRealDateAndTime($real_xls_reception_date, $real_xls_reception_heure, $real_xls_reception_date_field, 'Heure de réception du  sang', $summary_msg_title, $worksheetname, $line_counter);
 				$tmp_reception_date = getDateTimeAndAccuracy($real_xls_reception_date, $real_xls_reception_heure, $summary_msg_title, $real_xls_reception_date_field, 'Heure de réception du  sang', $line_counter);
 				$reception_datetime = ($tmp_reception_date? $tmp_reception_date['datetime'] : "''");
 				$reception_datetime_accuracy = ($tmp_reception_date? $tmp_reception_date['accuracy'] : "''");
@@ -265,12 +286,7 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 						$real_xls_storage_date_field  = $real_xls_reception_date_field;
 						$real_xls_storage_date = $real_xls_reception_date;
 						$real_xls_storage_heure = $new_line_data[$specimen_tubes_and_derivatives_config['storage_datetime_field']];
-						if(preg_match('/^[0-9]+\ (jours|heures)\ \((([0-9]{4}\-[0-9]{2}\-[0-9]{2})\ ([0-9]{1,2}\:[0-9]{2}))\)$/', $real_xls_storage_heure, $matches)) {
-							$real_xls_storage_date_field  = $new_line_data[$derivative_config['storage_datetime_field']];
-							$real_xls_storage_date = $matches[3];
-							$real_xls_storage_heure = $matches[4];
-							if(strlen($real_xls_storage_heure) == 4) $real_xls_storage_heure = '0'.$real_xls_storage_heure;
-						}
+						getRealDateAndTime($real_xls_storage_date, $real_xls_storage_heure, $real_xls_storage_date_field, $specimen_tubes_and_derivatives_config['storage_datetime_field'], $summary_msg_title, $worksheetname, $line_counter);
 						$tmp_specimen_storage_date = getDateTimeAndAccuracy($real_xls_storage_date, $real_xls_storage_heure, $summary_msg_title, $real_xls_storage_date_field, $specimen_tubes_and_derivatives_config['storage_datetime_field'], $line_counter);
 					}
 					for($tube_id = 1; $tube_id <= $nbr_of_tubes_received; $tube_id++) {
@@ -284,27 +300,31 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 							'AliquotDetail' => array()
 						);
 					}
-					if($specimen_tubes_and_derivatives_config['blood_type'] == 'serum' && strlen($new_line_data['Carte Whatman WHT1']) && $new_line_data['Carte Whatman WHT1'] != 'non') {
-						if($new_line_data['Carte Whatman WHT1'] != 'oui') die("ERR 88392932923932. See worksheet [$worksheetname] line $line_counter");
+					if($specimen_tubes_and_derivatives_config['blood_type'] == 'serum') {
 						$aliquot_label = "$patient_identification $visit -WHT1";
-						$aliquot_storage_data = getStorageData($aliquot_label, 'blood', $summary_msg_title, $worksheetname, $line_counter, $reception_datetime, $reception_datetime_accuracy);
-						if($aliquot_storage_data['sample_type_precision'] && $aliquot_storage_data['sample_type_precision'] != 'whatman paper') die("ERR 1111111111132923932. See worksheet [$worksheetname] line $line_counter");
-						if($aliquot_storage_data['storage_datetime']) {
-							$tmp_box_label = utf8_decode('Boîte ').preg_replace('/^1$/', '1-2', $new_line_data["Boîte d'entreposage"]);
-							if($tmp_box_label != $aliquot_storage_data['tmp_work_sheet_name']) Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['WHT box mismatch'][] = "The Whatman Paper box [$tmp_box_label] defined in inventory file is different than this one [".$aliquot_storage_data['tmp_work_sheet_name']."] defined in storage file. See worksheet [$worksheetname] line $line_counter";	
-						}
-						$new_specimen_and_derivative_data['Aliquots'][] = array(
+						if(strlen($new_line_data['Carte Whatman WHT1']) && $new_line_data['Carte Whatman WHT1'] != 'non') {
+							if(!in_array($new_line_data['Carte Whatman WHT1'], array('oui','1'))) die("ERR 88392932923932. See worksheet [$worksheetname] line $line_counter");
+							$aliquot_storage_data = getStorageData($aliquot_label, 'blood', $summary_msg_title, $worksheetname, $line_counter, $reception_datetime, $reception_datetime_accuracy);
+							if($aliquot_storage_data['sample_type_precision'] && $aliquot_storage_data['sample_type_precision'] != 'whatman paper') die("ERR 1111111111132923932. See worksheet [$worksheetname] line $line_counter");
+							if($aliquot_storage_data['storage_datetime']) {
+								$tmp_box_label = utf8_decode('Boîte ').preg_replace('/^1$/', '1-2', $new_line_data["Boîte d'entreposage"]);
+								if($new_line_data["Boîte d'entreposage"] && $tmp_box_label != $aliquot_storage_data['tmp_work_sheet_name']) Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['WHT box mismatch'][] = "The Whatman Paper box [$tmp_box_label] defined in inventory file is different than this one [".$aliquot_storage_data['tmp_work_sheet_name']."] defined in storage file. See worksheet [$worksheetname] line $line_counter";
+							}
+							$new_specimen_and_derivative_data['Aliquots'][] = array(
 							'***aliquot_type***' => 'whatman paper',
-								'AliquotMaster' => array(
-								'barcode' => $aliquot_label,
-								'in_stock' => 'yes - available',									
-								'storage_datetime' => $aliquot_storage_data['storage_datetime'],
-								'storage_datetime_accuracy'	=> $aliquot_storage_data['storage_datetime_accuracy'],
-								'storage_master_id' => $aliquot_storage_data['storage_master_id'],
+							'AliquotMaster' => array(
+									'barcode' => $aliquot_label,
+									'in_stock' => 'yes - available',
+									'storage_datetime' => $aliquot_storage_data['storage_datetime'],
+									'storage_datetime_accuracy'	=> $aliquot_storage_data['storage_datetime_accuracy'],
+									'storage_master_id' => $aliquot_storage_data['storage_master_id'],
 								'storage_coord_x' => $aliquot_storage_data['x'],
-								'storage_coord_y' => $aliquot_storage_data['y']),
-							'AliquotDetail' => array()
-						);
+									'storage_coord_y' => $aliquot_storage_data['y']),
+									'AliquotDetail' => array()
+							);
+						} else {
+							validateNoStorageData($aliquot_label, 'blood', $summary_msg_title, $worksheetname, $line_counter);
+						}		
 					}
 					
 					// ** 2 ** Create Derivatives : Plasma Serum PBMC **
@@ -314,20 +334,15 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 						$real_xls_storage_date_field  = $real_xls_reception_date_field;
 						$real_xls_storage_date = $real_xls_reception_date;
 						$real_xls_storage_heure = $new_line_data[$derivative_config['storage_datetime_field']];
-						if(preg_match('/^[0-9]+\ (jours|heures)\ \((([0-9]{4}\-[0-9]{2}\-[0-9]{2})\ ([0-9]{1,2}\:[0-9]{2}))\)$/', $real_xls_storage_heure, $matches)) {
-							$real_xls_storage_date_field  = $new_line_data[$derivative_config['storage_datetime_field']];
-							$real_xls_storage_date = $matches[3];
-							$real_xls_storage_heure = $matches[4];
-							if(strlen($real_xls_storage_heure) == 4) $real_xls_storage_heure = '0'.$real_xls_storage_heure;
-						}
+						getRealDateAndTime($real_xls_storage_date, $real_xls_storage_heure, $real_xls_storage_date_field, $derivative_config['storage_datetime_field'], $summary_msg_title, $worksheetname, $line_counter);
 						$tmp_storage_date = getDateTimeAndAccuracy($real_xls_storage_date, $real_xls_storage_heure, $summary_msg_title, $real_xls_storage_date_field, $derivative_config['storage_datetime_field'], $line_counter);
 						$storage_datetime = ($tmp_storage_date? $tmp_storage_date['datetime'] : "''");
 						$storage_datetime_accuracy = ($tmp_storage_date? $tmp_storage_date['accuracy'] : "''");
 						for($tube_id = 1; $tube_id <= $derivative_config['max_nbr_of_tube']; $tube_id++) {
 							if($new_line_data[$derivative_config['suffix'].$tube_id.' (rangement)']) die("ERR 774774774. See worksheet [$worksheetname] line $line_counter");
+							$aliquot_label = "$patient_identification $visit -".$derivative_config['suffix'].$tube_id;
 							$initial_volume = $new_line_data[$derivative_config['suffix'].$tube_id.' (mL)'];
 							if(strlen($initial_volume) && $initial_volume != 'N/A' && !preg_match('/^0([\.,][0]+){0,1}$/', $initial_volume)) {
-								$aliquot_label = "$patient_identification $visit -".$derivative_config['suffix'].$tube_id;
 								$aliquot_storage_data = getStorageData($aliquot_label, $derivative_config['sample_type'], $summary_msg_title, $worksheetname, $line_counter, $storage_datetime, $storage_datetime_accuracy);
 								if($initial_volume == '?') {
 									Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Unknown volume'][] = "Volume of ".$derivative_config['sample_type']." tube '$aliquot_label' is unknown. See worksheet [$worksheetname] line $line_counter";
@@ -339,7 +354,7 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 									'***aliquot_type***' => 'tube',
 									'AliquotMaster' => array(
 										'barcode' => $aliquot_label,
-										'in_stock' => 'yes - available',
+										'in_stock' =>'yes - available',
 										'storage_datetime' => $storage_datetime,
 										'storage_datetime_accuracy'	=> $storage_datetime_accuracy,
 										'storage_master_id' => $aliquot_storage_data['storage_master_id'],
@@ -349,16 +364,18 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 										'current_volume' => $initial_volume),
 									'AliquotDetail' => array()
 								);
+							} else {
+								validateNoStorageData($aliquot_label, $derivative_config['sample_type'], $summary_msg_title, $worksheetname, $line_counter);					
 							}
 						}
 						if(!empty($tmp_derivative_aliquots)) {
 							$new_specimen_and_derivative_data['Derivatives'][] =array(
-									'***tmp_sample_type***' => $derivative_config['sample_type'],
-									'SampleMaster' => array(),
-									'SampleDetail' => array(),
-									'DerivativeDetail' => array('creation_datetime' => $derivative_creation_datetime,	'creation_datetime_accuracy' => $derivative_creation_datetime_accuracy),
-									'Derivatives' => array(),
-									'Aliquots' => $tmp_derivative_aliquots
+								'***tmp_sample_type***' => $derivative_config['sample_type'],
+								'SampleMaster' => array(),
+								'SampleDetail' => array(),
+								'DerivativeDetail' => array('creation_datetime' => $derivative_creation_datetime,	'creation_datetime_accuracy' => $derivative_creation_datetime_accuracy),
+								'Derivatives' => array(),
+								'Aliquots' => $tmp_derivative_aliquots
 							);
 						} else {
 							Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No '.$derivative_config['sample_type']][] = "No ".$derivative_config['sample_type']." has been created for patient $patient_identification. See worksheet [$worksheetname] line $line_counter";					
@@ -367,20 +384,23 @@ function loadBlood(&$workSheetCells, $filename, $worksheetname, $visit) {
 					if(strlen($new_line_data["DNA::Date d'extraction"].$new_line_data['Quantité totale de DNA (ug)'].$new_line_data["DNA::Volume (uL)"])) {
 //TODO manage DNA
 pr('TODO manage DNA');
+//DNA is extracted from PBMC usually the third one
 exit;
 					}
 					if(/*$specimen_tubes_and_derivatives_config['blood_type'] == 'paxgene' && */strlen($new_line_data["RNA::Date d'extraction"].$new_line_data['Quantité totale de RNA (ug)'].$new_line_data["RNA::Volume (uL)"])) {
 //TODO manage RNA	
 pr('TODO manage RNA');
+//RNA is extracted from Paxgene.
+//If RNA exists, paxgene tube status is set to 'no'
 exit;
 					}
 					//Record new products
-					if(empty($new_specimen_and_derivative_data['Derivatives']) && empty($new_specimen_and_derivative_data['Aliquots'])) {
-						Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['No '.$specimen_tubes_and_derivatives_config['blood_type'].' derivative & aliquot'][] = "No ".$specimen_tubes_and_derivatives_config['blood_type']." derivative and aliquot have been created for patient $patient_identification. The ".$specimen_tubes_and_derivatives_config['blood_type']." won't be created. See worksheet [$worksheetname] line $line_counter";
+					if(empty($new_specimen_and_derivative_data['Derivatives']) && empty($new_specimen_and_derivative_data['Aliquots'])) {					
+						Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No '.$specimen_tubes_and_derivatives_config['blood_type'].' derivative & aliquot'][] = "No ".$specimen_tubes_and_derivatives_config['blood_type']." blood derivative and aliquot have been created for patient $patient_identification. The blood specimen ".$specimen_tubes_and_derivatives_config['blood_type']." won't be created. See worksheet [$worksheetname] line $line_counter";
 					} else {
 						$new_collection_specimens[] = $new_specimen_and_derivative_data;
 						if(!empty($specimen_tubes_and_derivatives_config['derivatives']) && empty($new_specimen_and_derivative_data['Derivatives'])) {
-							Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No '.$specimen_tubes_and_derivatives_config['blood_type'].' derivative'][] = "No ".$specimen_tubes_and_derivatives_config['blood_type']." derivative has been created for patient $patient_identification. See worksheet [$worksheetname] line $line_counter";
+							Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No '.$specimen_tubes_and_derivatives_config['blood_type'].' derivative'][] = "Aliquots have been created for ".$specimen_tubes_and_derivatives_config['blood_type']." blood but no derivative has been created for patient $patient_identification. See worksheet [$worksheetname] line $line_counter";
 						}						
 					}
 				}
@@ -397,12 +417,19 @@ exit;
 					'Specimens' => $new_collection_specimens
 				);			
 			} else {
+				$notes = strtolower(str_replace(array("\n"), array(''), $new_line_data['Date de prélèvement de sang']));
+				if(strlen(str_replace(array(' '), array(''), $notes))) {
+					if(!in_array($notes, array('refus', 'abandon', 'manqué', 'exclus', '?abandon'))) Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['Add note to patient'][] = "No $visit blood collection has been created and a note [$visit.': '.$notes] has been added to participant. See worksheet [$worksheetname] line $line_counter";
+					Config::$participant_notes[$patient_identification][] = $visit.': '.$notes;
+				}
 				if($visit == 'V01') Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No V01 blood'][] = "No V01 blood has been collected for PROCURE for patient $patient_identification. No blood collection will be created. See worksheet [$worksheetname] line $line_counter";
 				$tmp_check = $new_line_data;
 				unset($tmp_check['Identification']);
 				unset($tmp_check['Visite']);
 				unset($tmp_check['Date de prélèvement de sang']);
-				if(implode('', $tmp_check)) die("ERR838333456. See worksheet [$worksheetname] line $line_counter");
+				if(implode('', $tmp_check)) {pr($new_line_data);pr($new_line);
+					die("ERR838333456. See worksheet [$worksheetname] line $line_counter = ".$new_line_data['Date de prélèvement de sang']);
+				}
 			}
 		}
 	}
@@ -434,35 +461,82 @@ function getStorageData($aliquot_label, $sample_type, $summary_msg_title, $works
 		}
 		unset(Config::$storage_data_from_sample_type_and_label[$sample_type][$aliquot_label]);
 	} else {
-		Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['No storage data'][] = "Unable to get storage information from storage excel sheets for aliquot '$aliquot_label'. See worksheet [$worksheetname] line $line_counter";
+		Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['No storage data'][] = "Unable to find storage information from storage excel sheets for aliquot '$aliquot_label'. See worksheet [$worksheetname] line $line_counter";
 	}
 	return $res;
 }
 
+function validateNoStorageData($aliquot_label, $sample_type, $summary_msg_title, $worksheetname, $line_counter) {
+	if(isset(Config::$storage_data_from_sample_type_and_label[$sample_type][$aliquot_label])) {
+		$res = Config::$storage_data_from_sample_type_and_label[$sample_type][$aliquot_label][0];		
+		Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Storage info for an aliquot not defined in stock'][] = "A storage information exists in storage excel sheets [worksheet ".$res['tmp_work_sheet_name']." cell(".$res['x']."-".$res['y'].")] for an aliquot '$aliquot_label' that is not in stock or does not exist. See worksheet [$worksheetname] line $line_counter";
+		unset(Config::$storage_data_from_sample_type_and_label[$sample_type][$aliquot_label]);
+	}
+}
 
+function getRealDateAndTime(&$real_date, &$real_time, &$real_date_field, $time_field, $summary_msg_title, $worksheetname, $line_counter) {
+	if(strlen($real_time) && !preg_match('/^0\.[0-9]+$/', $real_time)) {
+		if(strtolower($real_time) == 'n/a') {
+			$real_time = '';
+		} else if(preg_match('/^\ *([0-9]{1,2}\:[0-9]{2})\ *$/', $real_time, $matches)){
+			$real_time = $matches[1];
+			if(strlen($real_time) == 4) $real_time = '0'.$real_time;
+		} else {
+			if(preg_match('/^[0-9]+\ (jours|heures)\ \((([0-9]{4}\-[0-9]{2}\-[0-9]{2})\ ([0-9]{1,2}\:[0-9]{2}))\)$/', $real_time, $matches)) {
+				$real_date_field  = $time_field;
+				$real_date = $matches[3];
+				$real_time = $matches[4];
+				if(strlen($real_time) == 4) $real_time = '0'.$real_time;
+			} else {
+				Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Unable to extract date & time'][] = "Unable to extract date & time information from [$real_time] for field '$time_field'. See worksheet [$worksheetname] line $line_counter";
+				$real_date = '';
+				$real_time = '';
+			}
+		}
+	}
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function displayUnusedStorageInformation() {
+	$v1_file_name = substr(Config::$xls_file_path_collection_v01, (strrpos(Config::$xls_file_path_collection_v01,'/')+1));
+	$follow_up_file_name = substr(Config::$xls_file_path_collection_suivi, (strrpos(Config::$xls_file_path_collection_suivi,'/')+1));
+	foreach(Config::$storage_data_from_sample_type_and_label as $sample_type => $tmp_aliquots_set) {
+		foreach($tmp_aliquots_set as $aliquot_label => $storage_data) {
+			$specimen_type = '';
+			switch($sample_type) {
+				case 'tissue':
+					$specimen_type = 'Tissue';
+					break;
+				case 'rna':
+				case 'dna':
+					break;
+				case 'blood':
+				case 'plasma':
+				case 'serum':
+				case 'pbmc':
+					$specimen_type = 'Blood';
+					break;
+				case 'urine':
+				case 'centrifuged urine':
+					break;
+				default:
+					die('ERR 84884848484848');
+			}
+			if($specimen_type) {
+				$visit = '';
+//TODO to review to match exact sample abbreviation			
+//TODO complete list
+				if(preg_match('/^(PS[0-9]P[0-9]{3,5})\ (V0[0-9])\ \-((FRZ|PAR|SER|PLA|BFC|EDB|RNB|SRB|WHT)[0-9]{0,2})$/', $aliquot_label, $matches)) {
+					$visit = $matches[2];
+				} else {
+					die('ERR 9993993939 '.$aliquot_label);
+				}
+				$file_name = ($visit == 'V01')? $v1_file_name : $follow_up_file_name;
+				$summary_msg_title = "$specimen_type $visit <br>  File: $file_name";
+				Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Stored aliquot not found'][] = "The aliquot [$aliquot_label] was defined as stored in storage worksheet [".$storage_data[0]['tmp_work_sheet_name']."] cell [".$storage_data[0]['x']."-".$storage_data[0]['y']."] but no matching aliquot has been found in invetory files (V01 and follwoup).";
+			}
+		}
+	}
+}
 	
 function loadBloodAndUrine() {	
 	die('ERR 88888');

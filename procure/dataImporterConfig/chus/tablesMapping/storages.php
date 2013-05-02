@@ -15,28 +15,29 @@ function loadStorages() {
 	// *** LOAD PLASMA, SERUM, etc  *** 
 	
 	$sample_type_controls = array(
-		'Tissu congelé OCT' => array('sample_type' => 'tissue', 'precision' => 'ISO+OCT'),
-		'Tissu congelé ISOPENTANE' => array('sample_type' => 'tissue', 'precision' => 'ISO'),
+		'Tissu congelé OCT' => array('sample_type' => 'tissue', 'precision' => 'ISO+OCT', 'abbreviations' => 'FRZ'),
+		'Tissu congelé ISOPENTANE' => array('sample_type' => 'tissue', 'precision' => 'ISO', 'abbreviations' => 'FRZ'),
 		
-		'Plasma' => array('sample_type' => 'plasma', 'precision' => ''),
-		'Sérum' => array('sample_type' => 'serum', 'precision' => ''),
-		'Buffy Coat' => array('sample_type' => 'pbmc', 'precision' => ''),
+		'Plasma' => array('sample_type' => 'plasma', 'precision' => '', 'abbreviations' => 'PLA'),
+		'Sérum' => array('sample_type' => 'serum', 'precision' => '', 'abbreviations' => 'SER'),
+		'Buffy Coat' => array('sample_type' => 'pbmc', 'precision' => '', 'abbreviations' => 'BFC'),
 		
-		'ADN' => array('sample_type' => 'dna', 'precision' => ''),
-		'ADN dilué 50 ng/ul' => array('sample_type' => 'dna', 'precision' => '50 ng/ul'),
-		'ADN3' => array('sample_type' => 'dna', 'precision' => ''),
-		'ARN' => array('sample_type' => 'rna', 'precision' => ''),
-		'miRNA' => array('sample_type' => 'dna', 'precision' => 'miRNA'),
-//TODO clarifier		
-		'Urine non-clarifiée' => array('sample_type' => 'urine', 'precision' => 'non-clarifiée'),
-		'Urine clarifiée' => array('sample_type' => 'urine', 'precision' => 'clarifiée'),
-		'Urine concentrée' => array('sample_type' => 'centrifuged urine', 'precision' => '')
+//TODO clarifier & vérifier		
+		'ADN' => array('sample_type' => 'dna', 'precision' => '', 'abbreviations' => 'DNA'),
+		'ADN dilué 50 ng/ul' => array('sample_type' => 'dna', 'precision' => '50 ng/ul', 'abbreviations' => 'DNA'),
+		'ADN3' => array('sample_type' => 'dna', 'precision' => '', 'abbreviations' => 'DNA'),
+		'ARN' => array('sample_type' => 'rna', 'precision' => '', 'abbreviations' => 'RNA'),
+		'miRNA' => array('sample_type' => 'dna', 'precision' => 'miRNA', 'abbreviations' => 'TODO'),
+//TODO clarifier & véridier		
+		'Urine non-clarifiée' => array('sample_type' => 'urine', 'precision' => 'non-clarifiée', 'abbreviations' => 'TODO'),
+		'Urine clarifiée' => array('sample_type' => 'urine', 'precision' => 'clarifiée', 'abbreviations' => 'TODO'),
+		'Urine concentrée' => array('sample_type' => 'centrifuged urine', 'precision' => '', 'abbreviations' => 'TODO')
 	);
 	
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path_storage_all);	
 	$sheets_nbr = array();
-		
+			
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) {
 		$work_sheet_name = str_replace(' ','', $tmp['name']);
 		if(in_array($work_sheet_name, array(utf8_decode('Résumé'), utf8_decode('Schéma')))) continue;
@@ -48,6 +49,7 @@ function loadStorages() {
 		$box_label = '';
 		$box_sample_type = '';
 		$box_sample_type_details = '';
+		$box_abbreviations = array();
 		$box_notes = array();;
 		$studied_box_row = 0;
 		$box_row_nbr = 0;
@@ -73,6 +75,7 @@ function loadStorages() {
 				if(!array_key_exists(utf8_encode($new_line['2']), $sample_type_controls)) die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_2(1)');
 				$box_sample_type = $sample_type_controls[utf8_encode($new_line['2'])]['sample_type'];
 				$box_sample_type_details =  $sample_type_controls[utf8_encode($new_line['2'])]['precision'];
+				$box_abbreviations = $sample_type_controls[utf8_encode($new_line['2'])]['abbreviations'];
 			} else if($excel_line_counter == 3) {
 				if(implode('-',$new_line) != utf8_decode("Emplacement-Congélateur-Étagère-Râtelier-Colonne-Rangée")) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_3'); }
 			} else if($excel_line_counter == 4) {				
@@ -121,8 +124,15 @@ function loadStorages() {
 								array('PS4P', ' V0', 'PS4P0', 'PS4P0', '-08', 'PS4P', 'V01', 'PS4P', 'P0290'),
 								$value);
 							$aliquot_label = preg_replace('/(\ ){2,100}/', ' ', $aliquot_label);
-							if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}((PLA|URC|BRC|URN|SER|BFC|BCF|DNA|RNA|FRZ|\-miR|UNC)(\ ){0,1}([0-9]){0,2})(\ )*(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {								
-								$aliquot_label = $matches[1].' '.$matches[3].' -'.$matches[5];
+							if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}(\-{0,1}(PLA|URC|BRC|URN|SER|BFC|BCF|DNA|RNA|FRZ|miR|UNC)(\ ){0,1}([0-9]){0,2})(\ )*(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {								
+								$sample_abbreviation = str_replace(array('BRC','BCF'), array('BFC','BFC'), $matches[6]);
+								if($box_abbreviations == 'TODO') {
+//TODO									
+									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['NL TODO: sample abbreviation to check'][$sample_abbreviation] = "$sample_abbreviation";
+								} else if($sample_abbreviation != $box_abbreviations) {
+									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong sample type abbreviation for box'][] = "The aliquot [$aliquot_label] stored in $box_sample_type box has an abbreviation '$sample_abbreviation' different than this one expected '$box_abbreviations'. See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
+								}
+								$aliquot_label = str_replace(' ','',$matches[1]).' '.$matches[3].' -'.$sample_abbreviation.$matches[8];
 								$storage_datetime = "''";
 								$storage_datetime_accuracy = "''";
 								if(!empty($matches[10])) {
@@ -228,7 +238,7 @@ function loadStorages() {
 					$value = preg_replace('/(\ ){2,100}/', ' ', $value);	
 					$aliquot_label = str_replace(array('WHT1', 'WTH-1','WHT-1'), array('-WHT1','-WHT1','-WHT1'), $value);
 					if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}(\-WHT1)(\ ){0,1}(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {
-						$aliquot_label = $matches[1].' '.$matches[3].' '.$matches[5];
+						$aliquot_label = str_replace(' ','',$matches[1]).' '.$matches[3].' '.$matches[5];												
 						$storage_datetime = "''";
 						$storage_datetime_accuracy = "''";
 						if(!empty($matches[9])) {			
