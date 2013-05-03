@@ -20,11 +20,11 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CHUS';
-	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-04-17.xls";
-	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-04-22.xls";
-	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-04-22.xls";
-	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-04-17.xls";
-	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-04-17.xls";
+	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-04-17_nl_revised.xls";
+	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-04-22_nl_revised.xls";
+	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-04-22_nl_revised.xls";
+	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-04-17_nl_revised.xls";
+	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-04-17_nl_revised.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -123,12 +123,12 @@ function addonFunctionStart(){
 		Config::$event_controls[$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
 	
-	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'urine', 'serum', 'plasma', 'pbmc','centrifuged urine','rna')";
+	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'urine', 'serum', 'plasma', 'pbmc','centrifuged urine','concentrated urine','rna')";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
 	}
-	if(sizeof(Config::$sample_aliquot_controls) != 8) die("get sample controls failed");
+	if(sizeof(Config::$sample_aliquot_controls) != 9) die("get sample controls failed");
 
 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
 		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
@@ -136,7 +136,7 @@ function addonFunctionStart(){
 		while($row = $results->fetch_assoc()){
 			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
 		}
-	}	
+	}
 	
 	// GET VALUE DOMAIN DATA
 	

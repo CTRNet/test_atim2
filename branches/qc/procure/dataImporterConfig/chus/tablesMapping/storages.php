@@ -15,23 +15,20 @@ function loadStorages() {
 	// *** LOAD PLASMA, SERUM, etc  *** 
 	
 	$sample_type_controls = array(
-		'Tissu congelé OCT' => array('sample_type' => 'tissue', 'precision' => 'ISO+OCT', 'abbreviations' => 'FRZ'),
-		'Tissu congelé ISOPENTANE' => array('sample_type' => 'tissue', 'precision' => 'ISO', 'abbreviations' => 'FRZ'),
+		'Tissu congelé OCT' => array('sample_type' => 'tissue', 'precision' => 'ISO+OCT', 'alq_label_suffix' => 'FRZ'),   
+		'Tissu congelé ISOPENTANE' => array('sample_type' => 'tissue', 'precision' => 'ISO', 'alq_label_suffix' => 'FRZ'),
 		
-		'Plasma' => array('sample_type' => 'plasma', 'precision' => '', 'abbreviations' => 'PLA'),
-		'Sérum' => array('sample_type' => 'serum', 'precision' => '', 'abbreviations' => 'SER'),
-		'Buffy Coat' => array('sample_type' => 'pbmc', 'precision' => '', 'abbreviations' => 'BFC'),
-		
-//TODO clarifier & vérifier		
-		'ADN' => array('sample_type' => 'dna', 'precision' => '', 'abbreviations' => 'DNA'),
-		'ADN dilué 50 ng/ul' => array('sample_type' => 'dna', 'precision' => '50 ng/ul', 'abbreviations' => 'DNA'),
-		'ADN3' => array('sample_type' => 'dna', 'precision' => '', 'abbreviations' => 'DNA'),
-		'ARN' => array('sample_type' => 'rna', 'precision' => '', 'abbreviations' => 'RNA'),
-		'miRNA' => array('sample_type' => 'dna', 'precision' => 'miRNA', 'abbreviations' => 'TODO'),
-//TODO clarifier & véridier		
-		'Urine non-clarifiée' => array('sample_type' => 'urine', 'precision' => 'non-clarifiée', 'abbreviations' => 'TODO'),
-		'Urine clarifiée' => array('sample_type' => 'urine', 'precision' => 'clarifiée', 'abbreviations' => 'TODO'),
-		'Urine concentrée' => array('sample_type' => 'centrifuged urine', 'precision' => '', 'abbreviations' => 'TODO')
+		'Plasma' => array('sample_type' => 'plasma', 'precision' => '', 'alq_label_suffix' => 'PLA'),
+		'Sérum' => array('sample_type' => 'serum', 'precision' => '', 'alq_label_suffix' => 'SER'),
+		'Buffy Coat' => array('sample_type' => 'pbmc', 'precision' => '', 'alq_label_suffix' => 'BFC'),
+		'ADN' => array('sample_type' => 'dna', 'precision' => '', 'alq_label_suffix' => 'DNA'),
+		'ADN dilué 50 ng/ul' => array('sample_type' => 'dna', 'precision' => '50 ng/ul', 'alq_label_suffix' => 'DNA'),
+		'ADN3' => array('sample_type' => 'dna', 'precision' => '', 'alq_label_suffix' => 'DNA'),
+		'ARN' => array('sample_type' => 'rna', 'precision' => '', 'alq_label_suffix' => 'RNA'),
+		'miRNA' => array('sample_type' => 'dna', 'precision' => 'miRNA', 'alq_label_suffix' => 'miR'),			
+		'Urine non-clarifiée' => array('sample_type' => 'urine', 'precision' => 'non-clarifiée', 'alq_label_suffix' => 'URI'),
+		'Urine clarifiée' => array('sample_type' => 'centrifuged urine', 'precision' => 'clarifiée', 'alq_label_suffix' => 'URN'),
+		'Urine concentrée' => array('sample_type' => 'concentrated urine', 'precision' => '', 'alq_label_suffix' => 'URC')
 	);
 	
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
@@ -47,9 +44,10 @@ function loadStorages() {
 		$rack_label = '';
 		$box_storage_master_id = getNewtStorageId();
 		$box_label = '';
+		$box_definition = '';
 		$box_sample_type = '';
 		$box_sample_type_details = '';
-		$box_abbreviations = array();
+		$box_alq_label_suffix = array();
 		$box_notes = array();;
 		$studied_box_row = 0;
 		$box_row_nbr = 0;
@@ -73,9 +71,10 @@ function loadStorages() {
 				if(!$new_line['2']) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_1(1)'); }
 				$box_label .= ' '.$new_line['2'];
 				if(!array_key_exists(utf8_encode($new_line['2']), $sample_type_controls)) die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_2(1)');
+				$box_definition = utf8_encode($new_line['2']);
 				$box_sample_type = $sample_type_controls[utf8_encode($new_line['2'])]['sample_type'];
 				$box_sample_type_details =  $sample_type_controls[utf8_encode($new_line['2'])]['precision'];
-				$box_abbreviations = $sample_type_controls[utf8_encode($new_line['2'])]['abbreviations'];
+				$box_alq_label_suffix = $sample_type_controls[utf8_encode($new_line['2'])]['alq_label_suffix'];
 			} else if($excel_line_counter == 3) {
 				if(implode('-',$new_line) != utf8_decode("Emplacement-Congélateur-Étagère-Râtelier-Colonne-Rangée")) { die('ERR_parse_all_boxes_['.$work_sheet_name.']_line_3'); }
 			} else if($excel_line_counter == 4) {				
@@ -125,14 +124,23 @@ function loadStorages() {
 								$value);
 							$aliquot_label = preg_replace('/(\ ){2,100}/', ' ', $aliquot_label);
 							if(preg_match('/^(PS[0-9]\ {0,1}P[0-9]{3,5})(\ ){0,1}(V0[0-9])(\ ){0,1}(\-{0,1}(PLA|URC|BRC|URN|SER|BFC|BCF|DNA|RNA|FRZ|miR|UNC)(\ ){0,1}([0-9]){0,2})(\ )*(([0-9]{2}\-[0-9]{2}\-[0-9]{4}){0,1}|([0-9]{4}\-[0-9]{2}\-[0-9]{2}){0,1})\ *$/', $aliquot_label, $matches)) {								
-								$sample_abbreviation = str_replace(array('BRC','BCF'), array('BFC','BFC'), $matches[6]);
-								if($box_abbreviations == 'TODO') {
-//TODO									
-									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['NL TODO: sample abbreviation to check'][$sample_abbreviation] = "$sample_abbreviation";
-								} else if($sample_abbreviation != $box_abbreviations) {
-									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong sample type abbreviation for box'][] = "The aliquot [$aliquot_label] stored in $box_sample_type box has an abbreviation '$sample_abbreviation' different than this one expected '$box_abbreviations'. See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
+								$alq_label_suffix = str_replace(array('BRC','BCF', 'UNC'), array('BFC','BFC', 'URI'), $matches[6]);
+								if($alq_label_suffix != $box_alq_label_suffix) {								
+									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Wrong aliquot label suffix for '$box_definition' box"][] = "The suffix [$alq_label_suffix] of the aliquot label [$aliquot_label] is different than the defined suffix [$box_alq_label_suffix] based on box description. See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
 								}
-								$aliquot_label = str_replace(' ','',$matches[1]).' '.$matches[3].' -'.$sample_abbreviation.$matches[8];
+								$formated_participant_identifier = str_replace(' ','',$matches[1]);
+								if(!preg_match('/^PS[0-9]P[0-9]{4}$/', $formated_participant_identifier)) {
+									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Wrong participant identifier"][] = "The format of the participant identifier [$formated_participant_identifier] extracted from the aliquot label [$aliquot_label] is wrong. Expected PS4P0000. See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
+								}
+								$formated_visit = str_replace(' ','',$matches[3]);
+								if(!preg_match('/^V0[0-9]$/', $formated_visit)) {
+									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Wrong visit"][] = "The format of the visit [$formated_visit] extracted from the aliquot label [$aliquot_label] is wrong. Expected V0[0-9]. See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
+								}
+								$formated_aliquot_label_suffix = $alq_label_suffix.$matches[8];
+								if(!preg_match('/^((SRB|RNB|EDB|WHT|PLA|SER|BFC|FRZ|PAR|URI|URN|URC|DNA|RNA)[0-9]{1,2})|(miR))$/', $formated_aliquot_label_suffix)) {
+									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Wrong aliquot label suffix"][] = "The format of the aliquot label suffix [$formated_aliquot_label_suffix] extracted from the aliquot label [$aliquot_label] is wrong. Expected (SRB|RNB|EDB|WHT|PLA|SER|BFC|FRZ|PAR|URI|URN|URC|DNA|RNA)[0-9]{1,2})|(miR). See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
+								}
+								$formated_aliquot_label = "$formated_participant_identifier $formated_visit -$formated_aliquot_label_suffix";
 								$storage_datetime = "''";
 								$storage_datetime_accuracy = "''";
 								if(!empty($matches[10])) {
@@ -143,8 +151,8 @@ function loadStorages() {
 										$storage_datetime_accuracy = str_replace('c','h', $storage_date_data['accuracy']);
 									}
 								}
-								Config::$storage_data_from_sample_type_and_label[$box_sample_type][$aliquot_label][] = array(
-									'aliquot_label' => $aliquot_label, 
+								Config::$storage_data_from_sample_type_and_label[$box_sample_type][$formated_aliquot_label][] = array(
+									'aliquot_label' => $formated_aliquot_label, 
 									'sample_type' => $box_sample_type,
 									'sample_type_precision' => $box_sample_type_details,
 									'storage_datetime' => $storage_datetime,
@@ -156,7 +164,7 @@ function loadStorages() {
 									'tmp_work_sheet_name' => $work_sheet_name,
 									'tmp_cell_value' => $value);
 							} else {							
-								Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong aliquot label'][] = "Aliquot label can not be extracted from value [$value] in worksheet $work_sheet_name cell [$studied_box_column/$studied_box_row]. Format is not recognized. Aliquot positon won't be imported.";
+								Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong aliquot label'][] = "No aliquot label can be extracted from value [$value] in worksheet $work_sheet_name cell [$studied_box_column/$studied_box_row]. Format is not recognized. Aliquot positon won't be imported.";
 							}
 						} else {
 							$line_notes[] = $value;
@@ -209,7 +217,7 @@ function loadStorages() {
 					if(implode('',$new_line) != "11121314151617181920") die('ERR_whatman_paper.4 - '.$work_sheet_name);
 					$box_data[1] = array('header' => $new_line, 'data' => array());
 				} else if($line == ($first_box_line + 4)) {
-					if(implode('',$new_line) != "21222324252627282930") die('ERR_whatman_paper.5 - '.$work_sheet_name);
+					if(implode('',$new_line) != "21222324252627282930") die('ERR_whatman_paper.5 Add cell values 21 to 30 - '.$work_sheet_name);
 					$box_data[2] = array('header' => $new_line, 'data' => array());
 				} else if($line == ($first_box_line + 6)) {
 					if(implode('',$new_line) != "31323334353637383940") die('ERR_whatman_paper.6 - '.$work_sheet_name);
