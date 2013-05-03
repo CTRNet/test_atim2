@@ -49,7 +49,7 @@ function postParticipantWrite(Model $m){
 }
 
 function loadParticipantNominalData() {
-//TODO
+//TODO loadParticipantNominalData
 die('TODO : loadParticipantNominalData()');	
 // 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 // 	$tmp_xls_reader->read( Config::$xls_file_path);
@@ -101,7 +101,7 @@ die('TODO : loadParticipantNominalData()');
 }
 
 function recordHospitalNumber($hospital_number, $participant_id){
-//TODO
+//TODO recordHospitalNumber
 die('TODO : recordHospitalNumber()');	
 // 	$query = "INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id) VALUES ('$hospital_number', 2, $participant_id);";
 // 	mysqli_query(Config::$db_connection, $query) or die("Error hosptal number record. [$query] ");

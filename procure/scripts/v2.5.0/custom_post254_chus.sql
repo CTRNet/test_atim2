@@ -72,13 +72,6 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as
 VALUES 
 ('unclassifiable', 'Unclassifiable', 'Inclassable', '1', @control_id, NOW(), NOW(), 1, 1);	
 
-
-
-
-
-
-
-
-
-
-
+-- Concentrated urine
+UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(10);
+UPDATE aliquot_controls SET flag_active=true WHERE id IN(15);
