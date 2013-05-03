@@ -137,7 +137,7 @@ function loadStorages() {
 									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Wrong visit"][] = "The format of the visit [$formated_visit] extracted from the aliquot label [$aliquot_label] is wrong. Expected V0[0-9]. See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
 								}
 								$formated_aliquot_label_suffix = $alq_label_suffix.$matches[8];
-								if(!preg_match('/^((SRB|RNB|EDB|WHT|PLA|SER|BFC|FRZ|PAR|URI|URN|URC|DNA|RNA)[0-9]{1,2})|(miR))$/', $formated_aliquot_label_suffix)) {
+								if(!preg_match('/^(((SRB|RNB|EDB|WHT|PLA|SER|BFC|FRZ|PAR|URI|URN|URC|DNA|RNA)[0-9]{1,2})|(miR))$/', $formated_aliquot_label_suffix)) {
 									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']["Wrong aliquot label suffix"][] = "The format of the aliquot label suffix [$formated_aliquot_label_suffix] extracted from the aliquot label [$aliquot_label] is wrong. Expected (SRB|RNB|EDB|WHT|PLA|SER|BFC|FRZ|PAR|URI|URN|URC|DNA|RNA)[0-9]{1,2})|(miR). See $work_sheet_name cell [$studied_box_column/$studied_box_row].";
 								}
 								$formated_aliquot_label = "$formated_participant_identifier $formated_visit -$formated_aliquot_label_suffix";
