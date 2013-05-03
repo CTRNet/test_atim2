@@ -42,13 +42,13 @@
 				break;
 				
 			case 'blood-whatman paper':
-				$label = '-RNB';
+				$label = '-WHT';
 				break;
 			case 'serum-tube':
 				$label = '-SER';
 				break;
 			case 'plasma-tube':
-				$label = 'pbmc-PLA';
+				$label = '-PLA';
 				break;
 			case 'pbmc-tube':		
 				$label = '-BFC';
@@ -81,6 +81,16 @@
 				
 			case 'rna-tube':
 				$label = '-RNA';
+				$default_concentration_unit = 'ng/ul';
+				if(is_null($template_init_id) && sizeof($new_sample_record['children']) == 1) $new_sample_record['children'][1] = $new_sample_record['children'][0];				
+				break;		
+									
+			//--------------------------------------------------------------------------------
+			//  DNA
+			//--------------------------------------------------------------------------------
+				
+			case 'dna-tube':
+				$label = '-DNA';
 				$default_concentration_unit = 'ng/ul';
 				if(is_null($template_init_id) && sizeof($new_sample_record['children']) == 1) $new_sample_record['children'][1] = $new_sample_record['children'][0];				
 				break;		
