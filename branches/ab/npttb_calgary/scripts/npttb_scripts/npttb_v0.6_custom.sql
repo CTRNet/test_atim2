@@ -363,8 +363,8 @@ INSERT INTO `structures` (`alias`) VALUES ('npttb_dna_details');
 INSERT INTO `structures` (`alias`) VALUES ('npttb_rna_details');
 
 -- Add new structure DNA/RNA sample types
-UPDATE `sample_controls` SET `detail_form_alias`='sd_undetailed_derivatives,derivatives,npttb_dna_details' WHERE `id`=(SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'dna');
-UPDATE `sample_controls` SET `detail_form_alias`='sd_undetailed_derivatives,derivatives,npttb_rna_details' WHERE `id`=(SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'rna');
+UPDATE `sample_controls` SET `detail_form_alias`='sd_undetailed_derivatives,derivatives,npttb_dna_details' WHERE `sample_type` = 'dna';
+UPDATE `sample_controls` SET `detail_form_alias`='sd_undetailed_derivatives,derivatives,npttb_rna_details' WHERE `sample_type` = 'rna';
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'AliquotDetail', 'sd_der_rnas', 'npttb_storage_medium', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium') , '0', '', '', '', 'npttb storage medium', ''),
@@ -381,15 +381,52 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 	Eventum ID: 2555 - Sample Preperation Method
 	------------------------------------------------------------
 */
-	
-	
-	
-/*
-	------------------------------------------------------------
-	Eventum ID: 2556 - Disable barcode for block, slide, core
-	------------------------------------------------------------
-*/	
 
+-- Add to table
+ALTER TABLE `sd_der_dnas` ADD COLUMN `npttb_prep_method` VARCHAR(100) NULL DEFAULT NULL AFTER `npttb_storage_medium` ;
+ALTER TABLE `sd_der_dnas_revs` ADD COLUMN `npttb_prep_method` VARCHAR(100) NULL DEFAULT NULL AFTER `npttb_storage_medium` ;
+
+ALTER TABLE `sd_der_rnas` ADD COLUMN `npttb_prep_method` VARCHAR(100) NULL DEFAULT NULL AFTER `npttb_storage_medium` ;
+ALTER TABLE `sd_der_rnas_revs` ADD COLUMN `npttb_prep_method` VARCHAR(100) NULL DEFAULT NULL AFTER `npttb_storage_medium` ;
+
+-- Add value domain for preperation method
+INSERT INTO `structure_value_domains` (`domain_name`) VALUES ('npttb_prep_method');
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("AllPrep - Qiagen", "npttb AllPrep - Qiagen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="AllPrep - Qiagen" AND language_alias="npttb AllPrep - Qiagen"), "1", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("DNeasy - Qiagen", "npttb DNeasy - Qiagen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="DNeasy - Qiagen" AND language_alias="npttb DNeasy - Qiagen"), "2", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("QIAamp - Qiagen", "npttb QIAamp - Qiagen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="QIAamp - Qiagen" AND language_alias="npttb QIAamp - Qiagen"), "3", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("miRNeasy - Qiagen", "npttb miRNeasy - Qiagen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="miRNeasy - Qiagen" AND language_alias="npttb miRNeasy - Qiagen"), "4", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("RLT - miRNeasy - Qiagen", "npttb RLT - miRNeasy - Qiagen");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="RLT - miRNeasy - Qiagen" AND language_alias="npttb RLT - miRNeasy - Qiagen"), "5", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Ethanol Precipitation", "npttb Ethanol Precipitation");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="Ethanol Precipitation" AND language_alias="npttb Ethanol Precipitation"), "6", "1");
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb AllPrep - Qiagen', 'Nuclease-free water'),
+('npttb DNeasy - Qiagen', 'Buffer AE'),
+('npttb QIAamp - Qiagen', 'Buffer ALO'),
+('npttb miRNeasy - Qiagen', 'Buffer EB'),
+('npttb RLT - miRNeasy - Qiagen', 'Other'),
+('npttb Ethanol Precipitation', 'Other');
+
+-- Add field to DNA/RNA form
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'sd_der_rnas', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method') , '0', '', '', '', 'npttb prep method', ''),
+('InventoryManagement', 'AliquotDetail', 'sd_der_dnas', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method') , '0', '', '', '', 'npttb prep method', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='npttb_dna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_dnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 
 /*
@@ -397,5 +434,14 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 	Eventum ID: 2556 - Aliquot Label should not be read-only
 	------------------------------------------------------------
 */
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+	
+/*
+	------------------------------------------------------------
+	Eventum ID: 2556 - Disable barcode for block, slide, core
+	------------------------------------------------------------
+*/	
 
 
