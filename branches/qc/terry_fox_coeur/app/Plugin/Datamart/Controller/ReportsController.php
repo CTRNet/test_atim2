@@ -48,7 +48,21 @@ class ReportsController extends DatamartAppController {
 			if($csv_creation) {
 				$data_to_build_report = $_SESSION['report']['search_criteria'];
 			} else {
-				$data_to_build_report = empty($this->request->data)? array() : $this->request->data;
+				$data_to_build_report = empty($this->request->data)? array() : $this->request->data;			
+				foreach($data_to_build_report as $model => $fields_parameters) {
+					foreach($fields_parameters as $field => $parameters) {
+						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
+							$matched_field_name = $matches[1];
+							if(!isset($data_to_build_report[$model][$matched_field_name])) $data_to_build_report[$model][$matched_field_name] = array();
+							$handle = fopen($parameters['tmp_name'], "r");
+							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+								$data_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+							}
+							fclose($handle);
+							unset($data_to_build_report[$model][$field]);
+						}
+					}
+				}				
 				$_SESSION['report']['search_criteria'] = $data_to_build_report;
 			}
 	
