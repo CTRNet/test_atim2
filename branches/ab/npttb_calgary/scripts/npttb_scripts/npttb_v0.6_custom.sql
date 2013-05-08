@@ -89,12 +89,27 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 -- Aliquot for CSF specimen
 INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
 ((SELECT `id` FROM sample_controls WHERE `sample_type` = 'csf' AND `detail_form_alias` = 'sd_spe_csf,specimens'), 'tube', '(ul)', 'ad_spec_tubes_incl_ul_vol', 'ad_tubes', 'ul', '1', 'Specimen tube requiring volume in ul', '0', 'csf|tube');
+
+-- Structure for ul specimen tube
+INSERT INTO `structures` (`alias`) VALUES ('ad_spec_tubes_incl_ul_vol');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='lot number' AND `language_tag`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='current volume' AND `language_tag`=''), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='initial volume' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '74', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_creat_to_stor_spent_time_msg_defintion' AND `language_label`='creation to storage spent time' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_coll_to_stor_spent_time_msg_defintion' AND `language_label`='collection to storage spent time' AND `language_tag`=''), '1', '59', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '60', '', '1', 'creation to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
  
--- Aliquot for CSF Cells (DEFINE TUBE TABLE)
+-- Aliquot for CSF Cell
 INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
 ((SELECT `id` FROM sample_controls WHERE `sample_type` = 'csf cells' AND `detail_form_alias` = 'sd_undetailed_derivatives,derivatives'), 'tube', '(ul)', 'ad_der_tubes_incl_ul_vol', 'ad_tubes', 'ul', '1', 'Derivative tube requiring volume in ul', '0', 'csf cells|tube');
 
--- Aliquot for CSF Supernatant (DEFINE TUBE TABLE)
+-- Aliquot for CSF Supernatant
 INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
 ((SELECT `id` FROM sample_controls WHERE `sample_type` = 'csf supernatant' AND `detail_form_alias` = 'sd_undetailed_derivatives,derivatives'), 'tube', '(ul)', 'ad_der_tubes_incl_ul_vol', 'ad_tubes', 'ul', '1', 'Derivative tube requiring volume in ul', '0', 'csf supernatant|tube');
 
@@ -121,16 +136,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- Add new custom field
 ALTER TABLE `sd_spe_tissues` ADD COLUMN `npttb_tissue_source` VARCHAR(100) NULL DEFAULT NULL  AFTER `tissue_source` ;
 ALTER TABLE `sd_spe_tissues_revs` ADD COLUMN `npttb_tissue_source` VARCHAR(100) NULL DEFAULT NULL  AFTER `tissue_source` ;
-
--- Add to structure, turn off old tissue source
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'npttb_tissue_source', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_tissue_source') , '0', '', '', '', 'npttb tissue source', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='npttb_tissue_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_tissue_source')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb tissue source' AND `language_tag`=''), '1', '441', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') AND `flag_confidential`='0');
-
-REPLACE INTO `i18n` (`id`, `en`, `fr`)
-	VALUES ('npttb tissue source', 'Tissue Source', '');
 
 -- Create new custom tissue source value domain
 INSERT INTO `structure_value_domains` (`domain_name`) VALUES ('npttb_tissue_source');
@@ -325,6 +330,17 @@ REPLACE INTO `i18n` (`id`, `en`) VALUES
 ('npttb Vas Deferens', 'Vas Deferens'),
 ('npttb Vulva', 'Vulva');
 
+-- Add to structure, turn off old tissue source
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'npttb_tissue_source', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_tissue_source') , '0', '', '', '', 'npttb tissue source', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='npttb_tissue_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_tissue_source')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb tissue source' AND `language_tag`=''), '1', '441', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`)
+	VALUES ('npttb tissue source', 'Tissue Source', '');
 
 /*
 	------------------------------------------------------------
@@ -376,6 +392,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_storage_medium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb storage medium' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb storage medium', 'Storage Medium');
+
 /*
 	------------------------------------------------------------
 	Eventum ID: 2555 - Sample Preperation Method
@@ -410,12 +429,12 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("Ethanol
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="Ethanol Precipitation" AND language_alias="npttb Ethanol Precipitation"), "6", "1");
 
 REPLACE INTO `i18n` (`id`, `en`) VALUES
-('npttb AllPrep - Qiagen', 'Nuclease-free water'),
-('npttb DNeasy - Qiagen', 'Buffer AE'),
-('npttb QIAamp - Qiagen', 'Buffer ALO'),
-('npttb miRNeasy - Qiagen', 'Buffer EB'),
-('npttb RLT - miRNeasy - Qiagen', 'Other'),
-('npttb Ethanol Precipitation', 'Other');
+('npttb AllPrep - Qiagen', 'AllPrep - Qiagen'),
+('npttb DNeasy - Qiagen', 'DNeasy - Qiagen'),
+('npttb QIAamp - Qiagen', 'QIAamp - Qiagen'),
+('npttb miRNeasy - Qiagen', 'miRNeasy - Qiagen'),
+('npttb RLT - miRNeasy - Qiagen', 'RLT - miRNeasy - Qiagen'),
+('npttb Ethanol Precipitation', 'Ethanol Precipitation');
 
 -- Add field to DNA/RNA form
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -428,6 +447,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb prep method', 'Preparation Method');
+
 
 /*
 	------------------------------------------------------------
@@ -436,6 +458,40 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 */
 
 UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2560 - Acquisition Label Validation
+	------------------------------------------------------------
+*/	
+
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES
+ ((SELECT `id` FROM structure_fields WHERE field = 'acquisition_label' AND `tablename` = 'collections'), '/^\\A\\w{2}\\s{1}\\d{2}(-)\\d{5}$/', 'npttb error acquisition label');
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb error acquisition label', 'Acquisition label must be AA DD-DDDDD');
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2561 - Collection Site Values
+	------------------------------------------------------------
+*/	
+	
+INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'Foothills Hospital', 'Foothills Hospital', '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), "Children's Hospital", "Children's Hospital", '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
+	
+/*
+	------------------------------------------------------------
+	Eventum ID: 2562 - Collection bank - set default
+	------------------------------------------------------------
+*/	
+
+UPDATE `banks` SET `name`='NPTTB', `description`='Clark H. Smith Neurologic and Pediatric Tumor and Related Tissue Bank' WHERE `id`='1';
+
+UPDATE structure_formats SET `flag_override_default`='1', `default`='NPTTB' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 
 	
 /*
