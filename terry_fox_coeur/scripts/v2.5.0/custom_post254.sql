@@ -141,4 +141,18 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='querytool_batch_set'), (SELECT id FROM structure_fields WHERE `model`='BatchSet' AND `tablename`='datamart_batch_sets' AND `field`='qc_tf_coeur_is_for_order' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='is order' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('linked study','Linked study'),('is order','Is Order');
 
-UPDATE `versions` SET branch_build_number = '5221' WHERE version_number = '2.5.4'
+-- 2013-05-07 - Changed databrowser config -------------------------------------------------------------------------------
+
+UPDATE event_controls SET flag_active = 0 WHERE event_type = 'comorbidity';
+
+UPDATE aliquot_review_controls SET flag_active = 0;
+UPDATE specimen_review_controls SET flag_active = 0;
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews%';
+
+SET @coll_id = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 =  @coll_id AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster','TreatmentMaster','EventMaster'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id2 =  @coll_id AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster','TreatmentMaster','EventMaster'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('MiscIdentifier','ConsentMaster','FamilyHistory','ParticipantMessage','SpecimenReviewMaster','ParticipantContact','ReproductiveHistory'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('MiscIdentifier','ConsentMaster','FamilyHistory','ParticipantMessage','SpecimenReviewMaster','ParticipantContact','ReproductiveHistory'));
+
+UPDATE `versions` SET branch_build_number = '5222' WHERE version_number = '2.5.4'
