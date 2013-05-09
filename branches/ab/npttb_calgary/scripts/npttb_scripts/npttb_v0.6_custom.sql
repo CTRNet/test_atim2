@@ -493,7 +493,56 @@ UPDATE `banks` SET `name`='NPTTB', `description`='Clark H. Smith Neurologic and 
 
 UPDATE structure_formats SET `flag_override_default`='1', `default`='NPTTB' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 
-	
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2563 - Add sample prep method to Bone Marrow
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `sd_spe_bone_marrows` ADD COLUMN `npttb_prep_method` VARCHAR(100) NULL DEFAULT NULL AFTER `collected_volume_unit` ;
+ALTER TABLE `sd_spe_bone_marrows_revs` ADD COLUMN `npttb_prep_method` VARCHAR(100) NULL DEFAULT NULL AFTER `collected_volume_unit` ;
+
+-- Add value domain
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_bm_prep_method", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("RBC lysis", "npttb rbc lysis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_bm_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="RBC lysis" AND language_alias="npttb rbc lysis"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("media", "npttb media");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_bm_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="media" AND language_alias="npttb media"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("no media", "npttb no media");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_bm_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="no media" AND language_alias="npttb no media"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'sd_spe_bone_marrows', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_bm_prep_method') , '0', '', '', '', 'npttb prep method', ''),
+
+-- Enable structure for bone marrow fields
+UPDATE `sample_controls` SET `detail_form_alias`='specimens, sd_spe_bone_marrows' WHERE `sample_type`='bone marrow';
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_bone_marrows', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_bm_prep_method') , '0', '', '', '', 'npttb prep method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bone_marrows'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bone_marrows' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_bm_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '444', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb rbc lysis', 'RBC Lysis'),
+('npttb media', 'Media'),
+('npttb no media', 'No media');
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2564 - Lab Staff and Supplier Dept Values
+	------------------------------------------------------------
+*/
+
+INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'laboratory staff'), 'colleen anderson', 'Colleen Anderson', '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'laboratory staff'), "jen chan", "Jen Chan", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
+
+INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`) VALUES
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), 'ach', 'ACH', '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), "weiss lab", "Weiss Lab", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
+ 	
 /*
 	------------------------------------------------------------
 	Eventum ID: 2556 - Disable barcode for block, slide, core
