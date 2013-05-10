@@ -75,3 +75,5 @@ VALUES
 -- Concentrated urine
 UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(10);
 UPDATE aliquot_controls SET flag_active=true WHERE id IN(15);
+
+UPDATE `storage_controls` SET coord_x_size = 7 WHERE storage_type = 'box49 7x7';
