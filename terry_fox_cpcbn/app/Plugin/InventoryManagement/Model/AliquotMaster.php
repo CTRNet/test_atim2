@@ -46,7 +46,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 	static public $join_aliquot_control_on_dup = array('table' => 'aliquot_controls', 'alias' => 'AliquotControl', 'type' => 'LEFT', 'conditions' => array('aliquot_masters_dup.aliquot_control_id = AliquotControl.id'));
 	
 	var $registered_view = array(
-		'InventoryManagement.ViewAliquot' => array('AliquotMaster.id')
+		'InventoryManagement.ViewAliquot' => array('AliquotMaster.id'),
+		'InventoryManagement.ViewAliquotUse' => array('AliquotMasterChild.id')
 	);
 		
 	function summary($variables=array()) {
@@ -169,7 +170,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 						
 				$total_used_volume = 0;
 				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $view_aliquot_use->findFastFromAliquotMasterId($aliquot_master_id);
+				$aliquot_uses = $view_aliquot_use->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
 				foreach($aliquot_uses as $id => $aliquot_use){
 					$used_volume = $aliquot_use['ViewAliquotUse']['used_volume'];
 					if(!empty($used_volume)){
@@ -205,7 +206,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 			if(is_null($aliquot_uses)) {
 				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $view_aliquot_use->findFastFromAliquotMasterId($aliquot_master_id);
+				$aliquot_uses = $view_aliquot_use->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
 			}
 			
 			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);
