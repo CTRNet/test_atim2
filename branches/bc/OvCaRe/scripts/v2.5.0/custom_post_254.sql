@@ -837,12 +837,59 @@ UPDATE event_controls SET `event_group` = 'ca125' WHERE detail_form_alias = 'ovc
 UPDATE event_controls SET databrowser_label = event_type WHERE flag_active = 1;
 UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 1;
 
+UPDATE menus SET flag_active = 0 WHERE use_link like '/Datamart/Adhocs/index/%';
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare tissue sources');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+INSERT INTO `structure_permissible_values_customs` 
+(`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('abdominal mass', 'Abdominal Mass', '', '1', @control_id),
+('cul-de-sac', 'Cul-de-sac', '', '1', @control_id),
+('ednometrium', 'Ednometrium', '', '1', @control_id),
+('fallopian tube nos', 'Fallopian tube NOS', '', '1', @control_id),
+('fimbrial mass', 'Fimbrial Mass', '', '1', @control_id),
+('leiomyoma', 'Leiomyoma', '', '1', @control_id),
+('left adnexal', 'Left Adnexal', '', '1', @control_id),
+('left fallopian tube', 'Left Fallopian tube', '', '1', @control_id),
+('left ovary', 'Left Ovary', '', '1', @control_id),
+('left paratubrae mass', 'Left Paratubrae Mass', '', '1', @control_id),
+('left pelvic lymph node', 'Left Pelvic Lymph Node', '', '1', @control_id),
+('left pelvic node', 'Left Pelvic Node', '', '1', @control_id),
+('nerve sheath tumour', 'Nerve sheath tumour', '', '1', @control_id),
+('omentum', 'Omentum', '', '1', @control_id),
+('ovary nos', 'Ovary NOS', '', '1', @control_id),
+('pelvic-abdominal', 'Pelvic-Abdominal', '', '1', @control_id),
+('pelvic mass', 'Pelvic Mass', '', '1', @control_id),
+('peritoneal nodule', 'Peritoneal Nodule', '', '1', @control_id),
+('rectosigmoid', 'Rectosigmoid', '', '1', @control_id),
+('retroperitoneum', 'Retroperitoneum', '', '1', @control_id),
+('retrouterine', 'Retrouterine', '', '1', @control_id),
+('sigmoid colon', 'Sigmoid Colon', '', '1', @control_id),
+('small bowel', 'Small Bowel', '', '1', @control_id),
+('small bowel mesentary', 'Small Bowel Mesentary', '', '1', @control_id),
+('transverse colon', 'Transverse Colon', '', '1', @control_id),
+('umbilicus nodule', 'Umbilicus Nodule', '', '1', @control_id),
+('uterus', 'Uterus', '', '1', @control_id),
+('uterine cervix', 'Uterine Cervix', '', '1', @control_id),
+('uterus nodule', 'Uterus Nodule', '', '1', @control_id),
+('vaginal', 'Vaginal', '', '1', @control_id),
+('other', 'Other', '', '1', @control_id);
 
-
-
-
-
+ALTER TABLE sd_spe_tissues ADD COLUMN ovcare_tissue_type varchar(50) default null;
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN ovcare_tissue_type varchar(50) default null;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ovcare_tissue_type", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Types\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES ('Tissue Types', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('normal', 'Normal', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('tumour', 'Tumour', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'ovcare_tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tissue_type') , '0', '', '', '', 'tissue type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ovcare_tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue type' AND `language_tag`=''), '1', '440', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('tissue type','Tissue Type');
 
 
 
