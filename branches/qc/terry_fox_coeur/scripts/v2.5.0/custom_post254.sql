@@ -155,4 +155,11 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('MiscIdentifier','ConsentMaster','FamilyHistory','ParticipantMessage','SpecimenReviewMaster','ParticipantContact','ReproductiveHistory'));
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('MiscIdentifier','ConsentMaster','FamilyHistory','ParticipantMessage','SpecimenReviewMaster','ParticipantContact','ReproductiveHistory'));
 
-UPDATE `versions` SET branch_build_number = '5222' WHERE version_number = '2.5.4'
+UPDATE `versions` SET branch_build_number = '5222' WHERE version_number = '2.5.4';
+
+-- 2013-05-07 - Changed databrowser config -------------------------------------------------------------------------------
+
+UPDATE structure_fields SET  `flag_confidential`='1' WHERE model='Participant' AND tablename='participants' AND field='date_of_birth' AND `type`='date' AND structure_value_domain  IS NULL ;
+
+UPDATE `versions` SET branch_build_number = '5225' WHERE version_number = '2.5.4';
+
