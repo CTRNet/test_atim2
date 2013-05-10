@@ -883,8 +883,8 @@ INSERT INTO structure_permissible_values_custom_controls (name, flag_active, val
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Types');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES 
-('normal', 'Normal', '', '1', @control_id, NOW(), NOW(), 1, 1),
-('tumour', 'Tumour', '', '1', @control_id, NOW(), NOW(), 1, 1);
+('normal', 'Normal', '', '1', @control_id),
+('tumour', 'Tumour', '', '1', @control_id);
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'ovcare_tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tissue_type') , '0', '', '', '', 'tissue type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
