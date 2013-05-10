@@ -104,23 +104,6 @@ class ReportsControllerCustom extends ReportsController {
 					$participant_identifier_criteria_set = true;
 				}
 				
-			} else if(isset($parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload'])) {
-				$tmp_file_data = $parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload'];
-				$handle = fopen($parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload']['tmp_name'], "r");
-				// unset($tmp_file_data['name'], $tmp_file_data['type'], $tmp_file_data['tmp_name'], $tmp_file_data['error'], $tmp_file_data['size']);
-				// in each LINE, get FIRST csv value, and attach to DATA array
-				$participant_ids = array();
-				while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-					if(strlen($csv_data[0])) $participant_ids[] = $csv_data[0];
-				}
-				fclose($handle);
-				unset($tmp_file_data);
-				unset($parameters['Participant']['qc_tf_bank_participant_identifier_with_file_upload']);
-				if(!empty($participant_ids)) {
-					$conditions[] = 'Participant.qc_tf_bank_participant_identifier IN ('.implode($participant_ids, ',').')' ;
-					$participant_identifier_criteria_set = true;
-				}
-				
 			} else if(isset($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) {
 				if(strlen($parameters['Participant']['qc_tf_bank_participant_identifier_start'])) {
 					$participant_identifier_criteria_set = true;

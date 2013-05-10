@@ -104,6 +104,7 @@ if(!headers_sent()){
 	echo $this->Html->script('ccl')."\n";
 	echo $this->Html->script('dropdownConfig')."\n";
 	echo $this->Html->script('jquery.fm-menu')."\n";
+	echo $this->Html->script('form/jquery.form.js')."\n";
 	?>
 	
 	<script type="text/javascript">

@@ -45,6 +45,10 @@
 					'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
 					'icon' => 'aliquot'
 				),
+				'uses and events' => array(
+						'link' => '/InventoryManagement/AliquotMasters/listallUses/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
+						'icon' => 'use'
+				),
 				'access to all data' => array(
 					'link'=> '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' ,
 					'icon' => 'detail'
@@ -59,6 +63,12 @@
 		'ajax' => array(
 			'index' => array(
 				'detail' => array(
+					'json' => array(
+						'update' => 'frame',
+						'callback' => 'set_at_state_in_tree_root'
+					)
+				),
+				'uses and events' => array(
 					'json' => array(
 						'update' => 'frame',
 						'callback' => 'set_at_state_in_tree_root'

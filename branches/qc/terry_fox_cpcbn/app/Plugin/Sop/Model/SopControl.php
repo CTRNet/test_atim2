@@ -13,7 +13,7 @@ class SopControl extends SopAppModel
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $sop_control) {
 			$result[$sop_control['SopControl']['type']] = __($sop_control['SopControl']['type']);
 		}
-		asort($result);
+		natcasesort($result);
 
 		return $result;
 	}
@@ -25,7 +25,7 @@ class SopControl extends SopAppModel
 		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $sop_control) {
 			$result[$sop_control['SopControl']['sop_group']] = __($sop_control['SopControl']['sop_group']);
 		}
-		asort($result);
+		natcasesort($result);
 
 		return $result;
 	}
