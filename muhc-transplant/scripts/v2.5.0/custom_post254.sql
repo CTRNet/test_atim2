@@ -145,3 +145,141 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='muhc_cell_line' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell line' AND `language_tag`=''), '1', '448', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('cell line','Cell line');
+
+-- - New Requests - 2013-04-24 ----------------------------------------------------------------------------------------------------------
+
+INSERT INTO `storage_controls` (`storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, 
+`display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+('cabinet', 'column', 'integer', 2, 'row','integer', 5, 
+2, 5, 0, 1, 1, 0, 0, 1, 'storage_w_spaces', 'muhc_std_cabinets', 'cabinet', 0),
+('cabinet drawer', 'row', 'integer', 7, NULL, NULL, NULL, 
+7, 1, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'muhc_std_cabinets', 'cabinet', 0);
+CREATE TABLE IF NOT EXISTS `muhc_std_cabinets` (
+  `storage_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `muhc_std_cabinets_revs` (
+  `storage_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `muhc_std_cabinets`
+  ADD CONSTRAINT `FK_muhc_std_cabinets_storage_masters` FOREIGN KEY (`storage_master_id`) REFERENCES `storage_masters` (`id`);
+INSERT INTO i18n (id,en) VALUES ('cabinet', 'Cabinet'),('cabinet drawer','Cabinet Drawer');
+
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'muhc_treatment_method_from_id', 'open', '', 'ClinicalAnnotation.TreatmentControl::getMethodFromIds');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'TreatmentMaster', 'treatment_masters', 'treatment_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_treatment_method_from_id') , '0', '', '', '', 'procedure', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='treatment_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_treatment_method_from_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='procedure' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue source' AND `language_tag`=''), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue type' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_tissue_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='muhc_tissue_type') AND `flag_confidential`='0');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ** 1 ** Would it be possible to follow the attached Flow chart for tissue collection on ATiM? 
+   Because, we need as explained in the chart. I just explained for the liver now, we need samething for the other organs too.
+   
+Notes:
+-> Organ (L2) as Liver is a field of created Tissue specimen. This list can be managed by user going to Tools > Administration > Dropdown List Configuration > tissue source
+-> Procedure (L3) is defined by the Participant Procedure of the clinical module you link to the collection. Other won't be added to the list of procedure. Bank will call us to add a new one when a new one has to be added.
+-> Derivatives (L4) is a mix of data type into ATiM
+ . Perfused = Participant Procedure 'Fresh Tissue'
+ . Intra-operative biopsy = Participant Procedure 'Transplant Biopsy Sampling'
+ . Cell Lines is a derivative of tissue so create a tissue then click on Add Derivative > Cell Cultures
+ . Xenograft is a cell culture having option to select 'Tissue xenograft cells '. In this case user has to consider cells come from a xenograft.
+-> Tissue type (L5) normal/tumoral is defined when creating a tissue. So value to set when creating tissue.
+-> Storage Method (L6) has to be clarified.
+Based on previous comments, all your Flow Chart is already set into the system. But one thing has to be clarify: storage method. Here are the list of existing aliquots into your system.
+ . Tisue Block with storage method options = Formalin / Frozen / Oct / Paraffin
+ . Tisue Aluminium Foil with storage method option = Formalin
+ . Tissue Cryovial with storage method = 10% NBF / FFPE / Frozen / Isopentane / OCT / RNAlater
+ . Tissue Tube with storage method = 10% NBF / FFPE / Frozen / Isopentane / OCT / RNAlater
+ . Cell Culture (including xenograft cells) Tube with no storage method.
+
+TODO:
+ -> Validates what is written is ok.
+ -> Define new storage method to add or storage method to remove.
+ -> Define if block has to be added to cell cultures.
+    
+   ** 2 ** The second thing is, right now when we open the collection details for each case, 
+   the screen displays just tissue, but we want to see the type of procedures next to the tissue (for eg: Tissue/ Resection or Tissue/ Biopsy). 
+   We really need something similar  like blood, which appears as Blood / EDTA or Serum.
+  
+ Notes: Will Do. 
+  
+  ** 3 ** We need an extra option (showing diff procedures) on Specimen details and Aliquots section.  I think this option should come under the tissue data. 
+  You may call it as “Procedure Type”.
+
+ Notes: No sure it's requested. 
+
+
+
+UPDATE `versions` SET branch_build_number = '5187' WHERE version_number = '2.5.4';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
