@@ -28,3 +28,6 @@
 	}
 	$final_options['links'] = array('bottom' => $structure_bottom_links);
 	
+	if(!is_null($treatment_control_data)) $final_options['settings']['header']['description'] = __($treatment_control_data['tx_method']);
+	
+	

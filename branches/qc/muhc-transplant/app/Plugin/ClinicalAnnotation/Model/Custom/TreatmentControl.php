@@ -15,4 +15,15 @@ class TreatmentControlCustom extends TreatmentControl {
 		return $add_links;
 	}
 	
+	function getMethodFromIds() {
+		$result = array();
+	
+		// Build tmp array to sort according translation
+		foreach($this->find('all', array('conditions' => array('flag_active = 1'))) as $tx_ctrl) {
+			$result[$tx_ctrl['TreatmentControl']['id']] = __($tx_ctrl['TreatmentControl']['tx_method']);
+		}
+		natcasesort($result);
+	
+		return $result;
+	}
 }
