@@ -64,11 +64,11 @@ class DATABASE_CONFIG {
 		'persistent' => true,
 		'host' => '127.0.0.1',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'trunk',
+		'password' => 'root',
+		'database' => 'atim_250',
 		'prefix' => '',
-		'encoding' => 'utf8'
-		//'port'	=> 3306
+		'encoding' => 'utf8',
+		'port'	=> 3306
 	);
 
 }
