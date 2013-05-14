@@ -139,3 +139,61 @@ DROP TABLE IF EXISTS qc_nd_sardo_tx_conf_surgeries;
 DROP TABLE IF EXISTS qc_nd_protocol_behaviors_revs;
 DROP TABLE IF EXISTS qc_nd_sardo_conflicts_revs;
 DROP TABLE IF EXISTS qc_nd_sardo_tx_conf_surgeries_revs;
+
+-- 2013-05-14 -- Fix bug on sd_der_of_cells + clean up table
+
+ALTER TABLE sd_der_of_cells 
+	DROP COLUMN id,  
+	DROP COLUMN created,  
+	DROP COLUMN created_by,  
+	DROP COLUMN modified,  
+	DROP COLUMN modified_by,  
+	DROP COLUMN deleted,  
+	DROP COLUMN deleted_date;
+ALTER TABLE sd_der_of_cells_revs
+	DROP COLUMN id,  
+	DROP COLUMN created,  
+	DROP COLUMN created_by,  
+	DROP COLUMN modified,  
+	DROP COLUMN modified_by,  
+	DROP COLUMN deleted,  
+	DROP COLUMN deleted_date;
+ALTER TABLE sd_der_of_sups 
+	DROP COLUMN id,  
+	DROP COLUMN created,  
+	DROP COLUMN created_by,  
+	DROP COLUMN modified,  
+	DROP COLUMN modified_by,  
+	DROP COLUMN deleted,  
+	DROP COLUMN deleted_date;
+ALTER TABLE sd_der_of_sups_revs
+	DROP COLUMN id,  
+	DROP COLUMN created,  
+	DROP COLUMN created_by,  
+	DROP COLUMN modified,  
+	DROP COLUMN modified_by,  
+	DROP COLUMN deleted,  
+	DROP COLUMN deleted_date;	
+ALTER TABLE sd_der_purified_rnas 
+	DROP COLUMN id,  
+	DROP COLUMN deleted;
+ALTER TABLE sd_der_purified_rnas_revs 
+	DROP COLUMN id;	
+ALTER TABLE sd_spe_other_fluids 
+	DROP COLUMN id,  
+	DROP COLUMN created,  
+	DROP COLUMN created_by,  
+	DROP COLUMN modified,  
+	DROP COLUMN modified_by,  
+	DROP COLUMN deleted,  
+	DROP COLUMN deleted_date;	
+ALTER TABLE sd_spe_other_fluids_revs
+	DROP COLUMN id,  
+	DROP COLUMN created,  
+	DROP COLUMN created_by,  
+	DROP COLUMN modified,  
+	DROP COLUMN modified_by,  
+	DROP COLUMN deleted,  
+	DROP COLUMN deleted_date;
+UPDATE sample_controls SET detail_tablename = 'sd_der_of_cells' WHERE detail_tablename = 'sd_der_of_cells ';
+UPDATE `versions` SET branch_build_number = '5231' WHERE version_number = '2.5.4';
