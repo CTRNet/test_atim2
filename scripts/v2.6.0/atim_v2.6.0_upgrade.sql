@@ -1,3 +1,10 @@
+INSERT INTO `versions` (version_number, date_installed, build_number) 
+VALUES('2.6.0', NOW(),'xxxx');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- UPDATE & ADD CORRECTIONS FOR SEARCH ON SPENT TIMES (collection to storage spent time, etc)
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
 DELETE FROM structure_formats 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol') 
 AND structure_field_id=(SELECT id FROM structure_fields WHERE `field`='creat_to_stor_spent_time_msg')
@@ -202,6 +209,18 @@ SELECT "SELECT structure_alias, model, field, language_label , flag_search, flag
 FROM view_structure_formats_simplified 
 WHERE field like '%spent_time_msg' 
 ORDER BY field, structure_alias" AS 'help for control';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- END OF UPDATE & ADD CORRECTIONS FOR SEARCH ON SPENT TIMES 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 
 
