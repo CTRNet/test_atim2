@@ -197,3 +197,19 @@ ALTER TABLE sd_spe_other_fluids_revs
 	DROP COLUMN deleted_date;
 UPDATE sample_controls SET detail_tablename = 'sd_der_of_cells' WHERE detail_tablename = 'sd_der_of_cells ';
 UPDATE `versions` SET branch_build_number = '5231' WHERE version_number = '2.5.4';
+
+-- 2013-05-15 Add correction on flask
+
+SET @sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'cell culture');
+SET @flask_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @sample_control_id AND aliquot_type = 'flask' AND flag_active = 1);
+SET @tube_aliquot_control_id = (SELECT id FROM aliquot_controls WHERE sample_control_id = @sample_control_id AND aliquot_type = 'tube' AND flag_active = 1);
+UPDATE aliquot_controls SET detail_form_alias = 'ad_cell_culture_tubes', detail_tablename = 'ad_tubes', volume_unit = 'ml', databrowser_label = 'cell culture|flask' WHERE id = @flask_aliquot_control_id;
+UPDATE aliquot_masters SET aliquot_control_id = @flask_aliquot_control_id WHERE aliquot_control_id = @tube_aliquot_control_id AND aliquot_label LIKE '%flask%';
+UPDATE aliquot_masters_revs SET aliquot_control_id = @flask_aliquot_control_id WHERE aliquot_control_id = @tube_aliquot_control_id AND aliquot_label LIKE '%flask%';
+UPDATE versions SET permissions_regenerated = 0;
+
+
+
+
+
+
