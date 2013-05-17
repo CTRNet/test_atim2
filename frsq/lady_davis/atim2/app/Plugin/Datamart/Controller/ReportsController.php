@@ -121,7 +121,10 @@ class ReportsController extends DatamartAppController {
 			$this->ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
 		}
 		$conditions = $search_on_date_range? array("ConsentMaster.consent_signed_date >= '$start_date_for_sql'", "ConsentMaster.consent_signed_date <= '$end_date_for_sql'") : array();
-		$data['0']['obtained_consents_nbr'] = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));		
+		$all_consent = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));
+		$conditions['ConsentMaster.consent_status'] = 'obtained';
+		$all_obtained_consent = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));
+		$data['0']['obtained_consents_nbr'] = "$all_obtained_consent/$all_consent";
 		
 		// Get new collections
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';

@@ -66,6 +66,7 @@
 		$sample_master_id = $new_qc['sample_master_id'];
 		$qc_to_review[$sample_master_id][] = $new_qc;
 	}
+	$aliquot_master_ids_to_update = array();
 	foreach($qc_to_review AS $new_sample_qcs) {
 		if(sizeof($new_sample_qcs) == 2) {
 			$qc_1 = $new_sample_qcs[0];
@@ -113,6 +114,8 @@
 					foreach($queries as $new_query) {
 						mysqli_query($db_connection, $new_query) or die("query failed [".$new_query."]: " . mysqli_error($db_connection)."]");
 					}
+					
+					if($aliquot_master_id) $aliquot_master_ids_to_update[$aliquot_master_id] = $aliquot_master_id;
 				}
 			}	
 		} else if(sizeof($new_sample_qcs) > 2) {
@@ -126,6 +129,8 @@
 		(SELECT id, qc_code, sample_master_id, type, qc_type_precision, tool, run_id, run_by, date, date_accuracy, score, unit, conclusion, notes, aliquot_master_id, used_volume, modified_by, modified, concentration, concentration_unit, qc_lady_rin_score, qc_lady_260_230_score, qc_lady_260_280_score FROM quality_ctrls WHERE modified = '$modified' AND modified_by = '$modified_by');";
 	mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
 	
+	$query = "UPDATE versions SET permissions_regenerated = 0;";
+	mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
 	
 	pr($msg_to_display);
 	

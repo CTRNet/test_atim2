@@ -58,8 +58,11 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		$conditions = $search_on_date_range? array("ConsentMaster.consent_signed_date >= '$start_date_for_sql'", "ConsentMaster.consent_signed_date <= '$end_date_for_sql'") : array();
 		if($participant_subset_ids) $conditions['ConsentMaster.participant_id']  = $participant_subset_ids;
-		$data['0']['obtained_consents_nbr'] = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));		
-		
+		$all_consent = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));
+		$conditions['ConsentMaster.consent_status'] = 'obtained';
+		$all_obtained_consent = $this->ConsentMaster->find('count', (array('conditions' => $conditions)));
+		$data['0']['obtained_consents_nbr'] = "$all_obtained_consent/$all_consent";		
+			
 		// Get new collections
 		$conditions = $search_on_date_range? "col.collection_datetime >= '$start_date_for_sql' AND col.collection_datetime <= '$end_date_for_sql'" : 'TRUE';
 		if($participant_subset_ids) $conditions .= " AND col.participant_id IN (".implode(',',$participant_subset_ids).")";
@@ -265,6 +268,29 @@ class ReportsControllerCustom extends ReportsController {
 		$detail_other_count = $parameters[0]['detail_other_count'][0]? true : false;
 				
 		$data = array();
+		
+		// LIMIT participants based on identifiers
+		
+		$participant_subset_ids = array();
+		$description = '';
+		$MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+		$conditions = array();
+		$q_croc_03_nbrs = array_unique(array_filter($parameters[0]['q_croc_03_identifier_value']));
+		if($q_croc_03_nbrs) {
+			$conditions['OR'][] = "MiscIdentifierControl.misc_identifier_name = 'Q-CROC-03' AND (MiscIdentifier.identifier_value LIKE '%".implode("%' OR MiscIdentifier.identifier_value LIKE '%", $q_croc_03_nbrs)."%')";
+			$description = "'".__('Q-CROC-03')."' ".__('contains'). ': '.implode(' '.__('or').' ', $q_croc_03_nbrs);
+		}
+		$breast_bank_nbrs = array_unique(array_filter($parameters[0]['breast_bank_identifier_value']));
+		if($breast_bank_nbrs) {
+			$conditions['OR'][] = "MiscIdentifierControl.misc_identifier_name = 'Breast bank #' AND (MiscIdentifier.identifier_value LIKE '%".implode("%' OR MiscIdentifier.identifier_value LIKE '%", $breast_bank_nbrs)."%')";
+			$description .= (empty($description)? '' : ' & ')."'".__('Breast bank #')."' ".__('contains'). ': '.implode(' '.__('or').' ', $breast_bank_nbrs);
+		}
+		if($conditions)	{
+			$res = $MiscIdentifier->find('all', array('conditions' => $conditions, 'fields' => array('Participant.id, MiscIdentifierControl.misc_identifier_name, MiscIdentifier.identifier_value'), 'recursive' => '1'));
+			foreach($res as $new_record) $participant_subset_ids[] = $new_record['Participant']['id'];
+			$header['description'] = $description;
+		}
+		$participant_id_conditions = empty($participant_subset_ids)? 'TRUE' : "col.participant_id IN (".implode(',',$participant_subset_ids).")";
 				
 		// **all**
 		
@@ -277,8 +303,8 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN sample_masters AS sm ON col.id = sm.collection_id AND sm.deleted != '1'
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
-				WHERE col.deleted != '1' 
-				AND ($bank_conditions)
+				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND ($aliquot_type_confitions) 
 				AND am.in_stock IN ('yes - available ','yes - not available')
 			) AS res;";		
@@ -305,6 +331,7 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				INNER JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
 				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
 				AND ac.aliquot_type = 'block'
@@ -332,6 +359,7 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ('tissue')
 				AND ($aliquot_type_confitions) 
@@ -353,6 +381,7 @@ class ReportsControllerCustom extends ReportsController {
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 			LEFT JOIN ad_blocks AS blk ON blk.aliquot_master_id = am.id
 			WHERE col.deleted != '1' AND ($bank_conditions)
+			AND ($participant_id_conditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type IN ('tissue')
 				AND ($aliquot_type_confitions) 
@@ -383,6 +412,7 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type IN ($sample_types)
 				AND ($whatman_paper_confitions)	
@@ -413,6 +443,7 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type LIKE '%urine%'
 			) AS res;";
@@ -430,6 +461,7 @@ class ReportsControllerCustom extends ReportsController {
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 			WHERE col.deleted != '1' AND ($bank_conditions)
+			AND ($participant_id_conditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type LIKE '%urine%'";
 		$query_results = $this->Report->tryCatchQuery($sql);
@@ -449,6 +481,7 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND sc.sample_type LIKE '%ascite%'
 			) AS res;";
@@ -466,6 +499,7 @@ class ReportsControllerCustom extends ReportsController {
 			INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 			INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 			WHERE col.deleted != '1' AND ($bank_conditions)
+			AND ($participant_id_conditions)
 			AND am.in_stock IN ('yes - available ','yes - not available')
 			AND sc.sample_type LIKE '%ascite%'";
 		$query_results = $this->Report->tryCatchQuery($sql);
@@ -489,6 +523,7 @@ class ReportsControllerCustom extends ReportsController {
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 					WHERE col.deleted != '1' AND ($bank_conditions)
+					AND ($participant_id_conditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
 					AND ($other_conditions)
 				) AS res GROUP BY sample_type, aliquot_type;";
@@ -518,6 +553,7 @@ class ReportsControllerCustom extends ReportsController {
 					INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 					INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 					WHERE col.deleted != '1' AND ($bank_conditions)
+					AND ($participant_id_conditions)
 					AND am.in_stock IN ('yes - available ','yes - not available')
 					AND ($other_conditions)
 				) AS res;";
@@ -535,6 +571,7 @@ class ReportsControllerCustom extends ReportsController {
 				INNER JOIN aliquot_masters AS am ON am.sample_master_id = sm.id AND am.deleted != '1'
 				INNER JOIN aliquot_controls AS ac ON ac.id = am.aliquot_control_id
 				WHERE col.deleted != '1' AND ($bank_conditions)
+				AND ($participant_id_conditions)
 				AND am.in_stock IN ('yes - available ','yes - not available')
 				AND ($other_conditions)";
 			$query_results = $this->Report->tryCatchQuery($sql);
