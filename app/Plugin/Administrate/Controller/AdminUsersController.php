@@ -151,7 +151,8 @@ class AdminUsersController extends AdministrateAppController {
 			require($hook_link);
 		}
 
-		if ($arr_allow_deletion['allow_deletion']) {
+		if ($arr_allow_deletion['allow_deletion']){
+			$this->User->id = $user_id;
 			$this->User->atimDelete($user_id);
 			$this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/".$group_id);
 		} else {
