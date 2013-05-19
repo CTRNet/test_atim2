@@ -2585,7 +2585,7 @@ class StructuresHelper extends Helper {
 			AppController::addWarningMsg(__("no data for [%s.%s]" , $table_row_part['model'], $table_row_part['field']));
 		}
 		
-		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail')){
+		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail') && $current_value){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				if(strpos($table_row_part['setting'], $trigger) !== false){
 					eval('$instance = '.$key.'::getSingleton();');
