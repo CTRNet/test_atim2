@@ -1,6 +1,7 @@
 <?php
 /**
- * Xcache storage engine for cache.
+ * Redis storage engine for cache
+ *
  *
  * PHP 5
  *
@@ -14,23 +15,31 @@
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Cache.Engine
- * @since         CakePHP(tm) v 1.2.0.4947
+ * @since         CakePHP(tm) v 2.2
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
 /**
- * Xcache storage engine for cache
+ * Redis storage engine for cache.
  *
- * @link          http://trac.lighttpd.net/xcache/ Xcache
  * @package       Cake.Cache.Engine
  */
-class XcacheEngine extends CacheEngine {
+class RedisEngine extends CacheEngine {
+
+/**
+ * Redis wrapper.
+ *
+ * @var Redis
+ */
+	protected $_Redis = null;
 
 /**
  * Settings
  *
- *  - PHP_AUTH_USER = xcache.admin.user, default cake
- *  - PHP_AUTH_PW = xcache.admin.password, default cake
+ *  - server = string URL or ip to the Redis server host
+ *  - port = integer port number to the Redis server (default: 6379)
+ *  - timeout = float timeout in seconds (default: 0)
+ *  - persistent = bool Connects to the Redis server with a persistent connection (default: true)
  *
  * @var array
  */
@@ -46,21 +55,48 @@ class XcacheEngine extends CacheEngine {
  * @return boolean True if the engine has been successfully initialized, false if not
  */
 	public function init($settings = array()) {
-		if (php_sapi_name() !== 'cli') {
-			parent::init(array_merge(array(
-				'engine' => 'Xcache',
-				'prefix' => Inflector::slug(APP_DIR) . '_',
-				'PHP_AUTH_USER' => 'user',
-				'PHP_AUTH_PW' => 'password'
-				), $settings)
-			);
-			return function_exists('xcache_info');
+		if (!class_exists('Redis')) {
+			return false;
 		}
-		return false;
+		parent::init(array_merge(array(
+			'engine' => 'Redis',
+			'prefix' => null,
+			'server' => '127.0.0.1',
+			'port' => 6379,
+			'password' => false,
+			'timeout' => 0,
+			'persistent' => true
+			), $settings)
+		);
+
+		return $this->_connect();
 	}
 
 /**
- * Write data for key into cache
+ * Connects to a Redis server
+ *
+ * @return boolean True if Redis server was connected
+ */
+	protected function _connect() {
+		$return = false;
+		try {
+			$this->_Redis = new Redis();
+			if (empty($this->settings['persistent'])) {
+				$return = $this->_Redis->connect($this->settings['server'], $this->settings['port'], $this->settings['timeout']);
+			} else {
+				$return = $this->_Redis->pconnect($this->settings['server'], $this->settings['port'], $this->settings['timeout']);
+			}
+		} catch (RedisException $e) {
+			return false;
+		}
+		if ($return && $this->settings['password']) {
+			$return = $this->_Redis->auth($this->settings['password']);
+		}
+		return $return;
+	}
+
+/**
+ * Write data for key into cache.
  *
  * @param string $key Identifier for the data
  * @param mixed $value Data to be cached
@@ -68,9 +104,14 @@ class XcacheEngine extends CacheEngine {
  * @return boolean True if the data was successfully cached, false on failure
  */
 	public function write($key, $value, $duration) {
-		$expires = time() + $duration;
-		xcache_set($key . '_expires', $expires, $duration);
-		return xcache_set($key, $value, $duration);
+		if (!is_int($value)) {
+			$value = serialize($value);
+		}
+		if ($duration === 0) {
+			return $this->_Redis->set($key, $value);
+		}
+
+		return $this->_Redis->setex($key, $duration, $value);
 	}
 
 /**
@@ -80,39 +121,38 @@ class XcacheEngine extends CacheEngine {
  * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
  */
 	public function read($key) {
-		if (xcache_isset($key)) {
-			$time = time();
-			$cachetime = intval(xcache_get($key . '_expires'));
-			if ($cachetime < $time || ($time + $this->settings['duration']) < $cachetime) {
-				return false;
-			}
-			return xcache_get($key);
+		$value = $this->_Redis->get($key);
+		if (ctype_digit($value)) {
+			$value = (int)$value;
 		}
-		return false;
+		if ($value !== false && is_string($value)) {
+			$value = unserialize($value);
+		}
+		return $value;
 	}
 
 /**
  * Increments the value of an integer cached key
- * If the cache key is not an integer it will be treated as 0
  *
  * @param string $key Identifier for the data
  * @param integer $offset How much to increment
  * @return New incremented value, false otherwise
+ * @throws CacheException when you try to increment with compress = true
  */
 	public function increment($key, $offset = 1) {
-		return xcache_inc($key, $offset);
+		return (int)$this->_Redis->incrBy($key, $offset);
 	}
 
 /**
- * Decrements the value of an integer cached key.
- * If the cache key is not an integer it will be treated as 0
+ * Decrements the value of an integer cached key
  *
  * @param string $key Identifier for the data
  * @param integer $offset How much to subtract
  * @return New decremented value, false otherwise
+ * @throws CacheException when you try to decrement with compress = true
  */
 	public function decrement($key, $offset = 1) {
-		return xcache_dec($key, $offset);
+		return (int)$this->_Redis->decrBy($key, $offset);
 	}
 
 /**
@@ -122,7 +162,7 @@ class XcacheEngine extends CacheEngine {
  * @return boolean True if the value was successfully deleted, false if it didn't exist or couldn't be removed
  */
 	public function delete($key) {
-		return xcache_unset($key);
+		return $this->_Redis->delete($key) > 0;
 	}
 
 /**
@@ -132,12 +172,12 @@ class XcacheEngine extends CacheEngine {
  * @return boolean True if the cache was successfully cleared, false otherwise
  */
 	public function clear($check) {
-		$this->_auth();
-		$max = xcache_count(XC_TYPE_VAR);
-		for ($i = 0; $i < $max; $i++) {
-			xcache_clear_cache(XC_TYPE_VAR, $i);
+		if ($check) {
+			return true;
 		}
-		$this->_auth(true);
+		$keys = $this->_Redis->getKeys($this->settings['prefix'] . '*');
+		$this->_Redis->del($keys);
+
 		return true;
 	}
 
@@ -151,10 +191,10 @@ class XcacheEngine extends CacheEngine {
 	public function groups() {
 		$result = array();
 		foreach ($this->settings['groups'] as $group) {
-			$value = xcache_get($this->settings['prefix'] . $group);
+			$value = $this->_Redis->get($this->settings['prefix'] . $group);
 			if (!$value) {
 				$value = 1;
-				xcache_set($this->settings['prefix'] . $group, $value, 0);
+				$this->_Redis->set($this->settings['prefix'] . $group, $value);
 			}
 			$result[] = $group . $value;
 		}
@@ -168,43 +208,17 @@ class XcacheEngine extends CacheEngine {
  * @return boolean success
  */
 	public function clearGroup($group) {
-		return (bool)xcache_inc($this->settings['prefix'] . $group, 1);
+		return (bool)$this->_Redis->incr($this->settings['prefix'] . $group);
 	}
 
 /**
- * Populates and reverses $_SERVER authentication values
- * Makes necessary changes (and reverting them back) in $_SERVER
+ * Disconnects from the redis server
  *
- * This has to be done because xcache_clear_cache() needs to pass Basic Http Auth
- * (see xcache.admin configuration settings)
- *
- * @param boolean $reverse Revert changes
  * @return void
  */
-	protected function _auth($reverse = false) {
-		static $backup = array();
-		$keys = array('PHP_AUTH_USER' => 'user', 'PHP_AUTH_PW' => 'password');
-		foreach ($keys as $key => $setting) {
-			if ($reverse) {
-				if (isset($backup[$key])) {
-					$_SERVER[$key] = $backup[$key];
-					unset($backup[$key]);
-				} else {
-					unset($_SERVER[$key]);
-				}
-			} else {
-				$value = env($key);
-				if (!empty($value)) {
-					$backup[$key] = $value;
-				}
-				if (!empty($this->settings[$setting])) {
-					$_SERVER[$key] = $this->settings[$setting];
-				} elseif (!empty($this->settings[$key])) {
-					$_SERVER[$key] = $this->settings[$key];
-				} else {
-					$_SERVER[$key] = $value;
-				}
-			}
+	public function __destruct() {
+		if (!$this->settings['persistent']) {
+			$this->_Redis->close();
 		}
 	}
 }
