@@ -929,7 +929,7 @@ class AppController extends Controller {
 		
 		//rebuild language files
 		$filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
-		$filef = fopen("../../app/Locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
+		$filef = fopen("../../app/Locale/fra/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
 		$i18n = $i18n_model->find('all');
 		foreach ( $i18n as &$i18n_line){
 			//Takes information returned by query and creates variable for each field
