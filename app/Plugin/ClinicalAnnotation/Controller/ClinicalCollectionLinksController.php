@@ -87,9 +87,28 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id));
 		
+		// BUILD COLLECTION CONTENT TREE VIEW
+		
+		$this->set('is_ajax', $this->request->is('ajax'));
+		
+		if(!$this->request->is('ajax')) { 
+				$ids = array();
+				foreach($this->request->data as $unit){
+					$ids[] = $unit['Collection']['id'];
+				}
+				$ids = array_flip($this->Collection->hasChild($ids));
+				foreach($this->request->data as &$unit){
+					$unit['children'] = array_key_exists($unit['Collection']['id'], $ids);
+				}
+				$tree_view_atim_structure = array();
+				$tree_view_atim_structure['Collection'] = $this->Structures->get('form','collections_for_collection_tree_view');
+				$this->set('tree_view_atim_structure', $tree_view_atim_structure);
+		}
+
+		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
-		if( $hook_link ) { 
-			require($hook_link); 
+		if($hook_link){
+			require($hook_link);
 		}
 	}
 	
@@ -119,6 +138,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		
+		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/detail/') );
 		$this->set( 'atim_menu_variables', array('Participant.id' => $participant_id, 'Collection.id' => $collection_id));
 		
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
@@ -210,9 +230,6 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			$this->Collection->id = $this->request->data['Collection']['id'] ?: null;
 			unset($this->request->data['Collection']['id']); 
 			
-			
-			
-			
 			$this->Collection->addWritableField($fields);
 			
 			$submitted_data_validates = true;
@@ -281,7 +298,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 		$this->set('found_event', $found_event);
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/listall/') );
+		$this->set( 'atim_menu', $this->Menus->get('/ClinicalAnnotation/ClinicalCollectionLinks/detail/') );
 		$this->set( 'atim_menu_variables', array('Participant.id' => $participant_id, 'Collection.id' => $collection_id) );
 		
 		$this->Structures->set('collections', 'atim_structure_collection_detail');
@@ -366,7 +383,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 					require($hook_link); 
 				}
 			
-				$this->atimFlash( 'your data has been deleted' , '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$participant_id.'/');
+				$this->atimFlash( __('your data has been deleted').'<br>'.__('use inventory management module to delete the entire collection') , '/ClinicalAnnotation/ClinicalCollectionLinks/listall/'.$participant_id.'/');
 			}else{	
 				$this->flash( 'error deleting data - contact administrator','/ClinicalAnnotation/ClinicalCollectionLinks/detail/'.$participant_id.'/'.$collection_id.'/');
 			}
