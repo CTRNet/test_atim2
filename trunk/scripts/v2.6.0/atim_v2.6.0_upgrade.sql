@@ -238,4 +238,13 @@ INSERT INTO menus(id, parent_id, is_root, display_order, language_title, use_lin
 VALUES 
 ('clin_CAN_67.2','clin_CAN_57','0','1', 'linked collection', '/ClinicalAnnotation/ClinicalCollectionLinks/detail/%%Participant.id%%/%%Collection.id%%/', 'InventoryManagement.ViewCollection::summary', 1, 1);
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add message to first browser node after launching browsing from batch set  #2569
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE datamart_browsing_results CHANGE browsing_type browsing_type varchar(30) NOT NULL DEFAULT '';
+INSERT INTO i18n (id,en,fr) VALUES ('initiated from batchset', 'Browsing initiated from batchset', 'navigation initiée d''un lot de données');
+
+
+
 
