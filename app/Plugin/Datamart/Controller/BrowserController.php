@@ -508,7 +508,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_structures_sub_id"	=> 0,
 			"id_csv"						=> implode(",", $ids),
 			'raw'							=> 1,
-			"browsing_type"					=> 'search'
+			"browsing_type"					=> 'initiated from batchset'
 		));
 		
 		$tmp = $this->BrowsingResult->find('first', array('conditions' => Set::flatten($save)));
