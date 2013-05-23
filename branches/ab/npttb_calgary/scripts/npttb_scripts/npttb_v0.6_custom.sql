@@ -513,7 +513,7 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("no medi
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_bm_prep_method"), (SELECT id FROM structure_permissible_values WHERE value="no media" AND language_alias="npttb no media"), "3", "1");
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'sd_spe_bone_marrows', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_bm_prep_method') , '0', '', '', '', 'npttb prep method', ''),
+('InventoryManagement', 'AliquotDetail', 'sd_spe_bone_marrows', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_bm_prep_method') , '0', '', '', '', 'npttb prep method', '');
 
 -- Enable structure for bone marrow fields
 UPDATE `sample_controls` SET `detail_form_alias`='specimens, sd_spe_bone_marrows' WHERE `sample_type`='bone marrow';
@@ -540,13 +540,64 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`,
  ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'laboratory staff'), "jen chan", "Jen Chan", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
 
 INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`) VALUES
- ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), 'ach', 'ACH', '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), 'alberta childrens hospital', 'Alberta Childrens Hospital', '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
  ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), "weiss lab", "Weiss Lab", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
- 	
+ 
+ 
 /*
 	------------------------------------------------------------
-	Eventum ID: 2556 - Disable barcode for block, slide, core
+	Eventum ID: 2582 - Tissue Tube Aliquot - # Pieces
 	------------------------------------------------------------
-*/	
+*/
 
+-- Add custom field to table
+ALTER TABLE `ad_tubes` ADD COLUMN `npttb_num_pieces` INT(11) NULL AFTER `hemolysis_signs` ;
+ALTER TABLE `ad_tubes_revs` ADD COLUMN `npttb_num_pieces` INT(11) NULL AFTER `hemolysis_signs` ;
 
+-- Add structure field for number of pieces
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'npttb_num_pieces', 'integer',  NULL , '0', 'size=10', '', '', 'npttb num pieces', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='npttb_num_pieces' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='npttb num pieces' AND `language_tag`=''), '1', '301', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='npttb_num_pieces' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb num pieces', 'Number of pieces');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2583 - Urine Aliquot - Additive
+	------------------------------------------------------------
+*/
+
+-- Add custom field to table
+ALTER TABLE `ad_tubes` ADD COLUMN `npttb_urine_additive` INT(11) NULL AFTER `hemolysis_signs` ;
+ALTER TABLE `ad_tubes_revs` ADD COLUMN `npttb_urine_additive` INT(11) NULL AFTER `hemolysis_signs` ;
+
+-- Create custom structure
+INSERT INTO `structures` (`alias`) VALUES ('npttb_urine_tube');
+
+-- Add structure to urine tube
+UPDATE `aliquot_controls` SET `detail_form_alias`='ad_spec_tubes_incl_ml_vol,npttb_urine_tube' WHERE `databrowser_label`='urine|tube';
+
+-- Value domain for additive options
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_urine_additives", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("NaAz", "npttb NaAz");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_urine_additives"), (SELECT id FROM structure_permissible_values WHERE value="NaAz" AND language_alias="npttb NaAz"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("none", "npttb none");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_urine_additives"), (SELECT id FROM structure_permissible_values WHERE value="none" AND language_alias="npttb none"), "2", "1");
+
+-- Add field to new custom urine tube
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'npttb_urine_additive', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_urine_additives') , '0', '', '', '', 'npttb urine additive', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='npttb_urine_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='npttb_urine_additive' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_urine_additives')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb urine additive' AND `language_tag`=''), '1', '400', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='npttb_urine_tube') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='npttb_urine_additive' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_urine_additives') AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb urine additive', 'Urine Additive'),
+('npttb NaAz', 'NaAz'),
+('npttb none', 'None');
