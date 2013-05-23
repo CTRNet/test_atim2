@@ -18,7 +18,7 @@
 		'type'		=> 'detail', 
 		'data'		=> array(), 
 		'settings'	=> $structure_settings,
-		'extras'	=> $this->Structures->ajaxIndex('InventoryManagement/Collections/detail/'.$collection_data['id'].'/noActions:/noHeader:/')
+		'extras'	=> $this->Structures->ajaxIndex('InventoryManagement/Collections/detail/'.$collection_data['id'])
 	);
 
 	// CUSTOM CODE
@@ -34,7 +34,7 @@
 	// ************** 2- CONSENT **************
 	$final_options['settings']['header'] = array('title' => __('consent'), 'description' => null);
 	if(!is_null($consent_control_data)) $final_options['settings']['header']['description'] = __($consent_control_data['controls_type']);	
-	$final_options['extras'] = $collection_data['consent_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/ConsentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['consent_master_id'].'/noActions:/noHeader:/') : $no_data_available;
+	$final_options['extras'] = $collection_data['consent_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/ConsentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['consent_master_id']) : $no_data_available;
 
 	$display_next_sub_form = true;
 	
@@ -51,7 +51,7 @@
 	// ************** 3- DIAGNOSIS **************
 	$final_options['settings']['header'] = array('title' => __('diagnosis'), 'description' => null);
 	if(!is_null($diagnosis_control_data)) $final_options['settings']['header']['description'] = __($diagnosis_control_data['category']). ' - '.__($diagnosis_control_data['controls_type']);	
-	$final_options['extras'] = $collection_data['diagnosis_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/DiagnosisMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['diagnosis_master_id'].'/noActions:/noHeader:/') : $no_data_available;
+	$final_options['extras'] = $collection_data['diagnosis_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/DiagnosisMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['diagnosis_master_id']) : $no_data_available;
 	
 	$display_next_sub_form = true;
 	
@@ -66,7 +66,7 @@
 	// ************** 4 - Tx **************
 	$final_options['settings']['header'] = array('title' => __('treatment'), 'description' => null);
 	if(!is_null($treatment_control_data)) $final_options['settings']['header']['description'] = __($treatment_control_data['tx_method']). ' - '.__($treatment_control_data['disease_site']);	
-	$final_options['extras'] = $collection_data['treatment_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id'].'/noActions:/noHeader:/') : $no_data_available;
+	$final_options['extras'] = $collection_data['treatment_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id']) : $no_data_available;
 	
 	$display_next_sub_form = true;
 	
@@ -81,7 +81,7 @@
 	$final_options['settings']['header'] = array('title' => __('annotation'), 'description' => null);
 	if(!is_null($event_control_data)) $final_options['settings']['header']['description'] = __($event_control_data['event_group']). ' - '.__($event_control_data['event_type']). ' - '.__($event_control_data['disease_site']);	
 	$final_options['settings']['actions'] = true;
-	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/1/noActions:/noHeader:/') : $no_data_available;
+	$final_options['extras'] = $collection_data['event_master_id'] ? $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['event_master_id'].'/1/') : $no_data_available;
 	
 	$structure_bottom_links = array(
 		'edit'		=> '/ClinicalAnnotation/ClinicalCollectionLinks/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['Collection.id'],
