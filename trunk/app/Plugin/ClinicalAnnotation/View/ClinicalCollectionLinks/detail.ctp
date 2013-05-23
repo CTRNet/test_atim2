@@ -10,8 +10,7 @@
 	
 	// ************** 1- COLLECTION **************
 	$structure_settings = array(
-		'actions'		=> false,
-		'header'		=> __('collection')
+		'actions'		=> false
 	);
 	
 	$final_atim_structure = $empty_structure;

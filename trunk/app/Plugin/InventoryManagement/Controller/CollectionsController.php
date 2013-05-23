@@ -330,13 +330,13 @@ class CollectionsController extends InventoryManagementAppController {
 		
 		
 		$this->set('js_data', $js_data);
-		$this->set('template_id', $template['Template']['id']);
+		$this->set('template_id', empty($template)? null : $template['Template']['id']);
 		$this->set('controls', 0);
 		$this->set('collection_id', $collection_id);
-		$this->set('flag_system', $template['Template']['flag_system']);
-		$this->set('structure_header', array('title' => __('samples and aliquots creation from template'), 'description' => __('collection template') .': '.__($template['Template']['name'])));
+		$this->set('flag_system', empty($template)? null : $template['Template']['flag_system']);
+		$this->set('structure_header', array('title' => __('samples and aliquots creation from template'), 'description' => empty($template)? null : __('collection template') .': '.__($template['Template']['name'])));
 		$this->Structures->set('template');
-		$this->request->data = $template;
+		$this->request->data = empty($template)? null : $template;
 		$this->render('/../../Tools/View/Template/tree');
 	}
 	
