@@ -135,7 +135,7 @@ class ShipmentsController extends OrderAppController {
 		} 
 	}
   
-	function detail( $order_id=null, $shipment_id=null ) {
+	function detail( $order_id=null, $shipment_id=null, $is_from_tree_view = false ) {
 		
 		// MANAGE DATA
 		
@@ -155,6 +155,8 @@ class ShipmentsController extends OrderAppController {
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
 		
 		$this->Structures->set('shippeditems', 'atim_structure_for_shipped_items');	
+		
+		$this->set('is_from_tree_view',$is_from_tree_view);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
