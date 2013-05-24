@@ -127,10 +127,6 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		if ( !empty($this->request->data) ) {
 			$this->request->data['EventMaster']['participant_id'] = $participant_id;
 			$this->request->data['EventMaster']['event_control_id'] = $event_control_id;
-
-			$this->request->data['EventMaster']['event_group'] = $event_group;
-			$this->request->data['EventMaster']['event_type'] = $event_control_data['EventControl']['event_type'];
-			$this->request->data['EventMaster']['disease_site'] = $event_control_data['EventControl']['disease_site'];
 			
 			// LAUNCH SPECIAL VALIDATION PROCESS
 			$submitted_data_validates = true;
