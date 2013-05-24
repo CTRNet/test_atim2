@@ -2461,7 +2461,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		}
 		
 		// Get list of aliquot uses
-		$tmp_aliquot_uses = $this->ViewAliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id, "ViewAliquotUse.use_definition !='realiquoted to'")));
+		$tmp_aliquot_uses = $this->ViewAliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id, "ViewAliquotUse.use_definition !='realiquoted to'"), 'order' => array('ViewAliquotUse.use_datetime ASC')));
 		$aliquot_uses = array();
 		foreach($tmp_aliquot_uses as $new_aliquot_use){
 			$model = null;
