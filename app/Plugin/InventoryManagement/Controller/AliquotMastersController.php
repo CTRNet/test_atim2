@@ -2416,9 +2416,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->layout = 'ajax';
 			Configure::write('debug', 0);
 		}
-		$atim_structure['SampleMaster'] = $this->Structures->get('form','sample_masters_for_collection_tree_view');		
+
 		$atim_structure['AliquotMaster'] = $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
+		$viewaliquotuses_structures = $this->Structures->get('form','viewaliquotuses_for_collection_tree_view');
+		$atim_structure['Shipment'] = $viewaliquotuses_structures;
+		$atim_structure['SampleMaster'] = $viewaliquotuses_structures;
+		$atim_structure['SpecimenReviewMaster'] = $viewaliquotuses_structures;
+		$atim_structure['QualityCtrl'] = $viewaliquotuses_structures;
+		$atim_structure['AliquotInternalUse'] = $viewaliquotuses_structures;
 		$this->set('atim_structure', $atim_structure);
+		
 		$this->set("collection_id", $collection_id);
 		$this->set("is_ajax", $is_ajax);
 		
@@ -2453,17 +2460,33 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 		}
 		
-		// Get list of derivatives created from studied aliquot
-		$derivatives = $this->SampleMaster->find('all', array(
-				'fields' => '*',
-				'conditions' => array('SampleMaster.collection_id'=>$collection_id, 'SourceAliquot.aliquot_master_id' => $aliquot_master_id),
-				'joins'	=> $source_aliquot_joins)
-		);
-		foreach($derivatives as &$new_derivative){
-			$new_derivative['children'] = array();
-			$new_derivative['css'][] = 'sample_disabled';
+		// Get list of aliquot uses
+		$tmp_aliquot_uses = $this->ViewAliquotUse->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id, "ViewAliquotUse.use_definition !='realiquoted to'")));
+		$aliquot_uses = array();
+		foreach($tmp_aliquot_uses as $new_aliquot_use){
+			$model = null;
+			switch($new_aliquot_use['ViewAliquotUse']['use_definition']) {
+				case 'quality control':
+					$model = 'QualityCtrl';
+					break;
+				case 'specimen review':
+					$model = 'SpecimenReviewMaster';
+					break;
+				case 'aliquot shipment':
+					$model = 'Shipment';
+					break;
+				default:
+					$model = preg_match('/^sample\ derivative\ creation.+$/', $new_aliquot_use['ViewAliquotUse']['use_definition'])? 'SampleMaster': 'AliquotInternalUse';
+			}
+			$new_aliquot_use = array_merge(array($model => array()), $new_aliquot_use);
+			preg_match('/^\/([A-Za-z\_\/]+)\/([0-9\/]+)$/', $new_aliquot_use['ViewAliquotUse']['detail_url'], $matches);
+			$new_aliquot_use['FunctionManagement']['url_ids'] = $matches[2];
+			$new_aliquot_use['children'] = array();
+			$new_aliquot_use['css'][] = 'sample_disabled';
+			$aliquot_uses[] = $new_aliquot_use;
 		}
-		$this->request->data = array_merge($this->request->data, $derivatives);
+		$this->request->data = array_merge($this->request->data, $aliquot_uses);
+
 	}
 	
 	function editInBatch(){

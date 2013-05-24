@@ -220,7 +220,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 		} 
 	}
 	
-	function detail($collection_id, $sample_master_id, $specimen_review_id) {
+	function detail($collection_id, $sample_master_id, $specimen_review_id, $aliquot_master_id_from_tree_view = false) {
 		
 		// MANAGE DATA
 		$this->request->data = NULL;
@@ -250,6 +250,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$criteria = array(
 				'AliquotReviewMaster.specimen_review_master_id' => $specimen_review_id, 
 				'AliquotReviewMaster.aliquot_review_control_id' => $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['id']);
+			if($aliquot_master_id_from_tree_view) $criteria['AliquotReviewMaster.aliquot_master_id'] = $aliquot_master_id_from_tree_view;
 			$aliquot_review_data = $this->AliquotReviewMaster->find('all', array('conditions' => $criteria));				
 			$this->set('aliquot_review_data', $aliquot_review_data);
 			
@@ -272,6 +273,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			$this->Structures->set('empty', 'empty_structure');
 			$this->Structures->set($specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['form_alias'], 'aliquot_review_structure');
 		}
+		
+		$this->set('aliquot_master_id_from_tree_view', $aliquot_master_id_from_tree_view);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');

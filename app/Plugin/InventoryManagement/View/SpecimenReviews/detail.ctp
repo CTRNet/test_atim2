@@ -25,6 +25,12 @@
 	$final_atim_structure = $specimen_review_structure;
 	$final_options = array( 'settings'=>$structure_settings, 'links'=>$structure_links, 'data' => $specimen_review_data);
 	
+	if($aliquot_master_id_from_tree_view) {
+		$final_options['settings']['header'] =  __('specimen review');
+		unset($final_options['links']['bottom']['list']);
+		unset($structure_links['bottom']['list']);
+	}
+	
 	$hook_link = $this->Structures->hook('specimen_review');
 	if( $hook_link ) { require($hook_link); }
 	

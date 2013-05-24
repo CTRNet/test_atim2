@@ -418,8 +418,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	function hasChild(array $aliquot_master_ids){
-		$realiquoting = AppModel::getInstance("InventoryManagement", "Realiquoting", TRUE);
-		return array_filter($realiquoting->find('list', array('fields' => array('Realiquoting.parent_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_ids), 'group' => array('Realiquoting.parent_aliquot_master_id'))));
+		$ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", TRUE);
+		return array_filter($ViewAliquotUse->find('list', array('fields' => array('ViewAliquotUse.aliquot_master_id'), 'conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids), 'group' => array('ViewAliquotUse.aliquot_master_id'))));
 	}
 	
 	

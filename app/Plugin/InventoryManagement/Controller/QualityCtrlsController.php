@@ -331,7 +331,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $quality_ctrl_id) {
+	function detail($collection_id, $sample_master_id, $quality_ctrl_id, $is_from_tree_view = false) {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
 			$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
@@ -373,7 +373,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.id' => $quality_ctrl_data['QualityCtrl']['sample_master_id'],
 			'SampleMaster.initial_specimen_sample_id' => $quality_ctrl_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
-					
+
+		$this->set('is_from_tree_view',$is_from_tree_view);
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
