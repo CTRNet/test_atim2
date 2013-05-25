@@ -16,14 +16,21 @@
 <?php 
 $content = ob_get_clean();
 
+$bottom = array('undo' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_menu_variables['StorageMaster.id']);
+if(isset($storage_controls_list)) {
+	$add_links = array();
+	foreach ($storage_controls_list as $storage_control) {
+		$add_links[__($storage_control['StorageControl']['storage_type'])] = '/StorageLayout/StorageMasters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+	}
+	ksort($add_links);
+	$bottom['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);
+}
 $this->Structures->build($empty_structure, array(
 	'type' => 'detail', 
 	'extras' => $content, 
 	'links' => array(
 		'top' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_menu_variables['StorageMaster.id'],
-		'bottom' => array(
-			'undo' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_menu_variables['StorageMaster.id']
-		)
+		'bottom' => $bottom
 	)
 ));
 ?>
