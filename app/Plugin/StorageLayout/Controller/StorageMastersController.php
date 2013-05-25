@@ -404,6 +404,10 @@ class StorageMastersController extends StorageLayoutAppController {
 			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '0'));
 			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%');
+			if(!$is_ajax && !$storage_data['StorageControl']['is_tma_block']) {			
+				// Get all storage control types to build the add to selected button
+				$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
+			}
 		}else{
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
@@ -586,7 +590,10 @@ class StorageMastersController extends StorageLayoutAppController {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
-
+		
+		// Get all storage control types to build the add to selected button
+		if(!$storage_data['StorageControl']['is_tma_block']) $this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
+		
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
