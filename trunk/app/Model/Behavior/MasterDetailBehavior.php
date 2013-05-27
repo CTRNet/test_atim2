@@ -132,7 +132,7 @@ class MasterDetailBehavior extends ModelBehavior {
 				}
 				$detail_control = AppModel::getInstance($plugin, $detail_control_name, true);
 				$detail_info = $detail_control->find('first', array('conditions' => array($detail_control->name.".id" => $query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])));
-				$model = new $model->name($model->id, $model->table, null, $base_name, $detail_info[$base_name."Control"]['detail_tablename'], $model);
+				$model = new $model->name($model->id, $model->table, null, $base_name, ((isset($detail_info[$base_name."Control"]) && isset($detail_info[$base_name."Control"]['detail_tablename']))? $detail_info[$base_name."Control"]['detail_tablename'] : null), $model);
 			}
 		}
 		
