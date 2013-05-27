@@ -5,10 +5,7 @@ class BatchSet extends DatamartAppModel {
 	var $useTable = 'datamart_batch_sets';
 	
 	var $belongsTo = array(
-		'Adhoc' => array(            
-			'className'    => 'Datamart.Adhoc',            
-			'foreignKey'    => 'datamart_adhoc_id'
-		), 'DatamartStructure' => array(
+		'DatamartStructure' => array(
 			'className' => 'Datamart.DatamartStructure',
 			'foreignKey' => 'datamart_structure_id'
 		)
@@ -34,8 +31,7 @@ class BatchSet extends DatamartAppModel {
 				$return['menu'] = array(null, __('temporary batch set'));		
 			} else if (!empty($variables['BatchSet.id'])) {
 				$batchset_data = $this->find('first', array('conditions'=>array('BatchSet.id' => $variables['BatchSet.id'])));
-				$batchset_data['BatchSet']['flag_use_query_results'] = !empty($batchset_data['BatchSet']['datamart_adhoc_id']);
-				$batchset_data['BatchSet']['model'] = empty($batchset_data['BatchSet']['datamart_adhoc_id']) ? $batchset_data['DatamartStructure']['model'] : $batchset_data['Adhoc']['model'];  
+				$batchset_data['BatchSet']['model'] = $batchset_data['DatamartStructure']['model'];  
 				if(!empty($batchset_data)) {
 					$return['title'] = array(null, __('batchset information', null));
 					$return['menu'] = array(null, $batchset_data['BatchSet']['title']);
@@ -93,8 +89,7 @@ class BatchSet extends DatamartAppModel {
 			}
 		}
 		$available_batchsets_conditions = array(
-			array('OR' => array('AND' => array('Adhoc.plugin' => $plugin, 'Adhoc.model' => $model), 
-					'BatchSet.datamart_structure_id' => $datamart_structure_id)),
+			'BatchSet.datamart_structure_id' => $datamart_structure_id,
 			'OR' => array(
 				'BatchSet.user_id' => $_SESSION['Auth']['User']['id'],
 				array('BatchSet.group_id' => $_SESSION['Auth']['User']['group_id'], 'BatchSet.sharing_status' => 'group'),
@@ -104,8 +99,6 @@ class BatchSet extends DatamartAppModel {
 		if($ignore_id != null){
 			$available_batchsets_conditions["BatchSet.id Not"] = $ignore_id;
 		}
-		
-		AppModel::getInstance('Datamart', 'Adhoc', true);//force lazy load of Adhoc model
 		
 		return $this->find('all', array('conditions' => $available_batchsets_conditions));
 	}
@@ -151,17 +144,6 @@ class BatchSet extends DatamartAppModel {
 		
 		return true;
 	}
-
-	/**
-	 * Fetches the compatible datamart structure based on a model name
-	 * @param string $model_name
-	 * @return The compatible datamart structure id on success, false otherwise
-	 */
-	function getCompatibleDatamartStructureId($model_name){
-		$datamart_structure_model = AppModel::getInstance("Datamart", "DatamartStructure", true);
-		$datamart_structure = $datamart_structure_model->find('first', array('conditions' => array('OR' => array('DatamartStructure.model' => $model_name, 'DatamartStructure.control_master_model' => $model_name))));
-		return empty($datamart_structure) ? false : $datamart_structure['DatamartStructure']['id'];  
-	}
 	
 	/**
 	 * Completes batch set data arrays by adding query_type, model and flag_use_query_results values. 
@@ -179,15 +161,7 @@ class BatchSet extends DatamartAppModel {
 				}
 				$data['BatchSet']['model'] = $datamart_structures[$id];
 			}
-				
-			if($data['BatchSet']['datamart_adhoc_id']){
-				$data['0']['query_type'] = __('custom');
-				$data['BatchSet']['model'] = $data['Adhoc']['model'];
-				$data['BatchSet']['flag_use_query_results'] = true;
-			}else{
-				$data['0']['query_type'] = __('generic');
-				$data['BatchSet']['flag_use_query_results'] = false;
-			}
+			$data['0']['query_type'] = __('generic');
 		}
 	}
 	

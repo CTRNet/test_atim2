@@ -4,7 +4,6 @@ class BrowserController extends DatamartAppController {
 	static $tmp_browsing_limit = 5;
 	
 	var $uses = array(
-		'Datamart.Adhoc',
 		'Datamart.Browser',
 		'Datamart.DatamartStructure',
 		'Datamart.BrowsingResult',
@@ -44,6 +43,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->id = $index_id;
 			unset($this->request->data['BrowsingIndex']['created']);
 			$this->request->data['BrowsingIndex']['temporary'] = false;
+			$this->BrowsingIndex->addWritableField(array('temporary'));
 			$this->BrowsingIndex->save($this->request->data);
 			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
 		}
