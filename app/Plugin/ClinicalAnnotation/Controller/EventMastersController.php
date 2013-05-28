@@ -117,6 +117,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$this->Structures->set('empty', 'empty_structure');
 		$this->Structures->set($event_control_data['EventControl']['form_alias']);
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
+		$this->set('use_addgrid', $event_control_data['EventControl']['use_addgrid']);
 					
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -124,26 +125,92 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			require($hook_link); 
 		}
 		
-		if ( !empty($this->request->data) ) {
-			$this->request->data['EventMaster']['participant_id'] = $participant_id;
-			$this->request->data['EventMaster']['event_control_id'] = $event_control_id;
-			
-			// LAUNCH SPECIAL VALIDATION PROCESS
-			$submitted_data_validates = true;
-			
-			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { 
-				require($hook_link); 
+		if ( empty($this->request->data)) {
+			if($event_control_data['EventControl']['use_addgrid']) $this->request->data = array(array());
+				
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
 			}
-
-			$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
-			if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
-				$hook_link = $this->hook('postsave_process');
+			
+		} else {
+			if(!$event_control_data['EventControl']['use_addgrid']) {
+				
+				// 1 - ** Single data save ** 
+				
+				$this->request->data['EventMaster']['participant_id'] = $participant_id;
+				$this->request->data['EventMaster']['event_control_id'] = $event_control_id;
+				
+				// LAUNCH SPECIAL VALIDATION PROCESS
+				$submitted_data_validates = true;
+				
+				// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+				$hook_link = $this->hook('presave_process');
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				
+				$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
+				if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				}
+					
+			} else {
+				
+				// 2 - ** Multi lines save ** 
+				
+				$errors_tracking = array();
+				
+				// Launch Structure Fields Validation
+				$diagnosis_master_id = $this->request->data['EventMaster']['diagnosis_master_id'];
+				unset($this->request->data['EventMaster']);
+						
+				$row_counter = 0;
+				foreach($this->request->data as &$data_unit){
+					$row_counter++;
+				
+					$data_unit['EventMaster']['event_control_id'] = $event_control_id;
+					$data_unit['EventMaster']['participant_id'] = $participant_id;
+					$data_unit['EventMaster']['diagnosis_master_id'] = $diagnosis_master_id;
+					
+					$this->EventMaster->id = null;
+					$this->EventMaster->set($data_unit);
+					if(!$this->EventMaster->validates()){
+						foreach($this->EventMaster->validationErrors as $field => $msgs) {
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg)$errors_tracking[$field][$msg][] = $row_counter;
+						}
+					}
+					$data_unit = $this->EventMaster->data;
+				}
+				unset($data_unit);
+				
+				// Launch Save Process
+				if(empty($this->request->data)) {
+					$this->EventMaster->validationErrors[][] = 'at least one record has to be created';
+				} else if(empty($errors_tracking)){
+					//save all
+					$this->EventMaster->addWritableField(array('event_control_id','participant_id','diagnosis_master_id'));
+					$this->EventMaster->writable_fields_mode = 'addgrid';
+					foreach($this->request->data as $new_data_to_save) {
+						$this->EventMaster->id = null;
+						$this->EventMaster->data = array();
+						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+					}
+					$this->atimFlash('your data has been updated', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
+				} else {
+					$this->EventMaster->validationErrors = array();
+					foreach($errors_tracking as $field => $msg_and_lines) {
+						foreach($msg_and_lines as $msg => $lines) {
+							$this->EventMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
+						}
+					}
+				}
+				
 			}
 		} 
 	}
