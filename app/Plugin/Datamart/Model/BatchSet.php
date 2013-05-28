@@ -194,6 +194,29 @@ class BatchSet extends DatamartAppModel {
 		}
 		$batch_id_model->check_writable_fields = $prev_check_mode;
 	}
+	
+	function allowToUnlock($batch_set_id){
+		$conditions = array('BatchSet.id' => $batch_set_id);
+		$batch_set = $this->find('first', array( 'conditions'=>$conditions, 'recursive' => '-1'));
+		if(empty($batch_set)) $this->redirect('/Pages/err_plugin_system_error?Bmethod='.$bt[1]['function'].',line='.$bt[1]['line'], null, true);
+		if($batch_set['BatchSet']['locked']) {
+			if($_SESSION['Auth']['User']['group_id'] == 1) return true;
+			switch($batch_set['BatchSet']['sharing_status']) {
+				case 'user':
+					return ($batch_set['BatchSet']['user_id'] == $_SESSION['Auth']['User']['id']);
+					break;
+				case 'group':
+					return ($batch_set['BatchSet']['group_id'] == $_SESSION['Auth']['User']['group_id']);
+					break;
+				case 'all':
+					return true;
+					break;
+				default:
+					$this->redirect('/Pages/err_plugin_system_error?Bmethod='.$bt[1]['function'].',line='.$bt[1]['line'], null, true);
+			}			
+		} 
+		return false;
+	}
 }
 
 ?>

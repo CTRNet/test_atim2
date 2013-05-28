@@ -202,6 +202,8 @@ class BatchSetsController extends DatamartAppController {
 		$ctrapp_form_links = array();
 		$ctrapp_form_links = $batch_set['BatchSet']['form_links_for_results'];
 		$this->set( 'ctrapp_form_links', $ctrapp_form_links ); // set for display purposes...
+		
+		$this->set( 'display_unlock_button', $this->BatchSet->allowToUnlock($batch_set_id));
 	}
 	
 	function add($target_batch_set_id = 0){
@@ -475,6 +477,18 @@ class BatchSetsController extends DatamartAppController {
 			$this->atimFlash('your data has been updated', "/Datamart/BatchSets/index");
 		}else{
 			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
+		}
+	}
+	
+	function unlock($batch_set_id) {
+		$batch_set = $this->BatchSet->getOrRedirect($batch_set_id);
+		if($this->BatchSet->allowToUnlock($batch_set_id)) {
+			$this->BatchSet->check_writable_fields = false;
+			$this->BatchSet->id = $batch_set_id;
+			$this->BatchSet->save(array('locked' => 0));
+			$this->atimFlash('your data has been updated', "/Datamart/BatchSets/listall/$batch_set_id");
+		} else {
+			$this->flash(__('you are not allowed to unlock this batchset'), "/Datamart/BatchSets/index/user");
 		}
 	}
 }
