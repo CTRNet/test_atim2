@@ -47,7 +47,8 @@
 			'list'		=> '/Datamart/BatchSets/index/'
 		)
 	);
-	
+	if($display_unlock_button) $structure_links['bottom'] = array_merge(array('unlock' => '/Datamart/BatchSets/unlock/'.$atim_menu_variables['BatchSet.id']), $structure_links['bottom']);
+
 	$this->Structures->build($atim_structure_for_process, array(
 		'type' =>'add', 
 		'settings'=>array(
