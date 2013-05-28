@@ -4,6 +4,7 @@
 	
 	$final_atim_structure = array(); 
 	$final_options = array(
+		'type' => 'detail',
 		'links'	=> array(),
 		'settings' => array(
 			'header' => __('aliquots', null),
@@ -26,6 +27,7 @@
 	
 	$final_atim_structure = array(); 
 	$final_options = array(
+		'type' => 'detail',
 		'links'	=> array(),
 		'settings' => array(
 			'header' => __('aliquot uses', null),
@@ -48,6 +50,7 @@
 	
 	$final_atim_structure = array(); 
 	$final_options = array(
+		'type' => 'detail',
 		'links'	=> array(),
 		'settings' => array(
 			'header' => __('orders', null),
@@ -70,6 +73,7 @@
 	
 	$final_atim_structure = array(); 
 	$final_options = array(
+		'type' => 'detail',
 		'links'	=> array(),
 		'settings' => array(
 			'header' => __('order lines', null),
