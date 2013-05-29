@@ -438,14 +438,14 @@ REPLACE INTO `i18n` (`id`, `en`) VALUES
 
 -- Add field to DNA/RNA form
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'sd_der_rnas', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method') , '0', '', '', '', 'npttb prep method', ''),
-('InventoryManagement', 'AliquotDetail', 'sd_der_dnas', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method') , '0', '', '', '', 'npttb prep method', '');
+('InventoryManagement', 'SampleDetail', 'sd_der_rnas', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method') , '0', '', '', '', 'npttb prep method', ''),
+('InventoryManagement', 'SampleDetail', 'sd_der_dnas', 'npttb_prep_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method') , '0', '', '', '', 'npttb prep method', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='npttb_dna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_dnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='npttb_dna_details'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_prep_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_prep_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb prep method' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`) VALUES
 ('npttb prep method', 'Preparation Method');
@@ -490,8 +490,6 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`,
 */	
 
 UPDATE `banks` SET `name`='NPTTB', `description`='Clark H. Smith Neurologic and Pediatric Tumor and Related Tissue Bank' WHERE `id`='1';
-
-UPDATE structure_formats SET `flag_override_default`='1', `default`='NPTTB' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 
 
 /*
@@ -566,6 +564,8 @@ UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1' WHERE struc
 REPLACE INTO `i18n` (`id`, `en`) VALUES
 ('npttb num pieces', 'Number of pieces');
 
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='npttb_num_pieces' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 /*
 	------------------------------------------------------------
 	Eventum ID: 2583 - Urine Aliquot - Additive
@@ -573,8 +573,8 @@ REPLACE INTO `i18n` (`id`, `en`) VALUES
 */
 
 -- Add custom field to table
-ALTER TABLE `ad_tubes` ADD COLUMN `npttb_urine_additive` INT(11) NULL AFTER `hemolysis_signs` ;
-ALTER TABLE `ad_tubes_revs` ADD COLUMN `npttb_urine_additive` INT(11) NULL AFTER `hemolysis_signs` ;
+ALTER TABLE `ad_tubes` ADD COLUMN `npttb_urine_additive` VARCHAR(50) NULL AFTER `hemolysis_signs` ;
+ALTER TABLE `ad_tubes_revs` ADD COLUMN `npttb_urine_additive` VARCHAR(50) NULL AFTER `hemolysis_signs` ;
 
 -- Create custom structure
 INSERT INTO `structures` (`alias`) VALUES ('npttb_urine_tube');
