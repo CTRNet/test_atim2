@@ -337,9 +337,15 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 					$this->Participant->id = $id;
 					$this->Participant->save($this->request->data['Participant'], array('validate' => false, 'fieldList' => array_keys($this->request->data['Participant'])));
 				}
-				
-				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = array("Participant.id" => $ids);
-				$this->atimFlash('your data has been updated', '/ClinicalAnnotation/Participants/search/');
+				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+				$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('Participant'),
+						'flag_tmp' => true
+				));
+				$batch_set_model->check_writable_fields = false;
+				$batch_set_model->saveWithIds($batch_set_data, $ids);
+				$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 			}
 			
 		}else{
