@@ -51,7 +51,7 @@ class DatamartAppModel extends AppModel {
 			if($functions_menu){
 				$result[] = array(
 					'value' => '0',
-					'label' => __('batch actions'),
+					'label' => __('batch actions / reports'),
 					'children' => $functions_menu
 				);
 			}

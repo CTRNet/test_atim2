@@ -474,7 +474,7 @@ class BrowserController extends DatamartAppController {
 	 * $this->request->data[$model][id]
 	 * @param String $model
 	 */
-	function batchToDatabrowser($model){
+	function batchToDatabrowser($model, $source = 'batchset'){
 		$dm_structure = $this->DatamartStructure->find('first', array(
 			'conditions' => array('OR' => array('DatamartStructure.model' => $model, 'DatamartStructure.control_master_model' => $model)),
 			'recursive' => -1)
@@ -490,7 +490,7 @@ class BrowserController extends DatamartAppController {
 		}else if(array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->request->data)){
 			$model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['control_master_model'], true);
 		}else{
-			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
+			$this->redirect( '/Pages/err_internal?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}
 		$ids = $this->request->data[$model->name][$model->primaryKey];
 		$ids = array_filter($ids);
@@ -508,7 +508,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_structures_sub_id"	=> 0,
 			"id_csv"						=> implode(",", $ids),
 			'raw'							=> 1,
-			"browsing_type"					=> 'initiated from batchset'
+			"browsing_type"					=> 'initiated from '.$source
 		));
 		
 		$tmp = $this->BrowsingResult->find('first', array('conditions' => Set::flatten($save)));
@@ -531,7 +531,7 @@ class BrowserController extends DatamartAppController {
 		$this->BrowsingResult;//lazy load
 		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 		if(empty($this->request->data)){
-			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
+			$this->redirect( '/Pages/err_internal?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}else{
 			$this->request->data['BrowsingIndex']['temporary'] = false;
 			$this->BrowsingIndex->pkey_safeguard = false;

@@ -476,7 +476,7 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->save(array('flag_tmp' => 0));
 			$this->atimFlash('your data has been updated', "/Datamart/BatchSets/index");
 		}else{
-			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
+			$this->redirect( '/Pages/err_internal?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}
 	}
 	
