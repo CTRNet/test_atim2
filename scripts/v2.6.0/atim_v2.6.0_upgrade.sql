@@ -349,7 +349,7 @@ UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FR
 UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_comorbidities') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_comorbidities' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='eventmasters'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '3', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT IGNORE INTO i18n ('id', 'en','fr') VALUES ('at least one record has to be created', 'At least one record has to be created', 'Au moins une donnée doit être crée');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('at least one record has to be created', 'At least one record has to be created', 'Au moins une donnée doit être crée');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- can not unlock a locked batchset #2591
@@ -358,3 +358,62 @@ INSERT IGNORE INTO i18n ('id', 'en','fr') VALUES ('at least one record has to be
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('you are not allowed to unlock this batchset','You are not allowed to unlock this batchset','Vous n''êtes pas autorisé à débloquer ce lot de données'),
 ('unlock','Unlock','Débloquer');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Be able to launch browsing or create batchset from report...  #2590
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- report
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`) VALUES
+(null, 'participant identifiers', 'list all identifiers of selected participants', 'report_participant_identifiers_criteria', 'report_participant_identifiers_result', 'index', 'participantIdentifiersSummary', 0);
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 'participant identifiers report', (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers'), 0, '');
+SELECT "Queries to activate 'Participant Identifiers' demo report" as msg
+UNION ALL
+SELECT "UPDATE datamart_reports SET flag_active = 1 WHERE name = 'participant identifiers';" as msg
+UNION ALL
+SELECT "UPDATE datamart_structure_functions SET flag_active = 1 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');" as msg;
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('list all identifiers of selected participants','List all identifiers of selected participants (version working on ATiM demo data)','Liste tous les identifiants de participants sélectionnés (version dévelopée sur les données ATiM demo'),
+('participant identifiers','Participant Identifiers','Identifiants de participants'),
+('participant identifiers report','Participant Identifiers Report','Rapport: Identifiants de participants');
+INSERT INTO structures(`alias`) VALUES ('report_participant_identifiers_criteria');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_criteria'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', 'clin_demographics', '0', '', '0', '', '0', '', '0', '', '1', 'size=20,class=range file', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('report_participant_identifiers_result');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', '#BR', 'input',  NULL , '0', 'size=20', '', '', '#BR', ''),
+('Datamart', '0', '', '#PR', 'input',  NULL , '0', 'size=20', '', '', '#PR', ''),
+('Datamart', '0', '', 'hospital_number', 'input',  NULL, '1', 'size=20', '', '', 'hospital number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND field = 'first_name'), '0', '1', '', '1', 'name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND field = 'last_name'), '0', '2', '', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = '#BR'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = '#PR'), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND field = 'hospital_number'), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND field = 'participant_identifier'), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('batch actions / reports','Batch Actions / Reports','Traitement par lot / Rapports'),
+('more than 1000 records are returned by the query - please redefine search criteria', 'More than 1000 records are returned by the query. Please redefine search criteria.', 'Plus de 1000 données ont été retournées par la requête. Veuillez redéfinir les critères de recherche.');
+
+-- batch set creation
+
+ALTER TABLE datamart_reports ADD COLUMN  `associated_datamart_structure_id` int(10) unsigned  NULL;
+ALTER TABLE `datamart_reports` ADD CONSTRAINT `datamart_reports_datamart_structures` FOREIGN KEY (`associated_datamart_structure_id`) REFERENCES `datamart_structures` (`id`);
+UPDATE datamart_reports SET associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'Participant') WHERE name = 'participant identifiers';
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('initiated from report', 'Browsing initiated from report', 'navigation initiée d''un rapport');
+
+
+
+
+
+
+
+
+
+
