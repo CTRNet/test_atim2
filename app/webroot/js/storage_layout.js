@@ -22,10 +22,17 @@ function initStorageLayout(){
 	
 	
 	//load the top storage loayout
-	$.get(document.URL.replace(/#/g, '') + '/1', function(data){
+	ctrls = $("#firstStorageRow").data("ctrls");
+	$.get($("#firstStorageRow").data("storageUrl") + '/1/ctrls:' + ctrls, function(data){
 		data = $.parseJSON(data);
 		if(data.valid){
-			initRow($("#firstStorageRow"), data);
+			initRow($("#firstStorageRow"), data, ctrls);
+			if(!ctrls){
+				$(".RecycleStorage").remove();
+				$(".TrashStorage").remove();
+				$(".trash_n_unclass").remove();
+				$("#firstStorageRow").find(".dragme").removeClass("dragme");
+			}
 		}
 		$("#firstStorageRow").find(".dragme").data("top", true);
 		$("#firstStorageRow").find(".droppable").data("top", true);
@@ -100,7 +107,7 @@ function initStorageLayout(){
 	//$("a[href='#']").click(function (e) { e.preventDefault(); });
 }
 
-function initRow(row, data){
+function initRow(row, data, ctrls){
 	var jsonOrgItems = data.positions;
 	row.html(data.content);
 	id = row.data('storageId');
@@ -122,33 +129,35 @@ function initRow(row, data){
 		}
 	}
 	
-	$(".dragme").mouseover(function(){
-		document.onselectstart = function(){ return false; };
-	}).mouseout(function(){
-		if(!dragging){
-			document.onselectstart = null;
-		}
-	});
-	
-	//make them draggable
-	$(".dragme").draggable({
-		revert : 'invalid',
-		zIndex: 1,
-		start: function(event, ui){
-			dragging = true;
-		}, stop: function(event, ui){
-			dragging = false;
-		}
-	});
-	
-	//create the drop zones
-	$(".droppable").droppable({
-		hoverClass: 'ui-state-active',
-		tolerance: 'pointer',
-		drop: function(event, ui){
-			moveItem(ui.draggable, this);
-		}
-	});
+	if(ctrls){
+		$(".dragme").mouseover(function(){
+			document.onselectstart = function(){ return false; };
+		}).mouseout(function(){
+			if(!dragging){
+				document.onselectstart = null;
+			}
+		});
+		
+		//make them draggable
+		$(".dragme").draggable({
+			revert : 'invalid',
+			zIndex: 1,
+			start: function(event, ui){
+				dragging = true;
+			}, stop: function(event, ui){
+				dragging = false;
+			}
+		});
+		
+		//create the drop zones
+		$(".droppable").droppable({
+			hoverClass: 'ui-state-active',
+			tolerance: 'pointer',
+			drop: function(event, ui){
+				moveItem(ui.draggable, this);
+			}
+		});
+	}
 	
 	var secondRow = row[0] == $("#secondStorageRow")[0];
 	row.find(".RecycleStorage").click(function(){
