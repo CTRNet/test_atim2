@@ -38,7 +38,7 @@ class SampleMasterCustom extends SampleMaster {
 				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . $title_precision . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type'], true) . $title_precision . ' : ' . $specimen_data['SampleMaster']['sample_code']),
 				'data' 				=> $specimen_data,
-	 			'structure alias' 	=> 'sample_masters_for_search_result'
+	 			'structure alias' 	=> 'sample_masters_for_search_result'.(($specimen_data['SampleControl']['sample_type'] == 'tissue')? ',muhc_tissue_summary': '')
 			);
 		}	
 		
@@ -56,6 +56,16 @@ class SampleMasterCustom extends SampleMaster {
 		return $process_validates;
 	}
 	
+	function getMuhcTissuePrecision($sample_data) {
+		$muhc_tissue_precision = '';
+		if(isset($sample_data['SampleDetail']) && isset($sample_data['SampleDetail']['muhc_perfused']) && $sample_data['SampleDetail']['muhc_perfused'] == 'y') {
+			$muhc_tissue_precision = __('perfused');
+		}
+		if(isset($sample_data['SampleDetail']) && isset($sample_data['SampleDetail']['muhc_intra_operative_biopsy']) && $sample_data['SampleDetail']['muhc_intra_operative_biopsy'] == 'y') {
+			$muhc_tissue_precision = (empty($muhc_tissue_precision)? __('intra operative biopsy'): $muhc_tissue_precision.' & '.__('intra operative biopsy'));
+		}
+		return $muhc_tissue_precision;
+	}
 
 }
 
