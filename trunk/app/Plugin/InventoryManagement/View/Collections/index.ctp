@@ -44,7 +44,7 @@
 		'links' => isset($is_ccl_ajax) ? array() : array('bottom' => array(
 			'add collection' => '/InventoryManagement/Collections/add'
 		)),
-		'extras'	=> '<div class="ajax_search_results">'.$last_5.'</div>'
+		'extras'	=> '<div class="ajax_search_results"></div><div class="ajax_search_results_default">'.$last_5.'</div>'
 	);
 	
 	// CUSTOM CODE
