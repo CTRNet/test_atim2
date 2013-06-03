@@ -34,6 +34,11 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		
 		if(empty($search_id)){
 			//index
+			$this->request->data = $this->Participant->find('all', array(
+				'conditions' => array('Participant.created_by' => $this->Session->read('Auth.User.id')),
+				'order' => array('Participant.created DESC'),
+				'limit' => 5)
+			);
 			$this->render('index');
 		}
 	}

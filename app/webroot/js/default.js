@@ -1016,8 +1016,14 @@ function initActions(){
 				if(event.state == null){
 					//new / refresh
 					initIndexZones(false);
+					if($(".ajax_search_results_default")){
+						$(".ajax_search_results").html($(".ajax_search_results_default").html());
+						$(".ajax_search_results").parent().show();
+						$(".ajax_search_results_default").remove();
+					}
 				}else{
 					//back/forward
+					$(".ajax_search_results_default").remove();
 					$(".ajax_search_results").html(event.state);
 					$(".ajax_search_results").parent().show();
 					handleSearchResultLinks();
