@@ -2,7 +2,7 @@
 	ob_start();
 ?>
 <div style="display: table; vertical-align: top;">
-	<div style="display: table-row;" id="firstStorageRow">
+	<div style="display: table-row;" id="firstStorageRow" data-storage-url="<?php echo $this->here; ?>"  data-ctrls="true">
 		<div style="display: table-cell;" class='loading'>--- <?php echo __('loading'); ?>---</div>
 	</div>
 	<div style="display: table-row;">
