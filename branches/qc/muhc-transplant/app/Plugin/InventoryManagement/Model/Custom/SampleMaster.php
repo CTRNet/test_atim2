@@ -56,15 +56,34 @@ class SampleMasterCustom extends SampleMaster {
 		return $process_validates;
 	}
 	
-	function getMuhcTissuePrecision($sample_data) {
-		$muhc_tissue_precision = '';
-		if(isset($sample_data['SampleDetail']) && isset($sample_data['SampleDetail']['muhc_perfused']) && $sample_data['SampleDetail']['muhc_perfused'] == 'y') {
-			$muhc_tissue_precision = __('perfused');
+	function addMuhcPrecisionForTreeView(&$samples_list) {
+		$StructurePermissibleValuesCustom_model = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+		$conditions = array('StructurePermissibleValuesCustomControl.name' => array('tissue source', 'tissue type'));
+		$tmp_res = $StructurePermissibleValuesCustom_model->find('all', array('conditions' => $conditions));
+		$str_permis_values_custom = array();
+		foreach($tmp_res as $new_res) {
+			$str_permis_values_custom[$new_res['StructurePermissibleValuesCustomControl']['name']][$new_res['StructurePermissibleValuesCustom']['value']] = (strlen($new_res['StructurePermissibleValuesCustom'][$lang])? $new_res['StructurePermissibleValuesCustom'][$lang] : $new_res['StructurePermissibleValuesCustom']['value']);
 		}
-		if(isset($sample_data['SampleDetail']) && isset($sample_data['SampleDetail']['muhc_intra_operative_biopsy']) && $sample_data['SampleDetail']['muhc_intra_operative_biopsy'] == 'y') {
-			$muhc_tissue_precision = (empty($muhc_tissue_precision)? __('intra operative biopsy'): $muhc_tissue_precision.' & '.__('intra operative biopsy'));
+		
+		foreach($samples_list as &$new_sample) {
+			$muhc_precisions = array();
+			if(isset($new_sample['SampleDetail'])) {
+				if(isset($new_sample['SampleDetail']['tissue_source']) && $new_sample['SampleDetail']['tissue_source'] && isset($str_permis_values_custom['tissue source'][$new_sample['SampleDetail']['tissue_source']])) {
+					$muhc_precisions[] = $str_permis_values_custom['tissue source'][$new_sample['SampleDetail']['tissue_source']];
+				}
+				if(isset($new_sample['SampleDetail']['muhc_tissue_type']) && $new_sample['SampleDetail']['muhc_tissue_type'] && isset($str_permis_values_custom['tissue type'][$new_sample['SampleDetail']['muhc_tissue_type']])) {
+					$muhc_precisions[] = $str_permis_values_custom['tissue type'][$new_sample['SampleDetail']['muhc_tissue_type']];
+				}
+				if(isset($new_sample['SampleDetail']['muhc_perfused']) && $new_sample['SampleDetail']['muhc_perfused'] == 'y') $muhc_precisions[] = __('perfused');
+				if(isset($new_sample['SampleDetail']['muhc_intra_operative_biopsy']) && $new_sample['SampleDetail']['muhc_intra_operative_biopsy'] == 'y') $muhc_precisions[] = __('intra operative biopsy');
+				
+				if(isset($new_sample['SampleDetail']['muhc_from_tissue_xenograft']) && $new_sample['SampleDetail']['muhc_from_tissue_xenograft'] == 'y') $muhc_precisions[] = __('tissue xenograft cells');
+				if(isset($new_sample['SampleDetail']['muhc_cell_line']) && $new_sample['SampleDetail']['muhc_cell_line'] == 'y') $muhc_precisions[] = __('cell line');
+			}
+			
+			$new_sample['Generated']['muhc_precision'] = implode(' | ', $muhc_precisions);
 		}
-		return $muhc_tissue_precision;
 	}
 
 }

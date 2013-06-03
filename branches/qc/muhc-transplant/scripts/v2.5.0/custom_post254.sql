@@ -168,7 +168,7 @@ ALTER TABLE `muhc_std_cabinets`
 INSERT INTO i18n (id,en) VALUES ('cabinet', 'Cabinet'),('cabinet drawer','Cabinet Drawer');
 
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
-(null, 'muhc_treatment_method_from_id', 'open', '', 'ClinicalAnnotaion.TreatmentControl::getMethodFromIds');
+(null, 'muhc_treatment_method_from_id', 'open', '', 'ClinicalAnnotation.TreatmentControl::getMethodFromIds');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'TreatmentMaster', 'treatment_masters', 'treatment_control_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='muhc_treatment_method_from_id') , '0', '', '', '', 'procedure', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -199,6 +199,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 REPLACE INTO i18n (id,en) VALUES ('perfused liver','Perfused Liver');
 INSERT INTO i18n (id,en) VALUES ('perfused','Perfused'), ('intra operative biopsy','Intra-Operative Biopsy');
 
+SET @perfusion_treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'perfused liver');
 SELECT participant_id AS 'participant ids with perfused procedures 'FROM treatment_masters WHERE treatment_control_id = @perfusion_treatment_control_id and deleted <> 1;
 SELECT sm.sample_code AS 'tissue sample code changed to perfused = yes'
 FROM sample_masters sm 
@@ -234,5 +235,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
 
+UPDATE storage_controls SET coord_y_title = null, coord_y_type = null, coord_y_size = null, coord_x_size = 6, display_x_size = 1, display_y_size = 6, reverse_x_numbering = 0, reverse_y_numbering= 0 WHERE storage_type = 'cabinet';
+UPDATE storage_controls SET reverse_x_numbering = 0 WHERE storage_type = 'cabinet drawer';
+
+UPDATE structure_fields SET  field = 'muhc_precision', `language_label`='precision' WHERE model='Generated' AND tablename='' AND field='muhc_tissue_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='tissue_source' AND `language_label`='tissue source' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tissue_source_list') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='muhc_tissue_type' AND `language_label`='tissue type' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='muhc_tissue_type') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE `versions` SET branch_build_number = '5269' WHERE version_number = '2.5.4';
+UPDATE `versions` SET branch_build_number = '5270' WHERE version_number = '2.5.4';
