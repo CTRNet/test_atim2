@@ -1,9 +1,9 @@
 <?php 
 
 	$structure_links = array(
-		'top'=>'/Protocol/ProtocolExtends/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtend.id%%/',
+		'top'=>'/Protocol/ProtocolExtendMasters/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/',
 		'bottom'=>array(
-			'cancel'=>'/Protocol/ProtocolExtends/detail/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtend.id%%/'
+			'cancel'=>'/Protocol/ProtocolExtendMasters/detail/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/'
 		)
 	);
 	

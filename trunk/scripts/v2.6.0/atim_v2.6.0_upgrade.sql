@@ -25,13 +25,15 @@ AND flag_search = '1';
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
-SELECT '-----------------------------------------------------' AS TODO
-UNION ALL 
-SELECT 'Structures & Spent Time Fields to Review (See below)' AS TODO
-UNION ALL 
-SELECT '-----------------------------------------------------' AS TODO;
-
-SELECT DISTINCT structure_alias, field, 'search field issue' as type_of_error
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT 'Structures & Spent Time Fields to Review (See below)' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT 'Nothing to do if no result in following section' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'coll_to_creation_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -43,8 +45,8 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND search_form.field LIKE 'coll_to_creation_spent_time_msg' 
 	AND search_form.language_label LIKE 'collection to creation spent time (min)'
 )
-UNION 
-SELECT DISTINCT structure_alias, field, 'result field issue' as type_of_error
+UNION ALL
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = result field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'coll_to_creation_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -57,9 +59,9 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND result_form.language_label LIKE 'collection to creation spent time' 
 )
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT structure_alias, field, 'search field issue' as type_of_error
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'coll_to_rec_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -71,8 +73,8 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND search_form.field LIKE 'coll_to_rec_spent_time_msg' 
 	AND search_form.language_label LIKE 'collection to reception spent time (min)'
 )
-UNION 
-SELECT DISTINCT structure_alias, field, 'search field issue' as type_of_error
+UNION ALL
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'coll_to_rec_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -85,9 +87,9 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND result_form.language_label LIKE 'collection to reception spent time' 
 )
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT structure_alias, field, 'search field issue' as type_of_error
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'coll_to_stor_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -99,8 +101,8 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND search_form.field LIKE 'coll_to_stor_spent_time_msg' 
 	AND search_form.language_label LIKE 'collection to storage spent time (min)'
 )
-UNION 
-SELECT DISTINCT structure_alias, field, 'result field issue' as type_of_error
+UNION ALL
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = result field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'coll_to_stor_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -113,9 +115,9 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND result_form.language_label LIKE 'collection to storage spent time' 
 )
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT structure_alias, field, 'search field issue' as type_of_error
+SELECT DISTINCT CONCAT(structure_alias ,'.', field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'creat_to_stor_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -127,8 +129,8 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND search_form.field LIKE 'creat_to_stor_spent_time_msg' 
 	AND search_form.language_label LIKE 'creation to storage spent time (min)'
 )
-UNION 
-SELECT DISTINCT structure_alias, field, 'result field issue' as type_of_error
+UNION ALL
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = result field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'creat_to_stor_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -141,9 +143,9 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND result_form.language_label LIKE 'creation to storage spent time' 
 )
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT structure_alias, field, 'search field issue' as type_of_error
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'rec_to_stor_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -155,8 +157,8 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND search_form.field LIKE 'rec_to_stor_spent_time_msg' 
 	AND search_form.language_label LIKE 'reception to storage spent time (min)'
 )
-UNION 
-SELECT DISTINCT structure_alias, field, 'result field issue' as type_of_error
+UNION ALL
+SELECT DISTINCT CONCAT(structure_alias,'.', field, ' => error = result field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified
 WHERE field LIKE 'rec_to_stor_spent_time_msg'
 AND CONCAT(structure_alias, ' - ', field) NOT IN (
@@ -169,9 +171,9 @@ AND CONCAT(structure_alias, ' - ', field) NOT IN (
 	AND result_form.language_label LIKE 'reception to storage spent time' 
 )
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT search_form.structure_alias, search_form.field, 'search field issue' as type_of_error
+SELECT DISTINCT CONCAT(search_form.structure_alias,'.', search_form.field, ' => error = search field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified AS search_form
 WHERE search_form.flag_search = '1' 
 AND  search_form.flag_index = '0' 
@@ -179,9 +181,9 @@ AND search_form.flag_detail = '0'
 AND search_form.field LIKE '%spent_time_msg' 
 AND search_form.language_label NOT LIKE '% spent time (min)'
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT result_form.structure_alias, result_form.field, 'result field issue' as type_of_error
+SELECT DISTINCT CONCAT(result_form.structure_alias,'.', result_form.field, ' => error = result field issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified AS result_form
 WHERE result_form.flag_search = '0' 
 AND  result_form.flag_index = '1' 
@@ -189,26 +191,28 @@ AND result_form.flag_detail = '1'
 AND result_form.field LIKE '%spent_time_msg' 
 AND result_form.language_label NOT LIKE '% spent time'
 -- -------------------------------------------------------------------------------------------------
-UNION 
+UNION ALL
 -- -------------------------------------------------------------------------------------------------
-SELECT DISTINCT result_form.structure_alias, result_form.field, 'language label & field mismatch issue' as type_of_error
+SELECT DISTINCT CONCAT(result_form.structure_alias,'.', result_form.field, ' => error = language label & field mismatch issue') as 'SPENT TIME FIELDS REVIEW'
 FROM view_structure_formats_simplified AS result_form
 WHERE (field = 'coll_to_creation_spent_time_msg' AND language_label NOT LIKE 'collection to creation spent time%')
 OR (field = 'coll_to_rec_spent_time_msg' AND language_label NOT LIKE 'collection to reception spent time%')
 OR (field = 'coll_to_stor_spent_time_msg' AND language_label NOT LIKE 'collection to storage spent time%')
 OR (field = 'creat_to_stor_spent_time_msg' AND language_label NOT LIKE 'creation to storage spent time%')
-OR (field = 'rec_to_stor_spent_time_msg' AND language_label NOT LIKE 'reception to storage spent time%');
-
-SELECT '-----------------------------------------------------' AS 'help for control'
+OR (field = 'rec_to_stor_spent_time_msg' AND language_label NOT LIKE 'reception to storage spent time%')
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL 
-SELECT 'Query to execute for control if results listed above' AS 'help for control'
+SELECT 'Query to use for control if section above is not empty' AS 'HELP FOR SPENT TIME REVISION'
 UNION ALL 
-SELECT '-----------------------------------------------------' AS 'help for control'
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL 
 SELECT "SELECT structure_alias, model, field, language_label , flag_search, flag_index, flag_detail
 FROM view_structure_formats_simplified 
 WHERE field like '%spent_time_msg' 
-ORDER BY field, structure_alias" AS 'help for control';
+ORDER BY field, structure_alias" AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL 
+SELECT '' AS 'SPENT TIME FIELDS REVIEW';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- END OF UPDATE & ADD CORRECTIONS FOR SEARCH ON SPENT TIMES 
@@ -369,11 +373,18 @@ INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_sea
 (null, 'participant identifiers', 'list all identifiers of selected participants', 'report_participant_identifiers_criteria', 'report_participant_identifiers_result', 'index', 'participantIdentifiersSummary', 0);
 INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
 (null, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 'participant identifiers report', (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers'), 0, '');
-SELECT "Queries to activate 'Participant Identifiers' demo report" as msg
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'PARTICIPANT IDENTIFIER REPORT'
+UNION ALL 
+SELECT "Queries to activate 'Participant Identifiers' demo report" as MSG
 UNION ALL
-SELECT "UPDATE datamart_reports SET flag_active = 1 WHERE name = 'participant identifiers';" as msg
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'PARTICIPANT IDENTIFIER REPORT'
+UNION ALL 
+SELECT "UPDATE datamart_reports SET flag_active = 1 WHERE name = 'participant identifiers';" as MSG
 UNION ALL
-SELECT "UPDATE datamart_structure_functions SET flag_active = 1 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');" as msg;
+SELECT "UPDATE datamart_structure_functions SET flag_active = 1 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');" as 'PARTICIPANT IDENTIFIER REPORT'
+UNION ALL 
+SELECT '' AS 'PARTICIPANT IDENTIFIER REPORT';
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
@@ -408,12 +419,276 @@ ALTER TABLE `datamart_reports` ADD CONSTRAINT `datamart_reports_datamart_structu
 UPDATE datamart_reports SET associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'Participant') WHERE name = 'participant identifiers';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('initiated from report', 'Browsing initiated from report', 'navigation initiée d''un rapport');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Move extend model to master detail models  #2454
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+-- **** PROTOCOL EXTEND ****
+	
+-- msg --
 
+SELECT '----------------------------------------------------------------------------------------------------------'  AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT IF(COUNT(*) = 0,
+"None: Don't execute following queries", 
+"List of extend tables to work with:"
+) AS 'Custom Protocol Extend tables to upgrade' 
+FROM (SELECT DISTINCT extend_tablename FROM protocol_controls WHERE extend_tablename IS NOT NULL AND extend_tablename NOT IN ('pe_chemos')) AS extend_tables
+UNION ALL
+SELECT DISTINCT extend_tablename FROM protocol_controls WHERE extend_tablename IS NOT NULL AND extend_tablename NOT IN ('pe_chemos')
+UNION ALL
+SELECT 'Execute following queries (if required) to upgrade your database. Replace info between *** to appropriate values.' AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE' 
+UNION ALL
+SELECT "SET @protocol_extend_control_id = (SELECT id FROM protocol_extend_controls WHERE detail_tablename = '***EXTEND_TABLENAME***' AND detail_form_alias = '***EXTEND_FORM_ALIAS***');" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE protocol_extend_masters ADD COLUMN tmp_old_extend_id int(11) DEFAULT NULL;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "INSERT INTO protocol_extend_masters (tmp_old_extend_id, protocol_extend_control_id, protocol_master_id, created, created_by, modified, modified_by, deleted) (SELECT id, @protocol_extend_control_id, protocol_master_id, created, created_by, modified, modified_by, deleted FROM ***EXTEND_TABLENAME***);" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME*** ADD protocol_extend_master_id int(11) NOT NULL, DROP FOREIGN KEY FK_***EXTEND_TABLENAME***_protocol_masters, DROP COLUMN protocol_master_id, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE protocol_extend_masters extend_master, ***EXTEND_TABLENAME*** extend_detail SET extend_detail.protocol_extend_master_id = extend_master.id WHERE extend_master.tmp_old_extend_id = extend_detail.id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs ADD COLUMN protocol_extend_master_id int(11) NOT NULL;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE ***EXTEND_TABLENAME***_revs extend_detail_revs, ***EXTEND_TABLENAME*** extend_detail SET extend_detail_revs.protocol_extend_master_id = extend_detail.protocol_extend_master_id WHERE extend_detail.id = extend_detail_revs.id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME*** ADD CONSTRAINT FK_***EXTEND_TABLENAME***_protocol_extend_masters FOREIGN KEY (protocol_extend_master_id) REFERENCES protocol_extend_masters (id), DROP COLUMN id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "INSERT INTO protocol_extend_masters_revs (id, protocol_extend_control_id, protocol_master_id, modified_by, version_created) (SELECT protocol_extend_master_id, @protocol_extend_control_id, protocol_master_id, modified_by, version_created FROM ***EXTEND_TABLENAME***_revs ORDER BY version_id ASC);" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE protocol_extend_masters DROP COLUMN tmp_old_extend_id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN protocol_master_id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE';
 
+SELECT '----------------------------------------------------------------------------------------------------------'  AS 'CUSTOM PROTOCOL EXTEND MODEL, CONTROLER AND VIEW UPGRADE'
+UNION ALL
+SELECT 'Don''t forget to uprgade your custom code' AS 'CUSTOM PROTOCOL EXTEND MODEL, CONTROLER AND VIEW UPGRADE'
+UNION ALL
+SELECT 'ProtocolExtends controllers, model an view have been changed to ProtocolExtendMasters' AS 'CUSTOM PROTOCOL EXTEND MODEL, CONTROLlER AND VIEW UPGRADE'
+UNION ALL
+SELECT '' AS 'CUSTOM PROTOCOL EXTEND MODEL, CONTROLlER AND VIEW UPGRADE';
 
+-- work on control and master table --
 
+CREATE TABLE `protocol_extend_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `detail_tablename` varchar(255) NOT NULL,
+  `detail_form_alias` varchar(255) NOT NULL DEFAULT '',
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 
+ALTER TABLE  protocol_controls
+	ADD COLUMN `protocol_extend_control_id` int(11) DEFAULT NULL,
+	DROP COLUMN created, 
+	DROP COLUMN created_by, 
+	DROP COLUMN modified, 
+	DROP COLUMN modified_by;	
+ALTER TABLE `protocol_controls` ADD CONSTRAINT `protocol_controls_protocol_extend_controls` FOREIGN KEY (`protocol_extend_control_id`) REFERENCES `protocol_extend_controls` (`id`);
+
+INSERT INTO `protocol_extend_controls` (`detail_tablename`, `detail_form_alias`, `flag_active`) (SELECT DISTINCT extend_tablename, extend_form_alias, '1' FROM protocol_controls WHERE extend_tablename IS NOT NULL);
+UPDATE protocol_controls pc, protocol_extend_controls pexc SET pc.protocol_extend_control_id = pexc.id WHERE pc.extend_tablename = pexc.detail_tablename AND pc.extend_form_alias = pexc.detail_form_alias AND pc.extend_tablename IS NOT NULL;
+ALTER TABLE protocol_controls DROP COLUMN extend_tablename, DROP COLUMN extend_form_alias;
+
+CREATE TABLE IF NOT EXISTS protocol_extend_masters (
+  id int(11) NOT NULL AUTO_INCREMENT, 
+  protocol_extend_control_id int(11) NOT NULL,
+  protocol_master_id int(11) NOT NULL,
+  created datetime DEFAULT NULL,
+  created_by int(10) unsigned NOT NULL,
+  modified datetime DEFAULT NULL,
+  modified_by int(10) unsigned NOT NULL,
+  deleted tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `protocol_extend_masters` 
+  ADD CONSTRAINT `protocol_masters_protocol_extend_masters` FOREIGN KEY (`protocol_master_id`) REFERENCES `protocol_masters` (`id`),
+  ADD CONSTRAINT `protocol_extend_controls_protocol_extend_masters` FOREIGN KEY (`protocol_extend_control_id`) REFERENCES `protocol_extend_controls` (`id`);
+
+CREATE TABLE IF NOT EXISTS protocol_extend_masters_revs (
+  id int(11) NOT NULL,
+  protocol_extend_control_id int(11) NOT NULL,
+  protocol_master_id int(11) NOT NULL,
+  modified_by int(10) unsigned NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+UPDATE structure_fields SET model='ProtocolExtendDetail' WHERE model = 'ProtocolExtend';
+
+UPDATE menus SET use_link = '/Protocol/ProtocolExtendMasters/listall/%%ProtocolMaster.id%%' WHERE use_link LIKE '/Protocol/ProtocolExtends/listall/%%ProtocolMaster.id%%';
+
+-- specific upgrade statements of pe_chemos --
+
+SET @protocol_extend_control_id = (SELECT id FROM protocol_extend_controls WHERE detail_tablename = 'pe_chemos' AND detail_form_alias = 'pe_chemos');
+ALTER TABLE protocol_extend_masters ADD COLUMN tmp_old_extend_id int(11) DEFAULT NULL;
+INSERT INTO protocol_extend_masters (tmp_old_extend_id, protocol_extend_control_id, protocol_master_id, created, created_by, modified, modified_by, deleted) (SELECT id, @protocol_extend_control_id, protocol_master_id, created, created_by, modified, modified_by, deleted FROM pe_chemos);
+ALTER TABLE pe_chemos ADD protocol_extend_master_id int(11) NOT NULL, DROP FOREIGN KEY FK_pe_chemos_protocol_masters, DROP COLUMN protocol_master_id, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted;
+UPDATE protocol_extend_masters extend_master, pe_chemos extend_detail SET extend_detail.protocol_extend_master_id = extend_master.id WHERE extend_master.tmp_old_extend_id = extend_detail.id;
+ALTER TABLE pe_chemos_revs ADD COLUMN protocol_extend_master_id int(11) NOT NULL;
+UPDATE pe_chemos_revs extend_detail_revs, pe_chemos extend_detail SET extend_detail_revs.protocol_extend_master_id = extend_detail.protocol_extend_master_id WHERE extend_detail.id = extend_detail_revs.id;
+ALTER TABLE pe_chemos ADD CONSTRAINT FK_pe_chemos_protocol_extend_masters FOREIGN KEY (protocol_extend_master_id) REFERENCES protocol_extend_masters (id), DROP COLUMN id;
+INSERT INTO protocol_extend_masters_revs (id, protocol_extend_control_id, protocol_master_id, modified_by, version_created) (SELECT protocol_extend_master_id, @protocol_extend_control_id, protocol_master_id, modified_by, version_created FROM pe_chemos_revs ORDER BY version_id ASC);
+ALTER TABLE protocol_extend_masters DROP COLUMN tmp_old_extend_id;
+ALTER TABLE pe_chemos_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN protocol_master_id;
+
+-- **** TREATMENT EXTEND ****
+	
+-- msg --
+
+SELECT '----------------------------------------------------------------------------------------------------------'  AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT IF(COUNT(*) = 0,
+"None: Don't execute following queries", 
+"List of extend tables to work on"
+) AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE' 
+FROM (SELECT DISTINCT extend_tablename FROM treatment_controls WHERE extend_tablename IS NOT NULL AND extend_tablename NOT IN ('txe_chemos','txe_surgeries')) AS extend_tables
+UNION ALL
+SELECT DISTINCT extend_tablename FROM treatment_controls WHERE extend_tablename IS NOT NULL AND extend_tablename NOT IN ('txe_chemos','txe_surgeries')
+UNION ALL
+SELECT "SET @treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = '***EXTEND_TABLENAME***' AND detail_form_alias = '***EXTEND_FORM_ALIAS***');" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE treatment_extend_masters ADD COLUMN tmp_old_extend_id int(11) DEFAULT NULL;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "INSERT INTO treatment_extend_masters (tmp_old_extend_id, treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted) (SELECT id, @treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted FROM ***EXTEND_TABLENAME***);" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME*** ADD treatment_extend_master_id int(11) NOT NULL, DROP FOREIGN KEY ***EXTEND_TABLENAME***_ibfk_1, DROP COLUMN treatment_master_id, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE treatment_extend_masters extend_master, ***EXTEND_TABLENAME*** extend_detail SET extend_detail.treatment_extend_master_id = extend_master.id WHERE extend_master.tmp_old_extend_id = extend_detail.id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs ADD COLUMN treatment_extend_master_id int(11) NOT NULL;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE ***EXTEND_TABLENAME***_revs extend_detail_revs, ***EXTEND_TABLENAME*** extend_detail SET extend_detail_revs.treatment_extend_master_id = extend_detail.treatment_extend_master_id WHERE extend_detail.id = extend_detail_revs.id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME*** ADD CONSTRAINT FK_***EXTEND_TABLENAME***_treatment_extend_masters FOREIGN KEY (treatment_extend_master_id) REFERENCES treatment_extend_masters (id), DROP COLUMN id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM ***EXTEND_TABLENAME***_revs ORDER BY version_id ASC);" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT '' AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE';
+
+SELECT '----------------------------------------------------------------------------------------------------------'  AS 'CUSTOM TREATMENT EXTEND MODEL, CONTROLER AND VIEW UPGRADE'
+UNION ALL
+SELECT 'Don''t forget to uprgade your custom code' AS 'CUSTOM TREATMENT EXTEND MODEL, CONTROLER AND VIEW UPGRADE'
+UNION ALL
+SELECT 'TreatmentExtends controllers, model an view have been changed to TreatmentExtendMasters' AS 'CUSTOM TREATMENT EXTEND MODEL, CONTROLlER AND VIEW UPGRADE'
+UNION ALL
+SELECT '' AS 'CUSTOM TREATMENT EXTEND MODEL, CONTROLlER AND VIEW UPGRADE';
+
+-- work on control and master table --
+
+CREATE TABLE `treatment_extend_controls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `detail_tablename` varchar(255) NOT NULL,
+  `detail_form_alias` varchar(255) NOT NULL DEFAULT '',
+  `flag_active` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+ALTER TABLE  treatment_controls
+	ADD COLUMN `treatment_extend_control_id` int(11) DEFAULT NULL;	
+ALTER TABLE `treatment_controls` ADD CONSTRAINT `treatment_controls_treatment_extend_controls` FOREIGN KEY (`treatment_extend_control_id`) REFERENCES `treatment_extend_controls` (`id`);
+
+INSERT INTO `treatment_extend_controls` (`detail_tablename`, `detail_form_alias`, `flag_active`) (SELECT DISTINCT extend_tablename, extend_form_alias, '1' FROM treatment_controls WHERE extend_tablename IS NOT NULL);
+UPDATE treatment_controls pc, treatment_extend_controls pexc SET pc.treatment_extend_control_id = pexc.id WHERE pc.extend_tablename = pexc.detail_tablename AND pc.extend_form_alias = pexc.detail_form_alias AND pc.extend_tablename IS NOT NULL;
+ALTER TABLE treatment_controls DROP COLUMN extend_tablename, DROP COLUMN extend_form_alias;
+
+CREATE TABLE IF NOT EXISTS treatment_extend_masters (
+  id int(11) NOT NULL AUTO_INCREMENT, 
+  treatment_extend_control_id int(11) NOT NULL,
+  treatment_master_id int(11) NOT NULL,
+  created datetime DEFAULT NULL,
+  created_by int(10) unsigned NOT NULL,
+  modified datetime DEFAULT NULL,
+  modified_by int(10) unsigned NOT NULL,
+  deleted tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `treatment_extend_masters` 
+  ADD CONSTRAINT `treatment_masters_treatment_extend_masters` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`),
+  ADD CONSTRAINT `treatment_extend_controls_treatment_extend_masters` FOREIGN KEY (`treatment_extend_control_id`) REFERENCES `treatment_extend_controls` (`id`);
+
+CREATE TABLE IF NOT EXISTS treatment_extend_masters_revs (
+  id int(11) NOT NULL,
+  treatment_extend_control_id int(11) NOT NULL,
+  treatment_master_id int(11) NOT NULL,
+  modified_by int(10) unsigned NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+UPDATE structure_fields SET model='TreatmentExtendDetail' WHERE model = 'TreatmentExtend';
+
+UPDATE menus SET use_link = '/ClinicalAnnotation/TreatmentExtendMasters/listall/%%Participant.id%%/%%TreatmentMaster.id%%' WHERE use_link LIKE '/ClinicalAnnotation/TreatmentExtends/listall/%%Participant.id%%/%%TreatmentMaster.id%%';
+
+ALTER TABLE treatment_extend_controls 
+	ADD COLUMN type varchar(255) NOT NULL DEFAULT '',
+	ADD COLUMN databrowser_label varchar(50) NOT NULL DEFAULT '';
+UPDATE treatment_extend_controls SET type = 'chemotherapy drug', databrowser_label = 'chemotherapy drug' WHERE detail_form_alias = 'txe_chemos' AND detail_tablename = 'txe_chemos';
+UPDATE treatment_extend_controls SET type = 'surgery precision', databrowser_label = 'surgery precision' WHERE detail_form_alias = 'txe_surgeries' AND detail_tablename = 'txe_surgeries';
+UPDATE treatment_extend_controls SET type = 'unknown precision', databrowser_label = 'unknown precision' WHERE type = '' AND databrowser_label = '';
+
+INSERT INTO structures(`alias`) VALUES ('treatment_extend_masters');
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'tx_precision_type', 'open', '', 'ClinicalAnnotation.TreatmentExtendControl::getPrecisionTypeValues');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendControl', 'treatment_extend_controls', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tx_precision_type') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatment_extend_masters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendControl' AND `tablename`='treatment_extend_controls' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_precision_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) VALUES
+(null, 'ClinicalAnnotation', 'TreatmentExtendMaster', (SELECT id FROM structures WHERE alias = 'treatment_extend_masters'), NULL, 'treatment precision', 'TreatmentExtendMaster', '/ClinicalAnnotation/TreatmentMasters/detail/%%TreatmentMaster.participant_id%%/%%TreatmentMaster.id%%/', '');
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('at least one precision is defined as protocol component', 'At least one precision is defined as protocol component', 'Au moins une précision est définie comme composante de ce protocole'),
+('at least one precision is defined as treatment component','At least one precision is defined as treatment component', 'Au moins une précision est définie comme composante de ce traitement'),
+('drug is defined as a component of at least one protocol','Drug is defined as a component of at least one protocol', 'Le médicament est défini comme un composant d''au moins un protocole');
+
+-- specific upgrade statements of txe_chemos -- 
+
+SET @treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'txe_chemos' AND detail_form_alias = 'txe_chemos');
+ALTER TABLE treatment_extend_masters ADD COLUMN tmp_old_extend_id int(11) DEFAULT NULL;
+INSERT INTO treatment_extend_masters (tmp_old_extend_id, treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted) (SELECT id, @treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted FROM txe_chemos);
+ALTER TABLE txe_chemos ADD treatment_extend_master_id int(11) NOT NULL, DROP FOREIGN KEY txe_chemos_ibfk_1, DROP COLUMN treatment_master_id, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted;
+UPDATE treatment_extend_masters extend_master, txe_chemos extend_detail SET extend_detail.treatment_extend_master_id = extend_master.id WHERE extend_master.tmp_old_extend_id = extend_detail.id;
+ALTER TABLE txe_chemos_revs ADD COLUMN treatment_extend_master_id int(11) NOT NULL;
+UPDATE txe_chemos_revs extend_detail_revs, txe_chemos extend_detail SET extend_detail_revs.treatment_extend_master_id = extend_detail.treatment_extend_master_id WHERE extend_detail.id = extend_detail_revs.id;
+ALTER TABLE txe_chemos ADD CONSTRAINT FK_txe_chemos_treatment_extend_masters FOREIGN KEY (treatment_extend_master_id) REFERENCES treatment_extend_masters (id), DROP COLUMN id;
+INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_chemos_revs ORDER BY version_id ASC);
+ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
+ALTER TABLE txe_chemos_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
+
+-- specific upgrade statements of txe_surgeries --
+
+SET @treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'txe_surgeries' AND detail_form_alias = 'txe_surgeries');
+ALTER TABLE treatment_extend_masters ADD COLUMN tmp_old_extend_id int(11) DEFAULT NULL;
+INSERT INTO treatment_extend_masters (tmp_old_extend_id, treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted) (SELECT id, @treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted FROM txe_surgeries);
+ALTER TABLE txe_surgeries ADD treatment_extend_master_id int(11) NOT NULL, DROP FOREIGN KEY txe_surgeries_ibfk_1, DROP COLUMN treatment_master_id, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted;
+UPDATE treatment_extend_masters extend_master, txe_surgeries extend_detail SET extend_detail.treatment_extend_master_id = extend_master.id WHERE extend_master.tmp_old_extend_id = extend_detail.id;
+ALTER TABLE txe_surgeries_revs ADD COLUMN treatment_extend_master_id int(11) NOT NULL;
+UPDATE txe_surgeries_revs extend_detail_revs, txe_surgeries extend_detail SET extend_detail_revs.treatment_extend_master_id = extend_detail.treatment_extend_master_id WHERE extend_detail.id = extend_detail_revs.id;
+ALTER TABLE txe_surgeries ADD CONSTRAINT FK_txe_surgeries_treatment_extend_masters FOREIGN KEY (treatment_extend_master_id) REFERENCES treatment_extend_masters (id), DROP COLUMN id;
+INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_surgeries_revs ORDER BY version_id ASC);
+ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
+ALTER TABLE txe_surgeries_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
+
+-- specific upgrade statements of txe_radiations --
+
+SELECT IF(COUNT(*) = 0,
+"Seams you are using txe_radiations. Be sure you correctly upgraded txe_radiations.", 
+"You can drop txe_radiations: DROP TABLE txe_radiations; DROP TABLE txe_radiations_revs;"
+) AS 'txe_radiations table deletion' 
+FROM txe_radiations;
 
 
 

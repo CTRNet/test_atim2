@@ -1,7 +1,7 @@
 <?php 
 
 	$structure_links = array(
-		'top'=>'/Protocol/ProtocolExtends/add/'.$atim_menu_variables['ProtocolMaster.id'],
+		'top'=>'/Protocol/ProtocolExtendMasters/add/'.$atim_menu_variables['ProtocolMaster.id'],
 		'bottom'=>array(
 			'cancel'=>'/Protocol/ProtocolMasters/detail/'.$atim_menu_variables['ProtocolMaster.id']
 		)
