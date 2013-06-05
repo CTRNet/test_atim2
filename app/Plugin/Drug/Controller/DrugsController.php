@@ -3,9 +3,7 @@
 class DrugsController extends DrugAppController {
 
 	var $uses = array(
-		'Drug.Drug',
-		'Protocol.ProtocolExtend',
-		'ClinicalAnnotation.TreatmentExtend'
+		'Drug.Drug'
 	);
 		
 	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 

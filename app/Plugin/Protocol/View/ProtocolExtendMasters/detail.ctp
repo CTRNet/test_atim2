@@ -2,8 +2,8 @@
 
 	$structure_links = array(
 		'bottom'=>array(
-			'edit'=>'/Protocol/ProtocolExtends/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtend.id%%/',
-			'delete'=>'/Protocol/ProtocolExtends/delete/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtend.id%%/'
+			'edit'=>'/Protocol/ProtocolExtendMasters/edit/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/',
+			'delete'=>'/Protocol/ProtocolExtendMasters/delete/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/'
 		)
 	);
 	

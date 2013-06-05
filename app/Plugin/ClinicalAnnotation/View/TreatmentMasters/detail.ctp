@@ -5,7 +5,7 @@
 			'edit'=>'/ClinicalAnnotation/TreatmentMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 			'delete'=>'/ClinicalAnnotation/TreatmentMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 			'list'=>'/ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/',
-			'add precision' => '/ClinicalAnnotation/TreatmentExtends/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+			'add precision' => '/ClinicalAnnotation/TreatmentExtendMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 		)
 	);
 	
@@ -37,13 +37,13 @@
 		
 		if(isset($extended_data_import_process)){
 			$structure_links['bottom']['import precisions from associated protocol'] = array(
-				'link' => '/ClinicalAnnotation/TreatmentExtends/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
+				'link' => '/ClinicalAnnotation/TreatmentExtendMasters/'.$extended_data_import_process.'/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'],
 				'icon' => 'add');
 		}
 		
 		$structure_links['index'] = array(
-			'edit'=>'/ClinicalAnnotation/TreatmentExtends/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%',
-			'delete'=>'/ClinicalAnnotation/TreatmentExtends/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtend.id%%'
+			'edit'=>'/ClinicalAnnotation/TreatmentExtendMasters/edit/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtendMaster.id%%',
+			'delete'=>'/ClinicalAnnotation/TreatmentExtendMasters/delete/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['TreatmentMaster.id'].'/%%TreatmentExtendMaster.id%%'
 		);
 		
 		$final_options = array('data' => $tx_extend_data, 'type' => 'index', 'settings' => $structure_settings, 'links' => $structure_links);

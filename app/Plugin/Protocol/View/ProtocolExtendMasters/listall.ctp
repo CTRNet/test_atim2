@@ -2,9 +2,10 @@
 	
 	$structure_links = array(
 		'index'=>array(
-			'detail'=>'/Protocol/ProtocolExtends/detail/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtend.id%%/'
+			'detail'=>'/Protocol/ProtocolExtendMasters/detail/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/',
+			'delete'=>'/Protocol/ProtocolExtendMasters/delete/'.$atim_menu_variables['ProtocolMaster.id'].'/%%ProtocolExtendMaster.id%%/'
 		),
-		'bottom'=>array('add' => '/Protocol/ProtocolExtends/add/'.$atim_menu_variables['ProtocolMaster.id'])
+		'bottom'=>array('add' => '/Protocol/ProtocolExtendMasters/add/'.$atim_menu_variables['ProtocolMaster.id'])
 	);
 	
 	$final_atim_structure = $atim_structure; 

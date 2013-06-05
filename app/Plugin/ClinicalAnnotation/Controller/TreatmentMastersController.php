@@ -5,8 +5,9 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.Participant',
 		'ClinicalAnnotation.TreatmentMaster', 
-		'ClinicalAnnotation.TreatmentExtend', 
+		'ClinicalAnnotation.TreatmentExtendMaster', 
 		'ClinicalAnnotation.TreatmentControl', 
+		'ClinicalAnnotation.TreatmentExtendControl', 
 		'ClinicalAnnotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
 	);
@@ -47,11 +48,11 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'diagnosis_structure');
 		$this->set('is_ajax', $this->request->is('ajax'));
-		
-		if($treatment_master_data['TreatmentControl']['extend_tablename']){
-			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $treatment_master_data['TreatmentControl']['extend_tablename']);
-			$this->set('tx_extend_data', $this->TreatmentExtend->find('all', array('conditions' => array('TreatmentExtend.treatment_master_id' => $tx_master_id))));
-			$this->Structures->set($treatment_master_data['TreatmentControl']['extend_form_alias'], 'extend_form_alias');
+			
+		if($treatment_master_data['TreatmentControl']['treatment_extend_control_id']){
+			$treatment_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($treatment_master_data['TreatmentControl']['treatment_extend_control_id']);
+			$this->set('tx_extend_data', $this->TreatmentExtendMaster->find('all', array('conditions' => array('TreatmentExtendMaster.treatment_master_id' => $tx_master_id, 'TreatmentExtendMaster.treatment_extend_control_id' => $treatment_master_data['TreatmentControl']['treatment_extend_control_id']))));
+			$this->Structures->set($treatment_extend_control_data['TreatmentExtendControl']['detail_form_alias'], 'extend_form_alias');
 			if(!empty($treatment_master_data['TreatmentControl']['extended_data_import_process'])) {
 				$this->set('extended_data_import_process', $treatment_master_data['TreatmentControl']['extended_data_import_process']);
 			}
