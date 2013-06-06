@@ -155,3 +155,15 @@ UPDATE structure_formats SET `flag_override_label`='1', `language_label`='name' 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='RAMQ' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_specimen_nbr_report_res') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 UPDATE `versions` SET branch_build_number = '5204' WHERE version_number = '2.5.4';
+
+-- 2013-06-05: New request to support more than 1000 specimens per year.
+--    => Current format 13978, 13979, etc
+--    => New format for 2013 13A01, 13A02, and for 2014, etc => 140001
+
+ALTER TABLE sample_masters MODIFY ld_lymph_specimen_number varchar(10) NOT NULL;
+ALTER TABLE sample_masters_revs MODIFY ld_lymph_specimen_number varchar(10) NOT NULL;
+UPDATE structure_validations SET rule = 'custom,/^((((0[0-9])|(1[0-3]))[0-9]{3})|(13[A-Z][0-9]{2})|(((1[4-9])|(2[0-9])|(3[0-9]))[0-9]{4}))$/' WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `field`='ld_lymph_specimen_number');
+
+UPDATE versions SET permissions_regenerated = 0;
+
+UPDATE `versions` SET branch_build_number = '5272' WHERE version_number = '2.5.4';
