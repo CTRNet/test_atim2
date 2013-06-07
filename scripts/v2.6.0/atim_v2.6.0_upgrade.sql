@@ -635,8 +635,15 @@ ALTER TABLE treatment_extend_controls
 	ADD COLUMN type varchar(255) NOT NULL DEFAULT '',
 	ADD COLUMN databrowser_label varchar(50) NOT NULL DEFAULT '';
 UPDATE treatment_extend_controls SET type = 'chemotherapy drug', databrowser_label = 'chemotherapy drug' WHERE detail_form_alias = 'txe_chemos' AND detail_tablename = 'txe_chemos';
-UPDATE treatment_extend_controls SET type = 'surgery precision', databrowser_label = 'surgery precision' WHERE detail_form_alias = 'txe_surgeries' AND detail_tablename = 'txe_surgeries';
+UPDATE treatment_extend_controls SET type = 'surgery procedure', databrowser_label = 'surgery procedure' WHERE detail_form_alias = 'txe_surgeries' AND detail_tablename = 'txe_surgeries';
 UPDATE treatment_extend_controls SET type = 'unknown precision', databrowser_label = 'unknown precision' WHERE type = '' AND databrowser_label = '';
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('surgery procedure','Surgery Procedure','Procédure de Chirurgie'),
+('treatment precision','Treatment Precision','Précision des Traitment'),
+('chemotherapy drug','Chemotherapy Drug','Molécule de chimiothérapie'),
+('unknown precision','Precision','Précision');
 
 INSERT INTO structures(`alias`) VALUES ('treatment_extend_masters');
 INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
@@ -684,11 +691,39 @@ ALTER TABLE txe_surgeries_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COL
 
 -- specific upgrade statements of txe_radiations --
 
-SELECT IF(COUNT(*) = 0,
-"Seams you are using txe_radiations. Be sure you correctly upgraded txe_radiations.", 
-"You can drop txe_radiations: DROP TABLE txe_radiations; DROP TABLE txe_radiations_revs;"
-) AS 'txe_radiations table deletion' 
+SELECT IF(COUNT(*) = 0, 
+"Please drop table txe_radiations: DROP TABLE txe_radiations; DROP TABLE txe_radiations_revs;",
+"Seams you are using txe_radiations. Be sure you correctly upgraded txe_radiations."
+) AS 'txe_radiations TABLE DELETION' 
 FROM txe_radiations;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Be able to browse on treatment extend  #2605
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster'), (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster'), 1, 1, 'treatment_master_id');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id IN (SELECT structures.id FROM structures INNER JOIN treatment_extend_controls ON treatment_extend_controls.detail_form_alias = structures.alias);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

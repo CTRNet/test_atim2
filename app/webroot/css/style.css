@@ -1213,6 +1213,7 @@ span.help {
 .icon16.thumbsdown { background-position: -96px -32px; }
 .icon16.thumbsup { background-position: -96px -16px; }
 .icon16.treatments { background-position: -64px -32px; }
+.icon16.treatment.precision { background-position: -64px -32px; }
 .icon16.use, .icon16.aliquot.uses { background-position: -96px -96px; }
 .icon16.users { background-position: -80px -32px; }
 
