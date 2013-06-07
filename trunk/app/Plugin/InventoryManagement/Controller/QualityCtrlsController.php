@@ -213,7 +213,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 							foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 						}
 					}
-					
+					$aliquot_data = $this->AliquotMaster->data;
+
 					$aliquot_data['AliquotMaster']['storage_coord_x'] = $data_unit['AliquotMaster']['storage_coord_x'];
 					$aliquot_data['AliquotMaster']['storage_coord_y'] = $data_unit['AliquotMaster']['storage_coord_y'];
 					

@@ -1034,8 +1034,9 @@ class SampleMastersController extends InventoryManagementAppController {
 					);
 					$parent['AliquotMaster'] = array_merge($parent['AliquotMaster'], $children['AliquotMaster']);
 					$parent['FunctionManagement'] = $children['FunctionManagement'];
-					$children['AliquotMaster']['id'] = $parent_id;
-					$aliquots_data[] = array('AliquotMaster' => $children['AliquotMaster'], 'FunctionManagement' => $children['FunctionManagement']);
+					$children['AliquotMaster']['id'] = $parent_id;				
+					$tmp_storage_coord_x = $children['AliquotMaster']['storage_coord_x'];
+					$tmp_storage_coord_y = $children['AliquotMaster']['storage_coord_y'];
 					$this->AliquotMaster->data = array();
 					unset($children['AliquotMaster']['storage_coord_x']);
 					unset($children['AliquotMaster']['storage_coord_y']);
@@ -1045,7 +1046,9 @@ class SampleMastersController extends InventoryManagementAppController {
 						$msgs = is_array($msgs)? $msgs : array($msgs);
 						foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 					}
-					
+					$this->AliquotMaster->data['AliquotMaster']['storage_coord_x'] = $tmp_storage_coord_x;
+					$this->AliquotMaster->data['AliquotMaster']['storage_coord_y'] = $tmp_storage_coord_y;
+					$aliquots_data[] = array('AliquotMaster' => $this->AliquotMaster->data['AliquotMaster'], 'FunctionManagement' => $children['FunctionManagement']);
 					unset($children['AliquotMaster'], $children['FunctionManagement'], $children['AliquotControl'], $children['StorageMaster']);
 				}else{
 					$parent = $this->ViewSample->find('first', array('conditions' => array('ViewSample.sample_master_id' => $parent_id), 'recursive' => -1));

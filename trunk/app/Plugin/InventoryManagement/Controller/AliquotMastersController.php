@@ -529,6 +529,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->AliquotMaster->set($this->request->data);
 			$this->AliquotMaster->id = $aliquot_master_id;
 			$submitted_data_validates = ($this->AliquotMaster->validates()) ? $submitted_data_validates: false;
+			$this->request->data = $this->AliquotMaster->data;
 			
 			// Reste data to get position data
 			$this->request->data = $this->AliquotMaster->data;
@@ -1220,7 +1221,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$source_aliquot_pointer['SourceAliquot']['aliquot_master_id'] = $aliquot_master_id;
 					$source_aliquot_pointer['SourceAliquot']['sample_master_id'] = $sample_master_id;
 					//barcode,aliquot_label,storage_coord_x,storage_coord_y
-					if(!$this->SourceAliquot->save($source_aliquot_pointer)) { 
+					if(!$this->SourceAliquot->save($source_aliquot_pointer, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
 
@@ -1664,6 +1665,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 						foreach($msgs as $msg) $errors[$field][$msg][$record_counter] = $record_counter;
 					}
 				}
+				$parent_aliquot_data = $this->AliquotMaster->data['AliquotMaster'];
 				
 				// Set parent data to $validated_data
 				$validated_data[$parent_id]['parent']['AliquotMaster'] = $parent_aliquot_data;
@@ -2095,7 +2097,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 						foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;						
 					}
 				}
-			
+				$parent_aliquot_data = $this->AliquotMaster->data['AliquotMaster'];
+				
 				// Set parent data to $validated_data
 				$validated_data[$parent_id]['parent']['AliquotMaster'] = $parent_aliquot_data;
 				$validated_data[$parent_id]['parent']['AliquotMaster']['storage_coord_x'] = $parent_and_children['AliquotMaster']['storage_coord_x'];
@@ -2558,18 +2561,16 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if($validates){
 				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
 				$not_core_nbr = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.id' => $aliquot_ids, "AliquotControl.aliquot_type != 'core'")));
-				$to_update['AliquotControl']['aliquot_type'] = $not_core_nbr? 'not core' : 'core';//to allow tma storage check, remove afterward
-								
+				$to_update['AliquotControl']['aliquot_type'] = $not_core_nbr? 'not core' : 'core';//to allow tma storage check, remove afterward						
 				$this->AliquotMaster->set($to_update);
-				if($this->AliquotMaster->validates()){
-					if(!empty($this->AliquotMaster->data['AliquotMaster']['storage_master_id'])) $to_update['AliquotMaster']['storage_master_id'] = $this->AliquotMaster->data['AliquotMaster']['storage_master_id'];
-				}else{
+				if(!$this->AliquotMaster->validates()){
 					$validates = false;
 				}
+				$to_update= $this->AliquotMaster->data;
 				unset($to_update['AliquotMaster']['aliquot_control_id']);	
 				unset($to_update['AliquotControl']['aliquot_type']);				
-			}
-			
+			}	
+
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) {
 				require($hook_link);

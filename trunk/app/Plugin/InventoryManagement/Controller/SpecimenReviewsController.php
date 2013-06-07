@@ -389,7 +389,10 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					}
 					$this->AliquotReviewMaster->data = array();
 					$this->AliquotReviewMaster->set($new_aliquot_review);
+pr($new_aliquot_review);					
 					$submitted_data_validates = $this->AliquotReviewMaster->validates() && $submitted_data_validates;
+					$new_aliquot_review = $this->AliquotReviewMaster->data;
+pr($new_aliquot_review);
 					$all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
 				}
 				if(!empty($all_aliquot_review_master_errors)) {
