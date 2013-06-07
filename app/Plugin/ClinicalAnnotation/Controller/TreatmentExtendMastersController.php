@@ -60,7 +60,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 						foreach($msgs as $msg) $errors[$field][$msg][] = $line_counter;
 						$submitted_data_validates = false;
 					}
-				}				
+				}
+				$new_row = $this->TreatmentExtendMaster->data;
 			}
 			
 			echo $this->TreatmentExtendMaster->addWritableField(array('treatment_master_id', 'treatment_extend_control_id'));

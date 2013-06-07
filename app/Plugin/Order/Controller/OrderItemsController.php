@@ -339,9 +339,9 @@ class OrderItemsController extends OrderAppController {
 			$order_id = $selected_order_line_data['OrderLine']['order_id'];		
 			
 			// Launch validation on order item data
-			$this->OrderItem->set($this->request->data);
+			$this->OrderItem->set($this->request->data);		
 			$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;			
-						
+			$this->request->data = $this->OrderItem->data;		
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -357,7 +357,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->request->data['OrderItem']);
 					$this->OrderItem->addWritableField(array('status', 'aliquot_master_id'));
 					$this->OrderItem->id = null;
-					if(!$this->OrderItem->save($new_order_item_data)) { 
+					if(!$this->OrderItem->save($new_order_item_data, false)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 					}
 					
