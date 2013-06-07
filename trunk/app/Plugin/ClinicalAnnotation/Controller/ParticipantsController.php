@@ -329,6 +329,11 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			$ids = array_filter($this->request->data['Participant']['id']);
 			$this->request->data[0]['ids'] = implode(",", $ids);
 			
+			$hook_link = $this->hook('initial_display');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
 		}else if(isset($this->request->data[0]['ids']) && strlen($this->request->data[0]['ids'])){
 			//save
 			$participants = $this->Participant->find('all', array('conditions' => array('Participant.id' => explode(",", $this->request->data[0]['ids']))));
@@ -336,12 +341,21 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			//fake participant to validate
 			AppController::removeEmptyValues($this->request->data['Participant']);
 			$this->Participant->set($this->request->data);
-			if($this->Participant->validates()){
-				$ids = explode(",", $this->request->data[0]['ids']);
+			$submitted_data_validates = $this->Participant->validates();
+			$this->request->data = $this->Participant->data	;	
+				
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
+			if($submitted_data_validates){
+				$ids = explode(",", $this->request->data[0]['ids']);			
 				foreach($ids as $id){
 					$this->Participant->id = $id;
 					$this->Participant->save($this->request->data['Participant'], array('validate' => false, 'fieldList' => array_keys($this->request->data['Participant'])));
 				}
+				
 				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 				$batch_set_data = array('BatchSet' => array(
@@ -350,6 +364,12 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 				));
 				$batch_set_model->check_writable_fields = false;
 				$batch_set_model->saveWithIds($batch_set_data, $ids);
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
 				$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 			}
 			
