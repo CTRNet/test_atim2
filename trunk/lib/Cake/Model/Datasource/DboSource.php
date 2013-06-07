@@ -141,7 +141,10 @@ class DboSource extends DataSource {
  *
  * @var integer Maximum number of queries in the queries log.
  */
-	protected $_queriesLogMax = 200;
+	//ATiM start---------
+	//protected $_queriesLogMax = 200;
+	protected $_queriesLogMax = 500;
+	//ATiM end---------
 
 /**
  * Caches serialized results of executed queries
