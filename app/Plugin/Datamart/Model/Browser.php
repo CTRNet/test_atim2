@@ -1652,6 +1652,9 @@ class Browser extends DatamartAppModel {
 	}
 	
 	function buildDrillDownIfNeeded($data, &$node_id){
+		if($node_id == 0){
+			return;
+		}
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult');
 		$parent = $browsing_result_model->find('first', array('conditions' => array("BrowsingResult.id" => $node_id)));
 		if(isset($data[$parent['DatamartStructure']['model']]) && isset($data['Browser'])){
