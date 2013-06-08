@@ -212,6 +212,7 @@ class BatchSetsController extends DatamartAppController {
 		if($is_generic){
 			$target_batch_set_id = 0;
 		}
+		$browsing_result = null;
 		if(!$target_batch_set_id){
 			// Create new batch set
 			if(array_key_exists('node', $this->request->data)) {
@@ -331,10 +332,15 @@ class BatchSetsController extends DatamartAppController {
 	    		// remove from SAVED batch set
 	    		$this->BatchId->delete( $array['id'] );
 	    	}
-	    
+			
 	   	 	//merging with the new ones
 	   	 	if(is_array($this->request->data[ $model ][ $lookup_key_name ])){
 	   	 		$batch_set_ids = array_merge($this->request->data[ $model ][ $lookup_key_name ], $batch_set_ids);
+			} else if($this->request->data[ $model ][ $lookup_key_name ] == 'all' && array_key_exists('node', $this->request->data)) {	
+				if(!$browsing_result) {
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				}					
+				$batch_set_ids = array_merge(explode(",", $browsing_result['BrowsingResult']['id_csv']), $batch_set_ids);				
 	   	 	}else{
 	   	 		$batch_set_ids = array_merge(explode(",", $this->request->data[ $model ][ $lookup_key_name ]), $batch_set_ids);
 	   	 	}
@@ -417,6 +423,7 @@ class BatchSetsController extends DatamartAppController {
 		$this->set('user_batchsets', $user_batchsets);
 		
 		$this->set( 'atim_menu_variables', array( 'Param.Type_Of_List'=>'user' ) );
+		$this->set('atim_menu', $this->Menus->get('/Datamart/BatchSets/index/'));
 		$this->Structures->set('querytool_batch_set');
 		
 		if(!empty($this->request->data)) {
