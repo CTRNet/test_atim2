@@ -705,22 +705,12 @@ INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `f
 ((SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster'), (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster'), 1, 1, 'treatment_master_id');
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id IN (SELECT structures.id FROM structures INNER JOIN treatment_extend_controls ON treatment_extend_controls.detail_form_alias = structures.alias);
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add missing value to structure_value_domains models  # (no issue)
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("TreatmentExtendMaster", "treatment precisions");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="models"), (SELECT id FROM structure_permissible_values WHERE value="TreatmentExtendMaster" AND language_alias="treatment precisions"), "", "1");
 
 
 
