@@ -3,6 +3,7 @@ class ReportsController extends DatamartAppController {
 	var $uses = array(
 		"Datamart.Report",
 		"Datamart.DatamartStructure",
+		"Datamart.BrowsingResult",
 		"Structure");
 
 	var $paginate = array('Report' => array('limit' => pagination_amount , 'order' => 'Report.name ASC'));
@@ -69,7 +70,8 @@ class ReportsController extends DatamartAppController {
 				$criteria_to_build_report[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;			
 			} else {
 				// Get criteria from search form
-				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;			
+				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;
+				// Manage data from csv file			
 				foreach($criteria_to_build_report as $model => $fields_parameters) {
 					foreach($fields_parameters as $field => $parameters) {
 						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
@@ -83,7 +85,35 @@ class ReportsController extends DatamartAppController {
 							unset($criteria_to_build_report[$model][$field]);
 						}
 					}
-				}				
+				}	
+				// Manage data when launched from databrowser node having a nbr of elements > $display_limit
+				if(array_key_exists('node', $criteria_to_build_report)) {
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $criteria_to_build_report['node']['id'])));
+					$datamart_structure = $browsing_result['DatamartStructure'];
+					if(empty($browsing_result) || empty($datamart_structure)) {
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
+					// Get model and key name
+					$model = null;
+					$lookup_key_name = null;
+					if($datamart_structure['control_master_model']){
+						if(isset($criteria_to_build_report[$datamart_structure['model']])){
+							$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+							$model = $datamart_structure['model'];
+							$lookup_key_name = $model_instance->primaryKey;
+						}else{
+							$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
+							$model = $datamart_structure['control_master_model'];
+							$lookup_key_name = $model_instance->primaryKey;
+						}	
+					}else{
+						$model = $datamart_structure['model'];
+						$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+						$lookup_key_name = $model_instance->primaryKey;
+					}
+					if($criteria_to_build_report[ $model ][ $lookup_key_name ] == 'all') $criteria_to_build_report[ $model ][ $lookup_key_name ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				}
+				// Load search criteria in session
 				$_SESSION['report']['search_criteria'] = $criteria_to_build_report;
 			}
 		
