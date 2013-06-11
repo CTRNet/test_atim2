@@ -63,11 +63,13 @@ class ReportsController extends DatamartAppController {
 			if($csv_creation) {
 				// Get criteria from session data for csv 
 				$criteria_to_build_report = $_SESSION['report']['search_criteria'];
-				// Take care about selected items
-				if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				$ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
-				if(empty($ids)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-				$criteria_to_build_report[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;			
+				if($LinkedModel) {
+					// Take care about selected items
+					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					$ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
+					if(empty($ids)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					$criteria_to_build_report[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
+				}		
 			} else {
 				// Get criteria from search form
 				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;
