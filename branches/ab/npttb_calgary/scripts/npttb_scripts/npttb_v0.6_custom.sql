@@ -538,9 +538,10 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`,
  ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'laboratory staff'), "jen chan", "Jen Chan", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
 
 INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`) VALUES
- ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), 'alberta childrens hospital', 'Alberta Childrens Hospital', '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
- ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), "weiss lab", "Weiss Lab", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
- 
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), 'ACH - Pathology Departmen', 'ACH - Pathology Department', '1', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), "FMC - Pathology Department", "FMC - Pathology Department", '2', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen supplier departments'), "weiss lab", "Weiss Lab", '3', '1', '2013-05-08 10:45:09', '1', '2013-05-08 10:45:09', '1');
+
  
 /*
 	------------------------------------------------------------
@@ -601,3 +602,82 @@ REPLACE INTO `i18n` (`id`, `en`) VALUES
 ('npttb urine additive', 'Urine Additive'),
 ('npttb NaAz', 'NaAz'),
 ('npttb none', 'None');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2615 - Change Acquisition Label
+	------------------------------------------------------------
+*/
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('acquisition_label', 'SM Number');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2613 - Tissue Type
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `sd_spe_tissues` ADD COLUMN `npttb_tissue_type` VARCHAR(45) NULL DEFAULT NULL AFTER `tissue_weight_unit` ;
+ALTER TABLE `sd_spe_tissues_revs` ADD COLUMN `npttb_tissue_type` VARCHAR(45) NULL DEFAULT NULL AFTER `tissue_weight_unit` ;
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npttb_tissue_type", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_tissue_type"), (SELECT id FROM structure_permissible_values WHERE value="normal" AND language_alias="normal"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_tissue_type"), (SELECT id FROM structure_permissible_values WHERE value="malignant" AND language_alias="malignant"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_tissue_type"), (SELECT id FROM structure_permissible_values WHERE value="benign" AND language_alias="benign"), "3", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'npttb_tissue_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_tissue_type') , '0', '', '', '', 'npttb tissue type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='npttb_tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb tissue type' AND `language_tag`=''), '1', '442', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb tissue type', 'Tissue Type');
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2611 - Treatment Facility
+	------------------------------------------------------------
+*/
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='facility' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="Building A" AND language_alias="building a");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='facility' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="Building B" AND language_alias="building b");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("ACH - Surgical Suite", "ACH - Surgical Suite");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="ACH - Surgical Suite" AND language_alias="ACH - Surgical Suite"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("FMC - Main Surgical Suite", "FMC - Main Surgical Suite");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="FMC - Main Surgical Suite" AND language_alias="FMC - Main Surgical Suite"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("McCaig Day Surgery", "McCaig Day Surgery");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="McCaig Day Surgery" AND language_alias="McCaig Day Surgery"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("McCaig Minor Surgery", "McCaig Minor Surgery");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="McCaig Minor Surgery" AND language_alias="McCaig Minor Surgery"), "6", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "7", "1");
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2614 - Hide Lot Number
+	------------------------------------------------------------
+*/
+
+-- ad_spec_tubes
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ad_spec_tubes_incl_ml_vol
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ad_der_tubes_incl_ml_vol
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ad_der_tubes_incl_ul_vol_and_conc
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ad_der_cell_tubes_incl_ml_vol
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_cell_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ad_spec_tubes_incl_ul_vol
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ad_der_tubes_incl_ul_vol
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
