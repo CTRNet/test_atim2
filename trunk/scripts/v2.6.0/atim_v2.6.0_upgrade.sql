@@ -712,6 +712,26 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id IN (SELECT str
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("TreatmentExtendMaster", "treatment precisions");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="models"), (SELECT id FROM structure_permissible_values WHERE value="TreatmentExtendMaster" AND language_alias="treatment precisions"), "", "1");
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- ...  # (...)
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('date in excel format','Date in excel format','Date au format excel'),
+('date_accuracy_value_c','Exact','Exacte'),
+('date_accuracy_value_y','±Year','±Année'),
+('date_accuracy_value_m','Year','Année'),
+('date_accuracy_value_d','Month','Mois'),
+('date_accuracy_value_h','Day','Jour'),
+('date_accuracy_value_i','Hour','Heure');
+
+
+
+
+
+
+
 
 
 
