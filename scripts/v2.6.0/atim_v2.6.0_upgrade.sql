@@ -713,7 +713,7 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("Treatme
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="models"), (SELECT id FROM structure_permissible_values WHERE value="TreatmentExtendMaster" AND language_alias="treatment precisions"), "", "1");
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- ...  # (...)
+-- date format export in csv to be excel complaint  #2595
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr) 
@@ -726,14 +726,9 @@ VALUES
 ('date_accuracy_value_h','Day','Jour'),
 ('date_accuracy_value_i','Hour','Heure');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- hide field type in csv popup
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
+UPDATE structure_formats SET `flag_add`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='csv_popup') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='csv_export_type') AND `flag_confidential`='0');
 

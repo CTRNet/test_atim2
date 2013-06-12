@@ -8,12 +8,19 @@ class CsvController extends DatamartAppController {
 	 * Either generates the CSV popup or the CSV file.
 	 */
 	function csv(){
+
 		AppController::atimSetCookie(false);
 		if(isset($this->passedArgs['popup'])){
 			//generates CSV popup
 			$this->Structures->set('csv_popup');
 			$this->render('popup');
 		}else{
+			if(array_key_exists('Config', $this->request->data)) {
+				$config = array_merge($this->request->data['Config'], $this->request->data[0]);
+				unset($this->request->data[0]);
+				unset($this->request->data['Config']);
+				$this->configureCsv($config);
+			}
 			$plugin = $this->passedArgs['plugin'];
 			$model_name = $this->passedArgs['model'];			//The model to use to fetch the data
 			$model_pkey = $this->passedArgs['modelPkey'];		//The key to use to fetch the data
