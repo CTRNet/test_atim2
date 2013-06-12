@@ -61,6 +61,12 @@ class ReportsController extends DatamartAppController {
 			// Set criteria to build report/csv
 			$criteria_to_build_report = null;
 			if($csv_creation) {
+				if(array_key_exists('Config', $this->request->data)) {
+					$config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data)? $this->request->data[0] : array()));
+					unset($this->request->data[0]);
+					unset($this->request->data['Config']);
+					$this->configureCsv($config);
+				}
 				// Get criteria from session data for csv 
 				$criteria_to_build_report = $_SESSION['report']['search_criteria'];
 				if($LinkedModel) {
@@ -161,15 +167,16 @@ class ReportsController extends DatamartAppController {
 						$linked_datamart_structure['DatamartStructure']['plugin'],
 						$linked_datamart_structure['DatamartStructure']['model'], 
 						$LinkedModel->primaryKey, 
+						null, 
+						null, 
+						null, 
 						null,
-						$linked_datamart_structure['DatamartStructure']['model'], 
-						$LinkedModel->primaryKey);
-					foreach($linked_datamart_structure_actions as $key => $new_action) {
-						if($new_action['value'] && strpos($new_action['value'], 'Datamart/Csv/csv')) unset($linked_datamart_structure_actions[$key]);
-					}
+						false);
+					$csv_action = "javascript:setCsvPopup('Datamart/Reports/manageReport/$report_id/1/');";
 					$linked_datamart_structure_actions[] = array(
-						'value' => "Datamart/Reports/manageReport/$report_id/1/",
-						'label' => __('export as CSV file (comma-separated values)')
+							'value' => '0',
+							'label' => __('export as CSV file (comma-separated values)'),
+							'value' => sprintf($csv_action, 0)
 					);
 					$linked_datamart_structure_actions[] = array(
 						'label'	=> __("initiate browsing"),

@@ -16,7 +16,7 @@ class CsvController extends DatamartAppController {
 			$this->render('popup');
 		}else{
 			if(array_key_exists('Config', $this->request->data)) {
-				$config = array_merge($this->request->data['Config'], $this->request->data[0]);
+				$config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data)? $this->request->data[0] : array()));
 				unset($this->request->data[0]);
 				unset($this->request->data['Config']);
 				$this->configureCsv($config);
