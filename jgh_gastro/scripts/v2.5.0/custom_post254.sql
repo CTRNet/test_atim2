@@ -61,3 +61,31 @@ ALTER TABLE  qc_gastro_ed_cap_report_lip_oral_revs MODIFY  `version_id` int(11) 
 ALTER TABLE  qc_gastro_ed_cap_report_nas_sinus_revs MODIFY  `version_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE  qc_gastro_ed_cap_report_pharynx_revs MODIFY  `version_id` int(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE  qc_gastro_ed_cap_report_sal_glands_revs MODIFY  `version_id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------------------------------------------------------
+-- Add serum + ctad to blood type 2013-06-16
+-- --------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("serum", "serum");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="serum"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("CTAD", "CTAD");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="CTAD" AND language_alias="CTAD"), "4", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('CTAD','CTAD','CTAD');
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '5288' WHERE version_number = '2.5.4';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
