@@ -1,12 +1,6 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 
-		
-
-	// -------------------------------------------------------------------------------------------------------------------
-	// FUNCTIONS ADDED TO THE CONTROLLER AS EXAMPLE
-	// -------------------------------------------------------------------------------------------------------------------
-	
 	function bankActiviySummary($parameters) {
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
@@ -601,4 +595,360 @@ class ReportsControllerCustom extends ReportsController {
 	
 	
 
+	function tissueDNASummary($parameters) {
+		
+		// 1- Set Search Criteria
+		
+		$criteria_array = array();
+		if(array_key_exists('Participant', $parameters) && array_key_exists('id', $parameters['Participant'])) {
+			// From databrowser or batchset
+			$criteria_array[] = "Participant.id IN ('".implode("','", array_filter($parameters['Participant']['id']))."')";
+		} else if(array_key_exists('ViewAliquot', $parameters) && array_key_exists('aliquot_master_id', $parameters['ViewAliquot'])) {
+			// From databrowser or batchset
+			$criteria_array[] = "AliquotMaster_TissueBlock.id IN ('".implode("','", array_filter($parameters['ViewAliquot']['aliquot_master_id']))."')";
+		} else if(array_key_exists('AliquotMaster', $parameters) && array_key_exists('id', $parameters['AliquotMaster'])) {
+			// From databrowser or batchset
+			$criteria_array[] = "AliquotMaster_TissueBlock.id IN ('".implode("','", array_filter($parameters['AliquotMaster']['id']))."')";
+		} else {
+			$criteria_array = array();
+			if(array_key_exists('ViewCollection', $parameters)) {
+				if(array_key_exists('participant_identifier', $parameters['ViewCollection'])) {
+					$participant_identifiers = array_filter($parameters['ViewCollection']['participant_identifier']);			
+					if($participant_identifiers) $criteria_array[] = "Participant.participant_identifier IN ('".implode("','", $participant_identifiers)."')";
+				} else if(array_key_exists('participant_identifier_start', $parameters['ViewCollection'])) {
+					$tmp_conditions = array();
+					if(strlen($parameters['ViewCollection']['participant_identifier_start'])) $tmp_conditions[] = "Participant.participant_identifier >= '".$parameters['ViewCollection']['participant_identifier_start']."'";
+					if(strlen($parameters['ViewCollection']['participant_identifier_end'])) $tmp_conditions[] = "Participant.participant_identifier <= '".$parameters['ViewCollection']['participant_identifier_end']."'";
+					if($tmp_conditions) $criteria_array[] = implode(" AND ",$tmp_conditions);
+				}
+			}
+			if(array_key_exists('ViewCollection', $parameters)) {
+				if(array_key_exists('misc_identifier_value', $parameters['ViewCollection'])) {
+					$misc_identifier_values = array_filter($parameters['ViewCollection']['misc_identifier_value']);pr($misc_identifier_values);
+					if($misc_identifier_values) $criteria_array[] = "MiscIdentifier.misc_identifier_value IN ('".implode("','", $misc_identifier_values)."')";
+				} else if(array_key_exists('misc_identifier_value_start', $parameters['ViewCollection'])) {
+					return array(
+						'header' => null,
+						'data' => null,
+						'columns_names' => null,
+						'error_msg' => 'no bank identifier search based on range defintion is supported');
+				}
+			}
+			if(array_key_exists('AliquotMaster', $parameters)) {
+				if(array_key_exists('aliquot_label', $parameters['AliquotMaster'])) {
+					$aliquot_label_values = array_filter($parameters['AliquotMaster']['aliquot_label']);
+					if($aliquot_label_values) $criteria_array[] = "AliquotMaster_TissueBlock.aliquot_label IN ('".implode("','", $aliquot_label_values)."')";
+				} else if(array_key_exists('aliquot_label_start', $parameters['AliquotMaster'])) {	
+					return array(
+						'header' => null,
+						'data' => null,
+						'columns_names' => null,
+						'error_msg' => 'no aliquot label search based on range defintion is supported');
+				}
+			}
+		}
+		if(empty($criteria_array)) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'at least one criteria has to be entered');
+		}
+		
+		$criteria = implode(" AND ", $criteria_array);
+		
+		// 2- Search data
+		
+		$tisue_control_id = null;
+		$tisue_tube_control_id = null;
+		$tisue_block_control_id = null;
+		$dna_control_id = null;
+		$dna_tube_control_id = null;
+		$rna_control_id = null;
+		$rna_tube_control_id = null;
+		$res_control_ids = $this->Report->tryCatchQuery("
+			SELECT sample_controls.id, sample_controls.sample_type, aliquot_controls.id, aliquot_controls.aliquot_type
+			FROM aliquot_controls INNER JOIN sample_controls ON sample_controls.id = aliquot_controls.sample_control_id
+			WHERE aliquot_controls.flag_active = 1
+			AND sample_controls.sample_type IN ('DNA','Tissue', 'RNA') AND aliquot_controls.aliquot_type IN ('block','tube');");
+		foreach($res_control_ids as $new_control) {
+			switch($new_control['sample_controls']['sample_type'].$new_control['aliquot_controls']['aliquot_type']) {
+				case 'tissueblock':
+					$tisue_control_id = $new_control['sample_controls']['id'];
+					$tisue_block_control_id = $new_control['aliquot_controls']['id'];
+					break;
+				case 'tissuetube':
+					$tisue_tube_control_id = $new_control['aliquot_controls']['id'];
+					break;
+				case 'dnatube':
+					$dna_control_id = $new_control['sample_controls']['id'];
+					$dna_tube_control_id = $new_control['aliquot_controls']['id'];
+					break;
+				case 'rnatube':
+					$rna_control_id = $new_control['sample_controls']['id'];
+					$rna_tube_control_id = $new_control['aliquot_controls']['id'];
+					break;
+			}
+		}
+		
+		// Get tissue block data
+		$all_data = $this->Report->tryCatchQuery("
+			SELECT
+			Participant.id AS participant_id,
+			Participant.participant_identifier,
+				
+			Collection.id AS collection_id,
+			Collection.qc_lady_specimen_type_precision,
+			MiscIdentifier.identifier_value AS misc_identifier_value,
+				
+			AliquotMaster_TissueBlock.id AS block_aliquot_master_id,
+			AliquotMaster_TissueBlock.aliquot_label AS block_aliquot_label,
+			
+			AliquotDetail_TissueTube.aliquot_master_id AS tissue_tube_aliquot_master_id,
+			AliquotDetail_TissueTube.qc_lady_storage_solution,
+			AliquotDetail_TissueTube.qc_lady_storage_method,
+				
+			AliquotReviewDetail.aliquot_review_master_id,
+			AliquotReviewDetail.tumor_percentage,
+			AliquotReviewDetail.cellularity_percentage_itz,
+			AliquotReviewDetail.necrosis_percentage_itz,
+			AliquotReviewDetail.stroma_percentage_itz
+				
+			FROM collections Collection
+			INNER JOIN aliquot_masters AS AliquotMaster_TissueBlock ON AliquotMaster_TissueBlock.collection_id = Collection.id AND AliquotMaster_TissueBlock.deleted <> 1 AND AliquotMaster_TissueBlock.aliquot_control_id = $tisue_block_control_id
+	
+			LEFT JOIN realiquotings ON AliquotMaster_TissueBlock.id = realiquotings.child_aliquot_master_id AND realiquotings.deleted <> 1
+			LEFT JOIN aliquot_masters AS AliquotMaster_TissueTube ON AliquotMaster_TissueTube.id = realiquotings.parent_aliquot_master_id AND AliquotMaster_TissueTube.deleted <> 1 AND AliquotMaster_TissueTube.aliquot_control_id = $tisue_tube_control_id
+			LEFT JOIN ad_tubes AS AliquotDetail_TissueTube ON AliquotDetail_TissueTube.aliquot_master_id = AliquotMaster_TissueTube.id
+				
+			LEFT JOIN aliquot_review_masters AS AliquotReviewMaster ON AliquotReviewMaster.aliquot_master_id = AliquotMaster_TissueBlock.id AND AliquotReviewMaster.deleted <> 1
+			LEFT JOIN qc_lady_ar_qcrocs AS AliquotReviewDetail ON AliquotReviewDetail.aliquot_review_master_id = AliquotReviewMaster.id
+				
+			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+			LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
+	
+			WHERE $criteria
+	
+		ORDER BY MiscIdentifier.identifier_value, Collection.id, AliquotMaster_TissueBlock.id;");
+	
+		$tempty_issues_blocks_subarray = array(
+			'AliquotMaster' => array(
+					'aliquot_label' => ''),
+			'ViewCollection' => array(
+					'misc_identifier_value' =>  '',
+					'participant_identifier' => '',
+					'qc_lady_specimen_type_precision' => ''),
+			'AliquotDetail' => array(
+					'tissue_tube_aliquot_master_id' => null,
+					'qc_lady_storage_solution' => '',
+					'qc_lady_storage_method' => ''),
+			'AliquotReviewDetail' => array(
+					'aliquot_review_master_id' => null,
+					'tumor_percentage' => '',
+					'necrosis_percentage_itz' => '',
+					'cellularity_percentage_itz' => '',
+					'stroma_percentage_itz' => '')
+		);
+		$tissues_blocks_data = array();
+		$tissue_blocks_having_many_reviews = array();
+		$tissue_blocks_having_many_aliquots_source = array();
+		foreach($all_data as $new_row) {
+			$block_aliquot_master_id = $new_row['AliquotMaster_TissueBlock']['block_aliquot_master_id'];
+			if(!array_key_exists($block_aliquot_master_id, $tissues_blocks_data)) {
+				$tissues_blocks_data[$block_aliquot_master_id] = $tempty_issues_blocks_subarray;
+				$tissues_blocks_data[$block_aliquot_master_id]['AliquotMaster']['aliquot_label'] = $new_row['AliquotMaster_TissueBlock']['block_aliquot_label'];
+				$tissues_blocks_data[$block_aliquot_master_id]['ViewCollection']['misc_identifier_value'] = $new_row['MiscIdentifier']['misc_identifier_value'];
+				$tissues_blocks_data[$block_aliquot_master_id]['ViewCollection']['participant_identifier'] = $new_row['Participant']['participant_identifier'];
+				$tissues_blocks_data[$block_aliquot_master_id]['ViewCollection']['qc_lady_specimen_type_precision'] = $new_row['Collection']['qc_lady_specimen_type_precision'];			
+			}
+			
+			if($new_row['AliquotDetail_TissueTube']['tissue_tube_aliquot_master_id']) {			
+				if(is_null($tissues_blocks_data[$block_aliquot_master_id]['AliquotDetail']['tissue_tube_aliquot_master_id'])) {
+					$tissues_blocks_data[$block_aliquot_master_id]['AliquotDetail'] = array(
+						'tissue_tube_aliquot_master_id' => $new_row['AliquotDetail_TissueTube']['tissue_tube_aliquot_master_id'],
+						'qc_lady_storage_solution' => $new_row['AliquotDetail_TissueTube']['qc_lady_storage_solution'],
+						'qc_lady_storage_method' => $new_row['AliquotDetail_TissueTube']['qc_lady_storage_method']);
+				} else if($tissues_blocks_data[$block_aliquot_master_id]['AliquotDetail']['tissue_tube_aliquot_master_id'] != $new_row['AliquotDetail_TissueTube']['tissue_tube_aliquot_master_id']) {
+					$tissue_blocks_having_many_aliquots_source[] = $new_row['AliquotMaster_TissueBlock']['block_aliquot_label'];
+				}			
+			}
+			
+			if($new_row['AliquotReviewDetail']['aliquot_review_master_id']) {
+				if(!$tissues_blocks_data[$block_aliquot_master_id]['AliquotReviewDetail']['aliquot_review_master_id']) {
+					$tissues_blocks_data[$block_aliquot_master_id]['AliquotReviewDetail'] = array(
+						'aliquot_review_master_id' => $new_row['AliquotReviewDetail']['aliquot_review_master_id'],
+						'tumor_percentage' => $new_row['AliquotReviewDetail']['tumor_percentage'],
+						'necrosis_percentage_itz' => $new_row['AliquotReviewDetail']['necrosis_percentage_itz'],
+						'cellularity_percentage_itz' => $new_row['AliquotReviewDetail']['cellularity_percentage_itz'],
+						'stroma_percentage_itz' => $new_row['AliquotReviewDetail']['stroma_percentage_itz']);
+				} else if($tissues_blocks_data[$block_aliquot_master_id]['AliquotReviewDetail']['aliquot_review_master_id'] != $new_row['AliquotReviewDetail']['aliquot_review_master_id']) {
+					$tissue_blocks_having_many_reviews[] = $new_row['AliquotMaster_TissueBlock']['block_aliquot_label'];
+				}
+			}
+		}
+		if($tissue_blocks_having_many_reviews) AppController::addWarningMsg(__('some blocks have been attached to many reviews').' - '.str_replace('%s', '"'.implode('", "', $tissue_blocks_having_many_reviews).'"', __('see # %s')));
+		if($tissue_blocks_having_many_aliquots_source) AppController::addWarningMsg(__('some blocks are linked to many aliquots source').' - '.str_replace('%s', '"'.implode('", "', $tissue_blocks_having_many_aliquots_source).'"', __('see # %s')));
+			
+		// Get DNA/RNA samples volumes sorted by sample 		
+		$dna_rna_sample_data = $this->Report->tryCatchQuery("
+			SELECT
+			AliquotMaster_TissueBlock.id AS block_aliquot_master_id,
+			SampleMaster_DnaRna.id dna_rna_sample_master_id,
+			AliquotMaster_DnaRna.current_volume
+			FROM aliquot_masters AS AliquotMaster_TissueBlock
+			INNER JOIN source_aliquots SourceAliquot_BlockToDnaRna ON SourceAliquot_BlockToDnaRna.aliquot_master_id = AliquotMaster_TissueBlock.id AND SourceAliquot_BlockToDnaRna.deleted <> 1
+			INNER JOIN sample_masters AS SampleMaster_DnaRna ON SampleMaster_DnaRna.id = SourceAliquot_BlockToDnaRna.sample_master_id AND SampleMaster_DnaRna.deleted <> 1 AND SampleMaster_DnaRna.sample_control_id IN ($rna_control_id, $dna_control_id) 
+			INNER JOIN aliquot_masters AS AliquotMaster_DnaRna ON AliquotMaster_DnaRna.sample_master_id = SampleMaster_DnaRna.id AND AliquotMaster_DnaRna.deleted <> 1 AND AliquotMaster_DnaRna.in_stock != 'no'
+			WHERE AliquotMaster_TissueBlock.id IN (".implode(',',array_keys($tissues_blocks_data)).")
+			ORDER BY SampleMaster_DnaRna.id;");
+		$dna_rna_samples_volumes = array();
+		foreach($dna_rna_sample_data as $new_dna_rna) {
+			if($new_dna_rna['AliquotMaster_DnaRna']['current_volume']) {
+				if(!isset($dna_rna_samples_volumes[$new_dna_rna['SampleMaster_DnaRna']['dna_rna_sample_master_id']])) $dna_rna_samples_volumes[$new_dna_rna['SampleMaster_DnaRna']['dna_rna_sample_master_id']] = 0;
+				$dna_rna_samples_volumes[$new_dna_rna['SampleMaster_DnaRna']['dna_rna_sample_master_id']] += $new_dna_rna['AliquotMaster_DnaRna']['current_volume'];
+			}
+		}
+		
+		// DNA/RNA QC
+		$dna_rna_qc_data = $this->Report->tryCatchQuery("
+			SELECT
+			AliquotMaster_TissueBlock.id AS block_aliquot_master_id,
+			SampleMaster_DnaRna.id dna_rna_sample_master_id,
+			SampleMaster_DnaRna.sample_code,
+			SampleControl_DnaRna.sample_type,
+				
+			QualityCtrl_DnaRna.type,
+			QualityCtrl_DnaRna.qc_lady_rin_score,
+			QualityCtrl_DnaRna.qc_lady_260_230_score,
+			QualityCtrl_DnaRna.qc_lady_260_280_score,
+			QualityCtrl_DnaRna.concentration,
+			QualityCtrl_DnaRna.concentration_unit
+			
+			FROM aliquot_masters AS AliquotMaster_TissueBlock
+			INNER JOIN source_aliquots SourceAliquot_BlockToDnaRna ON SourceAliquot_BlockToDnaRna.aliquot_master_id = AliquotMaster_TissueBlock.id AND SourceAliquot_BlockToDnaRna.deleted <> 1
+			INNER JOIN sample_masters AS SampleMaster_DnaRna ON SampleMaster_DnaRna.id = SourceAliquot_BlockToDnaRna.sample_master_id AND SampleMaster_DnaRna.deleted <> 1 AND SampleMaster_DnaRna.sample_control_id IN ($rna_control_id, $dna_control_id)
+			INNER JOIN sample_controls AS SampleControl_DnaRna ON SampleControl_DnaRna.id = SampleMaster_DnaRna.sample_control_id
+			INNER JOIN quality_ctrls AS QualityCtrl_DnaRna ON QualityCtrl_DnaRna.sample_master_id = SampleMaster_DnaRna.id AND QualityCtrl_DnaRna.deleted <> 1
+			WHERE AliquotMaster_TissueBlock.id IN (".implode(',',array_keys($tissues_blocks_data)).") AND QualityCtrl_DnaRna.type IN ('bioanalyzer','Nanodrop','PicoGreen')
+			ORDER BY AliquotMaster_TissueBlock.id, SampleMaster_DnaRna.id, QualityCtrl_DnaRna.date;");
+		$all_block_dna_rna_qcs = array();
+		foreach($dna_rna_qc_data as $new_qc_data) {
+			$block_aliquot_master_id = $new_qc_data['AliquotMaster_TissueBlock']['block_aliquot_master_id'];
+			$dna_rna_sample_master_id = $new_qc_data['SampleMaster_DnaRna']['dna_rna_sample_master_id'];
+			$dna_rna_sample_type = $new_qc_data['SampleControl_DnaRna']['sample_type'];
+			
+			if(!isset($all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id])) {
+				$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id] = array(
+					'next_nano_drop_key' => '0', 
+					'next_pico_green_bioanalyzer_key' => '0'
+				);
+			}
+			
+			$calculated_quantity = '-';
+			if(array_key_exists($dna_rna_sample_master_id, $dna_rna_samples_volumes) && strlen($new_qc_data['QualityCtrl_DnaRna']['concentration'])) {
+				switch($new_qc_data['QualityCtrl_DnaRna']['concentration_unit']) {
+					case 'ug/ul':
+						$calculated_quantity = $new_qc_data['QualityCtrl_DnaRna']['concentration']*$dna_rna_samples_volumes[$dna_rna_sample_master_id];
+						break;
+					case 'ng/ul':
+						$calculated_quantity = $new_qc_data['QualityCtrl_DnaRna']['concentration']*$dna_rna_samples_volumes[$dna_rna_sample_master_id]/1000;
+						break;
+					case 'pg/ul':
+						$calculated_quantity = $new_qc_data['QualityCtrl_DnaRna']['concentration']*$dna_rna_samples_volumes[$dna_rna_sample_master_id]/1000000;
+						break;
+					default:
+						$calculated_quantity = __('concentration unit missing');
+				}
+			}
+			switch($new_qc_data['QualityCtrl_DnaRna']['type']) {
+				case 'Nanodrop':
+					$next_nano_drop_key = $all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['next_nano_drop_key'];
+					$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['next_nano_drop_key'] += 1;
+					if($dna_rna_sample_type == 'dna') {
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_nano_drop_key]['qc_lady_qc_dna_sample_code'] = $new_qc_data['SampleMaster_DnaRna']['sample_code'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_nano_drop_key]['qc_lady_qc_nano_drop_dna_260_280'] = $new_qc_data['QualityCtrl_DnaRna']['qc_lady_260_280_score'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_nano_drop_key]['qc_lady_qc_nano_drop_dna_yield_ug'] = $calculated_quantity;
+					} else if($dna_rna_sample_type == 'rna'){
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_nano_drop_key]['qc_lady_qc_rna_sample_code'] = $new_qc_data['SampleMaster_DnaRna']['sample_code'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_nano_drop_key]['qc_lady_qc_nano_drop_rna_260_280'] = $new_qc_data['QualityCtrl_DnaRna']['qc_lady_260_280_score'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_nano_drop_key]['qc_lady_qc_nano_drop_rna_yield_ug'] = $calculated_quantity;
+					}
+					break;
+				case 'PicoGreen':
+				case 'bioanalyzer':
+					$next_pico_green_bioanalyzer_key = $all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['next_pico_green_bioanalyzer_key'];
+					$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['next_pico_green_bioanalyzer_key'] += 1;
+					if($dna_rna_sample_type == 'dna' && $new_qc_data['QualityCtrl_DnaRna']['type'] == 'PicoGreen') {
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_pico_green_bioanalyzer_key]['qc_lady_qc_dna_sample_code'] = $new_qc_data['SampleMaster_DnaRna']['sample_code'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_pico_green_bioanalyzer_key]['qc_lady_qc_pico_green_dna_yield_ug'] = $calculated_quantity;
+					} else if($dna_rna_sample_type == 'rna' && $new_qc_data['QualityCtrl_DnaRna']['type'] == 'bioanalyzer'){
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_pico_green_bioanalyzer_key]['qc_lady_qc_rna_sample_code'] = $new_qc_data['SampleMaster_DnaRna']['sample_code'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_pico_green_bioanalyzer_key]['qc_lady_qc_bioanalyzer_rna_rin'] = $new_qc_data['QualityCtrl_DnaRna']['qc_lady_rin_score'];
+						$all_block_dna_rna_qcs[$block_aliquot_master_id][$dna_rna_sample_type][$dna_rna_sample_master_id]['data'][$next_pico_green_bioanalyzer_key]['qc_lady_qc_bioanalyzer_rna_yield_ug'] = $calculated_quantity;
+					}
+					break;	
+			}
+		}	
+		foreach($all_block_dna_rna_qcs as &$new_block_dna_rna) {
+			$new_block_dna_rna['formated_qcs'] = array();
+			foreach(array('dna','rna') as $new_sample_type) {
+				$formated_qc_key = 0 ;
+				if(isset($new_block_dna_rna[$new_sample_type])) {
+					foreach($new_block_dna_rna[$new_sample_type] as $tmp_1) {
+						foreach($tmp_1['data'] as $new_sample_type_qc) {
+							$new_block_dna_rna['formated_qcs'][$formated_qc_key] = array_merge($new_sample_type_qc, (isset($new_block_dna_rna['formated_qcs'][$formated_qc_key])? $new_block_dna_rna['formated_qcs'][$formated_qc_key] : array()));
+							$formated_qc_key++;
+						}
+					}
+				}
+				unset($new_block_dna_rna[$new_sample_type]);
+			}
+		}
+		
+		// Merge Block data and DNA RNA QCs
+		$empty_qc_sub_array = array(
+			'qc_lady_qc_rna_sample_code' => '',
+			'qc_lady_qc_nano_drop_rna_yield_ug' => '',
+			'qc_lady_qc_nano_drop_rna_260_280' => '',
+			'qc_lady_qc_bioanalyzer_rna_yield_ug' => '',
+			'qc_lady_qc_bioanalyzer_rna_rin' => '',
+			'qc_lady_qc_dna_sample_code' => '',
+			'qc_lady_qc_nano_drop_dna_yield_ug' => '',
+			'qc_lady_qc_nano_drop_dna_260_280' => '',
+			'qc_lady_qc_pico_green_dna_yield_ug' => '');
+		
+		$final_data = array();
+		foreach($tissues_blocks_data as $block_aliquot_master_id => $block_data) {
+			if(array_key_exists($block_aliquot_master_id, $all_block_dna_rna_qcs)) {
+				$first_row = true;
+				foreach($all_block_dna_rna_qcs[$block_aliquot_master_id]['formated_qcs'] as $new_qc_data_set) {
+					if($first_row) {
+						$block_data['Generated'] = array_merge($empty_qc_sub_array, $new_qc_data_set);
+						$final_data[] = $block_data;
+					} else {
+						$new_block_data = $tempty_issues_blocks_subarray;
+						$new_block_data['AliquotMaster']['aliquot_label'] = $block_data['AliquotMaster']['aliquot_label'];
+						$new_block_data['Generated'] = array_merge($empty_qc_sub_array, $new_qc_data_set);
+						$final_data[] = $new_block_data;
+					}
+					$first_row = false;
+				}
+			} else {
+				$block_data['Generated'] = $empty_qc_sub_array;
+				$final_data[] = $block_data;
+			}
+		}
+		
+		$array_to_return = array(
+			'header' => null, 
+			'data' => $final_data, 
+			'columns_names' => null,
+			'error_msg' => null);
+		
+		return $array_to_return;		
+	}
+	
+	
+	
+	
 }
