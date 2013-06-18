@@ -156,7 +156,7 @@ UPDATE structure_formats SET `flag_override_label`='1', `language_label`='RAMQ' 
 
 UPDATE `versions` SET branch_build_number = '5204' WHERE version_number = '2.5.4';
 
--- 2013-06-05: New request to support more than 1000 specimens per year.
+-- 2013-06-05: New request linked to specimen # to support more than 1000 specimens per year.
 --    => Current format 13978, 13979, etc
 --    => New format for 2013 13A01, 13A02, and for 2014, etc => 140001
 
@@ -167,3 +167,16 @@ UPDATE structure_validations SET rule = 'custom,/^((((0[0-9])|(1[0-3]))[0-9]{3})
 UPDATE versions SET permissions_regenerated = 0;
 
 UPDATE `versions` SET branch_build_number = '5272' WHERE version_number = '2.5.4';
+
+-- Add Rack - 2013-06-16
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'rack14', 'position', 'integer', 14, NULL, NULL, NULL, 1, 14, 0, 0, 1, 0, 0, 1, 'storage_w_spaces', 'std_racks', 'rack14', 2);
+INSERT INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('rack14', '', 'Rack 14', 'Râtelier 14');
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '5287' WHERE version_number = '2.5.4';
+
+
+
+
