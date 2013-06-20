@@ -147,66 +147,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`,
 '1', '100', 'other', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', 
 '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 
-Nous avons trouvé des dysfonctionnements :
-- Report of preoperative data : ne fonctionne pas, il n'y a rien qui s'affiche
-- Report d'imagerie : manque des données de taille ou de nombre (on a parfois l'un mais pas l'autre) et surtout manque la possibilité d'avoir les examens en ordre chronologique pour pouvoir faire le suivi des lésions.
+-- --------------------------------------------------------------------------------------------------------------
+-- Don't see chemotherapy - hepatobillary in databrowser options
+-- --------------------------------------------------------------------------------------------------------------
 
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-DELETE FROM i18n WHERE id IN ('recurrence localization','recurrence treatment');
-
-
-
-
-
-
-
-
-
-
-
-
-DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_followups' AND `field` LIKe 'qc_hb_recurrence_%');
-DELETE FROM structure_fields WHERE field IN ('qc_hb_recurrence_localization','qc_hb_recurrence_treatment');
--- DELETE FROM structure_permissible_values_custom_controls WHERE name like 'follow-up : %_localization%';
-DELETE FROM structure_value_domains WHERE domain_name like '%qc_nd_follow_up_%_localization%';
-
-
-
-
-
-
-
-
-
-
+UPDATE treatment_controls SET databrowser_label = CONCAT(disease_site, '|', tx_method) WHERE flag_active = 1;

@@ -94,6 +94,7 @@
 								<th colspan="2"><?php echo(__('segment', true))?> I</th>
 								<th colspan="2"><?php echo(__('segment', true))?> II</th>
 								<th colspan="2"><?php echo(__('segment', true))?> III</th>
+								<th colspan="2"><?php echo(__('segment', true))?> IV</th>
 								<th colspan="2"><?php echo(__('segment', true))?> IVa</th>
 								<th colspan="2"><?php echo(__('segment', true))?> IVb</th>
 								<th colspan="2"><?php echo(__('segment', true))?> V</th>
@@ -123,8 +124,8 @@
 								<tr>
 									<th><?php echo(__($data['EventControl']['event_type'],true)); ?> - <?php echo($data['EventMaster']['formated_event_date']); ?></th>
 									<?php 
-									for($i = 1; $i < 4; ++ $i){
-										?><td><?php echo($data['EventDetail']['segment_1_number']); ?></td>
+									for($i = 1; $i < 5; ++ $i){
+										?><td><?php echo($data['EventDetail']['segment_'.$i.'_number']); ?></td>
 										<td><?php echo($data['EventDetail']['segment_'.$i.'_size']); ?></td>
 									<?php } ?>
 									<td><?php echo($data['EventDetail']['segment_4a_number']); ?></td>
