@@ -33,7 +33,7 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		$surgeries_events_data = array();
 		
 		$surgeries_events_data['lab_report_id'] = $this->getEventDataForPreOperativeForm('lab_report_id', 'lab', 'biology', $this->data, $participant_id, $this->data['TreatmentDetail']['lab_report_id']);
-		$surgeries_events_data['imagery_id'] = $this->getEventDataForPreOperativeForm('imagery_id', 'clinical', 'medical imaging%', $this->data, $participant_id, $this->data['TreatmentDetail']['imagery_id']);
+		$surgeries_events_data['imagery_id'] = $this->getEventDataForPreOperativeForm('imagery_id', 'imagery', 'medical imaging%', $this->data, $participant_id, $this->data['TreatmentDetail']['imagery_id']);
 		$surgeries_events_data['fong_score_id'] =  $this->getEventDataForPreOperativeForm('fong_score_id', 'scores', 'fong score',  $this->data, $participant_id, $this->data['TreatmentDetail']['fong_score_id']);
 		$surgeries_events_data['meld_score_id'] = $this->getEventDataForPreOperativeForm('meld_score_id', 'scores', 'meld score', $this->data, $participant_id, $this->data['TreatmentDetail']['meld_score_id']);
 		$surgeries_events_data['gretch_score_id'] = $this->getEventDataForPreOperativeForm('gretch_score_id', 'scores', 'gretch score', $this->data, $participant_id, $this->data['TreatmentDetail']['gretch_score_id']);
@@ -138,7 +138,7 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		$surgeries_events_data = array();
 		
 		$surgeries_events_data['lab_report_id'] = $this->getEventDataForPreOperativeForm('lab_report_id', 'lab', 'biology', $this->data, $participant_id);
-		$surgeries_events_data['imagery_id'] = $this->getEventDataForPreOperativeForm('imagery_id', 'clinical', 'medical imaging%', $this->data, $participant_id);
+		$surgeries_events_data['imagery_id'] = $this->getEventDataForPreOperativeForm('imagery_id', 'imagery', 'medical imaging%', $this->data, $participant_id);
 		$surgeries_events_data['fong_score_id'] =  $this->getEventDataForPreOperativeForm('fong_score_id', 'scores', 'fong score',  $this->data, $participant_id);
 		$surgeries_events_data['meld_score_id'] = $this->getEventDataForPreOperativeForm('meld_score_id', 'scores', 'meld score', $this->data, $participant_id);
 		$surgeries_events_data['gretch_score_id'] = $this->getEventDataForPreOperativeForm('gretch_score_id', 'scores', 'gretch score', $this->data, $participant_id);
