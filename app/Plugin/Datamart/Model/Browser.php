@@ -537,9 +537,11 @@ class Browser extends DatamartAppModel {
 		$browsing_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
 		$tmp_node = $current_node;
 		$prev_node = NULL;
+		$current_node_datamart_structure_id = null;
 		do{
 			$prev_node = $tmp_node;
 			$br = $BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $tmp_node)));
+			if($current_node == $br['BrowsingResult']['id']) $current_node_datamart_structure_id = $br['DatamartStructure']['id'];
 			assert($br);
 			$tmp_node = $br['BrowsingResult']['parent_id'];
 		}while($tmp_node);
@@ -627,7 +629,9 @@ class Browser extends DatamartAppModel {
 					$link = $webroot_url."Datamart/Browser/browse/";
 					if(isset($cell['merge']) && $cell['merge'] && !isset($cell['hide_merge_icon'])){
 						$controls = sprintf($controls, "<a class='icon16 link' href='".$link.$current_node."/0/".$cell['BrowsingResult']['id']."' title='".__("link to current view")."'/>&nbsp;</a>");
-					}else{
+					}else if ($current_node_datamart_structure_id == $cell['DatamartStructure']['id'] && $cell['BrowsingResult']['id'] != $current_node) {
+						$controls = sprintf($controls, "<a class='icon16 data_diff' href='".$webroot_url."Datamart/Reports/compareToBatchSetOrNode/node/".$cell['BrowsingResult']['id']."/0/$current_node' title='".__("compare contents")."'/>&nbsp;</a>");
+					}else {
 						$controls = sprintf($controls, "");
 					}
 					$box = "<div class='info %s'>%s%s</div>";

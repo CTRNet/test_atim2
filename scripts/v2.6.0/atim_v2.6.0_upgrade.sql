@@ -877,3 +877,26 @@ INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_i
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	("saliva", "Saliva", '');
+
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Function to list differences between 2 nodes or batchset  #2522
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structures(`alias`) VALUES ('batchset_and_node_elements_distribution');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', 'Generated', '', 'batchset_and_node_elements_distribution_description', 'input',  NULL , '0', 'size=30', '', '', 'batchset and node elements distribution description', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='batchset_and_node_elements_distribution'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='batchset_and_node_elements_distribution_description' AND `type`='input'), '-10', '-10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('compare contents','Compare Contents','Comparer le contenu'),
+('compare to compatible batchset', 'Compare to compatible batchset', 'Comparer à un lot de données compatible'),
+('batchset and node elements distribution description', 'Data distribution', 'Répartition des données'),
+('data of previously displayed %s_1 (1)', 'Previously displayed %s_1 (1)', '%s_1 précédemment affiché (1)'),
+('data of selected %s_2 (2)', 'Selected %s_2 (2)', "%s_2 sélectionné (2)"),
+('data of previously displayed %s_1 only (1)', 'Previously displayed %s_1 only (1)', '%s_1 précédemment affiché seulement (1)'),
+('data of selected %s_2 only (2)', 'Selected %s_2 only (2)', "%s_2 sélectionné seulement (2)"),
+('data both in previously displayed %s_1 and selected %s_2 (1 & 2)', 'Both in previously displayed %s_1 and selected %s_2 (1 & 2)', 'Dans le %s_1 précédemment affiché et le %s_2 sélectionné (1 & 2)'),
+('databrowser_node','Databrowser Node', "Noeud du 'Navigateur de Données'"),
+('compare','Compare','comparer');

@@ -60,16 +60,15 @@
 			);
 			if(isset($linked_datamart_structure_links)) $structure_links['index'] = array('details' => $linked_datamart_structure_links);
 			
-			$add_to_batchset_hidden_field = $this->Form->input('BatchSet.datamart_structure_id', array('type' => 'hidden', 'value' => $linked_datamart_structure_id));
+			$add_to_batchset_hidden_field = $this->Form->input('Report.datamart_structure_id', array('type' => 'hidden', 'value' => $linked_datamart_structure_id));
+			
+			$settings = array('form_bottom'	=>false, 'form_inputs'	=> false, 'actions'		=> false, 'pagination'	=> false);
+			if (!empty($result_header)) $settings['header'] = $result_header;
 			
 			$this->Structures->build( $result_form_structure, array(
 				'type' 		=> 'index', 
 				'data'		=> $this->request->data, 
-				'settings'	=>array(
-					'form_bottom'	=>false, 
-					'form_inputs'	=> false, 
-					'actions'		=> false, 
-					'pagination'	=> false), 
+				'settings'	=> $settings, 
 				'links'	=> $structure_links,
 				'extras'	=> array('end' => $add_to_batchset_hidden_field)
 			));
@@ -94,8 +93,7 @@
 			//** DISPLAY BASIC REPORT **
 		
 			$structure_links = array(
-				'bottom'=>array(
-					'export as CSV file (comma-separated values)'=>'/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id'].'/csv')
+				'bottom'=>array('export as CSV file (comma-separated values)'=>sprintf("javascript:setCsvPopup('Datamart/Reports/manageReport/".$atim_menu_variables['Report.id']."/1/');", 0))
 			);
 			if($display_new_search) $structure_links['bottom']['new search'] = array('link' => '/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id'], 'icon' => 'search');
 			
