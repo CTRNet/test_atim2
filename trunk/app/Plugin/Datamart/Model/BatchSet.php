@@ -217,6 +217,17 @@ class BatchSet extends DatamartAppModel {
 		} 
 		return false;
 	}
+	
+	/**
+	 * Builds a label to help user to identify a batch set
+	 * @param array $batch_set_data data of the batch set
+	 * @return string The label
+	 */
+	function getBatchSetLabel($batch_set_data) {
+		return $batch_set_data['title'];
+	}
+	
+	
 }
 
 ?>

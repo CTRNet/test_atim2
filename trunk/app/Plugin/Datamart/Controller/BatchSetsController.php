@@ -195,7 +195,6 @@ class BatchSetsController extends DatamartAppController {
 				);
 			}
 		}
-		
 
 		$this->set('actions', $actions);
 		
@@ -222,10 +221,11 @@ class BatchSetsController extends DatamartAppController {
 				if(empty($browsing_result) || empty($structure)) {
 					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 				}
-				
 				$this->request->data['BatchSet']['datamart_structure_id'] = $browsing_result['DatamartStructure']['id'];
 			}else if(array_key_exists('BatchSet', $this->request->data) && isset($this->request->data['BatchSet']['datamart_structure_id'])){
 				$this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['BatchSet']['datamart_structure_id'];
+			}else if(array_key_exists('Report', $this->request->data) && isset($this->request->data['Report']['datamart_structure_id'])){
+				$this->request->data['BatchSet']['datamart_structure_id'] = $this->request->data['Report']['datamart_structure_id'];
 			}else if(array_key_exists('BatchSet', $this->request->data)) {
 				$batch_set_tmp = $this->BatchSet->find('first', array('conditions' => array('BatchSet.id' => $this->request->data['BatchSet']['id']), 'recursive' => 0));
 				unset($this->request->data['BatchSet']['id']);

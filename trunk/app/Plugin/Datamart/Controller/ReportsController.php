@@ -4,10 +4,216 @@ class ReportsController extends DatamartAppController {
 		"Datamart.Report",
 		"Datamart.DatamartStructure",
 		"Datamart.BrowsingResult",
+		"Datamart.BatchSet",
 		"Structure");
 
 	var $paginate = array('Report' => array('limit' => pagination_amount , 'order' => 'Report.name ASC'));
+	
+	// -------------------------------------------------------------------------------------------------------------------
+	// SELECT ELEMENTS vs BATCHSET OR NODE DISTRIBUTION (trunk report)
+	// -------------------------------------------------------------------------------------------------------------------
+	
+	function compareToBatchSetOrNode($type_of_object_to_compare, $batch_set_or_node_id_to_compare, $csv_creation = false, $previous_current_node_id = null) {	
 		
+		// Get data of object to compare 
+		$compared_object_datamart_structure_id = null;
+		$compared_object_element_ids = array();
+		$selected_object_title = null;
+		switch($type_of_object_to_compare) {
+			case 'batchset':
+				// Get batch set data and check permissions on selected batch set
+				$selected_batchset = $this->BatchSet->getOrRedirect($batch_set_or_node_id_to_compare);
+				if(!$this->BatchSet->isUserAuthorizedToRw($selected_batchset, true)) return;
+				if(!AppController::checkLinkPermission($selected_batchset['DatamartStructure']['index_link'])){
+					$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
+					return;
+				}
+				$compared_object_datamart_structure_id = $selected_batchset['DatamartStructure']['id'];
+				foreach($selected_batchset['BatchId'] as $tmp) $compared_object_element_ids[] = $tmp['lookup_id'];
+				$selected_object_title = 'batchset';
+				break;
+			case 'node':
+				$selected_databrowser_node = $this->BrowsingResult->findById($batch_set_or_node_id_to_compare);
+				$compared_object_datamart_structure_id = $selected_databrowser_node['DatamartStructure']['id'];
+				$compared_object_element_ids = explode(',', $selected_databrowser_node['BrowsingResult']['id_csv']);
+				$selected_object_title = 'databrowser node';
+				break;
+			default:
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	
+		// Get selected elements of either previous batchset or report or databrowser node
+		$selected_elements_datamart_structure_data = null;
+		$previously_displayed_object_title = null;
+		$tmp_node_of_selected_elements = null;
+		if($previous_current_node_id) {
+			// User just launched process to compare 2 nodes
+			if(!empty($this->request->data)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			// Launched process from databrowser node on selected elements
+			$tmp_node_of_selected_elements = $this->BrowsingResult->findById($previous_current_node_id);
+			$selected_elements_datamart_structure_data = array('DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']);
+			$previously_displayed_object_title = 'databrowser node';
+		} else if(empty($this->request->data)) {
+			// Sort on displayed data based on selected field
+			if(!array_key_exists('sort', $this->passedArgs))$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
+			$previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
+		} else if(array_key_exists('Config', $this->request->data) && $csv_creation) {
+			// Export data in csv
+			$config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data)? $this->request->data[0] : array()));
+			unset($this->request->data[0]);
+			unset($this->request->data['Config']);
+			$this->configureCsv($config);
+			$selected_elements_datamart_structure_data = $this->DatamartStructure->findById($_SESSION['compareToBatchSetOrNode']['datamart_structure_id']);
+			$previously_displayed_object_title = $_SESSION['compareToBatchSetOrNode']['previously_displayed_object_title'];
+		} else if(array_key_exists('Report', $this->request->data)) {
+			// Launched process from report on selected elements
+			$selected_elements_datamart_structure_data = $this->DatamartStructure->findById($this->request->data['Report']['datamart_structure_id']);
+			$previously_displayed_object_title = 'report';
+		} else if(array_key_exists('node', $this->request->data)) {
+			// Launched process from databrowser node on selected elements
+			$tmp_node_of_selected_elements = $this->BrowsingResult->findById($this->request->data['node']['id']);
+			$selected_elements_datamart_structure_data = array('DatamartStructure' => $tmp_node_of_selected_elements['DatamartStructure']);
+			$previously_displayed_object_title = 'databrowser node';
+		} else if(array_key_exists('BatchSet', $this->request->data)) {
+			// Launched process from previous batchset on selected elements
+			$tmp_batchset_of_selected_elements = $this->BatchSet->getOrRedirect($this->request->data['BatchSet']['id']);
+			if(!$this->BatchSet->isUserAuthorizedToRw($tmp_batchset_of_selected_elements, true)) return;
+			$selected_elements_datamart_structure_data = array('DatamartStructure' => $tmp_batchset_of_selected_elements['DatamartStructure']);
+			$previously_displayed_object_title = 'batchset';
+		}
+		
+		// Get shared datamart structure
+		if(!$selected_elements_datamart_structure_data || ($selected_elements_datamart_structure_data['DatamartStructure']['id'] != $compared_object_datamart_structure_id)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		$datamart_structure = $selected_elements_datamart_structure_data['DatamartStructure']; // Same Datamart Structure
+		$this->set('$datamart_structure_id', $datamart_structure['id']);
+	
+		// Get selected elements ids
+		$model = null;
+		$lookup_key_name = null;
+		$model_instance = null;
+		$control_foreign_key = null;
+		$studied_element_ids_to_export = null;
+		if($datamart_structure['control_master_model']){
+			if(isset($this->request->data[$datamart_structure['model']])){
+				$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+				$model = $datamart_structure['model'];
+				$lookup_key_name = $model_instance->primaryKey;
+			}else{
+				$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['control_master_model'], true);
+				$model = $datamart_structure['control_master_model'];
+				$lookup_key_name = $model_instance->primaryKey;
+			}
+			$control_foreign_key = $model_instance->getControlForeign();
+		}else{
+			$model = $datamart_structure['model'];
+			$model_instance = AppModel::getInstance($datamart_structure['plugin'], $datamart_structure['model'], true);
+			$lookup_key_name = $model_instance->primaryKey;
+		}
+		if($csv_creation) {
+			// Export data to csv
+			$studied_element_ids_to_export = $this->request->data[ $model ][ $lookup_key_name ];
+			$this->request->data[ $model ][ $lookup_key_name ] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
+			// Nothing to do, selected elements are already submitted by form and recorded into $this->request->data[ $model ][ $lookup_key_name ]
+		} else if($tmp_node_of_selected_elements && ($previous_current_node_id || $this->request->data[ $model ][ $lookup_key_name ] == 'all')) {
+			// Launched from node with elements > display limit or launched to compare 2 nodes: get all ids of node			
+			$this->request->data[ $model ][ $lookup_key_name ] = explode(",", $tmp_node_of_selected_elements['BrowsingResult']['id_csv']);
+		} else if(empty($this->request->data)) {
+			// Sort data
+			$this->request->data[ $model ][ $lookup_key_name ] = explode(",", $_SESSION['compareToBatchSetOrNode']['selected_elements_ids']);
+		}
+		$selected_elements_ids = array_filter($this->request->data[ $model ][ $lookup_key_name ]);
+		
+		//Get diff results
+		$all_studied_elements = $model_instance->find('all', array('conditions' => array("$model.$lookup_key_name" => array_merge($compared_object_element_ids, $selected_elements_ids))));
+		$elements_ids_just_in_selected_object = array_diff($compared_object_element_ids, $selected_elements_ids);
+		$elements_ids_just_in_previously_disp_object = array_diff($selected_elements_ids, $compared_object_element_ids);
+		$sorted_all_studied_elements = array('1'=>array(), '2'=>array(), '3'=>array());
+		$control_master_ids =array();
+		foreach($all_studied_elements as $new_studied_element) {	
+			if($csv_creation && !in_array($new_studied_element[$model][$lookup_key_name], $studied_element_ids_to_export)) continue;
+			if($control_foreign_key){
+				$control_master_id = $new_studied_element[$model][$control_foreign_key];
+				$control_master_ids[$control_master_id] = $control_master_id;
+			}
+			if(in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_selected_object)) {
+				$new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_2', $selected_object_title, __('data of selected %s_2 only (2)'));
+				$sorted_all_studied_elements[3][] = $new_studied_element;
+			} else if(in_array($new_studied_element[$model][$lookup_key_name], $elements_ids_just_in_previously_disp_object)) {
+				$new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace('%s_1', $previously_displayed_object_title, __("data of previously displayed %s_1 only (1)"));
+				$sorted_all_studied_elements[2][] = $new_studied_element;
+			} else {
+				$new_studied_element['Generated']['batchset_and_node_elements_distribution_description'] = str_replace(array('%s_1', '%s_2'), array($previously_displayed_object_title, $selected_object_title), __('data both in previously displayed %s_1 and selected %s_2 (1 & 2)'));
+				$sorted_all_studied_elements[1][] = $new_studied_element;
+			}
+		}
+		$diff_results_data = array_merge($sorted_all_studied_elements[1],$sorted_all_studied_elements[2],$sorted_all_studied_elements[3]);
+		$this->set('diff_results_data', AppModel::sortWithUrl($diff_results_data, $this->passedArgs));
+	
+		//Manage structure for display
+		$structure_alias = null;
+		if($control_master_ids && (sizeof($control_master_ids) == 1)) {
+			$control_master_id = array_shift($control_master_ids);
+			AppModel::getInstance("Datamart", "Browser", true);
+			$alternate_info = Browser::getAlternateStructureInfo($datamart_structure['plugin'], $model_instance->getControlName(), $control_master_id);
+			$structure_alias = $alternate_info['form_alias'];
+		} else {
+			$this->Structure = AppModel::getInstance("", "Structure", true);
+			$atim_structure_data = $this->Structure->find('first', array('conditions' => array('Structure.id' => $datamart_structure['structure_id']), 'recursive' => '-1'));
+			$structure_alias = $atim_structure_data['structure']['Structure']['alias'];
+		}
+		$this->set('atim_structure_for_results', $this->Structures->get('form', 'batchset_and_node_elements_distribution,'.$structure_alias));
+		$this->set('datamart_structure_id', $datamart_structure['id']);
+		$this->set('type_of_object_to_compare', $type_of_object_to_compare);
+		$this->set('batch_set_or_node_id_to_compare', $batch_set_or_node_id_to_compare);
+		$this->set('csv_creation', $csv_creation);
+		$this->set('header_1', str_replace('%s_1', $previously_displayed_object_title, __('data of previously displayed %s_1 (1)')));
+		$this->set('header_2', str_replace('%s_2', $selected_object_title, __('data of selected %s_2 (2)')));
+pr("previously_displayed_object_title = $previously_displayed_object_title / selected_object_title = $selected_object_title ")	;
+		if($csv_creation) {
+			// CSV cretion
+			Configure::write('debug', 0);
+			$this->layout = false;
+		} else {
+			// Results display
+			// - Manage drop down action
+			$this->set('datamart_structure_model_name', $model);
+			$this->set('datamart_structure_key_name', $lookup_key_name);
+			if($datamart_structure['index_link']) $this->set('datamart_structure_links', $datamart_structure['index_link']);
+			$datamart_structure_actions = $this->DatamartStructure->getDropdownOptions(
+					$datamart_structure['plugin'],
+					$datamart_structure['model'],
+					$model_instance->primaryKey,
+					null,
+					$datamart_structure['model'],
+					$model_instance->primaryKey);
+			foreach($datamart_structure_actions as $key => $new_action) {
+				if($new_action['value'] && strpos($new_action['value'], 'Datamart/Csv/csv')) unset($datamart_structure_actions[$key]);
+			}
+			$sort_args = array_key_exists('sort', $this->passedArgs)? 'sort:'.$this->passedArgs['sort'].'/direction:'.$this->passedArgs['direction'] : '';
+			$csv_action = "javascript:setCsvPopup('Datamart/Reports/compareToBatchSetOrNode/$type_of_object_to_compare/$batch_set_or_node_id_to_compare/1/$sort_args');";
+			$datamart_structure_actions[] = array(
+					'label' => __('export as CSV file (comma-separated values)'),
+					'value' => sprintf($csv_action, 0)
+			);
+			$datamart_structure_actions[] = array(
+					'label'	=> __("initiate browsing"),
+					'value'	=> "Datamart/Browser/batchToDatabrowser/".$datamart_structure['model']."/report/"
+			);
+			$this->set('datamart_structure_actions', $datamart_structure_actions);
+			// - Add session data
+			$_SESSION['compareToBatchSetOrNode'] = array(
+					'datamart_structure_id' => $datamart_structure['id'],
+					'previously_displayed_object_title' => $previously_displayed_object_title,
+					'selected_elements_ids' => implode(",", $selected_elements_ids)
+			);
+		}
+	}
+	 
+	// -------------------------------------------------------------------------------------------------------------------
+	// CUSTOM REPORTS DISPLAY AND MANAGEMENT
+	// -------------------------------------------------------------------------------------------------------------------
+	
 	function index(){
 		$_SESSION['report']['search_criteria'] = array(); // clear SEARCH criteria
 		
@@ -94,6 +300,7 @@ class ReportsController extends DatamartAppController {
 						}
 					}
 				}	
+				
 				// Manage data when launched from databrowser node having a nbr of elements > $display_limit
 				if(array_key_exists('node', $criteria_to_build_report)) {
 					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $criteria_to_build_report['node']['id'])));
@@ -189,7 +396,7 @@ class ReportsController extends DatamartAppController {
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------
-	// FUNCTIONS ADDED TO THE CONTROLLER AS EXAMPLE
+	// FUNCTIONS ADDED TO THE CONTROLLER AS CUSTOM REPORT EXAMPLES
 	// -------------------------------------------------------------------------------------------------------------------
 	
 	function bankActiviySummary($parameters) {
