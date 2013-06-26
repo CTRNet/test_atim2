@@ -595,7 +595,7 @@ function postCollectionWrite(Model $m){
 		die("Invalid collected specimen type [".$m->values['Collected Specimen Type']."] at line [".$m->line."]");
 	}
 	
-	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection [$label] at line [".$m->line."]".Config::$line_break_tag;	
+	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]".Config::$line_break_tag;	
 }
 
 function generateDefaultAliquotLabel($sample_type, $qc_tf_bank_name, $qc_tf_bank_identifier, $aliquot_type) {
