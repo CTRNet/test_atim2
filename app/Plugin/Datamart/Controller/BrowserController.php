@@ -61,6 +61,19 @@ class BrowserController extends DatamartAppController {
 		}
 	}
 	
+	private function getIdsAndParentChild($control_id){
+		$sub_structure_id = null;
+		$parent_child = null;
+		if(strpos($control_id, Browser::$sub_model_separator_str) !== false){
+			list($control_id , $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
+		}
+		if(in_array(substr($control_id, -1), array('c', 'p'))){
+			$parent_child = substr($control_id, -1);
+			$control_id = substr($control_id, 0, -1);
+		}
+		return array($control_id, $sub_structure_id, $parent_child);
+	}
+	
 		
 	/**
 	 * Core of the databrowser, handles all browsing requests. Searches, normal display, merged display and overflow display.
@@ -76,7 +89,8 @@ class BrowserController extends DatamartAppController {
 		$browsing = null;
 		$check_list = false;
 		$last_control_id = 0;
-		$this->set('control_id', $control_id);
+		$parent_child = false;
+		$this->set('control_id', (int)$control_id); //cast as it might end with c(child) or p(parent)
 		$this->set('merge_to', $merge_to);
 		$this->Browser;//lazy laod
 		
@@ -97,10 +111,7 @@ class BrowserController extends DatamartAppController {
 			}else{
 				$check_list = true;
 			}
-			$sub_structure_id = null;//control id for master/detail
-			if(strpos($control_id, Browser::$sub_model_separator_str) !== false){
-				list($control_id , $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
-			}
+			list($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
 			//direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
 			$direct_id_arr = explode(Browser::$model_separator_str, $control_id);
 			
@@ -122,14 +133,14 @@ class BrowserController extends DatamartAppController {
 				){
 					$sub_struct_ctrl_id = $sub_structure_id;
 				}
-			
+				
 				$params = array(
 						'struct_ctrl_id'		=> $control_id,
 						'sub_struct_ctrl_id'	=> $sub_struct_ctrl_id,
 						'node_id'				=> $node_id,
-						'last'					=> $last_control_id == $control_id
+						'last'					=> $last_control_id == $control_id,
+						'parent_child'			=> $parent_child
 				);
-			
 				if(!$created_node = $this->Browser->createNode($params)){
 					//something went wrong. A flash screen has been called.
 					return;
@@ -150,18 +161,16 @@ class BrowserController extends DatamartAppController {
 			}
 			
 			if($sub_structure_id){
-				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.Browser::$sub_model_separator_str.$sub_structure_id);
+				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.$parent_child.Browser::$sub_model_separator_str.$sub_structure_id);
 			}
-			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id);
+			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.$parent_child);
 			
 			
 		}else{
 			if($node_id == 0){
 				if($control_id){
 					//search screen
-					if(strpos($control_id, Browser::$sub_model_separator_str)){
-						list($control_id, $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
-					}
+					list($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
 					$browsing = $this->DatamartStructure->findById($control_id);
 					$last_control_id = $control_id;
 				}else{
@@ -174,11 +183,9 @@ class BrowserController extends DatamartAppController {
 			}else{
 				if($control_id){
 					//search screen
-					if(strpos($control_id, Browser::$sub_model_separator_str)){
-						list($control_id, $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
-					}
+					list($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
 					$browsing = $this->DatamartStructure->findById($control_id);
-					$last_control_id = $control_id;
+					$last_control_id = $control_id.$parent_child;
 				}else{
 					//direct node access
 					$this->set('node_id', $node_id);
@@ -283,7 +290,6 @@ class BrowserController extends DatamartAppController {
 						}
 				}
 				$this->set('atim_structure', $structure);
-				
 				$last_control_id .= "-".$sub_structure_id;
 				$this->set("header", array("title" => __("search"), "description" => __($browsing['DatamartStructure']['display_name'])." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 			}else{
