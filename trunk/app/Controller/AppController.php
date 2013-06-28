@@ -686,16 +686,15 @@ class AppController extends Controller {
 	 * @param array $whitelist List of allowed options for paging
 	 * @return array Model query results
 	 */
-	public function paginate($object = null, $scope = array(), $whitelist = array()) {
+	public function paginateBACK($object = null, $scope = array(), $whitelist = array()) {
 		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
 		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
 			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
 			if($is_master_model && isset($scope[$model_name.'.'.$control_foreign]) && preg_match('/^[0-9]+$/', $scope[$model_name.'.'.$control_foreign])) {
-				self::buildDetailBinding(&$object, array($model_name.'.'.$control_foreign => $scope[$model_name.'.'.$control_foreign]), $empty_structure_alias);
+				self::buildDetailBinding($object, array($model_name.'.'.$control_foreign => $scope[$model_name.'.'.$control_foreign]), $empty_structure_alias);
 			}
 		}
 		return parent::paginate($object, $scope, $whitelist);
-		
 	}
 		
 	/**
