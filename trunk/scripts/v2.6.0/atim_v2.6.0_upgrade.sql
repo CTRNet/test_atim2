@@ -1,6 +1,9 @@
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES('2.6.0', NOW(),'to define','to define');
 
+REPLACE INTO i18n (id,en,fr) VALUES
+('children', 'Children', 'Enfants');
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- UPDATE & ADD CORRECTIONS FOR SEARCH ON SPENT TIMES (collection to storage spent time, etc)
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -900,3 +903,10 @@ VALUES
 ('data both in previously displayed %s_1 and selected %s_2 (1 & 2)', 'Both in previously displayed %s_1 and selected %s_2 (1 & 2)', 'Dans le %s_1 précédemment affiché et le %s_2 sélectionné (1 & 2)'),
 ('databrowser_node','Databrowser Node', "Noeud du 'Navigateur de Données'"),
 ('compare','Compare','comparer');
+
+INSERT INTO datamart_browsing_controls(id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
+(5, 5, 1, 1, "parent_id");
+
+ALTER TABLE datamart_browsing_results
+ ADD COLUMN parent_children CHAR( 1 ) NOT NULL DEFAULT  ' ' AFTER browsing_structures_sub_id;
+

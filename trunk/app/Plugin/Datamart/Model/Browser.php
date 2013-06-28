@@ -213,6 +213,12 @@ class Browser extends DatamartAppModel {
 			return $this->buildBrowsableOptionsRecur($from_to, $current_id, $browsing_structures, $sub_models_id_filter, array());
 		}
 		
+		if(in_array($current_id, $from_to[$current_id])){
+			//make sure the reentrant option is the very first to pass by
+			//the count($stack) > 1 condition
+			array_unshift($from_to[$current_id], $current_id);
+		}
+		
 		$result = null;
 		if(isset($from_to[$current_id]) && isset($browsing_structures[$current_id])){
 			$to_arr = $from_to[$current_id];
@@ -231,8 +237,9 @@ class Browser extends DatamartAppModel {
 					$to_val = $to['val'];
 					$to_path = $to['path'];
 					$to_path[] = $to_val;
-					if(array_key_exists($to_val, $stack)){
-						//already treated that
+					if(array_key_exists($to_val, $stack) && count($stack) > 1){
+						//already treated that, the count is there to allow reentrant
+						//mode to pass by
 						continue;
 					}else if(!isset($browsing_structures[$to_val])){
 						//permissions denied
@@ -244,6 +251,20 @@ class Browser extends DatamartAppModel {
 						'style'	=> $browsing_structures[$to_val]['display_name'],
 						'value'	=> implode(self::$model_separator_str, $to_path)
 					);
+					
+					if($current_id === $to_val){
+						//reentrant
+						$tmp_result['label'] .= ' ' . __('child');
+						$tmp_result['value'] .= 'c';
+						$this->buildItemOptions($tmp_result, $browsing_structures, $to_val, $sub_models_id_filter);
+						$result[] = $tmp_result;
+						
+						$tmp_result = array(
+								'label' => __($browsing_structures[$to_val]['display_name']) . ' ' . __('parent'),
+								'style'	=> $browsing_structures[$to_val]['display_name'],
+								'value'	=> implode(self::$model_separator_str, $to_path) . 'p'
+						);
+					}
 					$this->buildItemOptions($tmp_result, $browsing_structures, $to_val, $sub_models_id_filter);
 					$result[] = $tmp_result;
 					
@@ -524,6 +545,20 @@ class Browser extends DatamartAppModel {
 			assert($counter < 100) or die("invalid loop");
 		}
 	}
+
+	private static function getBaseTitle($cell){
+		$title = __($cell['DatamartStructure']['display_name']);
+		$word = null;
+		if($cell['BrowsingResult']['parent_children'] == 'c'){
+			$word = __('children');
+		}else if($cell['BrowsingResult']['parent_children'] == 'p'){
+			$word = __('parent');
+		}
+		if($word){
+			$title .= ' '.$word;
+		}
+		return $title;
+	}
 	
 	/**
 	 * @param Int $current_node The id of the current node. Its path will be highlighted
@@ -573,7 +608,7 @@ class Browser extends DatamartAppModel {
 						$class .= " merged";
 					}
 					$count = strlen($cell['BrowsingResult']['id_csv']) ? count(explode(",", $cell['BrowsingResult']['id_csv'])) : 0;
-					$title = __($cell['DatamartStructure']['display_name']);
+					$title = self::getBaseTitle($cell);
 					$info = __($cell['BrowsingResult']['browsing_type']).' - '.AppController::getFormatedDatetimeString($cell['BrowsingResult']['created'], true, true);
 					$cache_key = 'node_'.$lang.$cell['BrowsingResult']['id'];
 					if(!$content = Cache::read($cache_key, 'browser')){
@@ -1424,12 +1459,20 @@ class Browser extends DatamartAppModel {
 			$control_data = $browsing_ctrl_model->find('first', array('conditions' => array('BrowsingControl.id1' => $parent['DatamartStructure']['id'], 'BrowsingControl.id2' => $browsing['DatamartStructure']['id'])));
 			$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['control_master_model'] ?: $parent['DatamartStructure']['model'], true);
 			if(!empty($control_data)){
-				$joins[] = array(
+				$to_join = array(
 						'table'		=> $parent_model->table,
 						'alias'		=> $parent_model->name,
 						'type'		=> 'INNER',
 						'conditions'=> array($parent_model->name.'.'.$control_data['BrowsingControl']['use_field'].' = '.$select_key, $parent_model->name.'.'.$parent_model->primaryKey => explode(',', $parent['BrowsingResult']['id_csv']))
 				);
+				if($params['parent_child'] == 'c'){
+					//reentrant browsing, invert the condition
+					$to_join['conditions'] = array(
+							//WRONG KEY
+							$parent_model->name.'.'.$control_data['BrowsingControl']['use_field'] =>  explode(',', $parent['BrowsingResult']['id_csv']), 
+							$parent_model->name.'.'.$parent_model->primaryKey . ' = ' . $select_key);
+				}
+				$joins[] = $to_join;
 			}else{
 				//ids are already contained in the child
 				$control_data = $browsing_ctrl_model->find('first', array('conditions' => array('BrowsingControl.id1' => $browsing['DatamartStructure']['id'], 'BrowsingControl.id2' => $parent['DatamartStructure']['id'])));
@@ -1517,6 +1560,25 @@ class Browser extends DatamartAppModel {
 		if($having){
 			$group[0] .= ' HAVING '.implode(' AND ', $having);
 		}
+		if($params['parent_child'] && isset($joins[1]) && $joins[1]['alias'] == $model_to_search->name){
+			//reentrant detailed search
+			$join = &$joins[1];
+			unset($join['conditions'][0]);
+			if($params['parent_child'] == 'c'){
+				$search_conditions = array_merge($search_conditions, $join['conditions']);
+				unset($joins[1]);
+			}else{
+				$joins[1] = array(
+					'alias' 		=> $model_to_search->name.'_2',
+					'table' 		=> $model_to_search->table,
+					'type'			=> 'INNER',
+					'conditions'	=> array(
+						$model_to_search->name.'_2.parent_id = '.$model_to_search->name.'.id',
+							$model_to_search->name.'_2.id' => $join['conditions'][$model_to_search->name.'.id']
+					)
+				);
+			}
+		}
 		$save_ids = $model_to_search->find('all', array(
 			'conditions'	=> $search_conditions,
 			'fields'		=> array("CONCAT('', ".$select_key.") AS ids"),
@@ -1525,7 +1587,6 @@ class Browser extends DatamartAppModel {
 			'order'			=> array($model_to_search->name.'.'.$model_to_search->primaryKey),
 			'group'			=> $group
 		));
-		
 		if($browsing_filter && $save_ids){
 			$temporary_table = 'browsing_tmp_table';
 			$select_field = null;
@@ -1601,23 +1662,6 @@ class Browser extends DatamartAppModel {
 		}
 		
 		$save_ids = implode(",", array_unique(array_map(create_function('$val', 'return $val[0]["ids"];'), $save_ids)));
-		$browsing_type = null;
-		if(!$org_search_conditions['search_conditions'] || (count($org_search_conditions['search_conditions']) == 1 && $params['sub_struct_ctrl_id']) && !$org_search_conditions['adv_search_conditions'] && !isset($org_search_conditions['counters'])){
-			$browsing_type = 'direct access';
-		}else{
-			$browsing_type = 'search';
-		}
-		$save = array('BrowsingResult' => array(
-			'user_id'						=> $controller->Session->read('Auth.User.id'),
-			'parent_id'						=> $node_id,
-			'browsing_structures_id'		=> $params['struct_ctrl_id'],
-			'browsing_structures_sub_id'	=> $use_sub_model ? $params['sub_struct_ctrl_id'] : 0,
-			'id_csv'						=> $save_ids,
-			'raw'							=> 1,
-			'browsing_type'					=> $browsing_type,
-			'serialized_search_params'		=> serialize($org_search_conditions)
-		));
-
 		if(strlen($save_ids) == 0){
 			//we have an empty set, bail out! (don't save empty result)
 			if($params['last']){
@@ -1629,9 +1673,37 @@ class Browser extends DatamartAppModel {
 			}
 			return false;
 		}
+
+		$browsing_type = null;
+		if(!$org_search_conditions['search_conditions'] || (count($org_search_conditions['search_conditions']) == 1 && $params['sub_struct_ctrl_id']) && !$org_search_conditions['adv_search_conditions'] && !isset($org_search_conditions['counters'])){
+			$browsing_type = 'direct access';
+		}else{
+			$browsing_type = 'search';
+		}
+		$save = array('BrowsingResult' => array(
+			'user_id'						=> $controller->Session->read('Auth.User.id'),
+			'parent_id'						=> $node_id,
+			'browsing_structures_id'		=> $params['struct_ctrl_id'],
+			'browsing_structures_sub_id'	=> $use_sub_model ? $params['sub_struct_ctrl_id'] : 0,
+			'parent_children'				=> $params['parent_child'],
+			'id_csv'						=> $save_ids,
+			'raw'							=> 1,
+			'browsing_type'					=> $browsing_type,
+			'serialized_search_params'		=> serialize($org_search_conditions)
+		));
+
+		if($params['parent_child']){
+			//to be backward compatible, we need to do it separately otherwise
+			//Set::flatten will not work on old identical searches due to
+			//new key
+			$save['parent_children'] = $params['parent_child'];
+		}
 		
 		$tmp = $node_id ? $browsing_result_model->find('first', array('conditions' => Set::flatten($save))) : array();
 		if(empty($tmp)){
+			if(!isset($save['BrowsingResult']['parent_children'])){
+				$save['BrowsingResult']['parent_children'] = ' ';
+			}
 			//save fullset
 			$save = $browsing_result_model->save($save);
 			$save['BrowsingResult']['id'] = $browsing_result_model->id;
