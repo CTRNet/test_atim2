@@ -686,7 +686,7 @@ class AppController extends Controller {
 	 * @param array $whitelist List of allowed options for paging
 	 * @return array Model query results
 	 */
-	public function paginateBACK($object = null, $scope = array(), $whitelist = array()) {
+	public function paginate($object = null, $scope = array(), $whitelist = array()) {
 		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
 		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
 			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
