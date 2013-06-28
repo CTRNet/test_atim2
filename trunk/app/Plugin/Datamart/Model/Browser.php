@@ -1460,17 +1460,17 @@ class Browser extends DatamartAppModel {
 			$parent_model = AppModel::getInstance($parent['DatamartStructure']['plugin'], $parent['DatamartStructure']['control_master_model'] ?: $parent['DatamartStructure']['model'], true);
 			if(!empty($control_data)){
 				$to_join = array(
-						'table'		=> $parent_model->table,
-						'alias'		=> $parent_model->name,
-						'type'		=> 'INNER',
-						'conditions'=> array($parent_model->name.'.'.$control_data['BrowsingControl']['use_field'].' = '.$select_key, $parent_model->name.'.'.$parent_model->primaryKey => explode(',', $parent['BrowsingResult']['id_csv']))
+					'table'		=> $parent_model->table,
+					'alias'		=> $parent_model->name.'_2',
+					'type'		=> 'INNER',
+					'conditions'=> array($parent_model->name.'_2.'.$control_data['BrowsingControl']['use_field'].' = '.$select_key, $parent_model->name.'_2.'.$parent_model->primaryKey => explode(',', $parent['BrowsingResult']['id_csv']))
 				);
 				if($params['parent_child'] == 'c'){
 					//reentrant browsing, invert the condition
 					$to_join['conditions'] = array(
 							//WRONG KEY
-							$parent_model->name.'.'.$control_data['BrowsingControl']['use_field'] =>  explode(',', $parent['BrowsingResult']['id_csv']), 
-							$parent_model->name.'.'.$parent_model->primaryKey . ' = ' . $select_key);
+							$parent_model->name.'_2.'.$control_data['BrowsingControl']['use_field'] =>  explode(',', $parent['BrowsingResult']['id_csv']), 
+							$parent_model->name.'_2.'.$parent_model->primaryKey . ' = ' . $select_key);
 				}
 				$joins[] = $to_join;
 			}else{
@@ -1567,6 +1567,7 @@ class Browser extends DatamartAppModel {
 			if($params['parent_child'] == 'c'){
 				$search_conditions = array_merge($search_conditions, $join['conditions']);
 				unset($joins[1]);
+				pr($joins);
 			}else{
 				$joins[1] = array(
 					'alias' 		=> $model_to_search->name.'_2',
