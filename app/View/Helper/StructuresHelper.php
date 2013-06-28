@@ -1736,7 +1736,9 @@ class StructuresHelper extends Helper {
 							$batchset = '';
 
 							if($table_row_part['heading']){
-								$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>'; 
+								if($language_header_count > 0){
+									$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>';
+								} 
 								$language_header_count = 0;
 								$language_header_string = $table_row_part['heading']; 
 							}
