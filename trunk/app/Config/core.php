@@ -347,9 +347,9 @@ Cache::config('_cake_model_', array(
 	'duration' => $duration
 ));
 
-Cache::config('structures', array('engine' => 'File', 'path' => CACHE . "structures", 'duration' => '+1 year'));
-Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'duration' => '+1 week'));
-Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => '+1 week'));
+Cache::config('structures', array('engine' => 'File', 'path' => CACHE . "structures", 'duration' => $duration));
+Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'duration' => $duration));
+Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
 Configure::write('use_compression', true);
