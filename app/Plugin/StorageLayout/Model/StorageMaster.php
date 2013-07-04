@@ -30,7 +30,15 @@ class StorageMaster extends StorageLayoutAppModel {
 		
 		if (isset($variables['StorageMaster.id'])) {
 			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
-			$title = __(($result['StorageControl']['is_tma_block']? 'TMA-blc' : $result['StorageControl']['storage_type']));
+			$title = '';
+			if($result['StorageControl']['is_tma_block']) {
+				$title = __('TMA-blc');
+			} else {
+				$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+				$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
+				$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
+				$title = isset($translated_storage_types[$result['StorageControl']['storage_type']])? $translated_storage_types[$result['StorageControl']['storage_type']] : $result['StorageControl']['storage_type'];	
+			}
 			
 			$return = array(
 				'menu' => array(null, ($title . ' : ' . $result['StorageMaster']['short_label'])),
@@ -450,12 +458,18 @@ class StorageMaster extends StorageLayoutAppModel {
 	 
 	function getStoragePath($studied_storage_master_id) {
 		$storage_path_data = $this->getPath($studied_storage_master_id, null, '0');
-
+		
+		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+		$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
+		$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
+		
 		$path_to_display = '';
 		$separator = '';
 		if(!empty($storage_path_data)){
 			foreach($storage_path_data as $new_parent_storage_data) { 
-				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code'] . " (".__($new_parent_storage_data['StorageControl']['storage_type']).")"; 
+				$storage_type = $new_parent_storage_data['StorageControl']['storage_type'];
+				$storage_type = isset($translated_storage_types[$storage_type])? $translated_storage_types[$storage_type] : $storage_type;
+				$path_to_display .= $separator.$new_parent_storage_data['StorageMaster']['code'] . " ($storage_type)"; 
 				$separator = ' > ';
 			}
 		}
