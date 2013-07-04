@@ -5,10 +5,10 @@
 		'bottom' => array('add' => '/StorageLayout/StorageCoordinates/add/' . $atim_menu_variables['StorageMaster.id'] . '/')
 	);	
 	
-	if(isset($storage_controls_list)) {
+	if(isset($translated_storage_controls_list)) {
 		$add_links = array();
-		foreach ($storage_controls_list as $storage_control) {
-			$add_links[__($storage_control['StorageControl']['storage_type'])] = '/StorageLayout/StorageMasters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
+		foreach ($translated_storage_controls_list as $storage_control) {
+			$add_links[$storage_control['Generated']['storage_type']] = '/StorageLayout/StorageMasters/add/' . $storage_control['StorageControl']['id'] . '/' . $atim_menu_variables['StorageMaster.id'];
 		}
 		ksort($add_links);
 		$structure_links['bottom']['add to storage'] = (empty($add_links)? '/underdevelopment/': $add_links);
