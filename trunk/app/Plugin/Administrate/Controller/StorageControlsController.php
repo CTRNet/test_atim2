@@ -53,8 +53,7 @@ class StorageControlsController extends AdministrateAppController {
 				
 		if(!$duplicated_parent_storage_control_id && !empty($this->request->data)) {
 			// Set system value
-//TODO NL change databrowser label			
-			$this->request->data['StorageCtrl']['databrowser_label'] = $this->request->data['StorageCtrl']['storage_type'];
+			$this->request->data['StorageCtrl']['databrowser_label'] = 'custom#storage types#'.$this->request->data['StorageCtrl']['storage_type'];
 			if(!isset($this->request->data['StorageCtrl']['set_temperature'])) $this->request->data['StorageCtrl']['set_temperature'] = '0';
 			if(!isset($this->request->data['StorageCtrl']['check_conflicts'])) $this->request->data['StorageCtrl']['check_conflicts'] = '0';
 			$this->request->data['StorageCtrl']['flag_active'] = '0';
@@ -212,7 +211,7 @@ class StorageControlsController extends AdministrateAppController {
 			return;
 		}
 		$translated_storage_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storage_control_data['StorageCtrl']['storage_type']);
-		$storage_control_data['StorageCtrl']['translated_storage_type'] = $translated_storage_type? $translated_storage_type : $storage_control_data['StorageCtrl']['storage_type'];
+		$storage_control_data['StorageCtrl']['translated_storage_type'] = ($translated_storage_type !== false)? $translated_storage_type : $storage_control_data['StorageCtrl']['storage_type'];
 		$this->set('storage_control_data', $storage_control_data);
 		
 		$this->set('atim_menu', $this->Menus->get('/Administrate/StorageControls/listAll/'));

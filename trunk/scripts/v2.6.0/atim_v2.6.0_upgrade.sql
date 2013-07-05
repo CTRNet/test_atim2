@@ -1189,9 +1189,9 @@ UPDATE structure_value_domains SET domain_name = 'storage_types_from_control_id'
 
 REPLACE INTO i18n (id,en,fr) VALUES ('storages','Storages','Entreposage');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Translated Storage Types not correctly displayed in databrowser   #2638
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
+ALTER TABLE storage_controls MODIFY databrowser_label varchar(150) NOT NULL DEFAULT '';
+UPDATE storage_controls SET databrowser_label = CONCAT('custom#storage types#',storage_type);

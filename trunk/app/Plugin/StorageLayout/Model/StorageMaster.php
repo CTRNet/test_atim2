@@ -36,7 +36,7 @@ class StorageMaster extends StorageLayoutAppModel {
 			} else {
 				$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
 				$translated_storage_type = $StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $result['StorageControl']['storage_type']);
-				$title = $translated_storage_type? $translated_storage_type : $result['StorageControl']['storage_type'];	
+				$title = ($translated_storage_type !== false)? $translated_storage_type : $result['StorageControl']['storage_type'];	
 			}
 			
 			$return = array(
