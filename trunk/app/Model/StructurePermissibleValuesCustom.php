@@ -56,4 +56,24 @@ class StructurePermissibleValuesCustom extends AppModel {
 		
 		return $result;
 	}
+	
+	function getTranslatedCustomDropdownValue($control_name, $value){
+		$lang = self::getLanguage();
+	
+		if(self::$instance == null){
+			self::$instance = new StructurePermissibleValuesCustom();
+			self::$instance->cacheQueries = true;
+		}
+		$conditions = array(
+			'StructurePermissibleValuesCustomControl.name' => $control_name,
+			'StructurePermissibleValuesCustom.value' => $value
+		);
+		$data = self::$instance->find('first', array('conditions' => $conditions));
+		if(empty($data)){
+			return false;
+		}
+		return (isset($data['StructurePermissibleValuesCustom'][$lang]) && (!empty($data['StructurePermissibleValuesCustom'][$lang])))? $data['StructurePermissibleValuesCustom'][$lang]: $value;
+	}
+	
+	
 }

@@ -26,7 +26,7 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		
 		if(!$storage_data['StorageControl']['is_tma_block']) {
 			// Get all storage control types to build the add to selected button
-			$this->set('translated_storage_controls_list', $this->StorageControl->getTranslatedStorageControlsList());
+			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		}
 		
 		if(!$this->StorageControl->allowCustomCoordinates($storage_data['StorageControl']['id'], array('StorageControl' => $storage_data['StorageControl']))) {

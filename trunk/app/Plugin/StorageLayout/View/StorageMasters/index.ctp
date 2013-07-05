@@ -1,9 +1,9 @@
 <?php 
 
 	$add_links = array();
-	foreach ($translated_storage_controls_list as $storage_control) {
-		$add_links[$storage_control['Generated']['storage_type']] = '/StorageLayout/StorageMasters/add/' . $storage_control['StorageControl']['id'];
-	}
+	foreach ($storage_types_from_id as $storage_control_id => $translated_storage_type) {
+		$add_links[$translated_storage_type] = '/StorageLayout/StorageMasters/add/' . $storage_control_id;
+	}	
 	ksort($add_links);
 
 	$structure_links = array(

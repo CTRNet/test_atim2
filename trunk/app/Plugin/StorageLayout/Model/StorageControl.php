@@ -26,18 +26,6 @@ class StorageControl extends StorageLayoutAppModel {
 		return $result;
 	}
 	
-	function getTranslatedStorageControlsList() {		
-		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
-		$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
-		$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
-		$translated_storage_controls_list = $this->find('all', array('conditions' => array('flag_active = 1')));
-		foreach($translated_storage_controls_list as &$new_storage_control) {
-			$storage_type = $new_storage_control['StorageControl']['storage_type'];
-			$new_storage_control['Generated']['storage_type'] = isset($translated_storage_types[$storage_type])? $translated_storage_types[$storage_type] : $storage_type;
-		}
-		return $translated_storage_controls_list;
-	}	
-	
 	/**
 	 * Define if the coordinate 'x' list of a storage having a specific type
 	 * can be set by the application user.
