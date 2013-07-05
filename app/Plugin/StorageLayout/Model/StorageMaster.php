@@ -495,7 +495,7 @@ class StorageMaster extends StorageLayoutAppModel {
 	 * @param unknown_type $label_key
 	 */
 	function getLabel(array $children_array, $type_key, $label_key){
-		return $children_array[$type_key][$label_key].' '.$children_array['StorageControl']['translated_storage_type'];
+		return $children_array[$type_key][$label_key];
 	}
 	
 	function allowDeletion($storage_master_id) {	
