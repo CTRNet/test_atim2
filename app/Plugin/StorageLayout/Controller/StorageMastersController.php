@@ -50,7 +50,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->Structures->set('storagemasters,storage_w_spaces');
 		
 		//find all storage control types to build add button
-		$this->set('translated_storage_controls_list', $this->StorageControl->getTranslatedStorageControlsList());
+		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -139,7 +139,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
 		
 		// Get all storage control types to build the add to selected button
-		$this->set('translated_storage_controls_list', $this->StorageControl->getTranslatedStorageControlsList());
+		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		
 		$this->request->data = $data;
 
@@ -430,13 +430,13 @@ class StorageMastersController extends StorageLayoutAppController {
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%');
 			if(!$is_ajax && !$storage_data['StorageControl']['is_tma_block']) {			
 				// Get all storage control types to build the add to selected button
-				$this->set('translated_storage_controls_list', $this->StorageControl->getTranslatedStorageControlsList());
+				$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 			}
 		}else{
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
 			$this->set("search", true);
-			$this->set('translated_storage_controls_list', $this->StorageControl->getTranslatedStorageControlsList());
+			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		}
 		$ids = array();
 				
@@ -625,15 +625,15 @@ class StorageMastersController extends StorageLayoutAppController {
 		}
 		
 		// Get all storage control types to build the add to selected button
-		if(!$storage_data['StorageControl']['is_tma_block']) $this->set('translated_storage_controls_list', $this->StorageControl->getTranslatedStorageControlsList());
+		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
+		if(!$storage_data['StorageControl']['is_tma_block']) $this->set('storage_types_from_id', $storage_types_from_id);
 		
 		// Add translated storage type to main storage and chidlren storage
-		$storage_type_from_control_ids = $this->StorageControl->getStorageTypePermissibleValues();
 		$storage_control_id = $storage_data['StorageControl']['id'];
-		$storage_data['Generated']['storage_type'] = isset($storage_type_from_control_ids[$storage_control_id])? $storage_type_from_control_ids[$storage_control_id] : $storage_data['StorageControl']['storage_type'];
+		$storage_data['StorageControl']['translated_storage_type'] = isset($storage_types_from_id[$storage_control_id])? $storage_types_from_id[$storage_control_id] : $storage_data['StorageControl']['storage_type'];
 		foreach($storage_master_c as &$new_children_storage) {
 			$children_storage_control_id = $new_children_storage['StorageControl']['id'];
-			$new_children_storage['Generated']['storage_type'] = isset($storage_type_from_control_ids[$children_storage_control_id])? $storage_type_from_control_ids[$children_storage_control_id] : $new_children_storage['StorageControl']['storage_type'];
+			$new_children_storage['StorageControl']['translated_storage_type'] = isset($storage_types_from_id[$children_storage_control_id])? $storage_types_from_id[$children_storage_control_id] : $new_children_storage['StorageControl']['storage_type'];
 		}
 		
 		$this->set('atim_menu', $atim_menu);
@@ -726,7 +726,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			'limit' => 10
 		));
 		
-		$storage_type_from_control_ids = $this->StorageControl->getStorageTypePermissibleValues();
+		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
 		
 		//build javascript textual array
 		$result = "";
@@ -734,8 +734,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		foreach($storage_masters as $storage_master){
 			$storage_control_id = $storage_master['StorageControl']['id'];
 			$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$storage_master['StorageMaster']['code'].'] / '.
-				(isset($storage_type_from_control_ids[$storage_control_id])? $storage_type_from_control_ids[$storage_control_id] : $storage_master['StorageControl']['storage_type']).'", ';			
-			
+				(isset($storage_types_from_id[$storage_control_id])? $storage_types_from_id[$storage_control_id] : $storage_master['StorageControl']['storage_type']).'", ';			
 			++ $count;
 			if($count > 9){
 				break;

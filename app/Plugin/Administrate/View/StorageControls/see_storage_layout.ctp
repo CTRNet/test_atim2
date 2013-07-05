@@ -36,7 +36,7 @@
 				<div><?php echo __('help_storage_layout_storage') ?></div>
 			</span>
 			<span class="ui-icon ui-icon-calculator" style="float: left;"></span>
-			<?php echo __('storage layout'). ' : '. $storage_ctrl_title ?>
+			<?php echo __('storage layout'). ' : '. $storage_control_data['StorageCtrl']['translated_storage_type'] ?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
 		
