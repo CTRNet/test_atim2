@@ -962,8 +962,15 @@ class Browser extends DatamartAppModel {
 	 */
 	static function getTranslatedDatabrowserLabel($label){
 		$parts = explode("|", $label);
+		$StructurePermissibleValuesCustom = null;
 		foreach($parts as &$part){
-			$part = __($part);
+			if(preg_match('/^custom\#(.+)\#(.+)$/', $part, $matches)) {
+				if(!$StructurePermissibleValuesCustom) $StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);		
+				$translated_value = $StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue($matches[1], $matches[2]);
+				$part = ($translated_value !== false)? $translated_value : $matches[2];
+			} else {
+				$part = __($part);
+			}
 		}
 		return implode(" - ", $parts);
 	}
