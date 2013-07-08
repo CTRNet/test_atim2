@@ -22,7 +22,8 @@ class BrowserController extends DatamartAppController {
 		
 		while(count($tmp_browsing) > self::$tmp_browsing_limit){
 			$unit = array_pop($tmp_browsing);
-			$this->BrowsingIndex->atimDelete($unit['BrowsingIndex']['id']);
+			$this->BrowsingIndex->delete($unit['BrowsingIndex']['id']);
+			$this->BrowsingResult->delete($unit['BrowsingResult']['id'], true);
 		}
 		
 		$this->set('tmp_browsing', $tmp_browsing);
