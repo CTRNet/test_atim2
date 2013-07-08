@@ -1195,3 +1195,14 @@ REPLACE INTO i18n (id,en,fr) VALUES ('storages','Storages','Entreposage');
 
 ALTER TABLE storage_controls MODIFY databrowser_label varchar(150) NOT NULL DEFAULT '';
 UPDATE storage_controls SET databrowser_label = CONCAT('custom#storage types#',storage_type);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- delete from db all temporary browser trees when tmp_browsing_limit is reached #2641
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE datamart_browsing_results DROP COLUMN deleted;
+ALTER TABLE datamart_browsing_indexes DROP COLUMN deleted;
+DROP TABLE datamart_browsing_indexes_revs;
+
+
+
