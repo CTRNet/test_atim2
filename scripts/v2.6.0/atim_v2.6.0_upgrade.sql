@@ -1204,5 +1204,9 @@ ALTER TABLE datamart_browsing_results DROP COLUMN deleted;
 ALTER TABLE datamart_browsing_indexes DROP COLUMN deleted;
 DROP TABLE datamart_browsing_indexes_revs;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Search aliquots then collection having more than 2 aliquots #2643
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+(1, 2, 1, 1, 'collection_id');
