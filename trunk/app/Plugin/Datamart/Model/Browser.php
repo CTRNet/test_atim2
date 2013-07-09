@@ -694,9 +694,10 @@ class Browser extends DatamartAppModel {
 	/**
 	 * Formats the search params array and returns it into a table
 	 * @param array $params Both search parameters with both structures
+	 * @param boolean $html_format Expect result returned in html format else txt
 	 * @return An html string of a table containing the search formated params
 	 */
-	static function formatSearchToPrint(array $params){
+	static function formatSearchToPrint(array $params, $html_format = true){
 		$search_conditions = $params['search']['search_conditions'];
 		
 		//preprocess to clean datetime accuracy
@@ -727,7 +728,8 @@ class Browser extends DatamartAppModel {
 			}
 			$conditions[] = "StructureField.model='".$model."' AND StructureField.field='".$field."'";
 		}
-		$result = "<table align='center' width='100%' class='browserBubble'>";
+		$html_result = "<table align='center' width='100%' class='browserBubble'>";
+		$txt_result = '';
 		//value_element can be a string or an array
 		foreach($search_conditions as $key => $value_element){
 			$values = array();
@@ -806,37 +808,43 @@ class Browser extends DatamartAppModel {
 					}
 				}
 			}
-			$result .= "<tr><th>".$name." ".$name_suffix."</th><td>";
-			if(count($values) > 6){
-				$result .= '<span class="databrowserShort">'.stripslashes(implode(", ", array_slice($values, 0, 6))).'</span>'
+			$html_result .= "<tr><th>".$name." ".$name_suffix."</th><td>";
+			$txt_result .= $name." ".(empty($name_suffix)? ': ' : "$name_suffix ");
+			if(count($values) > 6 && $html_format){
+				$html_result .= '<span class="databrowserShort">'.stripslashes(implode(", ", array_slice($values, 0, 6))).'</span>'
 					.'<span class="databrowserAll hidden">, '.stripslashes(implode(", ", array_slice($values, 6))).'</span>'
-					.'<br/><a href="#" class="databrowserMore">'.__('and %d more', count($values) - 6).'</a>';
+					.'<br/><a href="#" class="databrowserMore">'.__('and %d more', count($values) - 6).'</a>';	
 			}else{
-				$result .= stripslashes(implode(", ", $values));
+				$html_result .= stripslashes(implode(", ", $values));
+				$txt_result .= implode(", ", $values);
 			}
-			$result .= "</td>\n";
+			$html_result .= "</td>\n";
+			$txt_result .= "\n";
 		}
 		
 		foreach($params['addon_params'] as $addon_param){
-			$result .= "<tr><th>".$addon_param['field']."</th><td>".$addon_param['condition']."</td>\n";
+			$html_result .= "<tr><th>".$addon_param['field']."</th><td>".$addon_param['condition']."</td>\n";			
+			$txt_result .= $addon_param['field']." ".$addon_param['condition']."\n";
 		}
 		
-		$result .= "<tr><th>".__("exact search")."</th><td>".($params['search']['exact_search'] ? __("yes") : __('no'))."</td>\n";
-
+		$html_result .= "<tr><th>".__("exact search")."</th><td>".($params['search']['exact_search'] ? __("yes") : __('no'))."</td>\n";
+		$txt_result .= __("exact search")." : ".($params['search']['exact_search'] ? __("yes") : __('no'))."\n";
+		
 		//advanced search fields
 		$sfs_model = AppModel::getInstance('', 'Sfs', true);
 		foreach($params['adv_search'] as $key => $value){
 			if($key === 'browsing_filter'){
 				continue;
 			}
-			foreach($params['adv_structure']['Sfs'] as $sfs){
+			foreach($params['adv_structure']['Sfs'] as $sfs){				
 				if($sfs['field'] == $key){
 					$option = $params['model']->getBrowsingAdvSearchArray($key);
 					$option = $option[$value];
 					$dm_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
 					$dm_structure = $dm_structure_model->find('first', array('conditions' => array('DatamartStructure.model' => $option['model']))); 
 					$sfs2 = $sfs_model->find('first', array('conditions' => array('model' => $option['model'], 'field' => $option['field']), 'recursive' => -1));
-					$result .= sprintf("<tr><th>%s %s</th><td>%s %s</td>\n", __($sfs['language_label']), $option['relation'], __($dm_structure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
+					$html_result .= sprintf("<tr><th>%s %s</th><td>%s %s</td>\n", __($sfs['language_label']), $option['relation'], __($dm_structure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
+					$txt_result .= sprintf("%s %s %s %s\n", __($sfs['language_label']), $option['relation'], __($dm_structure['DatamartStructure']['display_name']), __($sfs2['Sfs']['language_label']));
 				}
 			}
 		}
@@ -844,11 +852,12 @@ class Browser extends DatamartAppModel {
 		//filter
 		if(isset($params['adv_search']['browsing_filter'])){
 			$filter = $params['model']->getBrowsingAdvSearchArray('browsing_filter');
-			$result .= "<tr><th>".__("filter")."</th><td>".__($filter[$params['adv_search']['browsing_filter']]['lang'])."</td>\n";
+			$html_result .= "<tr><th>".__("filter")."</th><td>".__($filter[$params['adv_search']['browsing_filter']]['lang'])."</td>\n";
+			$txt_result .= __("filter")." : ".__($filter[$params['adv_search']['browsing_filter']]['lang'])."\n";
 		}
 		
-		$result .= "</table>";
-		return $result;
+		$html_result .= "</table>";
+		return $html_format? $html_result : str_replace('&nbsp;', ' ', $txt_result);
 	}
 	
 	/**
