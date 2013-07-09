@@ -64,6 +64,7 @@ class BrowsingControl extends DatamartAppModel {
 		}else{
 			//1 to n
 			$data = $this->find('first', array('conditions' => array('BrowsingControl.id2' => $browsing_structure_id_a, 'BrowsingControl.id1' => $browsing_structure_id_b)));
+			if(empty($data)) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true ); 
 			assert($data);
 			$this->completeData($data);
 			$model_n = AppModel::getInstance($data['DatamartStructure1']['plugin'], $b == $data['DatamartStructure1']['control_master_model'] ? $b : $data['DatamartStructure1']['model']);
