@@ -85,7 +85,7 @@ function initStorageLayout(){
 						$.get(root_url + 'StorageLayout/StorageMasters/storageLayout/' + id + '/1', function(data){
 							data = $.parseJSON(data);
 							if(data.valid){
-								initRow($("#secondStorageRow"), data);
+								initRow($("#secondStorageRow"), data, true);
 								$("#secondStorageRow").find(".dragme").data("top", false);
 								$("#secondStorageRow").find(".droppable").data("top", false);
 								$("#secondStorageRow").data('checkConflicts', data.check_conflicts);
@@ -130,7 +130,7 @@ function initRow(row, data, ctrls){
 	}
 	
 	if(ctrls){
-		$(".dragme").mouseover(function(){
+		$(row).find(".dragme").mouseover(function(){
 			document.onselectstart = function(){ return false; };
 		}).mouseout(function(){
 			if(!dragging){
@@ -139,7 +139,7 @@ function initRow(row, data, ctrls){
 		});
 		
 		//make them draggable
-		$(".dragme").draggable({
+		$(row).find(".dragme").draggable({
 			revert : 'invalid',
 			zIndex: 1,
 			start: function(event, ui){
@@ -150,7 +150,7 @@ function initRow(row, data, ctrls){
 		});
 		
 		//create the drop zones
-		$(".droppable").droppable({
+		$(row).find(".droppable").droppable({
 			hoverClass: 'ui-state-active',
 			tolerance: 'pointer',
 			drop: function(event, ui){
