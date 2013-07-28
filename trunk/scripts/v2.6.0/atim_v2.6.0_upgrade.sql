@@ -2,7 +2,8 @@ INSERT INTO `versions` (version_number, date_installed, trunk_build_number, bran
 VALUES('2.6.0', NOW(),'to define','to define');
 
 REPLACE INTO i18n (id,en,fr) VALUES
-('children', 'Children', 'Enfants');
+('children', 'Children', 'Enfants'),
+('results', 'Results', 'Résultats');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- UPDATE & ADD CORRECTIONS FOR SEARCH ON SPENT TIMES (collection to storage spent time, etc)

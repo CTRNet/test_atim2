@@ -657,7 +657,7 @@ class Browser extends DatamartAppModel {
 								}
 							}
 						}
-						$content = "<div class='content'><span class='title'>".$title."</span> (".$count.")<br/>\n".$info."</div>";
+						$content = "<div class='content'><span class='title'>".$title."</span><br/>".__("results").": ".$count."<br/>\n".$info."</div>";
 						Cache::Write($cache_key, $content, 'browser');
 					}
 					$controls = "<div class='controls'>%s</div>";
