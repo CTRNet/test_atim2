@@ -14,9 +14,6 @@ class StorageControl extends StorageLayoutAppModel {
 	function getStorageTypePermissibleValues() {
 		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
 		$translated_storage_types = $StructurePermissibleValuesCustom->getCustomDropdown(array('storage types'));
-		if(!$translated_storage_types){
-			return $translated_storage_types; //empty array
-		}
 		$translated_storage_types = array_merge($translated_storage_types['defined'], $translated_storage_types['previously_defined']);
 		
 		// Build tmp array to sort according to translated value
