@@ -34,8 +34,9 @@ class StructurePermissibleValuesCustom extends AppModel {
 		}
 		$conditions = array('StructurePermissibleValuesCustomControl.name' => $control_name);
 		$data = self::$instance->find('all', array('conditions' => $conditions, 'order' => array('StructurePermissibleValuesCustom.display_order', 'StructurePermissibleValuesCustom.'.$lang)));
+		$result = array("defined" => array(), "previously_defined" => array());
 		if(empty($data)){ 
-			return array(); 
+			return $result; 
 		}
 		
 		$result = array("defined" => array(), "previously_defined" => array());
