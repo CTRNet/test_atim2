@@ -305,15 +305,14 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 			|| ($new_primary_ctrl['DiagnosisControl']['controls_type'] == 'primary diagnosis unknown')) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			
 			if($dx_master_data['DiagnosisControl']['detail_tablename'] != $new_primary_ctrl['DiagnosisControl']['detail_tablename']) {
-				if(!$this->DiagnosisMaster->atimDelete($diagnosis_master_id)){
-					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-				}
-				
 				$this->DiagnosisMaster->tryCatchQuery("INSERT INTO ".$new_primary_ctrl['DiagnosisControl']['detail_tablename']." (`diagnosis_master_id`) VALUES ($diagnosis_master_id);");
 			}
-			
 			$this->DiagnosisMaster->tryCatchQuery("UPDATE diagnosis_masters SET diagnosis_control_id = $redefined_primary_control_id, deleted = 0 WHERE id = $diagnosis_master_id;");
-			
+			//Save empty data to add row in revs table
+			$this->DiagnosisMaster->data = array();
+			$this->DiagnosisMaster->id = $diagnosis_master_id;
+			if(!$this->DiagnosisMaster->save(array())) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); ;
+				
 			$dx_master_data = $this->DiagnosisMaster->find('first',array('conditions'=>array('DiagnosisMaster.id'=>$diagnosis_master_id, 'DiagnosisMaster.participant_id'=>$participant_id)));
 			if(empty($dx_master_data)){
 				$this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true );
