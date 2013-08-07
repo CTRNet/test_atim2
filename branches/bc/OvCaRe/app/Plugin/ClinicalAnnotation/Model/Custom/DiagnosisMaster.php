@@ -19,7 +19,6 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	
 	function updateCalculatedFields($participant_id) {
 		// MANAGE OVARY DIAGNOSIS CALCULATED FIELDS
-		
 		$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		
@@ -85,7 +84,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			// Get surgeries
 			
 			$linked_surgeries = $TreatmentMaster->find('all', array(
-				'conditions' => array('TreatmentMaster.diagnosis_master_id' => $linked_ovary_diagnosis_master_ids, 'TreatmentControl.tx_method' => 'surgery'),
+				'conditions' => array('TreatmentMaster.diagnosis_master_id' => $linked_ovary_diagnosis_master_ids, 'TreatmentControl.tx_method' => 'procedure - surgery biopsy'),
 				'order' => array('TreatmentMaster.start_date ASC'),
 				'fields' => array('TreatmentMaster.id', 'TreatmentMaster.start_date', 'TreatmentMaster.start_date_accuracy'), 
 				'recursive' => '0'));			

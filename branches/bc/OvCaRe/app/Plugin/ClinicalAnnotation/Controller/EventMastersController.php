@@ -87,7 +87,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		}
 	}
 	
-	function add( $participant_id, $event_control_id, $diagnosis_master_id = null, $display_all_exp_tests = false) {
+	function add( $participant_id, $event_control_id, $diagnosis_master_id = null) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
 			$this->flash(__('you need privileges on the following modules to manage participant inventory: %s', implode(', ', $error)), 'javascript:history.back()');
 		}
