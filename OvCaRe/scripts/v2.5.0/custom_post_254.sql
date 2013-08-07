@@ -891,41 +891,206 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ovcare_tissue_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_tissue_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tissue type' AND `language_tag`=''), '1', '440', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('tissue type','Tissue Type');
 
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname','CTAG','CTAG');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Profile Revision 2013-08-06
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sex' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sex') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='brca' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_brca_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_brca') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('brca','BRCA');
+ALTER TABLE participants ADD COLUMN ovcare_BRCA1_variant VARCHAR(50) DEFAULT NULL, ADD COLUMN ovcare_BRCA2_variant VARCHAR(50) DEFAULT NULL;
+ALTER TABLE participants_revs ADD COLUMN ovcare_BRCA1_variant VARCHAR(50) DEFAULT NULL, ADD COLUMN ovcare_BRCA2_variant VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'ovcare_BRCA1_variant', 'input',  NULL , '0', 'size=10', '', '', 'BRCA1 variant', ''),
+('ClinicalAnnotation', 'Participant', 'participants', 'ovcare_BRCA2_variant', 'input',  NULL , '0', 'size=10', '', '', 'BRCA2 variant', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_BRCA1_variant' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='BRCA1 variant' AND `language_tag`=''), '3', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_BRCA2_variant' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='BRCA2 variant' AND `language_tag`=''), '3', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('BRCA1 variant','BRCA1 Variant'), ('BRCA2 variant','BRCA2 Variant');
+ALTER TABLE participants DROP COLUMN ovcare_neoadjuvant_chemotherapy char(1) DEFAULT '';
+ALTER TABLE participants_revs DROP COLUMN ovcare_neoadjuvant_chemotherapy char(1) DEFAULT '';
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='participants') AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_neoadjuvant_chemotherapy');
+DELETE FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_neoadjuvant_chemotherapy';
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='health_status')  WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_vital_status');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Identifiers Revision 2013-08-06
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) VALUES
+(null, 'lab id', 1, 0, '', NULL, 0, 0, 1, 0, '', '');
+INSERT INTO i18n (id,en) VALUES ('lab id','LAB ID');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Consents Revision 2013-08-06
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE consent_controls SET controls_type = 'ctag', detail_form_alias = '', detail_tablename = 'cd_nationals' WHERE controls_type = 'ovcare';
+INSERT INTO i18n (id,en,fr) VALUES ('ctag','CTAG','CTAG');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_consent_from_verisons') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='status_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE model='ConsentMaster' AND field='consent_status'), 'notEmpty');
+ALTER TABLE consent_masters
+  ADD COLUMN ovcare_withdrawn_date date DEFAULT NULL,
+  ADD COLUMN ovcare_withdrawn_date_accuracy char(1) NOT NULL DEFAULT '';
+ALTER TABLE consent_masters_revs
+  ADD COLUMN ovcare_withdrawn_date date DEFAULT NULL,
+  ADD COLUMN ovcare_withdrawn_date_accuracy char(1) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'ovcare_withdrawn_date', 'date',  NULL , '0', '', '', '', 'withdrawn date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='ovcare_withdrawn_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='withdrawn date' AND `language_tag`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('withdrawn date','Withdrawn Date');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Diagnosis Revision 2013-08-06
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'censor', 'yes_no',  NULL , '0', '', '', '', 'censor', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='censor' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='censor' AND `language_tag`=''), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('censor','Censor');
+ALTER TABLE ovcare_dxd_ovaries ADD COLUMN censor char(1) default '';
+ALTER TABLE ovcare_dxd_ovaries_revs ADD COLUMN censor char(1) default '';
+ALTER TABLE ovcare_dxd_ovaries ADD COLUMN histological_type varchar(150) default null;
+ALTER TABLE ovcare_dxd_ovaries_revs ADD COLUMN histological_type varchar(150) default null;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ovcare_histological_types", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Histological Types\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES ('Histological Types', 1, 150);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Histological Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('clear cells', 'Clear Cells', '', '1', @control_id),
+('endometrioid', 'Endometrioid', '', '1', @control_id),
+('high grade serous', 'High Grade Serous', '', '1', @control_id),
+('low grade serous', 'Low Grade Serous', '', '1', @control_id),
+('mixed', 'Mixed', '', '1', @control_id),
+('mucinous', 'Mucinous', '', '1', @control_id),
+('undifferentiated', 'Undifferentiated', '', '1', @control_id),
+('serous', 'Serous', '', '1', @control_id),
+('other', 'Other', '', '1', @control_id),
+('unknown', 'Unknown', '', '1', @control_id),
+('non applicable', 'Non Applicable', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'DiagnosisDetail', 'ovcare_dxd_ovaries', 'histological_type', 'select',  (SELECT ID FROM structure_value_domains WHERE domain_name = 'ovcare_histological_types') , '0', '', '', '', 'histological type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='histological_type'), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('histological type','Histological Type');
+UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='censor' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+ALTER TABLE ovcare_dxd_ovaries DROP COLUMN id;
+ALTER TABLE ovcare_dxd_ovaries_revs DROP COLUMN id;
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Annotation Revision 2013-08-06
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+DELETE FROM menus WHERE use_link LIKE '/ClinicalAnnotation/EventMasters%' AND id like 'ovcare_%';
+UPDATE menus SET use_link = '/ClinicalAnnotation/EventMasters/listall/Study/%%Participant.id%%' WHERE id = 'clin_CAN_4';
+UPDATE menus SET flag_active = 0 WHERE use_link != '/ClinicalAnnotation/EventMasters/listall/Study/%%Participant.id%%' AND use_link LIKE '/ClinicalAnnotation/EventMasters%';
+
+-- LAB
+
+DELETE FROM event_controls WHERE event_type = 'pathology report' AND disease_site = 'ovcare';
+DROP TABLE ovcare_ed_pathology_reports;
+DROP TABLE ovcare_ed_pathology_reports_revs;
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ovcare_ed_pathology_reports');
+DELETE FROM structure_fields WHERE tablename = 'ovcare_ed_pathology_reports';
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_value_domains AS svd ON svdpv.structure_value_domain_id=svd.id WHERE svd.domain_name="ovcare_pathological_stage";
+DELETE FROM structure_value_domains WHERE domain_name IN ('ovcare_source_hospital','ovcare_pathological_stage','ovcare_patho_report_type', 'ovcare_histologic_specimen_classification','ovcare_histologic_specimen','ovcare_cytologic_specimen_result','ovcare_cytologic_specimen', 'ovcare_apparent_pathological_stage_precision');
+DELETE FROM structure_permissible_values_customs WHERE control_id IN (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('Pathological stage precision', 'Cytologic specimen', 'Cytologic specimen result', 'Histologic specimen', 'Histologic specimen classification', 'Pathology report type', 'Source hospital'));
+DELETE FROM structure_permissible_values_custom_controls WHERE name IN ('Pathological stage precision', 'Cytologic specimen', 'Cytologic specimen result', 'Histologic specimen', 'Histologic specimen classification', 'Pathology report type', 'Source hospital');
+
+-- ca125
+
+DELETE FROM event_controls WHERE event_type = 'ca125' AND disease_site = 'ovcare'; 
+DROP TABLE ovcare_ed_ca125s;
+DROP TABLE ovcare_ed_ca125s_revs;
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ovcare_ed_ca125s');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename`='ovcare_ed_ca125s');
+DELETE FROM structure_fields WHERE `tablename`='ovcare_ed_ca125s';
+
+-- Experimental Test
+
+DELETE FROM event_controls WHERE event_type = 'experimental tests' AND disease_site = 'ovcare';
+DROP TABLE ovcare_ed_lab_experimental_tests;
+DROP TABLE ovcare_ed_lab_experimental_tests_revs;
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'ovcare_ed_lab_experimental_tests');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `tablename`='ovcare_ed_lab_experimental_tests');
+DELETE FROM structure_fields WHERE tablename = 'ovcare_ed_lab_experimental_tests';
+DELETE FROM structure_value_domains WHERE domain_name IN ('ovcare_experimental_tests');
+DELETE FROM structure_permissible_values_customs WHERE control_id IN (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('experimental tests'));
+DELETE FROM structure_permissible_values_custom_controls WHERE name IN ('experimental tests');
+
+-- Followup
+
+UPDATE menus SET use_link = '/ClinicalAnnotation/EventMasters/listall/Clinical/%%Participant.id%%' WHERE id = 'clin_CAN_4';
+UPDATE menus SET flag_active = 1 WHERE use_link = '/ClinicalAnnotation/EventMasters/listall/Clinical/%%Participant.id%%';
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_clinical_followup') AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_followups' AND `field` IN ('weight','recurrence_status','disease_status'));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_followup'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '-2', '', '1', 'followup date', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('followup date','Followup Date');
+
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Treatment Revision 2013-08-06
+-- ----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Procedure
+
+UPDATE treatment_controls SET tx_method = 'procedure - surgery biopsy' WHERE disease_site = 'ovcare' AND tx_method = 'surgery';
+INSERT INTO i18n (id,en) VALUES ('procedure - surgery biopsy',  'Procedure (surgery, biopsy)');
+UPDATE structure_fields SET `language_label`='procedure performed' WHERE model='TreatmentExtend' AND tablename='txe_surgeries' AND field='surgical_procedure' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_surgery_procedure_type');
+INSERT IGNORE INTO i18n (id,en) VALUES ('procedure performed',  'Procedure performed');
+ALTER TABLE txd_surgeries 
+  ADD COLUMN ovcare_neoadjuvant_chemotherapy char(1) default '',
+  ADD COLUMN ovcare_adjuvant_radiation char(1) default '';
+ALTER TABLE txd_surgeries_revs 
+  ADD COLUMN ovcare_neoadjuvant_chemotherapy char(1) default '',
+  ADD COLUMN ovcare_adjuvant_radiation char(1) default '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'TreatmentDetail', 'txd_surgeries', 'ovcare_neoadjuvant_chemotherapy', 'yes_no',  NULL , '0', '', '', '', 'neoadjuvant chemotherapy', ''), 
+('InventoryManagement', 'TreatmentDetail', 'txd_surgeries', 'ovcare_adjuvant_radiation', 'yes_no',  NULL , '0', '', '', '', 'adjuvant radiation', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='ovcare_neoadjuvant_chemotherapy' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='neoadjuvant chemotherapy' AND `language_tag`=''), '2', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='ovcare_adjuvant_radiation' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='adjuvant radiation' AND `language_tag`=''), '2', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('adjuvant radiation','Adjuvant Radiation');
+UPDATE structure_formats SET `language_heading`='associated treatments' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='ovcare_neoadjuvant_chemotherapy' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('associated treatments','Associated Treatments');
+
+-- chemo
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='response' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='response') AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='ovcare_neoadjuvant' AND `language_label`='neoadjuvant' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='ovcare_neoadjuvant' AND `language_label`='neoadjuvant' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='ovcare_neoadjuvant' AND `language_label`='neoadjuvant' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE txd_chemos DROP COLUMN ovcare_neoadjuvant;
+ALTER TABLE txd_chemos_revs DROP COLUMN ovcare_neoadjuvant;
+UPDATE structure_formats SET `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='txe_chemos' AND `field`='dose' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='txe_chemos' AND `field`='method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtend' AND `tablename`='txe_chemos' AND `field`='drug_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list') AND `flag_confidential`='0');
+
+
+
+trt calculer age au dx
 
 
 
 
+ALTER TABLE ovcare_spr_tissue_gross_images DROP COLUMN id;
+ALTER TABLE ovcare_spr_tissue_gross_images_revs DROP COLUMN id;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Question:
+- veut on lier des participants avec le familly id et que lie t on exactement avec ce champ
+- faut il que la date de follow-up soit oblidatoire => ajouter un hook
+- Dx d'ovaire, peut il etre secondaire
+- utiliser le multi add pour study inclusion
 
