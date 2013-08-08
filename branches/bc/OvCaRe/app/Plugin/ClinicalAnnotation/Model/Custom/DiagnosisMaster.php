@@ -138,30 +138,21 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			
 			// Data to update
 			
-			$versions = $this->tryCatchQuery("SELECT MAX(diagnosis_masters_revs.version_id) AS master_version_id, MAX(ovcare_dxd_ovaries_revs.version_id) AS detail_version_id
-				FROM diagnosis_masters_revs
-				INNER JOIN ovcare_dxd_ovaries_revs ON diagnosis_masters_revs.id = ovcare_dxd_ovaries_revs.diagnosis_master_id
-				WHERE diagnosis_masters_revs.id = $diagnosis_master_id;");
-			$master_version_id = $versions[0][0]['master_version_id'];
-			$detail_version_id = $versions[0][0]['detail_version_id'];
-			
 			$data_to_update = array();
-			if($new_survival_time_months != $survival_time_months) $data_to_update[] = (empty($new_survival_time_months)? "survival_time_months = null" : "survival_time_months = '$new_survival_time_months'"); 
-			if($new_survival_time_months_precision != $survival_time_months_precision) $data_to_update[] = "survival_time_months_precision = '$new_survival_time_months_precision'";
-			if($data_to_update) {
-				$this->tryCatchQuery("UPDATE diagnosis_masters SET ".implode(', ', $data_to_update)." WHERE id = $diagnosis_master_id");
-				$this->tryCatchQuery("UPDATE diagnosis_masters_revs SET ".implode(', ', $data_to_update)." WHERE id = $diagnosis_master_id AND version_id = $master_version_id");
-			}		
-			$data_to_update = array();
-			if($new_initial_surgery_date != $initial_surgery_date) $data_to_update[] = "initial_surgery_date = '$new_initial_surgery_date'";
-			if($new_initial_surgery_date_accuracy != $initial_surgery_date_accuracy) $data_to_update[] = "initial_surgery_date_accuracy = '$new_initial_surgery_date_accuracy'";
-			if($new_initial_recurrence_date != $initial_recurrence_date) $data_to_update[] = "initial_recurrence_date = '$new_initial_recurrence_date'";
-			if($new_initial_recurrence_date_accuracy != $initial_recurrence_date_accuracy) $data_to_update[] = "initial_recurrence_date_accuracy = '$new_initial_recurrence_date_accuracy'";
-			if($new_progression_free_time_months != $progression_free_time_months) $data_to_update[] = (empty($new_progression_free_time_months)? "progression_free_time_months = null" : "progression_free_time_months = '$new_progression_free_time_months'");
-			if($new_progression_free_time_months_precision != $progression_free_time_months_precision) $data_to_update[] = "progression_free_time_months_precision = '$new_progression_free_time_months_precision'";
-			if($data_to_update) {
-				$this->tryCatchQuery("UPDATE ovcare_dxd_ovaries SET ".implode(', ', $data_to_update)." WHERE diagnosis_master_id = $diagnosis_master_id");
-				$this->tryCatchQuery("UPDATE ovcare_dxd_ovaries_revs SET ".implode(', ', $data_to_update)." WHERE diagnosis_master_id = $diagnosis_master_id AND version_id = $detail_version_id");
+			if($new_survival_time_months != $survival_time_months) $data_to_update['DiagnosisMaster']['survival_time_months'] = empty($new_survival_time_months)? "" : $new_survival_time_months; 
+			if($new_survival_time_months_precision != $survival_time_months_precision) $data_to_update['DiagnosisMaster']['survival_time_months_precision'] = $new_survival_time_months_precision;
+			if($new_initial_surgery_date != $initial_surgery_date) $data_to_update['DiagnosisDetail']['initial_surgery_date'] = $new_initial_surgery_date;
+			if($new_initial_surgery_date_accuracy != $initial_surgery_date_accuracy) $data_to_update['DiagnosisDetail']['initial_surgery_date_accuracy'] = $new_initial_surgery_date_accuracy;
+			if($new_initial_recurrence_date != $initial_recurrence_date) $data_to_update['DiagnosisDetail']['initial_recurrence_date'] = $new_initial_recurrence_date;
+			if($new_initial_recurrence_date_accuracy != $initial_recurrence_date_accuracy) $data_to_update['DiagnosisDetail']['initial_recurrence_date_accuracy'] = $new_initial_recurrence_date_accuracy;
+			if($new_progression_free_time_months != $progression_free_time_months) $data_to_update['DiagnosisDetail']['progression_free_time_months'] = empty($new_progression_free_time_months)? "" : $new_progression_free_time_months;
+			if($new_progression_free_time_months_precision != $progression_free_time_months_precision) $data_to_update['DiagnosisDetail']['progression_free_time_months_precision'] = $new_progression_free_time_months_precision;
+			if($data_to_update) {			
+				$this->data = array();
+				$this->id = $diagnosis_master_id;
+				$data_to_update['DiagnosisMaster']['id'] = $diagnosis_master_id;
+				$this->check_writable_fields = false;
+				if(!$this->save($data_to_update)) AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
 			}						
 		}
 	}
