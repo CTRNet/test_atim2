@@ -914,8 +914,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_BRCA1_variant' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='BRCA1 variant' AND `language_tag`=''), '3', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_BRCA2_variant' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='BRCA2 variant' AND `language_tag`=''), '3', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('BRCA1 variant','BRCA1 Variant'), ('BRCA2 variant','BRCA2 Variant');
-ALTER TABLE participants DROP COLUMN ovcare_neoadjuvant_chemotherapy char(1) DEFAULT '';
-ALTER TABLE participants_revs DROP COLUMN ovcare_neoadjuvant_chemotherapy char(1) DEFAULT '';
+ALTER TABLE participants DROP COLUMN ovcare_neoadjuvant_chemotherapy;
+ALTER TABLE participants_revs DROP COLUMN ovcare_neoadjuvant_chemotherapy;
 DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='participants') AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_neoadjuvant_chemotherapy');
 DELETE FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_neoadjuvant_chemotherapy';
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='health_status')  WHERE model='Participant' AND tablename='participants' AND field='vital_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_vital_status');
@@ -984,7 +984,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ovcare_dx_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='histological_type'), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('histological type','Histological Type');
 UPDATE structure_formats SET `display_order`='7' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_ovaries' AND `field`='censor' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
 ALTER TABLE ovcare_dxd_ovaries DROP COLUMN id;
 ALTER TABLE ovcare_dxd_ovaries_revs DROP COLUMN id;
 
@@ -1063,6 +1062,12 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en) VALUES ('adjuvant radiation','Adjuvant Radiation');
 UPDATE structure_formats SET `language_heading`='associated treatments' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='ovcare_neoadjuvant_chemotherapy' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO i18n (id,en) VALUES ('associated treatments','Associated Treatments');
+ALTER TABLE txd_surgeries ADD COLUMN ovcare_age_at_surgery_precision varchar(50) default null;
+ALTER TABLE txd_surgeries_revs ADD COLUMN ovcare_age_at_surgery_precision varchar(50) default null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'TreatmentDetail', 'txd_surgeries', 'ovcare_age_at_surgery_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_calculated_time_precision') , '0', '', '', '', '', '-');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_txd_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='ovcare_age_at_surgery_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_calculated_time_precision')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 -- chemo
 
@@ -1078,7 +1083,19 @@ UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FRO
 
 
 
-trt calculer age au dx
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
