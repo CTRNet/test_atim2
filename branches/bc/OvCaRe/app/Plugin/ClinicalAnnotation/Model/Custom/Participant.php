@@ -15,10 +15,21 @@ class ParticipantCustom extends Participant {
 		
 		if ( isset($variables['Participant.id']) ) {
 			$result = $this->find('first', array('conditions'=>array('Participant.id'=>$variables['Participant.id'])));
+			$MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+			$voa_nbrs= $MiscIdentifier->find('all', array('conditions'=>array('MiscIdentifier.participant_id = Participant.id', 'MiscIdentifier.deleted <> 1', "MiscIdentifierControl.misc_identifier_name = 'VOA#'")));
+			$title = __('VOA#').': ';
+			if($voa_nbrs) {
+				$all_voas = array();
+				foreach($voa_nbrs as $new_voa) $all_voas[] = $new_voa['MiscIdentifier']['identifier_value'];
+				$title .= implode('/', $all_voas);
+			} else {
+				$title .= '-';
+			}
+			$title .= ' ['.$result['Participant']['participant_identifier'].']';
 			
 			$return = array(
-					'menu'				=>	array( NULL, (__('participant identifier',true).' '.$result['Participant']['participant_identifier']) ),
-					'title'				=>	array( NULL, (__('participant identifier',true).' '.$result['Participant']['participant_identifier']) ),
+					'menu'				=>	array( NULL, ($title) ),
+					'title'				=>	array( NULL, ($title) ),
 					'structure alias' 	=> 'participants',
 					'data'				=> $result
 			);
