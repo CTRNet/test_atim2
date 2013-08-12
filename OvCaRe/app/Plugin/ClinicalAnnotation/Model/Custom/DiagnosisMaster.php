@@ -84,7 +84,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			// Get surgeries
 			
 			$linked_surgeries = $TreatmentMaster->find('all', array(
-				'conditions' => array('TreatmentMaster.diagnosis_master_id' => $linked_ovary_diagnosis_master_ids, 'TreatmentControl.tx_method' => 'procedure - surgery biopsy'),
+				'conditions' => array('TreatmentMaster.diagnosis_master_id' => $linked_ovary_diagnosis_master_ids, 'TreatmentControl.tx_method' => 'procedure - surgery'),
 				'order' => array('TreatmentMaster.start_date ASC'),
 				'fields' => array('TreatmentMaster.id', 'TreatmentMaster.start_date', 'TreatmentMaster.start_date_accuracy'), 
 				'recursive' => '0'));			
