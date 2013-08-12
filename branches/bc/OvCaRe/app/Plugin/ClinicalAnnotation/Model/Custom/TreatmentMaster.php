@@ -27,7 +27,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	function atimDelete($model_id, $cascade = true){	
 		$tx_to_delete = $this->find('first', array('conditions' => array('TreatmentMaster.id' => $model_id), 'recursive' => '0'));
 		if(parent::atimDelete($model_id, $cascade)){		
-			if($tx_to_delete['TreatmentControl']['tx_method'] == 'procedure - surgery biopsy') {
+			if($tx_to_delete['TreatmentControl']['tx_method'] == 'procedure - surgery') {
 				$DiagnosisMaster = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
 				$DiagnosisMaster->updateCalculatedFields($tx_to_delete['TreatmentMaster']['participant_id']);
 			}
@@ -48,7 +48,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	
 		// Get all procedures
 		
-		$conditions = array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentControl.tx_method' => 'procedure - surgery biopsy');
+		$conditions = array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentControl.tx_method' => 'procedure - surgery');
 		if($treatment_master_id) $conditions['TreatmentMaster.id'] = $treatment_master_id;
 		$all_procedures = $this->find('all', array('conditions' => $conditions));
 		
