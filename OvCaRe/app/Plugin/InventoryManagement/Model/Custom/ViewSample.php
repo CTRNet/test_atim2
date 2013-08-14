@@ -13,6 +13,7 @@ class ViewSampleCustom extends ViewSample {
 		Collection.bank_id, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
+Collection.ovcare_collection_type,
 		
 		Participant.participant_identifier, 
 		

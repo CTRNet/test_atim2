@@ -12,6 +12,7 @@
 			$default_aliquot_data[$sample_master_id]['block_type'] = 'paraffin';
 				
 		}
+		if(isset($new_data_set['parent']['AliquotDetail']['ocvare_tissue_section'])) $default_aliquot_data[$sample_master_id]['ocvare_tissue_section'] = $new_data_set['parent']['AliquotDetail']['ocvare_tissue_section'];
 	}
 	$this->set('default_aliquot_data', $default_aliquot_data);
 	
