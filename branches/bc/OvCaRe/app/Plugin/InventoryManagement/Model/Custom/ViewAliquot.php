@@ -15,7 +15,8 @@ class ViewAliquotCustom extends ViewAliquot {
 			
 			Participant.participant_identifier, 
 			
-			Collection.acquisition_label, 
+			Collection.acquisition_label,
+Collection.ovcare_collection_type, 
 			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
