@@ -958,6 +958,9 @@ INSERT INTO i18n (id,en) VALUES ('lab id','LAB ID');
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) VALUES
 (null, 'VOA#', 1, 0, '', NULL, 0, 0, 1, 0, '', '');
 INSERT INTO i18n (id,en) VALUES ('VOA#','VOA#');
+UPDATE misc_identifier_controls SET reg_exp_validation = '^(DAH|DG)[1-9][0-9]{0,3}[a-zA-Z]{0,1}$' WHERE misc_identifier_name = 'lab id';
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 'create lab id in batch', '/ClinicalAnnotation/MiscIdentifiers/createLabIdInBatch/', 1, '');
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Consents Revision 2013-08-06
@@ -1562,12 +1565,6 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='qc_type_precision' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
-
-
-
-
-
 
 
 
