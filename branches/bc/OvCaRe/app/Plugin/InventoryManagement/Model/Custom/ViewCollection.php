@@ -25,7 +25,7 @@ Collection.ovcare_collection_type,
 MiscIdentifier.identifier_value AS identifier_value
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
@@ -33,11 +33,18 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.participant_id = 
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-		
+			
+			$title = '';
+			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
+				$title = __('VOA#').': - [-]';
+			} else {
+				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['identifier_value'])? '-':$collection_data['ViewCollection']['identifier_value'])." [".$collection_data['ViewCollection']['participant_identifier']."]";
+			}
+			
 			$participant_identifier = empty($collection_data['ViewCollection']['participant_identifier'])? 'n/a' : $collection_data['ViewCollection']['participant_identifier'];
 			$return = array(
-				'menu' => array(null, __('participant identifier',true).' '. $participant_identifier),
-				'title' => array(null, __('participant identifier', true) . '  '. $participant_identifier),
+				'menu' => array(null, $title),
+				'title' => array(null, $title),
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data
 			);
