@@ -1230,3 +1230,6 @@ UPDATE acos SET alias='PreferencesAdmin' WHERE parent_id=@id and alias='Preferen
 
 UPDATE menus SET use_link='/Administrate/PreferencesAdmin/index/%%Group.id%%/%%User.id%%/' WHERE id='core_CAN_41_1_3_2';
 
+ALTER TABLE users
+ DROP COLUMN lang;
+ 
