@@ -59,9 +59,9 @@ class AppController extends Controller {
 		if($this->Session->read('permission_timestamp') < $this->SystemVar->getVar('permission_timestamp')){
 			$this->resetPermissions();
 		}
-		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
+			//echo(Configure::read('Config.language'));
 			$this->Session->write('Config.language', Configure::read('Config.language'));
 		}
 		
@@ -235,33 +235,11 @@ class AppController extends Controller {
 		$logged_in_user		= CakeSession::read('Auth.User.id');
 		$logged_in_group	= CakeSession::read('Auth.User.group_id');
 	
-		// get CONFIG for logged in user
-		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-					"user_id" => $logged_in_user
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
-		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-					"Config.group_id" => $logged_in_group,
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-	
+        $config_results = $config_data_model->getConfig(CakeSession::read('Auth.User.group_id'),
+                                                        CakeSession::read('Auth.User.id'));
 		// parse result, set configs/defines
 		if ( $config_results ) {
+			
 			Configure::write('Config.language', $config_results['Config']['config_language']);
 			foreach ( $config_results['Config'] as $config_key => $config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
