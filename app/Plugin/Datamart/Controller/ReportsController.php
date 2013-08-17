@@ -169,7 +169,7 @@ class ReportsController extends DatamartAppController {
 		$this->set('csv_creation', $csv_creation);
 		$this->set('header_1', str_replace('%s_1', $previously_displayed_object_title, __('data of previously displayed %s_1 (1)')));
 		$this->set('header_2', str_replace('%s_2', $selected_object_title, __('data of selected %s_2 (2)')));
-pr("previously_displayed_object_title = $previously_displayed_object_title / selected_object_title = $selected_object_title ")	;
+
 		if($csv_creation) {
 			// CSV cretion
 			Configure::write('debug', 0);
