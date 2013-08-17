@@ -1232,4 +1232,6 @@ UPDATE menus SET use_link='/Administrate/PreferencesAdmin/index/%%Group.id%%/%%U
 
 ALTER TABLE users
  DROP COLUMN lang;
- 
+
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
+(13, 1, 1, 1, "aliquot_master_id");
