@@ -1915,7 +1915,7 @@ class StructuresHelper extends Helper {
 						"flag_float"		=> $sfs['flag_float'],
 						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"],
 						"margin"			=> $sfs['margin'],
-					    "structure_group"   => $sfs['structure_group']
+					    "structure_group"   => isset($sfs['structure_group']) ? $sfs['structure_group'] : null
 					);
 					$settings = $my_default_settings_arr;
 					
