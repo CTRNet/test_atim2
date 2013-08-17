@@ -1717,10 +1717,25 @@ class StructuresHelper extends Helper {
 			$content_columns_count /= 2;
 			$current_col_number = 0;
 			$first_cell = true;
+			$previous_structure_group = null;
+			$structure_group_change = false;
 			foreach ($table_structure as $table_column){
 				foreach ($table_column as $table_row){
 					foreach($table_row as $table_row_part){
 						if (($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0) || $first_cell){
+						    if(isset($table_row_part['structure_group'])){
+						        if($previous_structure_group != $table_row_part['structure_group']){
+						            $structure_group_change = true;
+						            $previous_structure_group = $table_row_part['structure_group'];
+						        }else{
+						            $structure_group_change = false;
+						        }
+						    }else if($previous_structure_group){
+						        $structure_group_change = true;
+						        $previous_structure_group = null;
+						    }else{
+						        $structure_group_change = false;
+						    }
 							$first_cell = false;
 
 							// label and help/info marker, if available...
@@ -1735,7 +1750,7 @@ class StructuresHelper extends Helper {
 							}
 							$batchset = '';
 
-							if($table_row_part['heading']){
+							if($table_row_part['heading'] || $structure_group_change){
 								if($language_header_count > 0){
 									$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>';
 								} 
@@ -1899,7 +1914,8 @@ class StructuresHelper extends Helper {
 						"flag_confidential"	=> $sfs['flag_confidential'],
 						"flag_float"		=> $sfs['flag_float'],
 						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"],
-						"margin"			=> $sfs['margin']
+						"margin"			=> $sfs['margin'],
+					    "structure_group"   => $sfs['structure_group']
 					);
 					$settings = $my_default_settings_arr;
 					

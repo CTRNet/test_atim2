@@ -1177,6 +1177,7 @@ class Browser extends DatamartAppModel {
 			foreach($structure['Sfs'] as $sfs){
 				$sfs['display_column'] += 100 * $iteration_count;
 				$sfs['model'] = $prefix.$sfs['model'];
+				$sfs['structure_group'] = $iteration_count;
 				$result_structure['Sfs'][] = $sfs;
 			}
 			//copy accuracy settings
