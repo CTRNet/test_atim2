@@ -28,7 +28,7 @@ class QualityCtrl extends InventoryManagementAppModel {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu' => array('QC', ' : ' . $qc_data['QualityCtrl']['run_id']),
+				'menu' => array(__('quality control abbreviation') , ' : ' . $qc_data['QualityCtrl']['run_id']),
 				'title' => array(null, __('quality control abbreviation') . ' : ' . $qc_data['QualityCtrl']['run_id']),
 	 			'data' => $qc_data,
 				'structure alias'=>'qualityctrls'
@@ -69,9 +69,6 @@ class QualityCtrl extends InventoryManagementAppModel {
 	 */
 	function createCode($qc_id, $storage_data, $qc_data = null, $sample_data = null) {
 		AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-		$qc_code = 'QC - ' . $qc_id;
-		
-		return $qc_code;
 	}
 	
 	function generateQcCode() {

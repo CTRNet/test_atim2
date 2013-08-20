@@ -104,6 +104,30 @@ CONCAT(AliquotMasterChild.aliquot_label,' (',AliquotMasterChild.barcode,')') AS 
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
+UNION ALL
+
+SELECT CONCAT(OvcareTest.id,6) AS id,
+AliquotMaster.id AS aliquot_master_id,
+'ovcare test' AS use_definition,
+OvcareTest.ov_test_code AS use_code,
+'' AS use_details,
+OvcareTest.used_volume AS used_volume,
+AliquotControl.volume_unit AS aliquot_volume_unit,
+OvcareTest.date_submitted AS use_datetime,
+OvcareTest.date_submitted_accuracy AS use_datetime_accuracy,
+'' AS duration,
+'' AS duration_unit,
+OvcareTest.submitted_by AS used_by,
+OvcareTest.created AS created,
+CONCAT('/InventoryManagement/OvcareTests/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',OvcareTest.id) AS detail_url,
+SampleMaster.id AS sample_master_id,
+SampleMaster.collection_id AS collection_id
+FROM ovcare_tests AS OvcareTest
+JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OvcareTest.aliquot_master_id
+JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+WHERE OvcareTest.deleted <> 1 %%WHERE%%
+	
 		UNION ALL
 	
 		SELECT CONCAT(OrderItem.id,4) AS id,
@@ -151,6 +175,40 @@ CONCAT(AliquotMasterChild.aliquot_label,' (',AliquotMasterChild.barcode,')') AS 
 		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
+	
+	function getUseDefinitions() {
+		$result = array(
+				'aliquot shipment'	=> __('aliquot shipment'),
+				'quality control'	=> __('quality control'),
+				'internal use'	=> __('internal use'),
+				'realiquoted to'	=> __('realiquoted to'),
+				'specimen review'	=> __('specimen review'),
+				'ovcare test'	=> __('ovcare test'));
+	
+		// Add custom uses
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$use_and_event_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
+		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
+	
+		// Develop sample derivative creation
+		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
+		$sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
+		foreach($sample_controls as $sampl_control_id => $sample_type) {
+			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
+		}
+	
+		natcasesort($result);
+	
+		return $result;
+	}
+	
+	//must respect concat(id, #) order
+	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse', 'OvcareTest');
+	
+	
+	
+	
 	
 }
 

@@ -1576,8 +1576,142 @@ UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM
 
 
 
+-- OvcareTests
 
-
+CREATE TABLE IF NOT EXISTS `ovcare_tests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ov_test_code` varchar(20) DEFAULT NULL,
+  `sample_master_id` int(11) NOT NULL,
+  `index_id` varchar(30) DEFAULT NULL,
+  `assay_id` varchar(30) DEFAULT NULL,
+  `date_submitted` date DEFAULT NULL,
+  `date_submitted_accuracy` char(1) NOT NULL DEFAULT '',
+  `type` varchar(30) DEFAULT NULL,
+  `submitted_by` varchar(50) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `total_lanes` int(5) DEFAULT NULL,
+  `lanes_sequenced` int(5) DEFAULT NULL,
+  `study_summary_id` int(11) DEFAULT NULL,
+  `notes` text,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `used_volume` decimal(10,5) DEFAULT NULL,
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_qc_code` (`ov_test_code`),
+  KEY `FK_ovcare_tests_sample_masters` (`sample_master_id`),
+  KEY `aliquot_master_id` (`aliquot_master_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ovcare_tests_revs` (
+  `id` int(11) NOT NULL,
+  `ov_test_code` varchar(20) DEFAULT NULL,
+  `sample_master_id` int(11) NOT NULL,
+  `index_id` varchar(30) DEFAULT NULL,
+  `assay_id` varchar(30) DEFAULT NULL,
+  `date_submitted` date DEFAULT NULL,
+  `date_submitted_accuracy` char(1) NOT NULL DEFAULT '',
+  `type` varchar(30) DEFAULT NULL,
+  `submitted_by` varchar(50) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `total_lanes` int(5) DEFAULT NULL,
+  `lanes_sequenced` int(5) DEFAULT NULL,
+  `study_summary_id` int(11) DEFAULT NULL,
+  `notes` text,
+  `aliquot_master_id` int(11) DEFAULT NULL,
+  `used_volume` decimal(10,5) DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ovcare_tests`
+  ADD CONSTRAINT `FK_ovcare_tests_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`),
+  ADD CONSTRAINT `ovcare_tests_ibfk_1` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_ovcare_tests_study_summaries` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('inv_CAN_224_ot', 'inv_CAN_1', 0, 4, 'ovcare tests', NULL, '/InventoryManagement/OvcareTests/listAll/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%', 'InventoryManagement.SampleMaster::specimenSummary', 1, 1),
+('inv_CAN_2241_ot', 'inv_CAN_224_ot', 0, 1, 'details', NULL, '/InventoryManagement/OvcareTests/detail/%%Collection.id%%/%%SampleMaster.initial_specimen_sample_id%%/%%OvcareTest.id%%', 'InventoryManagement.OvcareTest::summary', 1, 1),
+('inv_CAN_2224_ot', 'inv_CAN_222', 0, 4, 'ovcare tests', NULL, '/InventoryManagement/OvcareTests/listAll/%%Collection.id%%/%%SampleMaster.id%%', 'InventoryManagement.SampleMaster::derivativeSummary', 1, 1),
+('inv_CAN_22241_ot', 'inv_CAN_2224_ot', 0, 1, 'details', NULL, '/InventoryManagement/OvcareTests/detail/%%Collection.id%%/%%SampleMaster.id%%/%%OvcareTest.id%%', 'InventoryManagement.OvcareTest::summary', 1, 1);
+INSERT INTO structures(`alias`) VALUES ('ovcaretests');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ovcare_test_status", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Sample Test Status\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES ('Sample Test Status', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Sample Test Status');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('submitted', 'Submitted', '', '1', @control_id),
+('hold', 'Hold', '', '1', @control_id),
+('failed', 'Failed', '', '1', @control_id);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ovcare_sample_test_types", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Sample Test Types\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES ('Sample Test Types', 1, 30);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Sample Test Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('excap', 'Excap', '', '1', @control_id),
+('snp6', 'SNP6', '', '1', @control_id),
+('wgss', 'WGSS', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'index_id', 'input',  NULL , '0', 'size=20', '', '', 'index id', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'assay_id', 'input',  NULL , '0', 'size=20', '', '', 'assay id', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'date_submitted', 'date',  NULL , '0', '', '', '', 'date submitted', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_sample_test_types') , '0', '', '', '', 'type', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'submitted_by', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff') , '0', '', '', '', 'submitted by', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_test_status') , '0', '', '', '', 'status', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'total_lanes', 'integer_positive',  NULL , '0', 'size=3', '', '', 'total lanes', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'lanes_sequenced', 'integer_positive',  NULL , '0', 'size=3', '', '', 'lanes sequenced', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'study_summary_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='study_list') , '0', '', '', '', 'study', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'used_volume', 'float',  NULL , '0', '', '', '', 'used volume', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'notes', 'textarea',  NULL , '0', '', '', '', 'notes', ''), 
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'ov_test_code', 'input',  NULL , '0', 'size=10', '', '', 'ovcare test code', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='index_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='index id' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='assay_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='assay id' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='date_submitted' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date submitted' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_sample_test_types')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '0', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='submitted_by' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_laboratory_staff')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='submitted by' AND `language_tag`=''), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_test_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '0', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='total_lanes' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='total lanes' AND `language_tag`=''), '0', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='lanes_sequenced' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='lanes sequenced' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='study_summary_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study' AND `language_tag`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='used_volume' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='used volume' AND `language_tag`=''), '1', '25', 'used aliquot', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '30', 'used aliquot', '1', 'used ovcare aliquot barcode', '0', '', '0', '', '1', 'autocomplete', '1', 'url=/InventoryManagement/AliquotMasters/autocompleteBarcode', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '31', '', '1', 'used aliquot label', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='aliquot_type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '32', '', '1', 'used aliquot type', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='ov_test_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='ovcare test code' AND `language_tag`=''), '1', '100', 'system data', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '1', '10000', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('ovcaretests_volume_for_detail');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'OvcareTest', 'ovcare_tests', 'used_volume', 'float_positive',  NULL , '0', '', '', '', 'used volume', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcaretests_volume_for_detail'), (SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `tablename`='ovcare_tests' AND `field`='used_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='used volume' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcaretests_volume_for_detail'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('ovcare tests', 'Sample Tests'),
+('ovcare test', 'Sample Test'),
+('index id', 'Index Id'), 
+('assay id', 'Assay Id'), 
+('date submitted', 'Date Submitted'), 
+('submitted by', 'Submitted By'), 
+('total lanes', 'Total Lanes'), 
+('lanes sequenced', 'Lanes Sequenced'), 
+('ovcare test code', 'Record#'),
+('ovcare test creation process', 'Sample Test Creation Process');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `field`='type'), 'notEmpty'),
+((SELECT id FROM structure_fields WHERE `model`='OvcareTest' AND `field`='status'), 'notEmpty');
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) VALUES
+(null, 'InventoryManagement', 'OvcareTest', (SELECT id FROM structures WHERE alias='ovcaretests'), NULL, 'ovcare tests', '', '/InventoryManagement/OvcareTests/detail/%%SampleMaster.collection_id%%/%%OvcareTest.sample_master_id%%/%%OvcareTest.id%%/', '');
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, 1, 'create ovcare tests', '/InventoryManagement/OvcareTests/add/', 1, ''),
+(null, 5, 'create ovcare tests', '/InventoryManagement/OvcareTests/add/', 1, '');
+INSERT INTO `datamart_browsing_controls` (`id1`, `id2`, `flag_active_1_to_2`, `flag_active_2_to_1`, `use_field`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'OvcareTest'), 5, 1, 1, 'sample_master_id');
 
 
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1599,4 +1733,11 @@ Question:
 - veut on lier des participants avec le familly id et que lie t on exactement avec ce champ
 - utiliser le multi add pour study inclusion
 - ajouter lien dans databrowser... collection to misc_identifier
+- check sur les liens... de OvcareTest.study_summary_id (atim delete) + add use + modify view
+- Change Ovcare Test status, assayId ... in batch.
+- Create report to for CGS
+- Check atimdelete et ovcare_test_id comme pour les quality control id (ex sample deletion, etc
+- Supprimer Warning no cosent...
+- Review Code inutile
+- Add translation create code....
 
