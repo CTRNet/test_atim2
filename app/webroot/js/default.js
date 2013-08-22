@@ -1032,16 +1032,11 @@ function initActions(){
 			};
 			
 			if(navigator.userAgent.indexOf("Firefox") != -1){
-				//firefox doesnt do the first popstate
-				if(history.state && window.sessionStorage.getItem("lastLocation") != document.location){
-					window.sessionStorage.setItem("lastLocation", document.location);
-					initIndexZones(true);
-					$(".ajax_search_results").html(history.state);
-					$(".ajax_search_results").parent().show();
-					handleSearchResultLinks();
-				}else{
-					initIndexZones(false);
-				}
+				$(".ajax_search_results").html($(".ajax_search_results_default").html());
+				$(".ajax_search_results").parent().show();
+				$(".ajax_search_results_default").remove();
+				handleSearchResultLinks();
+				initIndexZones(false);
 			}
 		}else{
 			//unknown, always consider new
