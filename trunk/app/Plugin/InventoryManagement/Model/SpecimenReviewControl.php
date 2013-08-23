@@ -2,6 +2,8 @@
 
 class SpecimenReviewControl extends InventoryManagementAppModel {
 	
+	var $master_form_alias = 'specimen_review_masters';
+	
 	var $belongsTo = array(       
 		'AliquotReviewControl' => array(           
 			'className'    => 'InventoryManagement.AliquotReviewControl',            

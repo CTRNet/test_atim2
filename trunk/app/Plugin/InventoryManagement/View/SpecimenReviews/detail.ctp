@@ -59,7 +59,6 @@
 		);
 		
 		$dropdown_options = array();
-		$dropdown_options['AliquotReviewMaster.aliquot_master_id'] = $aliquot_list;	
 		
 		$final_atim_structure = $aliquot_review_structure;
 		$final_options = array('links' => $structure_links, 'data' => $aliquot_review_data, 'type' => 'index', 'settings'=> $structure_settings, 'dropdown_options' => $dropdown_options);

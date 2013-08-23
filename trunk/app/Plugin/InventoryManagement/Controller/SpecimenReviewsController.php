@@ -253,9 +253,6 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 			if($aliquot_master_id_from_tree_view) $criteria['AliquotReviewMaster.aliquot_master_id'] = $aliquot_master_id_from_tree_view;
 			$aliquot_review_data = $this->AliquotReviewMaster->find('all', array('conditions' => $criteria));				
 			$this->set('aliquot_review_data', $aliquot_review_data);
-			
-			// Set available aliquot
-			$this->set('aliquot_list', $this->AliquotReviewMaster->getAliquotListForReview($sample_master_id, (($specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'] == 'all')? null : $specimen_review_data['SpecimenReviewControl']['AliquotReviewControl']['aliquot_type_restriction'])));
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -389,10 +386,8 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 					}
 					$this->AliquotReviewMaster->data = array();
 					$this->AliquotReviewMaster->set($new_aliquot_review);
-pr($new_aliquot_review);					
 					$submitted_data_validates = $this->AliquotReviewMaster->validates() && $submitted_data_validates;
 					$new_aliquot_review = $this->AliquotReviewMaster->data;
-pr($new_aliquot_review);
 					$all_aliquot_review_master_errors = array_merge($all_aliquot_review_master_errors, $this->AliquotReviewMaster->validationErrors);
 				}
 				if(!empty($all_aliquot_review_master_errors)) {

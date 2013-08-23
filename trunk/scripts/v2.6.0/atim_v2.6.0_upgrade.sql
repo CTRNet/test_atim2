@@ -1223,7 +1223,15 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('saved browsing description', 'Steps', 'Étapes'), ('no search criteria', 'No search criteria', 'Aucun critères de recherche');
 REPLACE INTO i18n (id,en,fr) VALUES ('saved browsing description', 'Steps', 'Étapes'), ('no search criteria', 'No search criteria', 'Aucun critères de recherche');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Fixing system field in view_sample_joined_to_collection #2636
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
 UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Administrate/Preferences/index/ does not work on demo + edit broken in 2.6 #2665
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 SET @id = (SELECT id from acos where alias='Administrate');
 UPDATE acos SET alias='PreferencesAdmin' WHERE parent_id=@id and alias='Preferences';
@@ -1233,5 +1241,85 @@ UPDATE menus SET use_link='/Administrate/PreferencesAdmin/index/%%Group.id%%/%%U
 ALTER TABLE users
  DROP COLUMN lang;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Be able to list QC to aliquots by 2 different ways #2593
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
 INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
-(13, 1, 1, 1, "aliquot_master_id");
+((SELECT id FROM datamart_structures WHERE model = 'QualityCtrl'), (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 1, 1, "aliquot_master_id");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add missing relation ship into the databrowser #2685
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT "Added new relationsips into databrowser" as TODO
+UNION ALL
+SELECT "Please flag unactive relationsips if required." as TODO
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO';
+
+-- Clean up specimen & aliquot review forms (master & detail)
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT "Removed all fields of specimen review detail forms already included in specimen review detail form." as TODO
+UNION ALL
+SELECT "Please review all your specimen review forms." as TODO
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT DISTINCT sr.detail_form_alias AS 'TODO' FROM specimen_review_controls sr WHERE sr.flag_active = 1
+UNION ALL 
+SELECT '' AS 'TODO';
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewControl' AND `tablename`='specimen_review_controls' AND `field`='sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_type_for_review') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewControl' AND `tablename`='specimen_review_controls' AND `field`='review_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_type') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats
+WHERE structure_id IN (SELECT st.id FROM structures st INNER JOIN specimen_review_controls ctrl ON ctrl.detail_form_alias = st.alias)
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('review_code','sample_control_id','review_type','review_date','review_status','pathologist','notes') AND model IN ('SpecimenReviewControl','SpecimenReviewMaster'));
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT "Created aliquot_review_masters form and removed all fields of aliquot review detail forms already included in it." as TODO
+UNION ALL
+SELECT "Please review all your aliquot review forms." as TODO
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT DISTINCT ar.detail_form_alias AS 'TODO' FROM aliquot_review_controls ar INNER JOIN specimen_review_controls sr ON sr.aliquot_review_control_id = ar.id WHERE ar.flag_active = 1 AND sr.flag_active = 1
+UNION ALL 
+SELECT '' AS 'TODO';
+DELETE FROM structure_formats
+WHERE structure_id IN (SELECT st.id FROM structures st INNER JOIN aliquot_review_controls ctrl ON ctrl.detail_form_alias = st.alias)
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE field IN ('review_code','basis_of_specimen_review','aliquot_master_id','checkbox','id') AND model IN ('FunctionManagement','AliquotReviewMaster'));
+INSERT INTO structures(`alias`) VALUES ('aliquot_review_masters');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='review code' AND `language_tag`=''), '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='basis of specimen review' AND `language_tag`=''), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='aliquot_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquots_list_for_review')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reviewed aliquot' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '0', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='id' AND `type`='hidden' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='aliquot_review_master_id' AND `language_tag`=''), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE `aliquot_review_controls` ADD COLUMN `databrowser_label` varchar(50) NOT NULL DEFAULT '';
+UPDATE aliquot_review_controls SET databrowser_label = review_type;
+UPDATE structure_formats SET flag_search = '1' WHERE flag_index = 1 AND structure_id IN (SELECT st.id FROM structures st INNER JOIN aliquot_review_controls ctrl ON ctrl.detail_form_alias = st.alias);
+INSERT INTO i18n (id,en,fr) VALUES ('breast tissue slide review', 'Breast Tissue Slide Review', 'Analyse des lame de tissu de sein');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='aliquot_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquots_list_for_review') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Generated', '', 'reviewed_aliquot_label_for_display', 'input',  NULL , '0', 'size=30', '', '', 'reviewed aliquot', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_review_masters'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='reviewed_aliquot_label_for_display' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='reviewed aliquot' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv_search_structure_alias`, `display_name`, `control_master_model`, `index_link`, `batch_edit_link`) VALUES
+(null, 'InventoryManagement', 'AliquotReviewMaster', (SELECT id FROM structures WHERE alias = 'aliquot_review_masters'), NULL, 'aliquot review', 'AliquotReviewMaster', '/InventoryManagement/SpecimenReviews/detail/%%SpecimenReviewMaster.collection_id%%/%%SpecimenReviewMaster.sample_master_id%%/%%SpecimenReviewMaster.id%%/', '');
+INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_active_2_to_1, use_field) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster'), (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster'), 1, 1, "specimen_review_master_id"),
+((SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster'), (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 1, 1, "aliquot_master_id"),
+((SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster'), (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster'), 1, 1, "parent_id");
