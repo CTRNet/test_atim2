@@ -1346,3 +1346,12 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="specimen review" AND language_alias="specimen review"), "", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("gynaecologic", "gynaecologic");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="gynaecologic" AND language_alias="gynaecologic"), "", "1");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Be able to see storage layout from storage detail form  #2524
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('move storage content','Move Storage Content','Déplacer contenu entreposage');
+
+
+

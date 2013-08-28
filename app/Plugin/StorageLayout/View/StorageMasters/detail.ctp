@@ -91,6 +91,8 @@
 						<div style="display: table-cell;" class="loading">---'.__('loading').'---</div>
 					</div>
 				</div>'; 
+				
+			$final_options['links']['bottom'] = array_merge(array('move storage content' => array('link' => '/StorageLayout/StorageMasters/storageLayout/'.$atim_menu_variables['StorageMaster.id'], 'icon' => 'edit')), $final_options['links']['bottom']);
 		} else {
 			$final_options['extras'] = __('no layout exists');
 		}
