@@ -65,9 +65,23 @@ class StorageControl extends StorageLayoutAppModel {
 	function getStorageLayoutDescription($storage_control_data) {
 		$description = '';
 
+		$coord_x_title = $storage_control_data['StorageControl']['coord_x_title'];
+		$coord_y_title = $storage_control_data['StorageControl']['coord_y_title'];
+		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
+		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
+		$all_coordinates_titles = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'storage coordinate titles', 'StructurePermissibleValuesCustom.value' => array($coord_x_title, $coord_y_title))));
+		foreach($all_coordinates_titles AS $new_coordinate) {
+			if($coord_x_title == $new_coordinate['StructurePermissibleValuesCustom']['value']) {
+				$coord_x_title = strlen($new_coordinate['StructurePermissibleValuesCustom'][$lang])? $new_coordinate['StructurePermissibleValuesCustom'][$lang] : $new_coordinate['StructurePermissibleValuesCustom']['value'];
+			}
+			if($coord_y_title == $new_coordinate['StructurePermissibleValuesCustom']['value']) {
+				$coord_y_title = strlen($new_coordinate['StructurePermissibleValuesCustom'][$lang])? $new_coordinate['StructurePermissibleValuesCustom'][$lang] : $new_coordinate['StructurePermissibleValuesCustom']['value'];
+			} 
+		}
+		
 		if(isset($storage_control_data['StorageControl']['coord_x_title'])) {
 			// Set horizontal layout desciption
-			$description .= __($storage_control_data['StorageControl']['coord_x_title']) . ' (' .
+			$description .= $coord_x_title . ' (' .
 				(isset($storage_control_data['StorageControl']['coord_x_type'])? __('type'). ' ' . __($storage_control_data['StorageControl']['coord_x_type']): '').
 				(isset($storage_control_data['StorageControl']['coord_x_size'])? ' / '. __('coordinate size'). ' ' . __($storage_control_data['StorageControl']['coord_x_size']): '').
 				')';
@@ -76,7 +90,7 @@ class StorageControl extends StorageLayoutAppModel {
 			if(isset($storage_control_data['StorageControl']['coord_y_title'])) {
 				// Set vertical layout desciption
 				$description .= '<br>';
-				$description .= __($storage_control_data['StorageControl']['coord_y_title']) . ' (' .
+				$description .= $coord_y_title . ' (' .
 					(isset($storage_control_data['StorageControl']['coord_y_type'])? __('type'). ' ' . __($storage_control_data['StorageControl']['coord_y_type']): '').
 					(isset($storage_control_data['StorageControl']['coord_y_size'])? ' / '. __('coordinate size'). ' ' . __($storage_control_data['StorageControl']['coord_y_size']): '').
 					')';
