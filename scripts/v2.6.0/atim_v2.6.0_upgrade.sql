@@ -1384,5 +1384,19 @@ VALUES
 ('shipping data','Shipping Data',' Données d''envoi'),
 ('this item cannot be deleted because it was already shipped','This item cannot be deleted because it was already shipped!','Cet item ne peut pas être supprimé car il a déjà été envoyé!');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add i18n linked to read and writte access  #No one
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES 
+('you are not allowed to work on this batchset', 'You are not allowed to work on this batchset', 'Vous n''êtes pas authorisés à travailler sur ce lot de données'),
+('this batchset is locked', 'This batchset is locked', 'Ce lot de données est bloqué');
+
+
+
+
+
+
 
 
