@@ -154,6 +154,7 @@ class StorageMastersController extends StorageLayoutAppController {
 	function add($storage_control_id, $predefined_parent_storage_id = null) {
 		// MANAGE DATA
 		$storage_control_data = $this->StorageControl->getOrRedirect($storage_control_id);
+		if(!$storage_control_data['StorageControl']['flag_active']) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		$this->set('storage_control_id', $storage_control_data['StorageControl']['id']);
 		$this->set('layout_description', $this->StorageControl->getStorageLayoutDescription($storage_control_data));
 		
