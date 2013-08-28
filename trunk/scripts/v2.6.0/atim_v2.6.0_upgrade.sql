@@ -1230,7 +1230,7 @@ REPLACE INTO i18n (id,en,fr) VALUES ('saved browsing description', 'Steps', 'Ét
 -- Fixing system field in view_sample_joined_to_collection #2636
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Administrate/Preferences/index/ does not work on demo + edit broken in 2.6 #2665
