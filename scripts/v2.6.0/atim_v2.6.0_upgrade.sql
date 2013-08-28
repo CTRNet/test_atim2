@@ -1353,5 +1353,36 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('move storage content','Move Storage Content','Déplacer contenu entreposage');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Unused parent and reentrant   #2690
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT "Should change trunk ViewSample to fix bug #2690: Changed [SampleMaster.parent_id AS parent_sample_id,] to [SampleMaster.parent_id AS parent_id]." as TODO
+UNION ALL
+SELECT "Please review custom ViewSample $table_query." as TODO
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO'
+UNION ALL 
+SELECT '' AS 'TODO';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Replace expedié/expedition by envoyé/envoi for shipment (in french)  #No one
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES 
+('add items to shipment','Add Items to Shipment','Ajouter article à une expédition'),
+('no new item could be actually added to the shipment','No new item could be actually added to the shipment.','Aucun nouvel article ne peut actuellement être ajouté à l''envoi.'),
+('order item exists for the deleted shipment','Your data cannot be deleted! <br>Item exists for the deleted shipment.','Vos données ne peuvent être supprimées! Des articles sont liés à votre envoi.'),
+('add shipment','Add Shipment','Ajouter une expédition'),
+('shipment exists for the deleted order','Your data cannot be deleted! <br>Shipments exist for the deleted order.','Vos données ne peuvent être supprimées! Des envois existent pour votre commande.'),
+('add items to shipment','Add Items to Shipment','Ajouter article à un envoi'),
+('add shipment','Add Shipment','Ajouter un envoi'),
+('define as shipped','Define as shipped','Définir comme envoyé'),
+('shipping data','Shipping Data',' Données d''envoi'),
+('this item cannot be deleted because it was already shipped','This item cannot be deleted because it was already shipped!','Cet item ne peut pas être supprimé car il a déjà été envoyé!');
+
 
 
