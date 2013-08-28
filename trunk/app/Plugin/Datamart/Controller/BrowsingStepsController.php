@@ -15,7 +15,6 @@ class BrowsingStepsController extends DatamartAppController {
 		
 		$this->request->data = $this->SavedBrowsingIndex->find('all', array('conditions' => $this->SavedBrowsingIndex->getOwnershipConditions(), 'order' => 'SavedBrowsingIndex.name'));
 		foreach($this->request->data as &$data){
-pr($data);Exit;		
 			//Translate display name
 			$data['DatamartStructure']['display_name'] = __($data['DatamartStructure']['display_name']);
 			//Get formatted step data
@@ -34,6 +33,7 @@ pr($data);Exit;
 					if($new_step_model->getControlName() && $new_step['datamart_sub_structure_id'] > 0){									
 						//alternate structure required
 						$tmp_model = AppModel::getInstance($new_step_datamart_structure['plugin'], $new_step_datamart_structure['model'], true);
+						AppModel::getInstance("Datamart", "Browser", true);
 						$alternate_alias = Browser::getAlternateStructureInfo($new_step_datamart_structure['plugin'], $tmp_model->getControlName(), $new_step['datamart_sub_structure_id']);						
 						$alternate_alias = $alternate_alias['form_alias'];
 						$structure = StructuresComponent::$singleton->get('form', $alternate_alias);
