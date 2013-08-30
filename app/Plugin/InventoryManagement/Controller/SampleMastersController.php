@@ -765,7 +765,19 @@ class SampleMastersController extends InventoryManagementAppController {
 			
 		}else if(isset($this->request->data['ViewAliquot']) || isset($this->request->data['AliquotMaster'])){
 			//aliquot init case
-			$aliquot_ids = array_filter(isset($this->request->data['ViewAliquot']) ? $this->request->data['ViewAliquot']['aliquot_master_id'] : $this->request->data['AliquotMaster']['id']);
+			$alq_model = 'ViewAliquot';
+			$alq_key = 'aliquot_master_id';
+			if(isset($this->request->data['AliquotMaster'])) {
+				$alq_model = 'AliquotMaster';
+				$alq_key = 'id';
+			}
+			if(isset($this->request->data['node']) && $this->request->data[ $alq_model ][ $alq_key ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ $alq_model ][ $alq_key ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
+			$aliquot_ids = array_filter($this->request->data[ $alq_model ][ $alq_key ]);
+
 			if(empty($aliquot_ids)){
 				$this->flash(__("batch init no data"), $url_to_cancel, 5);
 			}
@@ -793,6 +805,11 @@ class SampleMastersController extends InventoryManagementAppController {
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
+		}
+		if(isset($this->request->data['node']) && $this->request->data[ $model ][ $key ] == 'all') {
+			$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+			$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+			$this->request->data[ $model ][ $key ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 		}
 		
 		// Set url to redirect

@@ -323,9 +323,14 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
 		if(empty($this->request->data)){
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(isset($this->request->data['Participant']['id']) && is_array($this->request->data['Participant']['id'])){
+		}	
+		if(isset($this->request->data['Participant']['id']) && (is_array($this->request->data['Participant']['id']) || $this->request->data['Participant']['id'] == 'all')){
 			//display
+			if(isset($this->request->data['node']) && $this->request->data['Participant']['id'] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
 			$ids = array_filter($this->request->data['Participant']['id']);
 			$this->request->data[0]['ids'] = implode(",", $ids);
 			

@@ -216,6 +216,11 @@ class OrderItemsController extends OrderAppController {
 					$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_redirect, 5);
 					return;
 				}
+				if($studied_aliquot_master_ids == 'all' && isset($this->request->data['node'])) {
+					$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+					$studied_aliquot_master_ids = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				}
 				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
 					//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
 					$this->flash(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
