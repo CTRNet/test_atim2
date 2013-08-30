@@ -75,18 +75,29 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$cancel_button = '/InventoryManagement/QualityCtrls/listAll/'.$menu_data['collection_id'].'/'.$sample_master_id;
 			
 		}else if(array_key_exists('ViewAliquot', $this->request->data)){
-				$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
-					'conditions'	=> array('AliquotMaster.id' => $this->request->data['ViewAliquot']['aliquot_master_id']),
-					'fields'		=> array('AliquotMaster.sample_master_id'),
-					'recursive'		=> -1)
-				);
-				$menu_data = array();
-				foreach($aliquot_sample_ids as $aliquot_sample_id){
-					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
-				}
+			if(isset($this->request->data['node']) && $this->request->data[ 'ViewAliquot' ][ 'aliquot_master_id' ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ 'ViewAliquot' ][ 'aliquot_master_id' ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
+			$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
+				'conditions'	=> array('AliquotMaster.id' => $this->request->data['ViewAliquot']['aliquot_master_id']),
+				'fields'		=> array('AliquotMaster.sample_master_id'),
+				'recursive'		=> -1)
+			);
+			$menu_data = array();
+			foreach($aliquot_sample_ids as $aliquot_sample_id){
+				$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
+			}
+			
 		}else if(array_key_exists('ViewSample', $this->request->data)){
+			if(isset($this->request->data['node']) && $this->request->data[ 'ViewSample' ][ 'sample_master_id' ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ 'ViewSample' ][ 'sample_master_id' ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
 			$menu_data = $this->request->data['ViewSample']['sample_master_id']; 
-		
+			
 		}else if(!empty($this->request->data)){
 			//submitted data
 			$tmp_data = current($this->request->data);

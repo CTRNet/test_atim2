@@ -79,6 +79,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else {
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
+			if(isset($this->request->data['node']) && $this->request->data[ $model ][ $key ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ $model ][ $key ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
 		} else {
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
@@ -637,6 +642,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(empty($this->request->data)) $initial_display = true;
 			
 		} else if(isset($this->request->data['ViewAliquot']['aliquot_master_id'])){
+			if($this->request->data['ViewAliquot']['aliquot_master_id'] == 'all' && isset($this->request->data['node'])) {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data['ViewAliquot']['aliquot_master_id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
 			$aliquot_ids = array_filter($this->request->data['ViewAliquot']['aliquot_master_id']);
 			$initial_display = true;
 			
@@ -1352,6 +1362,11 @@ class AliquotMastersController extends InventoryManagementAppController {
 			} else {
 				$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
 				return;
+			}
+			if($ids == 'all' && isset($this->request->data['node'])) {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$ids = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
 			if(!is_array($ids) && strpos($ids, ',')){
 				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
@@ -2613,6 +2628,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 		} else if(!isset($this->request->data['ViewAliquot']['aliquot_master_id'])){
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), "javascript:history.back();", 5);
 			return;			
+		} else if($this->request->data['ViewAliquot']['aliquot_master_id'] == 'all' && isset($this->request->data['node'])) {
+			$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+			$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+			$this->request->data['ViewAliquot']['aliquot_master_id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 		}
 		
 		$this->set('cancel_link', AppController::getCancelLink($this->request->data));
@@ -2663,16 +2682,32 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$this->layout = false;
 		Configure::write('debug', 0);
 		$conditions = array();
+			
 		switch($this->passedArgs['model']){
 			case 'Collection':
 				$conditions['AliquotMaster.collection_id'] = isset($this->request->data['ViewCollection']['collection_id']) ? $this->request->data['ViewCollection']['collection_id'] : $this->passedArgs['id'];  
+				if($conditions['AliquotMaster.collection_id'] == 'all' && isset($this->request->data['node'])) {
+					$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+					$conditions['AliquotMaster.collection_id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				}
 				break;
 			case 'SampleMaster':
 				$conditions['AliquotMaster.sample_master_id'] = isset($this->request->data['ViewSample']['sample_master_id']) ? $this->request->data['ViewSample']['sample_master_id'] : $this->passedArgs['id'];
+				if($conditions['AliquotMaster.sample_master_id'] == 'all' && isset($this->request->data['node'])) {
+					$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+					$conditions['AliquotMaster.sample_master_id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				}
 				break;
 			case 'AliquotMaster':
 			default:
 				$conditions['AliquotMaster.id'] = isset($this->request->data['ViewAliquot']['aliquot_master_id']) ? $this->request->data['ViewAliquot']['aliquot_master_id'] : $this->passedArgs['id'];
+				if($conditions['AliquotMaster.id'] == 'all' && isset($this->request->data['node'])) {
+					$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+					$conditions['AliquotMaster.id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				}
 				break;
 		}
 		
