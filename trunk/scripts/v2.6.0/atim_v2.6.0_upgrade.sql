@@ -1331,20 +1331,20 @@ INSERT INTO datamart_browsing_controls (id1, id2, flag_active_1_to_2, flag_activ
 -- Add categories to permissible_values_custom_categories #no one
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("treatment", "treatment");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("treatment", "treatment");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment"), "", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("diagnosis", "diagnosis");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("diagnosis", "diagnosis");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis"), "", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("annotation", "annotation");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("annotation", "annotation");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation"), "", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("contact", "contact");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("contact", "contact");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="contact" AND language_alias="contact"), "", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("drug", "drug");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("drug", "drug");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="drug" AND language_alias="drug"), "", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("study / project", "study / project");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("study / project", "study / project");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="study / project" AND language_alias="study / project"), "", "1");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="specimen review" AND language_alias="specimen review"), "", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("gynaecologic", "gynaecologic");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("gynaecologic", "gynaecologic");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="gynaecologic" AND language_alias="gynaecologic"), "", "1");
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1393,10 +1393,28 @@ VALUES
 ('you are not allowed to work on this batchset', 'You are not allowed to work on this batchset', 'Vous n''êtes pas authorisés à travailler sur ce lot de données'),
 ('this batchset is locked', 'This batchset is locked', 'Ce lot de données est bloqué');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- create batch process to add one internal use to many aliquots (of a freezer, or from aliquots list)   #2702
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('storage event', 'Storage Event', 'Évenement d''entreposage', '1', (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types'), NOW(), NOW(), 1, 1);
+SET @last_id = LAST_INSERT_ID();
+INSERT INTO `structure_permissible_values_customs_revs` (`use_as_input`, `value`, `en`, `fr`, `control_id`, `modified_by`, `id`, `version_created`) 
+(SELECT use_as_input, value, en, fr, control_id, modified_by, id, created FROM structure_permissible_values_customs WHERE id =  @last_id);
+INSERT INTO `datamart_structure_functions` (`datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+((SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'create use/event (applied to all)', '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots', 1, '');
+UPDATE datamart_structure_functions SET label = 'create uses/events (aliquot specific)' WHERE label = 'create internal uses';
+REPLACE INTO i18n (id,en,fr) VALUES ('use/event creation','Use/Event Creation','Création utilisation/événement');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('create uses/events (aliquot specific)', 'Create uses/events (aliquot specific)', 'Créer utilisations/événements (aliquot spécifique)'),
+('create use/event (applied to all))', 'Create use/event (applied to all)', 'Créer utilisation/événement (applicabl à tous)'),
+('no aliquot is contained into this storage', 'No aliquot is contained into this storage', 'Aucun aliquot n''est contenu dans cet entreposage'),
+('aliquot(s) volume units are different - no used volume can be completed', 'The aliquot(s) volume units are different. No used volume can be completed.', 'Les unités de volume des aliquots sont différents. Aucun volume ne pourra être défini.'),
+('you are about to create an use/event for %d aliquot(s)', 'You are about to create an use/event for %d aliquot(s)', 'Vous êtes sur le point de créer un(e) utilisation/événement pour %d aliquots'),
+('you are about to create an use/event for %s aliquot(s) contained into %s', 'You are about to create an use/event for %s aliquot(s) contained into %s', 'Vous êtes sur le point de créer un(e) événement/utilisation pour %d aliquots contenus dans %s'),
+('no used volume can be recorded', 'No used volume can be recorded', 'Aucun volume utilisé ne peut être enregistré'),
+('add storage event to stored aliquots','Add Storage Event','Créer évenement d''entreposage');
 
 
