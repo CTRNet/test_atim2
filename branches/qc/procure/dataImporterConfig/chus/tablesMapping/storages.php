@@ -4,6 +4,7 @@ function loadStorages() {
 	
 	Config::$storages = array();
 	Config::$storage_data_from_sample_type_and_label = array();
+	Config::$additional_dna_miR_from_storage = array();
 	
 	$summary_msg_title = 'Storage data <br>  Files: '.
 		substr(Config::$xls_file_path_storage_whatman_paper, (strrpos(Config::$xls_file_path_storage_whatman_paper,'/')+1)).
@@ -25,7 +26,7 @@ function loadStorages() {
 		'ADN dilué 50 ng/ul' => array('sample_type' => 'dna', 'precision' => '50 ng/ul', 'alq_label_suffix' => 'DNA'),
 		'ADN3' => array('sample_type' => 'dna', 'precision' => '', 'alq_label_suffix' => 'DNA'),
 		'ARN' => array('sample_type' => 'rna', 'precision' => '', 'alq_label_suffix' => 'RNA'),
-		'miRNA' => array('sample_type' => 'dna', 'precision' => 'miRNA', 'alq_label_suffix' => 'miR'),			
+		'miRNA' => array('sample_type' => 'rna', 'precision' => 'miRNA', 'alq_label_suffix' => 'miR'),			
 		'Urine non-clarifiée' => array('sample_type' => 'urine', 'precision' => 'non-clarifiée', 'alq_label_suffix' => 'URI'),
 		'Urine clarifiée' => array('sample_type' => 'centrifuged urine', 'precision' => 'clarifiée', 'alq_label_suffix' => 'URN'),
 		'Urine concentrée' => array('sample_type' => 'concentrated urine', 'precision' => '', 'alq_label_suffix' => 'URC')
@@ -151,7 +152,7 @@ function loadStorages() {
 										$storage_datetime_accuracy = str_replace('c','h', $storage_date_data['accuracy']);
 									}
 								}
-								Config::$storage_data_from_sample_type_and_label[$box_sample_type][$formated_aliquot_label][] = array(
+								$tmp_storage_data = array(
 									'aliquot_label' => $formated_aliquot_label, 
 									'sample_type' => $box_sample_type,
 									'sample_type_precision' => $box_sample_type_details,
@@ -163,6 +164,18 @@ function loadStorages() {
 									'storage_datetime' => $storage_datetime,
 									'tmp_work_sheet_name' => $work_sheet_name,
 									'tmp_cell_value' => $value);
+								
+								$patient_identification = '';
+								$visit = '';
+								$sample_label_suffix = '';
+								if(preg_match('/^(PS[0-9]P[0-9]{3,5})\ (V0[0-9])\ \-((miR)|(DNA2)|(DNA3))$/', $formated_aliquot_label, $matches)) {
+									$patient_identification = $matches[1];
+									$visit = $matches[2];
+									$sample_label_suffix = $matches[3];
+									Config::$additional_dna_miR_from_storage[$patient_identification][$visit][$box_sample_type][] = $tmp_storage_data;
+								} else {
+									Config::$storage_data_from_sample_type_and_label[$box_sample_type][$formated_aliquot_label][] = $tmp_storage_data; 
+								}
 							} else {							
 								Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong aliquot label'][] = "No aliquot label can be extracted from value [$value] in worksheet $work_sheet_name cell [$studied_box_column/$studied_box_row]. Format is not recognized. Aliquot positon won't be imported.";
 							}
@@ -189,7 +202,10 @@ function loadStorages() {
 	$sheets_nbr = array();
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) {
 		$work_sheet_name = $tmp['name'];
-		
+		if(!preg_match('/^Bo.te/', $work_sheet_name)) {	
+			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Unexpected Worksheet'][] = "Worksheet name [$work_sheet_name] has not been parsed.";
+			continue;
+		}
 		$box_storage_master_id = getNewtStorageId();
 		$box_label_from_work_sheet_name = str_replace(array('Boîte', ' '), array('', ''), utf8_encode($tmp['name']));
 		$box_label = '';
@@ -280,7 +296,7 @@ function loadStorages() {
 		Config::$storages["room[Bureau Procure](-)"][$box_label]['id'] = $box_storage_master_id;
 		Config::$storages["room[Bureau Procure](-)"][$box_label]['notes'] = '';
 	}
-
+	
 	// *** End of process ***
 	
 	// Check same label
