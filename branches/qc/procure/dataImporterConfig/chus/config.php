@@ -25,6 +25,7 @@ class Config{
 	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-08-30.xls";
 	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-08-30.xls";
 	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-08-30.xls";
+	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xls";
 	
 	//CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xlsx
 	//CHUS_Données Cliniques_ATiM_2013-08-30.xls
@@ -407,7 +408,7 @@ function getDateAndAccuracy($date, $data_type, $field, $line) {
 	}	
 }
 
-function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_time, $line) {
+function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_time, $line, $worksheetname = '') {
 	$time = str_replace('N/A','',$time);
 	$formatted_date = "''";
 	$formatted_date_accuracy = "''";
@@ -416,7 +417,7 @@ function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_ti
 		$formatted_date = $tmp_date['date'];
 		$formatted_date_accuracy = $tmp_date['accuracy'];
 	} else {
-		if(!empty($time)) Config::$summary_msg[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line]";
+		if(!empty($time)) Config::$summary_msg[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line - worksheet: $worksheetname]";
 		return null;
 	}
 	
@@ -424,7 +425,7 @@ function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_ti
 		return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
 	} else {
 		if($formatted_date_accuracy != 'c') {
-			Config::$summary_msg[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line]";
+			Config::$summary_msg[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line - worksheet: $worksheetname]";
 			return null;
 		} else if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
 			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
@@ -440,7 +441,7 @@ function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_ti
 			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
 		} else {		
 			//Config::$summary_msg[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [fields '$field_date' & '$field_time' - line: $line]";
-			die("ERR time format should be h:mm see value $time for field $field_time' line '$line'");
+			die("ERR time format should be h:mm see value $time for field $field_time' line '$line' [$worksheetname] - Be sure cell format = personalisé hh:mm");
 			//return null;
 		}
 	}
