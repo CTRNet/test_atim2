@@ -77,3 +77,23 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(10)
 UPDATE aliquot_controls SET flag_active=true WHERE id IN(15);
 
 UPDATE `storage_controls` SET coord_x_size = 7 WHERE storage_type = 'box49 7x7';
+
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- After 20130902
+-- ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE ad_tubes ADD COLUMN procure_chus_micro_rna char(1) DEFAULT '';
+ALTER TABLE ad_tubes_revs ADD COLUMN procure_chus_micro_rna char(1) DEFAULT '';
+INSERT INTO structures(`alias`) VALUES ('procure_chus_micro_rna');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'procure_chus_micro_rna', 'yes_no',  NULL , '0', '', '', '', 'micro rna', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_chus_micro_rna'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='procure_chus_micro_rna' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='micro rna' AND `language_tag`=''), '1', '70', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('micro rna', 'miRNA', 'miARN');
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',procure_chus_micro_rna') WHERE sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'rna');
+
+
+
+
+
+
