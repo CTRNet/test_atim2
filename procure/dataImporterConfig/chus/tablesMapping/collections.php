@@ -41,6 +41,12 @@ function loadCollections() {
 		$worksheet_name = $visit.utf8_decode(' - F3 à F6');
 		if(!isset($tmp_xls_reader->sheets[$sheets_nbr[$worksheet_name]])) die('ERR loadCollections 84444444382 - '.$visit.' - '.$worksheet_name);
 		loadBlood($tmp_xls_reader->sheets[$sheets_nbr[$worksheet_name]]['cells'], $filename, $worksheet_name, $visit);
+		
+		
+		// Vn: Urine
+		$worksheet_name = $visit.utf8_decode(' - F7 à F9');
+		if(!isset($tmp_xls_reader->sheets[$sheets_nbr[$worksheet_name]])) die('ERR loadCollections 84444444382 - '.$visit.' - '.$worksheet_name);
+		loadUrine($tmp_xls_reader->sheets[$sheets_nbr[$worksheet_name]]['cells'], $filename, $worksheet_name, $visit);
 	}
 
 	// ******************* Display unused storage information **********************************
@@ -54,6 +60,10 @@ function loadCollections() {
 //=========================================================================================================
 
 function loadTissue(&$workSheetCells, $filename, $worksheetname) {	
+	// First get paraffin blocks
+	$paraffin_blocks = getParaffinBlocks();
+	
+	// Launch process
 	$summary_msg_title = 'Tissue V01 <br>  File: '.$filename;
 	
 	$headers = array();
@@ -208,6 +218,19 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 					}
 				}
 				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime]['Specimens'][0]['Aliquots'] = $new_aliquots;
+				
+				if(isset($paraffin_blocks[$patient_identification])) {
+					Config::$participant_collections[$patient_identification]['V01'][$collection_datetime]['Specimens'][] = array(
+						'***tmp_sample_type***' => 'tissue',
+						'SampleMaster' => array(),
+						'SampleDetail' => array('procure_prostatectomy_type' => $procure_prostatectomy_type, 'procure_report_number' => $paraffin_blocks[$patient_identification]['#patho']),
+						'SpecimenDetail' => array(),
+						'Derivatives' => array(),
+						'Aliquots' => $paraffin_blocks[$patient_identification]['aliquots'],
+						'QualityCtrl' => array()
+					);
+					unset($paraffin_blocks[$patient_identification]);
+				}
 			} else {
 				Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No tissue'][] = "No tissue slide has been collected for PROCURE for patient $patient_identification. No tissue collection will be created. See worksheet [$worksheetname] line $line_counter";
 				$tmp_check = $new_line_data;
@@ -221,6 +244,136 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 			}			
 		}
 	}
+	
+	if(!empty($paraffin_blocks)) {
+pr($paraffin_blocks);
+	//TODO pourquoi tjrs PS4P0425	
+		$summary_msg_title = 'Storage data <br>  Files: '.substr(Config::$xls_file_path_paraffin_blocks, (strrpos(Config::$xls_file_path_paraffin_blocks,'/')+1));
+		foreach($paraffin_blocks as $$patient_identification => $blocks) {
+			Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Paraffin blocks not imported'][] = "Paraffin blocks of patient $patient_identification have not been imported. No tissue collection had probably be created from inventory file.";
+		}
+	}
+}
+
+function getParaffinBlocks() {
+	$summary_msg_title = 'Storage data <br>  Files: '.substr(Config::$xls_file_path_paraffin_blocks, (strrpos(Config::$xls_file_path_paraffin_blocks,'/')+1));
+
+	// Create patho room
+	$storage_control = Config::$storage_controls['room'];
+	$patho_storage_master_id = getNewtStorageId();
+	$master_fields = array(
+		"id" => $patho_storage_master_id,
+		"code" => $patho_storage_master_id,
+		"short_label" => 'Patho',
+		"selection_label" => 'Patho',
+		"storage_control_id" => $storage_control['storage_control_id'],
+		"lft" => getNextLeftRight(),
+		"rght" => getNextLeftRight()
+	);
+	$storage_master_id = customInsertRecord($master_fields, 'storage_masters');
+	customInsertRecord(array("storage_master_id" => $patho_storage_master_id), $storage_control['detail_tablename'], true);
+	
+   	// Track blocks
+	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
+	$tmp_xls_reader->read( Config::$xls_file_path_paraffin_blocks);
+	$line_counter = 0;
+	$paraffin_blocks = array();
+	foreach($tmp_xls_reader->boundsheets as $key => $tmp) {
+		$worksheetname = $tmp['name'];
+		$headers = array();
+		foreach($tmp_xls_reader->sheets[$key]['cells'] as $line => $new_line) {
+			$line_counter++;
+			if($line_counter == 2) {
+				$headers = $new_line;
+			} else if($headers) {
+				$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+				$patient_identification = $new_line_data['Patients'];
+				$patho_nbr= str_Replace(array(' ', 'X') , array('', ''), $new_line_data['# Patho']);
+				$blocks_T = str_Replace(array(' ', 'X') , array('', ''), $new_line_data['Numéro échantillons Tumoraux']);
+				$blocks_NT = str_Replace(array(' ', 'X') , array('', ''), $new_line_data['Numéro échantillons Non-Tumoraux']);			
+				if($patho_nbr.$blocks_T.$blocks_NT) {
+					if(isset($paraffin_blocks[$patient_identification])) die("ERR88365246272. See worksheet [$worksheetname] line $line_counter");
+					$paraf_blocks_and_slides = array();
+					$tmp_ctrl_T_NT = array();
+					//Create tumoral blocks & slides
+					if($blocks_T) {
+						foreach(explode(',', $blocks_T) as $block_and_slide) {
+							if(preg_match('/^([A-Z][0-9]{1,2})(\/([0-9])){0,1}$/', $block_and_slide, $matches)) {
+								$block_code = $matches[1];
+								$slide_code = isset($matches[3])? $matches[3] : '1';
+								$block_label = "$patient_identification $patho_nbr $block_code";
+								if(!isset($paraf_blocks_and_slides[$block_code])) {
+									$paraf_blocks_and_slides[$block_code] = array(
+										'***aliquot_type***' => 'block',
+										'AliquotMaster' => array(
+											'barcode' => "$block_label",
+											'in_stock' => 'yes - available',
+											'storage_master_id' => $patho_storage_master_id),
+										'AliquotDetail' => array(
+											'block_type' => 'paraffin',
+											'procure_chus_tumor_presence' => 'y',
+											'patho_dpt_block_code' => $block_code),
+										'realiquoted_aliquots' => array()
+									);
+								}
+								if(isset($paraf_blocks_and_slides[$block_code]['realiquoted_aliquots'][$slide_code])) die("ERR83657223. See worksheet [$worksheetname] line $line_counter");
+								$paraf_blocks_and_slides[$block_code]['realiquoted_aliquots'][$slide_code] = array(
+									'***aliquot_type***' => 'slide',
+									'AliquotMaster' => array(
+											'barcode' => "$block_label-$slide_code",
+											'in_stock' => 'yes - available'),
+									'AliquotDetail' => array()
+								);
+								$tmp_ctrl_T_NT[$block_code] = $block_code;
+							} else {
+								die("ERR 738811111132 = $block_and_slide. See worksheet [$worksheetname] line $line_counter");
+							}
+						}
+					}
+					//Create non tumoral blocks & slides
+					if($blocks_NT) {
+						foreach(explode(',', $blocks_NT) as $block_and_slide) {
+							if(preg_match('/^([A-Z][0-9]{1,2})(\/([0-9])){0,1}$/', $block_and_slide, $matches)) {
+								$block_code = $matches[1];
+								if(isset($tmp_ctrl_T_NT[$block_code])) die("ERR837337337. See worksheet [$worksheetname] line $line_counter");
+								$slide_code = isset($matches[3])? $matches[3] : '1';
+								$block_label = "$patient_identification $patho_nbr $block_code";
+								if(!isset($paraf_blocks_and_slides[$block_code])) {
+									$paraf_blocks_and_slides[$block_code] = array(
+											'***aliquot_type***' => 'block',
+											'AliquotMaster' => array(
+													'barcode' => "$block_label",
+													'in_stock' => 'yes - available',
+													'storage_master_id' => $patho_storage_master_id),
+											'AliquotDetail' => array(
+													'block_type' => 'paraffin',
+													'procure_chus_tumor_presence' => 'n'),
+											'realiquoted_aliquots' => array()
+									);
+								}
+								if(isset($paraf_blocks_and_slides[$block_code]['realiquoted_aliquots'][$slide_code])) die("ERR83657223.2. See worksheet [$worksheetname] line $line_counter block[$block_code]['realiquoted_aliquots'][$slide_code]");
+								$paraf_blocks_and_slides[$block_code]['realiquoted_aliquots'][$slide_code] = array(
+										'***aliquot_type***' => 'slide',
+										'AliquotMaster' => array(
+												'barcode' => "$block_label-$slide_code",
+												'in_stock' => 'yes - available'),
+										'AliquotDetail' => array()
+								);
+								
+							} else {
+								die("ERR 738895576332  = $block_and_slide . See worksheet [$worksheetname] line $line_counter");
+							}
+						}
+					}
+					// complete res....
+					if(empty($paraf_blocks_and_slides)) die("ERR 731111116332. See worksheet [$worksheetname] line $line_counter");
+					if(empty($patho_nbr)) die("ERR 731111116332.2  = $block_and_slide . See worksheet [$worksheetname] line $line_counter");
+					$paraffin_blocks[$patient_identification] = array('#patho' => $patho_nbr, 'aliquots' => $paraf_blocks_and_slides);
+				}			
+			}
+		}
+	}
+	return $paraffin_blocks;
 }
 		
 function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
@@ -282,15 +435,15 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 			if($new_line_data['Date de prélèvement du sang'] && !preg_match('/[a-zA-Z]/', $new_line_data['Date de prélèvement du sang'])) {
 				if($new_line_data['Visite'] != $visit) die("ERR 89499788344 collection visit error. See worksheet [$worksheetname] line $line_counter");
 				// Get collection date
-				$tmp_collection_date = getDateTimeAndAccuracy($new_line_data['Date de prélèvement du sang'], $new_line_data['Heure'], $summary_msg_title, 'Date de prélèvement du sang', 'Heure', $line_counter);
+				$tmp_collection_date = getDateTimeAndAccuracy($new_line_data['Date de prélèvement du sang'], $new_line_data['Heure'], $summary_msg_title, 'Date de prélèvement du sang', 'Heure', $line_counter, $worksheetname);
 				$collection_datetime = ($tmp_collection_date? $tmp_collection_date['datetime'] : "''");
 				$collection_datetime_accuracy = ($tmp_collection_date? $tmp_collection_date['accuracy'] : "''");
 				//Get reception date
-				$tmp_reception_date = getDateTimeAndAccuracy($new_line_data['Date de réception du sang'], $new_line_data['Heure de réception du  sang'], $summary_msg_title, 'Date de réception du sang', 'Heure de réception du  sang', $line_counter);
+				$tmp_reception_date = getDateTimeAndAccuracy($new_line_data['Date de réception du sang'], $new_line_data['Heure de réception du  sang'], $summary_msg_title, 'Date de réception du sang', 'Heure de réception du  sang', $line_counter, $worksheetname);
 				$reception_datetime = ($tmp_reception_date? $tmp_reception_date['datetime'] : "''");
 				$reception_datetime_accuracy = ($tmp_reception_date? $tmp_reception_date['accuracy'] : "''");
 				//Get derivativ creation date
-				$tmp_derivative_creation_date = getDateTimeAndAccuracy($new_line_data['Date de réception du sang'], '', $summary_msg_title, 'Date de réception du sang', 'none', $line_counter);
+				$tmp_derivative_creation_date = getDateTimeAndAccuracy($new_line_data['Date de réception du sang'], '', $summary_msg_title, 'Date de réception du sang', 'none', $line_counter, $worksheetname);
 				$derivative_creation_datetime = ($tmp_derivative_creation_date)? $tmp_derivative_creation_date['datetime'] : "''";
 				$derivative_creation_datetime_accuracy = ($tmp_derivative_creation_date)? $tmp_derivative_creation_date['accuracy'] : "''";
 				// Get BLOOD DNA (FROM PBMC)
@@ -301,7 +454,7 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 					$volume_ul = str_replace('N/A', '', $new_line_data["DNA::Volume (uL)"]);
 					$concentration = str_replace('N/A', '', $new_line_data["DNA::Concentration (ng/µl)"]);
 					if(!empty($quantity_ug) && (empty($volume_ul) || empty($concentration))) die("ERR 733s2e11239. See worksheet [$worksheetname] line $line_counter");
-					$tmp_pbmc_dna_creation_date = getDateTimeAndAccuracy($extraction_date, '', $summary_msg_title, "DNA::Date d'extraction", 'none', $line_counter);
+					$tmp_pbmc_dna_creation_date = getDateTimeAndAccuracy($extraction_date, '', $summary_msg_title, "DNA::Date d'extraction", 'none', $line_counter, $worksheetname);
 					$dna_creation_datetime = ($tmp_pbmc_dna_creation_date)? $tmp_pbmc_dna_creation_date['datetime'] : "''";
 					$dna_creation_datetime_accuracy = ($tmp_pbmc_dna_creation_date)? $tmp_pbmc_dna_creation_date['accuracy'] : "''";
 					if($volume_ul && !preg_match('/^([0-9]+)([,\.][0-9]+){0,1}$/', $volume_ul)) die("ERR 7111435639 : $volume_ul. See worksheet [$worksheetname] line $line_counter");
@@ -380,7 +533,7 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 					$volume_ul = str_replace('N/A', '', $new_line_data["RNA::Volume (uL)"]);
 					$concentration = str_replace('N/A', '', $new_line_data["RNA::Concentration (ng/µl)"]);
 					if(!empty($quantity_ug) && (empty($volume_ul) || empty($concentration))) die("ERR 8894994. See worksheet [$worksheetname] line $line_counter");
-					$tmp_paxgene_rna_creation_date = getDateTimeAndAccuracy($extraction_date, '', $summary_msg_title, "RNA::Date d'extraction", 'none', $line_counter);
+					$tmp_paxgene_rna_creation_date = getDateTimeAndAccuracy($extraction_date, '', $summary_msg_title, "RNA::Date d'extraction", 'none', $line_counter, $worksheetname);
 					$rna_creation_datetime = ($tmp_paxgene_rna_creation_date)? $tmp_paxgene_rna_creation_date['datetime'] : "''";
 					$rna_creation_datetime_accuracy = ($tmp_paxgene_rna_creation_date)? $tmp_paxgene_rna_creation_date['accuracy'] : "''";
 					if($volume_ul && !preg_match('/^([0-9]+)([,\.][0-9]+){0,1}$/', $volume_ul)) die("ERR 9933333329 : $volume_ul. See worksheet [$worksheetname] line $line_counter");
@@ -471,7 +624,7 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 					if(!empty($specimen_tubes_and_derivatives_config['storage_datetime_fields'])) {
 						$storage_date_field  = $specimen_tubes_and_derivatives_config['storage_datetime_fields']['date'];
 						$storage_time_field  = $specimen_tubes_and_derivatives_config['storage_datetime_fields']['time'];
-						$tmp_specimen_storage_date = getDateTimeAndAccuracy($new_line_data[$storage_date_field], $new_line_data[$storage_time_field], $summary_msg_title, $storage_date_field, $storage_time_field, $line_counter);
+						$tmp_specimen_storage_date = getDateTimeAndAccuracy($new_line_data[$storage_date_field], $new_line_data[$storage_time_field], $summary_msg_title, $storage_date_field, $storage_time_field, $line_counter, $worksheetname);
 					}
 					for($tube_id = 1; $tube_id <= $nbr_of_tubes_received; $tube_id++) {
 						$new_specimen_and_derivative_data['Aliquots'][] = array(
@@ -521,7 +674,7 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 						$tmp_derivative_aliquots = array();
 						$storage_date_field  = $derivative_config['storage_datetime_fields']['date'];
 						$storage_time_field  = $derivative_config['storage_datetime_fields']['time'];
-						$tmp_storage_date = getDateTimeAndAccuracy($new_line_data[$storage_date_field], $new_line_data[$storage_time_field], $summary_msg_title, $storage_date_field, $storage_time_field, $line_counter);
+						$tmp_storage_date = getDateTimeAndAccuracy($new_line_data[$storage_date_field], $new_line_data[$storage_time_field], $summary_msg_title, $storage_date_field, $storage_time_field, $line_counter, $worksheetname);
 						$storage_datetime = ($tmp_storage_date? $tmp_storage_date['datetime'] : "''");
 						$storage_datetime_accuracy = ($tmp_storage_date? $tmp_storage_date['accuracy'] : "''");
 						for($tube_id = 1; $tube_id <= $derivative_config['max_nbr_of_tube']; $tube_id++) {
@@ -659,19 +812,19 @@ function loadUrine($workSheetCells, $filename, $worksheetname, $visit) {
 			if($new_line_data['Date de prélèvement de urine'] && !preg_match('/[a-zA-Z]/', $new_line_data['Date de prélèvement de urine']) && $new_line_data['Date de prélèvement de urine'] != 'N/A') {
 				if($new_line_data['Visite'] != $visit) die("ERR 774888398393 collection visit error. See worksheet [$worksheetname] line $line_counter");
 				// Get collection date
-				$tmp_collection_date = getDateTimeAndAccuracy($new_line_data['Date de prélèvement de urine'], $new_line_data['Heure'], $summary_msg_title, 'Date de prélèvement de urine', 'Heure', $line_counter);
+				$tmp_collection_date = getDateTimeAndAccuracy($new_line_data['Date de prélèvement de urine'], $new_line_data['Heure'], $summary_msg_title, 'Date de prélèvement de urine', 'Heure', $line_counter, $worksheetname);
 				$collection_datetime = ($tmp_collection_date? $tmp_collection_date['datetime'] : "''");
 				$collection_datetime_accuracy = ($tmp_collection_date? $tmp_collection_date['accuracy'] : "''");
 				//Get reception date
-				$tmp_reception_date = getDateTimeAndAccuracy($new_line_data['Date de réception de urine'], $new_line_data['Heure de réception de urine'], $summary_msg_title, 'Date de réception de urine', 'Heure de réception de urine', $line_counter);
+				$tmp_reception_date = getDateTimeAndAccuracy($new_line_data['Date de réception de urine'], $new_line_data['Heure de réception de urine'], $summary_msg_title, 'Date de réception de urine', 'Heure de réception de urine', $line_counter, $worksheetname);
 				$reception_datetime = ($tmp_reception_date? $tmp_reception_date['datetime'] : "''");
 				$reception_datetime_accuracy = ($tmp_reception_date? $tmp_reception_date['accuracy'] : "''");
 				//Get derivativ creation date
-				$tmp_derivative_creation_date = getDateTimeAndAccuracy($new_line_data['Date de réception de urine'], '', $summary_msg_title, 'Date de réception de urine', 'none', $line_counter);
+				$tmp_derivative_creation_date = getDateTimeAndAccuracy($new_line_data['Date de réception de urine'], '', $summary_msg_title, 'Date de réception de urine', 'none', $line_counter, $worksheetname);
 				$derivative_creation_datetime = ($tmp_derivative_creation_date)? $tmp_derivative_creation_date['datetime'] : "''";
 				$derivative_creation_datetime_accuracy = ($tmp_derivative_creation_date)? $tmp_derivative_creation_date['accuracy'] : "''";
 				//Get storage date
-				$tmp_storage_date = getDateTimeAndAccuracy($new_line_data['Date de congélation des aliquots de urine'], $new_line_data['Heure de congélation des aliquots de urine'], $summary_msg_title, 'Date de congélation des aliquots de urine', 'Heure de congélation des aliquots de urine', $line_counter);
+				$tmp_storage_date = getDateTimeAndAccuracy($new_line_data['Date de congélation des aliquots de urine'], $new_line_data['Heure de congélation des aliquots de urine'], $summary_msg_title, 'Date de congélation des aliquots de urine', 'Heure de congélation des aliquots de urine', $line_counter, $worksheetname);
 				$storage_datetime = ($tmp_storage_date? $tmp_storage_date['datetime'] : "''");
 				$storage_datetime_accuracy = ($tmp_storage_date? $tmp_storage_date['accuracy'] : "''");
 				for($tube_id = 1; $tube_id <= 4; $tube_id++) if($new_line_data['URN'.$tube_id.' (rangement)']) die("ERR 7733334774. See worksheet [$worksheetname] line $line_counter");
