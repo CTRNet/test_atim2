@@ -73,6 +73,8 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 	$line_counter = 0;
 	$duplicated_participant_check = array();
 	
+	$tissue_sample_control_id = Config::$sample_aliquot_controls['tissue']['sample_control_id'];
+	
 	foreach($workSheetCells as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
@@ -108,14 +110,15 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 				}
 				if($collection_datetime == "''") Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Tissue collection without collection date'][] = "No surgery date has been set for patient $patient_identification.Tissue collection will be created with no collection date. See worksheet [$worksheetname] line $line_counter";
 				if(!preg_match('/^[0-9]*$/', $new_line_data['Nombre de tranches prélevées pour PROCURE'])) die("ERR 894884949944 See worksheet [$worksheetname] line $line_counter");
-				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime] = array(
+				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id] = array(
 					'Collection' => array(
-					'participant_id' => '',
-					'procure_visit' => 'V01',
-					'procure_patient_identity_verified' => '1',
-					'collection_datetime' => $collection_datetime,
-					'collection_datetime_accuracy' => $collection_datetime_accuracy,
-					'collection_notes' => ''),
+						'participant_id' => '',
+						'procure_visit' => 'V01',
+						'procure_patient_identity_verified' => '1',
+						'collection_datetime' => $collection_datetime,
+						'collection_datetime_accuracy' => $collection_datetime_accuracy,
+						'procure_chus_collection_specimen_sample_control_id' => $tissue_sample_control_id,
+						'collection_notes' => ''),
 					'Specimens' => array(
 						array(
 							'***tmp_sample_type***' => 'tissue',
@@ -217,10 +220,10 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 						}
 					}
 				}
-				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime]['Specimens'][0]['Aliquots'] = $new_aliquots;
+				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id]['Specimens'][0]['Aliquots'] = $new_aliquots;
 				
 				if(isset($paraffin_blocks[$patient_identification])) {
-					Config::$participant_collections[$patient_identification]['V01'][$collection_datetime]['Specimens'][] = array(
+					Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id]['Specimens'][] = array(
 						'***tmp_sample_type***' => 'tissue',
 						'SampleMaster' => array(),
 						'SampleDetail' => array('procure_prostatectomy_type' => $procure_prostatectomy_type, 'procure_report_number' => $paraffin_blocks[$patient_identification]['#patho']),
@@ -246,10 +249,8 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 	}
 	
 	if(!empty($paraffin_blocks)) {
-pr($paraffin_blocks);
-	//TODO pourquoi tjrs PS4P0425	
 		$summary_msg_title = 'Storage data <br>  Files: '.substr(Config::$xls_file_path_paraffin_blocks, (strrpos(Config::$xls_file_path_paraffin_blocks,'/')+1));
-		foreach($paraffin_blocks as $$patient_identification => $blocks) {
+		foreach($paraffin_blocks as $patient_identification => $blocks) {
 			Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Paraffin blocks not imported'][] = "Paraffin blocks of patient $patient_identification have not been imported. No tissue collection had probably be created from inventory file.";
 		}
 	}
@@ -311,7 +312,7 @@ function getParaffinBlocks() {
 											'storage_master_id' => $patho_storage_master_id),
 										'AliquotDetail' => array(
 											'block_type' => 'paraffin',
-											'procure_chus_tumor_presence' => 'y',
+											'procure_classification' => 'C',
 											'patho_dpt_block_code' => $block_code),
 										'realiquoted_aliquots' => array()
 									);
@@ -346,8 +347,9 @@ function getParaffinBlocks() {
 													'in_stock' => 'yes - available',
 													'storage_master_id' => $patho_storage_master_id),
 											'AliquotDetail' => array(
-													'block_type' => 'paraffin',
-													'procure_chus_tumor_presence' => 'n'),
+											'block_type' => 'paraffin',
+											'procure_classification' => 'NC',
+											'patho_dpt_block_code' => $block_code),
 											'realiquoted_aliquots' => array()
 									);
 								}
@@ -423,6 +425,7 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 	$headers = array();
 	$line_counter = 0;
 	$duplicated_participant_check = array();
+	$blood_sample_control_id = Config::$sample_aliquot_controls['blood']['sample_control_id'];
 	foreach($workSheetCells as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
@@ -740,14 +743,16 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 				if(!empty($tmp_pbmc_dna))  die("ERR 9992292233. See worksheet [$worksheetname] line $line_counter");
 				if(empty($new_collection_specimens)) die("ERR 990000333. See worksheet [$worksheetname] line $line_counter");
 				// Add new collection to array
-				if(isset(Config::$participant_collections[$patient_identification][$visit][$collection_datetime])) die("ERR 99000033444433. See worksheet [$worksheetname] line $line_counter");
-				Config::$participant_collections[$patient_identification][$visit][$collection_datetime] = array(
+				if(isset(Config::$participant_collections[$patient_identification][$visit][$collection_datetime.$blood_sample_control_id])) die("ERR 99000033444433. See worksheet [$worksheetname] line $line_counter");
+				Config::$participant_collections[$patient_identification][$visit][$collection_datetime.$blood_sample_control_id] = array(
 					'Collection' => array(
-					'participant_id' => '',
-					'procure_visit' => $visit,
-					'procure_patient_identity_verified' => '1',
-					'collection_datetime' => $collection_datetime,
-					'collection_datetime_accuracy' => $collection_datetime_accuracy),
+						'participant_id' => '',
+						'procure_visit' => $visit,
+						'procure_patient_identity_verified' => '1',
+						'collection_datetime' => $collection_datetime,
+						'collection_datetime_accuracy' => $collection_datetime_accuracy,
+						'procure_chus_collection_specimen_sample_control_id' => $blood_sample_control_id,
+						'collection_notes' => ''),
 					'Specimens' => $new_collection_specimens
 				);			
 			} else {
@@ -800,6 +805,7 @@ function loadUrine($workSheetCells, $filename, $worksheetname, $visit) {
 	$headers = array();
 	$line_counter = 0;
 	$duplicated_participant_check = array();
+	$urine_sample_control_id = Config::$sample_aliquot_controls['urine']['sample_control_id'];	
 	foreach($workSheetCells as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
@@ -892,17 +898,19 @@ function loadUrine($workSheetCells, $filename, $worksheetname, $visit) {
 				if(empty($new_urine_and_derivatives['Aliquots']) && empty($new_urine_and_derivatives['Derivatives'])) die("ERR 3222 1 1 1. See worksheet [$worksheetname] line $line_counter");
 
 				// ** 3 ** Collection
-				if(isset(Config::$participant_collections[$patient_identification][$visit][$collection_datetime])) {
-					Config::$participant_collections[$patient_identification][$visit][$collection_datetime]['Specimens'][] = $new_urine_and_derivatives;
+				if(isset(Config::$participant_collections[$patient_identification][$visit][$collection_datetime.$urine_sample_control_id])) {
+					Config::$participant_collections[$patient_identification][$visit][$collection_datetime.$urine_sample_control_id]['Specimens'][] = $new_urine_and_derivatives;
 					Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['Merged specimens into same collection'][] = "Added urine to an existing collection. See patient '$patient_identification' and collection date '$collection_datetime'. See worksheet [$worksheetname] line $line_counter";
 				} else {
-					Config::$participant_collections[$patient_identification][$visit][$collection_datetime] = array(
+					Config::$participant_collections[$patient_identification][$visit][$collection_datetime.$urine_sample_control_id] = array(
 						'Collection' => array(
-						'participant_id' => '',
-						'procure_visit' => $visit,
-						'procure_patient_identity_verified' => '1',
-						'collection_datetime' => $collection_datetime,
-						'collection_datetime_accuracy' => $collection_datetime_accuracy),
+							'participant_id' => '',
+							'procure_visit' => $visit,
+							'procure_patient_identity_verified' => '1',
+							'collection_datetime' => $collection_datetime,
+							'collection_datetime_accuracy' => $collection_datetime_accuracy,
+							'procure_chus_collection_specimen_sample_control_id' => $urine_sample_control_id,
+							'collection_notes' => ''),
 						'Specimens' => array($new_urine_and_derivatives)
 					);
 				}
@@ -1049,7 +1057,7 @@ function displayUnusedStorageInformation() {
 function recordParticipantCollection($patient_identification, $participant_id) {
 	if(isset(Config::$participant_collections[$patient_identification])) {
 		foreach(Config::$participant_collections[$patient_identification] as $visit_key => $new_visit_collections) {
-			foreach($new_visit_collections as $date_key => $new_collection) {
+			foreach($new_visit_collections as $date_specimen_control_id_key => $new_collection) {
 				$new_collection['Collection']['participant_id'] = $participant_id;
 				recordCollection($new_collection);
 			}
@@ -1146,10 +1154,12 @@ function createAliquot($collection_id, $sample_master_id, $sample_type, $aliquot
 			// Create raliquoting data
 			$realiquoting_data = array(
 				'parent_aliquot_master_id' => $parent_aliquot_master_id, 
-				'child_aliquot_master_id' => $aliquot_master_id, 
-				'realiquoting_datetime' => $new_aliquot['AliquotMaster']['storage_datetime'],
-				'realiquoting_datetime_accuracy' => $new_aliquot['AliquotMaster']['storage_datetime_accuracy']
+				'child_aliquot_master_id' => $aliquot_master_id				
 			);
+			if(isset($new_aliquot['AliquotMaster']['storage_datetime'])) {
+				$realiquoting_data['realiquoting_datetime'] = $new_aliquot['AliquotMaster']['storage_datetime'];
+				$realiquoting_data['realiquoting_datetime_accuracy'] = $new_aliquot['AliquotMaster']['storage_datetime_accuracy'];
+			}
 			customInsertRecord($realiquoting_data, 'realiquotings', false);
 		}
 		if(isset($new_aliquot['realiquoted_aliquots']) && !empty($new_aliquot['realiquoted_aliquots'])) {

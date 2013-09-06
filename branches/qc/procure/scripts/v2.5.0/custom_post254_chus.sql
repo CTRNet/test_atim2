@@ -95,14 +95,39 @@ UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias, ',proc
 UPDATE aliquot_controls SET flag_active=true WHERE id IN(10);
 UPDATE realiquoting_controls SET flag_active=true WHERE id IN(11);
 
-ALTER TABLE ad_blocks ADD COLUMN procure_chus_tumor_presence char(1) DEFAULT '';
-ALTER TABLE ad_blocks_revs ADD COLUMN procure_chus_tumor_presence char(1) DEFAULT '';
-UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE collections ADD `procure_chus_collection_specimen_sample_control_id` int(11) DEFAULT null;
+ALTER TABLE collections_revs ADD `procure_chus_collection_specimen_sample_control_id` int(11) DEFAULT null;
+ALTER TABLE `collections`
+  ADD CONSTRAINT `FK_procure_chus_sample_masters_sample_controls` FOREIGN KEY (`procure_chus_collection_specimen_sample_control_id`) REFERENCES `sample_controls` (`id`);
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES
+(null, 'procure_chus_specimen_type_from_id', 'open', '', 'InventoryManagement.SampleControl::getSpecimenSampleTypePermissibleValuesFromId');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'procure_chus_tumor_presence', 'yes_no',  NULL , '0', '', '', '', 'tumor presence', '');
+('InventoryManagement', 'Collection', 'collections', 'procure_chus_collection_specimen_sample_control_id', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name = 'procure_chus_specimen_type_from_id') , '0', '', '', '', 'specimen type', ''),
+('InventoryManagement', 'ViewCollection', '', 'procure_chus_collection_specimen_sample_control_id', 'select',  (SELECT id FROM structure_value_domains WHERE domain_name = 'procure_chus_specimen_type_from_id') , '0', '', '', '', 'specimen type', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='procure_chus_tumor_presence' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor presence' AND `language_tag`=''), '1', '90', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO i18n (id,en,fr) VALUES ('tumor presence', 'Tumor Presence', 'Présence Tumeur');
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='procure_chus_collection_specimen_sample_control_id'), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='linked_collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='procure_chus_collection_specimen_sample_control_id' ), '0', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='procure_chus_collection_specimen_sample_control_id'), '0', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES ((SELECT id FROM structure_fields WHERE model = 'Collection' AND field = 'procure_chus_collection_specimen_sample_control_id'), 'notEmpty', "");
+INSERT INTO i18n (id,en,fr) VALUES ('specimen type', 'Specimen Type', 'Type de spécimen');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='procure_chus_collection_specimen_sample_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_chus_specimen_type_from_id')  AND `flag_confidential`='0'), '0', '11', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='procure_chus_collection_specimen_sample_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_chus_specimen_type_from_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='specimen type' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+
+A tested:
+prendre en compte les colonne pour les blocs ISO1::C, NC, 
 
 
+
+ND
+FRZ10 = ISO + OCT
+ ISO = bloc dans ISO Mais garder FRZ5
+Collection ajouter collection tissue/urine/blood dc meme type de specimen dans une colleiton
+Ajouter un plus long temps de connection
+Pour les paraffin Bloc C/NC and function de tumoraux ou non et supprimer le nouveau champ
+Les deux congelaterus sont a -80
+whatman viennent tubes EDTA et non serum
+ 
+ 
+ 
