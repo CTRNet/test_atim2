@@ -19,7 +19,7 @@ $detail_fields = array(
 	
 	"procure_chus_contact_for_more_info" =>	array(utf8_decode("Contacter si besoin d'informations supplémentaires") => array(""=>""," "=>"","Oui"=>"y","Non"=>"n")),
 	"procure_chus_contact_if_scientific_discovery" =>	array(utf8_decode("Contacter si découverte scientifique") => array(""=>""," "=>"","Oui"=>"y","Non"=>"n")),
-	"procure_chus_study_on_other_diseases" =>	array(utf8_decode("Étude sur d'autre maladie") => array(""=>""," "=>"","Oui"=>"y","Non"=>"n")),
+	"procure_chus_study_on_other_diseases" =>	array(utf8_decode("Étude sur d'autre maladie") => array(""=>""," "=>"","Oui"=>"y","Non"=>"n","oui"=>"y","non"=>"n")),
 	"procure_chus_contact_if_discovery_on_other_diseases" =>	array(utf8_decode("Contacter si découvertes sur d'autres maladies") => array(""=>""," "=>"","Oui"=>"y","Non"=>"n")),
 	"procure_chus_other_contacts_in_case_of_death" =>	array(utf8_decode("Autres contacts en cas de décès") => array(""=>""," "=>"","Oui"=>"y","Non"=>"n"))
 );
