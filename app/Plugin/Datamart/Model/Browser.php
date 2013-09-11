@@ -627,7 +627,10 @@ class Browser extends DatamartAppModel {
 								 	//unset the serialization on the sub model since it's already in the title
 								 	unset($search['search_conditions'][$cell['DatamartStructure']['control_master_model'].".".$tmp_model->getControlForeign()]);
 								 	$tmp_model = AppModel::getInstance($cell['DatamartStructure']['plugin'], $cell['DatamartStructure']['control_master_model'], true);
-								 	$tmp_data = $tmp_model->find('first', array('conditions' => array($tmp_model->getControlName().".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 'recursive' => 0));
+								 	$tmp_data = $tmp_model->find('first', array(
+								 	        'conditions' => array($tmp_model->getControlName().".id" => $cell['BrowsingResult']['browsing_structures_sub_id']), 
+								 	        'recursive'  => 0,
+								 	        'fields'     => '*'));//fixes a bug on a select on an unexisting undefined field
 								 	$title .= " > ".self::getTranslatedDatabrowserLabel($tmp_data[$tmp_model->getControlName()]['databrowser_label']);
 								}else{
 									$structure = StructuresComponent::$singleton->getFormById($cell['DatamartStructure']['structure_id']);
@@ -1530,24 +1533,32 @@ class Browser extends DatamartAppModel {
 		if(isset($data[0])){
 			//counters conditions
 			//starting from the end, clear empty conditions. Stop at first found condition.
-			$counters_conditions = array_reverse($data[0]);
-			foreach($counters_conditions as $name => $val){
+			$possible_counters_conditions = array_reverse($data[0]);
+			foreach($possible_counters_conditions as $name => $val){
 				if($val){
 					break;
 				}else{
-					unset($counters_conditions[$name]);
+					unset($possible_counters_conditions[$name]);
 				}
 			}
 			
-			if($counters_conditions){
+			if($possible_counters_conditions){
+			    //these are the counters based on browsing. Eg.: I have a result
+			    //set with 10 samples, I browse towards collection having at
+			    //least 4 samples. Not to be confused by storage empty spaces.
 				//valid conditions
 				$browsing_control_model = AppModel::getInstance('Datamart', 'BrowsingControl');
 				$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure');
 				$last_model_id = $browsing['DatamartStructure']['id'];
-				$counters_conditions = array_reverse($counters_conditions);
-				foreach($counters_conditions as $name => $val){
+				$possible_counters_conditions = array_reverse($possible_counters_conditions);
+				foreach($possible_counters_conditions as $name => $val){
 					$matches = array();
-					assert(preg_match('#^counter\_([\d]+)\_(start|end)$#', $name, $matches));
+					preg_match('#^counter\_([\d]+)\_(start|end)$#', $name, $matches);
+					if(!$matches){
+					    //not a valid counter. (Eg of invalid counter: storage
+					    //empty spaces
+					    break;
+					}
 					$browsing_result = $browsing_result_model->findById($matches[1]);
 					$found = false;//whether a model is already in the joins array
 					foreach($joins as $join){
