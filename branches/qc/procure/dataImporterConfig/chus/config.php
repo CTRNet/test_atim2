@@ -165,7 +165,6 @@ function addonFunctionStart(){
 	//LOAD PARTICIPANT FIRST NAME, etc
 	
 //TODO	loadParticipantNominalData();
-pr('TODO	loadParticipantNominalData()');	
 
 	return;
 }

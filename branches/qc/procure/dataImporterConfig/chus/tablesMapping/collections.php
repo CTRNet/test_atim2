@@ -134,22 +134,23 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 				$time_spent_collection_to_freezing_end_mn = str_replace('N/A', '', $new_line_data["Temps écoulé entre sortie de l'abdomen et congélation (min)"]);
 				if(!preg_match('/^[0-9]*$/', $time_spent_collection_to_freezing_end_mn)) die("ERR 89884999499944 See worksheet [$worksheetname] line $line_counter");
 				$new_aliquots = array();
-				foreach(array('FRZ' => 10,'PAR' => 8) as $prefix => $slide_nbr_max) {
+				foreach(array('ISO' => 4, 'FRZ' => 10,'PAR' => 8) as $block_type_code => $slide_nbr_max) {
 					for($slide_nbr=1;$slide_nbr<=$slide_nbr_max;$slide_nbr++) {					
-						if($slide_nbr < 5 && !empty($new_line_data[$prefix.$slide_nbr.' (rangement)'])) die("ERR 832122112212112 See worksheet [$worksheetname] line $line_counter");
-						$aliquot_label = "$patient_identification V01 -$prefix$slide_nbr";
-						$procure_origin_of_slice = $new_line_data["$prefix$slide_nbr::".(($prefix == 'FRZ')? "Origine de la tranche" : "Origine du bloc")];
+						if($slide_nbr < 5 && !empty($new_line_data[$block_type_code.$slide_nbr.' (rangement)'])) die("ERR 832122112212112 See worksheet [$worksheetname] line $line_counter");
+						$block_origine_code = ($block_type_code == 'ISO')? $new_line_data["$block_type_code$slide_nbr::code d'origine"] : $block_type_code.$slide_nbr;
+						$aliquot_label = "$patient_identification V01 -$block_origine_code";
+						$procure_origin_of_slice = $new_line_data["$block_type_code$slide_nbr::".(($block_type_code == 'PAR')? "Origine du bloc" : "Origine de la tranche" )];
 						$procure_origin_of_slice = str_replace(array('N/A') , array(''),$procure_origin_of_slice);
 						$procure_origin_of_slice = preg_replace(array('/\ +$/', '/^\-$/') , array('',''), $procure_origin_of_slice);
 						$procure_chus_origin_of_slice_precision = '';
-						$procure_classification =  str_replace('NT','NC',$new_line_data["$prefix$slide_nbr::C, NC, ND"]);
+						$procure_classification =  str_replace('NT','NC',$new_line_data["$block_type_code$slide_nbr::C, NC, ND"]);
 						$procure_classification = str_replace(array('N/A') , array(''),$procure_classification);
 						if($procure_classification == '-') $procure_classification = '';
 						$procure_chus_classification_precision = '';
-						$procure_dimensions = $new_line_data["$prefix$slide_nbr::".(($prefix == 'FRZ')? "Dimensions (mm x mm x mm)" : "Tranche congelée correspondante")];
+						$procure_dimensions = $new_line_data["$block_type_code$slide_nbr::".(($block_type_code == 'PAR')? "Tranche congelée correspondante" : "Dimensions (mm x mm x mm)")];
 						$procure_freezing_type = '';
 						if(strlen($procure_origin_of_slice.$procure_classification.$procure_dimensions)) {
-							if('PAR' == $prefix) die('ERR 889993 Column not empty : to review');
+							if('PAR' == $block_type_code) die('ERR 889993 Column not empty : to review');
 							if(preg_match('/^(LA|LP|RP|RA)(\ (Base|Apex|\((zone.*[0-9])\))){0,1}$/', $procure_origin_of_slice, $matches)) {
 								$procure_origin_of_slice = $matches[1];
 								if(isset($matches[4])) { 
@@ -169,21 +170,20 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 									$procure_classification = $matches[2];
 								}
 								if(isset($matches[6]) && $matches[6]) $procure_chus_classification_precision = empty($procure_chus_classification_precision)? $matches[6] : $procure_chus_classification_precision .' | '. $matches[6];
-								if(isset($matches[8])) {
-									switch($matches[8]) {
-										case 'ISO':
-											$procure_freezing_type = 'ISO';
-											break;
-										case 'OCT':
-											$procure_freezing_type = 'ISO+OCT';
-											break;
-									}								
-								}
+								if(isset($matches[8])) die("ERR 88393939383839 See worksheet [$worksheetname] line $line_counter");	//Was used with old file format (that does not have ISO1...
+								switch($block_type_code) {
+									case 'ISO':
+										$procure_freezing_type = 'ISO';
+										break;
+									case 'FRZ':
+										$procure_freezing_type = 'ISO+OCT';
+										break;
+								}								
 							} else if(!in_array($procure_classification, array('C','NC','NC+C','ND',''))) {
 								Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Block classification'][] = "Block classification '$procure_classification' is not supported. See worksheet [$worksheetname] line $line_counter";
 								$procure_classification = '';
-							}					
-							$aliquot_storage_data = getStorageData($aliquot_label, 'tissue', $summary_msg_title, $worksheetname, $line_counter);
+							}	
+							$aliquot_storage_data = getStorageData($aliquot_label, 'tissue', $summary_msg_title, $worksheetname, $line_counter);								
 							if($aliquot_storage_data['sample_type_precision']) {
 								if(!$procure_freezing_type) {
 									$procure_freezing_type = $aliquot_storage_data['sample_type_precision'];
@@ -191,7 +191,7 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 									Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Freezing Type mismatch'][] = "Freezing type ($procure_freezing_type) defined in worksheet [$worksheetname] for aliquot '$aliquot_label' is different than (".$aliquot_storage_data['sample_type_precision'].") defined in storage worksheet [".$aliquot_storage_data['tmp_work_sheet_name']."]. See worksheet [$worksheetname] line $line_counter";
 								}
 							}
-							if($prefix == 'PAR' && $procure_freezing_type) {
+							if($block_type_code == 'PAR' && $procure_freezing_type) {
 								Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Freezing Type for PAR block'][] = "No freezing type should be defined for PAR block. See worksheet [$worksheetname] line $line_counter";
 							}
 							$new_aliquots[] = array(
@@ -203,9 +203,10 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 									'storage_datetime_accuracy'	=> $aliquot_storage_data['storage_datetime_accuracy'],
 									'storage_master_id' => $aliquot_storage_data['storage_master_id'],
 									'storage_coord_x' => $aliquot_storage_data['x'],
-									'storage_coord_y' => $aliquot_storage_data['y']),
+									'storage_coord_y' => $aliquot_storage_data['y'],
+									'notes' => $new_line_data["$block_type_code$slide_nbr::notes"]),
 								'AliquotDetail' => array(
-									'block_type' => (($prefix == 'FRZ')? 'frozen' : 'paraffin'),
+									'block_type' => (($block_type_code == 'PAR')? 'paraffin' : 'frozen'),
 									'procure_freezing_type' => $procure_freezing_type,
 									'procure_dimensions' => $procure_dimensions,
 									'time_spent_collection_to_freezing_end_mn' => $time_spent_collection_to_freezing_end_mn,
@@ -260,7 +261,7 @@ function getParaffinBlocks() {
 	$summary_msg_title = 'Storage data <br>  Files: '.substr(Config::$xls_file_path_paraffin_blocks, (strrpos(Config::$xls_file_path_paraffin_blocks,'/')+1));
 
 	// Create patho room
-	$storage_control = Config::$storage_controls['room'];
+	$storage_control = Config::$storage_controls['box'];
 	$patho_storage_master_id = getNewtStorageId();
 	$master_fields = array(
 		"id" => $patho_storage_master_id,
@@ -640,7 +641,7 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 							'AliquotDetail' => array()
 						);
 					}
-					if($specimen_tubes_and_derivatives_config['blood_type'] == 'serum') {
+					if($specimen_tubes_and_derivatives_config['blood_type'] == 'k2-EDTA') {
 						$aliquot_label = "$patient_identification $visit -WHT1";
 						if(strlen($new_line_data['Carte Whatman WHT1']) && $new_line_data['Carte Whatman WHT1'] != 'non' && $new_line_data['Carte Whatman WHT1'] != '0') {
 							if(!in_array($new_line_data['Carte Whatman WHT1'], array('oui','1'))) die("ERR 88392932923932. See worksheet [$worksheetname] line $line_counter");
