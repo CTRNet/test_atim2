@@ -12,4 +12,7 @@
 	if($collection_data['treatment_master_id']){
 		$final_options['links']['bottom']['details']['treatment'] = '/ClinicalAnnotation/TreatmentMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['treatment_master_id'].'/';
 	}
+	if($collection_data['diagnosis_master_id']){
+		$structure_bottom_links['details']['diagnosis'] = '/ClinicalAnnotation/DiagnosisMasters/detail/'.$collection_data['participant_id'].'/'.$collection_data['diagnosis_master_id'].'/';
+	}
 	
