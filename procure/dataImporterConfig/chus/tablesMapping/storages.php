@@ -314,7 +314,8 @@ function loadStorages() {
 	
 	recordChildrenStorage(Config::$storages);
 	foreach(Config::$storages as $key => $val) unset(Config::$storages[$key]);
-
+	
+	setTemperature();
 }
 
 //=========================================================================================================
@@ -384,4 +385,16 @@ function getNewtStorageId() {
 function getNextLeftRight() {
 	Config::$previous_left_right++;
 	return Config::$previous_left_right;
+}
+
+function setTemperature() {
+	$query = "SELECT sm.id, sm.lft, sm.rght FROM storage_masters sm INNER JOIN storage_controls sc ON sc.id = sm.storage_control_id WHERE sc.storage_type = 'freezer';"	;
+	$results =mysqli_query(Config::$db_connection, $query) or die("Error on StorageMaster temperature value update. [$query] ");
+	while($row = $results->fetch_assoc()){
+		$lft = $row['lft'];
+		$rght  = $row['rght'];
+		$query = "UPDATE storage_masters SET temperature = '-80', temp_unit = 'celsius' WHERE lft >= '$lft' AND rght <= '$rght'";
+		mysqli_query(Config::$db_connection, $query) or die("Error on StorageMaster temperature value update. [$query] ");
+		mysqli_query(Config::$db_connection, str_replace('storage_masters', 'storage_masters_revs', $query)) or die("Error on StorageMaster temperature value update. [$query] ");
+	}
 }
