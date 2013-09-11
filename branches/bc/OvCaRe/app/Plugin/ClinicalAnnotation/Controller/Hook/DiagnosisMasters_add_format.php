@@ -5,9 +5,6 @@
 			case 'ovary':
 				$this->set('default_tumor_site', 'female genital-ovary');
 				break;
-		/*	case 'primary diagnosis unknown':
-				$this->set('default_tumor_site', 'unknown');
-				break;*/
 		}
 	}
 

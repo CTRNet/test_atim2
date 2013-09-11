@@ -13,11 +13,12 @@ class ViewSampleCustom extends ViewSample {
 		Collection.bank_id, 
 		Collection.sop_master_id, 
 		Collection.participant_id, 
-Collection.ovcare_collection_type,
 		
 		Participant.participant_identifier, 
 		
-		Collection.acquisition_label, 
+		Collection.acquisition_label,
+Collection.ovcare_collection_type,
+Collection.collection_voa_nbr, 
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -38,8 +39,7 @@ Collection.ovcare_collection_type,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg ,
-MiscIdentifier.identifier_value AS identifier_value
+		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg 
 		
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -51,7 +51,6 @@ MiscIdentifier.identifier_value AS identifier_value
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 	
 }

@@ -22,10 +22,9 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Collection.ovcare_collection_type,
-MiscIdentifier.identifier_value AS identifier_value
+Collection.collection_voa_nbr
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
@@ -38,7 +37,7 @@ LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.misc_identifier_id = 
 			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
 				$title = __('VOA#').': - [-]';
 			} else {
-				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['identifier_value'])? '-':$collection_data['ViewCollection']['identifier_value'])." [".$collection_data['ViewCollection']['participant_identifier']."]";
+				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['collection_voa_nbr'])? '-':$collection_data['ViewCollection']['collection_voa_nbr'])." [".$collection_data['ViewCollection']['participant_identifier']."]";
 			}
 			
 			$participant_identifier = empty($collection_data['ViewCollection']['participant_identifier'])? 'n/a' : $collection_data['ViewCollection']['participant_identifier'];
