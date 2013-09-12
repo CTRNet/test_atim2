@@ -383,14 +383,14 @@ UPDATE `sample_controls` SET `detail_form_alias`='sd_undetailed_derivatives,deri
 UPDATE `sample_controls` SET `detail_form_alias`='sd_undetailed_derivatives,derivatives,npttb_rna_details' WHERE `sample_type` = 'rna';
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'sd_der_rnas', 'npttb_storage_medium', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium') , '0', '', '', '', 'npttb storage medium', ''),
-('InventoryManagement', 'AliquotDetail', 'sd_der_dnas', 'npttb_storage_medium', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium') , '0', '', '', '', 'npttb storage medium', '');
+('InventoryManagement', 'SampleDetail', 'sd_der_rnas', 'npttb_storage_medium', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium') , '0', '', '', '', 'npttb storage medium', ''),
+('InventoryManagement', 'SampleDetail', 'sd_der_dnas', 'npttb_storage_medium', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium') , '0', '', '', '', 'npttb storage medium', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='npttb_dna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_dnas' AND `field`='npttb_storage_medium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb storage medium' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='npttb_dna_details'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_dnas' AND `field`='npttb_storage_medium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb storage medium' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_storage_medium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb storage medium' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='npttb_rna_details'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_rnas' AND `field`='npttb_storage_medium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_storage_medium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb storage medium' AND `language_tag`=''), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`) VALUES
 ('npttb storage medium', 'Storage Medium');
@@ -644,15 +644,26 @@ REPLACE INTO `i18n` (`id`, `en`) VALUES
 
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='facility' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="Building A" AND language_alias="building a");
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='facility' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="Building B" AND language_alias="building b");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("ACH - Surgical Suite", "ACH - Surgical Suite");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="ACH - Surgical Suite" AND language_alias="ACH - Surgical Suite"), "3", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("FMC - Main Surgical Suite", "FMC - Main Surgical Suite");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="FMC - Main Surgical Suite" AND language_alias="FMC - Main Surgical Suite"), "4", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("McCaig Day Surgery", "McCaig Day Surgery");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="McCaig Day Surgery" AND language_alias="McCaig Day Surgery"), "5", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("McCaig Minor Surgery", "McCaig Minor Surgery");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="McCaig Minor Surgery" AND language_alias="McCaig Minor Surgery"), "6", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("ACH - Surgical Suite", "npttb ACH - Surgical Suite");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="ACH - Surgical Suite" AND language_alias="npttb ACH - Surgical Suite"), "3", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("FMC - Main Surgical Suite", "npttb FMC - Main Surgical Suite");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="FMC - Main Surgical Suite" AND language_alias="npttb FMC - Main Surgical Suite"), "4", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("McCaig Day Surgery", "npttb McCaig Day Surgery");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="McCaig Day Surgery" AND language_alias="npttb McCaig Day Surgery"), "5", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("McCaig Minor Surgery", "npttb McCaig Minor Surgery");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="McCaig Minor Surgery" AND language_alias="npttb McCaig Minor Surgery"), "6", "1");
+
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="facility"), (SELECT id FROM structure_permissible_values WHERE value="Other" AND language_alias="Other"), "7", "1");
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb ACH - Surgical Suite', 'ACH - Surgical Suite'),
+('npttb FMC - Main Surgical Suite', 'FMC - Main Surgical Suite'),
+('npttb McCaig Day Surgery', 'McCaig Day Surgery'),
+('npttb McCaig Minor Surgery', 'McCaig Minor Surgery');
 
 
 /*
@@ -681,3 +692,138 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0'
 
 -- ad_der_tubes_incl_ul_vol
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2625 - Fix acquisition label validation
+	------------------------------------------------------------
+*/
+
+-- Remove existing validation due to bug in reg exp code. TODO Fix ID
+DELETE FROM `structure_validations` WHERE `structure_validations`.`id` = 207;
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2706 - Diagnosis - Final Path Report DX
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `dxd_npttb_tissue` CHANGE COLUMN `npttb_path_final_dx` `npttb_path_final_dx` TEXT NULL DEFAULT NULL  ;
+ALTER TABLE `dxd_npttb_tissue_revs` CHANGE COLUMN `npttb_path_final_dx` `npttb_path_final_dx` TEXT NULL DEFAULT NULL  ;
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2707 - Fix grade field
+	------------------------------------------------------------
+*/
+
+UPDATE structure_fields SET  `model`='DiagnosisDetail',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='npttb_grade')  WHERE model='EventMaster' AND tablename='dxd_npttb_tissue' AND field='npttb_grade' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='npttb_grade');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2708 - Unmatched value - TTB Diagnosis
+	------------------------------------------------------------
+*/
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Metastasis", "npttb Metastasis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_final_diagnosis"), (SELECT id FROM structure_permissible_values WHERE value="Metastasis" AND language_alias="npttb Metastasis"), "43", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Metastasis from non-CNS/PNS", "npttb Metastasis from non-CNS/PNS");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npttb_final_diagnosis"), (SELECT id FROM structure_permissible_values WHERE value="Metastasis from non-CNS/PNS" AND language_alias="npttb Metastasis from non-CNS/PNS"), "43", "1");
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb Metastasis', 'Metastasis'),
+('npttb Metastasis from non-CNS/PNS', 'Metastasis from non-CNS/PNS');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2709 - Facility translated values needed
+	------------------------------------------------------------
+
+
+UPDATE `structure_permissible_values` SET `language_alias` = 'npttb ACH - Surgical Suite' WHERE `value` = 'ACH - Surgical Suite';
+UPDATE `structure_permissible_values` SET `language_alias` = 'npttb FMC - Main Surgical Suite' WHERE `value` = 'FMC - Main Surgical Suite';
+UPDATE `structure_permissible_values` SET `language_alias` = 'npttb McCaig Day Surgery' WHERE `value` = 'McCaig Day Surgery';
+UPDATE `structure_permissible_values` SET `language_alias` = 'npttb McCaig Minor Surgery' WHERE `value` = 'McCaig Minor Surgery';
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb ACH - Surgical Suite', 'ACH - Surgical Suite'),
+('npttb FMC - Main Surgical Suite', 'FMC - Main Surgical Suite'),
+('npttb McCaig Day Surgery', 'McCaig Day Surgery'),
+('npttb McCaig Minor Surgery', 'McCaig Minor Surgery');
+
+*/
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2709 - Tx Surgery - Add values for all Surgeons
+	------------------------------------------------------------
+*/
+
+
+-- Main list
+INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`) VALUES
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr beaudry', 'Dr. Beaudry', '', 10, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr gallagher', 'Dr. Gallagher', '', 20, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr hader', 'Dr. Hader', '', 30, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr hamilton', 'Dr. Hamilton', '', 40, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr starreveld', 'Dr. Starreveld', '', 50, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr sutherland', 'Dr. Sutherland', '', 60, 1);
+
+-- Occasional list
+INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`) VALUES
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'autopsy', 'Autopsy', '', 20, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr algiraigri', 'Dr. Algiraigri', '', 20, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr amendy', 'Dr. Amendy', '', 21, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr anderson', 'Dr. Anderson', '', 22, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr brauer', 'Dr. Brauer', '', 23, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr cook', 'Dr. Cook', '', 23, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr eccles', 'Dr. Eccles', '', 24, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr gelfand', 'Dr. Gelfand', '', 25, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr guilcher', 'Dr. Guilcher', '', 26, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr jacobs', 'Dr. Jacobs', '', 27, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr kelly', 'Dr. Kelly', '', 28, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr kiefer', 'Dr. Kiefer', '', 28, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr kiss', 'Dr. Kiss', '', 29, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr lafay-cousin', 'Dr. Lafay-Cousin', '', 30, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr lopushinskys', 'Dr. Lopushinsky', '', 31, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr lewis', 'Dr. Lewis', '', 31, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr lwu', 'Dr. Lwu', '', 32, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr mckenna', 'Dr. McKenna', '', 32, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr mew', 'Dr. Mew', '', 32, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr midha', 'Dr. Midha', '', 33, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr mitha', 'Dr. Mitha', '', 33, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr park', 'Dr. Park', '', 34, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr puloski', 'Dr. Puloski', '', 35, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr sigalet', 'Dr. Sigalet', '', 36, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr singh', 'Dr. Singh', '', 36, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr steele', 'Dr. Steele', '', 37, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr strother', 'Dr. Strother', '', 37, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr temple-oberle', 'Dr. Temple-Oberle', '', 37, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr truong', 'Dr. Truong', '', 38, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr vila', 'Dr. Vila', '', 38, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr weber', 'Dr. Weber', '', 39, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr wong', 'Dr. Wong', '', 39, 1),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr wright', 'Dr. Wright', '', 40, 1);
+
+-- Past list
+INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`) VALUES
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr alant', 'Dr. Alant', '', 88, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr bacchus', 'Dr. Bacchus', '', 89, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr brindle', 'Dr. Brindle', '', 90, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr cenic', 'Dr. Cenic', '', 91, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr du plessis', 'Dr. Du Plessis', '', 92, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr hurlbert', 'Dr. Hurlbert', '', 93, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr louw', 'Dr. Louw', '', 94, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr macrae', 'Dr. MacRae', '', 95, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr macdougall', 'Dr. MacDougall', '', 96, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr myles', 'Dr. Myles', '', 97, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr omahen', 'Dr. Omahen', '', 98, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr parney', 'Dr. Parney', '', 99, 0),
+((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr yeung', 'Dr. Yeung', '', 100, 0);
+
+
+
+
+
