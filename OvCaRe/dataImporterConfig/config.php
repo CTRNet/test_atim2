@@ -19,9 +19,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/FullDataDump_20120123.xls";
-//	static $xls_file_path	= "C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/data/ShortDataDump_20120123.xls";
-
+	static $xls_file_path = "C:/_Perso/Server/ovcare/data/OvCaRe_dev.xls";
+	
 	static $xls_header_rows = 1;
 	
 	static $print_queries	= false;//wheter to output the dataImporter generated queries
@@ -29,6 +28,7 @@ class Config{
 
 	static $addon_function_start= 'addonFunctionStart';//function to run at the end of the import process
 	static $addon_function_end	= 'addonFunctionEnd';//function to run at the start of the import process
+	static $line_break_tag = '<br>';
 	
 	//--------------------------------------
 
@@ -45,322 +45,327 @@ class Config{
 	
 	static $config_files	= array();
 	
-	//--------------------------------------
-
+	//--------------------------------------	
+	
+	static $summary_msg = array();	
+	
+	static $limit_warning_display = true;
+	
+	static $consent_control_id = null;
+	static $diagnosis_control_id = null;
+	static $event_controls = array();	
 	static $sample_aliquot_controls = array();
-	static $dx_who_codes = array();
+	static $recorded_studies = array();
+	static $treatment_controls = array();
 	
-	static $current_voa_nbr = null;	
-	static $current_patient_session_data = array();
-	static $record_ids_from_voa = array();
+	static $voas_to_ids = array();
 	
-	static $sample_code_counter = 0;	
+	/*
+	static $participant_collections = array();
+	static $next_sample_code = 0;
 	
-	static $tissue_source_and_laterality = array();
-
-	static $experimental_tests_list = array();
+	static $storage_controls = array();
+	static $storages = array();
+	static $previous_storage_master_id = 0;
+	static $previous_left_right = 0;
+	static $storage_data_from_sample_type_and_label = array();
+	static $additional_dna_miR_from_storage = array();
 	
-	static $summary_msg = array(
-		'@@ERROR@@' => array(),  
-		'@@WARNING@@' => array(),  
-		'@@MESSAGE@@' => array());	
+	
+	static $extra_prostatic_extension_unkw_value = array();
+	static $extensive_margin_unkw_value = array();
+	
+	static $participant_nominal_data = array();
+	static $participant_notes = array();
+	*/
 }
 
-//add you start queries here
-//Config::$addon_queries_start[] = "..."
-
-//add your end queries here
-//Config::$addon_queries_end[] = "..."
-
-//add some value domains names that you want to use in post read/write functions
-//Config::$value_domains['health_status']= new ValueDomain("health_status", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-
 //add the parent models here
-Config::$parent_models[] = "Participant";
+Config::$parent_models[] = "Collection";
 
 //add your configs
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/participants.php'; 
+$table_mapping_path = 'C:/_Perso/Server/ovcare/dataImporterConfig/tablesMapping/';
+Config::$config_files[] = $table_mapping_path.'clinical_annotations.php'; 
+Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/medical_record_identifiers.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/personal_health_identifiers.php'; 
+//Config::$config_files[] = $table_mapping_path.'participants.php';
+//Config::$config_files[] = $table_mapping_path.'consents.php'; 
+//Config::$config_files[] = $table_mapping_path.'questionnaires.php';
+//Config::$config_files[] = $table_mapping_path.'storages.php';
 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/consents.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/diagnoses.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/recurrences.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/metastasis.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/chemotherapy.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgery.php'; 
-//Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_results.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/experimental_tests.php'; 
+//Config::$config_files[] = $table_mapping_path.'path_reports.php';
+//Config::$config_files[] = $table_mapping_path.'diagnostics.php'; 
+//Config::$config_files[] = $table_mapping_path.'treatments.php'; 
 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/surgical_collections.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/pre_surgical_collections.php'; 
-Config::$config_files[] = 'C:/NicolasLucDir/LocalServer/ATiM/OvCaRe/dataImporterConfig/tablesMapping/post_surgical_collections.php'; 
-
-function addonFunctionStart(){
+//=========================================================================================================
+// START functions
+//=========================================================================================================
 	
-	setStaticDataForCollection();
-
+function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
+	
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
 	DATA EXPORT PROCESS : OVCARE<br>
 	source_file = $file_path<br>
 	<br>=====================================================================
-	</FONT><br>";		
+	</FONT><br>
+	TODO: Excel clean up should be done first<br>
+	 - Copy 'Patient ID', 'VOA Number', 'Duplicate Patients::VOA Number' of Profile worksheet to a new work sheet (at the end) you will rename to VOA Control<br>
+	 - Order Profile worksheet on VOA#<br>
+	 - Then check all lines with no VOA# are empty excepted field Duplicate Patients::VOA Number<br>
+	 - Then delete these lines having no VOa#<br><br>";	
 	
-	flush();
-
-}
-
-function addonFunctionEnd(){
-	global $connection;
-
-	// EMPTY DATE CLEAN UP
+	// GET CONTROL DATA
 	
-	$query = "UPDATE participants SET date_of_birth = null WHERE date_of_birth LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE participants_revs SET date_of_birth = null WHERE date_of_birth LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	//consent table => cd_nationals
+	$query = "SELECT id FROM consent_controls WHERE controls_type = 'OvCaRe' AND flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("Consent Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	$row = $results->fetch_assoc();
+	if(empty($row)) {
+		die("No consent contol id");
+	}
+	Config::$consent_control_id = $row['id'];
 	
-	$query = "UPDATE participants SET ovcare_last_followup_date = null WHERE ovcare_last_followup_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE participants_revs SET ovcare_last_followup_date = null WHERE ovcare_last_followup_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	//dx => table ovcare_dxd_ovaries 
+	$query = "SELECT id FROM diagnosis_controls WHERE category = 'primary' AND controls_type = 'ovary' AND flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("Dx Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	$row = $results->fetch_assoc();
+	if(empty($row)) {
+		die("No dx contol id");
+	}
+	Config::$diagnosis_control_id = $row['id'];
 	
-	$query = "UPDATE consent_masters SET status_date = null WHERE status_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE consent_masters_revs SET status_date = null WHERE status_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE consent_masters SET consent_signed_date = null WHERE consent_signed_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE consent_masters_revs SET consent_signed_date = null WHERE consent_signed_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE diagnosis_masters SET dx_date = null WHERE dx_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE diagnosis_masters_revs SET dx_date = null WHERE dx_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE treatment_masters SET start_date = null WHERE start_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE treatment_masters_revs SET start_date = null WHERE start_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE treatment_masters SET finish_date = null WHERE finish_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE treatment_masters_revs SET finish_date = null WHERE finish_date LIKE '%0000%';";
-	mysqli_query($connection, $query) or die("date '0000-00-00' clean up [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-
-	// POPULATE PARTICIPANT CALCULATED FIELDS
-	
-	$query = "UPDATE participants SET ovcare_last_followup_date_accuracy = 'c' WHERE ovcare_last_followup_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE participants_revs SET ovcare_last_followup_date_accuracy = 'c' WHERE ovcare_last_followup_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE diagnosis_masters_revs SET dx_date_accuracy = 'c' WHERE dx_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		
-	$query = "UPDATE treatment_masters SET start_date_accuracy = 'c' WHERE start_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE treatment_masters_revs SET start_date_accuracy = 'c' WHERE start_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	
-	$query = "	SELECT 
-		part.participant_identifier AS voa_nbr,
-		
-		part.id AS participant_id,
-		diag.id AS diag_id, 
-		surg.id AS surgery_id,
-		
-		part.date_of_birth,
-		part.ovcare_last_followup_date,
-		
-		surg.start_date AS surgery_date,
-		rec.dx_date AS recurence_date
-		
-		FROM participants AS part 
-		LEFT JOIN diagnosis_masters AS diag ON part.id = diag.participant_id AND diag.diagnosis_control_id IN ('20','22')
-		LEFT JOIN diagnosis_masters AS rec ON diag.id = rec.parent_id AND rec.diagnosis_control_id= '19'
-		LEFT JOIN treatment_masters AS surg ON diag.id = surg.diagnosis_master_id AND surg.treatment_control_id = '7';";
-	
-	$results = mysqli_query($connection, $query) or die("calculate fields [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$participant_id = null;
+    //event => tables ed_all_clinical_followups, ovcare_ed_study_inclusions, ovcare_ed_ca125s, ovcare_ed_brcas
+    $query = "select id,event_type,detail_tablename from event_controls where flag_active = '1';";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		if($participant_id == $row['participant_id']) die('ERR 998763.1');
-		if(empty($row['diag_id'])) die('ERR 998763.2');
-		
-		$voa_nbr = $row['voa_nbr'];
-		
-		$participant_id = $row['participant_id'];
-		$diag_id = $row['diag_id'];
-		$surgery_id = $row['surgery_id'];
-		
-		$date_of_birth = $row['date_of_birth'];
-		$ovcare_last_followup_date = $row['ovcare_last_followup_date'];
-		$surgery_date = $row['surgery_date'];
-		$recurence_date = $row['recurence_date'];
-		
-		// 1- Age at surgery
-		
-		$age_in_years = null;		
-		if(!empty($surgery_date) && !empty($date_of_birth)) {
-			$birthDateObj = new DateTime($date_of_birth);
-			$surgDateObj = new DateTime($surgery_date);
-			$interval = $birthDateObj->diff($surgDateObj);
-			$age_in_years = $interval->format('%r%y');
-			if($age_in_years < 0) {
-				$age_in_years = null;
-				Config::$summary_msg['@@WARNING@@']['Age at surgery'][] = 'Error in the dates definitions, this value can not be generated. [VOA#: '.$voa_nbr.']';
-			}
-		}
-		
-		if(!is_null($age_in_years)) {
-			$query = "UPDATE txd_surgeries SET ovcare_age_at_surgery = '$age_in_years' WHERE treatment_master_id = '$surgery_id';";
-			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$query = "UPDATE txd_surgeries_revs SET ovcare_age_at_surgery = '$age_in_years' WHERE treatment_master_id = '$surgery_id';";
-			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		}
-		
-		// 2- Survival Time		
-		
-		$survival_time_months = null;
-		if(!empty($ovcare_last_followup_date) && !empty($surgery_date)) {
-			$initialSurgeryDateObj = new DateTime($surgery_date);
-			$lastFollDateObj = new DateTime($ovcare_last_followup_date);
-			$interval = $initialSurgeryDateObj->diff($lastFollDateObj);
-			$survival_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
-			if($survival_time_months < 0) {
-				$survival_time_months = null;
-				Config::$summary_msg['@@WARNING@@']['Survival Time'][] = 'Error in the dates definitions, this value can not be generated. [VOA#: '.$voa_nbr.']';
-			}
-		}
-
-		if(!is_null($survival_time_months)) {
-			$query = "UPDATE diagnosis_masters SET survival_time_months = '$survival_time_months' WHERE id = '$diag_id';";
-			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$query = "UPDATE diagnosis_masters_revs SET survival_time_months = '$survival_time_months' WHERE id = '$diag_id';";
-			mysqli_query($connection, $query) or die("Age at surgery [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-		}		
-		
-		// 3- Progression Free Time
-		
-		$new_progression_free_time_months = null;
-		if(!empty($surgery_date) && !empty($recurence_date)) {
-			$initialSurgeryDateObj = new DateTime($surgery_date);
-			$initialRecurrenceDateObj = new DateTime($recurence_date);
-			$interval = $initialSurgeryDateObj->diff($initialRecurrenceDateObj);
-			$new_progression_free_time_months = $interval->format('%r%y')*12 + $interval->format('%r%m');				
-			if($new_progression_free_time_months < 0) {
-				$new_progression_free_time_months = '';
-				Config::$summary_msg['@@WARNING@@']['Progression Free Time'][] = 'Error in the dates definitions, this value can not be generated. [VOA#: '.$voa_nbr.']';
-			}
-		} else {
-			$new_progression_free_time_months = $survival_time_months;
-		}
-
-		$data_to_insert = array();
-		if(!is_null($new_progression_free_time_months))$data_to_insert['progression_free_time_months'] = $new_progression_free_time_months;
-		if(!is_null($surgery_date))$data_to_insert['initial_surgery_date'] = $surgery_date;
-		if(!is_null($recurence_date))$data_to_insert['initial_recurrence_date'] = $recurence_date;
-		
-		if(!empty($data_to_insert)) {
-			$set_string = '';
-			$separator = '';
-			foreach($data_to_insert as $field => $field_value) {
-				$set_string .= $separator.$field." = '".$field_value."'";
-				$separator = ', ';
-			}
-			$query = "UPDATE ovcare_dxd_ovaries SET $set_string WHERE diagnosis_master_id = '$diag_id';";
-			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-			$query = "UPDATE ovcare_dxd_ovaries_revs SET $set_string WHERE diagnosis_master_id = '$diag_id';";
-			mysqli_query($connection, $query) or die("Progression Free Time [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+		Config::$event_controls[$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
+	
+	//trt => txd_surgeries ovcare_txd_biopsies
+	$query = "select id,tx_method,detail_tablename from treatment_controls where flag_active = '1' AND tx_method IN ('procedure - surgery','procedure - biopsy');";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$treatment_controls[$row['tx_method']] = array('treatment_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}	
+	
+	//sample
+	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'urine', 'serum', 'plasma', 'pbmc','centrifuged urine','concentrated urine','rna','dna')";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
+	}
+	if(sizeof(Config::$sample_aliquot_controls) != 10) die("get sample controls failed");
+	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
+		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
+		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
 		}
 	}
 	
-	$query = "UPDATE ovcare_dxd_ovaries SET initial_surgery_date_accuracy = 'c' WHERE initial_surgery_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE ovcare_dxd_ovaries_revs SET initial_surgery_date_accuracy = 'c' WHERE initial_surgery_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	// GET VALUE DOMAIN DATA
 	
-	$query = "UPDATE ovcare_dxd_ovaries SET initial_recurrence_date_accuracy = 'c' WHERE initial_recurrence_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE ovcare_dxd_ovaries_revs SET initial_recurrence_date_accuracy = 'c' WHERE initial_recurrence_date NOT LIKE '';";
-	mysqli_query($connection, $query) or die("Accuracy update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$query = "SELECT id, title FROM study_summaries";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$recorded_studies[strtolower($row['title'])] = $row['id'];
+	}
 	
-	// INVENTORY COMPLETION
+	
+	
+	
+//	Config::$value_domains['procure_questionnaire_version'] = new ValueDomain("procure_questionnaire_version", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+//	Config::$value_domains['procure_questionnaire_version_date'] = new ValueDomain("procure_questionnaire_version_date", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
+
+	// LOAD STORAGE CONTROL
+/*	
+	$query = "select id,storage_type,detail_tablename from storage_controls where flag_active = '1';";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
+	
+*/
+	
+	//Launch clinical annotation creation
+
+	loadClinicalAnnotation();
+	
+	return;
+}
+
+//=========================================================================================================
+// END functions
+//=========================================================================================================
+	
+function addonFunctionEnd(){
+	
+pr(Config::$summary_msg);
+exit;	
+
+	// Empty date clean up 
+	
+	$date_times_to_check = array(
+		'consent_masters.consent_signed_date',
+		'procure_cd_sigantures.revised_date',
+		'event_masters.event_date',
+		'procure_ed_lifestyle_quest_admin_worksheets.delivery_date',
+		'procure_ed_lifestyle_quest_admin_worksheets.recovery_date',
+		'procure_ed_lifestyle_quest_admin_worksheets.verification_date',
+		'procure_ed_lifestyle_quest_admin_worksheets.revision_date',
+		'procure_ed_lab_diagnostic_information_worksheets.id_confirmation_date',
+		'procure_ed_lab_diagnostic_information_worksheets.biopsy_pre_surgery_date',
+		'procure_ed_lab_diagnostic_information_worksheets.aps_pre_surgery_date',
+		'procure_ed_lab_diagnostic_information_worksheets.biopsy_date',
+		'collections.collection_datetime',
+		'specimen_details.reception_datetime',
+		'derivative_details.creation_datetime',
+		'aliquot_masters.storage_datetime'			
+	);
+	foreach($date_times_to_check as $table_field) {
+		$names = explode(".", $table_field);
+		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd : Set field $table_field 0000-00-00 to null. [$query] ");
+		if(Config::$insert_revs){
+			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+			mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Set field $table_field 0000-00-00 to null (revs). [$query] ");
+		}
+	}
+	
+	// PROFILE CLEAN UP
+	
+	$query = "UPDATE participants SET last_modification = created WHERE last_modification LIKE '0000-00-00%'";
+	mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+	if(Config::$insert_revs){
+		$query = "UPDATE participants_revs rev, participants part SET rev.last_modification = part.last_modification WHERE rev.last_modification LIKE '0000-00-00%' AND rev.id = part.id";
+		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+	}	
+	
+	// ADD PARTICIPANT NOTES
+	
+	foreach(Config::$participant_notes as $participant_identifier => $notes) {
+		$query = "UPDATE participants SET notes = '".str_replace("'", "''", implode('\n', $notes))."' WHERE participant_identifier = '$participant_identifier'";
+		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update participant notes [$query] ");
+		if(Config::$insert_revs){
+			$query = str_replace("participants", "participants_revs", $query)."' WHERE participant_identifier = $participant_identifier'";
+			mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+		}
+	}
+	
+	
+   	// INVENTORY COMPLETION
 		
 	$query = "UPDATE sample_masters SET sample_code=id;";
-	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE sample_masters_revs SET sample_code=id;";
-	mysqli_query($connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
-	
+	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
-	mysqli_query($connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+ 	mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
-	$query = "UPDATE aliquot_masters SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
-	$query = "UPDATE aliquot_masters_revs SET barcode=id;";
-	mysqli_query($connection, $query) or die("barcode update [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));	
+	if(Config::$insert_revs) {
+		$query = "UPDATE sample_masters_revs SET sample_code=id;";
+		mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
+ 		$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
+ 		mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
+	}
 	
-	// WARNING DISPLAY
+	// TO PERMISSIONS REGENERATE
 	
-	echo "<br><FONT COLOR=\"red\" >
-	=====================================================================<br>
-	addonFunctionEnd: CCL
-	<br>=====================================================================
-	</FONT><br>";
+	$query = "UPDATE versions SET permissions_regenerated = 0;";
+	mysqli_query(Config::$db_connection, $query) or die("versions update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
-	if(!empty(Config::$summary_msg['@@ERROR@@'])) {
-		echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> (".sizeof(Config::$summary_msg['@@ERROR@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@ERROR@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"red\" >". $type . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
+	// ADD MISSING ERROR MESSAGE
+/*	
+	if(Config::$extensive_margin_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported'][-1] = 'See values : '. implode(', ', Config::$extensive_margin_unkw_value);
+	if(Config::$extra_prostatic_extension_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][-1] = 'See values : '. implode(', ', Config::$extra_prostatic_extension_unkw_value);
+	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported']);
+	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported']);
+*/	
+	// END Query
+	
+	$query = "UPDATE versions SET permissions_regenerated=0;";
+	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	
+	if(!empty(Config::$participant_collections)) {
+		pr(Config::$participant_collections);
+		die('ERR 88383838292');
+	}
+	
+	// Chec inveotry material imported
+	echo "<br><br><FONT COLOR=\"blue\" >IMPORTED INVENTORY MATERIAL</FONT><br>";
+	foreach(Config::$sample_aliquot_controls as $samp_key => $new_samp) {
+		if(isset($new_samp['used']) && $new_samp['used']) {
+			echo "<br>-> $samp_key";
 		}
-	}	
-	
-	if(!empty(Config::$summary_msg['@@WARNING@@'])) {
-		echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> (".sizeof(Config::$summary_msg['@@WARNING@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@WARNING@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"orange\" >". $type . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
-		}
-	}	
-	
-	if(!empty(Config::$summary_msg['@@MESSAGE@@'])) {
-		echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> (".sizeof(Config::$summary_msg['@@MESSAGE@@'])."):</FONT><br>";
-		foreach(Config::$summary_msg['@@MESSAGE@@'] as $type => $msgs) {
-			echo "<br> --> <FONT COLOR=\"green\" >". $type . "</FONT><br>";
-			foreach($msgs as $msg) echo "$msg<br>";
+		foreach($new_samp['aliquots'] as $alq_key => $new_alq) {
+			if(isset($new_alq['used']) && $new_alq['used']) {
+				echo "<br>-> $samp_key $alq_key";
+			}
 		}
 	}
 	
-	echo "<br>";
-	
-	echo "<br><b> ** VALIDATE FOLLOWING TISSUE DEFINITION ** </b>:<br><br>";
-	
-	$tmp = array();
-	foreach(Config::$tissue_source_and_laterality as $key => $new_def) {
-		$tmp[$new_def['source']][$key] = $new_def;
-	}
-	
-	echo "<TABLE BORDER=\"1\"><TR><TH>Specimen Type</TH><TH>Sample Type</TH><TH>Source</TH><TH>Laterality</TH><TH>Precision</TH></TR>";
-	foreach($tmp as $tmp_source) {
-		foreach($tmp_source as $key => $new_def) {
-			echo "<TR><TH>$key</TH><TD>".$new_def['sample_type']."</TD><TD>".$new_def['source']."</TD><TD>".(empty($new_def['laterality'])? '&nbsp;' : $new_def['laterality'])."</TD><TD>".(empty($new_def['source_precision'])? '&nbsp;' : $new_def['source_precision'])."</TD></TR>";
-		}
-	}
-	echo "</TABLE>";
-
-	echo "<br>";
+	$max_nbr_of_msg_displayed = (Config::$limit_warning_display)? '2000' : '';
+	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		
+		echo "<br><br><FONT COLOR=\"blue\" >
+		=====================================================================<br><br>
+		PROCESS SUMMARY: $data_type
+		<br><br>=====================================================================
+		</FONT><br>";
+			
+		if(!empty($msg_arr['@@ERROR@@'])) {
+			echo "<br><FONT COLOR=\"red\" ><b> ** Errors summary ** </b> </FONT><br>";
+			foreach($msg_arr['@@ERROR@@'] as $type => $msgs) {
+				echo "<br> --> <FONT COLOR=\"red\" >". utf8_decode($type) . "</FONT><br>";
+				$counter = 0;
+				foreach($msgs as $msg) {
+					$counter++;
+					if($max_nbr_of_msg_displayed && $counter > $max_nbr_of_msg_displayed) {
+						echo "...<br>";
+						echo "...<br>";
+						break;
+					}
+					echo utf8_decode($msg)."<br>";
+				}
+			}
+		}	
+		
+		if(!empty($msg_arr['@@WARNING@@'])) {
+			echo "<br><FONT COLOR=\"orange\" ><b> ** Warnings summary ** </b> </FONT><br>";
+			foreach($msg_arr['@@WARNING@@'] as $type => $msgs) {
+				echo "<br> --> <FONT COLOR=\"orange\" >". utf8_decode($type) . "</FONT><br>";
+				$counter = 0;
+				foreach($msgs as $msg) {
+					$counter++;
+					if($max_nbr_of_msg_displayed && $counter > $max_nbr_of_msg_displayed) {
+						echo "...<br>";
+						echo "...<br>";
+						break;
+					}
+					echo utf8_decode($msg)."<br>";
+				}
+			}
+		}	
+		
+		if(!empty($msg_arr['@@MESSAGE@@'])) {
+			echo "<br><FONT COLOR=\"green\" ><b> ** Message ** </b> </FONT><br>";
+			foreach($msg_arr['@@MESSAGE@@'] as $type => $msgs) {
+				echo "<br> --> <FONT COLOR=\"green\" >". utf8_decode($type) . "</FONT><br>";
+				$counter = 0;
+				foreach($msgs as $msg) {
+					$counter++;
+					if($max_nbr_of_msg_displayed && $counter > $max_nbr_of_msg_displayed) {
+						echo "...<br>";
+						echo "...<br>";
+						break;
+					}
+					echo utf8_decode($msg)."<br>";
+				}
+			}
+		}
+	}
 }
+
 
 //=========================================================================================================
 // Additional functions
@@ -371,45 +376,7 @@ function pr($arr) {
 	print_r($arr);
 }
 
-function setStaticDataForCollection() {
-	global $connection;
-	
-	// ** Set sample aliquot controls **
-	
-	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue','blood', 'ascite', 'peritoneal wash', 'ascite cell', 'ascite supernatant', 'cell culture', 'serum', 'plasma', 'dna', 'rna', 'blood cell')";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
-	}	
-	if(sizeof(Config::$sample_aliquot_controls) != 12) die("get sample controls failed");
-	
-	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
-		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
-		$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
-		while($row = $results->fetch_assoc()){
-			Config::$sample_aliquot_controls[$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
-		}	
-	}
-	
-	// ** WHO Codes **
-
-	$query = "select id from coding_icd_o_3_morphology;";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		Config::$dx_who_codes[$row['id']] = $row['id'];
-	}
-	
-	// ** Experimental tests **
-	
-	$query = "SELECT val.value FROM structure_permissible_values_customs AS val INNER JOIN structure_permissible_values_custom_controls AS ctrl ON ctrl.id = val.control_id WHERE ctrl.name = 'experimental tests';";
-	$results = mysqli_query($connection, $query) or die(__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		Config::$experimental_tests_list[] = $row['value'];
-	}
-}
-
-function insertCustomOvcareRecord($data_arr, $table_name, $is_detail_table = false) {
-	global $connection;
+function customInsertRecord($data_arr, $table_name, $is_detail_table = false/*, $flush_empty_fields = false*/) {
 	$created = $is_detail_table? array() : array(
 		"created"		=> "NOW()", 
 		"created_by"	=> Config::$db_created_id, 
@@ -417,17 +384,108 @@ function insertCustomOvcareRecord($data_arr, $table_name, $is_detail_table = fal
 		"modified_by"	=> Config::$db_created_id
 	);
 	
-	$insert_arr = array_merge($data_arr, $created);
+	//if($flush_empty_fields) {
+	$data_to_insert = array();
+	foreach($data_arr as $key => $value) {
+		if(strlen($value)) {
+			$data_to_insert[$key] = "'".$value."'";
+		}
+	}
+	//}
+	
+	$insert_arr = array_merge($data_to_insert, $created);
 	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	mysqli_query(Config::$db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	
-	$record_id = mysqli_insert_id($connection);
-	
-	$rev_insert_arr = array_merge($data_arr, array('id' => "$record_id", 'version_created' => "NOW()"));
-	$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-	mysqli_query($connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($connection));
+	$record_id = mysqli_insert_id(Config::$db_connection);
+	$additional_fields = $is_detail_table? array('version_created' => "NOW()") : array('id' => "$record_id", 'version_created' => "NOW()");
+	if(Config::$insert_revs) {
+		$rev_insert_arr = array_merge($data_to_insert, $additional_fields);
+		$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
+		mysqli_query(Config::$db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	}
 	
 	return $record_id;	
+}
+
+function getDateAndAccuracy($date, $data_type, $field, $line) {
+	if(empty($date) || (strtoupper($date) == 'N/A')) {
+		return null;
+	
+	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
+		//format excel date integer representation
+		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
+		$xls_offset = 36526;//2000-01-01
+		$date = date("Y-m-d", $php_offset + (($date - $xls_offset) * 86400));
+		return array('date' => $date, 'accuracy' => 'c');
+		
+	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])\-([0-3][0-9])$/',$date,$matches)) {
+		return array('date' => $date, 'accuracy' => 'c');
+	} else if(preg_match('/^(19|20)([0-9]{2})\-([01][0-9])$/',$date,$matches)) {
+		return array('date' => $date.'-01', 'accuracy' => 'd');
+	} else if(preg_match('/^((19|20)([0-9]{2})\-([01][0-9]))\-unk$/',$date,$matches)) {
+		return array('date' => $matches[1].'-01', 'accuracy' => 'd');
+	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date,$matches)) {
+		return array('date' => $date.'-01-01', 'accuracy' => 'm');
+	} else if(preg_match('/^([0-3][0-9])\/([01][0-9])\/(19|20)([0-9]{2})$/',$date,$matches)) {
+		return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c');
+	} else if(preg_match('/^([0-3][0-9])\-([01][0-9])\-(19|20)([0-9]{2})$/',$date,$matches)) {
+		return array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c');
+	} else {
+		Config::$summary_msg[$data_type]['@@ERROR@@']['Date Format Error'][] = "Format of date '$date' is not supported! [field '$field' - line: $line]";
+		return null;
+	}	
+}
+
+function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_time, $line, $worksheetname = '') {
+	$time = str_replace('N/A','',$time);
+	$formatted_date = "''";
+	$formatted_date_accuracy = "''";
+	$tmp_date = getDateAndAccuracy($date, $data_type, $field_date, $line);
+	if($tmp_date) {
+		$formatted_date = $tmp_date['date'];
+		$formatted_date_accuracy = $tmp_date['accuracy'];
+	} else {
+		if(!empty($time)) Config::$summary_msg[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line - worksheet: $worksheetname]";
+		return null;
+	}
+	
+	if(empty($time)) {
+		return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
+	} else {
+		if($formatted_date_accuracy != 'c') {
+			Config::$summary_msg[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [fields '$field_date' & '$field_time' - line: $line - worksheet: $worksheetname]";
+			return null;
+		} else if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
+			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
+		} else if(preg_match('/^0\.[0-9]+$/', $time)) {			
+			$hour = floor(24*$time);
+			$mn = round((24*$time - $hour)*60);
+			if($mn == '60') {
+				$mn = '00';
+				$hour += 1;
+			}
+			if($hour > 23) die('ERR time >= 24 79904044--4-44');	
+			$time=$hour.':'.$mn;		
+			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
+		} else {		
+			//Config::$summary_msg[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [fields '$field_date' & '$field_time' - line: $line]";
+			die("ERR time format should be h:mm see value $time for field $field_time' line '$line' [$worksheetname] - Be sure cell format = personalisé hh:mm");
+			//return null;
+		}
+	}
+}
+
+function customArrayCombineAndUtf8Encode($headers, $data) {
+	$line_data = array();
+	foreach($headers as $key => $field) {
+		if(isset($data[$key])) {
+			$line_data[utf8_encode($field)] = utf8_encode($data[$key]);
+		} else {
+			$line_data[utf8_encode($field)] = '';
+		}
+	}
+	return $line_data;
 }
 
 ?>
