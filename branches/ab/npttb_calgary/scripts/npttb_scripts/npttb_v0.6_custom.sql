@@ -736,24 +736,6 @@ REPLACE INTO `i18n` (`id`, `en`) VALUES
 ('npttb Metastasis', 'Metastasis'),
 ('npttb Metastasis from non-CNS/PNS', 'Metastasis from non-CNS/PNS');
 
-/*
-	------------------------------------------------------------
-	Eventum ID: 2709 - Facility translated values needed
-	------------------------------------------------------------
-
-
-UPDATE `structure_permissible_values` SET `language_alias` = 'npttb ACH - Surgical Suite' WHERE `value` = 'ACH - Surgical Suite';
-UPDATE `structure_permissible_values` SET `language_alias` = 'npttb FMC - Main Surgical Suite' WHERE `value` = 'FMC - Main Surgical Suite';
-UPDATE `structure_permissible_values` SET `language_alias` = 'npttb McCaig Day Surgery' WHERE `value` = 'McCaig Day Surgery';
-UPDATE `structure_permissible_values` SET `language_alias` = 'npttb McCaig Minor Surgery' WHERE `value` = 'McCaig Minor Surgery';
-
-REPLACE INTO `i18n` (`id`, `en`) VALUES
-('npttb ACH - Surgical Suite', 'ACH - Surgical Suite'),
-('npttb FMC - Main Surgical Suite', 'FMC - Main Surgical Suite'),
-('npttb McCaig Day Surgery', 'McCaig Day Surgery'),
-('npttb McCaig Minor Surgery', 'McCaig Minor Surgery');
-
-*/
 
 /*
 	------------------------------------------------------------
@@ -823,7 +805,56 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`f
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr parney', 'Dr. Parney', '', 99, 0),
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'npttb surgery surgeon'), 'dr yeung', 'Dr. Yeung', '', 100, 0);
 
+/*
+	------------------------------------------------------------
+	Eventum ID: 2711 - Add new identifier - ACB
+	------------------------------------------------------------
+*/
 
+INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `display_order`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`) VALUES 
+('ACB Number', '1', '1', '1', '0', '1', '0', '\A(ACB-C)\d{6}$');
+UPDATE `misc_identifier_controls` SET `display_order`='2' WHERE `misc_identifier_name`= 'Pathology Case Number';
+UPDATE `misc_identifier_controls` SET `display_order`='5' WHERE `misc_identifier_name`= 'TTB Number (Pre-2010)';
 
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('ACB Number', 'ACB Number');
 
+/*
+	------------------------------------------------------------
+	Eventum ID: 2712 - Add new field - Age at Consent
+	------------------------------------------------------------
+*/
 
+-- Add to tables
+ALTER TABLE `consent_masters` ADD COLUMN `npttb_age_at_consent` INT(11) NULL  AFTER `facility_other` ;
+ALTER TABLE `consent_masters_revs` ADD COLUMN `npttb_age_at_consent` INT(11) NULL  AFTER `facility_other` ;
+
+-- Add form field
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'npttb_age_at_consent', 'integer',  NULL , '0', '', '', '', 'npttb age at consent', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='npttb_age_at_consent' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb age at consent' AND `language_tag`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`) VALUES
+('npttb age at consent', 'Age at Consent');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2713 - Enable age at diagnosis
+	------------------------------------------------------------
+*/
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='age_at_dx' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '10', '', '1', 'age at dx', '0', '', '1', '', '1', 'integer', '1', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2714 - Fix diagnosis detail table to match standard
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `dxd_npttb_tissue` 
+	DROP COLUMN `deleted` , 
+	DROP COLUMN `id` , 
+	CHANGE COLUMN `diagnosis_master_id` `diagnosis_master_id` INT(11) NOT NULL DEFAULT 0 ,
+DROP PRIMARY KEY ;
