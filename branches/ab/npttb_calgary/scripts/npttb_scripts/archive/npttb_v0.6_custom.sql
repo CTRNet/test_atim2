@@ -812,7 +812,7 @@ INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`f
 */
 
 INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `display_order`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`) VALUES 
-('ACB Number', '1', '1', '1', '0', '1', '0', '\A(ACB-C)\d{6}$');
+('ACB Number', '1', '1', '1', '0', '1', '0', '\\A(ACB-C)\d{6}$');
 UPDATE `misc_identifier_controls` SET `display_order`='2' WHERE `misc_identifier_name`= 'Pathology Case Number';
 UPDATE `misc_identifier_controls` SET `display_order`='5' WHERE `misc_identifier_name`= 'TTB Number (Pre-2010)';
 
