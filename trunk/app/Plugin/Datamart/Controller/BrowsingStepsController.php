@@ -102,9 +102,10 @@ class BrowsingStepsController extends DatamartAppController {
 					if($path_node['BrowsingResult']['raw']){
 						$browsing_steps[] = array(
 								'datamart_saved_browsing_index_id' => $index_id,
-								'datamart_structure_id' => $path_node['BrowsingResult']['browsing_structures_id'],
-								'datamart_sub_structure_id' => $path_node['BrowsingResult']['browsing_structures_sub_id'],
-								'serialized_search_params' => $path_node['BrowsingResult']['serialized_search_params']
+								'datamart_structure_id'            => $path_node['BrowsingResult']['browsing_structures_id'],
+								'datamart_sub_structure_id'        => $path_node['BrowsingResult']['browsing_structures_sub_id'],
+								'serialized_search_params'         => $path_node['BrowsingResult']['serialized_search_params'],
+						        'parent_children'                  => $path_node['BrowsingResult']['parent_children']
 						);
 					}
 				}

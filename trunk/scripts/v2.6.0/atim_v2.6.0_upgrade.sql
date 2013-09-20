@@ -1418,3 +1418,5 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('add storage event to stored aliquots','Add Storage Event','Créer évenement d''entreposage');
 
 
+ALTER TABLE datamart_saved_browsing_steps
+ ADD COLUMN parent_children CHAR(1) NOT NULL DEFAULT '';
