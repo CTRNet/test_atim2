@@ -662,7 +662,8 @@ class BrowserController extends DatamartAppController {
 					'last'					=> false,
 					'search_conditions'		=> $search_params['search_conditions'],
 					'exact_search'			=> $search_params['exact_search'],
-					'adv_search_conditions'	=> isset($search_params['adv_search_conditions']) ? $search_params['adv_search_conditions'] : array() 
+					'adv_search_conditions'	=> isset($search_params['adv_search_conditions']) ? $search_params['adv_search_conditions'] : array(),
+			        'parent_child'          => $step['parent_children']
 			);
 			if(!$created_node = $this->Browser->createNode($params)){
 				//something went wrong. A flash screen has been called.
