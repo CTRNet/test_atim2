@@ -278,10 +278,10 @@ function getParaffinBlocks() {
    	// Track blocks
 	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
 	$tmp_xls_reader->read( Config::$xls_file_path_paraffin_blocks);
-	$line_counter = 0;
 	$paraffin_blocks = array();
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) {
 		$worksheetname = $tmp['name'];
+		$line_counter = 0;
 		$headers = array();
 		foreach($tmp_xls_reader->sheets[$key]['cells'] as $line => $new_line) {
 			$line_counter++;
