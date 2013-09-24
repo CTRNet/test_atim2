@@ -6,6 +6,7 @@ class StorageMastersController extends StorageLayoutAppController {
 	
 	var $uses = array(
 		'StorageLayout.StorageMaster',
+	    'StorageLayout.ViewStorageMaster',
 		'StorageLayout.StorageTreeView',
 		'StorageLayout.StorageControl',
 		'StorageLayout.StorageCoordinate',
@@ -18,10 +19,14 @@ class StorageMastersController extends StorageLayoutAppController {
 	var $paginate = array('StorageMaster' => array('limit' => pagination_amount, 'order' => 'StorageMaster.selection_label ASC'));
 
 	function search($search_id = 0, $from_layout_page = false){
+	    $model_to_use = $this->ViewStorageMaster;
+	    $structure_alias = 'view_storage_masters';
+	    $structure_index = '/StorageLayout/StorageMasters/search';
 		if($from_layout_page){
 			$top_row_storage_id = $this->request->data['current_storage_id'];
 			unset($this->request->data['current_storage_id']);
-			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters,storage_w_spaces', '/StorageLayout/StorageMasters/search', false, 21);
+			$this->searchHandler($search_id, $model_to_use, 
+			                     $structure_alias, $structure_index, false, 21);
 			if(count($this->request->data) > 20){
 				$this->request->data = array();
 				$this->set('overflow', true);
@@ -44,10 +49,11 @@ class StorageMastersController extends StorageLayoutAppController {
 				}
 			}
 		}else{
-			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters,storage_w_spaces', '/StorageLayout/StorageMasters/search');
+			$this->searchHandler($search_id, $model_to_use, $structure_alias,
+			                     $structure_index);
 		}
 		$this->set('from_layout_page', $from_layout_page);
-		$this->Structures->set('storagemasters,storage_w_spaces');
+		$this->Structures->set($structure_alias);
 		
 		//find all storage control types to build add button
 		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());

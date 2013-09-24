@@ -1,5 +1,4 @@
 <?php
-
 class StorageMaster extends StorageLayoutAppModel {
 	
 	var $belongsTo = array(       
@@ -955,61 +954,6 @@ class StorageMaster extends StorageLayoutAppModel {
 		}
 		
 		return $conflicts_found;
-	}
-	
-	/**
-	 * Hacks the search query to handle empty spaces. StorageMaster is used as long as there
-	 * is no search criteria based on empty_spaces. Otherwise, the search is made on
-	 * view_storage_masters instead. Recursivity needs to be > -1 for empty_spaces to be returned.
-	 * @see Model::find()
-	 */
-	function find($type = 'first', $query = array()) {
-		if((isset($query['recursive']) ? $query['recursive'] > -1 : $this->recursive > -1) && !isset($query['contain'])){
-			//Order by directive. Since the ATiM field model is "0" it doesn't work automatically.
-			if(isset($query['extra']['sort']) && $query['extra']['sort'] == '0.empty_spaces'){
-				$query['order'] = 'empty_spaces '.$query['extra']['direction'];
-			}
-			
-			//Is there a condition based on empty_space? 
-			if(isset($query['conditions']) && is_array($query['conditions'])){
-				$empty_space_condition = false;
-				foreach($query['conditions'] as $key => $val){
-					if(strpos($key, '0.empty_space') === 0){
-						$query['conditions'][substr($key, 2)] = $val;
-						unset($query['conditions'][$key]);
-						$empty_space_condition = true;
-					}
-				}
-				
-				//There is a condition based on empty_space. We're going to use the view.
-				if($empty_space_condition){
-					$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster', true);
-					if($type != 'count'){
-						//it's not a count, configure the fields to be returned
-						$query['fields'] = array('StorageMaster.*', 'StorageControl.*', 'CONCAT("", empty_spaces) AS empty_spaces');
-					}
-					return $view_storage_master_model->find($type, $query);
-				}
-			}
-			
-			//no conditions on empty_spaces, use storage_masters.
-			if($type != 'count' && !isset($query['fields'])){
-				//it's not a count and fields are not specified
-				$query['joins'] = array(
-						array('table' => 'aliquot_masters', 'alias' => 'AliquotMaster', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = AliquotMaster.storage_master_id', 'AliquotMaster.deleted = 0')),
-						array('table' => 'tma_slides', 'alias' => 'TmaSlide', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = TmaSlide.storage_master_id', 'TmaSlide.deleted = 0')),
-						array('table' => 'storage_masters', 'alias' => 'StorageMasterChild', 'type' => 'LEFT', 'conditions' => array('StorageMaster.id = StorageMasterChild.parent_id', 'StorageMasterChild.deleted = 0'))
-				);
-			
-				$query['fields'] = array('StorageMaster.*', 'IF(coord_x_size IS NULL AND coord_y_size IS NULL, NULL, IFNULL(coord_x_size, 1) * IFNULL(coord_y_size, 1) - COUNT(AliquotMaster.id) - COUNT(TmaSlide.id) - COUNT(StorageMasterChild.id)) AS empty_spaces');
-				foreach(array_keys($this->belongsTo) as $model_to_fetch){
-					$query['fields'][] = $model_to_fetch.'.*';
-				}
-				$query['group'] = array('StorageMaster.id');
-			}
-		}
-		
-		return parent::find($type, $query);
 	}
 }
 
