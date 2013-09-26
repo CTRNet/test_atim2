@@ -309,14 +309,203 @@ UPDATE `storage_masters` SET `parent_id`= NULL WHERE `id`='9';
 DELETE FROM `storage_masters`;
 DELETE FROM `storage_masters_revs`;
 
--- Add new rooms
+-- Add new rooms, one freezer to room
+INSERT INTO `storage_masters` (`id`,`code`,`storage_control_id`,`parent_id`,`lft`,`rght`,`barcode`,`short_label`,`selection_label`,`storage_status`,`parent_storage_coord_x`,`parent_storage_coord_y`,`temperature`,`temp_unit`,`notes`,`created`,`created_by`,`modified`,`modified_by`,`deleted`) VALUES (13,'13',1,NULL,1,2,NULL,'A5-122 B4','A5-122 B4','','','',NULL,'','Room A5-122, Bay 4','2013-09-25 11:27:49',1,'2013-09-25 11:27:49',1,0);
+INSERT INTO `storage_masters` (`id`,`code`,`storage_control_id`,`parent_id`,`lft`,`rght`,`barcode`,`short_label`,`selection_label`,`storage_status`,`parent_storage_coord_x`,`parent_storage_coord_y`,`temperature`,`temp_unit`,`notes`,`created`,`created_by`,`modified`,`modified_by`,`deleted`) VALUES (14,'14',1,NULL,3,6,NULL,'A5-139','A5-139','','','',NULL,'','Room A5-139','2013-09-25 11:28:14',1,'2013-09-25 11:28:14',1,0);
+INSERT INTO `storage_masters` (`id`,`code`,`storage_control_id`,`parent_id`,`lft`,`rght`,`barcode`,`short_label`,`selection_label`,`storage_status`,`parent_storage_coord_x`,`parent_storage_coord_y`,`temperature`,`temp_unit`,`notes`,`created`,`created_by`,`modified`,`modified_by`,`deleted`) VALUES (15,'15',6,14,4,5,NULL,'Gilbert','A5-139-Gilbert','','','',-80.00,'celsius','','2013-09-25 11:28:57',1,'2013-09-25 11:28:57',1,0);
+
+INSERT INTO `storage_masters_revs` (`id`,`code`,`storage_control_id`,`parent_id`,`lft`,`rght`,`barcode`,`short_label`,`selection_label`,`storage_status`,`parent_storage_coord_x`,`parent_storage_coord_y`,`temperature`,`temp_unit`,`notes`,`modified_by`,`version_id`,`version_created`) VALUES (13,'13',1,NULL,1,2,NULL,'A5-122 B4','A5-122 B4','','','',NULL,'','Room A5-122, Bay 4',1,32,'2013-09-25 11:27:49');
+INSERT INTO `storage_masters_revs` (`id`,`code`,`storage_control_id`,`parent_id`,`lft`,`rght`,`barcode`,`short_label`,`selection_label`,`storage_status`,`parent_storage_coord_x`,`parent_storage_coord_y`,`temperature`,`temp_unit`,`notes`,`modified_by`,`version_id`,`version_created`) VALUES (14,'14',1,NULL,3,4,NULL,'A5-139','A5-139','','','',NULL,'','Room A5-139',1,33,'2013-09-25 11:28:14');
+INSERT INTO `storage_masters_revs` (`id`,`code`,`storage_control_id`,`parent_id`,`lft`,`rght`,`barcode`,`short_label`,`selection_label`,`storage_status`,`parent_storage_coord_x`,`parent_storage_coord_y`,`temperature`,`temp_unit`,`notes`,`modified_by`,`version_id`,`version_created`) VALUES (15,'15',6,14,0,0,NULL,'Gilbert','A5-139-Gilbert','','','',-80.00,'celsius','',1,34,'2013-09-25 11:28:57');
+
+INSERT INTO `std_freezers` (`storage_master_id`) VALUES (15);
+INSERT INTO `std_freezers_revs` (`storage_master_id`,`version_id`,`version_created`) VALUES (15,1,'2013-09-25 11:28:57');
 
 
 /*
 	------------------------------------------------------------
 	Eventum ID: 2648 - Add field clinic visit
+	NOTE: No existing data needed to be updated
 	------------------------------------------------------------
 */
 
-REPLACE INTO `i18n` (`id`, `en`, `fr`)
-	VALUES ('pv visit', 'Clinic Visit', '');
+-- Fix value domain
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("post-induction", "pv post-induction");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="post-induction" AND language_alias="pv post-induction"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("12 month", "pv 12 month");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="12 month" AND language_alias="pv 12 month"), "3", "1");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="5" WHERE svd.domain_name='pv_visit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="disease flare" AND language_alias="pv disease flare");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("post flare", "pv post flare");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="post flare" AND language_alias="pv post flare"), "6", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "7", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("final outcome", "pv final outcome");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="pv_visit"), (SELECT id FROM structure_permissible_values WHERE value="final outcome" AND language_alias="pv final outcome"), "4", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="3-6 month visit" AND spv.language_alias="pv 3-6 month visit";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="12 month visit" AND spv.language_alias="pv 12 month visit";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="flare follow-up" AND spv.language_alias="pv flare follow-up";
+DELETE FROM structure_permissible_values WHERE value="3-6 month visit" AND language_alias="pv 3-6 month visit";
+DELETE FROM structure_permissible_values WHERE value="12 month visit" AND language_alias="pv 12 month visit";
+DELETE FROM structure_permissible_values WHERE value="flare follow-up" AND language_alias="pv flare follow-up";
+
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('pv visit', 'Clinic Visit', ''),
+ ('pv 12 month', '12 month', ''),
+ ('pv post-induction', 'Post-induction', ''), 
+ ('pv post flare', 'Post flare', ''),
+ ('pv final outcome', 'Final outcome', '');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2718 - View collection - Add custom fields
+	------------------------------------------------------------
+*/
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', 'view_collections', 'pv_visit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='pv_visit') , '0', '', '', '', 'pv visit', ''), 
+('InventoryManagement', 'ViewCollection', 'view_collections', 'pv_date_shipment', 'date',  NULL , '0', '', '', '', 'pv date shipment', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='pv_visit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='pv_visit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv visit' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='view_collections' AND `field`='pv_date_shipment' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv date shipment' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE structure_fields SET  `model`='Collection',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='pv_visit')  WHERE model='ViewCollection' AND tablename='view_collections' AND field='pv_visit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='pv_visit');
+UPDATE structure_fields SET  `model`='Collection' WHERE model='ViewCollection' AND tablename='view_collections' AND field='pv_date_shipment' AND `type`='date' AND structure_value_domain  IS NULL ;
+
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2647 - Collection Site - Change field type
+	------------------------------------------------------------
+*/
+	
+INSERT INTO `structure_permissible_values_customs` (`control_id`, `value`, `en`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`, `deleted`) VALUES
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'AK', 'AK', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'AN', 'AN', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'BA', 'BA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'BE', 'BE', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'BI', 'BI', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'BO', 'BO', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'CA', 'CA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'CH', 'CH', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'CI', 'CI', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'CL', 'CL', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'CO', 'CO', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'DU', 'DU', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'FL', 'FL', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'GA', 'GA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'GB', 'GB', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'GL', 'GL', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'HA', 'HA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'HE', 'HE', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'HK', 'HK', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'HO', 'HO', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'IN', 'IN', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'LA', 'LA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'LO', 'LO', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'LU', 'LU', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'LV', 'LV', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'MC', 'MC', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'NC', 'NC', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'NF', 'NF', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'NW', 'NW', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'NY', 'NY', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'OR', 'OR', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'OX', 'OX', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'PR', 'PR', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'SE', 'SE', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'SL', 'SL', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'TO', 'TO', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'VA', 'VA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0'),
+ ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'), 'WA', 'WA', '1', '1', '2013-09-23 13:28:36', '1', '2013-09-23 13:28:36', '1', '0');
+
+/*
+	------------------------------------------------------------
+	Eventum ID: 2654 - New field - Infection Status
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `ed_all_clinical_presentations` 
+ADD COLUMN `pv_infection_status` VARCHAR(45) NULL DEFAULT NULL AFTER `event_master_id`,
+ADD COLUMN `pv_hepatitis` VARCHAR(45) NULL DEFAULT NULL AFTER `pv_infection_status`,
+ADD COLUMN `pv_tb` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_hepatitis`,
+ADD COLUMN `pv_hiv` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_tb`,
+ADD COLUMN `pv_ebv` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_hiv`,
+ADD COLUMN `pv_dmv` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_ebv`,
+ADD COLUMN `pv_lyme` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_dmv`,
+ADD COLUMN `pv_other_infection` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_lyme`;
+
+ALTER TABLE `ed_all_clinical_presentations_revs` 
+ADD COLUMN `pv_infection_status` VARCHAR(45) NULL DEFAULT NULL AFTER `event_master_id`,
+ADD COLUMN `pv_hepatitis` VARCHAR(45) NULL DEFAULT NULL AFTER `pv_infection_status`,
+ADD COLUMN `pv_tb` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_hepatitis`,
+ADD COLUMN `pv_hiv` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_tb`,
+ADD COLUMN `pv_ebv` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_hiv`,
+ADD COLUMN `pv_dmv` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_ebv`,
+ADD COLUMN `pv_lyme` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_dmv`,
+ADD COLUMN `pv_other_infection` VARCHAR(10) NULL DEFAULT NULL AFTER `pv_lyme`;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_infection_status', 'select', (SELECT `id` FROM `structure_value_domains` WHERE `domain_name`='yesno'), '0', '', '', '', 'pv infection status', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_infection_status' AND `type`='select' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv infection status' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_hepatitis', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv hepatitis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_tb', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv tb', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_hiv', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv hiv', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_ebv', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv ebv', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_dmv', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv dmv', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_lyme', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv lyme', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_all_clinical_presentations', 'pv_other_infection', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'pv other infection', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_hepatitis' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv hepatitis' AND `language_tag`=''), '1', '6', 'pv infections', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_tb' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv tb' AND `language_tag`=''), '1', '7', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_hiv' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv hiv' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_ebv' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv ebv' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_dmv' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv dmv' AND `language_tag`=''), '1', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_lyme' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv lyme' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_all_clinical_presentation'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='pv_other_infection' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv other infection' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+-- Disable height/weight fields
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_clinical_presentation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='weight' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_clinical_presentation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_all_clinical_presentations' AND `field`='height' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('pv infection status', 'Infection Status', ''),
+ ('pv infections', 'Infections', ''),
+ ('pv_hepatitis', 'Hepatitis', ''),
+ ('pv_tb', 'TB', ''),
+ ('pv_hiv', 'HIV', ''),
+ ('pv_ebv', 'EBV', ''),
+ ('pv_dmv', 'DMV', ''),
+ ('pv_lyme', 'Lyme', ''),
+ ('pv_other_infection', 'Other', '');
+ 
+ 
+/*
+	------------------------------------------------------------
+	Eventum ID: 2653 - Add field - Medication Prior to Sampling
+	------------------------------------------------------------
+*/
+
+ALTER TABLE `collections` 
+ADD COLUMN `pv_medication_sampling` VARCHAR(45) NULL DEFAULT NULL AFTER `pv_date_shipment`;
+
+ALTER TABLE `collections_revs` 
+ADD COLUMN `pv_medication_sampling` VARCHAR(45) NULL DEFAULT NULL AFTER `pv_date_shipment`;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'pv_medication_sampling', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'pv medication sampling', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='pv_medication_sampling' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv medication sampling' AND `language_tag`=''), '0', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'view_collections', 'pv_medication_sampling', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'pv medication sampling', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='view_collections' AND `field`='pv_medication_sampling' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv medication sampling' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('pv medication samplings', 'Medication Prior to Sampling', '');
+
