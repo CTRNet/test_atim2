@@ -53,7 +53,7 @@ function postOtherDxRead(Model $m){
 		die("TODO: to support other cancer like 'prostate','Other-Primary Unknown'.");
 	} else {
 		$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['other']['id'];
-		$m->values['cancer type'] = strtolower(str_replace('-',' - ', $m->values['cancer type']));
+		$m->values['cancer type'] = str_replace('non - hodgkin', 'non-hodgkin', strtolower(str_replace('-',' - ', $m->values['cancer type'])));
 	}
 	
 	return true;

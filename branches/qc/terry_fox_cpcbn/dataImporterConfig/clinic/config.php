@@ -11,7 +11,7 @@ class Config{
 	static $db_port 		= "3306";
 	static $db_user 		= "root";
 	static $db_pwd			= "";
-	static $db_schema		= "cpcbn";
+	static $db_schema		= "tfricpcbn";
 	
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
@@ -24,12 +24,20 @@ class Config{
 	//static $use_windows_xls_offset = true;
 	
 	//if reading excel file
-	
-//	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/mcgill151-160_final_20121210.xls';
+
+//	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/10Sep2013/2nd 50 mcgill_rev20130910.xls';
 //	static $use_windows_xls_offset = true;
 
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/TFRI VPCpatients200-300_final_2012121.xls';
-	static $use_windows_xls_offset = false;
+//	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/mcgill first50l_rev20130910.xls';
+//	static $use_windows_xls_offset = true;
+	
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/HDQ132pts.xls';
+	static $use_windows_xls_offset = true;	
+	
+//	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/10Sep2013/bristow_rev20130910.xls';
+//	static $use_windows_xls_offset = false;	
+	
+	
 	
 	static $xls_header_rows = 2;
 
@@ -103,7 +111,7 @@ Config::$parent_models[] = "participants";
 //*Config::$parent_models[] = "inventory";
 
 //add your configs
-$relative_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/dataImporterConfig/clinic/tablesMapping/';
+$relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/tablesMapping/';
 Config::$config_files[] = $relative_path.'participants.php';
 Config::$config_files[] = $relative_path.'dx_primary.php';
 Config::$config_files[] = $relative_path.'dx_metastasis.php';
@@ -468,8 +476,8 @@ function addonFunctionEnd(){
 	mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
 
 	// MESSAGES
-	
 	global $insert;
+//TODO	$insert = false;	
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
 		=====================================================================".Config::$line_break_tag."".Config::$line_break_tag."
@@ -478,7 +486,6 @@ function addonFunctionEnd(){
 		</FONT>".Config::$line_break_tag."";
 			
 		if(!empty($msg_arr['@@ERROR@@'])) {
-//TODO			$insert = false;
 			echo "".Config::$line_break_tag."<FONT COLOR=\"red\" ><b> ** Errors summary ** </b> </FONT>".Config::$line_break_tag."";
 			foreach($msg_arr['@@ERROR@@'] as $type => $msgs) {
 				echo "".Config::$line_break_tag." --> <FONT COLOR=\"red\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";

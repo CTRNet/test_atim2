@@ -86,7 +86,7 @@ function postDxRead(Model $m){
 // 		Config::$summary_msg['diagnosis: primary']['@@MESSAGE@@']['Age at Time of Diagnosis: decimal'][] = "See value [".$m->values['Age at Time of Diagnosis (yr)']."] changed to [".$matches[1]."] at line ".$m->line.".";
 // 		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
 // 	}
-	$m->values['pTNM'] =str_replace(array('III','II','I'), array('3','2','1'),$m->values['pTNM']);
+	$m->values['pTNM'] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values['pTNM']);
 	$m->values['Gleason score at biopsy'] =str_replace(array('.00'), array(''),$m->values['Gleason score at biopsy']);
 	$m->values['Gleason sum RP'] =str_replace(array('.00'), array(''),$m->values['Gleason sum RP']);
 		
