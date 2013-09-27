@@ -138,6 +138,7 @@ class ReportsControllerCustom extends ReportsController {
 				Participant.qc_tf_bank_id,
 				Participant.participant_identifier,
 				Participant.qc_tf_bank_participant_identifier,
+				Participant.qc_tf_study_exclusions,
 				Participant.vital_status,
 				Participant.date_of_death,
 				Participant.date_of_death_accuracy,
@@ -181,9 +182,14 @@ class ReportsControllerCustom extends ReportsController {
 		$main_results = $this->Report->tryCatchQuery($sql);
 		
 		$primary_ids = array();
-		foreach($main_results as $new_participant) if(!empty($new_participant['DiagnosisMaster']['primary_id'])) $primary_ids[] = $new_participant['DiagnosisMaster']['primary_id'];	
-		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
+		$participant_ids = array();
+		foreach($main_results as $new_participant) {
+			$participant_ids[] = $new_participant['Participant']['participant_id'];
+			if(!empty($new_participant['DiagnosisMaster']['primary_id'])) $primary_ids[] = $new_participant['DiagnosisMaster']['primary_id'];
 				
+		}
+		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
+		
 		// *********** Get Fst Bcr ***********		
 		
 		$fst_bcr_results_from_primary_id = array();
@@ -320,6 +326,36 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
+		// *********** Get Trt ***********
+		
+		$treatments_summary_template = array(
+			'Generated' => array(
+				'qc_tf_chemo_flag' => 'n',
+				'qc_tf_radiation_flag' => 'n',
+				'qc_tf_hormono_flag' => 'n'));
+		$sql = "SELECT distinct TreatmentMaster.participant_id, TreatmentControl.tx_method
+			FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+			WHERE TreatmentMaster.deleted <> 1
+			AND TreatmentControl.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
+			AND TreatmentMaster.participant_id IN (".implode(',',$participant_ids).")";
+		$treatment_results = $this->Report->tryCatchQuery($sql);
+		$treatments_summary = array();
+		foreach($treatment_results as $new_trt) {
+			$participant_id = $new_trt['TreatmentMaster']['participant_id'];
+			if(!isset($treatments_summary[$participant_id])) $treatments_summary[$participant_id] = $treatments_summary_template;
+			switch($new_trt['TreatmentControl']['tx_method']) {
+				case 'hormonotherapy':
+					$treatments_summary[$participant_id]['Generated']['qc_tf_hormono_flag'] = 'y';
+					break;
+				case 'radiation':
+					$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_flag'] = 'y';
+					break;
+				case 'chemotherapy':
+					$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_flag'] = 'y';
+					break;
+			}
+		}
+		
 		// *********** Merge all data ***********
 		
 		$dfs_psa_template = array(
@@ -370,7 +406,12 @@ class ReportsControllerCustom extends ReportsController {
 			} else {
 				$new_participant = array_merge($new_participant, $fst_bcr_template);
 			}
-
+			if(isset($treatments_summary[$new_participant['Participant']['participant_id']])) {
+				$new_participant = array_merge($new_participant, $treatments_summary[$new_participant['Participant']['participant_id']]);
+			} else {
+				$new_participant = array_merge($new_participant, $treatments_summary_template);
+			}
+			
 			if(($_SESSION['Auth']['User']['group_id'] != '1') && ($new_participant['Participant']['qc_tf_bank_id'] != $user_bank_id)) {
 				$new_participant['Participant']['qc_tf_bank_participant_identifier'] = CONFIDENTIAL_MARKER;
 				$new_participant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;

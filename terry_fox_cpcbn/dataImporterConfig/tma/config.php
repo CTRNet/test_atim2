@@ -11,7 +11,7 @@ class Config{
 	static $db_port 		= "3306";
 	static $db_user 		= "root";
 	static $db_pwd			= "";
-	static $db_schema		= "cpcbn";
+	static $db_schema		= "tfricpcbn";
 	
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
@@ -25,7 +25,7 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/data/TMA_layout_20121200.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/TMA_layout_20121200_Verob_130920.xls';
 	static $use_windows_xls_offset = false;
 	
 	static $xls_header_rows = 1;
@@ -84,7 +84,7 @@ Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start
 Config::$parent_models[] = "tma";
 
 //add your configs
-$relative_path = 'C:/_My_Directory/Local_Server/ATiM/tfri_cpcbn/dataImporterConfig/tma/tablesMapping/';
+$relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/tma/tablesMapping/';
 Config::$config_files[] = $relative_path.'tmas.php';
 Config::$config_files[] = $relative_path.'cores.php';
 
