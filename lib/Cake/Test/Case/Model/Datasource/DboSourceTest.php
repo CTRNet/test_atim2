@@ -549,7 +549,7 @@ class DboSourceTest extends CakeTestCase {
 	}
 
 /**
- * testReconnect method
+ * Tests if the connection can be re-established and that the new (optional) config is set.
  *
  * @return void
  */
@@ -721,11 +721,11 @@ class DboSourceTest extends CakeTestCase {
  * @return void
  */
 	public function testGetLogParams() {
-		$this->testDb->logQuery('Query 1', array(1,2,'abc'));
+		$this->testDb->logQuery('Query 1', array(1, 2, 'abc'));
 		$this->testDb->logQuery('Query 2', array('field1' => 1, 'field2' => 'abc'));
 
 		$log = $this->testDb->getLog();
-		$expected = array('query' => 'Query 1', 'params' => array(1,2,'abc'), 'affected' => '', 'numRows' => '', 'took' => '');
+		$expected = array('query' => 'Query 1', 'params' => array(1, 2, 'abc'), 'affected' => '', 'numRows' => '', 'took' => '');
 		$this->assertEquals($expected, $log['log'][0]);
 		$expected = array('query' => 'Query 2', 'params' => array('field1' => 1, 'field2' => 'abc'), 'affected' => '', 'numRows' => '', 'took' => '');
 		$this->assertEquals($expected, $log['log'][1]);
@@ -841,7 +841,7 @@ class DboSourceTest extends CakeTestCase {
 		$Comment->find('all', array('recursive' => 2)); // ensure Model descriptions are saved
 		$this->db->getLog();
 
-		// case: Comment  belongsTo User and Article
+		// case: Comment belongsTo User and Article
 		$Comment->unbindModel(array(
 			'hasOne' => array('Attachment')
 		));
@@ -1091,8 +1091,14 @@ class DboSourceTest extends CakeTestCase {
  *
  * @return array
  */
-	public static function joinStatements($schema) {
+	public static function joinStatements() {
 		return array(
+			array(array(
+				'type' => 'CROSS',
+				'alias' => 'PostsTag',
+				'table' => 'posts_tags',
+				'conditions' => array('1 = 1')
+			), 'CROSS JOIN cakephp.posts_tags AS PostsTag'),
 			array(array(
 				'type' => 'LEFT',
 				'alias' => 'PostsTag',
@@ -1250,7 +1256,65 @@ class DboSourceTest extends CakeTestCase {
 		$this->assertEquals(' LIMIT 10, 20', $result);
 
 		$result = $db->limit(10, 300000000000000000000000000000);
-		$this->assertEquals(' LIMIT 0, 10', $result);
+		$scientificNotation = sprintf('%.1E', 300000000000000000000000000000);
+		$this->assertNotContains($scientificNotation, $result);
 	}
 
+/**
+ * Test insertMulti with id position.
+ *
+ * @return void
+ */
+	public function testInsertMultiId() {
+		$this->loadFixtures('Article');
+		$Article = ClassRegistry::init('Article');
+		$db = $Article->getDatasource();
+		$datetime = date('Y-m-d H:i:s');
+		$data = array(
+			array(
+				'user_id' => 1,
+				'title' => 'test',
+				'body' => 'test',
+				'published' => 'N',
+				'created' => $datetime,
+				'updated' => $datetime,
+				'id' => 100,
+			),
+			array(
+				'user_id' => 1,
+				'title' => 'test 101',
+				'body' => 'test 101',
+				'published' => 'N',
+				'created' => $datetime,
+				'updated' => $datetime,
+				'id' => 101,
+			)
+		);
+		$result = $db->insertMulti('articles', array_keys($data[0]), $data);
+		$this->assertTrue($result, 'Data was saved');
+
+		$data = array(
+			array(
+				'id' => 102,
+				'user_id' => 1,
+				'title' => 'test',
+				'body' => 'test',
+				'published' => 'N',
+				'created' => $datetime,
+				'updated' => $datetime,
+			),
+			array(
+				'id' => 103,
+				'user_id' => 1,
+				'title' => 'test 101',
+				'body' => 'test 101',
+				'published' => 'N',
+				'created' => $datetime,
+				'updated' => $datetime,
+			)
+		);
+
+		$result = $db->insertMulti('articles', array_keys($data[0]), $data);
+		$this->assertTrue($result, 'Data was saved');
+	}
 }

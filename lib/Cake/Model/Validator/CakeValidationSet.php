@@ -4,7 +4,7 @@
  *
  * Provides the Model validation logic.
  *
- * PHP versions 5
+ * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -331,6 +331,7 @@ class CakeValidationSet implements ArrayAccess, IteratorAggregate, Countable {
  *
  * @param string $index name of the rule
  * @param CakeValidationRule|array rule to add to $index
+ * @return void
  */
 	public function offsetSet($index, $rule) {
 		$this->setRule($index, $rule);

@@ -283,7 +283,7 @@ class DbAclTest extends CakeTestCase {
 		$this->assertTrue($this->Acl->check('Samir', 'view', 'read'));
 		$this->assertTrue($this->Acl->check('root/users/Samir', 'ROOT/tpsReports/view', 'update'));
 
-		$this->assertFalse($this->Acl->check('root/users/Samir', 'ROOT/tpsReports/update','*'));
+		$this->assertFalse($this->Acl->check('root/users/Samir', 'ROOT/tpsReports/update', '*'));
 		$this->assertTrue($this->Acl->allow('root/users/Samir', 'ROOT/tpsReports/update', '*'));
 		$this->assertTrue($this->Acl->check('Samir', 'update', 'read'));
 		$this->assertTrue($this->Acl->check('root/users/Samir', 'ROOT/tpsReports/update', 'update'));
@@ -291,6 +291,16 @@ class DbAclTest extends CakeTestCase {
 		$this->assertTrue($this->Acl->check('root/users/Samir', 'ROOT/tpsReports/view', 'update'));
 
 		$this->assertFalse($this->Acl->allow('Lumbergh', 'ROOT/tpsReports/DoesNotExist', 'create'));
+	}
+
+/**
+ * Test that allow() with an invalid permission name triggers an error.
+ *
+ * @expectedException CakeException
+ * @return void
+ */
+	public function testAllowInvalidPermission() {
+		$this->Acl->allow('Micheal', 'tpsReports', 'derp');
 	}
 
 /**
@@ -488,7 +498,7 @@ class DbAclTest extends CakeTestCase {
  * Generates a list of the current aro and aco structures and a grid dump of the permissions that are defined
  * Only designed to work with the db based ACL
  *
- * @param bool $treesToo
+ * @param boolean $treesToo
  * @return void
  */
 	protected function _debug($printTreesToo = false) {
@@ -520,7 +530,7 @@ class DbAclTest extends CakeTestCase {
 		foreach ($permissions as $key => $values) {
 			array_unshift($values, $key);
 			$values = array_map(array(&$this, '_pad'), $values);
-			$permissions[$key] = implode (' ', $values);
+			$permissions[$key] = implode(' ', $values);
 		}
 		$permissions = array_map(array(&$this, '_pad'), $permissions);
 		array_unshift($permissions, 'Current Permissions :');

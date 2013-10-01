@@ -263,6 +263,17 @@ class SqliteTest extends CakeTestCase {
 		$result = $this->Dbo->buildColumn($data);
 		$expected = '"huge" bigint(20) NOT NULL';
 		$this->assertEquals($expected, $result);
+
+		$data = array(
+			'name' => 'id',
+			'type' => 'biginteger',
+			'length' => 20,
+			'null' => false,
+			'key' => 'primary',
+		);
+		$result = $this->Dbo->buildColumn($data);
+		$expected = '"id" bigint(20) NOT NULL PRIMARY KEY';
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -494,7 +505,8 @@ class SqliteTest extends CakeTestCase {
 		$this->assertEquals(' LIMIT 20 OFFSET 10', $result);
 
 		$result = $db->limit(10, 300000000000000000000000000000);
-		$this->assertEquals(' LIMIT 10 OFFSET 0', $result);
+		$scientificNotation = sprintf('%.1E', 300000000000000000000000000000);
+		$this->assertNotContains($scientificNotation, $result);
 	}
 
 }
