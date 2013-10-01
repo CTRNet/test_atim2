@@ -32,13 +32,6 @@ App::uses('AppController', 'Controller');
 class PagesController extends AppController {
 
 /**
- * Controller name
- *
- * @var string
- */
-	public $name = 'Pages';
-
-/**
  * @var array
  */
 	public $uses = array('Page');
@@ -53,6 +46,8 @@ class PagesController extends AppController {
  *
  * @param mixed What page to display
  * @return void
+ * @throws NotFoundException When the view file could not be found
+ *     or MissingViewException in debug mode.
  */
 	public function display() {
 		$path = func_get_args();

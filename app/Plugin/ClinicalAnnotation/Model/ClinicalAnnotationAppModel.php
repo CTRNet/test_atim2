@@ -19,7 +19,7 @@ class ClinicalAnnotationAppModel extends AppModel {
 		return CodingIcdo3Morpho::validateId($id);
 	}
 	
-	function afterSave($created){
+	function afterSave($created, $options = Array()){
 		if($this->name != 'Participant'){
 			//manages Participant.last_modification and Participant.last_modification_ds_id
 			if(isset($this->data[$this->name]['deleted']) && $this->data[$this->name]['deleted']){

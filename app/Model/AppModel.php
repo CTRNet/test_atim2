@@ -1215,7 +1215,7 @@ class AppModel extends Model {
 		return $results;
 	}
 	
-	function afterSave($created){
+	function afterSave($created, $options = Array()){
 		if($this->registered_view){
 			foreach($this->registered_view as $registered_view => $foreign_keys){
 				list($plugin_name, $model_name) = explode('.', $registered_view);
