@@ -68,7 +68,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
 	}
 	
-	public function afterFind(Model $model, $results, $primary) {
+	public function afterFind(Model $model, $results, $primary = false) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
@@ -139,7 +139,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		return true;
 	}
 	
-	public function afterSave(Model $model, $created) {
+	public function afterSave(Model $model, $created, $options = Array()) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if ( $is_master_model || $is_control_model ) {

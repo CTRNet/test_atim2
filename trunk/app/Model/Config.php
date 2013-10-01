@@ -24,7 +24,7 @@ class Config extends AppModel {
 			return $config_results;
 		}
 		
-		return $this->find('first',
+        return $this->find('first',
 			array('conditions' => array(array('OR' => array('Config.bank_id' => "0", 'Config.bank_id IS NULL')),
 										array('OR' => array('Config.group_id' => "0", 'Config.group_id IS NULL')),
 										array('OR' => array('Config.user_id' => "0", 'Config.user_id IS NULL')))));
