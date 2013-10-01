@@ -81,6 +81,7 @@ class SmtpTransportTest extends CakeTestCase {
  * @return void
  */
 	public function setUp() {
+		parent::setUp();
 		if (!class_exists('MockSocket')) {
 			$this->getMock('CakeSocket', array('read', 'write', 'connect', 'enableCrypto'), array(), 'MockSocket');
 		}
@@ -270,6 +271,28 @@ class SmtpTransportTest extends CakeTestCase {
 	}
 
 /**
+ * testRcptWithReturnPath method
+ *
+ * @return void
+ */
+	public function testRcptWithReturnPath() {
+		$email = new CakeEmail();
+		$email->from('noreply@cakephp.org', 'CakePHP Test');
+		$email->to('cake@cakephp.org', 'CakePHP');
+		$email->returnPath('pleasereply@cakephp.org', 'CakePHP Return');
+
+		$this->socket->expects($this->at(0))->method('write')->with("MAIL FROM:<pleasereply@cakephp.org>\r\n");
+		$this->socket->expects($this->at(1))->method('read')->will($this->returnValue(false));
+		$this->socket->expects($this->at(2))->method('read')->will($this->returnValue("250 OK\r\n"));
+		$this->socket->expects($this->at(3))->method('write')->with("RCPT TO:<cake@cakephp.org>\r\n");
+		$this->socket->expects($this->at(4))->method('read')->will($this->returnValue(false));
+		$this->socket->expects($this->at(5))->method('read')->will($this->returnValue("250 OK\r\n"));
+
+		$this->SmtpTransport->setCakeEmail($email);
+		$this->SmtpTransport->sendRcpt();
+	}
+
+/**
  * testSendData method
  *
  * @return void
@@ -289,7 +312,6 @@ class SmtpTransportTest extends CakeTestCase {
 		$email->expects($this->any())->method('message')->will($this->returnValue(array('First Line', 'Second Line', '.Third Line', '')));
 
 		$data = "From: CakePHP Test <noreply@cakephp.org>\r\n";
-		$data .= "Return-Path: CakePHP Return <pleasereply@cakephp.org>\r\n";
 		$data .= "To: CakePHP <cake@cakephp.org>\r\n";
 		$data .= "Cc: Mark Story <mark@cakephp.org>, Juan Basso <juan@cakephp.org>\r\n";
 		$data .= "X-Mailer: CakePHP Email\r\n";
@@ -325,6 +347,23 @@ class SmtpTransportTest extends CakeTestCase {
 	public function testQuit() {
 		$this->socket->expects($this->at(0))->method('write')->with("QUIT\r\n");
 		$this->SmtpTransport->disconnect();
+	}
+
+/**
+ * testEmptyConfigArray method
+ *
+ * @return void
+ */
+	public function testEmptyConfigArray() {
+		$expected = $this->SmtpTransport->config(array(
+			'client' => 'myhost.com',
+			'port' => 666
+		));
+
+		$this->assertEquals(666, $expected['port']);
+
+		$result = $this->SmtpTransport->config(array());
+		$this->assertEquals($expected, $result);
 	}
 
 }

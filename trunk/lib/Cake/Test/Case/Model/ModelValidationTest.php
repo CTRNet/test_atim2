@@ -27,6 +27,16 @@ require_once dirname(__FILE__) . DS . 'ModelTestBase.php';
 class ModelValidationTest extends BaseModelTest {
 
 /**
+ * override locale to the default (eng).
+ *
+ * @return void
+ */
+	public function setUp() {
+		parent::setUp();
+		Configure::write('Config.language', 'eng');
+	}
+
+/**
  * Tests validation parameter order in custom validation methods
  *
  * @return void
@@ -577,7 +587,7 @@ class ModelValidationTest extends BaseModelTest {
 		$this->assertFalse($result, 'Save occurred even when with models failed. %s');
 		$this->assertEquals($expectedError, $JoinThing->validationErrors);
 		$count = $Something->find('count', array('conditions' => array('Something.id' => $data['Something']['id'])));
-		$this->assertSame($count, 0);
+		$this->assertSame(0, $count);
 
 		$data = array(
 			'Something' => array(
@@ -640,7 +650,7 @@ class ModelValidationTest extends BaseModelTest {
 		$this->assertEquals($expectedError, $JoinThing->validationErrors);
 
 		$count = $Something->find('count', array('conditions' => array('Something.id' => $data['Something']['id'])));
-		$this->assertSame($count, 0);
+		$this->assertSame(0, $count);
 
 		$joinRecords = $JoinThing->find('count', array(
 			'conditions' => array('JoinThing.something_id' => $data['Something']['id'])
@@ -681,11 +691,11 @@ class ModelValidationTest extends BaseModelTest {
 		$Author->create();
 		$result = $Author->saveAll($data, array('validate' => 'first'));
 		$this->assertTrue($result);
-		$this->assertFalse(is_null($Author->id));
+		$this->assertNotNull($Author->id);
 
 		$id = $Author->id;
 		$count = $Author->find('count', array('conditions' => array('Author.id' => $id)));
-		$this->assertSame($count, 1);
+		$this->assertSame(1, $count);
 
 		$count = $Post->find('count', array(
 			'conditions' => array('Post.author_id' => $id)
@@ -1511,7 +1521,7 @@ class ModelValidationTest extends BaseModelTest {
  * @return void
  */
 	public function testValidateAssociated() {
-		$this->loadFixtures('Comment', 'Attachment');
+		$this->loadFixtures('Comment', 'Attachment', 'Article', 'User');
 		$TestModel = new Comment();
 		$TestModel->Attachment->validate = array('attachment' => 'notEmpty');
 
@@ -1527,6 +1537,18 @@ class ModelValidationTest extends BaseModelTest {
 		$this->assertFalse($result);
 		$result = $TestModel->validateAssociated($data);
 		$this->assertFalse($result);
+
+		$fieldList = array(
+			'Attachment' => array('comment_id')
+		);
+		$result = $TestModel->saveAll($data, array(
+			'fieldList' => $fieldList, 'validate' => 'only'
+		));
+		$this->assertTrue($result);
+		$this->assertEmpty($TestModel->validationErrors);
+		$result = $TestModel->validateAssociated($data, array('fieldList' => $fieldList));
+		$this->assertTrue($result);
+		$this->assertEmpty($TestModel->validationErrors);
 
 		$TestModel->validate = array('comment' => 'notEmpty');
 		$record = array(
@@ -2292,7 +2314,7 @@ class ModelValidationTest extends BaseModelTest {
 				),
 			),
 		);
-		$this->assertEquals($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 /**
@@ -2353,7 +2375,7 @@ class ModelValidationTest extends BaseModelTest {
 				),
 			),
 		);
-		$this->assertEquals($result, $expected);
+		$this->assertEquals($expected, $result);
 	}
 
 }

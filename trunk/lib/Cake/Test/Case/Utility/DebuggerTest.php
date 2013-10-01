@@ -333,6 +333,8 @@ object(View) {
 	response => object(CakeResponse) {}
 	elementCache => 'default'
 	elementCacheSettings => array()
+	Html => object(HtmlHelper) {}
+	Form => object(FormHelper) {}
 	int => (int) 2
 	float => (float) 1.333
 
@@ -357,7 +359,6 @@ TEXT;
 	)
 	[protected] _scripts => array()
 	[protected] _paths => array()
-	[protected] _helpersLoaded => false
 	[protected] _parents => array()
 	[protected] _current => null
 	[protected] _currentType => ''
@@ -407,6 +408,11 @@ TEXT;
 false
 TEXT;
 		$this->assertTextEquals($expected, $result);
+
+		$file = fopen('php://output', 'w');
+		fclose($file);
+		$result = Debugger::exportVar($file);
+		$this->assertTextEquals('unknown', $result);
 	}
 
 /**
@@ -482,8 +488,11 @@ TEXT;
 		ob_start();
 		Debugger::dump($var);
 		$result = ob_get_clean();
+
+		$open = php_sapi_name() == 'cli' ? "\n" : '<pre>';
+		$close = php_sapi_name() == 'cli' ? "\n" : '</pre>';
 		$expected = <<<TEXT
-<pre>array(
+{$open}array(
 	'People' => array(
 		(int) 0 => array(
 			'name' => 'joeseph',
@@ -496,7 +505,7 @@ TEXT;
 			'hair' => 'black'
 		)
 	)
-)</pre>
+){$close}
 TEXT;
 		$this->assertTextEquals($expected, $result);
 	}

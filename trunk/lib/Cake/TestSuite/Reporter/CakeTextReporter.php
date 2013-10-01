@@ -160,8 +160,8 @@ class CakeTextReporter extends CakeBaseReporter {
 			$urlExtra = '&plugin=' . $plugin;
 		}
 
-		if (1 > count($testCases)) {
-			$buffer .= "EMPTY";
+		if (count($testCases) < 1) {
+			$buffer .= 'EMPTY';
 			echo $buffer;
 		}
 

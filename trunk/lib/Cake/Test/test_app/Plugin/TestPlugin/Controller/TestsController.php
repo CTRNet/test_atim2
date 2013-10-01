@@ -19,8 +19,6 @@
  */
 class TestsController extends TestPluginAppController {
 
-	public $name = 'Tests';
-
 	public $uses = array();
 
 	public $helpers = array('TestPlugin.OtherHelper', 'Html');

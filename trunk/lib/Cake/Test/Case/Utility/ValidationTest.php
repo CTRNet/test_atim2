@@ -2,7 +2,7 @@
 /**
  * ValidationTest file
  *
- * PHP Version 5.x
+ * PHP 5
  *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -944,7 +944,7 @@ class ValidationTest extends CakeTestCase {
 		$this->assertTrue(Validation::comparison(array('check1' => 6, 'operator' => '<', 'check2' => 7)));
 		$this->assertTrue(Validation::comparison(array('check1' => 7, 'operator' => 'greater or equal', 'check2' => 7)));
 		$this->assertTrue(Validation::comparison(array('check1' => 7, 'operator' => '>=', 'check2' => 7)));
-		$this->assertTrue(Validation::comparison(array('check1' => 7, 'operator' => 'greater or equal','check2' => 6)));
+		$this->assertTrue(Validation::comparison(array('check1' => 7, 'operator' => 'greater or equal', 'check2' => 6)));
 		$this->assertTrue(Validation::comparison(array('check1' => 7, 'operator' => '>=', 'check2' => 6)));
 		$this->assertTrue(Validation::comparison(array('check1' => 6, 'operator' => 'less or equal', 'check2' => 7)));
 		$this->assertTrue(Validation::comparison(array('check1' => 6, 'operator' => '<=', 'check2' => 7)));
@@ -963,7 +963,7 @@ class ValidationTest extends CakeTestCase {
 		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => 'less or equal', 'check2' => 6)));
 		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => '<=', 'check2' => 6)));
 		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => 'equal to', 'check2' => 6)));
-		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => '==','check2' => 6)));
+		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => '==', 'check2' => 6)));
 		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => 'not equal', 'check2' => 7)));
 		$this->assertFalse(Validation::comparison(array('check1' => 7, 'operator' => '!=', 'check2' => 7)));
 	}
@@ -1423,6 +1423,45 @@ class ValidationTest extends CakeTestCase {
 		$this->assertFalse(Validation::date('12-06', array('my')));
 		$this->assertFalse(Validation::date('12.06', array('my')));
 		$this->assertFalse(Validation::date('12 06', array('my')));
+	}
+
+/**
+ * testDateYmNumeric method
+ *
+ * @return void
+ */
+	public function testDateYmNumeric() {
+		$this->assertTrue(Validation::date('2006/12', array('ym')));
+		$this->assertTrue(Validation::date('2006-12', array('ym')));
+		$this->assertTrue(Validation::date('2006-12', array('ym')));
+		$this->assertTrue(Validation::date('2006 12', array('ym')));
+		$this->assertTrue(Validation::date('2006 12', array('ym')));
+		$this->assertTrue(Validation::date('1900-01', array('ym')));
+		$this->assertTrue(Validation::date('2153-01', array('ym')));
+		$this->assertFalse(Validation::date('2006/12 ', array('ym')));
+		$this->assertFalse(Validation::date('2006/12/', array('ym')));
+		$this->assertFalse(Validation::date('06/12', array('ym')));
+		$this->assertFalse(Validation::date('06-12', array('ym')));
+		$this->assertFalse(Validation::date('06-12', array('ym')));
+		$this->assertFalse(Validation::date('06 12', array('ym')));
+	}
+
+/**
+ * testDateY method
+ *
+ * @return void
+ */
+	public function testDateY() {
+		$this->assertTrue(Validation::date('1900', array('y')));
+		$this->assertTrue(Validation::date('1984', array('y')));
+		$this->assertTrue(Validation::date('2006', array('y')));
+		$this->assertTrue(Validation::date('2008', array('y')));
+		$this->assertTrue(Validation::date('2013', array('y')));
+		$this->assertTrue(Validation::date('2104', array('y')));
+		$this->assertFalse(Validation::date('20009', array('y')));
+		$this->assertFalse(Validation::date(' 2012', array('y')));
+		$this->assertFalse(Validation::date('3000', array('y')));
+		$this->assertFalse(Validation::date('1899', array('y')));
 	}
 
 /**
@@ -2089,8 +2128,28 @@ class ValidationTest extends CakeTestCase {
 		$this->assertFalse(Validation::phone('(055) 999-9999'));
 		$this->assertFalse(Validation::phone('(155) 999-9999'));
 		$this->assertFalse(Validation::phone('(595) 999-9999'));
-		$this->assertFalse(Validation::phone('(555) 099-9999'));
-		$this->assertFalse(Validation::phone('(555) 199-9999'));
+		$this->assertFalse(Validation::phone('(213) 099-9999'));
+		$this->assertFalse(Validation::phone('(213) 199-9999'));
+
+		// invalid area-codes
+		$this->assertFalse(Validation::phone('1-(511)-999-9999'));
+		$this->assertFalse(Validation::phone('1-(555)-999-9999'));
+
+		// invalid exhange
+		$this->assertFalse(Validation::phone('1-(222)-511-9999'));
+
+		// invalid phone number
+		$this->assertFalse(Validation::phone('1-(222)-555-0199'));
+		$this->assertFalse(Validation::phone('1-(222)-555-0122'));
+
+		// valid phone numbers
+		$this->assertTrue(Validation::phone('416-428-1234'));
+		$this->assertTrue(Validation::phone('1-(369)-333-4444'));
+		$this->assertTrue(Validation::phone('1-(973)-333-4444'));
+		$this->assertTrue(Validation::phone('1-(313)-555-9999'));
+		$this->assertTrue(Validation::phone('1-(222)-555-0299'));
+		$this->assertTrue(Validation::phone('508-428-1234'));
+		$this->assertTrue(Validation::phone('1-(508)-232-9651'));
 
 		$this->assertTrue(Validation::phone('1 (222) 333 4444'));
 		$this->assertTrue(Validation::phone('+1 (222) 333 4444'));

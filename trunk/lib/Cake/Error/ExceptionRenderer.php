@@ -30,7 +30,7 @@ App::uses('Controller', 'Controller');
  * Exception Renderer.
  *
  * Captures and handles all unhandled exceptions. Displays helpful framework errors when debug > 1.
- * When debug < 1 a CakeException will render 404 or  500 errors. If an uncaught exception is thrown
+ * When debug < 1 a CakeException will render 404 or 500 errors. If an uncaught exception is thrown
  * and it is a type that ExceptionHandler does not know about it will be treated as a 500 error.
  *
  * ### Implementing application specific exception rendering
@@ -151,12 +151,14 @@ class ExceptionRenderer {
 			$response->header($exception->responseHeader());
 		}
 
-		try {
-			$controller = new CakeErrorController($request, $response);
-			$controller->startupProcess();
-		} catch (Exception $e) {
-			if (!empty($controller) && $controller->Components->enabled('RequestHandler')) {
-				$controller->RequestHandler->startup($controller);
+		if (class_exists('AppController')) {
+			try {
+				$controller = new CakeErrorController($request, $response);
+				$controller->startupProcess();
+			} catch (Exception $e) {
+				if (!empty($controller) && $controller->Components->enabled('RequestHandler')) {
+					$controller->RequestHandler->startup($controller);
+				}
 			}
 		}
 		if (empty($controller)) {

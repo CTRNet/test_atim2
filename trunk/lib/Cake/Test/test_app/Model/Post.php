@@ -23,6 +23,4 @@ class Post extends AppModel {
 
 	public $useTable = 'posts';
 
-	public $name = 'Post';
-
 }

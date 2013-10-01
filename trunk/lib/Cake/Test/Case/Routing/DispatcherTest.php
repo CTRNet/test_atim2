@@ -560,6 +560,7 @@ class DispatcherTest extends CakeTestCase {
  * @return void
  */
 	public function setUp() {
+		parent::setUp();
 		$this->_get = $_GET;
 		$_GET = array();
 		$this->_post = $_POST;
@@ -587,6 +588,7 @@ class DispatcherTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() {
+		parent::tearDown();
 		$_GET = $this->_get;
 		$_POST = $this->_post;
 		$_FILES = $this->_files;
@@ -919,7 +921,7 @@ class DispatcherTest extends CakeTestCase {
 		$_POST = array();
 		$Dispatcher = new TestDispatcher();
 		Configure::write('Routing.prefixes', array('admin'));
-		Configure::write('App.baseUrl','/cake/repo/branches/1.2.x.x/index.php');
+		Configure::write('App.baseUrl', '/cake/repo/branches/1.2.x.x/index.php');
 		$url = new CakeRequest('admin/test_dispatch_pages/index/param:value/param2:value2');
 		$response = $this->getMock('CakeResponse');
 
