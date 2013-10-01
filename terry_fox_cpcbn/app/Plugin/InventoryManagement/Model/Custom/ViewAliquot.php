@@ -35,6 +35,7 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 		
 		StorageMaster.code,
 		StorageMaster.selection_label,
+StorageMaster.qc_tf_tma_name,
 		AliquotMaster.storage_coord_x,
 		AliquotMaster.storage_coord_y,
 		
