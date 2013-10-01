@@ -8,13 +8,13 @@ class StorageMasterCustom extends StorageMaster{
 	
 		if (isset($variables['StorageMaster.id'])) {
 			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
-			$title = __($result['StorageControl']['storage_type']);
+			$title = __($result['StorageControl']['storage_type']). ' : ' . $result['StorageMaster']['short_label'];
 			if($result['StorageControl']['is_tma_block'] && AppController::getInstance()->Session->read('flag_show_confidential')) {
 				$title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
 			}
 			$return = array(
-				'menu' => array(null, ($title . ' : ' . $result['StorageMaster']['short_label'])),
-				'title' => array(null, ($title . ' : ' . $result['StorageMaster']['short_label'])),
+				'menu' => array(null, ($title . ' [' . $result['StorageMaster']['code'].']')),
+				'title' => array(null, ($title . ' [' . $result['StorageMaster']['code'].']')),
 				'data'				=> $result,
 				'structure alias'	=> 'storagemasters'
 			);
