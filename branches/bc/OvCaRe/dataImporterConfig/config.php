@@ -13,13 +13,15 @@ class Config{
 	static $db_schema		= "ovcare";
 	static $db_charset		= "utf8";
 	static $db_created_id	= 1;//the user id to use in created_by/modified_by fields
+	static $migration_date = null;
 	
 	static $timezone		= "America/Montreal";
 	
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path = "C:/_Perso/Server/ovcare/data/OvCaRe_dev.xls";
+	static $xls_file_path = "C:/_Perso/Server/ovcare/data/OvCaRe_dev.xls";	
+	static $use_windows_xls_offset = false;	
 	
 	static $xls_header_rows = 1;
 	
@@ -47,10 +49,10 @@ class Config{
 	
 	//--------------------------------------	
 	
-	static $summary_msg = array();	
-	
 	static $limit_warning_display = true;
-	
+	static $summary_msg = array();	
+		
+	static $misc_identifier_controls = array();
 	static $consent_control_id = null;
 	static $diagnosis_control_id = null;
 	static $event_controls = array();	
@@ -88,15 +90,6 @@ $table_mapping_path = 'C:/_Perso/Server/ovcare/dataImporterConfig/tablesMapping/
 Config::$config_files[] = $table_mapping_path.'clinical_annotations.php'; 
 Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
-//Config::$config_files[] = $table_mapping_path.'participants.php';
-//Config::$config_files[] = $table_mapping_path.'consents.php'; 
-//Config::$config_files[] = $table_mapping_path.'questionnaires.php';
-//Config::$config_files[] = $table_mapping_path.'storages.php';
-
-//Config::$config_files[] = $table_mapping_path.'path_reports.php';
-//Config::$config_files[] = $table_mapping_path.'diagnostics.php'; 
-//Config::$config_files[] = $table_mapping_path.'treatments.php'; 
-
 //=========================================================================================================
 // START functions
 //=========================================================================================================
@@ -116,7 +109,19 @@ function addonFunctionStart(){
 	 - Then check all lines with no VOA# are empty excepted field Duplicate Patients::VOA Number<br>
 	 - Then delete these lines having no VOa#<br><br>";	
 	
+	$query = "select NOW() AS migration_date;";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$row = $results->fetch_assoc();
+	Config::$migration_date = $row['migration_date'];
+	
 	// GET CONTROL DATA
+	
+	// MiscIdentifier
+	$query = "select id, misc_identifier_name, flag_unique FROM misc_identifier_controls WHERE flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$misc_identifier_controls[$row['misc_identifier_name']] = array('id' => $row['id'], 'flag_unique' => $row['flag_unique']);
+	}
 	
 	//consent table => cd_nationals
 	$query = "SELECT id FROM consent_controls WHERE controls_type = 'OvCaRe' AND flag_active = 1;";
@@ -201,24 +206,14 @@ function addonFunctionStart(){
 //=========================================================================================================
 	
 function addonFunctionEnd(){
-	
-pr(Config::$summary_msg);
-exit;	
 
 	// Empty date clean up 
 	
 	$date_times_to_check = array(
 		'consent_masters.consent_signed_date',
-		'procure_cd_sigantures.revised_date',
 		'event_masters.event_date',
-		'procure_ed_lifestyle_quest_admin_worksheets.delivery_date',
-		'procure_ed_lifestyle_quest_admin_worksheets.recovery_date',
-		'procure_ed_lifestyle_quest_admin_worksheets.verification_date',
-		'procure_ed_lifestyle_quest_admin_worksheets.revision_date',
-		'procure_ed_lab_diagnostic_information_worksheets.id_confirmation_date',
-		'procure_ed_lab_diagnostic_information_worksheets.biopsy_pre_surgery_date',
-		'procure_ed_lab_diagnostic_information_worksheets.aps_pre_surgery_date',
-		'procure_ed_lab_diagnostic_information_worksheets.biopsy_date',
+		'treatment_masters.start_date',
+		'treatment_masters.finish_date',
 		'collections.collection_datetime',
 		'specimen_details.reception_datetime',
 		'derivative_details.creation_datetime',
@@ -243,20 +238,20 @@ exit;
 		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
 	}	
 	
-	// ADD PARTICIPANT NOTES
+	// Dx CLEAN UP
 	
-	foreach(Config::$participant_notes as $participant_identifier => $notes) {
-		$query = "UPDATE participants SET notes = '".str_replace("'", "''", implode('\n', $notes))."' WHERE participant_identifier = '$participant_identifier'";
-		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update participant notes [$query] ");
-		if(Config::$insert_revs){
-			$query = str_replace("participants", "participants_revs", $query)."' WHERE participant_identifier = $participant_identifier'";
-			mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
-		}
+	$query = "UPDATE diagnosis_masters SET primary_id = id WHERE diagnosis_control_id = ".Config::$diagnosis_control_id;
+	mysqli_query(Config::$db_connection, $query) or die("Error $query] ");
+	if(Config::$insert_revs){
+		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
+		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 	}
+	// INVENTORY COMPLETION
 	
-	
-   	// INVENTORY COMPLETION
-		
+	$query = "UPDATE collections SET collection_datetime_accuracy = 'm' WHERE collection_datetime_accuracy = 'c';";
+	if(Config::$insert_revs) {
+		mysqli_query(Config::$db_connection, str_replace('collections', 'collections_revs', $query)) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	}
 	$query = "UPDATE sample_masters SET sample_code=id;";
 	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
@@ -273,37 +268,13 @@ exit;
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0;";
 	mysqli_query(Config::$db_connection, $query) or die("versions update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		
+	dislayErrorAndMessage();
 	
-	// ADD MISSING ERROR MESSAGE
-/*	
-	if(Config::$extensive_margin_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported'][-1] = 'See values : '. implode(', ', Config::$extensive_margin_unkw_value);
-	if(Config::$extra_prostatic_extension_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][-1] = 'See values : '. implode(', ', Config::$extra_prostatic_extension_unkw_value);
-	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported']);
-	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported']);
-*/	
-	// END Query
-	
-	$query = "UPDATE versions SET permissions_regenerated=0;";
-	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
-	if(!empty(Config::$participant_collections)) {
-		pr(Config::$participant_collections);
-		die('ERR 88383838292');
-	}
-	
-	// Chec inveotry material imported
-	echo "<br><br><FONT COLOR=\"blue\" >IMPORTED INVENTORY MATERIAL</FONT><br>";
-	foreach(Config::$sample_aliquot_controls as $samp_key => $new_samp) {
-		if(isset($new_samp['used']) && $new_samp['used']) {
-			echo "<br>-> $samp_key";
-		}
-		foreach($new_samp['aliquots'] as $alq_key => $new_alq) {
-			if(isset($new_alq['used']) && $new_alq['used']) {
-				echo "<br>-> $samp_key $alq_key";
-			}
-		}
-	}
-	
+	return;
+}
+
+function dislayErrorAndMessage() {
 	$max_nbr_of_msg_displayed = (Config::$limit_warning_display)? '2000' : '';
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		
@@ -376,15 +347,14 @@ function pr($arr) {
 	print_r($arr);
 }
 
-function customInsertRecord($data_arr, $table_name, $is_detail_table = false/*, $flush_empty_fields = false*/) {
+function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 	$created = $is_detail_table? array() : array(
-		"created"		=> "NOW()", 
+		"created"		=> "'".Config::$migration_date."'", 
 		"created_by"	=> Config::$db_created_id, 
-		"modified"		=> "NOW()",
+		"modified"		=> "'".Config::$migration_date."'",
 		"modified_by"	=> Config::$db_created_id
 	);
 	
-	//if($flush_empty_fields) {
 	$data_to_insert = array();
 	foreach($data_arr as $key => $value) {
 		if(strlen($value)) {
