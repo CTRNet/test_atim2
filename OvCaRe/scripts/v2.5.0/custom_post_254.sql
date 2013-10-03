@@ -628,27 +628,37 @@ DELETE FROM structure_permissible_values WHERE value="B" AND language_alias="B";
 DELETE FROM structure_permissible_values WHERE value="C" AND language_alias="C";
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 VALUES
+("I", "I"),
 ("Ia", "Ia"),
 ("Ib", "Ib"),
 ("Ic", "Ic"),
+("II", "II"),
 ("IIa", "IIa"),
 ("IIb", "IIb"),
 ("IIc", "IIc"),
+("III", "III"),
 ("IIIa", "IIIa"),
 ("IIIb", "IIIb"),
-("IIIc", "IIIc");
+("IIIc", "IIIc"),
+("IV", "IV");
 SET @structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ovcare_figo");
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = @structure_value_domain_id;
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="I" AND language_alias="I"), "0", "1"),
 ( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="Ia" AND language_alias="Ia"), "1", "1"),
 ( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="Ib" AND language_alias="Ib"), "2", "1"),
 ( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="Ic" AND language_alias="Ic"), "3", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIa" AND language_alias="IIa"), "4", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIb" AND language_alias="IIb"), "5", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIc" AND language_alias="IIc"), "6", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIa" AND language_alias="IIIa"), "7", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIb" AND language_alias="IIIb"), "8", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIc" AND language_alias="IIIc"), "9", "1"),
-( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "10", "1");
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="II" AND language_alias="II"), "4", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIa" AND language_alias="IIa"), "5", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIb" AND language_alias="IIb"), "6", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIc" AND language_alias="IIc"), "7", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="III" AND language_alias="III"), "8", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIa" AND language_alias="IIIa"), "9", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIb" AND language_alias="IIIb"), "10", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IIIc" AND language_alias="IIIc"), "11", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="IV"), "12", "1"),
+( @structure_value_domain_id, (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "20", "1");
+INSERT IGNORE INTO i18n (id,en) VALUES ("I", "I"),("II", "II"),("III", "III"),("IV", "IV");
 UPDATE structure_fields SET `field` = 'figo', `language_label` = 'figo', `language_tag` = '' WHERE `field` = 'substage' AND tablename = 'ovcare_dxd_ovaries';
 UPDATE structure_fields SET `field` = 'tumor_grade', `language_label` = 'tumor grade', `language_tag` = '' WHERE `field` = 'stage' AND tablename = 'ovcare_dxd_ovaries';
 INSERT INTO i18n (id,en) VALUES ('tumor grade', 'Tumor grade'), ('figo','Figo'),("Ia", "Ia"),
@@ -1391,18 +1401,12 @@ REPLACE INTO i18n (id,en) VALUES ('study_summary','Description'), ('study_title'
 -- Collection Link Revision 2013-08-06
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='controls_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_type') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_control_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_type_list') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 SET @coll_id = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection');
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 =  @coll_id AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster','DiagnosisMaster','EventMaster'));
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id2 =  @coll_id AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ConsentMaster','DiagnosisMaster','EventMaster'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 =  @coll_id AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('EventMaster'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id2 =  @coll_id AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('EventMaster'));
 ALTER TABLE collections
   ADD COLUMN misc_identifier_id int(11) DEFAULT NULL;
 ALTER TABLE collections_revs
@@ -1794,22 +1798,27 @@ ALTER TABLE `ovcare_dxd_others`
 UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/EventMasters/%lab%';
 UPDATE event_controls SET event_group = 'lab' WHERE event_group = 'ca125';
 
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="ovcare_vital_status");
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Vital Status\')" WHERE domain_name="ovcare_vital_status";
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length) VALUES ('Vital Status', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Vital Status');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('alive/well', 'Alive/Well', '', '1', @control_id),
+('alive/disease', 'Alive/Disease', '', '1', @control_id),
+('alive/unknown', 'Alive/Unknown', '', '1', @control_id),
+('dead/disease', 'Dead/Disease', '', '1', @control_id),
+('dead/other', 'Dead/Other', '', '1', @control_id),
+('dead/unknown', 'Dead/Unknown', '', '1', @control_id),
+('lost to follow-up', 'Lost to follow-up', '', '1', @control_id);
+UPDATE structure_fields SET  structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_vital_status')
+WHERE model='EventDetail' AND tablename='ed_all_clinical_followups' AND field='vital_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='vital_status_code');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_voa_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='VOA#' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+UPDATE structure_formats SET `display_order`='0', `flag_override_label`='1', `language_label`='', `flag_override_tag`='1', `language_tag`='VOA#' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_voa_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_voa_nbr'), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
 
 
 
