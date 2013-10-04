@@ -871,6 +871,14 @@ CREATE TABLE `sd_spe_salivas` (
   CONSTRAINT `FK_sd_spe_salivas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
 ) ENGINE=InnoDB;
 
+-- Table structure for saliva revisions
+CREATE TABLE `sd_spe_salivas_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)  
+) ENGINE=InnoDB;
+
 -- Tube for new saliva
 INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `detail_form_alias`, `detail_tablename`, `flag_active`, `databrowser_label`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'saliva|tube');
 
