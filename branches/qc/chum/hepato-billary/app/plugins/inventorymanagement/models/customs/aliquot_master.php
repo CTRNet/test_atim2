@@ -49,6 +49,12 @@ class AliquotMasterCustom extends AliquotMaster{
 				case 'tissue suspension':
 					$sample_type_code = 'T-SUSP';
 					break;
+				case 'dna':
+					$sample_type_code = 'DNA';
+					break;
+				case 'rna':
+					$sample_type_code = 'RNA';
+					break;
 				default :
 					// Type is unknown
 					AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
