@@ -76,7 +76,8 @@ function loadClinicalAnnotation() {
 		'Squamous Cell' => 'histo_type_other',
 		'Squamous Cell Carcinoma' => 'histo_type_other',
 		'Stromal Sarcoma' => 'histo_type_other',
-		'Undifferentiated' => 'histo_type_undifferentiated');
+		'Undifferentiated' => 'histo_type_undifferentiated',
+		'Villo-Glandular' => 'histo_type_other');
 	
 	$figo_matches = array(
 		"1" => "I",
@@ -129,8 +130,6 @@ function loadClinicalAnnotation() {
 			if(!isset($voa_to_patient_id[$voa_nbr])) die("ERR 8839398299292 VOA# = $voa_nbr, line = $excel_line_counter");
 			$file_patient_id = $new_line_data['Patient ID'];
 			$voa_patient_id = $voa_to_patient_id[$voa_nbr];
-//TODO Remove
-if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 1184, 1189, 'tmp11', 2096, 1440, 'tmp60'))) continue;	
 			if($file_patient_id && $file_patient_id != $voa_patient_id) die("ERR 8763773728903 VOA# = $voa_nbr, line = $excel_line_counter ($file_patient_id != $voa_patient_id");
 			//Record Profile
 			if(!isset($patient_data_from_patient_id[$voa_patient_id])) {			
@@ -292,8 +291,8 @@ if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 
 					$histo_other_details = array();
 					foreach($histo_values as $histo_val) {
 						if(!empty($histo_val)) {
-							if(!isset($histo_matches[$histo_val])) die('ERR 994849499494994 '.$histo_val);
-							$histo_field = $histo_matches[$histo_val];
+							$histo_field = 'histo_type_other';
+							if(isset($histo_matches[$histo_val])) $histo_field = $histo_matches[$histo_val];
 							if($histo_field == 'high_grade') {
 								if(isset($dx_data['DiagnosisDetail']['2_3_grading_system']) && $dx_data['DiagnosisDetail']['2_3_grading_system'] != 'high grade') die('ERR 88389333889 line: '.$excel_line_counter);
 								$dx_data['DiagnosisDetail']['2_3_grading_system'] = 'high grade';
@@ -544,8 +543,6 @@ if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 
 			$voa_nbr = $new_line_data['VOA Number'];	
 			if(!isset($voa_to_patient_id[$voa_nbr])) die("ERR 8839398299292 VOA# = $voa_nbr, line = $excel_line_counter");
 			$voa_patient_id = $voa_to_patient_id[$voa_nbr];
-//TODO Remove
-if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 1184, 1189, 'tmp11', 2096, 1440, 'tmp60'))) continue;	
 			$patient_voa_nbrs_for_msg = implode(', ', $patient_data_from_patient_id[$voa_patient_id]['VOA#s']);
 			
 			// ** A ** SURGERY UPDATE
@@ -602,7 +599,7 @@ if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 
 			// ** B ** CHEMO THERAPY CREATION
 					
 			if(strlen($new_line_data['Clinical Outcome::Chemo Drugs'].$new_line_data['Clinical Outcome::Chemo End'].$new_line_data['Clinical Outcome::Chemo Start'])) {
-				die('ERR 72986765812');
+				Config::$summary_msg['ClinicalAnnotation Treatment']['@@WARNING@@']["Add Chemtherapy After Migration"][] = "Chemotherapy data exists (but won't be imported) for Patient ID $voa_patient_id VOA#s $patient_voa_nbrs_for_msg. [Worksheet $worksheet_name /line: $excel_line_counter]";
 			}
 			
 			// ** C ** DX RECURRENCE
@@ -631,11 +628,11 @@ if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 
 				if(strlen($new_line_data['Clinical Outcome::Disease Secific Censor'])) {
 					switch($new_line_data['Clinical Outcome::Disease Secific Censor']) {
 						case '0':
-							$new_dx_details['censor'] = 'n';
-							break;
-						case '1':
 							$new_dx_details['censor'] = 'y';
 							$patient_data_from_patient_id[$voa_patient_id]['vital_status_summary']['Diagnosis'] = 'deceased';
+							break;
+						case '1':
+							$new_dx_details['censor'] = 'n';
 							break;
 						default:
 							Config::$summary_msg['ClinicalAnnotation Diagnosis']['@@WARNING@@']['Unknown Disease Secific Censor vaues'] = "Disease Secific Censor [".$new_line_data['Clinical Outcome::Disease Secific Censor']."] is not supported. See Patient ID $voa_patient_id VOA#s [".implode(', ',$patient_data_from_patient_id[$voa_patient_id]['Treatment'][$surgery_treatment_key]['diagnosis_key'])."]. [Worksheet $worksheet_name /line: $excel_line_counter]";
@@ -685,11 +682,11 @@ if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 
 			if(strlen($new_line_data['Clinical Outcome::Overall Censor'])) {
 				$vital_status = '';
 				switch($new_line_data['Clinical Outcome::Overall Censor']) {
-					case '0':
+					case '1':
 						$vital_status = 'alive';
 						$patient_data_from_patient_id[$voa_patient_id]['vital_status_summary']['profile'] = 'alive';
 						break;
-					case '1':
+					case '0':
 						$vital_status = 'deceased';
 						$patient_data_from_patient_id[$voa_patient_id]['vital_status_summary']['profile'] = 'deceased';
 						break;
@@ -709,7 +706,6 @@ if(!in_array($voa_patient_id, array(422,614,562,3,8,6,3,1,503, 546, 1102, 1963, 
 	//===============================================================================================================
 	
 	foreach($patient_data_from_patient_id as $patient_id => $clinical_annotation_data) {
-pr("RECORD patient $patient_id => ".implode(',',$clinical_annotation_data['VOA#s']));
 
 		// Vital Statuses Control
 		$follow_up_vital_status = null;

@@ -36,9 +36,6 @@ $model->custom_data = array(
 Config::$models['Collection'] = $model;
 
 function postParticipantRead(Model $m){
-//TODO	
-if(!isset(Config::$voas_to_ids[$m->values['VOA Number']])) return false;
-
 	excelDateFix($m);
 	return true;
 }
@@ -56,5 +53,7 @@ function preParticipantWrite(Model $m){
 	return true;
 }
 
-
-function postParticipantWrite(Model $m){}
+function postParticipantWrite(Model $m){
+	$voa_nbr = $m->values['VOA Number'];
+	Config::$voas_to_ids[$voa_nbr] = array('collection_id' => $m->last_id, 'surgery' => (Config::$voas_to_ids[$voa_nbr]['surgery_treatment_master_id']? true : false));
+}
