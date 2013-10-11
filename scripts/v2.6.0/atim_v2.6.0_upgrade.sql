@@ -881,6 +881,8 @@ CREATE TABLE `sd_spe_salivas_revs` (
 
 -- Tube for new saliva
 INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `detail_form_alias`, `detail_tablename`, `flag_active`, `databrowser_label`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'saliva|tube');
+SET @last_aliquot_control_id = LAST_INSERT_ID();
+INSERT INTO `realiquoting_controls` (`parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`) VALUES (@last_aliquot_control_id,@last_aliquot_control_id,1);
 
 -- Allow DNA creation from new saliva sample and enable saliva
 INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), '12', '1');
