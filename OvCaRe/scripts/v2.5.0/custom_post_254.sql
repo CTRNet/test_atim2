@@ -1568,16 +1568,6 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='QualityCtrl' AND `tablename`='quality_ctrls' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='quality_control_type') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
-
-
-
-
-
-
-
-
-
 -- OvcareTests
 
 CREATE TABLE IF NOT EXISTS `ovcare_tests` (
@@ -1820,6 +1810,127 @@ UPDATE structure_formats SET `display_order`='0', `flag_override_label`='1', `la
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='clinicalcollectionlinks'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_voa_nbr'), '0', '10', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
 
+ALTER TABLE ovcare_ar_tissue_blocks ADD notes VARCHAR(250) DEFAULT NULL;
+ALTER TABLE ovcare_ar_tissue_blocks_revs ADD notes VARCHAR(250) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'ovcare_ar_tissue_blocks', 'notes', 'input',  NULL , '0', 'size=30', '', '', 'notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ovcare_ar_tissue_blocks' AND `field`='notes' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE ovcare_ar_tissue_blocks CHANGE COLUMN cellularity_subjective cellularity_subjective_prct INT(4) DEFAULT NULL;
+ALTER TABLE ovcare_ar_tissue_blocks_revs CHANGE COLUMN cellularity_subjective cellularity_subjective_prct INT(4) DEFAULT NULL;
+UPDATE structure_fields SET  `type`='integer_positive',  `setting`='size=5',  `language_label`='cellularity subjective pct' WHERE model='AliquotReviewDetail' AND tablename='ovcare_ar_tissue_blocks' AND field='cellularity_subjective' AND `type`='input' AND structure_value_domain  IS NULL ;
+REPLACE INTO i18n (id,en) VALUES ('cellularity subjective pct','Cellularity Subjective (&#37;)');
+
+ALTER TABLE ovcare_spr_tissue_reviews DROP COLUMN reviewed_pathology;
+ALTER TABLE ovcare_spr_tissue_reviews_revs DROP COLUMN reviewed_pathology;
+ALTER TABLE ovcare_ar_tissue_blocks ADD COLUMN `reviewed_pathology` varchar(100) DEFAULT NULL;
+ALTER TABLE ovcare_ar_tissue_blocks_revs ADD COLUMN `reviewed_pathology` varchar(100) DEFAULT NULL;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_spr_tissue_reviews') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SpecimenReviewDetail' AND `tablename`='ovcare_spr_tissue_reviews' AND `field`='reviewed_pathology' AND `language_label`='reviewed pathology' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SpecimenReviewDetail' AND `tablename`='ovcare_spr_tissue_reviews' AND `field`='reviewed_pathology' AND `language_label`='reviewed pathology' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SpecimenReviewDetail' AND `tablename`='ovcare_spr_tissue_reviews' AND `field`='reviewed_pathology' AND `language_label`='reviewed pathology' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'ovcare_ar_tissue_blocks', 'reviewed_pathology', 'input',  NULL , '0', 'size=30', '', '', 'reviewed pathology', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_ar_tissue_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='ovcare_ar_tissue_blocks' AND `field`='reviewed_pathology' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='reviewed pathology' AND `language_tag`=''), '0', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET field = 'cellularity_subjective_prct' WHERE field = 'cellularity_subjective';
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'ovcare tissue sources');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+INSERT INTO structure_permissible_values_customs 
+(`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('abdominal mass', '', '', '1', @control_id),
+('abdominal wall', '', '', '1', @control_id),
+('adnexal', '', '', '1', @control_id),
+('anus', '', '', '1', @control_id),
+('appendix', '', '', '1', @control_id),
+('bladder', '', '', '1', @control_id),
+('brain', '', '', '1', @control_id),
+('colon', '', '', '1', @control_id),
+('cul-de-sac', '', '', '1', @control_id),
+('endometrium', '', '', '1', @control_id),
+('fallopian tube', '', '', '1', @control_id),
+('hernia sac', '', '', '1', @control_id),
+('liver', '', '', '1', @control_id),
+('lymph node', '', '', '1', @control_id),
+('mix', '', '', '1', @control_id),
+('omentum ', '', '', '1', @control_id),
+('other', '', '', '1', @control_id),
+('ovary', '', '', '1', @control_id),
+('pelvic mass', '', '', '1', @control_id),
+('pelvis', '', '', '1', @control_id),
+('peritoneum', '', '', '1', @control_id),
+('sigmoid', '', '', '1', @control_id),
+('small bowel', '', '', '1', @control_id),
+('small intestin', '', '', '1', @control_id),
+('stomach', '', '', '1', @control_id),
+('uterine cervix ', '', '', '1', @control_id),
+('uterus', '', '', '1', @control_id),
+('vagina', '', '', '1', @control_id),
+('vulva', '', '', '1', @control_id);
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tissue_laterality"), (SELECT id FROM structure_permissible_values WHERE value="bilateral" AND language_alias="bilateral"), "", "1");
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'aliquot use and event types ');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES 
+('release','Rrelease', '', '1', @control_id);
+
+ALTER TABLE aliquot_internal_uses
+  ADD COLUMN ovcare_tissue_section_thickness decimal(6,2) DEFAULT NULL,
+  ADD COLUMN ovcare_tissue_section_numbers int(6) DEFAULT NULL;
+ALTER TABLE aliquot_internal_uses_revs
+  ADD COLUMN ovcare_tissue_section_thickness decimal(6,2) DEFAULT NULL,
+  ADD COLUMN ovcare_tissue_section_numbers int(6) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'ovcare_tissue_section_thickness', 'float_positive',  NULL , '0', 'size=6', '', '', 'section thickness', ''), 
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'ovcare_tissue_section_numbers', 'integer_positive',  NULL , '0', 'size=6', '', '', 'number of sections', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='ovcare_tissue_section_thickness' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='section thickness' AND `language_tag`=''), '0', '20', 'tissue details', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='ovcare_tissue_section_numbers' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='' AND `language_label`='number of sections' AND `language_tag`=''), '0', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('section thickness','Section Thickness'),('number of sections','Nnumber of Sections');
+
+ALTER TABLE sd_spe_bloods ADD COLUMN ovcare_ischemia_time_mn int(6) DEFAULT null;
+ALTER TABLE sd_spe_bloods_revs ADD COLUMN ovcare_ischemia_time_mn int(6) DEFAULT null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', '', 'ischemia time mn');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ischemia time mn'), '1', '440', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET language_label = 'ischemia time mn', language_tag = '' WHERE field = 'ovcare_ischemia_time_mn';
+
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES ('saliva', 'specimen', 'sd_spe_salivas,specimens', 'sd_spe_salivas', '1', 'saliva');
+INSERT INTO `structures` (`alias`) VALUES ('sd_spe_salivas');
+CREATE TABLE `sd_spe_salivas` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_spe_salivas_sample_masters` (`sample_master_id`),
+  CONSTRAINT `FK_sd_spe_salivas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `sd_spe_salivas_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `sample_master_id` (`sample_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `detail_form_alias`, `detail_tablename`, `flag_active`, `databrowser_label`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'saliva|tube');
+SET @last_aliquot_control_id = LAST_INSERT_ID();
+INSERT INTO `realiquoting_controls` (`parent_aliquot_control_id`, `child_aliquot_control_id`, `flag_active`) VALUES (@last_aliquot_control_id,@last_aliquot_control_id,1);
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), '12', '1');
+INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES ((SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva'), '1');
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES ("saliva", "Saliva", '');
+ALTER TABLE sd_spe_salivas ADD COLUMN ovcare_ischemia_time_mn int(6) DEFAULT null;
+ALTER TABLE sd_spe_salivas_revs ADD COLUMN ovcare_ischemia_time_mn int(6) DEFAULT null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_salivas', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', '', 'ischemia time mn');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_salivas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_salivas' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ischemia time mn'), '1', '440', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET language_label = 'ischemia time mn', language_tag = '' WHERE field = 'ovcare_ischemia_time_mn';
+UPDATE aliquot_controls SET detail_form_alias = 'ad_spec_tubes_incl_ml_vol', volume_unit = 'ml' WHERE sample_control_id = (SELECT id FROM `sample_controls` WHERE `sample_type` = 'saliva') AND aliquot_type = 'tube';
+
+UPDATE structure_formats SET `display_order`='30', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+Cacher le menu collection sample test (utilisé seulement oar ctag)
+Dans migration supprimer collections si pas de sample et ajouter note a patient.
+supprimer tous les //TODO
 
 
 
@@ -1832,7 +1943,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 supprimer la fonction createLabIdInBatch
 
 Question:
-- veut on lier des participants avec le familly id et que lie t on exactement avec ce champ
 - utiliser le multi add pour study inclusion
 - ajouter lien dans databrowser... collection to misc_identifier
 - check sur les liens... de OvcareTest.study_summary_id (atim delete) + add use + modify view
@@ -1843,5 +1953,6 @@ Question:
 - Review Code inutile
 - Add translation create code....
 - Pas de LAB ID dans OvCaRe
+- Ajouter un control section aliquot internal use limited to tissue
 
 ;
