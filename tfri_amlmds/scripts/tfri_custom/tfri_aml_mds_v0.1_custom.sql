@@ -37,8 +37,6 @@ UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permiss
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='sex') ,  `language_help`='' WHERE model='Participant' AND tablename='participants' AND field='sex' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='sex');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='race') ,  `language_help`='' WHERE model='Participant' AND tablename='participants' AND field='race' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='race');
 UPDATE structure_formats SET `flag_override_help`='0', `language_help`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='sex' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sex') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
-UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='cod_confirmation_source' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='middle_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
@@ -62,7 +60,9 @@ ALTER TABLE `participants`
 	ADD COLUMN `tfri_aml_chemo_start` DATE NULL DEFAULT NULL AFTER `tfri_aml_english_french`,
 	ADD COLUMN `tfri_aml_standard_regimen` TEXT NULL DEFAULT NULL AFTER `tfri_aml_chemo_start`,
 	ADD COLUMN `tfri_aml_date_part_two` DATE NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
-	ADD COLUMN `tfri_aml_date_withdrawal` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_part_two`;
+	ADD COLUMN `tfri_aml_date_withdrawal` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_part_two`,
+	ADD COLUMN `tfri_cause_of_death` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_aml_date_withdrawal`,
+	ADD COLUMN `tfri_cause_of_death_other` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_cause_of_death`;
 	
 ALTER TABLE `participants_revs` 
 	ADD COLUMN `tfri_aml_site_number` TINYINT NULL DEFAULT NULL AFTER `last_chart_checked_date_accuracy`,
@@ -75,7 +75,9 @@ ALTER TABLE `participants_revs`
 	ADD COLUMN `tfri_aml_chemo_start` DATE NULL DEFAULT NULL AFTER `tfri_aml_english_french`,
 	ADD COLUMN `tfri_aml_standard_regimen` TEXT NULL DEFAULT NULL AFTER `tfri_aml_chemo_start`,
 	ADD COLUMN `tfri_aml_date_part_two` DATE NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
-	ADD COLUMN `tfri_aml_date_withdrawal` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_part_two`;
+	ADD COLUMN `tfri_aml_date_withdrawal` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_part_two`,
+	ADD COLUMN `tfri_cause_of_death` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_aml_date_withdrawal`,
+	ADD COLUMN `tfri_cause_of_death_other` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_cause_of_death`;
 
 -- Value domains for disease type	 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_profile_disease", "", "", NULL);
@@ -120,6 +122,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_part_two' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml date part two' AND `language_tag`=''), '3', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_withdrawal' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml date withdrawal' AND `language_tag`=''), '3', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
+
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('tfri study summary', 'Study Summary', ''),
  ('tfri aml site number', 'Site Number', ''),
@@ -150,7 +153,59 @@ INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_mes
  
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('tfri_aml screening code 4 digits', 'Screening code must be four digits', ''); 
-	
+
+/*
+	Eventum Issue: #2741 - Profile - Cause of death form
+*/
+
+-- Move vital status fields to first column
+UPDATE structure_formats SET `display_column`='1', `display_order`='50' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='vital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='health_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='55' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_death' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Create value domain for cause of death
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_cause_of_death", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("relapse of baseline disease", "tfri relapse of baseline disease");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="relapse of baseline disease" AND language_alias="tfri relapse of baseline disease"), "6", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("progression of baseline disease", "tfri progression of baseline disease");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="progression of baseline disease" AND language_alias="tfri progression of baseline disease"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("treatment toxicity", "tfri treatment toxicity");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="treatment toxicity" AND language_alias="tfri treatment toxicity"), "8", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("infection", "tfri infection");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="infection" AND language_alias="tfri infection"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("subsequent malignancy", "tfri subsequent malignancy");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="subsequent malignancy" AND language_alias="tfri subsequent malignancy"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("prior malignancy", "tfri prior malignancy");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="prior malignancy" AND language_alias="tfri prior malignancy"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("transplant (hpct) related complications", "tfri transplant (hpct) related complications");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="transplant (hpct) related complications" AND language_alias="tfri transplant (hpct) related complications"), "7", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("accident", "tfri accident");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="accident" AND language_alias="tfri accident"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_cause_of_death"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "9", "1");
+
+-- Add custom cause of death, other COD
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_cause_of_death', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_cause_of_death') , '0', '', '', '', 'tfri cause of death', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_cause_of_death' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_cause_of_death')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri cause of death' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_cause_of_death_other', 'input',  NULL , '0', '', '', '', '', 'tfri cause of death other');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES  
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_cause_of_death_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri cause of death other'), '1', '65', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+  ('tfri cause of death', 'Cause of Death', ''),
+  ('tfri relapse of baseline disease', 'Relapse of baseline disease', ''),
+  ('tfri progression of baseline disease', 'Progression of baseline disease', ''),    
+  ('tfri treatment toxicity', 'Treatment toxicity', ''),
+  ('tfri infection', 'Infection', ''), 
+  ('tfri subsequent malignancy', 'Subsequent malignancy', ''),
+  ('tfri prior malignancy', 'Prior malignancy', ''),
+  ('tfri transplant (hpct) related complications', 'Transplant (HPCT) related complications', ''),    
+  ('tfri accident', 'Accident', ''),
+  ('tfri cause of death other', 'COD, if other', ''); 
+  	
 /*
 	Eventum Issue: #2730 - Create control fields for DCF's
 */	
@@ -170,7 +225,7 @@ INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag
  ('tfri', 'clinical', 'DCF - S5 Follow-up 24 Month', '1', 'ed_tfri_clinical_section_5', 'ed_tfri_clinical_section_5', '0', 'clinical|tfri|section 5', '0');
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('DCF - S1 Baselin', 'DCF - S1 Baseline', ''),
+ ('DCF - S1 Baseline', 'DCF - S1 Baseline', ''),
  ('DCF - S2 Follow-up 6 Month', 'DCF - S2 Follow-up 6 Month', ''),
  ('DCF - S3 Follow-up 12 Month', 'DCF - S3 Follow-up 12 Month', ''),
  ('DCF - S4 Follow-up 18 Month', 'DCF - S4 Follow-up 18 Month', ''),
@@ -267,4 +322,6 @@ CREATE TABLE `ed_tfri_clinical_section_5_revs` (
   `version_created` datetime NOT NULL,
   PRIMARY KEY (`version_id`),
   KEY `event_master_id` (`event_master_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;                
+) ENGINE=InnoDB DEFAULT CHARSET=latin1; 
+
+-- Add fields to form               
