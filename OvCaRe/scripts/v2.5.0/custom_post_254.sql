@@ -1928,31 +1928,17 @@ UPDATE aliquot_controls SET detail_form_alias = 'ad_spec_tubes_incl_ml_vol', vol
 
 UPDATE structure_formats SET `display_order`='30', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-Cacher le menu collection sample test (utilisé seulement oar ctag)
-Dans migration supprimer collections si pas de sample et ajouter note a patient.
-supprimer tous les //TODO
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) VALUES
+(null, 'unassigned VOA#', 1, 0, '', NULL, 0, 0, 1, 0, '', '');
+INSERT INTO i18n (id,en) VALUES ('unassigned VOA#', 'Unassigned VOA#');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='Collection' AND `field`='collection_voa_nbr'), 'isUnique');
+ALTER TABLE collections
+ADD UNIQUE (collection_voa_nbr);
+ALTER TABLE collections_revs
+ADD UNIQUE (collection_voa_nbr);
 
+UPDATE aliquot_review_controls SET aliquot_type_restriction = 'all' WHERE detail_tablename = 'ovcare_ar_tissue_blocks';
 
-
-
-
--- ----------------------------------------------------------------------------------------------------------------------------------------------------------
--- ----------------------------------------------------------------------------------------------------------------------------------------------------------
--- ----------------------------------------------------------------------------------------------------------------------------------------------------------
-
-supprimer la fonction createLabIdInBatch
-
-Question:
-- utiliser le multi add pour study inclusion
-- ajouter lien dans databrowser... collection to misc_identifier
-- check sur les liens... de OvcareTest.study_summary_id (atim delete) + add use + modify view
-- Change Ovcare Test status, assayId ... in batch.
-- Create report to for CGS
-- Check atimdelete et ovcare_test_id comme pour les quality control id (ex sample deletion, etc
-- Supprimer Warning no cosent...
-- Review Code inutile
-- Add translation create code....
-- Pas de LAB ID dans OvCaRe
-- Ajouter un control section aliquot internal use limited to tissue
-
-;
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_spr_tissue_reviews'), (SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_code' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='review code' AND `language_tag`=''), '0', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');

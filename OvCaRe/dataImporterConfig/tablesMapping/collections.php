@@ -55,5 +55,7 @@ function preParticipantWrite(Model $m){
 
 function postParticipantWrite(Model $m){
 	$voa_nbr = $m->values['VOA Number'];
-	Config::$voas_to_ids[$voa_nbr] = array('collection_id' => $m->last_id, 'surgery' => (Config::$voas_to_ids[$voa_nbr]['surgery_treatment_master_id']? true : false));
+	Config::$voas_to_ids[$voa_nbr] = array(
+		'collection_id' => $m->last_id, 
+		'participant_id' => Config::$voas_to_ids[$voa_nbr]['participant_id']);
 }

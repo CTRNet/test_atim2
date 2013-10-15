@@ -20,8 +20,8 @@ class Config{
 	static $input_type		= Config::INPUT_TYPE_XLS;
 	
 	//if reading excel file
-	static $xls_file_path = "C:/_Perso/Server/ovcare/data/OvCaRe_dev.xls";	
-	static $use_windows_xls_offset = false;	
+	static $xls_file_path = "C:/_Perso/Server/ovcare/data/FullDataDump_20131009_denominalized.xls";	
+	static $use_windows_xls_offset = true;	
 	
 	static $xls_header_rows = 1;
 	
@@ -59,27 +59,10 @@ class Config{
 	static $sample_aliquot_controls = array();
 	static $recorded_studies = array();
 	static $treatment_controls = array();
+	static $reviews_controls = array();
 	
 	static $voas_to_ids = array();
-	
-	/*
-	static $participant_collections = array();
-	static $next_sample_code = 0;
-	
-	static $storage_controls = array();
-	static $storages = array();
-	static $previous_storage_master_id = 0;
-	static $previous_left_right = 0;
-	static $storage_data_from_sample_type_and_label = array();
-	static $additional_dna_miR_from_storage = array();
-	
-	
-	static $extra_prostatic_extension_unkw_value = array();
-	static $extensive_margin_unkw_value = array();
-	
-	static $participant_nominal_data = array();
-	static $participant_notes = array();
-	*/
+	static $participants_notes_from_ids = array();
 }
 
 //add the parent models here
@@ -89,6 +72,7 @@ Config::$parent_models[] = "Collection";
 $table_mapping_path = 'C:/_Perso/Server/ovcare/dataImporterConfig/tablesMapping/';
 Config::$config_files[] = $table_mapping_path.'clinical_annotations.php'; 
 Config::$config_files[] = $table_mapping_path.'collections.php'; 
+Config::$config_files[] = $table_mapping_path.'samples_and_aliquots.php'; 
 
 //=========================================================================================================
 // START functions
@@ -156,12 +140,12 @@ function addonFunctionStart(){
 	}	
 	
 	//sample
-	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'urine', 'serum', 'plasma', 'pbmc','centrifuged urine','concentrated urine','rna','dna')";
+	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'serum', 'plasma', 'blood cell','saliva')";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
 	}
-	if(sizeof(Config::$sample_aliquot_controls) != 10) die("get sample controls failed");
+	if(sizeof(Config::$sample_aliquot_controls) != 6) die("get sample controls failed");
 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
 		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
 		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -170,6 +154,24 @@ function addonFunctionStart(){
 		}
 	}
 	
+	// Samples Review
+	$query = "SELECT arc.id AS aliquot_review_control_id, arc.detail_tablename AS aliquot_review_detail_tablename,
+		src.id AS specimen_review_control_id, src.detail_tablename AS specimen_review_detail_tablename
+		FROM aliquot_review_controls arc
+		INNER JOIN specimen_review_controls src ON src.aliquot_review_control_id = arc.id
+		WHERE src.review_type = 'ovcare tissue review' AND src.flag_active = 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("[".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	$row = $results->fetch_assoc();
+	if(empty($row)) {
+		die("e2dascsaasc");
+	}
+	Config::$reviews_controls = array(
+		'specimen_review_control_id' => $row['specimen_review_control_id'],
+		'specimen_review_detail_tablename' => $row['specimen_review_detail_tablename'],
+		'aliquot_review_control_id' => $row['aliquot_review_control_id'],
+		'aliquot_review_detail_tablename' => $row['aliquot_review_detail_tablename']
+	);
+	
 	// GET VALUE DOMAIN DATA
 	
 	$query = "SELECT id, title FROM study_summaries";
@@ -177,22 +179,6 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$recorded_studies[strtolower($row['title'])] = $row['id'];
 	}
-	
-	
-	
-	
-//	Config::$value_domains['procure_questionnaire_version'] = new ValueDomain("procure_questionnaire_version", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-//	Config::$value_domains['procure_questionnaire_version_date'] = new ValueDomain("procure_questionnaire_version_date", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE);
-
-	// LOAD STORAGE CONTROL
-/*	
-	$query = "select id,storage_type,detail_tablename from storage_controls where flag_active = '1';";
-	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
-	}
-	
-*/
 	
 	//Launch clinical annotation creation
 
@@ -206,7 +192,38 @@ function addonFunctionStart(){
 //=========================================================================================================
 	
 function addonFunctionEnd(){
-
+	
+	// COLLECTIONS COMPLETION
+	
+	loadSamplesAndAliquots();
+	//empty collection deletion
+	$queries = array();
+	$queries[] = "UPDATE collections SET collection_datetime_accuracy = 'h' WHERE  collection_datetime IS NOT NULL;";
+	$queries[] = "UPDATE collections SET treatment_master_id = NULL WHERE id NOT IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".Config::$sample_aliquot_controls['tissue']['sample_control_id'].")";
+	$queries[] = "DELETE FROM txd_surgeries WHERE path_num IS NULL AND ovcare_residual_disease IS NULL AND ovcare_neoadjuvant_chemotherapy LIKE '' AND ovcare_adjuvant_radiation LIKE '' AND treatment_master_id NOT IN (SELECT treatment_master_id FROM collections WHERE treatment_master_id IS NOT NULL)";
+	$queries[] = "DELETE FROM treatment_masters WHERE treatment_control_id = ".Config::$treatment_controls['procedure - surgery']['treatment_control_id']."  AND id NOT IN (SELECT treatment_master_id FROM txd_surgeries)";
+	$queries[] = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
+	$queries[] = "UPDATE sample_masters SET sample_code = id";
+	foreach($queries as $query) {
+		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
+		$query = str_replace(
+			array("UPDATE collections", "DELETE FROM txd_surgeries", "DELETE FROM treatment_masters"), 
+			array("UPDATE collections_revs", "DELETE FROM txd_surgeries_revs", "DELETE FROM treatment_masters_revs"), 
+			$query);
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
+	}
+	foreach(Config::$participants_notes_from_ids as $participant_id => $notes) {
+		$query = "UPDATE participants set notes = '".str_replace("'", "''", implode(' || ', $notes))."' WHERE id = $participant_id;";
+		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
+		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('participants', 'participants_revs', $query)) or die("Error [$query] ");
+	}
+	$queries = array(
+		"INSERT INTO misc_identifiers (misc_identifier_control_id, participant_id, flag_unique, identifier_value) (SELECT ".Config::$misc_identifier_controls['unassigned VOA#']['id'].", participant_id, ".Config::$misc_identifier_controls['unassigned VOA#']['flag_unique'].", collection_voa_nbr FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters));",
+		"INSERT INTO misc_identifiers_revs (id, misc_identifier_control_id, participant_id, flag_unique, identifier_value) (SELECT id, misc_identifier_control_id, participant_id, flag_unique, identifier_value FROM misc_identifiers WHERE misc_identifier_control_id = ".Config::$misc_identifier_controls['unassigned VOA#']['id'].");",
+		"DELETE FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);",
+		"DELETE FROM collections_revs WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);");
+	foreach($queries as $query) mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
+	
 	// Empty date clean up 
 	
 	$date_times_to_check = array(
@@ -222,20 +239,20 @@ function addonFunctionEnd(){
 	foreach($date_times_to_check as $table_field) {
 		$names = explode(".", $table_field);
 		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd : Set field $table_field 0000-00-00 to null. [$query] ");
+		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 		if(Config::$insert_revs){
 			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-			mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Set field $table_field 0000-00-00 to null (revs). [$query] ");
+			mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 		}
 	}
 	
 	// PROFILE CLEAN UP
 	
 	$query = "UPDATE participants SET last_modification = created WHERE last_modification LIKE '0000-00-00%'";
-	mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+	mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 	if(Config::$insert_revs){
 		$query = "UPDATE participants_revs rev, participants part SET rev.last_modification = part.last_modification WHERE rev.last_modification LIKE '0000-00-00%' AND rev.id = part.id";
-		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 	}	
 	
 	// Dx CLEAN UP
@@ -246,28 +263,11 @@ function addonFunctionEnd(){
 		$query = str_replace('diagnosis_masters', 'diagnosis_masters_revs', $query);
 		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 	}
-	// INVENTORY COMPLETION
-	
-	$query = "UPDATE collections SET collection_datetime_accuracy = 'm' WHERE collection_datetime_accuracy = 'c';";
-	if(Config::$insert_revs) {
-		mysqli_query(Config::$db_connection, str_replace('collections', 'collections_revs', $query)) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	}
-	$query = "UPDATE sample_masters SET sample_code=id;";
-	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
- 	mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
-	if(Config::$insert_revs) {
-		$query = "UPDATE sample_masters_revs SET sample_code=id;";
-		mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
- 		$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
- 		mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
-	}
 	
 	// TO PERMISSIONS REGENERATE
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0;";
-	mysqli_query(Config::$db_connection, $query) or die("versions update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 		
 	dislayErrorAndMessage();
 	
@@ -358,7 +358,7 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 	$data_to_insert = array();
 	foreach($data_arr as $key => $value) {
 		if(strlen($value)) {
-			$data_to_insert[$key] = "'".$value."'";
+			$data_to_insert[$key] = "'".str_replace("'", "''", $value)."'";
 		}
 	}
 	//}
