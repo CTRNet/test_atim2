@@ -231,10 +231,13 @@ function loadSamplesAndAliquots() {
 			if(!$studied_voa_nbr) die('ERR 37372882372332');
 			// Specimen Review
 			$patho_reviewer = $new_line_data['Specimen Quality Control::Pathology Reviewer'];
+			$reviewed_pathology = $new_line_data['Specimen Quality Control::Reviewed Pathology'];
+			$patho_key_2 = (empty($reviewed_pathology)? '?' : $reviewed_pathology).' '.$patho_reviewer;
 			if(strlen($patho_reviewer)) {
-				if(!isset($specimen_review[$studied_voa_nbr][$patho_reviewer] )) {
-					$specimen_review[$studied_voa_nbr][$patho_reviewer] = array(
+				if(!isset($specimen_review[$studied_voa_nbr][$patho_key_2] )) {
+					$specimen_review[$studied_voa_nbr][$patho_key_2] = array(
 						'SpecimenReviewMaster' => array(
+							'review_code' => $patho_key_2,
 							'specimen_review_control_id' => Config::$reviews_controls['specimen_review_control_id']),
 						'SpecimenReviewDetail' => array(
 							'pathology_reviewer' => $patho_reviewer),
@@ -244,7 +247,7 @@ function loadSamplesAndAliquots() {
 				} 
 				// Aliquot Review
 				$aliquot_label = $new_line_data['Specimen Quality Control::Sample Identifier'];
-				if(isset($specimen_review[$studied_voa_nbr][$patho_reviewer]['AliquotReviews'][$aliquot_label])) die('ERR 8837228282');
+				if(isset($specimen_review[$studied_voa_nbr][$patho_key_2]['AliquotReviews'][$aliquot_label])) die('ERR 8837228282');
 				if(!in_array($new_line_data['Specimen Quality Control::Reviewed Grade'], array('Ungraded','Not Assessed',''))) die('ERR 38837833');
 				$cellularity_subjective = $new_line_data['Specimen Quality Control::Cellularity Subjective'];
 				$cellularity_subjective_notes = '';
@@ -253,16 +256,16 @@ function loadSamplesAndAliquots() {
 					$cellularity_subjective = $matches[1];
 					if(isset($matches[3])) $cellularity_subjective_notes = $matches[3];
 				}
-				$specimen_review[$studied_voa_nbr][$patho_reviewer]['AliquotReviews'][$aliquot_label] = array(
+				$specimen_review[$studied_voa_nbr][$patho_key_2]['AliquotReviews'][$aliquot_label] = array(
 					'AliquotReviewMaster' => array('aliquot_review_control_id' => Config::$reviews_controls['aliquot_review_control_id']),
 					'AliquotReviewDetail' => array(
 						'cellularity_assessor' => $new_line_data['Specimen Quality Control::Cellularity Assessor'],
 						'cellularity_subjective_prct' => $cellularity_subjective,
-						'reviewed_pathology' => $new_line_data['Specimen Quality Control::Reviewed Pathology'],
+						'reviewed_pathology' => $reviewed_pathology,
 						'notes' => $cellularity_subjective_notes),
 					'aliquot_review_detail_tablename' => Config::$reviews_controls['aliquot_review_detail_tablename']	
 				);
-				$specimen_review_from_aliquot_label[$aliquot_label] = array('key1' => $studied_voa_nbr, 'key2' => $patho_reviewer);
+				$specimen_review_from_aliquot_label[$aliquot_label] = array('key1' => $studied_voa_nbr, 'key2' => $patho_key_2);
 		 	} else if(strlen($new_line_data['Specimen Quality Control::Cellularity Assessor'].$new_line_data['Specimen Quality Control::Cellularity Subjective'].$new_line_data['Specimen Quality Control::Reviewed Grade'].$new_line_data['Specimen Quality Control::Reviewed Pathology'].$new_line_data['Specimen Quality Control::Sample Identifier'])) {
 		 			die('ERR 3872372837283');
 	 		}
@@ -326,10 +329,7 @@ function loadSamplesAndAliquots() {
 				$collection_data = array('samples' => array(), 'notes' => array());
 				$studied_voa_nbr = $new_line_data['VOA Number'];
 			} else if(!$studied_voa_nbr) die('ERR 37372882372332.2');
-			
-			
-if(!isset(Config::$voas_to_ids[$studied_voa_nbr])) continue;
-			
+
 			//Get Data
 			$file_anatomic_location = str_replace(array("\n", 'N/A', '?'), array('','',''), $new_line_data['Specimen Accrual::Anatomic Location']);
 			$file_comments = $new_line_data['Specimen Accrual::Comments'];
@@ -341,7 +341,7 @@ if(!isset(Config::$voas_to_ids[$studied_voa_nbr])) continue;
 			if($file_specimen_type) {
 				//SPECIMEN TYPE => Imported: Sample and aliquot created
 				$aliquot_master_id++;
-				$in_stock = 'yes';
+				$in_stock = 'yes - available';
 				$realeased = false;
 				//Define aliquot released or not
 				$relase_precision = null;
@@ -460,11 +460,11 @@ if(!isset(Config::$voas_to_ids[$studied_voa_nbr])) continue;
 							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
 						//Add specimen Review
 						if(isset($specimen_review_from_aliquot_label[$file_aliquot_label])) {
-							$patho_reviewer = $specimen_review_from_aliquot_label[$file_aliquot_label]['key2'];
+							$specimen_review_key2 = $specimen_review_from_aliquot_label[$file_aliquot_label]['key2'];
 							if($studied_voa_nbr != $specimen_review_from_aliquot_label[$file_aliquot_label]['key1']) die('ERR88339ddsdds938 '.$excel_line_counter);
-							if(!isset($specimen_review[$studied_voa_nbr][$patho_reviewer]['AliquotReviews'][$file_aliquot_label])) die('ERR88339ddsdds938 '.$excel_line_counter);
-							if(!isset($collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$patho_reviewer])) $collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$patho_reviewer] = $specimen_review[$studied_voa_nbr][$patho_reviewer];
-							$collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$patho_reviewer]['AliquotReviews'][$file_aliquot_label]['AliquotReviewMaster']['aliquot_master_id'] = $aliquot_master_id;
+							if(!isset($specimen_review[$studied_voa_nbr][$specimen_review_key2]['AliquotReviews'][$file_aliquot_label])) die('ERR88339ddsdds938 '.$excel_line_counter);
+							if(!isset($collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2])) $collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2] = $specimen_review[$studied_voa_nbr][$specimen_review_key2];
+							$collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2]['AliquotReviews'][$file_aliquot_label]['AliquotReviewMaster']['aliquot_master_id'] = $aliquot_master_id;
 							$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id]['AliquotMaster']['use_counter']++;
 							unset($specimen_review_from_aliquot_label[$file_aliquot_label]);
 						}					
@@ -605,15 +605,19 @@ function recordCollection($collection_data, $voa) {
 	$collection_id = Config::$voas_to_ids[$voa]['collection_id'];
 
 	//Add collection notes
+	if(empty($collection_data['samples'])) {
+		Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Empty collection (no collection & no sample created)'][] = "Existing collection notes will be moved to participant notes. See VOA# ".$voa;
+		if($collection_data['notes']) {
+			$participant_id = Config::$voas_to_ids[$voa]['participant_id'];
+			if(!isset(Config::$participants_notes_from_ids[$participant_id])) Config::$participants_notes_from_ids[$participant_id] = array();
+			Config::$participants_notes_from_ids[$participant_id][] = "Empty collection note for VOA# $voa : ".implode(' || ', $collection_data['notes']);
+		}
+		return;
+	}
 	if($collection_data['notes']) {
 		$query = "UPDATE collections SET collection_notes = '".str_replace("'", "''", implode(' || ', $collection_data['notes']))."' WHERE id = $collection_id;";
 		mysqli_query(Config::$db_connection, $query) or die("record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		mysqli_query(Config::$db_connection, str_replace('collections','collections_revs',$query)) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	}
-	
-	if(empty($collection_data['samples'])) {
-		Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Empty collection (no sample created)'][] = "Collection note will be copied to participant notes. See VOA# ".$voa;
-		return;
 	}
 	
 	//Add samples
