@@ -104,30 +104,6 @@ CONCAT(AliquotMasterChild.aliquot_label,' (',AliquotMasterChild.barcode,')') AS 
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE QualityCtrl.deleted <> 1 %%WHERE%%
 	
-UNION ALL
-
-SELECT CONCAT(OvcareTest.id,6) AS id,
-AliquotMaster.id AS aliquot_master_id,
-'ovcare test' AS use_definition,
-OvcareTest.ov_test_code AS use_code,
-'' AS use_details,
-OvcareTest.used_volume AS used_volume,
-AliquotControl.volume_unit AS aliquot_volume_unit,
-OvcareTest.date_submitted AS use_datetime,
-OvcareTest.date_submitted_accuracy AS use_datetime_accuracy,
-'' AS duration,
-'' AS duration_unit,
-OvcareTest.submitted_by AS used_by,
-OvcareTest.created AS created,
-CONCAT('/InventoryManagement/OvcareTests/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',OvcareTest.id) AS detail_url,
-SampleMaster.id AS sample_master_id,
-SampleMaster.collection_id AS collection_id
-FROM ovcare_tests AS OvcareTest
-JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OvcareTest.aliquot_master_id
-JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-WHERE OvcareTest.deleted <> 1 %%WHERE%%
-	
 		UNION ALL
 	
 		SELECT CONCAT(OrderItem.id,4) AS id,
