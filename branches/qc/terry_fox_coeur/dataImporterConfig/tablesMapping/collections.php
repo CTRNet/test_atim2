@@ -23,6 +23,7 @@ function postCollectionRead(Model $m){
 	excelDateFix($m);
 		
 	if(!array_key_exists($m->values['Bank'], Config::$banks)) {
+		pr(Config::$banks);
 		die ("ERROR: Bank '".$m->values['Bank']."' is unknown [".$m->file."] at line [". $m->line."]\n");
 	}
 
@@ -77,19 +78,19 @@ function postCollectionWrite(Model $m){
 		$m->values['Tissue Precision Tissue Laterality'] = trim($m->values['Tissue Precision Tissue Laterality']);
 		$lat_value = $lat_domain->isValidValue($m->values['Tissue Precision Tissue Laterality']);
 		if($lat_value === null){
-			Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched laterality value [".$m->values['Tissue Precision Tissue Laterality']."] at line [".$m->line."]".Config::$line_break_tag;
+			Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched laterality value [".$m->values['Tissue Precision Tissue Laterality']."] at line [".$m->line."]";
 			$m->values['Tissue Precision Tissue Laterality'] = '';
 		}	
 
 		if(!in_array($m->values['Tissue Precision Tissue Source'],Config::$tissue_source)) {
-			Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched tissue source [".$m->values['Tissue Precision Tissue Source']."] at line [".$m->line."]".Config::$line_break_tag;
+			Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched tissue source [".$m->values['Tissue Precision Tissue Source']."] at line [".$m->line."]";
 			$m->values['Tissue Precision Tissue Source'] = '';
 		}
 		
 		$tissue_type_domain = Config::$value_domains['qc_tf_tissue_type'];
 		$tissue_type_value = $tissue_type_domain->isValidValue($m->values['Tissue Precision Tissue Type']);
 		if($tissue_type_value === null){
-			Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched tissue type value [".$m->values['Tissue Precision Tissue Type']."] at line [".$m->line."]".Config::$line_break_tag;
+			Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched tissue type value [".$m->values['Tissue Precision Tissue Type']."] at line [".$m->line."]";
 			$m->values['Tissue Precision Tissue Type'] = '';
 		}
 		
@@ -114,7 +115,7 @@ function postCollectionWrite(Model $m){
 		if(strlen($m->values['Tissue Precision Flash Frozen Tissues  Volume']) > 0){
 			$volume = is_numeric($m->values['Tissue Precision Flash Frozen Tissues  Volume']) ? $m->values['Tissue Precision Flash Frozen Tissues  Volume'] : "NULL";
 			if($volume == "NULL"){
-				Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Wrong numeric value for [Tissue Precision Flash Frozen Tissues  Volume] -> [".$m->values['Tissue Precision Flash Frozen Tissues  Volume']."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Wrong numeric value for [Tissue Precision Flash Frozen Tissues  Volume] -> [".$m->values['Tissue Precision Flash Frozen Tissues  Volume']."] at line [".$m->line."]";
 			}
 			
 			$tubes_nbr = 1;
@@ -139,7 +140,7 @@ function postCollectionWrite(Model $m){
 						if(!empty($matches) && sizeof($matches) == 1 & $matches[0] == $volume) { 
 							$tubes_nbr = $volume;
 						} else {
-							Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched nbr of flash frozen tissue tubes at line [".$m->line."]".Config::$line_break_tag;
+							Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched nbr of flash frozen tissue tubes at line [".$m->line."]";
 						}
 					}
 					break;
@@ -154,7 +155,7 @@ function postCollectionWrite(Model $m){
 					$detail_insert['qc_tf_weight_mg'] = $volume*1000;
 					break;
 				default:	
-					Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched unit value [".$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit']."] at line [".$m->line."]".Config::$line_break_tag;
+					Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched unit value [".$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit']."] at line [".$m->line."]";
 			}
 			
 			while($tubes_nbr) {
@@ -182,9 +183,9 @@ function postCollectionWrite(Model $m){
 			$matches = array();
 			if(preg_match('#([\d]+)x([\d]+)x([\d]+)#', $m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)'], $matches)){
 				$volume = $matches[1] * $matches[2] * $matches[3];
-				Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Provided volume for [Tissue Precision OCT Frozen Tissues Volume (mm3)] was [".$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']."] Replacing with [".$volume."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Provided volume for [Tissue Precision OCT Frozen Tissues Volume (mm3)] was [".$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']."] Replacing with [".$volume."] at line [".$m->line."]";
 			}
-			if($volume == "NULL") Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Wrong numeric value for volume [".$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']."] at line [".$m->line."]".Config::$line_break_tag;
+			if($volume == "NULL") Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Wrong numeric value for volume [".$m->values['Tissue Precision OCT Frozen Tissues Volume (mm3)']."] at line [".$m->line."]";
 			
 			$insert = array(
 				"aliquot_label"			=> "'".generateDefaultAliquotLabel('tissue', $m->values['Bank'], $m->values['Patient Biobank Number (required)'], 'tube')."'",
@@ -247,7 +248,7 @@ function postCollectionWrite(Model $m){
 					$aliquot_created = true;
 				}
 			} else {
-				Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Wrong numeric value for volume [".$m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"]."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Wrong numeric value for volume [".$m->values["Tissue Precision Formalin Fixed Paraffin\nEmbedded Tissues Volume (nbr blocks)"]."] at line [".$m->line."]";
 			}
 		}
 	
@@ -314,7 +315,7 @@ function postCollectionWrite(Model $m){
 				
 				$aliquot_created = true;
 			} else {
-				Config::$summary_msg['Collection']['@@WARNING@@']['Ascite'][] = "Wrong numeric value for volume [".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Ascite'][] = "Wrong numeric value for volume [".$m->values['Ascite Precision Ascites Fluids Volume (ml)']."] at line [".$m->line."]";
 			}
 		}
 	
@@ -408,7 +409,7 @@ function postCollectionWrite(Model $m){
 				
 				$aliquot_created = true;
 			}  else {
-				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - Serum'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Frozen Serum Volume (ml)']."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - Serum'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Frozen Serum Volume (ml)']."] at line [".$m->line."]";
 			}
 		}
 		
@@ -468,7 +469,7 @@ function postCollectionWrite(Model $m){
 				
 				$aliquot_created = true;
 			}  else {
-				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - Plasma'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Frozen Plasma Volume (ml)']."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - Plasma'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Frozen Plasma Volume (ml)']."] at line [".$m->line."]";
 			}
 		}
 					
@@ -527,7 +528,7 @@ function postCollectionWrite(Model $m){
 				
 				$aliquot_created = true;
 			} else {
-				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - DNA'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Blood DNA Volume (ug)']."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - DNA'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Blood DNA Volume (ug)']."] at line [".$m->line."]";
 			}
 		}
 		
@@ -587,7 +588,7 @@ function postCollectionWrite(Model $m){
 				
 				$aliquot_created = true;
 			} else {
-				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - Buffy Coat'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Buffy coat (ul)']."] at line [".$m->line."]".Config::$line_break_tag;
+				Config::$summary_msg['Collection']['@@WARNING@@']['Blood - Buffy Coat'][] = "Wrong numeric value for volume [".$m->values['Blood Precision Buffy coat (ul)']."] at line [".$m->line."]";
 			}
 		}
 		
@@ -595,7 +596,7 @@ function postCollectionWrite(Model $m){
 		die("Invalid collected specimen type [".$m->values['Collected Specimen Type']."] at line [".$m->line."]");
 	}
 	
-	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]".Config::$line_break_tag;	
+	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]";	
 }
 
 function generateDefaultAliquotLabel($sample_type, $qc_tf_bank_name, $qc_tf_bank_identifier, $aliquot_type) {
