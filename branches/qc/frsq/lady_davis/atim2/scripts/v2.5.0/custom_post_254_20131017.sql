@@ -476,22 +476,22 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '0', '', '', '', 'laterality', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'histological_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_histological_grade') , '0', '', '', '', 'histological grade', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'tumor_size_mm_x', 'float_positive',  NULL , '0', '', '', '', 'tumor size (mm x mm)', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'tumor_size_mm_y', 'float_positive',  NULL , '0', '', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'tumor_size_mm_y', 'float_positive',  NULL , '0', '', '', '', '', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'dimension_of_residual_tumor_bed_area_mm_x', 'float_positive',  NULL , '0', '', '', '', 'dimension of residual tumor bed area (mm x mm)', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'dimension_of_residual_tumor_bed_area_mm_y', 'float_positive',  NULL , '0', '', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'dimension_of_residual_tumor_bed_area_mm_y', 'float_positive',  NULL , '0', '', '', '', '', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'overal_cancer_cellularity_pct', 'float_positive',  NULL , '0', '', '', '', 'overal cancer cellularity pct', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'in_situ_disease_pct', 'float_positive',  NULL , '0', '', '', '', 'in situ disease pct', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'nbr_of_lymph_nodes_positive', 'float_positive',  NULL , '0', '', '', '', 'nbr of lymph nodes positive', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'largest_lymph_node_metastasis_diatmeter_mm', 'float_positive',  NULL , '0', '', '', '', 'largest lymph node metastasis diatmeter mm', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'rcb_list', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_rcb_list') , '0', '', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'rcb_list', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_rcb_list') , '0', '', '', '', '', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'rcb_score', 'float_positive',  NULL , '0', '', '', '', 'rcb score', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'ki67_pct', 'float_positive',  NULL , '0', '', '', '', 'ki67 (pct)', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'ki67_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_ki67') , '0', '', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'ki67_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_ki67') , '0', '', '', '', '', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'er_receptor_pct', 'float_positive',  NULL , '0', '', '', '', 'er receptor pct', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'er_receptor_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result') , '0', '', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'er_receptor_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result') , '0', '', '', '', '', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'pr_receptor_pct', 'float_positive',  NULL , '0', '', '', '', 'pr receptor pct', ''), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'pr_receptor_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result') , '0', '', '', '', '', '-'), 
-('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'her2_receptor_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_equivocal_result') , '0', '', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'pr_receptor_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result') , '0', '', '', '', '', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'her2_receptor_ccl', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_equivocal_result') , '0', '', '', '', '', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'her2_receptor_score', 'float_positive',  NULL , '0', '', '', '', 'her2 receptor score', ''), 
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'fish_ratio', 'float_positive',  NULL , '0', '', '', '', 'fish ratio', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -500,10 +500,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='topography' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_topography')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='topography' AND `language_tag`=''), '1', '11', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='histological_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_histological_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='histological grade' AND `language_tag`=''), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='tumor_size_mm_x' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm x mm)' AND `language_tag`=''), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='tumor_size_mm_y' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='dimension_of_residual_tumor_bed_area_mm_x' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dimension of residual tumor bed area (mm x mm)' AND `language_tag`=''), '2', '112', 'primary tumor bed', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='dimension_of_residual_tumor_bed_area_mm_y' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '2', '113', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='tumor_size_mm_x' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm x mm)' AND `language_tag`=''), '2', '110', 'primary tumor bed', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='tumor_size_mm_y' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='dimension_of_residual_tumor_bed_area_mm_x' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='dimension of residual tumor bed area (mm x mm)' AND `language_tag`=''), '2', '112', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='dimension_of_residual_tumor_bed_area_mm_y' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '113', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='overal_cancer_cellularity_pct' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='overal cancer cellularity pct' AND `language_tag`=''), '2', '114', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='in_situ_disease_pct' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='in situ disease pct' AND `language_tag`=''), '2', '115', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='nbr_of_lymph_nodes_positive' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nbr of lymph nodes positive' AND `language_tag`=''), '2', '116', 'lymph nodes', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -544,14 +544,90 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 --
 UPDATE treatment_controls SET databrowser_label = tx_method;
 
-exit
+
+-- Event
 
 
-permettre le lien trt collection
-revoire les flag des treatment et annontation
-ajouter dx au databrowser
-Faire lien biopsy/Chir a collection
+UPDATE menus SET flag_active = 1 WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title = 'clinical';
+SET @link = (SELECT use_link FROM menus WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title = 'clinical');
+UPDATE menus SET use_link = @link WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title = 'annotation';
+DROP TABLE qc_lady_screening_biopsy;
+DROP TABLE qc_lady_screening_biopsy_revs;
+DELETE FROM event_masters WHERE event_control_id = (SELECT id FROM event_controls WHERE detail_tablename = 'qc_lady_screening_biopsy');
+DELETE FROM event_masters_revs WHERE event_control_id = (SELECT id FROM event_controls WHERE detail_tablename = 'qc_lady_screening_biopsy');
+DELETE FROM event_controls WHERE detail_tablename = 'qc_lady_screening_biopsy';
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias = 'qc_lady_screening_biopsy');
+DELETE FROM structure_fields WHERE tablename = 'qc_lady_screening_biopsy';
+DELETE FROM structures WHERE alias = 'qc_lady_screening_biopsy';
+UPDATE menus SET flag_active = 0 WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title = 'screening';
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+(null, 'general', 'clinical', 'clinical evaluation', 1, 'qc_lady_clinical_evaluations', 'qc_lady_clinical_evaluations', 0, 'clinical evaluation', 0),
+(null, 'general', 'clinical', 'imaging', 1, 'qc_lady_imagings', 'qc_lady_imagings', 0, 'imaging', 0);
+CREATE TABLE IF NOT EXISTS `qc_lady_clinical_evaluations` (
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_lady_clinical_evaluations_revs` (
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_lady_clinical_evaluations`
+  ADD CONSTRAINT `qc_lady_clinical_evaluations_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+CREATE TABLE IF NOT EXISTS `qc_lady_imagings` (
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_lady_imagings_revs` (
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_lady_imagings`
+  ADD CONSTRAINT `qc_lady_imagings_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+ALTER TABLE  qc_lady_imagings
+ ADD COLUMN tumor_size_mm_x float(8,2) DEFAULT NULL,
+ ADD COLUMN tumor_size_mm_y float(8,2) DEFAULT NULL;
+ALTER TABLE  qc_lady_imagings_revs
+ ADD COLUMN tumor_size_mm_x float(8,2) DEFAULT NULL,
+ ADD COLUMN tumor_size_mm_y float(8,2) DEFAULT NULL;
+ALTER TABLE  qc_lady_clinical_evaluations
+ ADD COLUMN tumor_size_mm_x float(8,2) DEFAULT NULL,
+ ADD COLUMN tumor_size_mm_y float(8,2) DEFAULT NULL;
+ALTER TABLE  qc_lady_clinical_evaluations_revs
+ ADD COLUMN tumor_size_mm_x float(8,2) DEFAULT NULL,
+ ADD COLUMN tumor_size_mm_y float(8,2) DEFAULT NULL;	
+INSERT INTO structures(`alias`) VALUES ('qc_lady_imagings');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_imagings', 'tumor_size_mm_x', 'float_positive',  NULL , '0', '', '', '', 'tumor size (mm x mm)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_imagings', 'tumor_size_mm_y', 'float_positive',  NULL , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_imagings' AND `field`='tumor_size_mm_x' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm x mm)' AND `language_tag`=''), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_imagings' AND `field`='tumor_size_mm_y' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('qc_lady_clinical_evaluations');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_clinical_evaluations', 'tumor_size_mm_x', 'float_positive',  NULL , '0', '', '', '', 'tumor size (mm x mm)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_lady_clinical_evaluations', 'tumor_size_mm_y', 'float_positive',  NULL , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_clinical_evaluations'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_clinical_evaluations' AND `field`='tumor_size_mm_x' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumor size (mm x mm)' AND `language_tag`=''), '2', '110', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_clinical_evaluations'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_lady_clinical_evaluations' AND `field`='tumor_size_mm_y' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '2', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_imagings'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_lady_clinical_evaluations'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='cols=40,rows=6' AND `default`='' AND `language_help`='' AND `language_label`='summary' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('clinical evaluation', 'Clinical Evalutaion', 'Évaluation clinique'),('imaging','Imaging','Imagerie'); 
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_summary`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE event_controls SET databrowser_label = event_type ;
 
- 
- 
-  
+
+-- Creer plaque storage
+
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'GQ plate 1A-12H', 'column', 'integer', 12, 'row', 'alphabetical', 8, 0, 0, 0, 0, 1, 0, 0, 0, 'storage_w_spaces', 'std_boxs', 'GQ plate 1A-12H', 1);
+INSERT INTO i18n (id,en,fr) VALUES ('GQ plate 1A-12H','GQ Plate 1A-12H','GQ Plaque 1A-12H');
+UPDATE storage_controls SET flag_active = 1 WHERE storage_type = 'GQ plate 1A-12H';
