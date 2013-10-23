@@ -1,7 +1,7 @@
 <?php
 $pkey = "Identification";
 
-$child = array('Consent','Questionnaire'/*,'PathReport','Diagnostic','Treatment'*/);
+$child = array('Consent','Questionnaire');
 
 $fields = array(	
 	"participant_identifier" => $pkey/*,
@@ -46,6 +46,8 @@ function postParticipantWrite(Model $m){
 // 		recordHospitalNumber(Config::$participant_nominal_data[$participant_identification]['hospital_number'], $m->last_id);
 // 	}
  	recordParticipantCollection($m->values['Identification'], $m->last_id);
+ 	recordParticipantPathReport($m->values['Identification'], $m->last_id);
+ 	recordParticipantDiagnosisForm($m->values['Identification'], $m->last_id);
 }
 
 function loadParticipantNominalData() {

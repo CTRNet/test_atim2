@@ -68,9 +68,6 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 	
 	$headers = array();
 	$line_counter = 0;
-
-	$headers = array();
-	$line_counter = 0;
 	$duplicated_participant_check = array();
 	
 	$tissue_sample_control_id = Config::$sample_aliquot_controls['tissue']['sample_control_id'];
@@ -921,7 +918,7 @@ function loadUrine($workSheetCells, $filename, $worksheetname, $visit) {
 					if(!in_array($notes, array('refus', 'abandon', 'manqué', 'exclus', '?abandon'))) Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['Add note to patient'][] = "No $visit blood collection has been created and a note [$visit.': '.$notes] has been added to participant. See worksheet [$worksheetname] line $line_counter";
 					Config::$participant_notes[$patient_identification][] = $visit.' - urine : '.$notes;
 				}
-				if($visit == 'V01') Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No V01 blood'][] = "No V01 blood has been collected for PROCURE for patient $patient_identification. No blood collection will be created. See worksheet [$worksheetname] line $line_counter";
+				if($visit == 'V01') Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No V01 urine'][] = "No V01 urine has been collected for PROCURE for patient $patient_identification. No blood collection will be created. See worksheet [$worksheetname] line $line_counter";
 				$tmp_check = $new_line_data;
 				unset($tmp_check['Identification']);
 				unset($tmp_check['Visite']);
