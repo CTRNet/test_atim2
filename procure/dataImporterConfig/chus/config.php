@@ -26,6 +26,7 @@ class Config{
 	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-08-30.xls";
 	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-08-30.xls";
 	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xls";
+	static $xls_file_path_path_reports		= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-08-30.xls";
 	
 	//CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xlsx
 	//CHUS_Données Cliniques_ATiM_2013-08-30.xls
@@ -64,6 +65,10 @@ class Config{
 	static $event_controls = array();	
 	static $sample_aliquot_controls = array();
 	
+	static $path_reports = array();
+	static $diagnosis = array();
+	
+	// Collecton
 	static $participant_collections = array();
 	static $next_sample_code = 0;
 	
@@ -94,7 +99,7 @@ Config::$config_files[] = $table_mapping_path.'questionnaires.php';
 Config::$config_files[] = $table_mapping_path.'storages.php';
 Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
-//Config::$config_files[] = $table_mapping_path.'path_reports.php';
+Config::$config_files[] = $table_mapping_path.'path_reports.php';
 //Config::$config_files[] = $table_mapping_path.'diagnostics.php'; 
 //Config::$config_files[] = $table_mapping_path.'treatments.php'; 
 
@@ -105,6 +110,25 @@ Config::$config_files[] = $table_mapping_path.'collections.php';
 function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
 	$bank = Config::$bank;
+	
+	
+	
+//TODO	
+	echo"
+	TODO
+	
+	Changer laparascopie en laparoscopie
+	Benoit va ajouter une colone a ADN pour definier quel tube de bfc a été utilisé pour créer le DNA
+	Si on créé de l'ARN on utilise le tube de paxgen. Relation de 1 a 1. Donc definir que aliquot source de l'ARN = Tube paxgene
+	Regarder pourquoi le tissu PS4P0183 n'est pas correctement importé.
+	Qq cas on juste de la parafin et pas de FRZ. Il faut tt de même créer la collection et les blocks
+	Il y a un mssage que un mRNA est créé a partir de RNA 
+	Tou les miRNA sont a 1ml 1RNB! produit RNA1 (defsoi RNA2) et miRNA
+			Des fois pa'echantillons BFC3 car extrait pour l'ADN donc pas storé
+				Date '
+	A faire CHUS_Donnees Cliniques_ATiM_2013-08-30.xls
+	A faire CHUS_données_clinico-patho_ATiM_2013-08-30.xls
+	Date APS peut varier de 8 a 10";
 	
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -129,7 +153,7 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$event_controls[$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
-	
+
 	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'urine', 'serum', 'plasma', 'pbmc','centrifuged urine','concentrated urine','rna','dna')";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
@@ -159,8 +183,10 @@ function addonFunctionStart(){
 	}
 	
 	loadStorages();
-	
+
 	loadCollections();
+	
+	loadPathReportAndDiagnosis();
 	
 	//LOAD PARTICIPANT FIRST NAME, etc
 	
@@ -259,6 +285,16 @@ function addonFunctionEnd(){
 	if(!empty(Config::$participant_collections)) {
 		pr(Config::$participant_collections);
 		die('ERR 88383838292');
+	}
+	
+	if(!empty(Config::$path_reports)) {
+		pr(Config::$path_reports);
+		die('ERR 883838382932');
+	}
+
+	if(!empty(Config::$diagnosis)) {
+		pr(Config::$diagnosis);
+		die('ERR 883838382932');
 	}
 	
 	// Chec inveotry material imported
