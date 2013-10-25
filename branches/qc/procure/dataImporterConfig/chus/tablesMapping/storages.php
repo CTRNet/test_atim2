@@ -212,11 +212,11 @@ function loadStorages() {
 		
 		$first_box_line = null;
 		$box_data = array();
-		foreach($tmp_xls_reader->sheets[$key]['cells'] as $line => $new_line) {			
+		foreach($tmp_xls_reader->sheets[$key]['cells'] as $line => $new_line) {					
 			//Get box label
-			if(in_array(utf8_decode('Boîte'), $new_line)) { 
-				$new_line = array_values($new_line);			
-				if($new_line['0'] != utf8_decode('Boîte')) die('ERR_whatman_paper.1 - '.$work_sheet_name);
+			if(in_array(utf8_decode('Boîte'), $new_line) || in_array(utf8_decode('Boite'), $new_line)) { 
+				$new_line = array_values($new_line);					
+				if($new_line['0'] != utf8_decode('Boîte') && $new_line['0'] != utf8_decode('Boite')) die('ERR_whatman_paper.1 - '.$work_sheet_name);
 				$new_line['1'] = str_replace(' et ', '-', $new_line['1']);
 				if(!preg_match('/^[0-9]+(\-[0-9]+){0,1}$/', $new_line['1'], $matches)) die('ERR_whatman_paper.2 - '.$work_sheet_name);
 				if($box_label_from_work_sheet_name != $new_line['1']) Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Box code mismatch'][] = "Worksheet name [$work_sheet_name] is different than box label [".$new_line['1']."].";

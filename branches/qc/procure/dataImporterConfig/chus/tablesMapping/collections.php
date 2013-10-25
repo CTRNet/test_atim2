@@ -97,37 +97,37 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 						Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Type de chirurgie'][] = "A 'Type de chirurgie' [".$new_line_data['Type de chirurgie']."] has been defined and don't match expected values {laparoscopie, ouverte}. Added to tissu note. Please validate. See worksheet [$worksheetname] line $line_counter";
 				}
 			}
-			if($new_line_data['Nombre de tranches prélevées pour PROCURE']) {	
-				$collection_datetime = "''";
-				$collection_datetime_accuracy = "''";
-				$collection_date_data = getDateAndAccuracy($new_line_data['Date de la chirurgie'], "worksheet $worksheetname", 'Date de la chirurgie', $line_counter);
-				if($collection_date_data) {
-					$collection_datetime = $collection_date_data['date'];
-					$collection_datetime_accuracy = str_replace('c','h',$collection_date_data['accuracy']);
-				}
-				if($collection_datetime == "''") Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Tissue collection without collection date'][] = "No surgery date has been set for patient $patient_identification.Tissue collection will be created with no collection date. See worksheet [$worksheetname] line $line_counter";
-				if(!preg_match('/^[0-9]*$/', $new_line_data['Nombre de tranches prélevées pour PROCURE'])) die("ERR 894884949944 See worksheet [$worksheetname] line $line_counter");
-				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id] = array(
-					'Collection' => array(
-						'participant_id' => '',
-						'procure_visit' => 'V01',
-						'procure_patient_identity_verified' => '1',
-						'collection_datetime' => $collection_datetime,
-						'collection_datetime_accuracy' => $collection_datetime_accuracy,
-						'procure_chus_collection_specimen_sample_control_id' => $tissue_sample_control_id,
-						'collection_notes' => ''),
-					'Specimens' => array(
-						array(
-							'***tmp_sample_type***' => 'tissue',
-							'SampleMaster' => array('notes' => $tissue_notes),
-							'SampleDetail' => array('procure_number_of_slides_collected_for_procure' => $new_line_data['Nombre de tranches prélevées pour PROCURE'], 'procure_prostatectomy_type' => $procure_prostatectomy_type),
-							'SpecimenDetail' => array(),
-							'Derivatives' => array(),
-							'Aliquots' => array(),
-							'QualityCtrl' => array()
-						)
+			$collection_datetime = "''";
+			$collection_datetime_accuracy = "''";
+			$collection_date_data = getDateAndAccuracy($new_line_data['Date de la chirurgie'], "worksheet $worksheetname", 'Date de la chirurgie', $line_counter);
+			if($collection_date_data) {
+				$collection_datetime = $collection_date_data['date'];
+				$collection_datetime_accuracy = str_replace('c','h',$collection_date_data['accuracy']);
+			}
+			if($collection_datetime == "''") Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Tissue collection without collection date'][] = "No surgery date has been set for patient $patient_identification.Tissue collection will be created with no collection date. See worksheet [$worksheetname] line $line_counter";
+			if(!preg_match('/^[0-9]*$/', $new_line_data['Nombre de tranches prélevées pour PROCURE'])) die("ERR 894884949944 See worksheet [$worksheetname] line $line_counter");
+			Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id] = array(
+				'Collection' => array(
+					'participant_id' => '',
+					'procure_visit' => 'V01',
+					'procure_patient_identity_verified' => '1',
+					'collection_datetime' => $collection_datetime,
+					'collection_datetime_accuracy' => $collection_datetime_accuracy,
+					'procure_chus_collection_specimen_sample_control_id' => $tissue_sample_control_id,
+					'collection_notes' => ''),
+				'Specimens' => array(
+					array(
+						'***tmp_sample_type***' => 'tissue',
+						'SampleMaster' => array('notes' => $tissue_notes),
+						'SampleDetail' => array('procure_number_of_slides_collected_for_procure' => $new_line_data['Nombre de tranches prélevées pour PROCURE'], 'procure_prostatectomy_type' => $procure_prostatectomy_type),
+						'SpecimenDetail' => array(),
+						'Derivatives' => array(),
+						'Aliquots' => array(),
+						'QualityCtrl' => array()
 					)
-				);
+				)
+			);
+			if($new_line_data['Nombre de tranches prélevées pour PROCURE']) {
 				$time_spent_collection_to_freezing_end_mn = str_replace('N/A', '', $new_line_data["Temps écoulé entre sortie de l'abdomen et congélation (min)"]);
 				if(!preg_match('/^[0-9]*$/', $time_spent_collection_to_freezing_end_mn)) die("ERR 89884999499944 See worksheet [$worksheetname] line $line_counter");
 				$new_aliquots = array();
@@ -233,7 +233,7 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 					unset($paraffin_blocks[$patient_identification]);
 				}
 			} else {
-				Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No tissue'][] = "No tissue slide has been collected for PROCURE for patient $patient_identification. No tissue collection will be created. See worksheet [$worksheetname] line $line_counter";
+				Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No tissue'][] = "No tissue slide has been collected for PROCURE for patient $patient_identification. Empty collection will be created. See worksheet [$worksheetname] line $line_counter";
 				$tmp_check = $new_line_data;
 				unset($tmp_check['Identification']);
 				unset($tmp_check['Visite']);
@@ -515,6 +515,14 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 						if(empty(Config::$additional_dna_miR_from_storage[$patient_identification][$visit])) unset(Config::$additional_dna_miR_from_storage[$patient_identification][$visit]);
 						if(empty(Config::$additional_dna_miR_from_storage[$patient_identification])) unset(Config::$additional_dna_miR_from_storage[$patient_identification]);
 					}
+					if($new_line_data['DNA1::BFC source']) {
+						if(isset(Config::$source_aliquots["$patient_identification $visit -".$new_line_data['DNA1::BFC source']])) die('ERR 236 2376328763278633');
+						Config::$source_aliquots["$patient_identification $visit -".$new_line_data['DNA1::BFC source']] = array(
+							'patient_identification' => $patient_identification,
+							'visit' => $visit,
+							'sample_type' => 'dna',
+							'source_aliquot_barcode' => "$patient_identification $visit -".$new_line_data['DNA1::BFC source']);
+					}
 					$tmp_pbmc_dna = array(
 						'***tmp_sample_type***' => 'dna',
 						'SampleMaster' => array(),
@@ -571,7 +579,9 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 									'storage_datetime_accuracy'	=> $new_rna_aliquot_from_storage['storage_datetime_accuracy'],
 									'storage_master_id' => $new_rna_aliquot_from_storage['storage_master_id'],
 									'storage_coord_x' => $new_rna_aliquot_from_storage['x'],
-									'storage_coord_y' => $new_rna_aliquot_from_storage['y']),
+									'storage_coord_y' => $new_rna_aliquot_from_storage['y'],
+									'initial_volume' => '1000',
+									'current_volume' => '1000'),
 								'AliquotDetail' => array('procure_chus_micro_rna' => 'y')
 							);
 							if($aliquot_storage_data['storage_datetime'] == $new_rna_aliquot_from_storage['storage_datetime'] && $aliquot_storage_data['storage_datetime_accuracy'] == $new_rna_aliquot_from_storage['storage_datetime_accuracy']) {
@@ -603,6 +613,12 @@ function loadBlood($workSheetCells, $filename, $worksheetname, $visit) {
 							'score' => $new_line_data["RIN"]
 						);						
 					}
+					if(isset(Config::$source_aliquots["$patient_identification $visit -RNB1"])) die('ERR 236 2376328763278632');
+					Config::$source_aliquots["$patient_identification $visit -RNB1"] = array(
+						'patient_identification' => $patient_identification,
+						'visit' => $visit,
+						'sample_type' => 'rna',
+						'source_aliquot_barcode' => "$patient_identification $visit -RNB1");
 				}
 				if(strlen($new_line_data["Tube Paxgene deux heures à T pièce"].$new_line_data["RNA1 (rangement)"])) die("ERR 7331839. See worksheet [$worksheetname] line $line_counter");
 				
@@ -1174,3 +1190,39 @@ function getNextSampleCode() {
 	return Config::$next_sample_code;
 }
 
+function createSourceALiquotRecords() {
+	$query = "SELECT id AS aliquot_master_id, barcode, collection_id, sample_master_id, in_stock, use_counter, storage_master_id, storage_coord_x, storage_coord_y
+		FROM aliquot_masters WHERE barcode IN ('".implode("','", array_keys(Config::$source_aliquots))."');";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$aliquots_list = array();
+	while($row = $results->fetch_assoc()){
+		$aliquots_list[$row['barcode']] = $row;
+	}
+	foreach(Config::$source_aliquots as $new_sources) {
+		$query = "SELECT SampleMaster.id AS sample_master_id, SampleMaster.parent_id
+			FROM participants Participant
+			INNER JOIN collections Collection ON Collection.participant_id = Participant.id
+			INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+			WHERE Participant.participant_identifier = '".$new_sources['patient_identification']."'
+			AND Collection.procure_visit = '".$new_sources['visit']."'
+			AND SampleMaster.sample_control_id = ".Config::$sample_aliquot_controls[$new_sources['sample_type']]['sample_control_id'].";";
+		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [$query] ".__LINE__);
+		if(mysqli_num_rows($results) > 1) die('ERR 3832 762387 628726 82 ['.$query.']');
+		if($row_dna_rna = $results->fetch_assoc()) {
+			$studied_source_aliquot_barcode = $new_sources['source_aliquot_barcode'];
+			if(!isset($aliquots_list[$new_sources['source_aliquot_barcode']])) die('ERR 32 762873 68726 826 2 /' . $new_sources['source_aliquot_barcode']);
+			$used_aliquot_data = $aliquots_list[$new_sources['source_aliquot_barcode']];
+			if($row_dna_rna['parent_id'] != $used_aliquot_data['sample_master_id']) die('ERR 37287632876287 32');
+			customInsertRecord(array('sample_master_id' => $row_dna_rna['sample_master_id'], 'aliquot_master_id' => $used_aliquot_data['aliquot_master_id']), 'source_aliquots', false);
+			//Update aliquot source
+			$use_counter = empty($used_aliquot_data['use_counter'])? '1' : ($used_aliquot_data['use_counter'] + 1);
+			if($used_aliquot_data['in_stock'] != 'no') Config::$summary_msg['Aliquot to derivative link creation']['@@MESSAGE@@']['In stock value'][] = "The aliquot [$studied_source_aliquot_barcode] is defined as source aliquot: its in stock value will be changed to 'no'.";	
+			if($used_aliquot_data['storage_master_id']) Config::$summary_msg['Aliquot to derivative link creation']['@@MESSAGE@@']['Remove from storage'][] = "The aliquot [$studied_source_aliquot_barcode] is defined as stored: will be removed.";		
+			$query = "UPDATE aliquot_masters SET use_counter = '$use_counter', in_stock = 'no', storage_master_id = null, storage_coord_x = '', storage_coord_y = '' WHERE id = ".$used_aliquot_data['aliquot_master_id'].";";
+			mysqli_query(Config::$db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+			mysqli_query(Config::$db_connection, str_replace('aliquot_masters','aliquot_masters_revs',$query)) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		} else {
+			die('ERRR  628736 87632786 87632876232387 ');
+		}
+	}
+}

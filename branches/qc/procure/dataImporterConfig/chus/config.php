@@ -20,19 +20,16 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CHUS';
-	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-08-30.xls";
-	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-08-30.xls";
-	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-08-30.xls";
-	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-08-30.xls";
-	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-08-30.xls";
-	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xls";
-	static $xls_file_path_path_reports		= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-08-30.xls";
-	static $xls_file_path_followups = "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Cliniques_ATiM_2013-08-30.xls";
+	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-09-27_nl_rev.xls";
+	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-09-27_nl.xls";
+	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-09-27_nl_rev.xls";
+	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-09-27_nl_rev.xls";
+	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-09-27_nl_rev.xls";
+	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-09-27_nl_rev.xls";
+	static $xls_file_path_path_reports			= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-09-27_nl_rev.xls";
+	static $xls_file_path_followups 			= "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Cliniques_ATiM_2013-09-27_nl_rev.xls";
 	
-	//CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xlsx
-	//CHUS_Données Cliniques_ATiM_2013-08-30.xls
-	//CHUS_données_clinico-patho_ATiM_2013-08-30.xls
-	//
+	static $xls_file_path_nominal_data = "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Nominales_ATiM_2013-10-02_nl_rev.xls";
 	
 	static $xls_header_rows = 1;
 	
@@ -81,6 +78,7 @@ class Config{
 	static $previous_left_right = 0;
 	static $storage_data_from_sample_type_and_label = array();
 	static $additional_dna_miR_from_storage = array();
+	static $source_aliquots = array();
 	
 	static $summary_msg = array();	
 	
@@ -113,25 +111,6 @@ Config::$config_files[] = $table_mapping_path.'followups.php';
 function addonFunctionStart(){
 	$file_path = Config::$xls_file_path;
 	$bank = Config::$bank;
-	
-	
-	
-//TODO	
-	echo"
-	TODO
-	
-	Benoit va ajouter une colone a ADN pour definier quel tube de bfc a été utilisé pour créer le DNA
-	Si on créé de l'ARN on utilise le tube de paxgen. Relation de 1 a 1. Donc definir que aliquot source de l'ARN = Tube paxgene
-	Regarder pourquoi le tissu PS4P0183 n'est pas correctement importé.
-	Qq cas on juste de la parafin et pas de FRZ. Il faut tt de même créer la collection et les blocks
-	Il y a un mssage que un mRNA est créé a partir de RNA 
-	Tou les miRNA sont a 1ml 1RNB! produit RNA1 (defsoi RNA2) et miRNA
-			Des fois pa'echantillons BFC3 car extrait pour l'ADN donc pas storé
-				Date '";
-	
-	
-	
-	
 	
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -189,15 +168,13 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
-//TODO	
-/*	loadStorages();
+	loadStorages();
 	loadCollections();
 	
 	// LOAD ADDTIONAL PATIENT DATA
-	 * 
+
 	loadPathReportAndDiagnosis();
-	loadParticipantNominalData();
-*/	
+//TODO	loadParticipantNominalData();
 	loadFollowupData();
 
 	return;
@@ -271,13 +248,14 @@ function addonFunctionEnd(){
 	mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 	$query = "UPDATE sample_masters SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
  	mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
 	if(Config::$insert_revs) {
 		$query = "UPDATE sample_masters_revs SET sample_code=id;";
 		mysqli_query(Config::$db_connection, $query) or die("SampleCode update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
  		$query = "UPDATE sample_masters_revs SET initial_specimen_sample_id=id WHERE parent_id IS NULL;";
  		mysqli_query(Config::$db_connection, $query) or die("initial_specimen_sample_id update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));	
 	}
+	
+	createSourceALiquotRecords();
 	
 	// TO PERMISSIONS REGENERATE
 	
@@ -481,7 +459,7 @@ function getDateTimeAndAccuracy($date, $time, $data_type, $field_date, $field_ti
 			if($hour > 23) die('ERR time >= 24 79904044--4-44');	
 			$time=$hour.':'.$mn;		
 			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
-		} else {		
+		} else {
 			//Config::$summary_msg[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [fields '$field_date' & '$field_time' - line: $line]";
 			die("ERR time format should be h:mm see value $time for field $field_time' line '$line' [$worksheetname] - Be sure cell format = personalisé hh:mm");
 			//return null;
