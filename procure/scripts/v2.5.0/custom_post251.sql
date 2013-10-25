@@ -983,7 +983,7 @@ SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls W
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
 VALUES 
 ('open surgery', 'Open surgery', 'Chirurgie ouverte', '1', @control_id, NOW(), NOW(), 1, 1),
-('laparascopy', 'Laparascopy', 'Laparascopie', '1', @control_id, NOW(), NOW(), 1, 1),
+('laparascopy', 'Laparascopy', 'Laparoscopie', '1', @control_id, NOW(), NOW(), 1, 1),
 ('robot', 'Robot', 'Robot', '1', @control_id, NOW(), NOW(), 1, 1);
 
 INSERT INTO structures(`alias`) VALUES ('procure_sd_spe_tissues');

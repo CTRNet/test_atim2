@@ -48,6 +48,7 @@ function postParticipantWrite(Model $m){
  	recordParticipantCollection($m->values['Identification'], $m->last_id);
  	recordParticipantPathReport($m->values['Identification'], $m->last_id);
  	recordParticipantDiagnosisForm($m->values['Identification'], $m->last_id);
+ 	recordFollowUpForm($m->values['Identification'], $m->last_id);
 }
 
 function loadParticipantNominalData() {
