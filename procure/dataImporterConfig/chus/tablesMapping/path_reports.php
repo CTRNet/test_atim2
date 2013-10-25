@@ -121,7 +121,7 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 	} else if(sizeof($histo_vals) > 1) {
 		Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['More than one histological value'][] = "See values '".implode(' + ', $histo_vals)."'. No histological value will be imported. See line: $line_counter";
 	}
-	if(isset($new_line_data['Histologie Autres :']) && $new_line_data['Histologie Autres :']) die('ERR 38832682762');
+	if(isset($new_line_data['Histologie Autres :']) && $new_line_data['Histologie Autres :']) die('ERR 38832682762 ['.$new_line_data['Histologie Autres :'].'] '.$line_counter);
 	
 	// Tumor location			
 	$tmp_arr = array("Localisation de la tumeur Ant droit" => "tumour_location_right_anterior",
