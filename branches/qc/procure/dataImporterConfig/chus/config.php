@@ -27,6 +27,7 @@ class Config{
 	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-08-30.xls";
 	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xls";
 	static $xls_file_path_path_reports		= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-08-30.xls";
+	static $xls_file_path_followups = "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Cliniques_ATiM_2013-08-30.xls";
 	
 	//CHUS_Bloc Paraffine_Inventaire_ATiM_2013-08-30.xlsx
 	//CHUS_Données Cliniques_ATiM_2013-08-30.xls
@@ -64,9 +65,11 @@ class Config{
 	static $consent_control_id = null;
 	static $event_controls = array();	
 	static $sample_aliquot_controls = array();
+	static $treatment_controls = array();
 	
 	static $path_reports = array();
 	static $diagnosis = array();
+	static $followups = array();
 	
 	// Collecton
 	static $participant_collections = array();
@@ -100,7 +103,7 @@ Config::$config_files[] = $table_mapping_path.'storages.php';
 Config::$config_files[] = $table_mapping_path.'collections.php'; 
 
 Config::$config_files[] = $table_mapping_path.'path_reports.php';
-//Config::$config_files[] = $table_mapping_path.'diagnostics.php'; 
+Config::$config_files[] = $table_mapping_path.'followups.php'; 
 //Config::$config_files[] = $table_mapping_path.'treatments.php'; 
 
 //=========================================================================================================
@@ -117,7 +120,6 @@ function addonFunctionStart(){
 	echo"
 	TODO
 	
-	Changer laparascopie en laparoscopie
 	Benoit va ajouter une colone a ADN pour definier quel tube de bfc a été utilisé pour créer le DNA
 	Si on créé de l'ARN on utilise le tube de paxgen. Relation de 1 a 1. Donc definir que aliquot source de l'ARN = Tube paxgene
 	Regarder pourquoi le tissu PS4P0183 n'est pas correctement importé.
@@ -125,10 +127,11 @@ function addonFunctionStart(){
 	Il y a un mssage que un mRNA est créé a partir de RNA 
 	Tou les miRNA sont a 1ml 1RNB! produit RNA1 (defsoi RNA2) et miRNA
 			Des fois pa'echantillons BFC3 car extrait pour l'ADN donc pas storé
-				Date '
-	A faire CHUS_Donnees Cliniques_ATiM_2013-08-30.xls
-	A faire CHUS_données_clinico-patho_ATiM_2013-08-30.xls
-	Date APS peut varier de 8 a 10";
+				Date '";
+	
+	
+	
+	
 	
 	echo "<br><FONT COLOR=\"green\" >
 	=====================================================================<br>
@@ -153,6 +156,12 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$event_controls[$row['event_type']] = array('event_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
+	
+	$query = "select id,disease_site,tx_method,detail_tablename from treatment_controls where flag_active = '1';";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	while($row = $results->fetch_assoc()){
+		Config::$treatment_controls[$row['tx_method']] = array('treatment_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
 
 	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'urine', 'serum', 'plasma', 'pbmc','centrifuged urine','concentrated urine','rna','dna')";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -160,7 +169,6 @@ function addonFunctionStart(){
 		Config::$sample_aliquot_controls[$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
 	}
 	if(sizeof(Config::$sample_aliquot_controls) != 10) die("get sample controls failed");
-
 	foreach(Config::$sample_aliquot_controls as $sample_type => $data) {
 		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
 		$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
@@ -181,16 +189,16 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		Config::$storage_controls[$row['storage_type']] = array('storage_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
-	
-	loadStorages();
-
+//TODO	
+/*	loadStorages();
 	loadCollections();
 	
+	// LOAD ADDTIONAL PATIENT DATA
+	 * 
 	loadPathReportAndDiagnosis();
-	
-	//LOAD PARTICIPANT FIRST NAME, etc
-	
-//TODO	loadParticipantNominalData();
+	loadParticipantNominalData();
+*/	
+	loadFollowupData();
 
 	return;
 }
@@ -239,6 +247,13 @@ function addonFunctionEnd(){
 		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
 	}	
 	
+	$query = "update event_masters SET event_summary = REPLACE(event_summary,'\0','')";
+	mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+	if(Config::$insert_revs){
+		$query = "update event_masters_revs SET event_summary = REPLACE(event_summary,'\0','')";
+		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
+	}
+	
 	// ADD PARTICIPANT NOTES
 	
 	foreach(Config::$participant_notes as $participant_identifier => $notes) {
@@ -248,8 +263,7 @@ function addonFunctionEnd(){
 			$query = str_replace("participants", "participants_revs", $query)."' WHERE participant_identifier = $participant_identifier'";
 			mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
 		}
-	}
-	
+	}	
 	
    	// INVENTORY COMPLETION
 		
@@ -269,14 +283,7 @@ function addonFunctionEnd(){
 	
 	$query = "UPDATE versions SET permissions_regenerated = 0;";
 	mysqli_query(Config::$db_connection, $query) or die("versions update [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	
-	// ADD MISSING ERROR MESSAGE
-/*	
-	if(Config::$extensive_margin_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported'][-1] = 'See values : '. implode(', ', Config::$extensive_margin_unkw_value);
-	if(Config::$extra_prostatic_extension_unkw_value) Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported'][-1] = 'See values : '. implode(', ', Config::$extra_prostatic_extension_unkw_value);
-	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extensive margin value not supported']);
-	ksort(Config::$summary_msg['Patho Report']['@@ERROR@@']['Extra prostatic extension value not supported']);
-*/	
+		
 	// END Query
 	
 	$query = "UPDATE versions SET permissions_regenerated=0;";
@@ -415,7 +422,7 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false/*, 
 }
 
 function getDateAndAccuracy($date, $data_type, $field, $line) {
-	if(empty($date) || (strtoupper($date) == 'N/A')) {
+	if(empty($date) || (strtoupper($date) == 'N/A') || (strtoupper($date) == '-') || (strtoupper($date) == 'EN COURS')) {
 		return null;
 	
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {

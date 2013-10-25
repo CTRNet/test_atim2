@@ -14,9 +14,9 @@ function loadPathReportAndDiagnosis() {
 	foreach(array('Rapport Biopsies', 'Rapport-Biopsies v2011') as $work_sheet_name) {
 		$summary_msg_title = 'Path Report : File: '.$filename.' / '.$work_sheet_name;
 		if($work_sheet_name == 'Rapport Biopsies') {
-			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge','# zones évaluées en biopsie','Date chirurgie','Disponibilité des tissus'";
+			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge',<br>'# zones évaluées en biopsie',<br>'Date chirurgie',<br>'Disponibilité des tissus'";
 		} else {
-			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge','# zones évaluées en biopsie','Date chirurgie','Histologie Autres :','Volume tumoral total Atteinte légère (<30%)','Volume tumoral total Atteinte modérée (30-60%)','Volume tumoral total Atteinte extensive (>60%)','Disponibilité des tissus Oui','Disponibilité des tissus Non'";
+			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge',<br>'# zones évaluées en biopsie',<br>'Date chirurgie',<br>'Histologie Autres :',<br>'Volume tumoral total Atteinte légère (<30%)',<br>'Volume tumoral total Atteinte modérée (30-60%)',<br>'Volume tumoral total Atteinte extensive (>60%)',<br>'Disponibilité des tissus Oui',<br>'Disponibilité des tissus Non'";
 		}
 		if(!isset($tmp_xls_reader->sheets[$sheets_nbr[$work_sheet_name]])) die('ERR loadPathReport 3222222');
 		$headers = array();
