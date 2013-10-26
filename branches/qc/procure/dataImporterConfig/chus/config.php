@@ -28,7 +28,6 @@ class Config{
 	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-09-27_nl_rev.xls";
 	static $xls_file_path_path_reports			= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-09-27_nl_rev.xls";
 	static $xls_file_path_followups 			= "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Cliniques_ATiM_2013-09-27_nl_rev.xls";
-	
 	static $xls_file_path_nominal_data = "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Nominales_ATiM_2013-10-02_nl_rev.xls";
 	
 	static $xls_header_rows = 1;
@@ -59,34 +58,35 @@ class Config{
 	
 	static $limit_warning_display = true;
 	
+	// CONTROL
+	
 	static $consent_control_id = null;
 	static $event_controls = array();	
 	static $sample_aliquot_controls = array();
 	static $treatment_controls = array();
-	
+	static $participant_nominal_data = array();
+	static $participant_notes = array();
+		
+	// CLINICAL ANNOTATION
 	static $path_reports = array();
 	static $diagnosis = array();
 	static $followups = array();
 	
-	// Collecton
+	// COLLECTION
 	static $participant_collections = array();
 	static $next_sample_code = 0;
+	static $additional_dna_miR_from_storage = array();
+	static $source_aliquots = array();
 	
 	static $storage_controls = array();
 	static $storages = array();
 	static $previous_storage_master_id = 0;
 	static $previous_left_right = 0;
 	static $storage_data_from_sample_type_and_label = array();
-	static $additional_dna_miR_from_storage = array();
-	static $source_aliquots = array();
 	
-	static $summary_msg = array();	
+	// OTHER
+	static $summary_msg = array();
 	
-	static $extra_prostatic_extension_unkw_value = array();
-	static $extensive_margin_unkw_value = array();
-	
-	static $participant_nominal_data = array();
-	static $participant_notes = array();
 }
 
 //add the parent models here
@@ -173,8 +173,8 @@ function addonFunctionStart(){
 	
 	// LOAD ADDTIONAL PATIENT DATA
 
+	loadParticipantNominalData();
 	loadPathReportAndDiagnosis();
-//TODO	loadParticipantNominalData();
 	loadFollowupData();
 
 	return;
@@ -215,7 +215,7 @@ function addonFunctionEnd(){
 		}
 	}
 	
-	// PROFILE CLEAN UP
+	// CLINICAL ANNOTATION CLEAN UP
 	
 	$query = "UPDATE participants SET last_modification = created WHERE last_modification LIKE '0000-00-00%'";
 	mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
@@ -230,8 +230,6 @@ function addonFunctionEnd(){
 		$query = "update event_masters_revs SET event_summary = REPLACE(event_summary,'\0','')";
 		mysqli_query(Config::$db_connection, $query) or die("Error on addonFunctionEnd :Update field participants.last_modification. [$query] ");
 	}
-	
-	// ADD PARTICIPANT NOTES
 	
 	foreach(Config::$participant_notes as $participant_identifier => $notes) {
 		$query = "UPDATE participants SET notes = '".str_replace("'", "''", implode('\n', $notes))."' WHERE participant_identifier = '$participant_identifier'";
