@@ -274,8 +274,10 @@ class EventMasterCustom extends EventMaster{
 			$set_score = false;
 		}
 	
-		if($this->data['EventDetail']['ascite'] == "1"){
+		if($this->data['EventDetail']['ascite'] == "y"){
 			++ $score;
+		} else if(empty($this->data['EventDetail']['ascite'])) {
+			$set_score = false;
 		}
 	
 		if($this->data['EventDetail']['tumor_size_ratio'] == ">=50%"){
@@ -283,7 +285,7 @@ class EventMasterCustom extends EventMaster{
 		} else if(empty($this->data['EventDetail']['tumor_size_ratio'])) {
 			$set_score = false;
 		}
-	
+		
 		if($set_score) {
 			//no score if bellow 4
 			if($score < 1){
@@ -385,9 +387,11 @@ class EventMasterCustom extends EventMaster{
 		} else if(empty($this->data['EventDetail']['alpha_foetoprotein'])) {
 			$set_score = false;
 		}
-	
-		if($this->data['EventDetail']['portal_thrombosis'] == "1"){
+		
+		if($this->data['EventDetail']['portal_thrombosis'] == "y"){
 			++ $this->data['EventDetail']['result'];
+		} else if(empty($this->data['EventDetail']['portal_thrombosis'])) {
+			$set_score = false;
 		}
 	
 		if(!$set_score) {
@@ -397,21 +401,14 @@ class EventMasterCustom extends EventMaster{
 	
 	function setFongScore(){
 		$this->data['EventDetail']['result'] = 0;
-		if($this->data['EventDetail']['metastatic_lymph_nodes'] == 1){
-			++ $this->data['EventDetail']['result'];
-		}
-		if($this->data['EventDetail']['interval_under_year'] == 1){
-			++ $this->data['EventDetail']['result'];
-		}
-		if($this->data['EventDetail']['more_than_one_metastasis'] == 1){
-			++ $this->data['EventDetail']['result'];
-		}
-		if($this->data['EventDetail']['metastasis_greater_five_cm'] == 1){
-			++ $this->data['EventDetail']['result'];
-		}
-		if($this->data['EventDetail']['cea_greater_two_hundred'] == 1){
-			++ $this->data['EventDetail']['result'];
-		}
+		foreach(array('metastatic_lymph_nodes', 'interval_under_year', 'more_than_one_metastasis', 'metastasis_greater_five_cm','cea_greater_two_hundred') as $field) {
+			if($this->data['EventDetail'][$field] == "y"){
+				++ $this->data['EventDetail']['result'];
+			} else if(empty($this->data['EventDetail'][$field])) {
+				$this->data['EventDetail']['result'] = '';
+				return;
+			}
+		}	
 	}
 	
 	function setGretchScore(){
@@ -438,9 +435,11 @@ class EventMasterCustom extends EventMaster{
 		} else if(empty($this->data['EventDetail']['alpha_foetoprotein'])) {
 			$set_score = false;
 		}
-		if($this->data['EventDetail']['portal_thrombosis'] == 1){
+		if($this->data['EventDetail']['portal_thrombosis'] == "y"){
 			$score += 2;
-		}
+		} else  if(empty($this->data['EventDetail']['portal_thrombosis'])) {
+			$set_score = false;
+		}	
 	
 		if(!$set_score) {
 			$this->data['EventDetail']['result'] = '';
@@ -457,11 +456,13 @@ class EventMasterCustom extends EventMaster{
 	
 	function setMeldScore(){
 		$this->data['EventDetail']['result'] = null;
-	
+		$this->data['EventDetail']['sodium_result'] = null;
+		
 		// Get data
 		$creat = str_replace(",",".",$this->data['EventDetail']['creatinine']);
 		if(!is_numeric($creat)) return;
-		$creat = ($this->data['EventDetail']['dialysis'])? 4 : ($creat/88.4);
+		if(empty($this->data['EventDetail']['dialysis'])) return;
+		$creat = ($this->data['EventDetail']['dialysis'] == "y")? 4 : ($creat/88.4);
 	
 		$bilirubin = str_replace(",",".",$this->data['EventDetail']['bilirubin']);
 		if(!is_numeric($bilirubin)) return;
