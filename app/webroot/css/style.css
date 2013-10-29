@@ -1153,6 +1153,7 @@ span.help {
 .icon16.add_to_order { background-position: -64px -80px; }
 .icon16.add_to_shipment { background-position: -32px -16px; }
 .icon16.aliquot, .icon16.aliquots { background-position: -80px -96px; }
+.icon16.aliquot.review { background-position: -64px -128px; }
 .icon16.annotation { background-position: -48px -96px; }
 .icon16.barcode { background-position: -112px -48px;}
 .icon16.batchset { background-position: -112px -96px;}
@@ -1214,7 +1215,7 @@ span.help {
 .icon16.thumbsdown { background-position: -96px -32px; }
 .icon16.thumbsup { background-position: -96px -16px; }
 .icon16.treatments { background-position: -64px -32px; }
-.icon16.treatment.precision { background-position: -64px -32px; }
+.icon16.treatment.precision { background-position: -32px -128px; }
 .icon16.use, .icon16.aliquot.uses { background-position: -96px -96px; }
 .icon16.users { background-position: -80px -32px; }
 
