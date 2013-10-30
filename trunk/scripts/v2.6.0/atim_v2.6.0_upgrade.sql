@@ -1427,7 +1427,6 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('no used volume can be recorded', 'No used volume can be recorded', 'Aucun volume utilisé ne peut être enregistré'),
 ('add storage event to stored aliquots','Add Storage Event','Créer évenement d''entreposage');
 
-
 ALTER TABLE datamart_saved_browsing_steps
  ADD COLUMN parent_children CHAR(1) NOT NULL DEFAULT '';
 
@@ -1461,3 +1460,19 @@ UPDATE storage_controls
 UPDATE storage_controls
     SET detail_form_alias=REPLACE(detail_form_alias, 'storage_w_spaces', '')
     WHERE detail_form_alias LIKE '%storage_w_spaces%';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Empty result in databrowser - Add message for browsing another way  #2692
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO external_links (name, link) VALUES ('databrowser_help', 'http://www.ctrnet.ca/mediawiki/index.php/Databrowser');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('data types relationship diagram','Data Types Relationship Diagram','Diagramme des realtions des types de données'),
+('link to databrowser wiki page %s  + datamart structures relationship diagram access',
+'The DataBrowser is a tool that allows you to browse from one data type to another through various search forms.<br>More information about databrowser is available <a href="%s" target="blank">here</a>.<br>By default, the system will use the shortest way to browse from one data type to another.<br>Be sure an appropriated way has been used checking the following document: ',
+'Le Navigateur de données est un outil qui vous permet de naviguer d''un type de données à un autre à travers différents formulaires de recherche.<br>Plus d''informations sur le Navigateur de données sont disponibles <a href="%s" target="blank">ici</a>.<br>Par défaut, le système utilisera le chemin le plus court pour aller d''un type de données à un autre.<br>Assurez-vous qu''un chemin approprié a été utilisé en vous basant sur le diagramme suivant: ');
+REPLACE INTO i18n (id,en,fr) VALUES
+('no data matches your search parameters',
+'No data matches your search parameters!<br><br><i>Note the system used the shortest way to browse from the previous data type to the selected one. Be sure no other appropriated way exists to browse your data checking the ''Data Types Relationship Diagram''.</i>',
+'Aucune données ne correspond à vos critères de recherche!<br><br><i>Notez que le système à utilisé le chemin le plus court pour aller du précédant type de données à celui sélectionné. Assurez-vous qu''aucun autre chemin plus approprié ne peut être utilisé en vous basant sur le ''Diagramme des realtions des types de données''.</i>');
+ 

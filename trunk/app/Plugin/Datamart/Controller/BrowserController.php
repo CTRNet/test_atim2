@@ -10,7 +10,8 @@ class BrowserController extends DatamartAppController {
 		'Datamart.BrowsingControl',
 		'Datamart.BrowsingIndex',
 		'Datamart.BatchSet',
-		'Datamart.SavedBrowsingIndex'
+		'Datamart.SavedBrowsingIndex',
+		'ExternalLink'
 	);
 		
 	function index(){
@@ -96,6 +97,8 @@ class BrowserController extends DatamartAppController {
 		$this->set('control_id', (int)$control_id); //cast as it might end with c(child) or p(parent)
 		$this->set('merge_to', $merge_to);
 		$this->Browser;//lazy laod
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'databrowser_help')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		//data handling will redirect to a straight page
 		if($this->request->data){
