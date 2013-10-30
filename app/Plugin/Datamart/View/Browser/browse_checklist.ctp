@@ -64,14 +64,25 @@
 	if(isset($node_id)){
 		$extras['end'] .= $this->Form->input('node.id', array('type' => 'hidden', 'value' => $node_id)); 
 	}
-	
+	$header_title = __("select an action");
+	$header_description = __('link to databrowser wiki page %s  + datamart structures relationship diagram access', $help_url).'<a href="'.'javascript:dataBrowserHelp();'.'" >'.__('data types relationship diagram').'</a>';
+	if(isset($header)) {
+		if(!is_array($header)) {
+			$header_title = $header;
+		} else if(array_key_exists('title', $header)) {
+			$header_title = $header['title'];
+			if(array_key_exists('description', $header)) {
+				$header_description = $header['description'].'<br>'.$header_description;
+			}
+		}
+	}
 	$this->Structures->build($atim_structure, array(
 		'type' => $type, 
 		'links' => $links, 
 		'data' => array(), 
 		'settings' => array(
 			'form_top' => !$is_datagrid, 
-			"header" => (isset($header) ? $header : __("select an action"))
+			'header' => array('title' => $header_title, 'description' => $header_description),		
 		), 'extras' => $extras
 	));
 ?>
@@ -83,4 +94,6 @@ var menuItems = '<?php echo json_encode(Sanitize::clean($dropdown_options)); ?>'
 var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
 var STR_BACK = '<?php echo __('back'); ?>';
 var csvMergeData = '<?php echo json_encode(isset($csv_merge_data) ? $csv_merge_data : array()) ; ?>';
+var STR_DATAMART_STRUCTURE_RELATIONSHIPS = "<?php echo __('data types relationship diagram'); ?>";
+</script>
 </script>
