@@ -95,5 +95,6 @@ var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
 var STR_BACK = '<?php echo __('back'); ?>';
 var csvMergeData = '<?php echo json_encode(isset($csv_merge_data) ? $csv_merge_data : array()) ; ?>';
 var STR_DATAMART_STRUCTURE_RELATIONSHIPS = "<?php echo __('data types relationship diagram'); ?>";
+var STR_LANGUAGE = "<?php echo (($_SESSION['Config']['language'] == 'eng')? 'en' : 'fr'); ?>";
 </script>
 </script>

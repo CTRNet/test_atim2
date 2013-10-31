@@ -1768,6 +1768,6 @@ function initActions(){
 	}
 	
 	function dataBrowserHelp(){
-		var diagram_url =	root_url + 'app/webroot/img/dataBrowser/datamart_structures_relationships.png';
+		var diagram_url =	root_url + 'app/webroot/img/dataBrowser/datamart_structures_relationships_' + STR_LANGUAGE + '.png';
 		$("#default_popup").html('<form enctype="multipart/form-data"><div class="descriptive_heading"><h4>' + STR_DATAMART_STRUCTURE_RELATIONSHIPS + '</h4><p></p></div><div style="padding: 10px; background-color: #fff;"><img src="' + diagram_url + '"/></div></form>').popup();
 	}
