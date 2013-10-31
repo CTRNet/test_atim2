@@ -129,16 +129,18 @@ function initActions(){
 				return false;
 			}
 			
-			return true;
+			return false;
 		}
 		
-		$("#actionsTarget").fmMenu({
-			data : $.parseJSON(menuItems), 
-			displayFunction : actionDisplay, 
-			defaultLabel : STR_SELECT_AN_ACTION, 
-			inputName : "data[Browser][search_for]",
-			strBack : STR_BACK
-		});
+		if(menuItems.length > 0){
+    		$("#actionsTarget").fmMenu({
+    			data : $.parseJSON(menuItems), 
+    			displayFunction : actionDisplay, 
+    			defaultLabel : STR_SELECT_AN_ACTION, 
+    			inputName : "data[Browser][search_for]",
+    			strBack : STR_BACK
+    		});
+		}
 		
 		if(!window.errorYouMustSelectAnAction){
 			window.errorYouMustSelectAnAction = "js untranslated errorYouMustSelectAnAction";	
