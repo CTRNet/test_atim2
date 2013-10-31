@@ -109,11 +109,17 @@
 		}
 	}
 	
+	if(isset($linked_datamart_structure_actions)){
+	    $linked_datamart_structure_actions = 
+	       json_encode(Sanitize::clean($linked_datamart_structure_actions));
+	}else{
+	    $linked_datamart_structure_actions = "";
+	}
 ?>
 <script type="text/javascript">
 var datamartActions = true;
 var errorYouMustSelectAnAction = "<?php echo __("you must select an action"); ?>";
 var errorYouNeedToSelectAtLeastOneItem = "<?php echo __("you need to select at least one item"); ?>";
-var menuItems = '<?php echo json_encode(Sanitize::clean($linked_datamart_structure_actions)); ?>';
+var menuItems = '<?php echo $linked_datamart_structure_actions; ?>';
 var STR_SELECT_AN_ACTION = "<?php echo __('select an action'); ?>";
 </script>	
