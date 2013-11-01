@@ -1476,3 +1476,17 @@ REPLACE INTO i18n (id,en,fr) VALUES
 'No data matches your search parameters!<br><br><i>Note the system used the shortest way to browse from the previous data type to the selected one. Be sure no other appropriated way exists to browse your data checking the ''Data Types Relationship Diagram''.</i>',
 'Aucune données ne correspond à vos critères de recherche!<br><br><i>Notez que le système à utilisé le chemin le plus court pour aller du précédant type de données à celui sélectionné. Assurez-vous qu''aucun autre chemin plus approprié ne peut être utilisé en vous basant sur le ''Diagramme des realtions des types de données''.</i>');
  
+ -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Replace/Add new i18n
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr)
+VALUES
+('aliquot internal use code', 'Use/Event Defintion', 'Définition de l''utilisation/événement'),
+('treatment precision', 'Treatment Precision', 'Précisions de Traitment');
+UPDATE structure_fields SET language_label = 'use counter' WHERE field = 'use_counter';
+INSERT INTO i18n (id,en,fr) VALUES ('use counter', 'Uses/Events', 'Utilisations/Événements');
+
+
+
+

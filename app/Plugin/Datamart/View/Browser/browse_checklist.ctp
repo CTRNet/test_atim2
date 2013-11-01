@@ -97,4 +97,3 @@ var csvMergeData = '<?php echo json_encode(isset($csv_merge_data) ? $csv_merge_d
 var STR_DATAMART_STRUCTURE_RELATIONSHIPS = "<?php echo __('data types relationship diagram'); ?>";
 var STR_LANGUAGE = "<?php echo (($_SESSION['Config']['language'] == 'eng')? 'en' : 'fr'); ?>";
 </script>
-</script>
