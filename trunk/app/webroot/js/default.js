@@ -129,7 +129,7 @@ function initActions(){
 				return false;
 			}
 			
-			return false;
+			return true;
 		}
 		
 		if(menuItems.length > 0){
