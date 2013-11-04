@@ -1487,6 +1487,82 @@ VALUES
 UPDATE structure_fields SET language_label = 'use counter' WHERE field = 'use_counter';
 INSERT INTO i18n (id,en,fr) VALUES ('use counter', 'Uses/Events', 'Utilisations/Événements');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Control table generic fields #2673
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE lbd_dna_extractions DROP COLUMN deleted;
+ALTER TABLE lbd_slide_creations DROP COLUMN deleted;
+ALTER TABLE consent_masters MODIFY consent_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE dxd_bloods MODIFY diagnosis_master_id int(11) NOT NULL;
+ALTER TABLE dxd_tissues MODIFY diagnosis_master_id int(11) NOT NULL;
+ALTER TABLE lbd_dna_extractions DROP PRIMARY KEY; ALTER TABLE lbd_dna_extractions MODIFY lab_book_master_id int(11) NOT NULL;
+ALTER TABLE lbd_slide_creations DROP PRIMARY KEY; ALTER TABLE lbd_slide_creations MODIFY lab_book_master_id int(11) NOT NULL;
+ALTER TABLE permissions_presets MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE permissions_presets MODIFY created datetime DEFAULT NULL;
+ALTER TABLE permissions_presets MODIFY modified datetime DEFAULT NULL;
+ALTER TABLE protocol_extend_masters MODIFY protocol_extend_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE protocol_masters MODIFY protocol_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE protocol_masters ADD CONSTRAINT FK_protocol_masters_aliquot_controls FOREIGN KEY (protocol_control_id) REFERENCES `protocol_controls` (`id`);
+ALTER TABLE rtbforms MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE sd_der_cell_lysates MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE sd_der_cell_lysates ADD CONSTRAINT FK_sd_der_cell_lysates_sample_masters FOREIGN KEY (sample_master_id) REFERENCES sample_masters (id);
+ALTER TABLE shipment_contacts MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE shipment_contacts MODIFY created datetime DEFAULT NULL;
+ALTER TABLE shipment_contacts MODIFY modified datetime DEFAULT NULL;
+ALTER TABLE sopd_general_alls MODIFY sop_master_id int(11) NOT NULL;
+ALTER TABLE sopd_general_alls ADD CONSTRAINT FK_sopd_general_alls_sop_masters FOREIGN KEY (sop_master_id) REFERENCES sop_masters (id);
+ALTER TABLE sopd_inventory_alls MODIFY sop_master_id int(11) NOT NULL;
+ALTER TABLE sopd_inventory_alls ADD CONSTRAINT FK_sopd_inventory_alls_sop_masters FOREIGN KEY (sop_master_id) REFERENCES sop_masters (id);
+ALTER TABLE sop_masters MODIFY sop_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE sop_masters ADD CONSTRAINT FK_sop_masters_sop_controls FOREIGN KEY (sop_control_id) REFERENCES sop_controls (id);
+ALTER TABLE structure_permissible_values_customs MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE treatment_extend_masters MODIFY treatment_extend_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE treatment_masters MODIFY treatment_control_id int(11) NOT NULL DEFAULT '0';
 
+ALTER TABLE dxd_primaries_revs DROP COLUMN deleted;
+ALTER TABLE dxd_progressions_revs DROP COLUMN deleted;
+ALTER TABLE dxd_recurrences_revs DROP COLUMN deleted;
+ALTER TABLE dxd_remissions_revs DROP COLUMN deleted;
 
+ALTER TABLE dxd_secondaries_revs DROP COLUMN deleted;
+DROP INDEX participant_id ON event_masters_revs;
+DROP INDEX diagnosis_id ON event_masters_revs;
+DROP INDEX storage_id ON shelves_revs;
+
+ALTER TABLE consent_masters_revs MODIFY consent_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE dxd_bloods_revs MODIFY diagnosis_master_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE dxd_tissues_revs MODIFY diagnosis_master_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE protocol_extend_masters_revs MODIFY protocol_extend_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE treatment_extend_masters_revs MODIFY treatment_extend_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE treatment_masters_revs MODIFY treatment_control_id int(11) NOT NULL DEFAULT '0';
+ALTER TABLE dxd_bloods_revs MODIFY diagnosis_master_id int(11) NOT NULL;
+ALTER TABLE dxd_tissues_revs MODIFY diagnosis_master_id int(11) NOT NULL;
+
+ALTER TABLE shelves_revs MODIFY version_id int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE permissions_presets_revs MODIFY id int(11) NOT NULL;
+ALTER TABLE rtbforms_revs MODIFY id int(11) NOT NULL;
+ALTER TABLE shipment_contacts_revs MODIFY id int(11) NOT NULL;
+ALTER TABLE structure_permissible_values_customs_revs MODIFY id int(11) NOT NULL;
+
+DROP INDEX event_master_id ON ed_all_adverse_events_adverse_events_revs;
+DROP INDEX event_master_id ON ed_all_clinical_followups_revs;
+DROP INDEX event_master_id ON ed_all_clinical_presentations_revs;
+DROP INDEX event_master_id ON ed_all_comorbidities_revs;
+DROP INDEX event_master_id ON ed_all_lifestyle_smokings_revs;
+DROP INDEX event_master_id ON ed_all_protocol_followups_revs;
+DROP INDEX event_master_id ON ed_all_study_researches_revs;
+DROP INDEX event_master_id ON ed_breast_screening_mammograms_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_ampullas_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_colon_biopsies_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_colon_rectum_resections_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_distalexbileducts_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_gallbladders_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_hepatocellular_carcinomas_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_intrahepbileducts_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_pancreasendos_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_pancreasexos_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_perihilarbileducts_revs;
+DROP INDEX diagnosis_master_id ON ed_cap_report_smintestines_revs;
+DROP INDEX event_control_id ON event_masters_revs;
