@@ -1204,7 +1204,7 @@ class ReportsController extends DatamartAppController {
 			//From databrowser
 			$storage_master_ids  = array_filter($parameters['ViewStorageMaster']['id']);
 			if($storage_master_ids) $conditions['StorageMaster.id'] = $storage_master_ids;
-			if(sizeof($storage_master_ids)> 100) $display = false;
+			if(sizeof($storage_master_ids)> 10) $display = false;
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
@@ -1236,4 +1236,55 @@ class ReportsController extends DatamartAppController {
 				'error_msg' => null);
 	}
 	
+	function getAllRelatedDiagnosis($parameters) {
+		$header = null;
+		$conditions = array();
+		// Get Parameters
+		$display = true;
+		if(isset($parameters['DiagnosisMaster']['id'])) {
+			//From databrowser
+			$diagnosis_master_ids  = array_filter($parameters['DiagnosisMaster']['id']);
+			if($diagnosis_master_ids) $conditions['DiagnosisMaster.id'] = $diagnosis_master_ids;
+			if(sizeof($diagnosis_master_ids)> 100) $display = false;
+		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			//From databrowser
+			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
+			if($participant_identifiers) $conditions['Participant.participant_identifier'] = $participant_identifiers;
+			if(sizeof($participant_identifiers)> 100) $display = false;
+		} else if(isset($parameters['Participant']['id'])) {
+			//From databrowser
+			$participant_ids  = array_filter($parameters['Participant']['id']);
+			if($participant_ids) $conditions['DiagnosisMaster.participant_id'] = $participant_ids;
+			if(sizeof($participant_ids)> 100) $display = false;
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(!$display) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'more than 100 records have been selected - please redefine search criteria');
+		}
+		// Load Model
+		$diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+		// Build Res
+		$diagnosis_master_model->bindModel(
+			array('belongsTo' => array(
+				'Participant' => array(
+					'className'    => 'ClinicalAnnotation.Participant',
+					'foreignKey'    => 'participant_id'))), false);
+		$diagnosis_master_model->unbindModel(array('hasMany' => array('Collection')), false);
+		$tmp_primary_ids = $diagnosis_master_model->find('all', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
+		$primary_ids = array();
+		foreach($tmp_primary_ids as $new_primary_id) $primary_ids[] = $new_primary_id['DiagnosisMaster']['primary_id'];
+		$conditions_2 = array('DiagnosisMaster.primary_id' => $primary_ids);
+		if(isset($parameters['SelectedItemsForCsv']['DiagnosisMaster']['id'])) $conditions_2['DiagnosisMaster.id'] = $parameters['SelectedItemsForCsv']['DiagnosisMaster']['id'];
+		$res = $diagnosis_master_model->find('all', array('conditions' => $conditions_2, 'fields' => array('Participant.*','DiagnosisMaster.*','DiagnosisControl.*'), 'order'=> array('Participant.participant_identifier ASC', 'DiagnosisMaster.primary_id ASC', 'DiagnosisMaster.dx_date ASC'), 'recursive' => '0'));
+		return array(
+				'header' => $header,
+				'data' => $res,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
 }
