@@ -1088,9 +1088,9 @@ class ReportsController extends DatamartAppController {
 		$display = true;
 		if(isset($parameters['SampleMaster']['sample_code'])) {
 			//From databrowser
-			$sample_codes  = array_filter($parameters['SampleMaster']['sample_code']);
-			if($sample_codes) $conditions['SampleMaster.sample_code'] = $sample_codes;
-			if(sizeof($sample_codes)> 100) $display = false;
+			$selection_labels  = array_filter($parameters['SampleMaster']['sample_code']);
+			if($selection_labels) $conditions['SampleMaster.sample_code'] = $selection_labels;
+			if(sizeof($selection_labels)> 100) $display = false;
 		} else if(isset($parameters['ViewSample']['sample_master_id'])) {
 			//From databrowser
 			$sample_master_ids  = array_filter($parameters['ViewSample']['sample_master_id']);
@@ -1114,7 +1114,7 @@ class ReportsController extends DatamartAppController {
 		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
 		$res = array();
 		foreach($studied_samples as $new_studied_sample) {		
-			$all_derivatives_samples = $this->getChildrenSampleIds($view_sample_model, array($new_studied_sample['SampleMaster']['id']));
+			$all_derivatives_samples = $this->getChildrenSamples($view_sample_model, array($new_studied_sample['SampleMaster']['id']));
 			if($all_derivatives_samples){
 				foreach($all_derivatives_samples as $new_derivative_sample) {
 					if(array_key_exists('SelectedItemsForCsv', $parameters) && !in_array($new_derivative_sample['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id'])) continue;
@@ -1129,13 +1129,13 @@ class ReportsController extends DatamartAppController {
 				'error_msg' => null);
 	}
 	
-	function getChildrenSampleIds($view_sample_model, $parent_sample_ids = array()){
+	function getChildrenSamples($view_sample_model, $parent_sample_ids = array()){
 		if(!empty($parent_sample_ids)) {
 			//$view_sample_model->unbindModel(array('hasMany' => array('AliquotMaster')));
 			$children_samples = $view_sample_model->find('all', array('conditions' => array('ViewSample.parent_id' => $parent_sample_ids), 'fields' => array('ViewSample.*, DerivativeDetail.*'), 'order' => array('ViewSample.sample_code ASC'), 'recursive' => '0'));
 			$children_sample_ids = array();
 			foreach($children_samples as $tmp_sample) $children_sample_ids[] = $tmp_sample['ViewSample']['sample_master_id'];
-			$sub_children_samples = $this->getChildrenSampleIds($view_sample_model, $children_sample_ids);
+			$sub_children_samples = $this->getChildrenSamples($view_sample_model, $children_sample_ids);
 			return array_merge($children_samples, $sub_children_samples);
 		}
 		return array();
@@ -1148,9 +1148,9 @@ class ReportsController extends DatamartAppController {
 		$display = true;
 		if(isset($parameters['SampleMaster']['sample_code'])) {
 			//From databrowser
-			$sample_codes  = array_filter($parameters['SampleMaster']['sample_code']);
-			if($sample_codes) $conditions['SampleMaster.sample_code'] = $sample_codes;
-			if(sizeof($sample_codes)> 100) $display = false;
+			$selection_labels  = array_filter($parameters['SampleMaster']['sample_code']);
+			if($selection_labels) $conditions['SampleMaster.sample_code'] = $selection_labels;
+			if(sizeof($selection_labels)> 100) $display = false;
 		} else if(isset($parameters['ViewSample']['sample_master_id'])) {
 			//From databrowser
 			$sample_master_ids  = array_filter($parameters['ViewSample']['sample_master_id']);
@@ -1189,4 +1189,51 @@ class ReportsController extends DatamartAppController {
 				'columns_names' => null,
 				'error_msg' => null);
 	}
+	
+	function getAllChildrenStorage($parameters) {
+		$header = null;
+		$conditions = array();	
+		// Get Parameters
+		$display = true;
+		if(isset($parameters['StorageMaster']['selection_label'])) {
+			//From databrowser
+			$selection_labels  = array_filter($parameters['StorageMaster']['selection_label']);
+			if($selection_labels) $conditions['StorageMaster.selection_label'] = $selection_labels;
+			if(sizeof($selection_labels)> 100) $display = false;
+		} else if(isset($parameters['ViewStorageMaster']['id'])) {
+			//From databrowser
+			$storage_master_ids  = array_filter($parameters['ViewStorageMaster']['id']);
+			if($storage_master_ids) $conditions['StorageMaster.id'] = $storage_master_ids;
+			if(sizeof($storage_master_ids)> 100) $display = false;
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		if(!$display) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'more than 10 storages have been selected - please redefine search criteria');
+		}
+		// Load Model
+		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
+		// Build Res
+		$studied_storages = $storage_master_model->find('all', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
+		$res = array();
+		foreach($studied_storages as $new_studied_storage) {
+			$children_storage_masters = $storage_master_model->children($new_studied_storage['StorageMaster']['id'], false, array('StorageMaster.*'));
+			if($children_storage_masters){
+				foreach($children_storage_masters as $new_child) {
+					if(array_key_exists('SelectedItemsForCsv', $parameters) && !in_array($new_child['StorageMaster']['id'], $parameters['SelectedItemsForCsv']['ViewStorageMaster']['id'])) continue;
+					$res[] = array_merge($new_studied_storage, array('ViewStorageMaster' => $new_child['StorageMaster']));
+				}
+			}
+		}
+		return array(
+				'header' => $header,
+				'data' => $res,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
+	
 }
