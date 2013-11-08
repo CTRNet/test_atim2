@@ -363,8 +363,12 @@ function loadSamplesAndAliquots() {
 					$aliquot_internal_uses['aliquot_master_id'] = $aliquot_master_id;
 					$aliquot_internal_uses['use_code'] = 'To '.($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['requestor']? $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['requestor'] : '?');
 					$aliquot_internal_uses['type'] = 'release';
-					$aliquot_internal_uses['use_datetime'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'];
-					$aliquot_internal_uses['use_datetime_accuracy'] = ($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'] == 'c')? 'h' : $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'];				
+					$aliquot_internal_uses['use_datetime'] = '';
+					$aliquot_internal_uses['use_datetime_accuracy'] = '';
+					if(isset($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'])) {
+						$aliquot_internal_uses['use_datetime'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'];
+						$aliquot_internal_uses['use_datetime_accuracy'] = ($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'] == 'c')? 'h' : $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'];				
+					}
 					$aliquot_internal_uses['ovcare_tissue_section_thickness'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['ovcare_tissue_section_thickness'];
 					$aliquot_internal_uses['ovcare_tissue_section_numbers'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['ovcare_tissue_section_numbers'];	
 					$aliquot_internal_uses['used_volume'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['used_volume'];
