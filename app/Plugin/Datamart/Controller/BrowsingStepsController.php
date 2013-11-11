@@ -20,11 +20,16 @@ class BrowsingStepsController extends DatamartAppController {
 			//Get formatted step data
 			$result = '';
 			$step_counter = 0;
-			foreach($data['SavedBrowsingStep'] as $new_step) {
+			foreach($data['SavedBrowsingStep'] as $new_step) {		
 				$step_counter++;
 				$new_step_datamart_structure = $datamart_structures[$new_step['datamart_structure_id']];			
 				$new_step_model = AppModel::getInstance($new_step_datamart_structure['plugin'], $new_step_datamart_structure['model'], true);
 				$step_title = "** $step_counter ** ".__($new_step_datamart_structure['display_name']);
+				if($new_step['parent_children'] == 'c'){
+					$step_title .= ' '.__('children');
+				}else if($new_step['parent_children'] == 'p'){
+					$step_title .= ' '.__('parent');
+				}			
 				$step_search_details = '';
 				$search = $new_step['serialized_search_params'] ? unserialize($new_step['serialized_search_params']) : array();
 				$adv_search = isset($search['adv_search_conditions']) ? $search['adv_search_conditions'] : array();							
