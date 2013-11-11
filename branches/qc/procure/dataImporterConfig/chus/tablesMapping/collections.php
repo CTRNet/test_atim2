@@ -219,21 +219,8 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 					}
 				}
 				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id]['Specimens'][0]['Aliquots'] = $new_aliquots;
-				
-				if(isset($paraffin_blocks[$patient_identification])) {
-					Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id]['Specimens'][] = array(
-						'***tmp_sample_type***' => 'tissue',
-						'SampleMaster' => array(),
-						'SampleDetail' => array('procure_prostatectomy_type' => $procure_prostatectomy_type, 'procure_report_number' => $paraffin_blocks[$patient_identification]['#patho']),
-						'SpecimenDetail' => array(),
-						'Derivatives' => array(),
-						'Aliquots' => $paraffin_blocks[$patient_identification]['aliquots'],
-						'QualityCtrl' => array()
-					);
-					unset($paraffin_blocks[$patient_identification]);
-				}
 			} else {
-				Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No tissue'][] = "No tissue slide has been collected for PROCURE for patient $patient_identification. Empty collection will be created. See worksheet [$worksheetname] line $line_counter";
+				Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['No tissue'][] = "No tissue slide has been collected for PROCURE for patient $patient_identification. Collection will be created with no Frozen Tissue. See worksheet [$worksheetname] line $line_counter";
 				$tmp_check = $new_line_data;
 				unset($tmp_check['Identification']);
 				unset($tmp_check['Visite']);
@@ -242,7 +229,19 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 				if('0N/A' != implode('', $tmp_check)) {
 					die("ERR8389393838383. See worksheet [$worksheetname] line $line_counter");
 				}
-			}			
+			}
+			if(isset($paraffin_blocks[$patient_identification])) {
+				Config::$participant_collections[$patient_identification]['V01'][$collection_datetime.$tissue_sample_control_id]['Specimens'][] = array(
+				'***tmp_sample_type***' => 'tissue',
+				'SampleMaster' => array('notes' => $tissue_notes),
+				'SampleDetail' => array('procure_prostatectomy_type' => $procure_prostatectomy_type, 'procure_report_number' => $paraffin_blocks[$patient_identification]['#patho']),
+				'SpecimenDetail' => array(),
+				'Derivatives' => array(),
+				'Aliquots' => $paraffin_blocks[$patient_identification]['aliquots'],
+				'QualityCtrl' => array()
+				);
+				unset($paraffin_blocks[$patient_identification]);
+			}
 		}
 	}
 	

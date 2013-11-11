@@ -16,7 +16,7 @@ function loadPathReportAndDiagnosis() {
 		if($work_sheet_name == 'Rapport Biopsies') {
 			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge',<br>'# zones évaluées en biopsie',<br>'Date chirurgie',<br>'Disponibilité des tissus'";
 		} else {
-			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge',<br>'# zones évaluées en biopsie',<br>'Date chirurgie',<br>'Histologie Autres :',<br>'Volume tumoral total Atteinte légère (<30%)',<br>'Volume tumoral total Atteinte modérée (30-60%)',<br>'Volume tumoral total Atteinte extensive (>60%)',<br>'Disponibilité des tissus Oui',<br>'Disponibilité des tissus Non'";
+			Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Fields not parsed'][] = "'Âge',<br>'# zones évaluées en biopsie',<br>'Date chirurgie',<br>'Histologie Autres :',<br>'Disponibilité des tissus Oui',<br>'Disponibilité des tissus Non'";
 		}
 		if(!isset($tmp_xls_reader->sheets[$sheets_nbr[$work_sheet_name]])) die('ERR loadPathReport 3222222');
 		$headers = array();
@@ -91,36 +91,33 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 	
 	// Histology
 	$tmp_arr = array_merge(
-		($is_2011_version? array("Histologie Adénocarcinome acinaire ou de type usuel"  => "acinar adenocarcinoma/usual type"):array("Histologie Adénocarcinome acinaire ou de type usuel / bien différencié" => "acinar adenocarcinoma/usual type", "Histologie Adénocarcinome acinaire ou de type usuel / peu différencié" => "acinar adenocarcinoma/usual type")),
-		array("Histologie Adénocarcinome canalaire" => "prostatic ductal adenocarcinoma",
-			"Histologie Adénocarcinome mucineux" => "mucinous adenocarcinoma",
-			"Histologie Carcinome à cellules indépendantes" => "signet-ring cell carcinoma",
-			"Histologie Carcinome adénosquameux" => "adenosquamous carcinoma",
-			"Histologie Carcinome à petites cellules" => "small cell carcinoma",
-			"Histologie Carcinome sarcomatoïde" => "sarcomatoid carcinoma"));
+		($is_2011_version? 
+			array("Histologie Adénocarcinome acinaire ou de type usuel"  => "chus_histology_acinar_adenocarcinoma"):
+			array("Histologie Adénocarcinome acinaire ou de type usuel / bien différencié" => "chus_histology_acinar_adenocarcinoma", 
+				"Histologie Adénocarcinome acinaire ou de type usuel / peu différencié" => "chus_histology_acinar_adenocarcinoma")),
+		array("Histologie Adénocarcinome canalaire" => "chus_histology_prostatic_ductal_adenocarcinoma",
+			"Histologie Adénocarcinome mucineux" => "chus_histology_mucinous_adenocarcinoma",
+			"Histologie Carcinome à cellules indépendantes" => "chus_histology_signet_ring_cell_carcinoma",
+			"Histologie Carcinome adénosquameux" => "chus_histology_adenosquamous_carcinoma",
+			"Histologie Carcinome à petites cellules" => "chus_histology_small_cell_carcinoma",
+			"Histologie Carcinome sarcomatoïde" => "chus_histology_sarcomatoid_carcinoma"));
 	$histo_precisions = array();
-	$histo_vals = array();
 	foreach($tmp_arr as $file_field => $db_value) {
 		if(strlen($new_line_data[$file_field]) && $new_line_data[$file_field] != 'N/A') {
-			$histo_vals[] = $db_value;
+			$event_details[$db_value] = '1';
 			if(!in_array($new_line_data[$file_field], array('X','x', '1'))) {
 				if(preg_match('/^[xX1]\ \((.+)\)$/', $new_line_data[$file_field], $matches)) {
-					$histo_precisions[] = $matches[1];
+					$histo_precisions[] = str_replace('Histologie ' ,'', $file_field).' '.$matches[1];
 					Config::$summary_msg[$summary_msg_title]['@@MESSAGE@@']['Histological value + precision'][] = "Extracted precision '".$matches[1]."' from value '".$new_line_data[$file_field]."' assigned to field '$file_field'. See line: $line_counter";
 				} else {
 					Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Wrong histological value'][] = "Value '".$new_line_data[$file_field]."' assigned to field '$file_field' is different than [X or 1]. Value will be considered as positive and added to precision. See line: $line_counter";
 					$histo_precisions[] = $new_line_data[$file_field];
 				}
 			}
-			if(preg_match('/^Histologie\ Adénocarcinome\ acinaire\ ou\ de\ type\ usuel\ \/\ (peu|bien)\ différencié$/', $file_field, $matches)) $histo_precisions[] = $matches[1].' différencié';
+			if(preg_match('/^Histologie\ Adénocarcinome\ acinaire\ ou\ de\ type\ usuel\ \/\ (peu|bien)\ différencié$/', $file_field, $matches)) $histo_precisions[] = "Adénocarcinome acinaire ".$matches[1].' différencié';
 		}
 	}
-	if(sizeof($histo_vals) == 1) {
-		$event_details["histology"] = $histo_vals[0];
-		$event_details["histology_other_precision"] = implode(' | ', $histo_precisions);
-	} else if(sizeof($histo_vals) > 1) {
-		Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['More than one histological value'][] = "See values '".implode(' + ', $histo_vals)."'. No histological value will be imported. See line: $line_counter";
-	}
+	if($histo_precisions) $event_details["histology_other_precision"] = implode(' | ', $histo_precisions);
 	if(isset($new_line_data['Histologie Autres :']) && $new_line_data['Histologie Autres :']) die('ERR 38832682762 ['.$new_line_data['Histologie Autres :'].'] '.$line_counter);
 	
 	// Tumor location			
@@ -143,6 +140,26 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 				}
 			}
 		}
+	}
+	
+	// Tumour volume
+	
+	if($is_2011_version) {
+		$tmp_arr = array('Volume tumoral total Atteinte légère (<30%)' => 'low',
+			'Volume tumoral total Atteinte modérée (30-60%)' => 'moderate',
+			'Volume tumoral total Atteinte extensive (>60%)' => 'high');
+		$tumour_volume = '';
+		foreach($tmp_arr as $file_field => $res) {
+			if(strlen($new_line_data[$file_field]) && !in_array($new_line_data[$file_field], array('N/A','ND'))) {
+				if(in_array($new_line_data[$file_field], array('1','x','X'))) {
+					if($tumour_volume) Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong tumor volume value'][] = "More than one value is assigned to field 'Volume tumoral total Atteinte'. No data will be imported. See line: $line_counter";
+					$tumour_volume = $res;
+				} else {
+					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Wrong tumor volume value'][] = "Value '".$new_line_data[$file_field]."' assigned to field '$file_field' is different than [X or 1]. No data will be imported. See line: $line_counter";
+				}
+			}
+		}
+		if($tumour_volume) 	$event_details['tumour_volume'] = $tumour_volume;
 	}
 	
 	// Grade
@@ -250,6 +267,7 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 						die('Err 632632732723');
 				}
 			} else {
+				//TODO Vérifier si on doit faire les 4 coches...
 				$tmp_margins_event_details["margins_extensive_apical_anterior_left"] = '1';
 				$tmp_margins_event_details["margins_extensive_apical_anterior_right"] = '1';
 				$tmp_margins_event_details["margins_extensive_apical_posterior_left"] = '1';
@@ -366,8 +384,8 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 				break;
 				
 			case 'présente':
-				$event_details['extra_prostatic_extension_seminal_vesicles'] = 'bilateral';
-				Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Seminal vesicles Extension set to bilateral'][] = "... value 'present' is not supported in DB. See line: $line_counter";
+				$event_details['extra_prostatic_extension_seminal_vesicles'] = 'present';
+				//Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Seminal vesicles Extension set to bilateral'][] = "... value 'present' is not supported in DB. See line: $line_counter";
 				break;
 			case 'nd (sans les vs)':
 			case 'nd':
@@ -375,7 +393,7 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 			case '':
 				break;
 			default:
-				die('ERR 37373783838');
+				die('ERR 37373783838 '.$new_line_data["Vésicules séminales"]);
 		}
 		if($tmp_extra_prostatic_extension && (!isset($event_details['extra_prostatic_extension']) || $event_details['extra_prostatic_extension'] != 'present')) die('ERR 3332222134 '.$line_counter);
 		$event_details = array_merge($event_details, $tmp_extra_prostatic_extension);
@@ -423,8 +441,8 @@ function loadPathReport($patient_identification, $new_line_data, $summary_msg_ti
 					if($file_field == "Vésicules séminales Absente") {
 						$event_details[$db_field] = 'absent';
 					} else {
-						$event_details[$db_field] = 'bilateral';
-						Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Seminal vesicles Extension set to bilateral'][] = "...present value is supported in DB. See line: $line_counter";
+						$event_details[$db_field] = 'present';
+						//Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Seminal vesicles Extension set to bilateral'][] = "...present value is supported in DB. See line: $line_counter";
 					}
 				}
 			}
