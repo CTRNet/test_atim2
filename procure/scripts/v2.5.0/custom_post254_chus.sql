@@ -149,3 +149,53 @@ UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id 
 
 
   
+
+
+-- --------------------------------------------------------------------------------------
+-- 2013-11-07
+-- --------------------------------------------------------------------------------------
+
+DELETE FROM structure_value_domains_permissible_values WHERE structure_value_domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_seminal_vesicles") AND structure_permissible_value_id IN (SELECT id FROM structure_permissible_values WHERE value IN ("unilateral","bilateral"));
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_seminal_vesicles"), 
+(SELECT id FROM structure_permissible_values WHERE value="present" AND language_alias="present"), "3", "1");
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='histology' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_histology') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_acinar_adenocarcinoma', 'checkbox',  NULL , '0', '', '', '', 'acinar adenocarcinoma/usual type', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_prostatic_ductal_adenocarcinoma', 'checkbox',  NULL , '0', '', '', '', 'prostatic ductal adenocarcinoma', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_mucinous_adenocarcinoma', 'checkbox',  NULL , '0', '', '', '', 'mucinous adenocarcinoma', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_signet_ring_cell_carcinoma', 'checkbox',  NULL , '0', '', '', '', 'signet-ring cell carcinoma', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_adenosquamous_carcinoma', 'checkbox',  NULL , '0', '', '', '', 'adenosquamous carcinoma', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_small_cell_carcinoma', 'checkbox',  NULL , '0', '', '', '', 'small cell carcinoma', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_sarcomatoid_carcinoma', 'checkbox',  NULL , '0', '', '', '', 'sarcomatoid carcinoma', ''),
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lab_pathologies', 'chus_histology_other', 'checkbox',  NULL , '0', '', '', '', 'other specify', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_acinar_adenocarcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='acinar adenocarcinoma/usual type' AND `language_tag`=''), '2', '30', '1) histology', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_adenosquamous_carcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='adenosquamous carcinoma' AND `language_tag`=''), '2', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_mucinous_adenocarcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='mucinous adenocarcinoma' AND `language_tag`=''), '2', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other specify' AND `language_tag`=''), '2', '38', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_prostatic_ductal_adenocarcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostatic ductal adenocarcinoma' AND `language_tag`=''), '2', '34', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_sarcomatoid_carcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sarcomatoid carcinoma' AND `language_tag`=''), '2', '35', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_signet_ring_cell_carcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='signet-ring cell carcinoma' AND `language_tag`=''), '2', '36', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_pathologies' AND `field`='chus_histology_small_cell_carcinoma' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='small cell carcinoma' AND `language_tag`=''), '2', '37', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_acinar_adenocarcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_adenosquamous_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_mucinous_adenocarcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_other tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_prostatic_ductal_adenocarcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_sarcomatoid_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_signet_ring_cell_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN chus_histology_small_cell_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_acinar_adenocarcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_adenosquamous_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_mucinous_adenocarcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_other tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_prostatic_ductal_adenocarcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_sarcomatoid_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_signet_ring_cell_carcinoma tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_small_cell_carcinoma tinyint(1) DEFAULT '0';
+
+ALTER TABLE procure_ed_lab_pathologies MODIFY COLUMN `histology_other_precision` varchar(150) DEFAULT NULL;
+ALTER TABLE procure_ed_lab_pathologies_revs MODIFY COLUMN `histology_other_precision` varchar(150) DEFAULT NULL;

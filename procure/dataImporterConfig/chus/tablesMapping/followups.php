@@ -185,7 +185,7 @@ function loadFollowUpClinicaTreatment($patient_identification, $new_line_data, $
 			'finih_date_file_field' => 'Hormonothérapie (2e ligne) Date fin',
 			'dose_file_field' => 'Hormonothérapie (2e ligne) Médicament et dose',
 			'treatment_type' => 'hormonotherapy',
-			'type' => '2nd line'),
+			'type' => ''),
 		array('start_date_file_field' => 'Chimiothérapie Date début',
 			'finih_date_file_field' => 'Chimiothérapie Date fin',
 			'dose_file_field' => 'Chimiothérapie Médicament et dose',
@@ -195,7 +195,7 @@ function loadFollowUpClinicaTreatment($patient_identification, $new_line_data, $
 			'finih_date_file_field' => 'Chimiothérapie (2e ligne) Date fin',
 			'dose_file_field' => 'Chimiothérapie (2e ligne) Médicament et dose',
 			'treatment_type' => 'chemotherapy',
-			'type' => '2nd line'));
+			'type' => ''));
 	foreach($tmp_array as $new_trt) {
 		if(strlen($new_line_data[$new_trt['start_date_file_field']].$new_line_data[$new_trt['finih_date_file_field']].$new_line_data[$new_trt['dose_file_field']])) {
 			// Master Data
@@ -213,7 +213,7 @@ function loadFollowUpClinicaTreatment($patient_identification, $new_line_data, $
 			// Detail Data
 			$treatment_details = array('treatment_type' => $new_trt['treatment_type'], 'type' => $new_trt['type']);
 			if(strlen($new_line_data[$new_trt['dose_file_field']])) {
-				$treatment_details['dosage'] = str_replace(array("\n", "'"), array('', "''"), $new_line_data[$new_trt['dose_file_field']]);
+				$treatment_details['dosage'] = str_replace(array("\n", "'", 'Casodex50 mgdie', 'die('), array('', "''", 'Casodex 50mg die', 'die ('), $new_line_data[$new_trt['dose_file_field']]);
 				if(strlen($treatment_details['dosage']) > 50) {
 					$treatment_masters['notes'] = $treatment_details['dosage'];
 					Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Hormonotherapy Or Chemotherapie Dosage too long'][] = "Specified Dosage is too long [".$treatment_details['dosage']."] for field '".$new_trt['dose_file_field']."'. See line: $line_counter";
