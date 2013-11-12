@@ -126,9 +126,27 @@ class Browser extends DatamartAppModel {
 				if($data){
 					$sub_menu = array();
 					foreach($data as $data_unit){
+						$first_browsing_step = $data_unit['SavedBrowsingStep'][0];
+						$first_step_datamart_structure = $browsing_structures[$first_browsing_step['datamart_structure_id']];
+						$first_step_model = AppModel::getInstance($first_step_datamart_structure['plugin'], $first_step_datamart_structure['model'], true);
+						$first_step_title = __($first_step_datamart_structure['display_name']);
+						if($first_browsing_step['parent_children'] == 'c'){
+							$first_step_title .= ' '.__('children');
+						}else if($first_browsing_step['parent_children'] == 'p'){
+							$first_step_title .= ' '.__('parent');
+						}
+						$last_browsing_step = $data_unit['SavedBrowsingStep'][(sizeof($data_unit['SavedBrowsingStep']) -1)];
+						$last_step_datamart_structure = $browsing_structures[$last_browsing_step['datamart_structure_id']];
+						$last_step_model = AppModel::getInstance($last_step_datamart_structure['plugin'], $last_step_datamart_structure['model'], true);
+						$last_step_title = __($last_step_datamart_structure['display_name']);
+						if($last_browsing_step['parent_children'] == 'c'){
+							$last_step_title .= ' '.__('children');
+						}else if($last_browsing_step['parent_children'] == 'p'){
+							$last_step_title .= ' '.__('parent');
+						}
 						$sub_menu[] = array(
 							'value'	=> 'Datamart/Browser/applyBrowsingSteps/'.$node_id.'/'.$data_unit['SavedBrowsingIndex']['id'],
-							'label'	=> $data_unit['SavedBrowsingIndex']['name']
+							'label'	=> $data_unit['SavedBrowsingIndex']['name']. " [$first_step_title => $last_step_title]"
 						);
 					}
 					$result[] = array(
