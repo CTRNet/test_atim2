@@ -1419,7 +1419,7 @@ UPDATE datamart_structure_functions SET label = 'create uses/events (aliquot spe
 REPLACE INTO i18n (id,en,fr) VALUES ('use/event creation','Use/Event Creation','Création utilisation/événement');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('create uses/events (aliquot specific)', 'Create uses/events (aliquot specific)', 'Créer utilisations/événements (aliquot spécifique)'),
-('create use/event (applied to all))', 'Create use/event (applied to all)', 'Créer utilisation/événement (applicabl à tous)'),
+('create use/event (applied to all)', 'Create use/event (applied to all)', 'Créer utilisation/événement (applicabl à tous)'),
 ('no aliquot is contained into this storage', 'No aliquot is contained into this storage', 'Aucun aliquot n''est contenu dans cet entreposage'),
 ('aliquot(s) volume units are different - no used volume can be completed', 'The aliquot(s) volume units are different. No used volume can be completed.', 'Les unités de volume des aliquots sont différents. Aucun volume ne pourra être défini.'),
 ('you are about to create an use/event for %d aliquot(s)', 'You are about to create an use/event for %d aliquot(s)', 'Vous êtes sur le point de créer un(e) utilisation/événement pour %d aliquots'),
@@ -1446,7 +1446,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='view_storage_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='short_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=6' AND `default`='' AND `language_help`='stor_short_label_defintion' AND `language_label`='storage short label' AND `language_tag`=''), '0', '6', '', 0, '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='view_storage_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '8', '', 0, '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='view_storage_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='temperature' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='storage temperature' AND `language_tag`=''), '0', '20', '', 0, '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
-((SELECT id FROM structures WHERE alias='view_storage_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '21', '', 0, '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='view_storage_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='temp_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '21', '', 0, '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'),
+((SELECT id FROM structures WHERE alias='view_storage_masters'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='empty_spaces'), '0', '24', '', 0, '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='empty_spaces' AND `type`='integer_positive' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='view_storage_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='empty_spaces' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
@@ -1623,9 +1624,9 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, associated_datamart_structure_id) VALUES
-(null, 'list all children storage', 'list all children from a list of storages', 'report_list_all_storages_criteria_and_result', 'report_list_all_storages_criteria_and_result', 'index', 'getAllChildrenStorage', 1, (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'));
+(null, 'list all children storages', 'list all children from a list of storages', 'report_list_all_storages_criteria_and_result', 'report_list_all_storages_criteria_and_result', 'index', 'getAllChildrenStorage', 1, (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'));
 INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
-(null, (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'), 'list all children storage', (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'list all children storage'), 1, '');
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewStorageMaster'), 'list all children storages', (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'list all children storages'), 1, '');
 
 INSERT INTO structures(`alias`) VALUES ('report_list_all_storages_criteria_and_result');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -1642,7 +1643,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='report_list_all_storages_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '101', 'children storages', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('list all children storage', 'list all children storage', 'Afficher tous les sous-entreposages'),
+('list all children storages', 'List all children storages', 'Afficher tous les sous-entreposages'),
 ('list all children from a list of storages', 'List all children storages from a list of storages', 'Afficher tous les sous-entreposages d''une liste d''entreposages'),
 ('more than 10 storages have been selected - please redefine search criteria', 'More than 10 storages have been defines as search criteria. Please redefine search criteria.', 'Plus de 10 entreposages ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
 ('stutied storages', 'Stutied Storages', 'Entreposages étudiés'),
@@ -1675,3 +1676,34 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('list all related diagnosis from a list of diagnosis or participants', 'List all related diagnosis from a list of diagnosis or participants', 'Afficher tous les évenements de diagnostic connexes à partir d''une liste de diagnostics ou de participants');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
 ('diagnosis relation system code', 'Related Diagnosis Id (System Code)', 'Id d''évenements connexes (Système code)');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Missing Translations & Sorted i18n.fr values starting with É #
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO i18n (id,en,fr) VALUES 
+('csf', 'CSF', 'LCR'),
+('csf cells', 'CSF Cells', 'Cellules de LCR'),
+('csf supernatant', 'CSF Supernatant', 'Surnageant de LCR'),
+('saliva', 'Saliva', 'Salive');
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES
+('data saved', 'Data Saved', 'Données Sauvegardées'),
+('generic',  'Generic', 'Générique'),
+('selected derivatives', 'Selected Derivatives', 'Dérivés sélectionnés'),
+('specimens', 'Specimens', 'Spécimens'),
+('recurrent', 'Recurrent', 'Récurrent'),
+('delivery department or door', 'DeliveryDepartment or Door', 'Service de livraison ou porte'),
+('delivery notes', 'Delivery Notes', 'Notes de livraison'),
+('delivery phone #', 'Delivery Phone #', 'Téléphone pour livraison'),
+('display name', 'Display Name', 'Afficher le nom'),
+('hospital number', 'Hospital Number', 'Numéros hospitalier'),
+('number of values', 'Number of Values', 'Nombre de valeurs');
+
+REPLACE INTO i18n (id,en,fr) VALUES
+('sample', 'Sample', 'Echantillon'),
+('samples', 'Samples', 'Echantillons'); -- For databrowser options sort issue
+
+
+
+
