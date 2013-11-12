@@ -230,7 +230,7 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(24,
 
 /*
 	------------------------------------------------------------
-	Eventum ID: 26493 - Saliva - Add tube types
+	Eventum ID: 2493 - Saliva - Add tube types
 	------------------------------------------------------------
 */
 
@@ -475,13 +475,13 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('pv infection status', 'Infection Status', ''),
  ('pv infections', 'Infections', ''),
- ('pv_hepatitis', 'Hepatitis', ''),
- ('pv_tb', 'TB', ''),
- ('pv_hiv', 'HIV', ''),
- ('pv_ebv', 'EBV', ''),
- ('pv_dmv', 'DMV', ''),
- ('pv_lyme', 'Lyme', ''),
- ('pv_other_infection', 'Other', '');
+ ('pv hepatitis', 'Hepatitis', ''),
+ ('pv tb', 'TB', ''),
+ ('pv hiv', 'HIV', ''),
+ ('pv ebv', 'EBV', ''),
+ ('pv dmv', 'DMV', ''),
+ ('pv lyme', 'Lyme', ''),
+ ('pv other infection', 'Other', '');
  
  
 /*
@@ -507,5 +507,5 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='view_collections' AND `field`='pv_medication_sampling' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pv medication sampling' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('pv medication samplings', 'Medication Prior to Sampling', '');
+ ('pv medication sampling', 'Medication Prior to Sampling', '');
 
