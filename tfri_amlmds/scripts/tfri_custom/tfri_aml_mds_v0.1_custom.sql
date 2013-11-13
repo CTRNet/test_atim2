@@ -151,7 +151,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('tfri aml date day zero', 'Date of Day 0', ''),
  ('tfri aml diagnosis', 'Diagnosis', ''),
  ('tfri aml other diagnosis', 'If other', ''),
- ('tfri aml english french', 'Understand English or French', ''),
+ ('tfri aml english french', 'Understand Spoken English or French', ''),
  ('tfri aml chemo start', 'Planned Chemo Start', ''),
  ('tfri aml standard regimen', 'Planned Standard Regimen', '');
  
