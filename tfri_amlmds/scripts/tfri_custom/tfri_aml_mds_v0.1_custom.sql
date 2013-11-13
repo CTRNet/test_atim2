@@ -12,7 +12,7 @@ UPDATE `users` SET `flag_active`='1' WHERE `username`='manager';
 UPDATE `users` SET `flag_active`='1' WHERE `username`='user';
 
 /*
-	Eventum Issue: #2729 - Participant Form
+	Eventum Issue: #2752 - Participant Identifier Validation and label
 */
 
 -- Rename participant identifer, add validation
@@ -20,11 +20,15 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('participant identifier', 'Participant Code', '');
 	
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES
- ((SELECT `id` FROM `structure_fields` WHERE `field` = 'participant_identifier' AND `plugin` = 'ClinicalAnnotation' AND `model` = 'Participant'), 'custom,/^\\A\\d{4}$/', 'tfri_aml participant code 4 digits');
+ ((SELECT `id` FROM `structure_fields` WHERE `field` = 'participant_identifier' AND `plugin` = 'ClinicalAnnotation' AND `model` = 'Participant'), 'range,999,1600', 'tfri_aml error participant code range');
  
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
-	VALUES ('tfri_aml participant code 4 digits', 'Participant Code must be 4 digits', '');
+	VALUES ('tfri_aml error participant code range', 'Participant Code must be between 1000 and 1600', '');
 
+
+/*
+	Eventum Issue: #2729 - Participant Form
+*/
 
 -- Rename Sex to Gender, disable other and unknown values
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
@@ -47,6 +51,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_batchedit`='
 UPDATE structure_formats SET `flag_override_help`='0', `language_help`='', `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='race' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='race') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='secondary_cod_icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='marital_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='marital_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='date_of_birth' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- Add new fields to table
 ALTER TABLE `participants` 
@@ -54,44 +59,61 @@ ALTER TABLE `participants`
 	ADD COLUMN `tfri_aml_screening_code` INT NULL DEFAULT NULL AFTER `tfri_aml_site_number`,
 	ADD COLUMN `tfri_aml_date_registration` DATE NULL DEFAULT NULL AFTER `tfri_aml_screening_code`,
 	ADD COLUMN `tfri_aml_date_day_zero` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_registration`,
-	ADD COLUMN `tfri_aml_suspected_disease` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_date_day_zero`,
-	ADD COLUMN `tfri_aml_confirmed_disease` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_suspected_disease`,
-	ADD COLUMN `tfri_aml_english_french` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_confirmed_disease`,
+	ADD COLUMN `tfri_aml_registration_diagnosis` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_date_day_zero`,
+	ADD COLUMN `tfri_aml_other_diagnosis` VARCHAR(200) NULL DEFAULT NULL AFTER `tfri_aml_registration_diagnosis`,
+	ADD COLUMN `tfri_aml_english_french` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_other_diagnosis`,
 	ADD COLUMN `tfri_aml_chemo_start` DATE NULL DEFAULT NULL AFTER `tfri_aml_english_french`,
-	ADD COLUMN `tfri_aml_standard_regimen` TEXT NULL DEFAULT NULL AFTER `tfri_aml_chemo_start`,
-	ADD COLUMN `tfri_aml_date_part_two` DATE NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
-	ADD COLUMN `tfri_aml_date_withdrawal` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_part_two`,
-	ADD COLUMN `tfri_cause_of_death` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_aml_date_withdrawal`,
-	ADD COLUMN `tfri_cause_of_death_other` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_cause_of_death`;
+	ADD COLUMN `tfri_aml_chemo_start_unknown` VARCHAR(10) NULL DEFAULT NULL AFTER `tfri_aml_chemo_start`,
+	ADD COLUMN `tfri_aml_standard_regimen` TEXT NULL DEFAULT NULL AFTER `tfri_aml_chemo_start_unknown`,
+	ADD COLUMN `tfri_aml_regimen_unknown` VARCHAR(10) NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
+	ADD COLUMN `tfri_cause_of_death` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
+	ADD COLUMN `tfri_cause_of_death_other` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_cause_of_death`,
+	ADD COLUMN `tfri_age_at_registration` INT(11) NULL DEFAULT NULL AFTER `tfri_cause_of_death_other`;
 	
 ALTER TABLE `participants_revs` 
 	ADD COLUMN `tfri_aml_site_number` TINYINT NULL DEFAULT NULL AFTER `last_chart_checked_date_accuracy`,
 	ADD COLUMN `tfri_aml_screening_code` INT NULL DEFAULT NULL AFTER `tfri_aml_site_number`,
 	ADD COLUMN `tfri_aml_date_registration` DATE NULL DEFAULT NULL AFTER `tfri_aml_screening_code`,
 	ADD COLUMN `tfri_aml_date_day_zero` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_registration`,
-	ADD COLUMN `tfri_aml_suspected_disease` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_date_day_zero`,
-	ADD COLUMN `tfri_aml_confirmed_disease` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_suspected_disease`,
-	ADD COLUMN `tfri_aml_english_french` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_confirmed_disease`,
+	ADD COLUMN `tfri_aml_registration_diagnosis` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_date_day_zero`,
+	ADD COLUMN `tfri_aml_other_diagnosis` VARCHAR(200) NULL DEFAULT NULL AFTER `tfri_aml_registration_diagnosis`,
+	ADD COLUMN `tfri_aml_english_french` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_aml_other_diagnosis`,
 	ADD COLUMN `tfri_aml_chemo_start` DATE NULL DEFAULT NULL AFTER `tfri_aml_english_french`,
-	ADD COLUMN `tfri_aml_standard_regimen` TEXT NULL DEFAULT NULL AFTER `tfri_aml_chemo_start`,
-	ADD COLUMN `tfri_aml_date_part_two` DATE NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
-	ADD COLUMN `tfri_aml_date_withdrawal` DATE NULL DEFAULT NULL AFTER `tfri_aml_date_part_two`,
-	ADD COLUMN `tfri_cause_of_death` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_aml_date_withdrawal`,
-	ADD COLUMN `tfri_cause_of_death_other` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_cause_of_death`;
+	ADD COLUMN `tfri_aml_chemo_start_unknown` VARCHAR(10) NULL DEFAULT NULL AFTER `tfri_aml_chemo_start`,
+	ADD COLUMN `tfri_aml_standard_regimen` TEXT NULL DEFAULT NULL AFTER `tfri_aml_chemo_start_unknown`,
+	ADD COLUMN `tfri_aml_regimen_unknown` VARCHAR(10) NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
+	ADD COLUMN `tfri_cause_of_death` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_aml_standard_regimen`,
+	ADD COLUMN `tfri_cause_of_death_other` VARCHAR(100) NULL DEFAULT NULL AFTER `tfri_cause_of_death`,
+	ADD COLUMN `tfri_age_at_registration` INT(11) NULL DEFAULT NULL AFTER `tfri_cause_of_death_other`;
 
 -- Value domains for disease type	 
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_profile_disease", "", "", NULL);
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("MDS", "tfri MDS");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="MDS" AND language_alias="tfri MDS"), "3", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("CMML", "tfri CMML");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="CMML" AND language_alias="tfri CMML"), "2", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("AML", "tfri AML");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="AML" AND language_alias="tfri AML"), "1", "1");
-		
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Known AML", "tfri Known AML");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="Known AML" AND language_alias="tfri Known AML"), "1", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Suspected AML", "tfri Suspected AML");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="Suspected AML" AND language_alias="tfri Suspected AML"), "2", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Known MDS", "tfri Known MDS");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="Known MDS" AND language_alias="tfri Known MDS"), "3", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Suspected MDS", "tfri Suspected MDS");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="Suspected MDS" AND language_alias="tfri Suspected MDS"), "4", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Known CMML", "tfri Known CMML");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="Known CMML" AND language_alias="tfri Known CMML"), "5", "1");
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Suspected CMML", "tfri Suspected CMML");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_profile_disease"), (SELECT id FROM structure_permissible_values WHERE value="Suspected CMML" AND language_alias="tfri Suspected CMML"), "6", "1");
+
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('tfri MDS', 'MDS', ''),
- ('tfri CMML', 'CML', ''),
- ('tfri AML', 'AML', '');
+ ('tfri Known AML', 'Known AML', ''),
+ ('tfri Suspected AML', 'Suspected AML', ''),
+ ('tfri Known MDS', 'Known MDS', ''),
+ ('tfri Suspected MDS', 'Suspected MDS', ''),
+ ('tfri Known CMML', 'Known CMML', ''),
+ ('tfri Suspected CMML', 'Suspected CMML', ''); 
  
 -- Add new fields
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -99,44 +121,67 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_screening_code', 'integer',  NULL , '0', '', '', '', 'tfri aml screening code', ''), 
 ('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_date_registration', 'date',  NULL , '0', '', '', '', 'tfri aml date registration', ''), 
 ('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_date_day_zero', 'date',  NULL , '0', '', '', '', 'tfri aml date day zero', ''), 
-('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_suspected_disease', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_profile_disease') , '0', '', '', '', 'tfri aml suspected disease', ''), 
-('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_confirmed_disease', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_profile_disease') , '0', '', '', '', 'tfri aml confirmed disease', '');
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_registration_diagnosis', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_profile_disease') , '0', '', '', '', 'tfri aml diagnosis', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_other_diagnosis', 'input', NULL , '0', '', '', '', '', 'tfri aml other diagnosis');
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_site_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml site number' AND `language_tag`=''), '3', '10', 'tfri study summary', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_site_number' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml site number' AND `language_tag`=''), '3', '10', 'tfri study registration', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_screening_code' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml screening code' AND `language_tag`=''), '3', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_registration' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml date registration' AND `language_tag`=''), '3', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_day_zero' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml date day zero' AND `language_tag`=''), '3', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_suspected_disease' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_profile_disease')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml suspected disease' AND `language_tag`=''), '3', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_confirmed_disease' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_profile_disease')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml confirmed disease' AND `language_tag`=''), '3', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_registration_diagnosis' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_profile_disease')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml diagnosis' AND `language_tag`=''), '3', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_other_diagnosis' AND `type`='input' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri aml other diagnosis'), '3', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_english_french', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'tfri aml english french', ''), 
 ('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_chemo_start', 'date',  NULL , '0', '', '', '', 'tfri aml chemo start', ''), 
-('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_standard_regimen', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'tfri aml standard regimen', ''), 
-('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_date_part_two', 'date',  NULL , '0', '', '', '', 'tfri aml date part two', ''), 
-('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_date_withdrawal', 'date',  NULL , '0', '', '', '', 'tfri aml date withdrawal', '');
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_standard_regimen', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'tfri aml standard regimen', '');
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_english_french' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml english french' AND `language_tag`=''), '3', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_chemo_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml chemo start' AND `language_tag`=''), '3', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_standard_regimen' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml standard regimen' AND `language_tag`=''), '3', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_part_two' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml date part two' AND `language_tag`=''), '3', '55', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_withdrawal' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml date withdrawal' AND `language_tag`=''), '3', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_standard_regimen' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml standard regimen' AND `language_tag`=''), '3', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('tfri study summary', 'Study Summary', ''),
+ ('tfri study registration', 'Study Registration', ''),
  ('tfri aml site number', 'Site Number', ''),
  ('tfri aml screening code', 'Screening Code', ''),
  ('tfri aml date registration', 'Date of Registration', ''),
  ('tfri aml date day zero', 'Date of Day 0', ''),
- ('tfri aml suspected disease', 'Suspected Disease', ''),
- ('tfri aml confirmed disease', 'Confirmed Disease', ''),
+ ('tfri aml diagnosis', 'Diagnosis', ''),
+ ('tfri aml other diagnosis', 'If other', ''),
  ('tfri aml english french', 'Understand English or French', ''),
  ('tfri aml chemo start', 'Planned Chemo Start', ''),
- ('tfri aml standard regimen', 'Planned Standard Regimen', ''),
- ('tfri aml date part two', 'Date of Part 2 Enrolment', ''),
- ('tfri aml date withdrawal', 'Date of Withdrawal', '');
+ ('tfri aml standard regimen', 'Planned Standard Regimen', '');
  
+/*
+	Eventum Issue: #2733 - Participant Profile - Age at Registration
+*/
+ 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_age_at_registration', 'integer',  NULL , '0', '', '', '', 'tfri age at registration', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_age_at_registration' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri age at registration' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0', '0'); 
+ 
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri age at registration', 'Age at Registration', ''); 
+
+/*
+	Eventum Issue: #2739 - Profile - Chemo/Standard Regimen
+*/
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_chemo_start_unknown', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'tfri aml chemo start unknown'), 
+('ClinicalAnnotation', 'Participant', 'participants', 'tfri_aml_regimen_unknown', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'tfri aml regimen unknown');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_chemo_start_unknown' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri aml chemo start unknown'), '3', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_regimen_unknown' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri aml regimen unknown'), '3', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri aml chemo start unknown', 'Chemo Start Unknown', ''),
+ ('tfri aml regimen unknown', 'Regimen Unknown', ''); 
  
 /*
 	Eventum Issue: #2737 - Profile - Add validations for site/screening codes
@@ -205,6 +250,137 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
   ('tfri transplant (hpct) related complications', 'Transplant (HPCT) related complications', ''),    
   ('tfri accident', 'Accident', ''),
   ('tfri cause of death other', 'COD, if other', ''); 
+
+
+/*
+	Eventum Issue: #2750 - Consent form base version
+*/
+
+-- Disable default form
+UPDATE `consent_controls` SET `flag_active`='0' WHERE `controls_type`='Consent National';
+
+-- Add control row
+INSERT INTO `consent_controls` (`controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES ('TFRI - AML/MDS Consent', '1', 'cd_tfri_aml_mds', 'cd_tfri_aml_mds', '1', 'TFRI AMl/MDS Consent');
+
+-- Add structure
+INSERT INTO `structures` (`alias`) VALUES ('cd_tfri_aml_mds');
+
+-- Create detail and revs table
+CREATE TABLE `cd_tfri_aml_mds` (
+  `tfri_date_consent_local` DATE NULL DEFAULT NULL,
+  `tfri_local_version_date`	DATE NULL DEFAULT NULL,
+  `tfri_aml_mds_version_date` DATE NULL DEFAULT NULL,
+  `tfri_aml_mds_consent_type` VARCHAR(45) NULL DEFAULT NULL,
+  `tfri_consent_other_research` VARCHAR(10) NULL DEFAULT NULL,
+  `tfri_consent_date_other_research` DATE NULL DEFAULT NULL,
+  `tfri_person_verifying` VARCHAR(200) NULL DEFAULT NULL,
+  `tfri_date_of_withdrawal` DATE NULL DEFAULT NULL,
+  `tfri_withdrawal_person` VARCHAR(200) NULL DEFAULT NULL,
+  `tfri_role` VARCHAR(200) NULL DEFAULT NULL,
+  `consent_master_id` int(11) NOT NULL,
+  KEY `consent_master_id` (`consent_master_id`),
+  CONSTRAINT `cd_tfri_aml_mds_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `cd_tfri_aml_mds_revs` (
+  `tfri_date_consent_local` DATE NULL DEFAULT NULL,
+  `tfri_local_version_date`	DATE NULL DEFAULT NULL,
+  `tfri_aml_mds_version_date` DATE NULL DEFAULT NULL,
+  `tfri_aml_mds_consent_type` VARCHAR(45) NULL DEFAULT NULL,
+  `tfri_consent_other_research` VARCHAR(10) NULL DEFAULT NULL,
+  `tfri_consent_date_other_research` DATE NULL DEFAULT NULL,
+  `tfri_person_verifying` VARCHAR(200) NULL DEFAULT NULL,
+  `tfri_date_of_withdrawal` DATE NULL DEFAULT NULL,
+  `tfri_withdrawal_person` VARCHAR(200) NULL DEFAULT NULL,
+  `tfri_role` VARCHAR(200) NULL DEFAULT NULL,
+  `consent_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `consent_master_id` (`consent_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Value Domain for consent type
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_consent_type", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical", "tfri clinical");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_consent_type"), (SELECT id FROM structure_permissible_values WHERE value="clinical" AND language_alias="tfri clinical"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("research", "tfri research");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_consent_type"), (SELECT id FROM structure_permissible_values WHERE value="research" AND language_alias="tfri research"), "2", "1");
+
+-- Build form
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_date_consent_local', 'date',  NULL , '0', '', '', '', 'tfri date consent local', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_date_consent_local' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri date consent local' AND `language_tag`=''), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_local_version_date', 'date',  NULL , '0', '', '', '', '', 'tfri local version date'), 
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_aml_mds_version_date', 'date',  NULL , '0', '', '', '', '', 'tfri aml mds version date'), 
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_consent_other_research', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'tfri consent other research', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_person_verifying', 'input',  NULL , '0', '', '', '', 'tfri person verifying', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_local_version_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri local version date'), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_aml_mds_version_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri aml mds version date'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_consent_other_research' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri consent other research' AND `language_tag`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_person_verifying' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri person verifying' AND `language_tag`=''), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_aml_mds_consent_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_consent_type') , '0', '', '', '', 'tfri aml mds consent type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_aml_mds_consent_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_consent_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri aml mds consent type' AND `language_tag`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0');
+
+UPDATE structure_formats SET `language_heading`='tfri confirmation consent' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_tfri_aml_mds') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_consent_other_research' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+-- Withdrawal section
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_date_of_withdrawal', 'date',  NULL , '0', '', '', '', 'tfri date of withdrawal', ''), 
+('ClinicalAnnotation', 'ConsentDetail', 'cd_tfri_aml_mds', 'tfri_withdrawal_person', 'input',  NULL , '0', '', '', '', 'tfri withdrawal person', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_date_of_withdrawal' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri date of withdrawal' AND `language_tag`=''), '2', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='cd_tfri_aml_mds'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_withdrawal_person' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri withdrawal person' AND `language_tag`=''), '2', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0');
+
+
+-- Disable unneeded fields
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='status_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='form_version' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_consent_from_verisons') AND `flag_confidential`='0');
+
+-- Fix Notes text area
+UPDATE structure_fields SET  `setting`='cols=35,rows=6' WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='tfri informed consent summary' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Move withdrawal section
+UPDATE structure_formats SET `display_column`='2', `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='reason_denied' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='tfri participant withdrawal' WHERE structure_id=(SELECT id FROM structures WHERE alias='cd_tfri_aml_mds') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_date_of_withdrawal' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Consent language updates
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+  ('TFRI - AML/MDS Consent', 'TFRI - AML/MDS Consent', ''),
+  ('reason denied or withdrawn', 'Withdrawal Reason', ''),   
+  ('consent signed date', 'Date Consent - AML/MDS', ''),   
+  ('tfri informed consent summary', 'Informed Consent Summary', ''),
+  ('tfri date consent local', 'Local Consent Date', ''),
+  ('tfri aml mds version date', 'AML/MDS Version Date', ''),
+  ('tfri local version date', 'Local Version Date', ''),
+  ('tfri aml mds consent type', 'Consent Type', ''),
+  ('tfri consent other research', 'Consent to Other Research', ''),
+  ('tfri person verifying', 'Person Verifying Consent', ''),
+  ('tfri date of withdrawal', 'Date of Withdrawal', ''),
+  ('tfri withdrawal person', 'Person Completing Withdrawal Form', ''),
+  ('tfri participant withdrawal', 'Participant Withdrawal', ''),
+  ('tfri clinical', 'Clinical', ''),
+  ('tfri confirmation consent', 'Confirmation of Informed Consent', ''),
+  ('tfri research', 'Research', '');
+
+
+/*
+	Eventum Issue: #2770 - Profile - Hide name fields
+*/
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
   	
 /*
 	Eventum Issue: #2730 - Create control fields for DCF's
