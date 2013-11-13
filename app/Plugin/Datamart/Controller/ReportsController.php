@@ -215,7 +215,7 @@ class ReportsController extends DatamartAppController {
 	// -------------------------------------------------------------------------------------------------------------------
 	
 	function index(){
-		$_SESSION['report']['search_criteria'] = array(); // clear SEARCH criteria
+		$_SESSION['report'] = array(); // clear SEARCH criteria
 		
 		$this->request->data = $this->paginate($this->Report, array('Report.flag_active' => '1'));
 		
@@ -243,12 +243,13 @@ class ReportsController extends DatamartAppController {
 		$this->set( 'atim_menu_variables', array('Report.id' => $report_id));
 		$this->set('atim_menu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
 		
-		if(empty($this->request->data) && (!empty($report['Report']['form_alias_for_search'])) && (!$csv_creation)) {
+		if(empty($this->request->data) && (!empty($report['Report']['form_alias_for_search'])) && (!$csv_creation) && !array_key_exists('sort', $this->passedArgs)) {
 			
 			// ** SEARCH FROM DISPLAY **
 			
 			$this->Structures->set($report['Report']['form_alias_for_search'], 'search_form_structure');	
-			$_SESSION['report']['search_criteria'] = array(); // clear SEARCH criteria	
+			$_SESSION['report'][$report_id]['search_criteria'] = array(); // clear SEARCH criteria		
+			$_SESSION['report'][$report_id]['sort_criteria'] = array(); // clear SEARCH criteria	
 		
 		} else {
 			
@@ -266,7 +267,8 @@ class ReportsController extends DatamartAppController {
 			
 			// Set criteria to build report/csv
 			$criteria_to_build_report = null;
-			if($csv_creation) {
+			$criteria_to_sort_report = array();
+			if($csv_creation) {			
 				if(array_key_exists('Config', $this->request->data)) {
 					$config = array_merge($this->request->data['Config'], (array_key_exists(0, $this->request->data)? $this->request->data[0] : array()));
 					unset($this->request->data[0]);
@@ -274,14 +276,26 @@ class ReportsController extends DatamartAppController {
 					$this->configureCsv($config);
 				}
 				// Get criteria from session data for csv 
-				$criteria_to_build_report = $_SESSION['report']['search_criteria'];
+				$criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
+				$criteria_to_sort_report = $_SESSION['report'][$report_id]['sort_criteria'];
 				if($LinkedModel) {
 					// Take care about selected items
-					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
+						pr($this->request->data);
+						pr($linked_datamart_structure['DatamartStructure']['model']);
+						pr($LinkedModel->primaryKey);
+						exit;
+						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+					}
 					$ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);
 					if(empty($ids)) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					$criteria_to_build_report['SelectedItemsForCsv'][$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey] = $ids;
 				}		
+			} else if(array_key_exists('sort', $this->passedArgs)) {
+				// Data sort: Get criteria from session data
+				$criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
+				$criteria_to_sort_report = array('sort' => $this->passedArgs['sort'], 'direction' => $this->passedArgs['direction']);
+				$_SESSION['report'][$report_id]['sort_criteria'] = $criteria_to_sort_report;
 			} else {
 				// Get criteria from search form
 				$criteria_to_build_report = empty($this->request->data)? array() : $this->request->data;
@@ -329,7 +343,7 @@ class ReportsController extends DatamartAppController {
 					if($criteria_to_build_report[ $model ][ $lookup_key_name ] == 'all') $criteria_to_build_report[ $model ][ $lookup_key_name ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 				}
 				// Load search criteria in session
-				$_SESSION['report']['search_criteria'] = $criteria_to_build_report;
+				$_SESSION['report'][$report_id]['search_criteria'] = $criteria_to_build_report;
 			}
 		
 			// Get and manage results
@@ -352,8 +366,8 @@ class ReportsController extends DatamartAppController {
 				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 			
 			} else {
-				// Set data for display/csv
-				$this->request->data = $data_returned_by_fct['data'];
+				// Set data for display/csv		
+				$this->request->data = AppModel::sortWithUrl($data_returned_by_fct['data'], $criteria_to_sort_report);
 				$this->Structures->set($report['Report']['form_alias_for_results'], 'result_form_structure');
 				$this->set('result_form_type', $report['Report']['form_type_for_results']);
 				$this->set('result_header', $data_returned_by_fct['header']);
