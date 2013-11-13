@@ -62,7 +62,7 @@
 			
 			$add_to_batchset_hidden_field = $this->Form->input('Report.datamart_structure_id', array('type' => 'hidden', 'value' => $linked_datamart_structure_id));
 			
-			$settings = array('form_bottom'	=>false, 'form_inputs'	=> false, 'actions'		=> false, 'pagination'	=> false);
+			$settings = array('form_bottom'	=>false, 'form_inputs'	=> false, 'actions'		=> false, 'pagination'	=> false, 'sorting' => array($atim_menu_variables['Report.id'], '0'));
 			if (!empty($result_header)) $settings['header'] = $result_header;
 			
 			$this->Structures->build( $result_form_structure, array(
@@ -97,7 +97,7 @@
 			);
 			if($display_new_search) $structure_links['bottom']['new search'] = array('link' => '/Datamart/Reports/manageReport/' . $atim_menu_variables['Report.id'], 'icon' => 'search');
 			
-			$settings = array('form_inputs' => false, 'pagination' => false);
+			$settings = array('form_inputs' => false, 'pagination' => false, 'sorting' => array($atim_menu_variables['Report.id'], '0'));
 			if (!empty($result_header)) $settings['header'] = $result_header;
 			if (!empty($result_columns_names)) $settings['columns_names'] = $result_columns_names;
 			
