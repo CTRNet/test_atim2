@@ -17,8 +17,6 @@ class PreferencesAdminController extends AdministrateAppController {
 				$group_id);
 		
 		$this->request->data['Config'] = $config_results['Config'];
-			
-		//TODO hook call?
 	}
 	
 	function edit($group_id, $user_id ){
@@ -29,15 +27,11 @@ class PreferencesAdminController extends AdministrateAppController {
 				$user_id,
 				$group_id);
 		
-		//TODO hook?
-		
 		if(!empty($this->request->data)){
 			$this->Config->preSave($config_results,
 								   $this->request->data,
 								   $user_id,
 								   $group_id);
-			
-			//TODO spot for hook call?
 			
 			$this->Config->set($this->request->data);
 			
