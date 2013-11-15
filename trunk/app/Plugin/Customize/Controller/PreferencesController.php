@@ -8,8 +8,6 @@ class PreferencesController extends CustomizeAppController {
 	function index() {
 		$this->Structures->set('preferences' );
 		
-		$this->hook(); //TODO looks like an incomplete/misplaced hook
-		
 		// get USER data
 		
 		$config_results	= $this->Config->getConfig(
@@ -26,15 +24,11 @@ class PreferencesController extends CustomizeAppController {
 				$_SESSION['Auth']['User']['id'],
 				$_SESSION['Auth']['User']['group_id']);
 		
-		$this->hook(); //TODO looks like an incomplete/misplaced hook
-		
 		if(!empty($this->request->data)){
 			$this->Config->preSave($config_results,
 								   $this->request->data,
 								   $_SESSION['Auth']['User']['id'],
 								   $_SESSION['Auth']['User']['group_id']);
-			
-			//TODO spot for hook call?
 			
 			$this->Config->set($this->request->data);
 			
