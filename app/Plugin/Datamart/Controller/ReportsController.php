@@ -365,6 +365,15 @@ class ReportsController extends DatamartAppController {
 				$this->set('csv_creation', false);
 				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 			
+			} else if(sizeof($data_returned_by_fct['data']) > self::$display_limit) {
+				// Too many results
+				$this->request->data = array();
+				$this->Structures->set('empty', 'result_form_structure');
+				$this->set('result_form_type', 'index');
+				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
+				$this->set('csv_creation', false);			
+				$this->Report->validationErrors[][] = 'the report contains too many results - please redefine search criteria';
+				
 			} else {
 				// Set data for display/csv		
 				$this->request->data = AppModel::sortWithUrl($data_returned_by_fct['data'], $criteria_to_sort_report);
@@ -1059,16 +1068,17 @@ class ReportsController extends DatamartAppController {
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-			
+		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
-		$misc_identifiers = $misc_identifier_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-		if(sizeof($misc_identifiers) > 1000) {
+		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));		
+		if($tmp_res_count > self::$display_limit) {
 			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'more than 1000 records are returned by the query - please redefine search criteria');
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
 		}
+		$misc_identifiers = $misc_identifier_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
 		$data = array();
 		foreach($misc_identifiers as $new_ident){
 			$participant_id = $new_ident['Participant']['id'];
@@ -1080,8 +1090,8 @@ class ReportsController extends DatamartAppController {
 						'first_name' => $new_ident['Participant']['first_name'],
 						'last_name' => $new_ident['Participant']['last_name']),
 					'0' => array(
-						'#BR' => null,
-						'#PR' => null,
+						'BR_Nbr' => null,
+						'PR_Nbr' => null,
 						'hospital_number' => null)
 				);
 			}
@@ -1099,32 +1109,30 @@ class ReportsController extends DatamartAppController {
 		$header = null;
 		$conditions = array();
 		// Get Parameters
-		$display = true;
 		if(isset($parameters['SampleMaster']['sample_code'])) {
 			//From databrowser
 			$selection_labels  = array_filter($parameters['SampleMaster']['sample_code']);
 			if($selection_labels) $conditions['SampleMaster.sample_code'] = $selection_labels;
-			if(sizeof($selection_labels)> 100) $display = false;
 		} else if(isset($parameters['ViewSample']['sample_master_id'])) {
 			//From databrowser
 			$sample_master_ids  = array_filter($parameters['ViewSample']['sample_master_id']);
 			if($sample_master_ids) $conditions['SampleMaster.id'] = $sample_master_ids;
-			if(sizeof($sample_master_ids)> 100) $display = false;
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(!$display) {
-			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'more than 100 samples have been selected - please redefine search criteria');
 		}
 		// Load Model
 		$view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
 		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
+		$tmp_res_count =  $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+		if($tmp_res_count > self::$display_limit) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
 		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
 		$res = array();
 		foreach($studied_samples as $new_studied_sample) {		
@@ -1159,32 +1167,30 @@ class ReportsController extends DatamartAppController {
 		$header = null;
 		$conditions = array("SampleMaster.id != SampleMaster.initial_specimen_sample_id");
 		// Get Parameters
-		$display = true;
 		if(isset($parameters['SampleMaster']['sample_code'])) {
 			//From databrowser
 			$selection_labels  = array_filter($parameters['SampleMaster']['sample_code']);
 			if($selection_labels) $conditions['SampleMaster.sample_code'] = $selection_labels;
-			if(sizeof($selection_labels)> 100) $display = false;
 		} else if(isset($parameters['ViewSample']['sample_master_id'])) {
 			//From databrowser
 			$sample_master_ids  = array_filter($parameters['ViewSample']['sample_master_id']);
 			if($sample_master_ids) $conditions['SampleMaster.id'] = $sample_master_ids;
-			if(sizeof($sample_master_ids)> 100) $display = false;
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(!$display) {
-			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'more than 100 samples have been selected - please redefine search criteria');
 		}
 		// Load Model
 		$view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
 		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
+		$tmp_res_count = $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+		if($tmp_res_count > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
 		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
 		$res = array();
 		$tmp_initial_specimens = array();
@@ -1208,30 +1214,28 @@ class ReportsController extends DatamartAppController {
 		$header = null;
 		$conditions = array();	
 		// Get Parameters
-		$display = true;
 		if(isset($parameters['StorageMaster']['selection_label'])) {
 			//From databrowser
 			$selection_labels  = array_filter($parameters['StorageMaster']['selection_label']);
 			if($selection_labels) $conditions['StorageMaster.selection_label'] = $selection_labels;
-			if(sizeof($selection_labels)> 100) $display = false;
 		} else if(isset($parameters['ViewStorageMaster']['id'])) {
 			//From databrowser
 			$storage_master_ids  = array_filter($parameters['ViewStorageMaster']['id']);
 			if($storage_master_ids) $conditions['StorageMaster.id'] = $storage_master_ids;
-			if(sizeof($storage_master_ids)> 10) $display = false;
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(!$display) {
-			return array(
-					'header' => null,
-					'data' => null,
-					'columns_names' => null,
-					'error_msg' => 'more than 10 storages have been selected - please redefine search criteria');
 		}
 		// Load Model
 		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		// Build Res
+		$tmp_res_count = $storage_master_model->find('count', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
+		if($tmp_res_count > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
 		$studied_storages = $storage_master_model->find('all', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
 		$res = array();
 		foreach($studied_storages as $new_studied_storage) {
@@ -1254,31 +1258,20 @@ class ReportsController extends DatamartAppController {
 		$header = null;
 		$conditions = array();
 		// Get Parameters
-		$display = true;
 		if(isset($parameters['DiagnosisMaster']['id'])) {
 			//From databrowser
 			$diagnosis_master_ids  = array_filter($parameters['DiagnosisMaster']['id']);
 			if($diagnosis_master_ids) $conditions['DiagnosisMaster.id'] = $diagnosis_master_ids;
-			if(sizeof($diagnosis_master_ids)> 100) $display = false;
 		} else if(isset($parameters['Participant']['participant_identifier'])) {
 			//From databrowser
 			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
 			if($participant_identifiers) $conditions['Participant.participant_identifier'] = $participant_identifiers;
-			if(sizeof($participant_identifiers)> 100) $display = false;
 		} else if(isset($parameters['Participant']['id'])) {
 			//From databrowser
 			$participant_ids  = array_filter($parameters['Participant']['id']);
 			if($participant_ids) $conditions['DiagnosisMaster.participant_id'] = $participant_ids;
-			if(sizeof($participant_ids)> 100) $display = false;
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(!$display) {
-			return array(
-					'header' => null,
-					'data' => null,
-					'columns_names' => null,
-					'error_msg' => 'more than 100 records have been selected - please redefine search criteria');
 		}
 		// Load Model
 		$diagnosis_master_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
@@ -1289,6 +1282,14 @@ class ReportsController extends DatamartAppController {
 					'className'    => 'ClinicalAnnotation.Participant',
 					'foreignKey'    => 'participant_id'))), false);
 		$diagnosis_master_model->unbindModel(array('hasMany' => array('Collection')), false);
+		$tmp_res_count = $diagnosis_master_model->find('count', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
+		if($tmp_res_count > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
 		$tmp_primary_ids = $diagnosis_master_model->find('all', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
 		$primary_ids = array();
 		foreach($tmp_primary_ids as $new_primary_id) $primary_ids[] = $new_primary_id['DiagnosisMaster']['primary_id'];

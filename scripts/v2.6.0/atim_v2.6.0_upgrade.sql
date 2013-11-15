@@ -1715,4 +1715,15 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_value_domains (domain_name, source) VALUES ('study_list_for_view', 'Study.StudySummary::getStudyPermissibleValuesForView');
 UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='study_list_for_view')  WHERE model='ViewAliquotUse' AND tablename='view_aliquot_uses' AND field='study_summary_id' AND `type`='select';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Use self::$display_limit in trunk reports.
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('the report contains too many results - please redefine search criteria', 'The report contains too many results. Please redefine search criteria.', 'Le rapport contient trop de résultats. Veuillez redéfinir les critères de recherche.');
+UPDATE structure_fields SET field = 'BR_Nbr' WHERE field = '#BR' AND model = '0';
+UPDATE structure_fields SET field = 'PR_Nbr' WHERE field = '#PR' AND model = '0';
+UPDATE misc_identifier_controls SET misc_identifier_name = 'BR_Nbr' WHERE misc_identifier_name = '#BR';
+UPDATE misc_identifier_controls SET misc_identifier_name = 'PR_Nbr' WHERE misc_identifier_name = '#PR';
 
