@@ -22,6 +22,11 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		return $return;
 	}
 
+	function afterSave($created){
+		$DiagnosisMaster = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+		if(isset($this->data['TreatmentMaster']['diagnosis_master_id']) && $this->data['TreatmentMaster']['diagnosis_master_id']) $DiagnosisMaster->validateLaterality($this->data['TreatmentMaster']['diagnosis_master_id']);
+		parent::afterSave($created);
+	}
 }
 
 ?>

@@ -18,4 +18,15 @@ class ParticipantCustom extends Participant{
 		
 		return $return;
 	}
+	
+	function validates($options = array()){
+		$errors = parent::validates($options);
+		if(array_key_exists('date_of_death', $this->data['Participant']) && ($this->data['Participant']['date_of_death'])) {
+			if($this->data['Participant']['vital_status'] != 'deceased') {
+				$this->validationErrors['vital_status'][] = __('vital status mismatch');
+				return false;
+			}
+		}
+		return $errors;
+	}
 }
