@@ -90,43 +90,68 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 		if( $hook_link ) { 
 			require($hook_link); 
 		}
+		
+		if ( empty($this->request->data) ) {
+			$this->request->data[] = array();
 				
-		if ( !empty($this->request->data) ) {
-			$this->FamilyHistory->patchIcd10NullValues($this->request->data);
-			// LAUNCH SAVE PROCESS
-			// 1- SET ADDITIONAL DATA	
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+				
+		} else {
 			
-/* ==> Note: Set all data that are not set into the form and that should be recorded */		
-			$this->request->data['FamilyHistory']['participant_id'] = $participant_id;
+			// Save process
 			
-			// 2- LAUNCH SPECIAL VALIDATION PROCESS	
-			
-/* ==> Note: Here are validations that should be done before save function
- * 		- Validation done according specific business rules 
- * 		- Validation done before first save call in case many saves on many models will be done 
- * 			(Use of $this->{$model}->validates()) */
-			$submitted_data_validates = true;
-			
-			// ... special validations
-			
-			// 3- CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+			$errors = array();
+			$line_counter = 0;
+			foreach($this->request->data as $key => &$new_row) {
+				$this->FamilyHistory->patchIcd10NullValues($new_row);
+				$line_counter++;
+				$this->FamilyHistory->data = array(); // *** To guaranty no merge will be done with previous data ***
+				$this->FamilyHistory->set($new_row);
+				if(!$this->FamilyHistory->validates()){
+					foreach($this->FamilyHistory->validationErrors as $field => $msgs) {	
+						$msgs = is_array($msgs)? $msgs : array($msgs);
+						foreach($msgs as $msg) $errors[$field][$msg][] = $line_counter;
+					}
+				}				
+			}
 			
 			$hook_link = $this->hook('presave_process');
 			if( $hook_link ) { 
 				require($hook_link); 
 			}			
 			
-			if($submitted_data_validates) {
-				
-				// 4- SAVE
+			if(empty($errors)) {
 				$this->FamilyHistory->addWritableField('participant_id');
-				if ( $this->FamilyHistory->save($this->request->data) ) {
-					$hook_link = $this->hook('postsave_process');
-					if( $hook_link ) {
-						require($hook_link);
+				$this->FamilyHistory->writable_fields_mode = 'addgrid';
+				foreach($this->request->data as $new_data) {
+					$new_data['FamilyHistory']['participant_id'] = $participant_id;				
+					$this->FamilyHistory->id = null;
+					$this->FamilyHistory->data = array(); // *** To guaranty no merge will be done with previous data ***
+					if(!$this->FamilyHistory->save( $new_data , false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
+				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id );
+
+			} else  {
+				$this->FamilyHistory->validationErrors = array();
+				foreach($errors as $field => $msg_and_lines) {
+					foreach($msg_and_lines as $msg => $lines) {
+						$msg = __($msg);
+						$lines_strg = implode(",", array_unique($lines));
+						if(!empty($lines_strg)) {
+							$msg .= ' - ' . str_replace('%s', $lines_strg, __('see line %s'));
+						}
+						$this->FamilyHistory->validationErrors[$field][] = $msg;
 					}
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/FamilyHistories/detail/'.$participant_id.'/'.$this->FamilyHistory->id );
-				}				
+				}	
 			}
 		}
 	}
