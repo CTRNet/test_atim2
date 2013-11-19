@@ -184,21 +184,15 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('tfri aml regimen unknown', 'Regimen Unknown', ''); 
  
 /*
-	Eventum Issue: #2737 - Profile - Add validations for site/screening codes
+	Eventum Issue: #2737 - Profile - Add validation for site code
 */
  
 INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES
- ((SELECT `id` FROM `structure_fields` WHERE `field` = 'tfri_aml_site_number' AND `plugin` = 'ClinicalAnnotation' AND `model` = 'Participant'), 'custom,/^\\A\\d{2}$/', 'tfri_aml site number 2 digits');
+ ((SELECT `id` FROM `structure_fields` WHERE `field` = 'tfri_aml_site_number' AND `plugin` = 'ClinicalAnnotation' AND `model` = 'Participant'), 'custom,/^\\A\\d{1}$/', 'tfri_aml site number 1 digit');
  
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
-	VALUES ('tfri_aml site number 2 digits', 'Site number must be two digits', '');
+	VALUES ('tfri_aml site number 1 digit', 'Site number must be one digit', '');
 	
-INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES
- ((SELECT `id` FROM `structure_fields` WHERE `field` = 'tfri_aml_screening_code' AND `plugin` = 'ClinicalAnnotation' AND `model` = 'Participant'), 'custom,/^\\A\\d{4}$/', 'tfri_aml screening code 4 digits');
- 
-REPLACE INTO `i18n` (`id`, `en`, `fr`)
-	VALUES ('tfri_aml screening code 4 digits', 'Screening code must be four digits', ''); 
-
 /*
 	Eventum Issue: #2741 - Profile - Cause of death form
 */
