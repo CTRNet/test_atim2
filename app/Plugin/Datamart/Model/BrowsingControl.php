@@ -21,13 +21,19 @@ class BrowsingControl extends DatamartAppModel {
 	function completeData(array &$data){
 		$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
 		$datamart_structures = $datamart_structure_model->find('all', array('conditions' => array('DatamartStructure.id' => array($data['BrowsingControl']['id1'], $data['BrowsingControl']['id2']))));
-		assert(count($datamart_structures) == 2);
-		if($data['BrowsingControl']['id1'] == $datamart_structures[0]['DatamartStructure']['id']){
-			$data['DatamartStructure1'] = $datamart_structures[0]['DatamartStructure'];
-			$data['DatamartStructure2'] = $datamart_structures[1]['DatamartStructure'];
+		if($data['BrowsingControl']['id1'] == $data['BrowsingControl']['id2']){
+		    assert(count($datamart_structures) == 1);
+		    $data['DatamartStructure1'] = $datamart_structures[0]['DatamartStructure'];
+		    $data['DatamartStructure2'] = $datamart_structures[0]['DatamartStructure'];
 		}else{
-			$data['DatamartStructure1'] = $datamart_structures[1]['DatamartStructure'];
-			$data['DatamartStructure2'] = $datamart_structures[0]['DatamartStructure'];
+    		assert(count($datamart_structures) == 2);
+    		if($data['BrowsingControl']['id1'] == $datamart_structures[0]['DatamartStructure']['id']){
+    			$data['DatamartStructure1'] = $datamart_structures[0]['DatamartStructure'];
+    			$data['DatamartStructure2'] = $datamart_structures[1]['DatamartStructure'];
+    		}else{
+    			$data['DatamartStructure1'] = $datamart_structures[1]['DatamartStructure'];
+    			$data['DatamartStructure2'] = $datamart_structures[0]['DatamartStructure'];
+    		}
 		}
 	}
 	
