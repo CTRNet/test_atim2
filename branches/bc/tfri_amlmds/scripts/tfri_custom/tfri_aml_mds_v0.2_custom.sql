@@ -364,8 +364,6 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='cd_tfri_site_6'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_consent_other_research' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri consent other research' AND `language_tag`=''), '1', '48', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
-
-
 -- Withdrawal section
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='cd_tfri_site_6'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_tfri_aml_mds' AND `field`='tfri_date_of_withdrawal' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri date of withdrawal' AND `language_tag`=''), '1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0'), 
@@ -406,8 +404,6 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
   ('tfri confirmation consent', 'Confirmation of Informed Consent', ''),
   ('tfri research', 'Research', '');
 
-
-
 /*
 	Eventum Issue: #2788 - Diagnosis - Disable all default forms
 */
@@ -422,14 +418,104 @@ UPDATE `diagnosis_controls` SET `flag_active`='0' WHERE `id`='19';
 
 /*
 	Eventum Issue: #2787 - Diagnosis - Create primary and recurrence forms
-
-
-INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
-('primary', 'mds aml', '1', 'dx_primary,dx_tfri_mds_aml', 'dxd_tfri_mds_aml', '0', 'primary|mds aml', '0');
-
-INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES ('primary', 'mds aml', '1', 'dx_primary,dx_tfri_mds_aml', 'dxd_tfri_mds_aml', '0', 'primary|mds aml', '0');
-INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES ('recurrence', 'mds aml', '1', 'dx_recurrence,dx_tfri_recurrence', 'dxd_recurrences', '0', 'recurrence|mds aml');
-
 */
 
+-- Add new DX types
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
+('primary', 'aml', '1', 'dx_primary,dx_tfri_aml', 'dxd_tfri_aml', '1', 'primary|aml', '0'),
+('primary', 'mds', '1', 'dx_primary,dx_tfri_mds', 'dxd_tfri_mds', '2', 'primary|mds', '0');
 
+INSERT INTO `structures` (`alias`) VALUES ('dx_tfri_aml');
+INSERT INTO `structures` (`alias`) VALUES ('dx_tfri_mds');
+
+CREATE TABLE `dxd_tfri_aml` (
+  `tfri_aml_recurrent_genetic` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_aml_not_otherwise_categorized` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_ambiguous_lineage` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_b_lymphoblastic` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_myeloid_proliferations` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_t_lymphoblastic` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_transform_mds_mdp` VARCHAR(10) NULL DEFAULT NULL,
+  `tfri_other_diagnosis` VARCHAR(255) NULL DEFAULT NULL,	
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `dxd_tfri_aml_revs` (
+  `tfri_aml_recurrent_genetic` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_aml_not_otherwise_categorized` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_ambiguous_lineage` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_b_lymphoblastic` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_myeloid_proliferations` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_t_lymphoblastic` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_aml_transform_mds_mdp` VARCHAR(10) NULL DEFAULT NULL,
+  `tfri_other_diagnosis` VARCHAR(255) NULL DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `dxd_tfri_mds` (
+  `tfri_myelodysplastic_subtype` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_other_diagnosis` VARCHAR(255) NULL DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `dxd_tfri_mds_revs` (
+  `tfri_myelodysplastic_subtype` VARCHAR(255) NULL DEFAULT NULL,
+  `tfri_other_diagnosis` VARCHAR(255) NULL DEFAULT NULL,
+  `diagnosis_master_id` int(11) NOT NULL DEFAULT '0',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`),
+  KEY `diagnosis_master_id` (`diagnosis_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+-- Move notes field
+UPDATE structure_fields SET  `setting`='cols=35,rows=6',  `language_help`='help_memo' WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `display_order`='99', `flag_override_help`='0', `language_help`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Diable primary common fields
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='dx_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='icd10_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='information_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- MDS Form
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("mds_sub_type", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("refractory anemia with unilineage dysplasia", "refractory anemia with unilineage dysplasia");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="refractory anemia with unilineage dysplasia" AND language_alias="refractory anemia with unilineage dysplasia"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("refractory anemia with ring sideroblasts", "refractory anemia with ring sideroblasts");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="refractory anemia with ring sideroblasts" AND language_alias="refractory anemia with ring sideroblasts"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("refractory cytopenia with multilineage dysplasia", "refractory cytopenia with multilineage dysplasia");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="refractory cytopenia with multilineage dysplasia" AND language_alias="refractory cytopenia with multilineage dysplasia"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("refractory anemia with excess blasts-1", "refractory anemia with excess blasts-1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="refractory anemia with excess blasts-1" AND language_alias="refractory anemia with excess blasts-1"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("refractory anemia with excess blasts-2", "refractory anemia with excess blasts-2");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="refractory anemia with excess blasts-2" AND language_alias="refractory anemia with excess blasts-2"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("myelodysplastic syndrome - unclassified", "myelodysplastic syndrome - unclassified");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="myelodysplastic syndrome - unclassified" AND language_alias="myelodysplastic syndrome - unclassified"), "6", "1");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'dxd_tfri_mds', 'tfri_myelodysplastic_subtype', 'select',  (select `id` from `structure_value_domains` where `domain_name` = 'mds_sub_type') , '0', '', '', '', 'tfri myelodysplastic subtype', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_tfri_mds'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tfri_mds' AND `field`='tfri_myelodysplastic_subtype' AND `type`='select' AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri myelodysplastic subtype' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- AML Form
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+  ('AML', 'AML', ''),
+  ('MDS', 'MDS', ''),
+  ('tfri myelodysplastic subtype', 'Myelodysplastic Syndrome (MDS) Subtype', '');    
+
+/*
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES ('primary', 'mds aml', '1', 'dx_primary,dx_tfri_mds_aml', 'dxd_tfri_mds_aml', '0', 'primary|mds aml', '0');
+INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES ('recurrence', 'mds aml', '1', 'dx_recurrence,dx_tfri_recurrence', 'dxd_recurrences', '0', 'recurrence|mds aml');
+*/
