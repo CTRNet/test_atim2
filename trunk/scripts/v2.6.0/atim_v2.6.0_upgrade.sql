@@ -1727,3 +1727,4 @@ UPDATE structure_fields SET field = 'PR_Nbr' WHERE field = '#PR' AND model = '0'
 UPDATE misc_identifier_controls SET misc_identifier_name = 'BR_Nbr' WHERE misc_identifier_name = '#BR';
 UPDATE misc_identifier_controls SET misc_identifier_name = 'PR_Nbr' WHERE misc_identifier_name = '#PR';
 
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain` IS NULL AND `flag_confidential`='0');
