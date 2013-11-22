@@ -377,6 +377,10 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 
 UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='uhn_site');
 UPDATE structure_formats SET `flag_search`='0' WHERE structure_id!=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='uhn_site');
+INSERT INTO i18n (id,en) VALUES ('use ovarian diagnosis for any either ovarian tumor or ovarian metastasis','Use ovarian diagnosis for any either ovarian tumor or ovarian metastasis');
+UPDATE structure_formats 
+SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
+WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('dx_primary', 'dx_secondary'));
 
 -- -----------------------------------------------------------------------------------------------------------------------
 -- Reproductive History
@@ -616,16 +620,356 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- treatment master
 
 UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0', `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+INSERT INTO drugs (`generic_name`, `type`) 
+VALUES 
+('Cyclophosphamide', 'chemotherapy'),
+('CisPlatinum', 'chemotherapy'),
+('Carboplatinum', 'chemotherapy'),
+('Taxol', 'chemotherapy'),
+('Fluorouracil', 'chemotherapy'),
+('Adriamycin', 'chemotherapy'),
+('Etopiside', 'chemotherapy'),
+('Toptecan', 'chemotherapy'),
+('Hexamethylmelamine', 'chemotherapy'),
+('Tamoxifen', 'chemotherapy'),
+('Megace', 'chemotherapy');
+INSERT INTO drugs_revs (`id`, `generic_name`, `type`) (SELECT `id`, `generic_name`, `type` FROM drugs);
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='protocolmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='arm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE protocol_controls SET flag_active = 0 WHERE type = 'surgery';
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='pd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='arm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='pe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolExtendDetail' AND `tablename`='pe_chemos' AND `field`='method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='pe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolExtendDetail' AND `tablename`='pe_chemos' AND `field`='frequency' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='facility' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='facility') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='information_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='length_cycles' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
--- radiation
+-- chemo
 
 UPDATE treatment_controls SET flag_active = 1 WHERE tx_method IN ('chemotherapy', 'radiation');
 UPDATE treatment_controls SET databrowser_label = tx_method;
+ALTER TABLE txd_chemos ADD COLUMN uhn_treatment_line int(3) DEFAULT NULL, ADD COLUMN uhn_reason_for_stopping varchar(50) DEFAULT NULL;
+ALTER TABLE txd_chemos_revs ADD COLUMN uhn_treatment_line int(3) DEFAULT NULL, ADD COLUMN uhn_reason_for_stopping varchar(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) VALUES ("uhn_trt_uhn_reason_for_stopping", "StructurePermissibleValuesCustom::getCustomDropdown(\'Chemo - Reason for stopping\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) VALUES ('Chemo - Reason for stopping', 'treatment', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Chemo - Reason for stopping');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('Completed course of treatment', 'Completed course of treatment', '', '1', @control_id),
+('Increasing disease on P.E.', 'Increasing disease on P.E.', '', '1', @control_id),
+('Data Unavailable', 'Data Unavailable', '', '1', @control_id),
+('Increasing disease on X-ray', 'Increasing disease on X-ray', '', '1', @control_id),
+('Stable Ca 125', 'Stable Ca 125', '', '1', @control_id),
+('Other', 'Other', '', '1', @control_id),
+('Increasing Ca 125', 'Increasing Ca 125', '', '1', @control_id),
+('Drug Intolerance', 'Drug Intolerance', '', '1', @control_id),
+('Chemo Resistant (Not responding to drug)', 'Chemo Resistant (Not responding to drug)', '', '1', @control_id),
+('Chemo Sensitive (Increased side effects)', 'Chemo Sensitive (Increased side effects)', '', '1', @control_id),
+('No evidence of disease', 'No evidence of disease', '', '1', @control_id),
+('Disease at surgery', 'Disease at surgery', '', '1', @control_id),
+('Increasing disease by biopsy', 'Increasing disease by biopsy', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_chemos', 'uhn_treatment_line', 'integer_positive',  NULL , '0', 'size=5', '', '', 'line', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_chemos', 'uhn_reason_for_stopping', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_trt_uhn_reason_for_stopping') , '0', '', '', '', '', 'reason for stopping');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='uhn_treatment_line' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='line' AND `language_tag`=''), '2', '10', 'chemotherapy specific', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='uhn_reason_for_stopping' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_trt_uhn_reason_for_stopping')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='reason for stopping'), '2', '15', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='chemo_completed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='uhn_treatment_line' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='uhn_reason_for_stopping' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_trt_uhn_reason_for_stopping') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='uhn_reason_for_stopping' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_trt_uhn_reason_for_stopping') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('reason for stopping', 'Reason for stopping');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='uhn_institution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_treatment_institution')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='institution' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='txe_chemos' AND `field`='method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') AND `flag_confidential`='0');
+
+-- radiation
+
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='facility' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='facility') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='information_source' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='information_source') AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='uhn_institution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_treatment_institution')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='institution' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------
+-- Annotation
+-- ----------------------------------------------------------------------------------------------------------------------- 
+
+UPDATE event_controls SET flag_active = 0;
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`) VALUES
+(null, 'uhn', 'lab', 'pathology', 1, 'uhn_ed_ovary_lab_pathology', 'uhn_ed_ovary_lab_pathologies', 0, 'pathology', 1, 0),
+(null, 'uhn', 'lab', 'ca125', 1, 'uhn_ed_ovary_lab_ca125', 'uhn_ed_ovary_lab_ca125s', 0, 'ca125', 0, 1);
+
+UPDATE menus SET flag_active = 0 WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title NOT IN ('lab', 'annotation');
+SET @link = (SELECT use_link FROM menus WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title = 'lab') ;
+UPDATE menus SET use_link = @link WHERE use_link like '/ClinicalAnnotation/EventMasters%' AND language_title = 'annotation';
+
+-- ca125
+
+CREATE TABLE IF NOT EXISTS `uhn_ed_ovary_lab_ca125s` (
+  value decimal(10,2) DEFAULT NULL,
+  level varchar(10) DEFAULT NULL,  
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `uhn_ed_ovary_lab_ca125s_revs` (
+  value decimal(10,2) DEFAULT NULL,
+  level varchar(10) DEFAULT NULL,  
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `uhn_ed_ovary_lab_ca125s`
+  ADD CONSTRAINT `uhn_ed_ovary_lab_ca125s_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('uhn_ed_ovary_lab_ca125');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("uhn_ca125_level", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="uhn_ca125_level"), (SELECT id FROM structure_permissible_values WHERE value="high" AND language_alias="high"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("medium", "medium");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="uhn_ca125_level"), (SELECT id FROM structure_permissible_values WHERE value="medium" AND language_alias="medium"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="uhn_ca125_level"), (SELECT id FROM structure_permissible_values WHERE value="low" AND language_alias="low"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_ca125s', 'value', 'float_positive',  NULL , '0', 'size=5', '', '', 'value', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_ca125s', 'level', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_ca125_level') , '0', '', '', '', 'level', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_ca125'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_ca125s' AND `field`='value' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='value' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_ca125'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_ca125s' AND `field`='level' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_ca125_level')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='level' AND `language_tag`=''), '1', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_ca125s' AND `field`='value'), 'notEmpty');
+INSERT INTO i18n (id,en) VALUES ('medium', 'Medium');
+
+-- pathology
 
 
+CREATE TABLE IF NOT EXISTS `uhn_ed_ovary_lab_pathologies` (
+	report_number varchar(50) DEFAULT NULL,
 
+	left_ovary_tumour_present CHAR(1) DEFAULT '',
+	left_ovary_weight_g decimal(10,2) DEFAULT NULL,
+	left_ovary_diameter_cm decimal(10,2) DEFAULT NULL,
+	left_ovary_surface varchar(50) DEFAULT NULL,
+	left_ovary_capsule varchar(50) DEFAULT NULL,
+	left_ovary_cut_surface_cysts varchar(50) DEFAULT NULL,
+	left_ovary_cut_surface_necrosis varchar(50) DEFAULT NULL,
+	
+	right_ovary_tumour_present CHAR(1) DEFAULT '',
+	right_ovary_weight_g decimal(10,2) DEFAULT NULL,
+	right_ovary_diameter_cm decimal(10,2) DEFAULT NULL,
+	right_ovary_surface varchar(50) DEFAULT NULL,
+	right_ovary_capsule varchar(50) DEFAULT NULL,
+	right_ovary_cut_surface_cysts varchar(50) DEFAULT NULL,
+	right_ovary_cut_surface_necrosis varchar(50) DEFAULT NULL,
+	
+	nos_ovary_tumour_present CHAR(1) DEFAULT '',
+	nos_ovary_weight_g decimal(10,2) DEFAULT NULL,
+	nos_ovary_diameter_cm decimal(10,2) DEFAULT NULL,
+	nos_ovary_surface varchar(50) DEFAULT NULL,
+	nos_ovary_capsule varchar(50) DEFAULT NULL,
+	nos_ovary_cut_surface_cysts varchar(50) DEFAULT NULL,
+	nos_ovary_cut_surface_necrosis varchar(50) DEFAULT NULL,
+	
+	normal_ovary_cortical_inclusions CHAR(1) DEFAULT '',
+	normal_ovary_stromal_hyperplasia CHAR(1) DEFAULT '',
+	normal_ovary_epithelial_hyperplasia CHAR(1) DEFAULT '',
+	normal_ovary_epithelial_dysplasia CHAR(1) DEFAULT '',
+	normal_ovary_stromal_fibrosis CHAR(1) DEFAULT '',
+	
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `uhn_ed_ovary_lab_pathologies_revs` (
+	report_number varchar(50) DEFAULT NULL,
+
+	left_ovary_tumour_present CHAR(1) DEFAULT '',
+	left_ovary_weight_g decimal(10,2) DEFAULT NULL,
+	left_ovary_diameter_cm decimal(10,2) DEFAULT NULL,
+	left_ovary_surface varchar(50) DEFAULT NULL,
+	left_ovary_capsule varchar(50) DEFAULT NULL,
+	left_ovary_cut_surface_cysts varchar(50) DEFAULT NULL,
+	left_ovary_cut_surface_necrosis varchar(50) DEFAULT NULL,
+	
+	right_ovary_tumour_present CHAR(1) DEFAULT '',
+	right_ovary_weight_g decimal(10,2) DEFAULT NULL,
+	right_ovary_diameter_cm decimal(10,2) DEFAULT NULL,
+	right_ovary_surface varchar(50) DEFAULT NULL,
+	right_ovary_capsule varchar(50) DEFAULT NULL,
+	right_ovary_cut_surface_cysts varchar(50) DEFAULT NULL,
+	right_ovary_cut_surface_necrosis varchar(50) DEFAULT NULL,
+	
+	nos_ovary_tumour_present CHAR(1) DEFAULT '',
+	nos_ovary_weight_g decimal(10,2) DEFAULT NULL,
+	nos_ovary_diameter_cm decimal(10,2) DEFAULT NULL,
+	nos_ovary_surface varchar(50) DEFAULT NULL,
+	nos_ovary_capsule varchar(50) DEFAULT NULL,
+	nos_ovary_cut_surface_cysts varchar(50) DEFAULT NULL,
+	nos_ovary_cut_surface_necrosis varchar(50) DEFAULT NULL,
+	
+	normal_ovary_cortical_inclusions CHAR(1) DEFAULT '',
+	normal_ovary_stromal_hyperplasia CHAR(1) DEFAULT '',
+	normal_ovary_epithelial_hyperplasia CHAR(1) DEFAULT '',
+	normal_ovary_epithelial_dysplasia CHAR(1) DEFAULT '',
+	normal_ovary_stromal_fibrosis CHAR(1) DEFAULT '',
+	
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `uhn_ed_ovary_lab_pathologies`
+  ADD CONSTRAINT `uhn_ed_ovary_lab_pathologies_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('uhn_ed_ovary_lab_pathology');
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+("uhn_patho_surface", "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - Ovarian Surface\')"),
+("uhn_patho_capsule", "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - Ovarian Capsule\')"),
+("uhn_patho_cut_surface_cysts", "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - Ovarian Cut Surface Cysts\')"),
+("uhn_patho_cut_surface_necrosis", "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - varian Cut Surface Necrosis\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
+VALUES 
+('Patho - Ovarian Surface', 'annotation', 1, 50),
+('Patho - Ovarian Capsule', 'annotation', 1, 50),
+('Patho - Ovarian Cut Surface Cysts', 'annotation', 1, 50),
+('Patho - Ovarian Cut Surface Necrosis', 'annotation', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patho - Ovarian Surface');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('smooth', 'Smooth', '', '1', @control_id),
+('adhesions', 'Adhesions', '', '1', @control_id),
+('tumour', 'Tumour', '', '1', @control_id),
+('n/a', 'N/A', '', '1', @control_id);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patho - Ovarian Capsule');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('intact', 'Intact', '', '1', @control_id),
+('rupture', 'Rupture', '', '1', @control_id),
+('open', 'Open', '', '1', @control_id),
+('nos', 'NOS', '', '1', @control_id);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patho - Ovarian Cut Surface Cysts');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('none', 'None', '', '1', @control_id),
+('single', 'Single', '', '1', @control_id),
+('few (<5)', 'Few (<5)', '', '1', @control_id),
+('many', 'Many', '', '1', @control_id);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patho - Ovarian Cut Surface Necrosis');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('no', 'No', '', '1', @control_id),
+('yes', 'Yes', '', '1', @control_id),
+('extensive', 'Extensive', '', '1', @control_id),
+('all', 'All', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'report_number', 'input',  NULL , '0', 'size=30', '', '', 'report number', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_tumour_present', 'yes_no',  NULL , '0', '', '', '', 'tumour present', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_weight_g', 'float',  NULL , '0', 'size=5', '', '', 'weight g', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_diameter_cm', 'float',  NULL , '0', 'size=5', '', '', 'diameter cm', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_surface', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_surface') , '0', '', '', '', 'surface', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_capsule', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_capsule') , '0', '', '', '', 'capsule', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_cut_surface_cysts', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_cysts') , '0', '', '', '', 'cut surface cysts', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'left_ovary_cut_surface_necrosis', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis') , '0', '', '', '', 'cut surface necrosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_tumour_present', 'yes_no',  NULL , '0', '', '', '', 'tumour present', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_weight_g', 'float',  NULL , '0', 'size=5', '', '', 'weight g', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_diameter_cm', 'float',  NULL , '0', 'size=5', '', '', 'diameter cm', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_surface', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_surface') , '0', '', '', '', 'surface', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_capsule', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_capsule') , '0', '', '', '', 'capsule', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_cut_surface_cysts', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_cysts') , '0', '', '', '', 'cut surface cysts', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'right_ovary_cut_surface_necrosis', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis') , '0', '', '', '', 'cut surface necrosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_tumour_present', 'yes_no',  NULL , '0', '', '', '', 'tumour present', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_weight_g', 'float',  NULL , '0', 'size=5', '', '', 'weight g', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_diameter_cm', 'float',  NULL , '0', 'size=5', '', '', 'diameter cm', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_surface', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_surface') , '0', '', '', '', 'surface', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_capsule', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_capsule') , '0', '', '', '', 'capsule', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_cut_surface_cysts', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_cysts') , '0', '', '', '', 'cut surface cysts', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'nos_ovary_cut_surface_necrosis', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis') , '0', '', '', '', 'cut surface necrosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'normal_ovary_cortical_inclusions', 'yes_no',  NULL , '0', '', '', '', 'cortical inclusions', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'normal_ovary_stromal_hyperplasia', 'yes_no',  NULL , '0', '', '', '', 'stromal hyperplasia', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'normal_ovary_epithelial_hyperplasia', 'yes_no',  NULL , '0', '', '', '', 'epithelial hyperplasia', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'normal_ovary_epithelial_dysplasia', 'yes_no',  NULL , '0', '', '', '', 'epithelial dysplasia', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'normal_ovary_stromal_fibrosis', 'yes_no',  NULL , '0', '', '', '', 'stromal fibrosis', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='report_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='report number' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_tumour_present' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumour present' AND `language_tag`=''), '2', '69', 'left ovary', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_weight_g' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='weight g' AND `language_tag`=''), '2', '70', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_diameter_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='diameter cm' AND `language_tag`=''), '2', '71', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_surface' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_surface')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surface' AND `language_tag`=''), '2', '72', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_capsule' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_capsule')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='capsule' AND `language_tag`=''), '2', '73', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_cut_surface_cysts' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_cysts')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cut surface cysts' AND `language_tag`=''), '2', '74', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='left_ovary_cut_surface_necrosis' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cut surface necrosis' AND `language_tag`=''), '2', '75', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_tumour_present' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumour present' AND `language_tag`=''), '2', '76', 'right ovary', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_weight_g' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='weight g' AND `language_tag`=''), '2', '77', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_diameter_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='diameter cm' AND `language_tag`=''), '2', '78', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_surface' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_surface')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surface' AND `language_tag`=''), '2', '79', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_capsule' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_capsule')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='capsule' AND `language_tag`=''), '2', '80', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_cut_surface_cysts' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_cysts')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cut surface cysts' AND `language_tag`=''), '2', '81', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_cut_surface_necrosis' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cut surface necrosis' AND `language_tag`=''), '3', '82', 'nos ovary', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_tumour_present' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tumour present' AND `language_tag`=''), '3', '83', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_weight_g' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='weight g' AND `language_tag`=''), '3', '84', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_diameter_cm' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='diameter cm' AND `language_tag`=''), '3', '85', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_surface' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_surface')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='surface' AND `language_tag`=''), '3', '86', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_capsule' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_capsule')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='capsule' AND `language_tag`=''), '3', '87', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_cut_surface_cysts' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_cysts')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cut surface cysts' AND `language_tag`=''), '3', '88', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_cut_surface_necrosis' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cut surface necrosis' AND `language_tag`=''), '3', '89', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='normal_ovary_cortical_inclusions' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cortical inclusions' AND `language_tag`=''), '3', '90', 'normal ovary', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='normal_ovary_stromal_hyperplasia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stromal hyperplasia' AND `language_tag`=''), '3', '91', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='normal_ovary_epithelial_hyperplasia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='epithelial hyperplasia' AND `language_tag`=''), '3', '92', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='normal_ovary_epithelial_dysplasia' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='epithelial dysplasia' AND `language_tag`=''), '3', '93', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='normal_ovary_stromal_fibrosis' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='stromal fibrosis' AND `language_tag`=''), '3', '94', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('tumour present','Tumour Present'),
+('report number','Report #'),
+('left ovary', 'Left Ovary'),
+('weight g', 'Weight (g)'),
+('diameter cm', 'Diameter (cm)'),
+('surface', 'Surface'),
+('capsule', 'Capsule'),
+('cut surface cysts', 'Cut Surface Cysts'),
+('cut surface necrosis', 'Cut Surface Necrosis'),
+('right ovary','Right Ovary'),
+('normal ovary','Normal Ovary'),
+('nos ovary','NOS Ovary');
+INSERT IGNORE INTO i18n (id,en)
+VALUES
+('cortical inclusions','Cortical Inclusions'),
+('stromal hyperplasia','Stromal Hyperplasia'),
+('epithelial hyperplasia','Epithelial Hyperplasia'),
+('epithelial dysplasia','Epithelial Dysplasia'),
+('stromal fibrosis','Stromal Fibrosis');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_cut_surface_necrosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='nos ovary' WHERE structure_id=(SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='nos_ovary_tumour_present' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='right_ovary_cut_surface_necrosis' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_cut_surface_necrosis') AND `flag_confidential`='0');
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - Ovarian Cut Surface Necrosis\')" WHERE domain_name = "uhn_patho_cut_surface_necrosis";
+ALTER TABLE uhn_ed_ovary_lab_pathologies ADD COLUMN endometrium VARCHAR(50) DEFAULT NULL;
+ALTER TABLE uhn_ed_ovary_lab_pathologies_revs ADD COLUMN endometrium VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+("uhn_patho_endometrium", "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - Endometrium\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
+VALUES 
+('Patho - Endometrium', 'annotation', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patho - Endometrium');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('inactive', 'Inactive', '', '1', @control_id),
+('atrophic', 'Atrophic', '', '1', @control_id),
+('proliferative', 'Proliferative', '', '1', @control_id),
+('secretory', 'Secretory', '', '1', @control_id),
+('hyperplasia', 'Hyperplasia', '', '1', @control_id),
+('carcinoma', 'Carcinoma', '', '1', @control_id),
+('other', 'Other', '', '1', @control_id),
+('not documented', 'Not Documented', '', '1', @control_id),
+('n/a', 'N/A', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'endometrium', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_endometrium') , '0', '', '', '', 'endometrium', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='endometrium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_endometrium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='endometrium' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('endometrium','Endometrium');
+UPDATE structure_formats SET `display_column`='3', `display_order`='95', `language_heading`='endometrium' WHERE structure_id=(SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='endometrium' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_endometrium') AND `flag_confidential`='0');
+
+-- event master
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('ca125','Ca125');
 
 
 

@@ -8,6 +8,6 @@
 		$this->DiagnosisMaster->addWritableField(array('uhn_site'));		
 	} else if($this->request->data['DiagnosisMaster']['uhn_site'] == 'female genital-ovary') {
 		$submitted_data_validates = false;
-		$this->AliquotMaster->validationErrors['uhn_site'][] = 'use ovarian diagnosis for any either ovarian tumor or ovarian metastasis ';
+		$this->DiagnosisMaster->validationErrors['uhn_site'][] = 'use ovarian diagnosis for any either ovarian tumor or ovarian metastasis ';
 	}
 	
