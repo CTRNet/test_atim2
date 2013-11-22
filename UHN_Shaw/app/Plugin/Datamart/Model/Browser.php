@@ -1613,7 +1613,6 @@ class Browser extends DatamartAppModel {
 			if($params['parent_child'] == 'c'){
 				$search_conditions = array_merge($search_conditions, $join['conditions']);
 				unset($joins[1]);
-				pr($joins);
 			}else{
 				$joins[1] = array(
 					'alias' 		=> $model_to_search->name.'_2',
