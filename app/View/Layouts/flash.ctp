@@ -36,7 +36,7 @@
 
     <div class="wrapper">
 		<a href="<?php echo $url; ?>"> 
-        	<?php echo __( $message, true ); ?>
+        	<?php echo $message; ?>
         	<br/>
 	        <small><?php __('click to continue'); ?></small>
 		</a>
