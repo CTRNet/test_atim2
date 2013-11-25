@@ -1737,3 +1737,9 @@ DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM st
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='StorageLayout' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='check_white_space' AND `language_label`='check white space' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE from structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='storage_w_spaces');
 DELETE FROM structures WHERE alias='storage_w_spaces';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- EventMaster.listall: use either Master from or detailed form #2802
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE event_controls ADD COLUMN use_detail_form_for_index TINYINT(1) NOT NULL DEFAULT '0';
