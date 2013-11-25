@@ -18,35 +18,54 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get( '/'.$this->params['plugin'].'/'.$this->params['controller'].'/'.$this->params['action'].'/'.$this->params['pass'][0] ) );
 	}
 	
-	function listall( $event_group, $participant_id, $event_control_id=null ){
-		// set FILTER, used as this->data CONDITIONS
-		if ( !isset($_SESSION['MasterDetail_filter']) || !$event_control_id ) {
-			$_SESSION['MasterDetail_filter'] = array();
-			
-			$_SESSION['MasterDetail_filter']['EventMaster.participant_id'] = $participant_id;
-			$_SESSION['MasterDetail_filter']['EventControl.event_group'] = $event_group;
-			
+	function listall( $event_group, $participant_id, $event_control_id=null ){		
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		
+		$search_criteria = array();
+		if(!$event_control_id) {
+			// 1 - MANAGE DISPLAY
+			$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
+			$controls_for_subform_display = array();
+			foreach($event_controls as $new_ctrl) {
+				if($new_ctrl['EventControl']['use_detail_form_for_index']) {
+					// Controls that should be listed using detail form
+					$controls_for_subform_display[$new_ctrl['EventControl']['id']] = $new_ctrl;
+					$controls_for_subform_display[$new_ctrl['EventControl']['id']]['EventControl']['ev_header'] = __($new_ctrl['EventControl']['event_type']) . ' - ' . __($new_ctrl['EventControl']['disease_site']);
+				} else {
+					$controls_for_subform_display['-1']['EventControl'] = array('id' => '-1', 'ev_header' => null);
+				}
+			}
+			ksort($controls_for_subform_display);
+			$this->set('controls_for_subform_display', $controls_for_subform_display);
+			// find all EVENTCONTROLS, for ADD form
+			$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
+			$this->set('add_links', $add_links);
+			// Set structure
+			$this->Structures->set('eventmasters');							
+		} else if($event_control_id == '-1') {	
+			// 2 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
+			// Set search criteria
+			$search_criteria['EventMaster.participant_id'] = $participant_id;
+			$search_criteria['EventControl.event_group'] = $event_group;
+			$search_criteria['EventControl.use_detail_form_for_index'] = '0';
+			// Set structure
 			$this->Structures->set('eventmasters');
 		} else {
-			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
-			
-			$filter_data = $this->EventControl->getOrRedirect($event_control_id);
-			$this->Structures->set($filter_data['EventControl']['form_alias']);
+			// 3 -  DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
+			// Set search criteria
+			$search_criteria['EventMaster.participant_id'] = $participant_id;
+			$search_criteria['EventControl.id'] = $event_control_id;
+			// Set structure
+			$control_data = $this->EventControl->getOrRedirect($event_control_id);
+			$this->Structures->set($control_data['EventControl']['form_alias']);
 		}
-			
+		
 		// MANAGE DATA
-		$participant_data = $this->Participant->getOrRedirect($participant_id);
-
-		$this->request->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
-		
-		// find all EVENTCONTROLS, for ADD form
-		$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
-		$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
-		$this->set('add_links', $add_links);
+		$this->request->data = $event_control_id? $this->paginate($this->EventMaster, $search_criteria) : array();
 				
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id));
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
