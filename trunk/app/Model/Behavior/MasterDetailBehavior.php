@@ -236,8 +236,4 @@ class MasterDetailBehavior extends ModelBehavior {
 		}
 		return $results;
 	}
-	
-	public function fmlh(&$Model) {
-		echo "MD\n";
-	}
 }
