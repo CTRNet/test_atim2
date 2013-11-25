@@ -358,7 +358,7 @@ function initActions(){
 				$(cell).append(" <a href='#' class='icon16 csv_upload file_btn'></a>").data('mode', 'specific');
 				
 				if($(cell).find(".specific_btn").length == 0){
-					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();
+					$(cell).append(" <a href='#' class='icon16 specific specific_btn'></a>").find(".specific_btn").hide();
 					$(cell).find("span:first").addClass("specific_span");
 					tabindex = $(cell).find("input").prop("tabindex");
 				}
