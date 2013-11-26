@@ -1760,6 +1760,7 @@ ul.actionDropdown li a{
 
 .databrowser span.title{
 	font-size: 130%;
+	padding-left: 20px;
 }
 
 .databrowser a.link{
