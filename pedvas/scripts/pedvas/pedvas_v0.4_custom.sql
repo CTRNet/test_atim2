@@ -198,14 +198,6 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('pv saliva tube other', 'Saliva Tube Other', ''),
  ('pv blood tube other', 'Blood Tube Other', '');
 
-REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('K2-EDTA', 'K2-EDTA', ''),
- ('P100 Plasma', 'P100 Plasma', ''),
- ('PAXgene DNA', 'PAXgene DNA', ''),
- ('PAXgene RNA', 'PAXgene RNA', ''),
- ('Tempus RNA', 'Tempus RNA', ''),
- ('Serum', 'Serum', '');   
-
 /*
 	------------------------------------------------------------
 	Eventum ID: 2759 - Collection form - unable to edit custom fields
