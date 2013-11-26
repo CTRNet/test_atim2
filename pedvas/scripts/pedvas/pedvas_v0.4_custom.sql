@@ -123,7 +123,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='txd_pv_medications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_protocol_name' AND `language_label`='protocol' AND `language_tag`=''), '1', '100', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('pv medication completed', 'Medication Completed', '');
+ ('pv medication completed', 'Medication Completed', ''),
+ ('medication', 'Medication', '');
 
 -- Build Extended Table
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -158,7 +159,7 @@ UPDATE structure_formats SET `language_heading`='pv_infections' WHERE structure_
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('pv other infection detail', 'Specify Other Infection(s)', ''),
- ('pv infections', 'Infections', '');
+ ('pv_infections', 'Infections', '');
 
 /*
 	------------------------------------------------------------
@@ -168,19 +169,11 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 	
 ALTER TABLE `sd_spe_salivas` 
 ADD COLUMN `pv_saliva_tube_other` VARCHAR(255) NULL DEFAULT NULL AFTER `pv_saliva_tube`;
-
-CREATE TABLE `sd_spe_salivas_revs` (
-  `sample_master_id` int(11) NOT NULL,
-  `pv_saliva_tube` varchar(45) DEFAULT NULL,
-  `pv_saliva_tube_other` VARCHAR(255) NULL DEFAULT NULL,
-  `version_id` int(11) NOT NULL AUTO_INCREMENT,
-  `version_created` datetime NOT NULL,
-  PRIMARY KEY (`version_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
+ALTER TABLE `sd_spe_salivas_revs` 
+ADD COLUMN `pv_saliva_tube_other` VARCHAR(255) NULL DEFAULT NULL AFTER `pv_saliva_tube`;
 
 ALTER TABLE `sd_spe_bloods` 
 ADD COLUMN `pv_blood_tube_other` VARCHAR(255) NULL DEFAULT NULL AFTER `collected_volume_unit`;
-
 ALTER TABLE `sd_spe_bloods_revs` 
 ADD COLUMN `pv_blood_tube_other` VARCHAR(255) NULL DEFAULT NULL AFTER `collected_volume_unit`;
 
@@ -192,7 +185,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'pv_blood_tube_other', 'input',  NULL , '0', 'size=30', '', '', '', 'pv blood tube other');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='pv_blood_tube_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='pv blood tube other'), '1', '442', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='pv_blood_tube_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='pv blood tube other'), '1', '441', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('pv saliva tube other', 'Saliva Tube Other', ''),
