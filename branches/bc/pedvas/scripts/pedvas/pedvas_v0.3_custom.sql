@@ -237,9 +237,10 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=true WHERE id IN(24,
 -- Rev table missing
 CREATE TABLE `sd_spe_salivas_revs` (
   `sample_master_id` int(11) NOT NULL,
-  KEY `FK_sd_spe_salivas_sample_masters` (`sample_master_id`),
-  CONSTRAINT `FK_sd_spe_salivas_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
-) ENGINE=InnoDB;
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=latin1;
 
 -- Add new column
 ALTER TABLE `sd_spe_salivas` 
