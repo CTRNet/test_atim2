@@ -28,8 +28,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_ccbr_solid_tumour'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_ccbr_solid_tumour' AND `field`='ccbr_bone_marrow_right' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ccbr bone marrow right' AND `language_tag`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('ccbr bone marrow left', '% Bone Marrow Involvement - Left', ''),
- ('ccbr bone marrow right', '% Bone Marrow Involvement - Right', ''); 
+ ('ccbr bone marrow left', 'Bone Marrow Involvement - Left', ''),
+ ('ccbr bone marrow right', 'Bone Marrow Involvement - Right', ''); 
 
 
 --  --------------------------------------------------------------------------
@@ -79,7 +79,7 @@ UPDATE structure_formats SET `display_order`='99' WHERE structure_id=(SELECT id 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('ccbr consent left over csf', 'Use of Left Over CSF', ''),
  ('ccbr consent left over leukapheresis', 'Use of Left Over Leukapheresis', ''),
- ('ccbr_permission_to_contact', 'Permission to Contact', ''), 
+ ('ccbr permission to contact', 'Permission to Contact', ''), 
  ('ccbr consent donation bone marrow', 'Consent to Bone Marrow Donation', ''),  
  ('ccbr old biospecimens', 'Use of Old Biospecimens', '');
  
