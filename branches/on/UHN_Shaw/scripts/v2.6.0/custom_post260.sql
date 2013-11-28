@@ -64,6 +64,50 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='uhn_most_recent_contact' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='most recent contact' AND `language_tag`=''), '1', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('most recent contact', 'Most Recent Contact');
 
+ALTER TABLE participants 
+  ADD COLUMN uhn_brca_tested char(1) DEFAULT '',
+  ADD COLUMN uhn_brca_result varchar(10) DEFAULT '',
+  ADD COLUMN uhn_brca_1_mutation varchar(50) DEFAULT '',
+  ADD COLUMN uhn_brca_2_mutation char(50) DEFAULT '';
+ALTER TABLE participants_revs 
+  ADD COLUMN uhn_brca_tested char(1) DEFAULT '',
+  ADD COLUMN uhn_brca_result varchar(10) DEFAULT '',
+  ADD COLUMN uhn_brca_1_mutation varchar(50) DEFAULT '',
+  ADD COLUMN uhn_brca_2_mutation char(50) DEFAULT '';
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("uhn_brca_result", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("positif", "positif"),("negatif", "negatif");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_brca_result"), (SELECT id FROM structure_permissible_values WHERE value="positif" AND language_alias="positif"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_brca_result"), (SELECT id FROM structure_permissible_values WHERE value="negatif" AND language_alias="negatif"), "1", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'uhn_brca_result', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_brca_result') , '0', '', '', '', 'brca result', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'uhn_brca_1_mutation', 'input',  NULL , '0', 'size=10', '', '', '', 'brca 1 mutation'), 
+('ClinicalAnnotation', 'Participant', 'participants', 'uhn_brca_2_mutation', 'input',  NULL , '0', 'size=10', '', '', '', 'brca 2 mutation'), 
+('ClinicalAnnotation', 'Participant', 'participants', 'uhn_brca_tested', 'yes_no',  NULL , '0', '', '', '', 'brca tested', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='uhn_brca_result' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_brca_result')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='brca result' AND `language_tag`=''), '3', '19', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='uhn_brca_1_mutation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='brca 1 mutation'), '3', '20', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='uhn_brca_2_mutation' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='brca 2 mutation'), '3', '22', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='uhn_brca_tested' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='brca tested' AND `language_tag`=''), '3', '18', 'brca status', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='uhn_brca_1_positif' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) 
+VALUES
+('brca tested','Tested'),('brca result','Result'),('negatif','Negatif'),('positif','Positif'),('brca 1 mutation','Mutation'),('brca 2 mutation','Mutation');
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("yesnounknown", "locked", "indicator", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="yesnounknown"), (SELECT id FROM structure_permissible_values WHERE value="yes" AND language_alias="yes"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="yesnounknown"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="yesnounknown"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "3", "1");
+
+ALTER TABLE participants 
+  MODIFY uhn_brca_1_positif varchar(20) DEFAULT '',
+  MODIFY uhn_brca_2_positif varchar(20) DEFAULT '';
+ALTER TABLE participants_revs 
+  MODIFY uhn_brca_1_positif varchar(20) DEFAULT '',
+  MODIFY uhn_brca_2_positif varchar(20) DEFAULT '';
+UPDATE structure_fields SET  `type`='select', structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='yesnounknown') WHERE field like 'uhn_brca_%_positif';
+  
 -- Misc Identifier
 
 INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `autoincrement_name`, `misc_identifier_format`, 
@@ -259,9 +303,10 @@ UPDATE structure_formats SET `display_order`='4' WHERE structure_field_id=(SELEC
 
 INSERT INTO `diagnosis_controls` (`id`, `category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES
 (null, 'primary', 'ovary', 1, 'uhn_dxd_primary_ovaries', 'uhn_dxd_primary_ovaries', 0, 'primary|ovary', 1);
+ALTER TABLE diagnosis_masters MODIFY dx_method varchar(50) DEFAULT NULL;
+ALTER TABLE diagnosis_masters_revs MODIFY dx_method varchar(50) DEFAULT NULL;
 CREATE TABLE IF NOT EXISTS `uhn_dxd_primary_ovaries` (
   `diagnosis_master_id` int(11) NOT NULL,
-  diagnosis_method varchar(50) DEFAULT NULL,
   laterality varchar(50) DEFAULT NULL,
   location varchar(50) DEFAULT NULL,
   location_precision varchar(250) DEFAULT NULL,
@@ -274,7 +319,6 @@ CREATE TABLE IF NOT EXISTS `uhn_dxd_primary_ovaries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 CREATE TABLE IF NOT EXISTS `uhn_dxd_primary_ovaries` (
   `diagnosis_master_id` int(11) NOT NULL,
-  diagnosis_method varchar(50) DEFAULT NULL,
   laterality varchar(50) DEFAULT NULL,
   location varchar(50) DEFAULT NULL,
   location_precision varchar(250) DEFAULT NULL,
@@ -289,10 +333,10 @@ CREATE TABLE IF NOT EXISTS `uhn_dxd_primary_ovaries` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 ALTER TABLE `uhn_dxd_primary_ovaries`
   ADD CONSTRAINT `FK_uhn_dxd_primary_ovaries_diagnosis_masters` FOREIGN KEY (`diagnosis_master_id`) REFERENCES `diagnosis_masters` (`id`);
--- Ovarian Diagnosis Method
-INSERT INTO structure_value_domains (domain_name, source) VALUES ("uhn_ovarian_diagnosis_method", "StructurePermissibleValuesCustom::getCustomDropdown(\'Ovarian Diagnosis Method\')");
-INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) VALUES ('Ovarian Diagnosis Method', 'diagnosis', 1, 50);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Ovarian Diagnosis Method');
+-- Diagnosis Method
+INSERT INTO structure_value_domains (domain_name, source) VALUES ("uhn_diagnosis_method", "StructurePermissibleValuesCustom::getCustomDropdown(\'Diagnosis Method\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) VALUES ('Diagnosis Method', 'diagnosis', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Diagnosis Method');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES
 ('surgery', 'Surgery', '', '1', @control_id),
@@ -363,8 +407,8 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 ((SELECT id FROM structure_value_domains WHERE domain_name="uhn_figo"), (SELECT id FROM structure_permissible_values WHERE value="IV" AND language_alias="IV"), "10", "1"),
 ((SELECT id FROM structure_value_domains WHERE domain_name="uhn_figo"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "11", "1");
 INSERT INTO structures(`alias`) VALUES ('uhn_dxd_primary_ovaries');
+UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_value_domains WHERE domain_name='uhn_diagnosis_method') WHERE field = 'dx_method';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'DiagnosisDetail', 'uhn_dxd_primary_ovaries', 'diagnosis_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_ovarian_diagnosis_method') , '0', '', '', '', 'diagnosis method', ''), 
 ('ClinicalAnnotation', 'DiagnosisDetail', 'uhn_dxd_primary_ovaries', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='laterality') , '0', '', '', 'dx_laterality', 'laterality', ''), 
 ('ClinicalAnnotation', 'DiagnosisDetail', 'uhn_dxd_primary_ovaries', 'location', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_ovarian_diagnosis_location') , '0', '', '', '', 'ovarian diagnosis location', ''), 
 ('ClinicalAnnotation', 'DiagnosisDetail', 'uhn_dxd_primary_ovaries', 'location_precision', 'input', NULL , '0', '', '', '', '', 'ovarian diagnosis location precision'), 
@@ -373,7 +417,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'DiagnosisDetail', 'uhn_dxd_primary_ovaries', 'histologic_type_precision', 'input', NULL , '0', '', '', '', '', 'ovarian diagnosis histologic type precision'), 
 ('ClinicalAnnotation', 'DiagnosisDetail', 'uhn_dxd_primary_ovaries', 'figo', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_figo') , '0', '', '', '', 'figo', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='uhn_dxd_primary_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='uhn_dxd_primary_ovaries' AND `field`='diagnosis_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_dxd_primary_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='uhn_dxd_primary_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='uhn_dxd_primary_ovaries' AND `field`='laterality'), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='uhn_dxd_primary_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='uhn_dxd_primary_ovaries' AND `field`='location'), '1', '6', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='uhn_dxd_primary_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='uhn_dxd_primary_ovaries' AND `field`='location_precision'), '1', '7', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
@@ -405,6 +449,14 @@ INSERT INTO i18n (id,en) VALUES ('use ovarian diagnosis for any either ovarian t
 UPDATE structure_formats 
 SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
 WHERE structure_id IN (SELECT id FROM structures WHERE alias IN ('dx_primary', 'dx_secondary'));
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_remission'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='dx_progression'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='uhn_dxd_primary_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='uhn_dxd_secondary_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='uhn_dxd_secondary_ovaries'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `field`='dx_method'), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='uhn_dxd_secondary_others') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_diagnosis_method') AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------
 -- Reproductive History
@@ -707,6 +759,8 @@ INSERT INTO i18n (id,en) VALUES ('reason for stopping', 'Reason for stopping');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='uhn_institution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_treatment_institution')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='institution' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 UPDATE structure_formats SET `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='txe_chemos' AND `field`='method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
+update treatment_controls SET applied_protocol_control_id = NULL, extended_data_import_process = null;
 
 -- radiation
 
@@ -942,7 +996,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('tumour present','Tumour Present'),
-('report number','Report #'),
+('report number','Path Number#'),
 ('left ovary', 'Left Ovary'),
 ('weight g', 'Weight (g)'),
 ('diameter cm', 'Diameter (cm)'),
@@ -989,6 +1043,32 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='endometrium' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_endometrium')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='endometrium' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('endometrium','Endometrium');
 UPDATE structure_formats SET `display_column`='3', `display_order`='95', `language_heading`='endometrium' WHERE structure_id=(SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='endometrium' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_endometrium') AND `flag_confidential`='0');
+
+ALTER TABLE uhn_ed_ovary_lab_pathologies ADD COLUMN fallopian_tubes_lesion CHAR(1) DEFAULT '', ADD COLUMN fallopian_tubes_lesion_precision VARCHAR(50) DEFAULT NULL;
+ALTER TABLE uhn_ed_ovary_lab_pathologies_revs ADD COLUMN fallopian_tubes_lesion CHAR(1) DEFAULT '', ADD COLUMN fallopian_tubes_lesion_precision VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+("uhn_patho_fallopian_tubes_Lesion", "StructurePermissibleValuesCustom::getCustomDropdown(\'Patho - Fallopian Tubes Lesion\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
+VALUES 
+('Patho - Fallopian Tubes Lesion', 'annotation', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Patho - Fallopian Tubes Lesion');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('p53 signature', 'P53 Signature', '', '1', @control_id),
+('stic', 'STIC', '', '1', @control_id),
+('stil', 'STIL', '', '1', @control_id),
+('other', 'Other', '', '1', @control_id),
+('carcinoma', 'Carcinoma', '', '1', @control_id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'fallopian_tubes_lesion', 'yes_no',  NULL , '0', '', '', '', 'fallopian tubes lesion', ''), 
+('ClinicalAnnotation', 'EventDetail', 'uhn_ed_ovary_lab_pathologies', 'fallopian_tubes_lesion_precision', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_fallopian_tubes_Lesion') , '0', '', '', '', 'detail', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='fallopian_tubes_lesion' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='fallopian tubes lesion' AND `language_tag`=''), '3', '100', 'fallopian tubes', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_ed_ovary_lab_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='uhn_ed_ovary_lab_pathologies' AND `field`='fallopian_tubes_lesion_precision' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_patho_fallopian_tubes_Lesion')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='detail' AND `language_tag`=''), '3', '101', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('fallopian tubes','Fallopian Tubes'), ('fallopian tubes lesion', 'Fallopian Tubes Lesion');
+
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE tablename='uhn_ed_ovary_lab_pathologies' AND field='report_number'), 'notEmpty');
 
 -- event master
 
@@ -1127,6 +1207,43 @@ UPDATE structure_fields SET structure_value_domain = (SELECT id FROM structure_v
 
 ALTER TABLE collections MODIFY collection_site varchar(50) DEFAULT NULL;
 ALTER TABLE collections_revs MODIFY collection_site varchar(50) DEFAULT NULL;
+
+ALTER TABLE collections ADD COLUMN uhn_pre_post_treatment varchar(20) DEFAULT NULL;
+ALTER TABLE collections_revs ADD COLUMN uhn_pre_post_treatment varchar(20) DEFAULT NULL;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("pre", "pre"),('post','post'),('n/a','n/a'),('unknown','unknown');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("uhn_pre_post_treatment", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_pre_post_treatment"), (SELECT id FROM structure_permissible_values WHERE value="pre" AND language_alias="pre"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_pre_post_treatment"), (SELECT id FROM structure_permissible_values WHERE value="post" AND language_alias="post"), "2", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_pre_post_treatment"), (SELECT id FROM structure_permissible_values WHERE value="n/a" AND language_alias="n/a"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_pre_post_treatment"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "4", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'uhn_pre_post_treatment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_pre_post_treatment') , '0', '', '', '', 'treatment status', ''),
+('InventoryManagement', 'Collection', 'collections', 'uhn_pre_post_treatment', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_pre_post_treatment') , '0', '', '', '', 'treatment status', '');
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'ViewCollection' AND field = 'uhn_pre_post_treatment');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) 
+(SELECT `structure_id`, @structure_field_id, `display_column`, (`display_order` -1), `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`
+FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'ViewCollection' AND field = 'collection_site'));
+SET @structure_field_id = (SELECT id FROM structure_fields WHERE model = 'Collection' AND field = 'uhn_pre_post_treatment');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) 
+(SELECT `structure_id`, @structure_field_id, `display_column`, (`display_order` -1), `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`
+FROM structure_formats WHERE structure_field_id = (SELECT id FROM structure_fields WHERE model = 'Collection' AND field = 'collection_site'));
+INSERT INTO i18n(id,en) VALUES ('treatment status','Treatment Status');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewCollection', '', 'uhn_report_number', 'input', NULL, '0', 'size=30', '', '', 'report number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='uhn_report_number'), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+
+
+
+
+
+
+
+
+
 
 
 
