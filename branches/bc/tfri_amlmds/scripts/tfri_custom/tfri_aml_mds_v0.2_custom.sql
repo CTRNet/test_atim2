@@ -513,9 +513,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
   ('AML', 'AML', ''),
   ('MDS', 'MDS', ''),
-  ('tfri myelodysplastic subtype', 'Myelodysplastic Syndrome (MDS) Subtype', '');    
-
-/*
-INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_compare_with_cap`) VALUES ('primary', 'mds aml', '1', 'dx_primary,dx_tfri_mds_aml', 'dxd_tfri_mds_aml', '0', 'primary|mds aml', '0');
-INSERT INTO `diagnosis_controls` (`category`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES ('recurrence', 'mds aml', '1', 'dx_recurrence,dx_tfri_recurrence', 'dxd_recurrences', '0', 'recurrence|mds aml');
-*/
+  ('tfri myelodysplastic subtype', 'Myelodysplastic Syndrome (MDS) Subtype', '');
