@@ -21,10 +21,13 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Collection.uhn_collection_year AS uhn_collection_year,
-MiscIdentifier.identifier_value AS tgh_number	
+MiscIdentifier.identifier_value AS tgh_number,
+Collection.uhn_pre_post_treatment AS uhn_pre_post_treatment,
+EventDetail.report_number AS uhn_report_number			
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 LEFT JOIN misc_identifiers AS MiscIdentifier ON Collection.uhn_misc_identifier_id = MiscIdentifier.id AND MiscIdentifier.deleted <> 1
+LEFT JOIN uhn_ed_ovary_lab_pathologies AS EventDetail ON EventDetail.event_master_id = Collection.event_master_id
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
