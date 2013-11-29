@@ -1122,7 +1122,7 @@ INSERT INTO structure_validations(structure_field_id, rule) VALUES
 ((SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='uhn_site'), 'notEmpty');
 
 -- -----------------------------------------------------------------------------------------------------------------------
--- SOP
+-- SOP & PROTOCOL
 -- ----------------------------------------------------------------------------------------------------------------------- 
 
 UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Sop/SopMasters%';
@@ -1130,6 +1130,8 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Sop/SopMasters%';
 UPDATE structure_formats 
 SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' 
 WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field` = 'sop_master_id');
+
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/ProtocolMasters%';
 
 -- -----------------------------------------------------------------------------------------------------------------------
 -- Collections
@@ -1236,9 +1238,143 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='view_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='uhn_report_number'), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(131, 25, 3, 132, 188, 142, 143, 141, 144, 192, 140);
+UPDATE aliquot_controls SET flag_active=false WHERE id IN(11);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='is_problematic' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Tissue
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='pathology_reception_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_size' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_size_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_size_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_tissues') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='tissue_weight_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_weight_unit') AND `flag_confidential`='0');
+
+UPDATE structure_permissible_values_custom_controls SET flag_active = 1 WHERE name IN ('laboratory staff', 'aliquot use and event types','storage types','storage coordinate titles');
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Source\')" WHERE domain_name = 'tissue_source_list';
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, category, values_max_length) VALUES ('Tissue Source', 1, 'inventory', 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Source');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+(lower('Fallopian Tube'), 'Fallopian Tube', '', '1', @control_id),
+(lower('Ovary'), 'Ovary', '', '1', @control_id),
+(lower('Sigmoid colon'), 'Sigmoid colon', '', '1', @control_id),
+(lower('Rectum'), 'Rectum', '', '1', @control_id),
+(lower('Cul de sac'), 'Cul de sac', '', '1', @control_id),
+(lower('Peritoneum'), 'Peritoneum', '', '1', @control_id),
+(lower('Endometrium'), 'Endometrium', '', '1', @control_id),
+(lower('Pelvic mass'), 'Pelvic mass', '', '1', @control_id),
+(lower('Abdominal Wall'), 'Abdominal Wall', '', '1', @control_id),
+(lower('Exocervix'), 'Exocervix', '', '1', @control_id);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimens') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='supplier_dept' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_specimen_supplier_dept') AND `flag_confidential`='0');
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'laboratory staff ');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+(lower('Anca Milea'), 'Anca Milea', '', '1', @control_id),
+(lower('Patricia Shaw'), 'Patricia Shaw', '', '1', @control_id),
+(lower('Sophia George'), 'Sophia George', '', '1', @control_id),
+(lower('Ramlogan Sowamber'), 'Ramlogan Sowamber', '', '1', @control_id);
+
+ALTER TABLE sd_spe_tissues 
+  ADD COLUMN uhn_review_tumour_pct decimal(10,2) DEFAULT NULL,
+  ADD COLUMN uhn_review_tumour_stroma_pct decimal(10,2) DEFAULT NULL,
+  ADD COLUMN uhn_review_necrosis_hemorrhage_pct decimal(10,2) DEFAULT NULL,
+  ADD COLUMN uhn_review_benign_tissue_pct decimal(10,2) DEFAULT NULL;
+ALTER TABLE sd_spe_tissues_revs 
+  ADD COLUMN uhn_review_tumour_pct decimal(10,2) DEFAULT NULL,
+  ADD COLUMN uhn_review_tumour_stroma_pct decimal(10,2) DEFAULT NULL,
+  ADD COLUMN uhn_review_necrosis_hemorrhage_pct decimal(10,2) DEFAULT NULL,
+  ADD COLUMN uhn_review_benign_tissue_pct decimal(10,2) DEFAULT NULL; 
+  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'uhn_review_tumour_pct', 'float',  NULL , '0', 'size=5', '', '', 'tumour pct', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'uhn_review_tumour_stroma_pct', 'float',  NULL , '0', 'size=5', '', '', 'tumour stroma pct', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'uhn_review_necrosis_hemorrhage_pct', 'float',  NULL , '0', 'size=5', '', '', 'necrosis hemorrhage pct', ''), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'uhn_review_benign_tissue_pct', 'float',  NULL , '0', 'size=5', '', '', 'benign tissue pct', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='uhn_review_tumour_pct' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='tumour pct' AND `language_tag`=''), '2', '500', 'path review', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='uhn_review_tumour_stroma_pct' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='tumour stroma pct' AND `language_tag`=''), '2', '501', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='uhn_review_necrosis_hemorrhage_pct' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='necrosis hemorrhage pct' AND `language_tag`=''), '2', '502', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='uhn_review_benign_tissue_pct' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='benign tissue pct' AND `language_tag`=''), '2', '503', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en) VALUES
+('path review','Path Review'), 
+('tumour pct','Tumour %'), 
+('tumour stroma pct','Tumour Stroma %'), 
+('necrosis hemorrhage pct','Necrosis Hemorrage %'), 
+('benign tissue pct','Benign Tissue %');
+
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE specimen_review_controls SET flag_active = 0;
+UPDATE aliquot_review_controls SET flag_active = 0;
+UPDATE menus SET flag_active = 0 WHERE use_link like '/InventoryManagement/SpecimenReviews/%';
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='1', `display_order`='1202', `flag_add`='0', `flag_addgrid`='0', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE language_label = 'barcode' AND model LIKE '%Aliquot%';
+REPLACE INTO i18n (id,en) VALUES ('aliquot barcode', 'Aliquot System Code');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='aliquot_label'), 'notEmpty');
+
+REPLACE INTO i18n (id,en) VALUES ('aliquot label','Number');
+
+UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("no-OCT", "no-OCT");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="block_type"), (SELECT id FROM structure_permissible_values WHERE value="no-OCT" AND language_alias="no-OCT"), "2", "1");
+INSERT INTO i18n (id,en) VALUES ("no-OCT", "No-OCT");
+
+ALTER TABLE ad_tubes ADD COLUMN uhn_storage_method VARCHAR(50) DEFAULT NULL, ADD COLUMN uhn_storage_solution VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs ADD COLUMN uhn_storage_method VARCHAR(50) DEFAULT NULL, ADD COLUMN uhn_storage_solution VARCHAR(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+("uhn_tissue_storage_solution", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Storage Solution\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
+VALUES 
+('Tissue Storage Solution', 'inventory', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Storage Solution');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('OCT', 'OCT', '', '1', @control_id),
+('tripsine', 'Tripsine', '', '1', @control_id),
+('collagenase', 'Collagenase', '', '1', @control_id);
+INSERT INTO structure_value_domains (domain_name, source) VALUES 
+("uhn_tissue_storage_method", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Storage Method\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
+VALUES 
+('Tissue Storage Method', 'inventory', 1, 50);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Storage Method');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('snap frozen', 'Snap Frozen', '', '1', @control_id);
+UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias,',uhn_tissue_tube') WHERE sample_control_id = 3 AND aliquot_type = 'tube';
+INSERT INTO structures(`alias`) VALUES ('uhn_tissue_tube');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'uhn_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_solution') , '0', '', '', '', 'storage solution', ''), 
+('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'uhn_storage_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_method') , '0', '', '', '', 'storage method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='uhn_tissue_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='uhn_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_solution')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage solution' AND `language_tag`=''), '1', '71', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='uhn_tissue_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='uhn_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '72', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('storage solution','Storage Solution'),('storage method','Storage Method'); 
 
 
 
+TODO:  ADD tissue aliquot control 'control block' having inked yes_no.
+
+
+
+
+
+
+
+add control block as aliquot control having section inked yes no
 
 
 
