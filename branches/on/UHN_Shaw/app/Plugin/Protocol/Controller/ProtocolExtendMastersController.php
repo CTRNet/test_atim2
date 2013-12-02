@@ -134,8 +134,6 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 			if( $hook_link ) { require($hook_link); }
 			
 			$this->ProtocolExtendMaster->id = $protocol_extend_master_id;
-//TODO temporary fix to allow Detail Data Update
-$this->request->data['ProtocolExtendMaster']['id'] = $protocol_extend_master_id;
 			if ($submitted_data_validates && $this->ProtocolExtendMaster->save($this->request->data)) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) {
