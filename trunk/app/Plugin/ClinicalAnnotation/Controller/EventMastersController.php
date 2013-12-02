@@ -30,7 +30,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				if($new_ctrl['EventControl']['use_detail_form_for_index']) {
 					// Controls that should be listed using detail form
 					$controls_for_subform_display[$new_ctrl['EventControl']['id']] = $new_ctrl;
-					$controls_for_subform_display[$new_ctrl['EventControl']['id']]['EventControl']['ev_header'] = __($new_ctrl['EventControl']['event_type']) . ' - ' . __($new_ctrl['EventControl']['disease_site']);
+					$controls_for_subform_display[$new_ctrl['EventControl']['id']]['EventControl']['ev_header'] = __($new_ctrl['EventControl']['event_type']) . (empty($new_ctrl['EventControl']['disease_site'])? '' : ' - ' . __($new_ctrl['EventControl']['disease_site']));
 				} else {
 					$controls_for_subform_display['-1']['EventControl'] = array('id' => '-1', 'ev_header' => null);
 				}
@@ -130,7 +130,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
-		$this->set('ev_header', __($event_control_data['EventControl']['event_type']) . ' - ' . __($event_control_data['EventControl']['disease_site']));
+		$this->set('ev_header', __($event_control_data['EventControl']['event_type']) . (empty($event_control_data['EventControl']['disease_site'])? '' : ' - ' . __($event_control_data['EventControl']['disease_site'])));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set('empty', 'empty_structure');
