@@ -861,9 +861,9 @@ ALTER TABLE qc_lady_txd_biopsy_surgeries_revs
  ADD COLUMN lymph_node_ccl varchar(10) DEFAULT NULL;
 
 ALTER TABLE qc_lady_txd_biopsy_surgeries
- ADD COLUMN patho_nbr varchar(10) DEFAULT NULL;
+ ADD COLUMN patho_nbr varchar(20) DEFAULT NULL;
 ALTER TABLE qc_lady_txd_biopsy_surgeries_revs
- ADD COLUMN patho_nbr varchar(10) DEFAULT NULL;
+ ADD COLUMN patho_nbr varchar(20) DEFAULT NULL;
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'patho_nbr', 'input',  NULL , '0', 'size=20', '', '', 'patho report number', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
@@ -897,3 +897,43 @@ AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model`='Diagno
 
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ---------------------------------------
+
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='er_receptor_pct' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='pr_receptor_pct' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='input',  `setting`='size=5' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='her2_receptor_score' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='integer_positive' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='ki67_pct' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='receptors' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='er_receptor_pct' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='142' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='ki67_not_performed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+ALTER TABLE qc_lady_txd_biopsy_surgeries 
+	MODIFY her2_receptor_score varchar(20) DEFAULT NULL,
+	MODIFY fish_ratio float(8,1) DEFAULT NULL,
+	MODIFY er_receptor_pct int(8) DEFAULT NULL,
+	MODIFY pr_receptor_pct int(8) DEFAULT NULL,
+	MODIFY ki67_pct int(8) DEFAULT NULL;
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs
+	MODIFY her2_receptor_score varchar(20) DEFAULT NULL,
+	MODIFY fish_ratio float(8,1) DEFAULT NULL,
+	MODIFY er_receptor_pct int(8) DEFAULT NULL,
+	MODIFY pr_receptor_pct int(8) DEFAULT NULL,
+	MODIFY ki67_pct int(8) DEFAULT NULL;
+INSERT INTO i18n(id,en,fr) VALUES ('receptors','Receptors','Récepteurs');	
+UPDATE structure_formats SET `display_order`='145' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='ki67_pct' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='146' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='ki67_not_performed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+ALTER TABLE qc_lady_txd_biopsy_surgeries MODIFY `ki67_not_performed` char(1) DEFAULT '';
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs MODIFY `ki67_not_performed` char(1) DEFAULT '';
+UPDATE qc_lady_txd_biopsy_surgeries SET ki67_not_performed = 'y' WHERE ki67_not_performed = '1';
+UPDATE qc_lady_txd_biopsy_surgeries SET ki67_not_performed = 'n' WHERE ki67_not_performed != 'y';
+UPDATE structure_fields SET field='ki67_performed', `type`='yes_no',  `structure_value_domain`= NULL ,  `language_tag`='performed' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='ki67_not_performed' AND `type`='checkbox' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox');
+ALTER TABLE qc_lady_txd_biopsy_surgeries CHANGE COLUMN `ki67_not_performed` ki67_performed char(1) DEFAULT '';
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs CHANGE COLUMN `ki67_not_performed` ki67_performed char(1) DEFAULT '';
+INSERT INTO i18n (id,en) VALUES ('performed','Performed');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='familyhistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FamilyHistory' AND `tablename`='family_histories' AND `field`='qc_lady_tumor_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_tumor_site') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='reproductivehistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='para' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
+
