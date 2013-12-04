@@ -283,3 +283,33 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 */  
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(137, 142, 143, 141, 144, 139, 140);
+
+/*
+	Eventum Issue: #2817 - Update Other option to Other MDS Subtype and label for input field to "Other MDS Subtype"
+*/
+
+ALTER TABLE `dxd_tfri_mds` 
+CHANGE COLUMN `tfri_other_diagnosis` `tfri_other_mds_subtype` VARCHAR(255) NULL DEFAULT NULL ;
+
+ALTER TABLE `dxd_tfri_mds_revs` 
+CHANGE COLUMN `tfri_other_diagnosis` `tfri_other_mds_subtype` VARCHAR(255) NULL DEFAULT NULL ;
+
+UPDATE `structure_fields` SET `field`='tfri_other_mds_subtype' WHERE `field` = 'tfri_other_diagnosis' AND tablename = 'dxd_tfri_mds';
+UPDATE structure_fields SET  `language_label`='tfri other mds subtype' WHERE model='DiagnosisDetail' AND tablename='dxd_tfri_mds' AND field='tfri_other_mds_subtype' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- Fix value domain for 'other' value
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("other mds subtype", "other mds subtype");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="mds_sub_type"), (SELECT id FROM structure_permissible_values WHERE value="other mds subtype" AND language_alias="other mds subtype"), "9", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="other" AND spv.language_alias="other";
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri other mds subtype', 'Other MDS Subtype', ''),
+ ('other mds subtype', 'Other MDS Subtype', '');
+
+/*
+	Eventum Issue: #2818 - Enable remission, progression and secondary types
+*/
+ 
+UPDATE `diagnosis_controls` SET `flag_active`='1' WHERE `id`='17';
+UPDATE `diagnosis_controls` SET `flag_active`='1' WHERE `id`='16';
+UPDATE `diagnosis_controls` SET `flag_active`='1' WHERE `id`='18';
