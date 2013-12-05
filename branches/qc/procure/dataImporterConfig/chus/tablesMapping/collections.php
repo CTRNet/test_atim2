@@ -87,7 +87,7 @@ function loadTissue(&$workSheetCells, $filename, $worksheetname) {
 			if($new_line_data['Type de chirurgie']) {
 				switch($new_line_data['Type de chirurgie']) {
 					case 'laparoscopie':
-						$procure_prostatectomy_type = 'laparascopy';
+						$procure_prostatectomy_type = 'laparoscopy';
 						break;
 					case 'ouverte':
 						$procure_prostatectomy_type = 'open surgery';

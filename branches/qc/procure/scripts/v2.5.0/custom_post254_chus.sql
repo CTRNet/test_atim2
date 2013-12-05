@@ -199,3 +199,8 @@ ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN chus_histology_small_cell
 
 ALTER TABLE procure_ed_lab_pathologies MODIFY COLUMN `histology_other_precision` varchar(150) DEFAULT NULL;
 ALTER TABLE procure_ed_lab_pathologies_revs MODIFY COLUMN `histology_other_precision` varchar(150) DEFAULT NULL;
+
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantcontacts') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='phone' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE `versions` SET branch_build_number = '5470' WHERE version_number = '2.5.4';
+

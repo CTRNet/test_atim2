@@ -20,15 +20,15 @@ class Config{
 	
 	//if reading excel file
 	static $bank = 'CHUS';
-	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-09-27_nl.xls";
-	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_path_reports			= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_followups 			= "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Cliniques_ATiM_2013-09-27_nl_rev.xls";
-	static $xls_file_path_nominal_data = "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Nominales_ATiM_2013-10-02_nl_rev.xls";
+	static $xls_file_path						= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-11-11.xls";
+	static $xls_file_path_storage_all			= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_echantillons_ATiM_2013-11-11.xls";
+	static $xls_file_path_storage_whatman_paper	= "C:/_Perso/Server/procure/data/chus/CHUS_Localisation_cartes Whatman_ATiM_2013-11-11.xls";
+	static $xls_file_path_collection_v01		= "C:/_Perso/Server/procure/data/chus/CHUS_V01_Inventaire_ATiM_2013-11-11.xls";
+	static $xls_file_path_collection_suivi		= "C:/_Perso/Server/procure/data/chus/CHUS_Suivis_Inventaire_ATiM_2013-11-11.xls";
+	static $xls_file_path_paraffin_blocks		= "C:/_Perso/Server/procure/data/chus/CHUS_Bloc Paraffine_Inventaire_ATiM_2013-11-11.xls";
+	static $xls_file_path_path_reports			= "C:/_Perso/Server/procure/data/chus/CHUS_donnees_clinico-patho_ATiM_2013-11-11.xls";
+	static $xls_file_path_followups 			= "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Cliniques_ATiM_2013-11-11.xls";
+	static $xls_file_path_nominal_data 			= "C:/_Perso/Server/procure/data/chus/CHUS_Donnees Nominales_ATiM_2013-11-11.xls";
 	
 	static $xls_header_rows = 1;
 	

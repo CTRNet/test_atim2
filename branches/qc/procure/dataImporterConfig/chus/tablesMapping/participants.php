@@ -133,8 +133,18 @@ function loadParticipantNominalData() {
 						Config::$participant_nominal_data[$patient_identification]['Participant']['date_of_death_accuracy'] = $tmp_date['accuracy'];
 					}
 					if($new_line_data['Cause du décès']) {
-						if($new_line_data['Cause du décès'] != 'Indépendant') die('ERR 23 628736 32876238 ');
-						Config::$participant_nominal_data[$patient_identification]['Participant']['procure_cause_of_death'] = "independent of prostate cancer";
+						
+						switch($new_line_data['Cause du décès']) {
+							case 'Indépendant':
+								Config::$participant_nominal_data[$patient_identification]['Participant']['procure_cause_of_death'] = "independent of prostate cancer";
+								break;
+							case 'Secondaire':
+								Config::$participant_nominal_data[$patient_identification]['Participant']['procure_cause_of_death'] = "secondary to prostate cancer";
+								break;
+							default:
+								//("unknown", "unknown");
+								die('ERR 23 628736 32876238 '.$new_line_data['Cause du décès']);
+						}
 					}
 				} else {
 					die('ERR 32632876 87632');
@@ -149,7 +159,14 @@ function loadParticipantNominalData() {
 			//Contact
 			for($id_phone = 1; $id_phone < 4; $id_phone++) {
 				if(strlen($new_line_data["Téléphone $id_phone::Numéro"].$new_line_data["Téléphone $id_phone::Détails"])) {
-					if(empty($new_line_data["Téléphone $id_phone::Numéro"]) || empty($new_line_data["Téléphone $id_phone::Détails"])) die('ERR 2376 28763287632');
+					if(empty($new_line_data["Téléphone $id_phone::Numéro"])) {
+						pr('line '.$line_counter);
+						pr($new_line_data);
+						die('ERR 2376 28763287632');
+					}
+					if(empty($new_line_data["Téléphone $id_phone::Détails"])) {
+						//Config::$summary_msg['Nominal Data']['@@WARNING@@']['Missing Contact Type'][] = "See patient $patient_identification line: ".$line_counter;
+					}
 					Config::$participant_nominal_data[$patient_identification]['Contact'][] = array(
 						'contact_type' => $new_line_data["Téléphone $id_phone::Détails"],
 						'phone' => $new_line_data["Téléphone $id_phone::Numéro"]);
