@@ -227,7 +227,7 @@ function loadFollowUpClinicaTreatment($patient_identification, $new_line_data, $
 	
 	// ** OTHER TRT **
 	if(strlen($new_line_data['Autre traitement Préciser le traitement'].$new_line_data['Autre traitement Date début'].$new_line_data['Autre traitement Date fin'].$new_line_data['Autre traitement Posologie (dose)'])) {
-		die('ERR 327 2863286 823687 3223 ');
+		Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Other Treatment To Create Manually'][] = "Patient $patient_identification: Add following information manually ".$new_line_data['Autre traitement Préciser le traitement']." / ".$new_line_data['Autre traitement Date début']." / ".$new_line_data['Autre traitement Date fin']." / ".$new_line_data['Autre traitement Posologie (dose)'].". See line: $line_counter";
 	}
 	
 	// ** EXP TRT **
