@@ -281,8 +281,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('tfri nos', 'AML not otherwise categorized', ''),
  ('tfri ambiguous', 'AML of ambiguous lineage', ''),
  ('aml recurrent genetic runx1-runx1t1', 'AML with (8;21) (q22;q22); RUNX1-RUNX1T1', ''),
- ('aml recurrent genetic cbfbeta myh11', '', ''),
- ('apl recurrent genetic pml raralpha', '', ''),
+ ('aml recurrent genetic cbfbeta myh11', 'AML with inv(16)(p13.1;q22) or t(16;16) (p13;q22); CBFB/MYH11', ''),
+ ('apl recurrent genetic pml raralpha', 'APL with t(15;17)(q22;q12), (PML/RARΑ)', ''),
  ('aml recurrent genetic dek-nup214', 'AML with t(6;9)9p23;q34); DEK-NUP214', ''),
  ('aml recurrent genetic rpn1-evi1', 'AML with inv(3)(q21q26.2) or t(3;3)(q21;q26.2); RPN1-EVI1', ''),
  ('aml recurrent genetic rbm15-mkl1', 'AML (megakaryoblastic) with t(1;22)(p13;q13); RBM15-MKL1', ''),
@@ -294,10 +294,46 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('aml ambiguous mixed phenotype mll rearranged', 'Mixed phenotype AML with t(v;11q23); MLL rearranged', ''),
  ('aml ambiguous mixed phenotype b-myeloid nos', 'Mixed phenotype AML, B-myeloid, NOS', ''),
  ('aml ambiguous mixed phenotype t-myeloid nos', 'Mixed phenotype AML, T-myeloid, NOS', ''),
- ('aml ambiguous natural killer cell lymphoblastic', 'Natural killer (NK) cell lymphoblastic leukemia/lymphoma', '');
- ('', '', ''),
- ('', '', ''),
- ('', '', ''),
- ('', '', ''),
- ('', '', ''),
- ('', '', ''),   
+ ('aml ambiguous natural killer cell lymphoblastic', 'Natural killer (NK) cell lymphoblastic leukemia/lymphoma', ''),
+ ('aml nos minimally differentiated', 'AML, minimally differentiated (M0)', ''),
+ ('aml nos without maturation', 'AML without maturation', ''),
+ ('aml nos acute myelomonocytic leukemia', 'Acute myelomonocytic leukmia (M4)', ''),
+ ('aml nos acute monoblastic monocytic leukemia', 'Acute monoblastic/monocytic leukemia (M5)', ''),
+ ('aml nos acute erythroid leukemia pure', 'Acute erythroid leukemia (M6) - Pure erythroid leukemia', ''),
+ ('aml nos acute erythroid leukemia erythroleukemia', 'Acute erythroid leukemia (M6) - Erythroleukemia, erythroid/myeloid', ''),
+ ('aml nos megakaryoblastic leukemia', 'Acute megakaryoblastic leukemia (M7)', ''),
+ ('aml nos acute basophilic leukemia', 'Acute basophilic leukemia', ''),
+ ('aml nos acute panmyelosis myelofibrosis', 'Acute panmyelosis with myelofibrosis', ''),
+ ('aml nos myeloid sarcoma', 'Myeloid sarcoma', ''),
+ ('aml nos blastic plasmacytoid dendritic cell neoplasm', 'Blastic plasmacytoid dendritic cell neoplasm', '');
+ 
+/*
+	Eventum Issue: #2841: Sample code hide field
+*/
+ 
+UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+/*
+	Eventum Issue: #2841: Sample code hide field
+*/
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('aliquot sop', 'Processing SOP', '');
+
+/*
+	Eventum Issue: #2842: Vial fields to hide
+*/
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temperature' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='temp_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='temperature_unit_code') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='recorded_storage_selection_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='current_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
