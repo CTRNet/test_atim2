@@ -35,10 +35,10 @@ LEFT JOIN uhn_ed_ovary_lab_pathologies AS EventDetail ON EventDetail.event_maste
 	
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id']), 'recursive' => '-1'));
-
+			$title =(empty($collection_data['ViewCollection']['tgh_number'])? '?' : $collection_data['ViewCollection']['tgh_number']).'-'.$collection_data['ViewCollection']['uhn_collection_year'];
 			$return = array(
-				'menu' => array(null, $collection_data['ViewCollection']['tgh_number'].'-'.$collection_data['ViewCollection']['uhn_collection_year']),
-				'title' => array(null, __('collection') . ' : ' . $collection_data['ViewCollection']['tgh_number'].'-'.$collection_data['ViewCollection']['uhn_collection_year']),
+				'menu' => array(null, $title),
+				'title' => array(null, __('collection') . ' : ' . $title),
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data
 			);
