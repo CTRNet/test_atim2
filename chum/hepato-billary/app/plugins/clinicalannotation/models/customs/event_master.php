@@ -203,11 +203,13 @@ class EventMasterCustom extends EventMaster{
 		}
 	
 		if($this->data['EventDetail']['albumin'] == "<28g/l"){
-			++ $score;
+			$score += 3;
+			//++ $score;
 		}else if($this->data['EventDetail']['albumin'] == "28 - 35g/l"){
 			$score += 2;
 		}else if($this->data['EventDetail']['albumin'] == ">35g/l"){
-			$score += 3;
+			++ $score;
+			//$score += 3;
 		} else {
 			$set_score = false;
 		}
