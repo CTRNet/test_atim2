@@ -37,7 +37,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0' WHERE structure_id=
 
 UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewCollection' AND `tablename`='' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
 
-INSERT INTO `structure_permissible_values_customs` (`id`,`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`,`created`,`created_by`,`modified`,`modified_by`,`deleted`) VALUES 
+INSERT INTO `structure_permissible_values_customs` (`control_id`,`value`,`en`,`fr`,`display_order`,`use_as_input`,`created`,`created_by`,`modified`,`modified_by`,`deleted`) VALUES 
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'),'6','6','',0,1,'2013-12-05 15:06:59',1,'2013-12-05 15:06:59',1,0),
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'),'5','5','',0,1,'2013-12-05 15:06:59',1,'2013-12-05 15:06:59',1,0),
 ((SELECT `id` FROM `structure_permissible_values_custom_controls` WHERE `name` = 'specimen collection sites'),'4','4','',0,1,'2013-12-05 15:06:59',1,'2013-12-05 15:06:59',1,0),
@@ -388,7 +388,7 @@ UPDATE `aliquot_controls` SET `flag_active`='1' WHERE `sample_control_id`=(SELEC
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('InventoryManagement', 'SampleDetail', 'ad_tubes', 'cell_count', 'float',  NULL , '0', '', '', '', 'cell count', ''), 
-('InventoryManagement', 'SampleDetail', 'ad_tubes', 'cell_count_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit') , '0', '', '', '', 'cell count unit', '');
+('InventoryManagement', 'SampleDetail', 'ad_tubes', 'cell_count_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit') , '0', '', '10e7', '', 'cell count unit', '');
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='ad_tubes' AND `field`='cell_count' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell count' AND `language_tag`=''), '1', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
