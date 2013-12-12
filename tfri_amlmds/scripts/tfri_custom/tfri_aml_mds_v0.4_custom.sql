@@ -314,7 +314,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 /*
-	Eventum Issue: #2841: Sample code hide field
+	Eventum Issue: #2843: Aliquot SOP Label
 */
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
@@ -337,3 +337,60 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structur
 UPDATE structure_formats SET `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_addgrid`='0', `flag_addgrid_readonly`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_volume_unit') AND `flag_confidential`='0');
+
+/*
+	Eventum Issue: #2840: Blood sample - WBC/Blast Count units
+*/
+
+ALTER TABLE `sd_spe_bloods` 
+ADD COLUMN `tfri_wbc_units` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_blast_count`,
+ADD COLUMN `tfri_blast_units` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_wbc_units`;
+
+ALTER TABLE `sd_spe_bloods_revs` 
+ADD COLUMN `tfri_wbc_units` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_blast_count`,
+ADD COLUMN `tfri_blast_units` VARCHAR(45) NULL DEFAULT NULL AFTER `tfri_wbc_units`;
+
+-- Value domain for cell counts
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri cell count", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("10x9/L", "10x9/L");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri cell count"), (SELECT id FROM structure_permissible_values WHERE value="10x9/L" AND language_alias="10x9/L"), "1", "1");
+
+-- Add units to blood form
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'tfri_wbc_units', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count') , '0', '', '', '', '', 'tfri wbc units'), 
+('InventoryManagement', 'SampleDetail', 'sd_spe_bloods', 'tfri_blast_units', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count') , '0', '', '', '', '', 'tfri blast units');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='tfri_wbc_units' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri wbc units'), '1', '449', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_spe_bloods'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='tfri_blast_units' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='tfri blast units'), '1', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='450' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='tfri_blast_count' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count') ,  `default`='10x9/L' WHERE model='SampleDetail' AND tablename='sd_spe_bloods' AND field='tfri_wbc_units' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count') ,  `default`='10x9/L' WHERE model='SampleDetail' AND tablename='sd_spe_bloods' AND field='tfri_blast_units' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='tfri cell count');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('10x9/L', '10x9/L', ''),
+ ('tfri wbc units', '', ''),
+ ('tfri blast units', '', ''); 
+ 
+/*
+	Eventum Issue: #2844: Enable bone marrow sample type
+*/
+
+-- Bone marrow form not enabled 
+UPDATE `parent_to_derivative_sample_controls` SET `flag_active`='1' WHERE `derivative_sample_control_id`=(SELECT `id` FROM `sample_controls` where `sample_type` = 'bone marrow');
+UPDATE `sample_controls` SET `detail_form_alias`='sd_spe_bone_marrows,specimens' WHERE `sample_type`='bone marrow';
+
+UPDATE `aliquot_controls` SET `flag_active`='1' WHERE `sample_control_id`=(SELECT `id` FROM `sample_controls` where `sample_type` = 'bone marrow');
+
+/*
+	Eventum Issue: #2845: Add cell count for blood tubes
+*/
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'ad_tubes', 'cell_count', 'float',  NULL , '0', '', '', '', 'cell count', ''), 
+('InventoryManagement', 'SampleDetail', 'ad_tubes', 'cell_count_unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit') , '0', '', '', '', 'cell count unit', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='ad_tubes' AND `field`='cell_count' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell count' AND `language_tag`=''), '1', '80', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ml_vol'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='ad_tubes' AND `field`='cell_count_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='10e7' AND `language_help`='' AND `language_label`='cell count unit' AND `language_tag`=''), '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
