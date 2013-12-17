@@ -31,7 +31,24 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL
-SELECT 'Structures & Spent Time Fields to Review (See below)' AS 'SPENT TIME FIELDS REVIEW'
+SELECT 'Structures & Spent Time Fields to Review' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT 'Spent time field properties should be consistant with the following example (see array below)' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT '
++--------------------------+-------------+------------------------------+------------------+----------------------------------------+-------------+------------+-------------+----------+-----------+--------------+---------------+----------------+--------------+
+| structure_alias          | model       | field                        | type             | language_label                         | flag_search | flag_index | flag_detail | flag_add | flag_edit | flag_addgrid | flag_editgrid | flag_batchedit | flag_summary |
++--------------------------+-------------+------------------------------+------------------+----------------------------------------+-------------+------------+-------------+----------+-----------+--------------+---------------+----------------+--------------+
+| ad_der_tubes_incl_ml_vol | ViewAliquot | coll_to_stor_spent_time_msg  | input            | collection to storage spent time       |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_der_tubes_incl_ml_vol | ViewAliquot | coll_to_stor_spent_time_msg  | integer_positive | collection to storage spent time (min) |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_der_tubes_incl_ml_vol | ViewAliquot | creat_to_stor_spent_time_msg | input            | creation to storage spent time         |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_der_tubes_incl_ml_vol | ViewAliquot | creat_to_stor_spent_time_msg | integer_positive | creation to storage spent time (min)   |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | coll_to_stor_spent_time_msg  | input            | collection to storage spent time       |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | coll_to_stor_spent_time_msg  | integer_positive | collection to storage spent time (min) |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | rec_to_stor_spent_time_msg   | input            | reception to storage spent time        |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | rec_to_stor_spent_time_msg   | integer_positive | reception to storage spent time (min)  |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
++--------------------------+-------------+------------------------------+------------------+----------------------------------------+-------------+------------+-------------+----------+-----------+--------------+---------------+----------------+--------------+
+' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL
 SELECT 'Nothing to do if no result in following section' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL
@@ -211,10 +228,7 @@ SELECT 'Query to use for control if section above is not empty' AS 'HELP FOR SPE
 UNION ALL 
 SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL 
-SELECT "SELECT structure_alias, model, field, language_label , flag_search, flag_index, flag_detail
-FROM view_structure_formats_simplified 
-WHERE field like '%spent_time_msg' 
-ORDER BY field, structure_alias" AS 'SPENT TIME FIELDS REVIEW'
+SELECT "SELECT structure_alias, model, field, type, language_label , flag_search, flag_index, flag_detail, flag_add, flag_edit, flag_addgrid, flag_editgrid, flag_batchedit,  flag_summary FROM view_structure_formats_simplified WHERE field like '%spent_time_msg' ORDER BY structure_alias, field;" AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL 
 SELECT '' AS 'SPENT TIME FIELDS REVIEW';
 
@@ -854,6 +868,18 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '60', '', '1', 'creation to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0')
+AND language_label = 'collection to storage spent time (min)';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0')
+AND language_label = 'collection to storage spent time (min)';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Add new specimen type Saliva #2597
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -969,32 +995,40 @@ UPDATE storage_controls SET coord_y_title = null WHERE coord_y_title = '';
 UPDATE storage_controls SET coord_y_size = null WHERE coord_y_size = '';
 UPDATE storage_controls SET display_x_size = 0, display_y_size = 0, horizontal_increment = 0 WHERE coord_y_title IS NOT NULL;
 
-SELECT id AS 'storage control id to correct', 'coord_x_ fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'STORAGE CONTROL REVIEW'
+UNION ALL 
+SELECT 'Storage coordinates review. Please correct detected issues if exists (see below)' AS 'STORAGE CONTROL REVIEW'
+UNION ALL 
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'STORAGE CONTROL REVIEW'
+UNION ALL 
+SELECT CONCAT('storage control id ', id ,' to correct : coord_x_ fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_title IS NULL AND (coord_x_type IS NOT NULL OR coord_x_size IS NOT NULL)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_x_ fields error #2' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_x_ fields (error #2 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_type IS NULL AND coord_x_size IS NOT NULL
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_x_ fields error #3' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_x_ fields (error #3 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_type = 'list' AND (coord_x_title IS NULL OR coord_x_size IS NOT NULL)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_y_ fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_y_ fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_y_title IS NULL AND (coord_y_type IS NOT NULL OR coord_y_size IS NOT NULL)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_y_ fields error #2' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_y_ fields (error #2 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_y_type IS NULL AND coord_y_size IS NOT NULL
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_x&y_ fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_x&y_ fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_title IS NULL AND coord_y_title IS NOT NULL
 UNION ALL
-SELECT id AS 'storage control id to correct', 'display_x_size x display_y_size fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : display_x_size x display_y_size fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_size IS NOT NULL AND coord_y_title IS NULL AND (display_x_size * display_y_size) != coord_x_size
 UNION ALL
-SELECT id AS 'storage control id to correct', 'storage temperature error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : storage temperature (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE (detail_form_alias LIKE '%storage_temperature%' AND set_temperature = 0) OR (detail_form_alias NOT LIKE '%storage_temperature%' AND set_temperature = 1)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'storage w. spaces error #1' AS 'issue detail' FROM storage_controls 
-WHERE detail_form_alias LIKE '%storage_w_spaces%' AND coord_x_title IS NULL;
+SELECT  CONCAT('storage control id ', id ,' to correct : storage w. spaces (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
+WHERE detail_form_alias LIKE '%storage_w_spaces%' AND coord_x_title IS NULL
+UNION ALL 
+SELECT '' AS 'STORAGE CONTROL REVIEW';
 
 -- remove storage temperature from detail_form_alias
 
