@@ -110,7 +110,7 @@ class AppModel extends Model {
 		if(!isset($data[$this->name]) || empty($data[$this->name])){
 		    //Eventum 2619: When there is no master data, details aren't saved
 		    //properly because cake core flushes them out.
-		    $data[$this->name]['-'] = "foo";
+		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
 		} 
 		return parent::save($data, $validate, $fieldList);
 	}
