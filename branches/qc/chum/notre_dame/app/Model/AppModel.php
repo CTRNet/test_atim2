@@ -8,12 +8,13 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       app.Model
  * @since         CakePHP(tm) v 0.2.9
@@ -106,6 +107,11 @@ class AppModel extends Model {
 			AppController::addWarningMsg('saving unvalidated data ['.$this->name.']', true);
 		}
 	
+		if(!isset($data[$this->name]) || empty($data[$this->name])){
+		    //Eventum 2619: When there is no master data, details aren't saved
+		    //properly because cake core flushes them out.
+		    //$data[$this->name]['-'] = "foo";
+		} 
 		return parent::save($data, $validate, $fieldList);
 	}
 	
@@ -1214,7 +1220,7 @@ class AppModel extends Model {
 		return $results;
 	}
 	
-	function afterSave($created){
+	function afterSave($created, $options = Array()){
 		if($this->registered_view){
 			foreach($this->registered_view as $registered_view => $foreign_keys){
 				list($plugin_name, $model_name) = explode('.', $registered_view);

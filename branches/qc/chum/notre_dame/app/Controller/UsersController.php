@@ -7,7 +7,6 @@ class UsersController extends AppController {
 	function beforeFilter() {
 		parent::beforeFilter();
 		$this->Auth->allow('login', 'logout');
-		$this->Auth->loginRedirect = '/Menus';
 		$this->Auth->authenticate = array('Form' => array('userModel' => 'User', 'scope' => array('User.flag_active')));
 		
 		$this->set( 'atim_structure', $this->Structures->get( 'form', 'login') );
@@ -51,7 +50,7 @@ class UsersController extends AppController {
 			if(isset($this->passedArgs['login'])){
 				$this->render('ok');
 			}else{
-				$this->redirect($this->Auth->redirect());
+				$this->redirect('/Menus');
 			}
 		}else if(isset($this->request->data['User'])){
 			//failed login
@@ -62,7 +61,7 @@ class UsersController extends AppController {
 			);
 			$this->UserLoginAttempt->save($login_data);
 			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
-			if(!$data['User']['flag_active'] && $data['User']['username'] == $this->request->data['User']['username']){
+			if(!empty($data) && !$data['User']['flag_active'] && $data['User']['username'] == $this->request->data['User']['username']){
 				$this->Auth->flash("that username is disabled");
 			}else{
 				$this->Auth->flash('Login failed. Invalid username or password.');

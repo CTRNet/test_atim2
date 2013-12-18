@@ -7,21 +7,19 @@ class User extends AppModel {
 
 	const PASSWORD_MINIMAL_LENGTH = 6;
 	
-	function parentNode() {    
-		if (!$this->id && empty($this->data)){
-			throw new Exception('Insufficient data to determine parentNode');
+	function parentNode() {
+		if(isset($this->data['User']['group_id'])){
+			return array('Group' => array('id' => $this->data['User']['group_id']));
 		}
-		
-		if(empty($this->data) || !isset($this->data['User']['group_id'])){
-			$data = $this->read();
+		if(isset($this->data['User']['id'])){
+			$this->id = $this->data['User']['id'];
 		}
-		$data = $this->data;
-		
-		if (!isset($data['User']['group_id']) || !$data['User']['group_id']) {
-			throw new Exception('User must always have a group_id');
-		} else {
+		if($this->id){
+			$data = $this->find('first', array('conditions' => array('User.id' => $this->id, 'User.deleted' => array(0, 1))));
+			$this->log(print_r($data, true), 'debug');
 			return array('Group' => array('id' => $data['User']['group_id']));
 		}
+		throw new Exception('Insufficient data to determine parentNode');
 	}
 	
 	function summary( $variables=array() ) {

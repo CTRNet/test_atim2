@@ -2,9 +2,16 @@
 
 class StudySummariesController extends StudyAppController {
 
-	var $uses = array('Study.StudySummary');
+	var $uses = array(
+		'Study.StudySummary',	
+			
+		'InventoryManagement.AliquotMaster',
+		'InventoryManagement.AliquotInternalUse',
+		'Order.Order',
+		'Order.OrderLine');
+	
 	var $paginate = array('StudySummary'=>array('limit' => pagination_amount,'order'=>'StudySummary.title'));
-  
+	
 	function search($search_id = ''){
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -133,6 +140,102 @@ class StudySummariesController extends StudyAppController {
 			$this->flash($arr_allow_deletion['msg'], '/Study/StudySummaries/detail/'.$study_summary_id);
 		}	
   	}
+  	
+  	function listAllLinkedRecords( $study_summary_id ) {
+  		// MANAGE DATA
+  		$study_summary_data = $this->StudySummary->getOrRedirect($study_summary_id);
+  		
+  		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
+  		
+  		// 1- Aliquots
+  		
+  		$link_permissions = array('aliquot' => false, 'aliquot use' => false, 'order' => false, 'order line' => false);
+  		if($this->checkLinkPermission('/InventoryManagement/AliquotMasters/detail/')) {
+			$link_permissions['aliquot'] = true;
+			$link_permissions['aliquot use'] = true;
+		}
+		if($this->checkLinkPermission('/Order/Orders/detail/')) {
+			$link_permissions['order'] = true;
+			$link_permissions['order line'] = true;
+		}
+		$this->set('link_permissions', $link_permissions);
+ 		
+  		// CUSTOM CODE: FORMAT DISPLAY DATA
+  		$hook_link = $this->hook('format');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+  	}
+  	
+  	function listAllLinkedAliquots( $study_summary_id ) {		
+  		if(!$this->checkLinkPermission('/InventoryManagement/AliquotMasters/detail/')) $this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE ); 
+  		
+  		if(!$this->request->is('ajax')) {
+	 		$this->set('atim_menu', $this->Menus->get('/Study/StudySummaries/listAllLinkedRecords/%%StudySummary.id%%/'));
+	 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
+  		}
+  		
+  		$this->request->data = $this->paginate($this->AliquotMaster, array('AliquotMaster.study_summary_id' => $study_summary_id));		
+  		$this->Structures->set('view_aliquot_joined_to_sample_and_collection');
+  		
+  		$hook_link = $this->hook('format');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+  	}
+  	
+ 	function listAllLinkedAliquotInternalUses( $study_summary_id ) {
+ 		if(!$this->checkLinkPermission('/InventoryManagement/AliquotMasters/detail/')) $this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
+
+ 		if(!$this->request->is('ajax')) {
+	 		$this->set('atim_menu', $this->Menus->get('/Study/StudySummaries/listAllLinkedRecords/%%StudySummary.id%%/'));
+	 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
+  		}
+  		
+  		$this->request->data = $this->paginate($this->AliquotInternalUse, array('AliquotInternalUse.study_summary_id' => $study_summary_id));
+  		
+ 		$this->Structures->set('aliquotinternaluses');
+ 		
+  		$hook_link = $this->hook('format');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+ 	}
+ 	
+ 	function listAllLinkedOrders( $study_summary_id ) {
+ 		if(!$this->checkLinkPermission('/Order/Orders/detail/')) $this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
+ 		
+ 		if(!$this->request->is('ajax')) {
+	 		$this->set('atim_menu', $this->Menus->get('/Study/StudySummaries/listAllLinkedRecords/%%StudySummary.id%%/'));
+	 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
+  		}
+  		
+  		$this->request->data = $this->paginate($this->Order, array('Order.default_study_summary_id' => $study_summary_id));
+ 		$this->Structures->set('orders');
+  		
+  		$hook_link = $this->hook('format');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+ 	}
+ 	
+ 	function listAllLinkedOrderLines( $study_summary_id ) {
+ 		if(!$this->checkLinkPermission('/Order/Orders/detail/')) $this->redirect( '/Pages/err_plugin_system_error', NULL, TRUE );
+ 		
+ 		if(!$this->request->is('ajax')) {
+	 		$this->set('atim_menu', $this->Menus->get('/Study/StudySummaries/listAllLinkedRecords/%%StudySummary.id%%/'));
+	 		$this->set( 'atim_menu_variables', array('StudySummary.id'=>$study_summary_id) );
+  		}
+  		
+  		$this->request->data = $this->paginate($this->OrderLine, array('OrderLine.study_summary_id' => $study_summary_id));
+ 		$this->Structures->set('orders,orderlines');
+		
+ 		$hook_link = $this->hook('format');
+ 		if( $hook_link ) {
+ 			require($hook_link);
+ 		}
+ 	}
+ 	
 }
 
 ?>

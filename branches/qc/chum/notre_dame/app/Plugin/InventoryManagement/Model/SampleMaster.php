@@ -55,7 +55,8 @@ class SampleMaster extends InventoryManagementAppModel {
 			$criteria = array(
 				'SampleMaster.collection_id' => $variables['Collection.id'],
 				'SampleMaster.id' => $variables['SampleMaster.initial_specimen_sample_id']);
-			$specimen_data = $this->find('first', array('conditions' => $criteria));
+			$this->unbindModel(array('hasMany' => array('AliquotMaster')));
+			$specimen_data = $this->find('first', array('conditions' => $criteria, 'recursive' => '0'));
 			
 			// Set summary	 	
 	 		$return = array(
@@ -77,7 +78,8 @@ class SampleMaster extends InventoryManagementAppModel {
 			$criteria = array(
 				'SampleMaster.collection_id' => $variables['Collection.id'],
 				'SampleMaster.id' => $variables['SampleMaster.id']);
-			$derivative_data = $this->find('first', array('conditions' => $criteria));
+			$this->unbindModel(array('hasMany' => array('AliquotMaster')));
+			$derivative_data = $this->find('first', array('conditions' => $criteria, 'recursive' => '0'));
 				 	
 			// Set summary	 	
 	 		$return = array(

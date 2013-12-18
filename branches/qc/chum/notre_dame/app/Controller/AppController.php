@@ -1,7 +1,37 @@
 <?php
-App::uses('Controller', 'Controller');//required for console
+/**
+ * Application level Controller
+ *
+ * This file is application-wide controller file. You can put all
+ * application-wide controller-related methods here.
+ *
+ * PHP 5
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       app.Controller
+ * @since         CakePHP(tm) v 0.2.9
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
+App::uses('Controller', 'Controller');
+
+/**
+ * Application Controller
+ *
+ * Add your application-wide methods in the class below, your controllers
+ * will inherit them.
+ *
+ * @package		app.Controller
+ * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
+ */
 class AppController extends Controller {
-	
 	private static $missing_translations = array();
 	private static $me = NULL;
 	private static $acl = null;
@@ -29,9 +59,9 @@ class AppController extends Controller {
 		if($this->Session->read('permission_timestamp') < $this->SystemVar->getVar('permission_timestamp')){
 			$this->resetPermissions();
 		}
-		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
+			//echo(Configure::read('Config.language'));
 			$this->Session->write('Config.language', Configure::read('Config.language'));
 		}
 		
@@ -205,33 +235,11 @@ class AppController extends Controller {
 		$logged_in_user		= CakeSession::read('Auth.User.id');
 		$logged_in_group	= CakeSession::read('Auth.User.group_id');
 	
-		// get CONFIG for logged in user
-		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-					"user_id" => $logged_in_user
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
-		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-					"Config.group_id" => $logged_in_group,
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-	
+        $config_results = $config_data_model->getConfig(CakeSession::read('Auth.User.group_id'),
+                                                        CakeSession::read('Auth.User.id'));
 		// parse result, set configs/defines
 		if ( $config_results ) {
+			
 			Configure::write('Config.language', $config_results['Config']['config_language']);
 			foreach ( $config_results['Config'] as $config_key => $config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
@@ -649,6 +657,25 @@ class AppController extends Controller {
 	}
 	
 	/**
+	 * Handles automatic pagination of model records Adding 
+	 * the necessary bind on the model to fetch detail level, if there is a unique ctrl id
+	 * @param Model|string $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
+	 * @param string|array $scope Conditions to use while paginating
+	 * @param array $whitelist List of allowed options for paging
+	 * @return array Model query results
+	 */
+	public function paginate($object = null, $scope = array(), $whitelist = array()) {
+		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
+		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
+			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
+			if($is_master_model && isset($scope[$model_name.'.'.$control_foreign]) && preg_match('/^[0-9]+$/', $scope[$model_name.'.'.$control_foreign])) {
+				self::buildDetailBinding($object, array($model_name.'.'.$control_foreign => $scope[$model_name.'.'.$control_foreign]), $empty_structure_alias);
+			}
+		}
+		return parent::paginate($object, $scope, $whitelist);
+	}
+		
+	/**
 	 * Finds and paginate search results. Stores search in cache.
 	 * Handles detail level when there is a unique ctrl_id.
 	 * Defines/updates the result structure.
@@ -884,6 +911,7 @@ class AppController extends Controller {
 	 * -i18n version field
 	 * -language files
 	 * -cache
+	 * -Delete all browserIndex > Limit
 	 * -databrowser lft rght
 	 */
 	function newVersionSetup(){
@@ -899,7 +927,7 @@ class AppController extends Controller {
 		
 		//rebuild language files
 		$filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
-		$filef = fopen("../../app/Locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
+		$filef = fopen("../../app/Locale/fra/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
 		$i18n = $i18n_model->find('all');
 		foreach ( $i18n as &$i18n_line){
 			//Takes information returned by query and creates variable for each field
@@ -926,20 +954,48 @@ class AppController extends Controller {
 			fwrite($filee, $english);
 			fwrite($filef, $french);
 		}
+		fclose($filee);
+		fclose($filef);
+		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
-		//rebuilts lft rght in datamart_browsing_result if needed. Since v2.5.0.
+		//rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmp_browsing_limit. Since v2.5.0.
+		$browsing_index_model = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+		$root_node_ids_to_keep = array();
+		$user_root_node_counter = 0;
+		$last_user_id = null;
+		$force_rebuild_left_rght = false;
+		$tmp_browsing = $browsing_index_model->find('all', array('conditions' => array('BrowsingIndex.temporary' => true), 'order' => array('BrowsingResult.user_id, BrowsingResult.created DESC')));
+		foreach($tmp_browsing as $new_browsing_index) {
+			if($last_user_id != $new_browsing_index['BrowsingResult']['user_id'] || $user_root_node_counter <  $browsing_index_model->tmp_browsing_limit) {
+				if($last_user_id != $new_browsing_index['BrowsingResult']['user_id']) $user_root_node_counter = 0;
+				$last_user_id = $new_browsing_index['BrowsingResult']['user_id'];
+				$user_root_node_counter++;
+				$root_node_ids_to_keep[$new_browsing_index['BrowsingIndex']['root_node_id']] = $new_browsing_index['BrowsingIndex']['root_node_id'];
+			} else {
+				//Some browsing index will be deleted
+				$force_rebuild_left_rght = true;
+			}
+		}
+		$result_ids_to_keep = $root_node_ids_to_keep;
+		$new_parent_ids = $root_node_ids_to_keep;
+		$loop_counter = 0;
+		while(!empty($new_parent_ids)) {
+			//Just in case
+			$loop_counter++;
+			if($loop_counter > 100) { pr('stop');exit; }
+			$new_parent_ids = $browsing_result_model->find('list', array('conditions' => array("BrowsingResult.parent_id" => $new_parent_ids), 'fields' => array('BrowsingResult.id')));
+			$result_ids_to_keep = array_merge($result_ids_to_keep, $new_parent_ids);
+		}
+		if(!empty($result_ids_to_keep)) {
+			$browsing_index_model->deleteAll("BrowsingIndex.root_node_id NOT IN (".implode(',',$root_node_ids_to_keep).")");
+			$browsing_result_model->deleteAll("BrowsingResult.id NOT IN (".implode(',',$result_ids_to_keep).")");
+		}
 		$result = $browsing_result_model->find('first', array('conditions' => array('NOT' => array('BrowsingResult.parent_id' => NULL), 'BrowsingResult.lft' => NULL)));
-		if($result){
+		if($result || $force_rebuild_left_rght){
 			self::addWarningMsg(__('rebuilt lft rght for datamart_browsing_results'));
 			$browsing_result_model->recover('parent');
 		}
-			
-		///Close file
-		fclose($filee);
-		fclose($filef);
-			
-		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
 		//rebuild views
 		$view_models = array(

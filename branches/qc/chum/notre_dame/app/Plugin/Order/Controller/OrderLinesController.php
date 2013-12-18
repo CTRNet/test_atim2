@@ -58,6 +58,7 @@ class OrderLinesController extends OrderAppController {
 			if(empty($this->request->data['FunctionManagement']['sample_aliquot_control_id'])){
 				$this->OrderLine->set($this->request->data);
 				$this->OrderLine->validates();
+				// Not necessary to reset because there is no save $this->request->data = $this->OrderLine->data;	//Not necessary because no save after that
 				//manual error on custom field
 				$this->OrderLine->validationErrors['sample_aliquot_control_id'][] = __('this field is required')." (".__('product type').")";
 			}else{

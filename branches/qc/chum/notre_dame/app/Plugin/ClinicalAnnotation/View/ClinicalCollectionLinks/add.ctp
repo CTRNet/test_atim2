@@ -12,7 +12,7 @@
 		'form_inputs'	=> false,
 		'actions'		=> false,
 		'pagination'	=> false,
-		'header'		=> __('collection', null)
+		'header'		=> __('collection to link', null)
 	);
 	$structure_override = array();
 

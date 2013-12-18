@@ -38,7 +38,7 @@ ob_start();
 				<div><?php echo __('help_storage_layout_storage') ?></div>
 			</span>
 			<span class="ui-icon ui-icon-calculator" style="float: left;"></span>
-			<?php echo __($data['parent']['StorageControl']['storage_type']) , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
+			<?php echo $data['parent']['StorageControl']['translated_storage_type'] , ' : ' , $data['parent']['StorageMaster']['short_label']; ?>
 		</h4>
 		<table class='storageLayout' style="width: 100%;">
 <?php

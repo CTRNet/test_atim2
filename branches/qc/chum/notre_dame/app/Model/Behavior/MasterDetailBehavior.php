@@ -68,7 +68,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
 	}
 	
-	public function afterFind(Model $model, $results, $primary) {
+	public function afterFind(Model $model, $results, $primary = false) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
@@ -132,14 +132,14 @@ class MasterDetailBehavior extends ModelBehavior {
 				}
 				$detail_control = AppModel::getInstance($plugin, $detail_control_name, true);
 				$detail_info = $detail_control->find('first', array('conditions' => array($detail_control->name.".id" => $query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])));
-				$model = new $model->name($model->id, $model->table, null, $base_name, $detail_info[$base_name."Control"]['detail_tablename'], $model);
+				$model = new $model->name($model->id, $model->table, null, $base_name, ((isset($detail_info[$base_name."Control"]) && isset($detail_info[$base_name."Control"]['detail_tablename']))? $detail_info[$base_name."Control"]['detail_tablename'] : null), $model);
 			}
 		}
 		
 		return true;
 	}
 	
-	public function afterSave(Model $model, $created) {
+	public function afterSave(Model $model, $created, $options = Array()) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if ( $is_master_model || $is_control_model ) {
@@ -235,9 +235,5 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 		}
 		return $results;
-	}
-	
-	public function fmlh(&$Model) {
-		echo "MD\n";
 	}
 }
