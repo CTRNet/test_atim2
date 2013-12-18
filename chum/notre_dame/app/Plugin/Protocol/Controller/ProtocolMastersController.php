@@ -72,7 +72,12 @@ class ProtocolMastersController extends ProtocolAppController {
 		$this->set( 'atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		$this->Structures->set($protocol_data['ProtocolControl']['form_alias']);
 		
-		$this->set('display_precisions', (empty($protocol_data['ProtocolControl']['extend_tablename'])? false : true));
+		$this->set('display_precisions', (empty($protocol_data['ProtocolControl']['protocol_extend_control_id'])? false : true));
+		
+		$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
+		if($is_used['is_used']){
+			AppController::addWarningMsg(__('warning').": ".__($is_used['msg']));
+		}
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }
@@ -103,7 +108,6 @@ class ProtocolMastersController extends ProtocolAppController {
 			}
 			
 			$this->ProtocolMaster->id = $protocol_master_id;
-			$this->ProtocolMaster->data = array();
 			if ($submitted_data_validates && $this->ProtocolMaster->save($this->request->data) ) {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
@@ -117,22 +121,20 @@ class ProtocolMastersController extends ProtocolAppController {
 	function delete( $protocol_master_id ) {
 		$protocol_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 			
-		$is_used = $this->ProtocolMaster->isLinkedToTreatment($protocol_master_id);
-				
-		// CUSTOM CODE		
-		$hook_link = $this->hook('delete');
-		if ($hook_link) { 
-			require($hook_link); 
-		}
+		$arr_allow_deletion = $this->ProtocolMaster->allowDeletion($protocol_master_id);
 		
-		if ($is_used['is_used']) {
-			$this->flash($is_used['msg'], '/Protocol/ProtocolMasters/detail/'.$protocol_master_id.'/');
-		} else {
+		// CUSTOM CODE
+		$hook_link = $this->hook('delete');
+		if ($hook_link) { require($hook_link); }
+		
+		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->ProtocolMaster->atimDelete( $protocol_master_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Protocol/ProtocolMasters/index/');
+				$this->atimFlash('your data has been deleted', '/Protocol/ProtocolMasters/search/');
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolMasters/index/');
+				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			}
+		} else {
+			$this->flash($arr_allow_deletion['msg'], '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 		}
 	}
 }

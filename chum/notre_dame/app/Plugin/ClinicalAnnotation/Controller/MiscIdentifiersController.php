@@ -94,6 +94,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 					$this->MiscIdentifier->validationErrors['identifier_value'][] = __('this field must be unique').' ('.__('value').')';
 				}
 			}
+			$this->request->data = $this->MiscIdentifier->data;
 			
 			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
 			$hook_link = $this->hook('presave_process');
@@ -112,7 +113,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 				}
 			
 				// Save data
-				if ( $this->MiscIdentifier->save($this->request->data) ) {
+				if ( $this->MiscIdentifier->save($this->request->data, false) ) {
 					
 					$hook_link = $this->hook('postsave_process');
 					if( $hook_link ) { 

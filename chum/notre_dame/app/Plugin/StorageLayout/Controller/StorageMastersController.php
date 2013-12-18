@@ -6,21 +6,27 @@ class StorageMastersController extends StorageLayoutAppController {
 	
 	var $uses = array(
 		'StorageLayout.StorageMaster',
+	    'StorageLayout.ViewStorageMaster',
 		'StorageLayout.StorageTreeView',
 		'StorageLayout.StorageControl',
 		'StorageLayout.StorageCoordinate',
 		'StorageLayout.TmaSlide',
 		'StorageLayout.StorageCoordinate',
 		
-		'InventoryManagement.AliquotMaster');
+		'InventoryManagement.AliquotMaster'
+	);
 	
 	var $paginate = array('StorageMaster' => array('limit' => pagination_amount, 'order' => 'StorageMaster.selection_label ASC'));
 
 	function search($search_id = 0, $from_layout_page = false){
+	    $model_to_use = $this->ViewStorageMaster;
+	    $structure_alias = 'view_storage_masters';
+	    $structure_index = '/StorageLayout/StorageMasters/search';
 		if($from_layout_page){
 			$top_row_storage_id = $this->request->data['current_storage_id'];
 			unset($this->request->data['current_storage_id']);
-			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters,storage_w_spaces', '/StorageLayout/StorageMasters/search', false, 21);
+			$this->searchHandler($search_id, $model_to_use, 
+			                     $structure_alias, $structure_index, false, 21);
 			if(count($this->request->data) > 20){
 				$this->request->data = array();
 				$this->set('overflow', true);
@@ -28,6 +34,9 @@ class StorageMastersController extends StorageLayoutAppController {
 				$warn = false;
 				foreach($this->request->data as $key => $data){
 					if($data['StorageControl']['coord_x_type'] == null){
+						unset($this->request->data[$key]);
+						$warn = true;
+					}else if($data['StorageControl']['coord_x_type'] == 'list' && !$this->StorageCoordinate->find('count', array('conditions' => array('StorageCoordinate.storage_master_id' => $data['StorageMaster']['id']), 'recursive' => '-1'))){
 						unset($this->request->data[$key]);
 						$warn = true;
 					}else if($data['StorageMaster']['id'] == $top_row_storage_id){
@@ -40,13 +49,14 @@ class StorageMastersController extends StorageLayoutAppController {
 				}
 			}
 		}else{
-			$this->searchHandler($search_id, $this->StorageMaster, 'storagemasters,storage_w_spaces', '/StorageLayout/StorageMasters/search');
+			$this->searchHandler($search_id, $model_to_use, $structure_alias,
+			                     $structure_index);
 		}
 		$this->set('from_layout_page', $from_layout_page);
-		$this->Structures->set('storagemasters,storage_w_spaces');
+		$this->Structures->set($structure_alias);
 		
 		//find all storage control types to build add button
-		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
+		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -92,15 +102,35 @@ class StorageMastersController extends StorageLayoutAppController {
 		// Get the current menu object. Needed to disable menu options based on storage type
 		
 		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%');
+		$display_layout = true;
 		if(!$this->StorageControl->allowCustomCoordinates($data['StorageControl']['id'], array('StorageControl' => $data['StorageControl']))) {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
+		} else {
+			if(!$this->StorageCoordinate->find('count', array('conditions' => array('StorageCoordinate.storage_master_id' => $storage_master_id), 'recursive' => '-1'))) {
+				if(!$is_from_tree_view_or_layout) AppController::addWarningMsg(__('no layout exists - add coordinates first'));
+				$display_layout = false;
+			}
 		}
-					
 		if(empty($data['StorageControl']['coord_x_type'])) {
 			// Check storage supports coordinates and disable access to storage layout menu option if required
 			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
+			$display_layout = false;
+		} 
+		if(!$is_from_tree_view_or_layout && $display_layout) {
+			if(empty($data['StorageControl']['coord_y_type'])) {
+				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'StorageMaster.parent_storage_coord_x' => '')))
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'AliquotMaster.storage_coord_x' => '')))) {
+					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
+				}
+			} else {
+				if($this->StorageMaster->find('count', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id, 'OR' => array('StorageMaster.parent_storage_coord_x' => '','StorageMaster.parent_storage_coord_y' => ''))))
+				|| $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id, 'OR' => array('AliquotMaster.storage_coord_x' => '', 'AliquotMaster.storage_coord_y' => ''))))) {
+					AppController::addWarningMsg(__('at least one stored element is not displayed in layout'));
+				}
+			}
 		}
+		$this->set('display_layout', $display_layout);
 		
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
@@ -115,7 +145,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('is_from_tree_view_or_layout', $is_from_tree_view_or_layout);
 		
 		// Get all storage control types to build the add to selected button
-		$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
+		$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		
 		$this->request->data = $data;
 
@@ -130,6 +160,7 @@ class StorageMastersController extends StorageLayoutAppController {
 	function add($storage_control_id, $predefined_parent_storage_id = null) {
 		// MANAGE DATA
 		$storage_control_data = $this->StorageControl->getOrRedirect($storage_control_id);
+		if(!$storage_control_data['StorageControl']['flag_active']) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 		$this->set('storage_control_id', $storage_control_data['StorageControl']['id']);
 		$this->set('layout_description', $this->StorageControl->getStorageLayoutDescription($storage_control_data));
 		
@@ -157,7 +188,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('atim_menu_variables', array('StorageControl.id' => $storage_control_id));
 		
 		// set structure alias based on VALUE from CONTROL table
-		$this->Structures->set($storage_control_data['StorageControl']['form_alias']);
+		$this->Structures->set($storage_control_data['StorageControl']['form_alias'].($storage_control_data['StorageControl']['set_temperature']? ',storage_temperature' : ''));
 	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
@@ -262,7 +293,7 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
 		// Set structure				
-		$this->Structures->set($storage_data['StorageControl']['form_alias']);
+		$this->Structures->set($storage_data['StorageControl']['form_alias'].($storage_data['StorageControl']['set_temperature']? ',storage_temperature' : ''));
 	
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
@@ -404,11 +435,15 @@ class StorageMastersController extends StorageLayoutAppController {
 			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '0'));
 			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%');
+			if(!$is_ajax && !$storage_data['StorageControl']['is_tma_block']) {			
+				// Get all storage control types to build the add to selected button
+				$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+			}
 		}else{
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
 			$this->set("search", true);
-			$this->set('storage_controls_list', $this->StorageControl->find('all', array('conditions' => array('StorageControl.flag_active' => '1'))));
+			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
 		}
 		$ids = array();
 				
@@ -483,6 +518,15 @@ class StorageMastersController extends StorageLayoutAppController {
 			foreach($coordinate_tmp as $key => $value){
 				$coordinate_list[$value['StorageCoordinate']['id']]['StorageCoordinate'] = $value['StorageCoordinate'];
 			} 
+			if(empty($coordinate_list)) {
+				if($is_ajax){
+					echo json_encode(array('valid' => 0));
+					exit;
+				}else{
+					$this->flash('no layout exists - add coordinates first', '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+					return;
+				}
+			}
 		}
 		
 		// Storage layout not allowed for this type of storage
@@ -586,7 +630,19 @@ class StorageMastersController extends StorageLayoutAppController {
 			// Check storage supports custom coordinates and disable access to coordinates menu option if required
 			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
 		}
-
+		
+		// Get all storage control types to build the add to selected button
+		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
+		if(!$storage_data['StorageControl']['is_tma_block']) $this->set('storage_types_from_id', $storage_types_from_id);
+		
+		// Add translated storage type to main storage and chidlren storage
+		$storage_control_id = $storage_data['StorageControl']['id'];
+		$storage_data['StorageControl']['translated_storage_type'] = isset($storage_types_from_id[$storage_control_id])? $storage_types_from_id[$storage_control_id] : $storage_data['StorageControl']['storage_type'];
+		foreach($storage_master_c as &$new_children_storage) {
+			$children_storage_control_id = $new_children_storage['StorageControl']['id'];
+			$new_children_storage['StorageControl']['translated_storage_type'] = isset($storage_types_from_id[$children_storage_control_id])? $storage_types_from_id[$children_storage_control_id] : $new_children_storage['StorageControl']['storage_type'];
+		}
+		
 		$this->set('atim_menu', $atim_menu);
 		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
 
@@ -606,7 +662,6 @@ class StorageMastersController extends StorageLayoutAppController {
 		$data['children'] = $storage_master_c;
 		$data['children'] = array_merge($data['children'], $aliquot_master_c);
 		$data['children'] = array_merge($data['children'], $tma_slide_c);
-
 		
 		foreach($data['children'] as &$children_array){
 			if(isset($children_array['StorageMaster'])){
@@ -672,17 +727,21 @@ class StorageMastersController extends StorageLayoutAppController {
 
 		$storage_masters = $this->StorageMaster->find('all', array(
 			'conditions' => $conditions,
-			'fields' => array('StorageMaster.selection_label', 'StorageMaster.code', 'StorageControl.storage_type'),
+			'fields' => array('StorageMaster.selection_label', 'StorageMaster.code', 'StorageControl.storage_type', 'StorageControl.id'),
 			'order' => array('StorageMaster.selection_label ASC, StorageMaster.code ASC'),
 			'recursive' => 0,
 			'limit' => 10
 		));
 		
+		$storage_types_from_id = $this->StorageControl->getStorageTypePermissibleValues();
+		
 		//build javascript textual array
 		$result = "";
 		$count = 0;
 		foreach($storage_masters as $storage_master){
-			$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$storage_master['StorageMaster']['code'].'] / '.__($storage_master['StorageControl']['storage_type']).'", ';
+			$storage_control_id = $storage_master['StorageControl']['id'];
+			$result .= '"'.$storage_master['StorageMaster']['selection_label'].' ['.$storage_master['StorageMaster']['code'].'] / '.
+				(isset($storage_types_from_id[$storage_control_id])? $storage_types_from_id[$storage_control_id] : $storage_master['StorageControl']['storage_type']).'", ';			
 			++ $count;
 			if($count > 9){
 				break;

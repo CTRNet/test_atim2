@@ -12,7 +12,7 @@
 		'bottom'=>array(
 			'new search' => OrderAppController::$search_links,
 			'edit'=>'/Order/OrderLines/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'],
-			'add order line item'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
+			'add order line item'=>array('link'=>'/Order/OrderItems/add/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/','icon'=>'add_to_order'),
 			'edit all order line items' => '/Order/OrderItems/edit/'.$atim_menu_variables['Order.id'].'/'.$atim_menu_variables['OrderLine.id'].'/',
 			'add shipment'=>array('link'=>'/Order/Shipments/add/' . $atim_menu_variables['Order.id'] . '/','icon'=>'create_shipment'),
 			'add items to shipment' => $add_to_shipment_links,

@@ -80,6 +80,30 @@ class ProtocolMaster extends ProtocolAppModel {
 		
 		return array('is_used' => false, 'msg' => '');
 	}
+	
+	function allowDeletion($protocol_master_id){
+		if($protocol_master_id != $this->id){
+			//not the same, fetch
+			$data = $this->findById($protocol_master_id);
+		}else{
+			$data = $this->data;
+		}
+		
+		$res = $this->isLinkedToTreatment($protocol_master_id);
+		if($res['is_used']) {
+			return array('allow_deletion' => false, 'msg' => $res['msg']);
+		}
+		
+		if(!empty($data['ProtocolControl']['protocol_extend_control_id'])) {
+			$ProtocolExtendMaster = AppModel::getInstance('Protocol', 'ProtocolExtendMaster', true);
+			$nbr_extends = $ProtocolExtendMaster->find('count', array('conditions'=>array('ProtocolExtendMaster.protocol_master_id'=>$protocol_master_id, 'ProtocolExtendMaster.protocol_extend_control_id'=>$data['ProtocolControl']['protocol_extend_control_id']), 'recursive' => '-1'));
+			if ($nbr_extends > 0) {
+				return array('allow_deletion' => false, 'msg' => 'at least one precision is defined as protocol component');
+			}
+		}
+	
+		return array('allow_deletion' => true, 'msg' => '');
+	}
 }
 
 ?>
