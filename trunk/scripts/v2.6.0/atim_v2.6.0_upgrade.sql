@@ -1777,3 +1777,13 @@ DELETE FROM structures WHERE alias='storage_w_spaces';
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE event_controls ADD COLUMN use_detail_form_for_index TINYINT(1) NOT NULL DEFAULT '0';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add missing translation linked to permissions rebuild
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('rebuilt lft rght for datamart_browsing_results','Rebuilt lft & rght for datamart_browsing_results', 'Les valeurs lft & rght de datamart_browsing_results ont été regénérées'),
+('language files have been rebuilt', 'Language files have been rebuilt', 'Fichiers de traductions ont été regénérés'),
+('views have been rebuilt', 'Views have been rebuilt', 'Les vues ont été regénérées'),
+('cache has been cleared', 'Cache has been cleared', 'Les fichiers temporaires ont été supprimés');

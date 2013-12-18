@@ -1,8 +1,6 @@
 <?php
 class BrowserController extends DatamartAppController {
 	
-	static $tmp_browsing_limit = 5;
-	
 	var $uses = array(
 		'Datamart.Browser',
 		'Datamart.DatamartStructure',
@@ -20,8 +18,8 @@ class BrowserController extends DatamartAppController {
 			'conditions' => array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => true),
 			'order'	=> array('BrowsingResult.created DESC'))
 		);
-		
-		while(count($tmp_browsing) > self::$tmp_browsing_limit){
+			
+		while(count($tmp_browsing) > $this->BrowsingIndex->tmp_browsing_limit){
 			$unit = array_pop($tmp_browsing);
 			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingResult->check_writable_fields = false;
@@ -30,6 +28,7 @@ class BrowserController extends DatamartAppController {
 		}
 		
 		$this->set('tmp_browsing', $tmp_browsing);
+		$this->set('tmp_browsing_limit', $this->BrowsingIndex->tmp_browsing_limit);
 		
 		$this->request->data = $this->paginate($this->BrowsingIndex, 
 			array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => false));

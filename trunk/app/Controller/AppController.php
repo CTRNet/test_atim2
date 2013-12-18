@@ -911,6 +911,7 @@ class AppController extends Controller {
 	 * -i18n version field
 	 * -language files
 	 * -cache
+	 * -Delete all browserIndex > Limit
 	 * -databrowser lft rght
 	 */
 	function newVersionSetup(){
@@ -953,20 +954,48 @@ class AppController extends Controller {
 			fwrite($filee, $english);
 			fwrite($filef, $french);
 		}
+		fclose($filee);
+		fclose($filef);
+		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
-		//rebuilts lft rght in datamart_browsing_result if needed. Since v2.5.0.
+		//rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmp_browsing_limit. Since v2.5.0.
+		$browsing_index_model = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+		$root_node_ids_to_keep = array();
+		$user_root_node_counter = 0;
+		$last_user_id = null;
+		$force_rebuild_left_rght = false;
+		$tmp_browsing = $browsing_index_model->find('all', array('conditions' => array('BrowsingIndex.temporary' => true), 'order' => array('BrowsingResult.user_id, BrowsingResult.created DESC')));
+		foreach($tmp_browsing as $new_browsing_index) {
+			if($last_user_id != $new_browsing_index['BrowsingResult']['user_id'] || $user_root_node_counter <  $browsing_index_model->tmp_browsing_limit) {
+				if($last_user_id != $new_browsing_index['BrowsingResult']['user_id']) $user_root_node_counter = 0;
+				$last_user_id = $new_browsing_index['BrowsingResult']['user_id'];
+				$user_root_node_counter++;
+				$root_node_ids_to_keep[$new_browsing_index['BrowsingIndex']['root_node_id']] = $new_browsing_index['BrowsingIndex']['root_node_id'];
+			} else {
+				//Some browsing index will be deleted
+				$force_rebuild_left_rght = true;
+			}
+		}
+		$result_ids_to_keep = $root_node_ids_to_keep;
+		$new_parent_ids = $root_node_ids_to_keep;
+		$loop_counter = 0;
+		while(!empty($new_parent_ids)) {
+			//Just in case
+			$loop_counter++;
+			if($loop_counter > 100) { pr('stop');exit; }
+			$new_parent_ids = $browsing_result_model->find('list', array('conditions' => array("BrowsingResult.parent_id" => $new_parent_ids), 'fields' => array('BrowsingResult.id')));
+			$result_ids_to_keep = array_merge($result_ids_to_keep, $new_parent_ids);
+		}
+		if(!empty($result_ids_to_keep)) {
+			$browsing_index_model->deleteAll("BrowsingIndex.root_node_id NOT IN (".implode(',',$root_node_ids_to_keep).")");
+			$browsing_result_model->deleteAll("BrowsingResult.id NOT IN (".implode(',',$result_ids_to_keep).")");
+		}
 		$result = $browsing_result_model->find('first', array('conditions' => array('NOT' => array('BrowsingResult.parent_id' => NULL), 'BrowsingResult.lft' => NULL)));
-		if($result){
+		if($result || $force_rebuild_left_rght){
 			self::addWarningMsg(__('rebuilt lft rght for datamart_browsing_results'));
 			$browsing_result_model->recover('parent');
 		}
-			
-		///Close file
-		fclose($filee);
-		fclose($filef);
-			
-		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
 		//rebuild views
 		$view_models = array(
