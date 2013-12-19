@@ -25,6 +25,7 @@ $detail_fields = array(
 	'tool'									=> array('Date of diagnostics  diagnostic tool' => new ValueDomain("qc_tf_dx_tool", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)), 
 	'gleason_score_biopsy' 					=> array('Gleason score at biopsy' => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'ptnm' 									=> array('pTNM' => new ValueDomain('qc_tf_ptnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'ctnm' 									=> array('cTNM' => new ValueDomain('qc_tf_ctnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'gleason_score_rp' 						=> array('Gleason sum RP' => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'presence_of_lymph_node_invasion' 		=> array('Presence of lymph node invasion' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
 	'presence_of_capsular_penetration' 		=> array('Presence of capsular penetration' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
@@ -50,6 +51,7 @@ $model->custom_data = array(
 		'tool' => 'Date of diagnostics  diagnostic tool',
 		'gleason_score_biopsy' => 'Gleason score at biopsy',
 		'ptnm' => 'pTNM',
+		'ctnm' => 'cTNM',
 		'gleason_score_rp' => 'Gleason sum RP',
 		'presence_of_lymph_node_invasion' => 'Presence of lymph node invasion',
 		'presence_of_capsular_penetration' => 'Presence of capsular penetration',
@@ -87,6 +89,7 @@ function postDxRead(Model $m){
 // 		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
 // 	}
 	$m->values['pTNM'] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values['pTNM']);
+	$m->values['cTNM'] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values['cTNM']);
 	$m->values['Gleason score at biopsy'] =str_replace(array('.00'), array(''),$m->values['Gleason score at biopsy']);
 	$m->values['Gleason sum RP'] =str_replace(array('.00'), array(''),$m->values['Gleason sum RP']);
 		
@@ -138,6 +141,7 @@ function manageManyRows(Model $m){
 					case 'Date of diagnostics  diagnostic tool':
 					case 'Gleason score at biopsy':
 					case 'pTNM':
+					case 'cTNM':
 					case 'Gleason sum RP':
 					case 'hormonorefractory status status':
 						$value_domain = current($m->detail_fields[$db_field]);

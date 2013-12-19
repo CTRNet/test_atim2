@@ -100,7 +100,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			
 			$new_survival = '';
 			if(!empty($dfs_date) && !empty($survival_end_date)) {
-				if($survival_end_date_accuracy.$dfs_accuracy == 'cc') {				
+				if(in_array($survival_end_date_accuracy.$dfs_accuracy, array('cc', 'cd', 'dc'))) {				
+					if($survival_end_date_accuracy.$dfs_accuracy != 'cc') {
+						AppController::getInstance()->addWarningMsg(__('survival has been calculated with at least one unaccuracy date'));
+					}
 					$dfs_date_ob = new DateTime($dfs_date);
 					$survival_end_date_ob = new DateTime($survival_end_date);
 					$interval = $dfs_date_ob->diff($survival_end_date_ob);							
@@ -118,7 +121,10 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 			
 			$new_bcr = '';
 			if(!empty($dfs_date) && !empty($bcr_date)) {
-				if($dfs_accuracy.$bcr_accuracy == 'cc') {
+				if(in_array($dfs_accuracy.$bcr_accuracy, array('cc', 'cd', 'dc'))) {				
+					if($dfs_accuracy.$bcr_accuracy != 'cc') {
+						AppController::getInstance()->addWarningMsg(__('bcr has been calculated with at least one unaccuracy date'));
+					}
 					$dfs_date_ob = new DateTime($dfs_date);
 					$bcr_date_ob = new DateTime($bcr_date);
 					$interval = $dfs_date_ob->diff($bcr_date_ob);
@@ -185,15 +191,20 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		foreach($dx_to_check as $new_dx) {
 			$dx_id = $new_dx['DiagnosisMaster']['id'];
 			$previous_age_at_dx = $new_dx['DiagnosisMaster']['age_at_dx'];
-			if(($new_dx['DiagnosisMaster']['dx_date_accuracy'] != 'c') || ($new_dx['Participant']['date_of_birth_accuracy'] != 'c')) $warnings[-1] = __('age at diagnosis has been calculated with at least one unaccuracy date');
-			$arr_spent_time = $this->getSpentTime($new_dx['Participant']['date_of_birth'].' 00:00:00', $new_dx['DiagnosisMaster']['dx_date'].' 00:00:00');
-			if($arr_spent_time['message']) {
-				$warnings[$arr_spent_time['message']] = __('unable to calculate age at diagnosis').': '.__($arr_spent_time['message']);
-			} if($arr_spent_time['years'] != $previous_age_at_dx) {
-				$dx_to_update[] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => $arr_spent_time['years']));
+			if($new_dx['DiagnosisMaster']['dx_date'] && $new_dx['Participant']['date_of_birth']) {
+				if(($new_dx['DiagnosisMaster']['dx_date_accuracy'] != 'c') || ($new_dx['Participant']['date_of_birth_accuracy'] != 'c')) $warnings[-1] = __('age at diagnosis has been calculated with at least one unaccuracy date');
+				$arr_spent_time = $this->getSpentTime($new_dx['Participant']['date_of_birth'].' 00:00:00', $new_dx['DiagnosisMaster']['dx_date'].' 00:00:00');
+				if($arr_spent_time['message']) {
+					$warnings[$arr_spent_time['message']] = __('unable to calculate age at diagnosis').': '.__($arr_spent_time['message']);
+					$dx_to_update[] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => ''));
+				} else if($arr_spent_time['years'] != $previous_age_at_dx) {
+					$dx_to_update[] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => $arr_spent_time['years']));
+				}
+			} else {
+				$warnings['missing date'] = __('unable to calculate age at diagnosis').': '.__('missing date');
+				$dx_to_update[] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => ''));
 			}	
 		}
-		
 		foreach($warnings as $new_warning) AppController::getInstance()->addWarningMsg($new_warning);
 		
 		$this->addWritableField(array('age_at_dx'));
