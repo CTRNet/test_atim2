@@ -30,7 +30,7 @@
 
 	if(isset($extend_form_alias)){
 		$structure_settings = array(
-			'pagination'	=> $is_ajax,
+			'pagination'	=> false,
 			'actions'		=> $is_ajax,
 			'header'		=> __('precision')
 		);
