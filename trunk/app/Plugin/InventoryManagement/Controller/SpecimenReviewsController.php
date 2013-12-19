@@ -215,7 +215,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash(__('your data has been saved'), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_master_id);	
+				$this->atimFlash('your data has been saved', '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_master_id);	
 			}
 		} 
 	}
@@ -494,7 +494,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash(__('your data has been saved'), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);	
+				$this->atimFlash('your data has been saved', '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);	
 			}
 		}
 	}
@@ -553,7 +553,7 @@ class SpecimenReviewsController extends InventoryManagementAppController {
 				
 			$this->atimFlash('your data has been deleted', '/InventoryManagement/SpecimenReviews/listAll/' . $collection_id . '/' . $sample_master_id);
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/SpecimenReviews/detail/' . $collection_id . '/' . $sample_master_id . '/' . $specimen_review_id);
 		}			
 	}
 }

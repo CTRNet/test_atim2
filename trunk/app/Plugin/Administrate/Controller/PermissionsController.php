@@ -173,7 +173,7 @@ class PermissionsController extends AdministrateAppController {
 			$this->SystemVar->setVar('permission_timestamp', time());
 			Cache::clear(false, "menus");
 			//straight flash because we redirect to the edit screen
-			$this->flash('your data has been updated', '/Administrate/Permissions/tree/'.$group_id.'/'.$user_id);
+			$this->flash(__('your data has been updated'), '/Administrate/Permissions/tree/'.$group_id.'/'.$user_id);
 			return;
 		}
 		

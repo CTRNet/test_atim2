@@ -188,10 +188,10 @@ exit;
 				if( $this->StudyInvestigator->atimDelete( $study_investigator_id ) ) {
 					$this->atimFlash( 'your data has been deleted', '/Study/StudyInvestigators/listall/'.$study_summary_id );
 				} else {
-					$this->flash( 'error deleting data - contact administrator.', '/Study/StudyInvestigators/listall/'.$study_summary_id );
+					$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyInvestigators/listall/'.$study_summary_id );
 				}
 			}else {
-					$this->flash($arr_allow_deletion['msg'], '/Study/StudyInvestigators/detail/'.$study_summary_id.'/'.$study_investigator_id);
+					$this->flash(__($arr_allow_deletion['msg']), '/Study/StudyInvestigators/detail/'.$study_summary_id.'/'.$study_investigator_id);
 			}
 	}
 }

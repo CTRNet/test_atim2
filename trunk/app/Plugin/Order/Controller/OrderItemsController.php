@@ -231,7 +231,7 @@ class OrderItemsController extends OrderAppController {
 				
 				//Check all aliquots have been defined once
 				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
-					$this->flash('an aliquot can only be added once to an order', $url_to_redirect);
+					$this->flash(__('an aliquot can only be added once to an order'), $url_to_redirect);
 					return;
 				}
 
@@ -266,7 +266,7 @@ class OrderItemsController extends OrderAppController {
 			
 			if(!$submitted_aliquots_validates) {	
 				// Error has been detected: Redirect
-				$this->flash($error_message, $url_to_redirect);
+				$this->flash(__($error_message), $url_to_redirect);
 				return;
 				
 			} else {
@@ -293,7 +293,7 @@ class OrderItemsController extends OrderAppController {
 		// Build data for order line selection
 		$order_line_data_tmp = $this->OrderLine->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC, OrderLine.date_required ASC'));
 		if(!$order_line_data_tmp) {
-			$this->flash('no order line to complete is actually defined', $url_to_redirect);
+			$this->flash(__('no order line to complete is actually defined'), $url_to_redirect);
 			return;
 		}
 				
@@ -411,7 +411,7 @@ class OrderItemsController extends OrderAppController {
 		$criteria = array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending');
 		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 
-		if(empty($items_data)) { $this->flash('no unshipped item exists into this order line', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); }
+		if(empty($items_data)) { $this->flash(__('no unshipped item exists into this order line'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); }
 
 		// Set array to get id from barcode
 		$order_item_id_by_barcode = array();
@@ -557,10 +557,10 @@ class OrderItemsController extends OrderAppController {
 				// Redirect
 				$this->atimFlash('your data has been deleted - update the aliquot in stock data', '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
+				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], 'javascript:history.go(-1)');
+			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
 		}
 	}
 }

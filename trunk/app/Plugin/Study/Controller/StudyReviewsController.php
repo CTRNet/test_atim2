@@ -190,10 +190,10 @@ exit;
 				if( $this->StudyReview->atimDelete( $study_reviews_id ) ) {
 					$this->atimFlash( 'your data has been deleted', '/Study/StudyReviews/listall/'.$study_summary_id );
 				} else {
-					$this->flash( 'error deleting data - contact administrator.', '/Study/StudyReviews/listall/'.$study_summary_id );
+					$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyReviews/listall/'.$study_summary_id );
 				}
 			}else {
-					$this->flash($arr_allow_deletion['msg'], '/Study/StudyReviews/detail/'.$study_summary_id.'/'.$study_reviews_id);
+					$this->flash(__($arr_allow_deletion['msg']), '/Study/StudyReviews/detail/'.$study_summary_id.'/'.$study_reviews_id);
 			}
 	}
 }

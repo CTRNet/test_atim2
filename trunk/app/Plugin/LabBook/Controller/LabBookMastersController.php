@@ -42,7 +42,7 @@ class LabBookMastersController extends LabBookAppController {
 		if(!$lab_book_master_id) { 
 			$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		} else if($lab_book_master_id == '-1') {
-			$this->flash('no lab book is linked to this record', "javascript:history.back()", 5);
+			$this->flash(__('no lab book is linked to this record'), "javascript:history.back()", 5);
 			return;
 		}
 		
@@ -320,10 +320,10 @@ class LabBookMastersController extends LabBookAppController {
 			if($this->LabBookMaster->atimDelete($lab_book_master_id, true)){
 				$this->atimFlash('your data has been deleted', '/labbook/LabBookMasters/index/');
 			}else{
-				$this->flash('error deleting data - contact administrator', '/labbook/LabBookMasters/index/');
+				$this->flash(__('error deleting data - contact administrator'), '/labbook/LabBookMasters/index/');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/labbook/LabBookMasters/detail/' . $lab_book_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/labbook/LabBookMasters/detail/' . $lab_book_master_id);
 		}		
 	}
 	

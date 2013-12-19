@@ -175,10 +175,10 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			if ( $this->Participant->atimDelete( $participant_id ) ) {
 				$this->atimFlash('your data has been deleted', '/ClinicalAnnotation/Participants/search/');
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/Participants/search/');
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
 			}
 		} else {
-			$this->flash( $arr_allow_deletion['msg'], '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 		}
 	}
 
@@ -375,7 +375,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 					require($hook_link);
 				}
 				
-				$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+				$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 			}
 			
 		}else{

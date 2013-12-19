@@ -40,7 +40,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 			// Check identifier has not already been created
 			$already_exist = $this->MiscIdentifier->find('count', array('conditions' => array('misc_identifier_control_id' => $misc_identifier_control_id, 'participant_id' => $participant_id)));
 			if($already_exist) {
-				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
+				$this->flash(__('this identifier has already been created for this participant'),'/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
 				return;
 			}
 		}
@@ -245,10 +245,10 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				
 			}else{
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 		}	
 	}
 	
@@ -270,7 +270,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 		if($mi_control['MiscIdentifierControl']['flag_once_per_participant']){
 			$count = $this->MiscIdentifier->find('count', array('conditions' => array('MiscIdentifier.participant_id' => $participant_id, 'MiscIdentifier.misc_identifier_control_id' => $misc_identifier_ctrl_id), 'recursive' => -1));
 			if($count > 0){
-				$this->flash( 'this identifier has already been created for this participant','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+				$this->flash(__('this identifier has already been created for this participant'),'/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				return;
 			}
 		}

@@ -65,7 +65,7 @@ class RtbformsController extends RtbformAppController {
 		if( $this->Rtbform->atimDelete( $rtbform_id ) ) {
 			$this->atimFlash( 'your data has been deleted', '/rtbform/rtbforms/search/');
 		} else {
-			$this->flash( 'error deleting data - contact administrator', '/rtbform/rtbforms/search/');
+			$this->flash(__('error deleting data - contact administrator'), '/rtbform/rtbforms/search/');
 		}
 	}
   

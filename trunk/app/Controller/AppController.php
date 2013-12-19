@@ -129,7 +129,7 @@ class AppController extends Controller {
 			$data = $this->viewVars[$this->passedArgs['batchsetVar']];
 			if(empty($data)){
 				unset($this->passedArgs['batchsetVar']);
-				$this->flash('there is no data to add to a temporary batchset', 'javascript:history.back()');
+				$this->flash(__('there is no data to add to a temporary batchset'), 'javascript:history.back()');
 				return false;
 			}
 			if(isset($this->passedArgs['batchsetCtrl'])){
@@ -172,7 +172,7 @@ class AppController extends Controller {
 	
 	function atimFlash($message, $url){
 		if(Configure::read('debug') > 0){
-			$this->flash($message, $url);
+			$this->flash(__($message), $url);
 		}else{
 			$_SESSION['ctrapp_core']['confirm_msg'] = __($message);
 			$this->redirect($url);
@@ -983,7 +983,7 @@ class AppController extends Controller {
 		while(!empty($new_parent_ids)) {
 			//Just in case
 			$loop_counter++;
-			if($loop_counter > 100) { pr('stop');exit; }
+			if($loop_counter > 100) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			$new_parent_ids = $browsing_result_model->find('list', array('conditions' => array("BrowsingResult.parent_id" => $new_parent_ids), 'fields' => array('BrowsingResult.id')));
 			$result_ids_to_keep = array_merge($result_ids_to_keep, $new_parent_ids);
 		}

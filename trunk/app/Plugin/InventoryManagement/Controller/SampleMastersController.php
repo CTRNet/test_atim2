@@ -720,11 +720,11 @@ class SampleMastersController extends InventoryManagementAppController {
 				$this->atimFlash('your data has been deleted', '/InventoryManagement/Collections/detail/' . $collection_id);
 			
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/Collections/detail/' . $collection_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/detail/' . $collection_id);
 			}
 			
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 		}		
 	}
 	
@@ -942,7 +942,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			if(is_numeric($result)){
 				$lab_book_id = $result;
 			}else{
-				$this->flash($result, $url_to_cancel, 5);
+				$this->flash(__($result), $url_to_cancel, 5);
 				return;
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);

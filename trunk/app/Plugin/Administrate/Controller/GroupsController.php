@@ -50,7 +50,7 @@ class GroupsController extends AdministrateAppController {
 
 	function edit($group_id) {
 		if($group_id == 1){
-			$this->flash('the group administrators cannot be edited', '/Administrate/Groups/detail/1');
+			$this->flash(__('the group administrators cannot be edited'), '/Administrate/Groups/detail/1');
 		}
 		$this->Group->getOrRedirect($group_id);
 		
@@ -112,7 +112,7 @@ class GroupsController extends AdministrateAppController {
 
 	function delete( $group_id) {
 		if($group_id == 1){
-			$this->flash('the group administrators cannot be deleted', '/Administrate/Groups/detail/1');
+			$this->flash(__('the group administrators cannot be deleted'), '/Administrate/Groups/detail/1');
 		}
 		$this->request->data = $this->User->find('first',array('conditions'=>array('User.group_id'=>$group_id)));
 		$this->hook();
@@ -122,7 +122,7 @@ class GroupsController extends AdministrateAppController {
 				$this->atimFlash('Group deleted', '/Administrate/Groups/index/');
 			}
 		}else{
-			$this->flash('this group is being used and cannot be deleted', '/Administrate/Groups/detail/'.$group_id."/");
+			$this->flash(__('this group is being used and cannot be deleted'), '/Administrate/Groups/detail/'.$group_id."/");
 		}
 	}
 

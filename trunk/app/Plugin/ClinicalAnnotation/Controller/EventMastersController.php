@@ -310,10 +310,10 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			if ($this->EventMaster->atimDelete( $event_master_id )) {
 				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 		}
 	}
 }
