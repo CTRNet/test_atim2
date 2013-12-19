@@ -5,7 +5,7 @@ class DropdownsController extends AdministrateAppController {
 		'StructurePermissibleValuesCustomControl'
 		);
 		
-	var $paginate = array('StructurePermissibleValuesCustomControl'=>array('limit' => pagination_amount,'order'=>'StructurePermissibleValuesCustomControl.name ASC')); 		
+	var $paginate = array('StructurePermissibleValuesCustomControl'=>array('limit' => pagination_amount,'order'=>'StructurePermissibleValuesCustomControl.category ASC, StructurePermissibleValuesCustomControl.name ASC')); 		
 	
 	function index() {
 		// Nothing to do	  	

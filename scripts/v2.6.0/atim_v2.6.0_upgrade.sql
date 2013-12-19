@@ -1797,3 +1797,88 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('language files have been rebuilt', 'Language files have been rebuilt', 'Fichiers de traductions ont été regénérés'),
 ('views have been rebuilt', 'Views have been rebuilt', 'Les vues ont été regénérées'),
 ('cache has been cleared', 'Cache has been cleared', 'Les fichiers temporaires ont été supprimés');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add message to define structure_permissible_values_custom_controls.category
+-- Plus add aditional category
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE structure_permissible_values_custom_controls MODIFY category varchar(50) NOT NULL DEFAULT 'undefined';
+UPDATE structure_permissible_values_custom_controls SET category = 'undefined' WHERE category = '';
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set'
+UNION ALL
+SELECT name AS 'structure_permissible_values_custom_controls category to set' FROM structure_permissible_values_custom_controls WHERE category = 'undefined'
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set'
+UNION ALL
+SELECT '' AS 'structure_permissible_values_custom_controls category to set';
+
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE category = 'consent';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE category = 'quality control';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE category = 'treatment';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - diagnosis' WHERE category = 'diagnosis';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation' WHERE category = 'annotation';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - contact' WHERE category = 'contact';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - specimen review' WHERE category = 'specimen review';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - gynaecologic' WHERE category = 'gynaecologic';		
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - consent", "clinical - consent");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - consent" AND language_alias="clinical - consent"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("inventory - quality control", "inventory - quality control");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="inventory - quality control" AND language_alias="inventory - quality control"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - treatment", "clinical - treatment");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - treatment" AND language_alias="clinical - treatment"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - diagnosis", "clinical - diagnosis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - diagnosis" AND language_alias="clinical - diagnosis"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - annotation", "clinical - annotation");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - annotation" AND language_alias="clinical - annotation"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - contact", "clinical - contact");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - contact" AND language_alias="clinical - contact"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - gynaecologic", "clinical - gynaecologic");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - gynaecologic" AND language_alias="clinical - gynaecologic"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("undefined", "undefined");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="undefined" AND language_alias="undefined"), "", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="quality control" AND spv.language_alias="quality control";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="gynaecologic" AND spv.language_alias="gynaecologic";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="consent" AND spv.language_alias="consent";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="treatment" AND spv.language_alias="treatment";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="diagnosis" AND spv.language_alias="diagnosis";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="annotation" AND spv.language_alias="annotation";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="contact" AND spv.language_alias="contact";
+DELETE FROM structure_permissible_values WHERE value="quality control" AND language_alias="quality control";
+DELETE FROM structure_permissible_values WHERE value="consent" AND language_alias="consent";
+DELETE FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment";
+DELETE FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis";
+DELETE FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation";
+DELETE FROM structure_permissible_values WHERE value="contact" AND language_alias="contact";
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE category = 'consent';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE category = 'quality control';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE category = 'treatment';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - diagnosis' WHERE category = 'diagnosis';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation' WHERE category = 'annotation';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - contact' WHERE category = 'contact';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - specimen review' WHERE category = 'specimen review';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - gynaecologic' WHERE category = 'gynaecologic';	
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('clinical - annotation', 'Clinical - Annotation','Clinique - Annotation'),
+('clinical - consent', 'Clinical - Consent','Clinique - Consentement'),
+('clinical - contact', 'Clinical - Contact','Clinique - Contact'),
+('clinical - diagnosis', 'Clinical - Diagnosis','Clinique - Diagnostic'),
+('clinical - gynaecologic', 'Clinical - Gynaecologic','Clinique - Gynécologique'),
+('clinical - treatment', 'Clinical - Treatment','Clinique - Traitement'),
+('inventory - quality control', 'Inventory - Quality Control', 'Inventaire - Contrôle de qualité'),
+('inventory - specimen review', 'Inventory - Path Review', 'Inventaire - Rapport d''histologie');
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - family history", "clinical - family history");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - family history" AND language_alias="clinical - family history"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - reproductive history", "clinical - reproductive history");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - reproductive history" AND language_alias="clinical - reproductive history"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("inventory - specimen review", "inventory - specimen review");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="inventory - specimen review" AND language_alias="inventory - specimen review"), "", "1");
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('clinical - family history', 'Clinical - Family History','Clinique - Antécédents Familiaux'),
+('clinical - reproductive history', 'Clinical - Reproductive History','Clinique - Gynécologie'),
+('inventory - specimen review', 'Inventory - Path Review', 'Inventaire - Rapport d''histologie');
+UPDATE structure_permissible_values_custom_controls SET name = 'orders institutions' WHERE name = 'orders_institution';
+UPDATE structure_permissible_values_custom_controls SET name = 'orders contacts' WHERE name = 'orders_contact';
