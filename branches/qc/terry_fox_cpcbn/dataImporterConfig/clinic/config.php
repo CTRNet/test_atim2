@@ -428,7 +428,8 @@ function addonFunctionEnd(){
 		// Calculate Survival	
 		$new_survival = '';
 		if(!empty($dfs_date) && !empty($survival_end_date)) {
-			if($survival_end_date_accuracy.$dfs_accuracy == 'cc') {
+			if(in_array($survival_end_date_accuracy.$dfs_accuracy, array('cd','dc','cc'))) {
+				if($survival_end_date_accuracy.$dfs_accuracy != 'cc') Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival has been calculated with at least one unaccuracy date. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 				$dfs_date_ob = new DateTime($dfs_date);
 				$survival_end_date_ob = new DateTime($survival_end_date);
 				$interval = $dfs_date_ob->diff($survival_end_date_ob);
@@ -446,7 +447,8 @@ function addonFunctionEnd(){
 			
 		$new_bcr = '';
 		if(!empty($dfs_date) && !empty($bcr_date)) {
-			if($dfs_accuracy.$bcr_accuracy == 'cc') {
+			if(in_array($dfs_accuracy.$bcr_accuracy, array('cd','dc','cc'))) {
+				if($dfs_accuracy.$bcr_accuracy != 'cc') Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "BCR has been calculated with at least one unaccuracy date. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 				$dfs_date_ob = new DateTime($dfs_date);
 				$bcr_date_ob = new DateTime($bcr_date);
 				$interval = $dfs_date_ob->diff($bcr_date_ob);
