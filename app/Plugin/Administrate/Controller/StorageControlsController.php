@@ -99,7 +99,7 @@ class StorageControlsController extends AdministrateAppController {
 		
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		if($storage_control_data['StorageCtrl']['flag_active']) {
-			$this->atimFlash(__('you are not allowed to work on active storage type'), '/Administrate/StorageControls/listAll/');
+			$this->atimFlash('you are not allowed to work on active storage type', '/Administrate/StorageControls/listAll/');
 			return;
 		}
 		
@@ -151,7 +151,7 @@ class StorageControlsController extends AdministrateAppController {
 			// Check no Storage Master use it
 			$existing_storage_count = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id, 'StorageMaster.deleted' => array('0','1'))));
 			if($existing_storage_count) {
-				$this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), '/Administrate/StorageControls/listAll/');
+				$this->atimFlash('this storage type has already been used to build a storage - active status can not be changed', '/Administrate/StorageControls/listAll/');
 				return;
 			}
 			$new_data['StorageCtrl']['flag_active'] = '0';

@@ -145,7 +145,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->request->data[0]['ids'] = $sample_master_id;
 			$this->request->data[0]['realiquot_into'] = $aliquot_control_id;
 		} else if(empty($this->request->data)){ 
-			$this->flash(__('you have been redirected automatically').' (#'.__LINE__.')', $url_to_cancel, 5);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
 		}
 
@@ -618,10 +618,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 				
 				$this->atimFlash('your data has been deleted', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 		}		
 	}
 	
@@ -1031,7 +1031,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($deletion_done) {
 			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
-			$this->flash('error deleting data - contact administrator', $flash_url); 
+			$this->flash(__('error deleting data - contact administrator'), $flash_url); 
 		}	
 	}
 	
@@ -1055,7 +1055,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($all_children_storages as $new_child) $storage_ids[] = $new_child['StorageMaster']['id'];
 			$aliquot_ids = $this->AliquotMaster->find('list', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_ids, 'AliquotMaster.in_stock' => array('yes - available','yes - not available')), 'fields' => array('AliquotMaster.id'), 'recursive' => '-1'));
 			if(empty($aliquot_ids)) {
-				$this->flash((__('no aliquot is contained into this storage')), $url_to_cancel, 5);
+				$this->flash(__('no aliquot is contained into this storage'), $url_to_cancel, 5);
 				return;
 			}
 			if(empty($this->request->data)) $initial_display = true;
@@ -1221,7 +1221,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		
 		if(empty($available_sample_aliquots_w_volume) && empty($available_sample_aliquots_wo_volume)){
-			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+			$this->flash(__('no new sample aliquot could be actually defined as source aliquot'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 		}
 		$available_sample_aliquots = array(
 			'vol' 		=> $available_sample_aliquots_w_volume,
@@ -1492,7 +1492,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if($deletion_done) {
 			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
 		} else {
-			$this->flash('error deleting data - contact administrator', $flash_url); 
+			$this->flash(__('error deleting data - contact administrator'), $flash_url); 
 		}
 	}
 
@@ -1710,7 +1710,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$lab_book_code = $this->request->data['Realiquoting']['lab_book_master_code'];
 				$sync_with_lab_book = $this->request->data['Realiquoting']['sync_with_lab_book']; 
 			}else{
-				$this->flash($sync_response, "javascript:history.back()", 5);
+				$this->flash(__($sync_response), "javascript:history.back()", 5);
 				return;
 			}
 		}
@@ -2099,7 +2099,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$lab_book_code = $this->request->data['Realiquoting']['lab_book_master_code'];
 				$sync_with_lab_book = $this->request->data['Realiquoting']['sync_with_lab_book']; 
 			}else{
-				$this->flash($sync_response, "javascript:history.back()", 5);
+				$this->flash(__($sync_response), "javascript:history.back()", 5);
 				return;
 			}
 		}
@@ -2216,7 +2216,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$msg = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)').': ['.implode(",", $tmp_barcode).']';
 				
 				if(empty($this->request->data)) {
-					$this->flash($msg, "javascript:history.back()", 5);
+					$this->flash(__($msg), "javascript:history.back()", 5);
 					return;
 				} else {
 					AppController::addWarningMsg($msg);
@@ -2543,13 +2543,13 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($this->AliquotMaster->updateAliquotUseAndVolume($realiquoting_data['AliquotMaster']['id'], true, true)) {
 					$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url);
 				} else {
-					$this->flash('error deleting data - contact administrator', $flash_url);
+					$this->flash(__('error deleting data - contact administrator'), $flash_url);
 				}
 			} else {
-				$this->flash('error deleting data - contact administrator', $flash_url);
+				$this->flash(__('error deleting data - contact administrator'), $flash_url);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], $flash_url);
+			$this->flash(__($arr_allow_deletion['msg']), $flash_url);
 		}
 	}
 	

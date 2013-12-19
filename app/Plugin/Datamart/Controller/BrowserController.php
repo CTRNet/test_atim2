@@ -60,7 +60,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
 			$this->atimFlash( 'your data has been deleted', '/Datamart/Browser/index/');
 		} else {
-			$this->flash( 'error deleting data - contact administrator', '/Datamart/Browser/index/');
+			$this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
 		}
 	}
 	

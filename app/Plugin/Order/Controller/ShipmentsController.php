@@ -182,10 +182,10 @@ class ShipmentsController extends OrderAppController {
 			if($this->Shipment->atimDelete( $shipment_id )) {
 				$this->atimFlash('your data has been deleted', '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
+				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], 'javascript:history.go(-1)');
+			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
 		}
 	}
 	
@@ -201,7 +201,7 @@ class ShipmentsController extends OrderAppController {
 		// Get available order items
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
 		if(empty($available_order_items)) { 
-			$this->flash('no new item could be actually added to the shipment', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
+			$this->flash(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -406,11 +406,11 @@ class ShipmentsController extends OrderAppController {
 			if($remove_done) {
 				$this->atimFlash('your data has been removed - update the aliquot in stock data', $url);
 			} else {
-				$this->flash('error deleting data - contact administrator', $url);
+				$this->flash(__('error deleting data - contact administrator'), $url);
 			}
 		
 		} else {
-			$this->flash($arr_allow_deletion['msg'], $url);
+			$this->flash(__($arr_allow_deletion['msg']), $url);
 		}
 	}
 	

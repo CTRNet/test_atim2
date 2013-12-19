@@ -192,10 +192,10 @@ exit;
 			if( $this->StudyEthicsBoard->atimDelete( $study_ethics_board_id ) ) {
 				$this->atimFlash( 'your data has been deleted', '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator.', '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
+				$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
 			}
 		}else {
-				$this->flash($arr_allow_deletion['msg'], '/Study/StudyEthicsBoards/detail/'.$study_summary_id.'/'.$study_ethics_board_id);
+				$this->flash(__($arr_allow_deletion['msg']), '/Study/StudyEthicsBoards/detail/'.$study_summary_id.'/'.$study_ethics_board_id);
 		}
 	}
 }

@@ -1303,7 +1303,17 @@ SELECT '------------------------------------------------------------------------
 UNION ALL 
 SELECT "Added new relationsips into databrowser" as TODO
 UNION ALL
-SELECT "Please flag unactive relationsips if required." as TODO
+SELECT "Please flag inactive relationsips if required (see queries below). Don't forget Collection to Annotation, Treatment,Consent, etc if not requried." as TODO
+UNION ALL
+SELECT "SELECT str1.model AS model_1, str2.model AS model_2, use_field FROM datamart_browsing_controls ctrl, datamart_structures str1, datamart_structures str2 WHERE str1.id = ctrl.id1 AND str2.id = ctrl.id2 AND (ctrl.flag_active_1_to_2 = 1 OR ctrl.flag_active_2_to_1 = 1);" AS TODO
+UNION ALL
+SELECT "UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = 0 WHERE fct.datamart_structure_id = str.id AND/OR str.model IN ('Model1', 'Model2', 'Model...');" as TODO
+UNION ALL
+SELECT "Please flag inactive datamart structure functions if required (see queries below)." as TODO
+UNION ALL
+SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...'));" as TODO
+UNION ALL
+SELECT "Please change datamart_structures_relationships_en(and fr).png in \app\webroot\img\dataBrowser" as TODO
 UNION ALL
 SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO';
 

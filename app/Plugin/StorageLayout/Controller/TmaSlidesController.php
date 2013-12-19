@@ -276,10 +276,10 @@ class TmaSlidesController extends StorageLayoutAppController {
 			if($this->TmaSlide->atimDelete($tma_slide_id)) {
 				$this->atimFlash('your data has been deleted', '/StorageLayout/StorageMasters/detail/' . $tma_block_storage_master_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
+				$this->flash(__('error deleting data - contact administrator'), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 			}		
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/TmaSlides/detail/' . $tma_block_storage_master_id . '/' . $tma_slide_id);
 		}		
 	}
 }

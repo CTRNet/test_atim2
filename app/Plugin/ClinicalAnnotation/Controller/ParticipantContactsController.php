@@ -133,10 +133,10 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 			else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id);
 		}
 	}
 }

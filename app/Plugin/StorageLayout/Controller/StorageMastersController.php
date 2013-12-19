@@ -397,10 +397,10 @@ class StorageMastersController extends StorageLayoutAppController {
 			if($atim_flash){
 				$this->atimFlash('your data has been deleted', '/StorageLayout/StorageMasters/search/');
 			}else{
-				$this->flash('error deleting data - contact administrator', '/StorageLayout/StorageMasters/search/');
+				$this->flash(__('error deleting data - contact administrator'), '/StorageLayout/StorageMasters/search/');
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
 		}		
 	}
 	
@@ -523,7 +523,7 @@ class StorageMastersController extends StorageLayoutAppController {
 					echo json_encode(array('valid' => 0));
 					exit;
 				}else{
-					$this->flash('no layout exists - add coordinates first', '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
+					$this->flash(__('no layout exists - add coordinates first'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);
 					return;
 				}
 			}
@@ -535,7 +535,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				echo json_encode(array('valid' => 0));
 				exit;	
 			}else{
-				$this->flash('no storage layout is defined for this storage type', '/StorageLayout/StorageMasters/detail/' . $storage_master_id);	
+				$this->flash(__('no storage layout is defined for this storage type'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);	
 				return;
 			} 
 		}

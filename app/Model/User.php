@@ -57,7 +57,7 @@ class User extends AppModel {
 		$this->validatePassword($data, $error_flash_link);
 		
 		if($this->validationErrors){
-			AppController::getInstance()->flash($this->validationErrors['password'][0], $error_flash_link);
+			AppController::getInstance()->flash(__($this->validationErrors['password'][0]), $error_flash_link);
 		}else{
 	
 			$this->read();
