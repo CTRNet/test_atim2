@@ -25,3 +25,5 @@ UPDATE versions SET permissions_regenerated = 0;
 TRUNCATE TABLE datamart_browsing_indexes;
 TRUNCATE TABLE datamart_browsing_indexes_revs;
 DELETE FROM datamart_browsing_results;
+
+TRUNCATE user_login_attempts;
