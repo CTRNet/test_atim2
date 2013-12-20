@@ -21,3 +21,22 @@ INSERT INTO i18n (id,en) VALUES ('ctnm','cTNM');
 INSERT INTO i18n (id,en) VALUES 
 ('survival has been calculated with at least one unaccuracy date','Survival has been calculated with at least one unaccuracy date'),
 ('bcr has been calculated with at least one unaccuracy date','BCR has been calculated with at least one unaccuracy date');
+
+-- ------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls link, datamart_structures str1, datamart_structures str2 
+SET link.flag_active_1_to_2 = 0, link.flag_active_2_to_1 = 0
+WHERE link.id1 = str1.id AND link.id2 = str2.id
+AND ((str1.model = 'ViewCollection' AND str2.model = 'TreatmentMaster') OR (str1.model = 'TreatmentMaster' AND str2.model = 'ViewCollection'));
+
+UPDATE datamart_browsing_controls link, datamart_structures str1, datamart_structures str2 
+SET link.flag_active_1_to_2 = 0, link.flag_active_2_to_1 = 0
+WHERE link.id1 = str1.id AND link.id2 = str2.id
+AND ((str1.model = 'ViewCollection' AND str2.model = 'EventMaster') OR (str1.model = 'EventMaster' AND str2.model = 'ViewCollection'));
