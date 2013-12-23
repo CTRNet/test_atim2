@@ -1217,26 +1217,44 @@ class StructuresHelper extends Helper {
 			if($options['settings']['csv_header']){
 				//first call, build all structures
 				$options['type'] = 'index';
+				$node_name_line = array();
+				$heading_line = array();
+				$display_heading = false;
+				$lines = array();			
 				foreach($csv::$nodes_info as $node_id => $node_info){
+					$heading_sub_line = array();
 					$sub_line = array();
 					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
 					foreach($csv::$structures[$node_id] as $table_column){
+						$last_heading = '';
 						foreach($table_column as $fm => $table_row){
-							foreach($table_row as $table_row_part){
+							foreach($table_row as $table_row_part){							
+								if(strlen($table_row_part['heading'])) {
+									$display_heading = true;
+									$last_heading = $table_row_part['heading'];
+								}						
+								$heading_sub_line[] = $last_heading;
 								$sub_line[] = $table_row_part['label'];
-								if(in_array($table_row_part['type'], array('date', 'datetime'))) $sub_line[] = __('accuracy');
+								if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+									$sub_line[] = __('accuracy');
+									$heading_sub_line[] = $last_heading;
+								}
 							}
 						}
 						
 					}
 					$csv::$nodes_info[$node_id]['cols_count'] = count($sub_line);
 					for($i = 1; $i <= $node_info['max_length']; ++ $i){
-						foreach($sub_line as $sub_line_part){
-							$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
+						foreach($sub_line as $sub_line_key => $sub_line_part){
+							$node_name_line[] = $node_info['display_name']." $i";
+							$heading_line[] = $heading_sub_line[$sub_line_key];
+							$line[] = $sub_line_part;
 						}
 					}
 				}
-				$options['type'] = 'csv';//go back to csv
+				$options['type'] = 'csv';//go back to csv	
+				$this->Csv->addRow($node_name_line);
+				if($display_heading) $this->Csv->addRow($heading_line);
 				$this->Csv->addRow($line);
 			}
 			
@@ -1289,25 +1307,37 @@ class StructuresHelper extends Helper {
 			
 			if(is_array($table_structure) && count($data)){
 				//header line
-				$line = array();
 				if($options['settings']['csv_header']){
+					$heading_line = array();
+					$display_heading = false;
+					$line = array();
 					if(empty($options['settings']['columns_names'])){
 						foreach($table_structure as $table_column){
+							$last_heading = '';
 							foreach($table_column as $fm => $table_row){
-								foreach($table_row as $table_row_part){							
+								foreach($table_row as $table_row_part){													
+									if(strlen($table_row_part['heading'])) {
+										$last_heading = $table_row_part['heading'];
+										$display_heading = true;
+									}
+									$heading_line[] = $last_heading;
 									$line[] = $table_row_part['label'];							
-									if(in_array($table_row_part['type'], array('date', 'datetime'))) $line[] = __('accuracy');
+									if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+										$heading_line[] = $last_heading;
+										$line[] = __('accuracy');
+									}
 								}
 							}
 						}
 					}else{
 						// Multi-Lines and Multi Column Report Display: Date format for excel not supported
+						// No heading to manage
 						$line = array_merge(array(''), $options['settings']['columns_names']);
 					}
+					if($display_heading) $this->Csv->addRow($heading_line);
 					$this->Csv->addRow($line);
 				}
 				
-	
 				//content
 				if(empty($options['settings']['columns_names'])){
 					foreach($data as $data_unit){
@@ -1651,6 +1681,10 @@ class StructuresHelper extends Helper {
 	private function buildDisplayHeader(array $table_structure, array $options){
 		$column_count = 0;
 		$return_string = '<tr>';
+		$language_node = '';
+		$language_node_string = "";
+		$language_node_count = 0;
+		$language_node_list = array();
 		$language_header = '';
 		$language_header_string = "";
 		$language_header_count = 0;
@@ -1660,6 +1694,7 @@ class StructuresHelper extends Helper {
 			if(count($options['links'][$key])){
 				++ $colspan;
 				$column_count ++;
+				$language_node_count++;
 				$language_header_count ++;
 			}
 		}
@@ -1719,7 +1754,8 @@ class StructuresHelper extends Helper {
 			$first_cell = true;
 			$previous_structure_group = null;
 			$structure_group_change = false;
-			foreach ($table_structure as $table_column){
+			foreach ($table_structure as $table_column){	
+				$new_column = true;
 				foreach ($table_column as $table_row){
 					foreach($table_row as $table_row_part){
 						if (($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0) || $first_cell){
@@ -1750,7 +1786,16 @@ class StructuresHelper extends Helper {
 							}
 							$batchset = '';
 
-							if($table_row_part['heading'] || $structure_group_change){
+							if($structure_group_change) {
+								if($language_node_count > 0){
+									$language_node .= '<th colspan="'.$language_node_count.'">'.(trim($language_node_string) ? '<div class="indexLangHeader">'.$language_node_string.'</div>' : '').'</th>';
+								}
+								$language_node_count = 0;
+								$language_node_string = isset($table_row_part['structure_group_name'])? $table_row_part['structure_group_name'] : '';
+								$language_node_list[$language_node_string] = '-1';
+							}
+							++ $language_node_count;
+							if($table_row_part['heading'] || $structure_group_change || $new_column){
 								if($language_header_count > 0){
 									$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>';
 								} 
@@ -1758,6 +1803,7 @@ class StructuresHelper extends Helper {
 								$language_header_string = $table_row_part['heading']; 
 							}
 							++ $language_header_count;
+							$new_column = false;
 							
 							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
 							$default_sorting_direction = strtolower($default_sorting_direction);
@@ -1809,6 +1855,7 @@ class StructuresHelper extends Helper {
 				<th>&nbsp;</th>
 			';
 			$column_count ++;
+			$language_node_count++;
 			$language_header_count ++;
 		}
 		
@@ -1817,11 +1864,19 @@ class StructuresHelper extends Helper {
 				</tr>
 		';
 		
+		if(sizeof($language_node_list) > 1) {
+			if($language_node_string){
+				$language_node = '<tr>'.$language_node.'<th colspan="'.$language_node_count.'">'.(trim($language_node_string) ? '<div class="indexLangHeader">'.$language_node_string.'</div>' : '').'</th></tr>';
+			}
+			if($language_node) $language_node .= '<th>&nbsp;</th>';
+		} else {
+			$language_node = '';
+		}
 		if($language_header_string){
 			$language_header = '<tr>'.$language_header.'<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th></tr>';
 		}
 		
-		return array("header" => $language_header.$return_string, "count" => $column_count);
+		return array("header" => $language_node.$language_header.$return_string, "count" => $column_count);
 		
 	}
 
@@ -1915,7 +1970,8 @@ class StructuresHelper extends Helper {
 						"flag_float"		=> $sfs['flag_float'],
 						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"],
 						"margin"			=> $sfs['margin'],
-					    "structure_group"   => isset($sfs['structure_group']) ? $sfs['structure_group'] : null
+					    "structure_group"   => isset($sfs['structure_group']) ? $sfs['structure_group'] : null,
+					    "structure_group_name"   => isset($sfs['structure_group_name']) ? $sfs['structure_group_name'] : null
 					);
 					$settings = $my_default_settings_arr;
 					
