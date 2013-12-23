@@ -1199,6 +1199,7 @@ class Browser extends DatamartAppModel {
 				$sfs['display_column'] += 100 * $iteration_count;
 				$sfs['model'] = $prefix.$sfs['model'];
 				$sfs['structure_group'] = $iteration_count;
+				$sfs['structure_group_name'] = __($current_browsing['DatamartStructure']['display_name']);
 				$result_structure['Sfs'][] = $sfs;
 			}
 			//copy accuracy settings
