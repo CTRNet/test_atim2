@@ -78,8 +78,7 @@ class CollectionsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id){
-		// $is_from_tree_view : 0-Normal, 1-Tree view
+	function detail($collection_id, $hide_header = false){
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
 		
 		// MANAGE DATA
@@ -99,13 +98,13 @@ class CollectionsController extends InventoryManagementAppController {
 
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_ajax', $this->request->is('ajax'));
-		$this->set('args', $this->passedArgs);
+		$this->set('hide_header', $hide_header);
 		
 		$template_model = AppModel::getInstance("Tools", "Template", true);
 		$templates = $template_model->getAddFromTemplateMenu($collection_id);
 		$this->set('templates', $templates);
 		
-		if(!$this->request->is('ajax') || (isset($this->passedArgs['tree']) && $this->passedArgs['tree'])){
+		if(!$this->request->is('ajax')){
 			$this->Structures->set('sample_masters_for_collection_tree_view', 'sample_masters_for_collection_tree_view');
 			$sample_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.parent_id' => null), 'recursive' => 0));
 			$ids = array();
