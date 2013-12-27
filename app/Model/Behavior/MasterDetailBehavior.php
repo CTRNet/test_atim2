@@ -30,7 +30,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			$is_master_model	= $master_class == $model_to_use->alias ? true : false;
 			$is_control_model	= $control_class == $model_to_use->alias ? true : false;
-			$is_view			= strpos($model->alias, 'View') != -1;
+			$is_view			= strpos($model->alias, 'View') !== false;
 			
 			$default = array(
 				'master_class' 		=>	$master_class, 
@@ -60,7 +60,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			$default = array(
 				'is_master_model'	=> false,
 				'is_control_model'	=> false,
-				'is_view'			=> strpos($model->alias, 'View') == -1
+				'is_view'			=> strpos($model->alias, 'View') !== false
 			);
 			
 		}
@@ -178,6 +178,8 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 			 
 			return $result;
+			
+		}else{
 			
 		}
 	}
