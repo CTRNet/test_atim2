@@ -6,7 +6,11 @@ class MasterDetailBehavior extends ModelBehavior {
 	
 	public function setup(Model $model, $config = array()) { 
 		
-		if ( strpos($model->alias,'Master') || strpos($model->alias,'Control') || (isset($model->base_model) && strpos($model->base_model,'Master'))){
+		if ( strpos($model->alias,'View') == -1
+				&& (strpos($model->alias,'Master') 
+					|| strpos($model->alias,'Control') 
+					|| (isset($model->base_model) && strpos($model->base_model,'Master')))
+				){
 			$model_to_use = null;
 			if(isset($model->base_model)){
 				$model_to_use = AppModel::getInstance($model->base_plugin, $model->base_model);
