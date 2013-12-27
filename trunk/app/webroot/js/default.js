@@ -1162,13 +1162,15 @@ function initActions(){
 					$(this).addClass("testScroll");
 				});
 				for(var j = 1; j <= i; ++ j){
-					$(this).parents("table").eq(0).find("td:nth-child(" + j + ")").addClass("testScroll");
+					$(this).parents("table").eq(0).find("tbody td:nth-child(" + j + ")").addClass("testScroll");
 				}
 			});
-			firstTh = $(this).find("table").find("th.floatingCell:first").prev();
+			firstTh = $(this).find("table").find("th.floatingCell:first");
+			firstTh.html('<span style="position: relative; z-index:2">' + firstTh.html() + '</span>');
 			firstTh.append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
 			lastTh = $(this).find("th.floatingCell:last");
-			lastTd = $(this).find("tr:last td.testScroll:last");
+			lastTd = $(this).find("tbody tr:last td.testScroll:last");
+			console.log(lastTd[0]);
 			computeSum = function(obj, cssArr){
 				total = 0;
 				for(var i in cssArr){
@@ -1184,8 +1186,8 @@ function initActions(){
 				}
 				return computeSum(obj, newArr);
 			};
-			width = lastTh.width() + lastTh.position().left + psSize(lastTh, "right") - firstTh.position().left + psSize(firstTh, "left");
-			height = Math.ceil(lastTd.height() + lastTd.position().top + psSize(lastTd, "bottom") - firstTh.position().top + psSize(firstTh, "top"));
+			width = lastTh.width() + lastTh.position().left + psSize(lastTh, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+			height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
 			$(this).find(".floatingBckGrnd").css({
 				"top" : 0,
 				"left" : 0,
