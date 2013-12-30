@@ -4,7 +4,7 @@ class ConsentMasterCustom extends ConsentMaster {
 	var $useTable = 'consent_masters';
 	var $name = 'ConsentMaster';
 	
-	function beforeValidate($options) {
+	function beforeValidate($options = Array()) {
 		$result = parent::beforeValidate($options);	
 		
 		//Form identification validation
