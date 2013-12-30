@@ -9,9 +9,7 @@
 			$this->Collection->tryCatchQuery("UPDATE collections_revs SET collection_property =  'participant collection' WHERE id = ".$collection_data['Collection']['id']);
 		}
 */
-		$this->Collection->addWritableField('collection_property', 'procure_chus_collection_specimen_sample_control_id');
+		$this->Collection->addWritableField(array('collection_property', 'procure_chus_collection_specimen_sample_control_id'));
 	} else {
 		$this->Collection->addWritableField('collection_property');
 	}
-
-?>
