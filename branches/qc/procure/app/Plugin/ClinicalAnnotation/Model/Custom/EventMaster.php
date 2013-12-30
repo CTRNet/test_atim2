@@ -24,7 +24,7 @@ class EventMasterCustom extends EventMaster {
 		return $return;
 	}
 	
-	function beforeValidate($options) {
+	function beforeValidate($options = Array()) {
 		$result = parent::beforeValidate($options);	
 			
 		if(array_key_exists('followup_event_master_id', $this->data['EventDetail'])) {

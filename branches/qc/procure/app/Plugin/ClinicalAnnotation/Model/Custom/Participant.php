@@ -27,7 +27,7 @@ class ParticipantCustom extends Participant {
 		return $return;
 	}
 	
-	function beforeValidate($options) {
+	function beforeValidate($options = Array()) {
 		$result = parent::beforeValidate($options);	
 		if(isset($this->data['Participant']['participant_identifier']) && !preg_match("/^($this->bank_identification)([0-9]+)$/", $this->data['Participant']['participant_identifier'], $matches)) {
 			$result = false;
