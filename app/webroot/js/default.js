@@ -1158,14 +1158,20 @@ function initActions(){
 				var i = 1;
 				$(this).addClass("testScroll");
 				$(this).prevAll().each(function(){
-					++ i;
 					$(this).addClass("testScroll");
+					var colspan = $(this).attr("colspan");
+					if(colspan == undefined){
+					    ++ i
+					}else{
+					    i += colspan * 1;
+					}
+					console.log(this);
 				});
 				for(var j = 1; j <= i; ++ j){
 					$(this).parents("table").eq(0).find("tbody td:nth-child(" + j + ")").addClass("testScroll");
 				}
 			});
-			firstTh = $(this).find("table").find("th.floatingCell:first");
+			firstTh = $(this).find("table").find("th.floatingCell").parents("tr:first").find("th:first");
 			firstTh.html('<span style="position: relative; z-index:2">' + firstTh.html() + '</span>');
 			firstTh.append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
 			lastTh = $(this).find("th.floatingCell:last");
