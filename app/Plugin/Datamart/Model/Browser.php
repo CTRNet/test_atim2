@@ -567,13 +567,12 @@ class Browser extends DatamartAppModel {
 	private static function getBaseTitle($cell){
 		$title = __($cell['DatamartStructure']['display_name']);
 		$word = null;
-		if($cell['BrowsingResult']['parent_children'] == 'c'){
-			$word = __('children');
-		}else if($cell['BrowsingResult']['parent_children'] == 'p'){
-			$word = __('parent');
-		}
-		if($word){
-			$title .= ' '.$word;
+		if(isset($cell['BrowsingResult']['parent_children'])){
+    		if($cell['BrowsingResult']['parent_children'] == 'c'){
+    			$title .= ' '.__('children');
+    		}else if($cell['BrowsingResult']['parent_children'] == 'p'){
+    			$title .= ' '.__('parent');
+    		}
 		}
 		return $title;
 	}
