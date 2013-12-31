@@ -269,6 +269,27 @@ class StructuresHelper extends Helper {
 			
 		}
 	}
+	
+	private function updateUnsanitizeList(&$options, $atim_structure){
+    	if(isset($atim_structure['Sfs'])){
+    	    //no sanitization on select
+    	    $flag = 'flag_'.$options['type'];
+    	    foreach($atim_structure['Sfs'] as $sfs){
+    	        if($sfs[$flag] && $sfs['type'] == 'select'){
+    	            $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+    	        }
+    	    }
+    	}else if($options['type'] == "tree"){
+    	    foreach($atim_structure as $structure){
+    	        //no sanitization on select
+    	        foreach($structure['Sfs'] as $sfs){
+    	            if($sfs['flag_index'] && $sfs['type'] == 'select'){
+    	                $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+    	            }
+    	        }
+    	    }
+    	}
+	}
 
 	/**
 	 * Builds a structure
@@ -430,17 +451,8 @@ class StructuresHelper extends Helper {
 				<div class="extra">'.$options['extras']['start'].'</div>
 			');
 		}
-		
-		if(isset($atim_structure['Sfs'])){
-			//no sanitization on select
-			$flag = 'flag_'.$options['type'];
-			foreach($atim_structure['Sfs'] as $sfs){
-				if($sfs[$flag] && $sfs['type'] == 'select'){
-					$options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
-				}
-			}
-		}
-		
+
+        $this->updateUnsanitizeList($options, $atim_structure);
 		$sanitized_data = Sanitize::clean($data);
 		if($options['settings']['no_sanitization']){
 			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
@@ -838,7 +850,6 @@ class StructuresHelper extends Helper {
 					&& !array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])
 					&& count($table_row_part['settings']['options']) > 1
 				){
-					//TODO FMLHHHHHH
 					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
@@ -1489,7 +1500,6 @@ class StructuresHelper extends Helper {
 						<tr><td>
 							<ul class="tree_root">
 					');
-					
 					$this->buildTreeNode($atim_structures, $options, $data);
 					
 					echo('
@@ -1530,7 +1540,7 @@ class StructuresHelper extends Helper {
 	 * @param array $data
 	 */
 	private function buildTreeNode(array &$atim_structures, array $options, array $data){
-		$accuracy_updated = array(); 
+		$accuracy_updated = array();
 		foreach($data as $data_key => &$data_val){
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
