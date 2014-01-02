@@ -1318,7 +1318,9 @@ class StructuresHelper extends Helper {
 			
 			if(is_array($table_structure) && count($data)){
 				//header line
-				if($options['settings']['csv_header']){
+				if($options['settings']['csv_header']){					
+					$node_name_line = array();
+					$language_node_list = array();
 					$heading_line = array();
 					$display_heading = false;
 					$line = array();
@@ -1326,7 +1328,10 @@ class StructuresHelper extends Helper {
 						foreach($table_structure as $table_column){
 							$last_heading = '';
 							foreach($table_column as $fm => $table_row){
-								foreach($table_row as $table_row_part){													
+								foreach($table_row as $table_row_part){	
+									$structure_group_name = isset($table_row_part['structure_group_name'])? $table_row_part['structure_group_name'] : '';
+									$node_name_line[] = $structure_group_name;
+									$language_node_list[$structure_group_name] = '-1';
 									if(strlen($table_row_part['heading'])) {
 										$last_heading = $table_row_part['heading'];
 										$display_heading = true;
@@ -1334,6 +1339,7 @@ class StructuresHelper extends Helper {
 									$heading_line[] = $last_heading;
 									$line[] = $table_row_part['label'];							
 									if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+										$node_name_line[] = $structure_group_name;
 										$heading_line[] = $last_heading;
 										$line[] = __('accuracy');
 									}
@@ -1345,6 +1351,7 @@ class StructuresHelper extends Helper {
 						// No heading to manage
 						$line = array_merge(array(''), $options['settings']['columns_names']);
 					}
+					if(!empty($node_name_line) && sizeof($language_node_list) > 1) $this->Csv->addRow($node_name_line);
 					if($display_heading) $this->Csv->addRow($heading_line);
 					$this->Csv->addRow($line);
 				}
