@@ -253,7 +253,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				}
 					
 				if($bool_save_done) {
-					$this->atimFlash('your data has been saved', '/StorageLayout/StorageMasters/detail/' . $storage_master_id);				
+					$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id);				
 				}					
 			}
 		}		
@@ -352,7 +352,7 @@ class StorageMastersController extends StorageLayoutAppController {
 					if(strcmp($this->request->data['StorageMaster']['selection_label'], $storage_data['StorageMaster']['selection_label']) != 0) {	
 						$this->StorageMaster->updateChildrenStorageSelectionLabel($storage_master_id, $this->request->data);
 					}		
-					$this->atimFlash('your data has been updated', '/StorageLayout/StorageMasters/detail/' . $storage_master_id); 
+					$this->atimFlash(__('your data has been updated'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id); 
 				}
 					
 			}
@@ -395,7 +395,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			
 			$this->StorageMaster->bindModel(array('hasMany' => array('StorageCoordinate')), false);
 			if($atim_flash){
-				$this->atimFlash('your data has been deleted', '/StorageLayout/StorageMasters/search/');
+				$this->atimFlash(__('your data has been deleted'), '/StorageLayout/StorageMasters/search/');
 			}else{
 				$this->flash(__('error deleting data - contact administrator'), '/StorageLayout/StorageMasters/search/');
 			}
@@ -611,7 +611,7 @@ class StorageMastersController extends StorageLayoutAppController {
 				$this->StorageMaster->validationErrors = $err;
 				$storage_data = $storage_data[$storage_master_id];
 			}else{
-				$this->atimFlash('your data has been saved', '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
+				$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageMasters/storageLayout/' . $storage_master_id);
 				return;
 			}
 		}

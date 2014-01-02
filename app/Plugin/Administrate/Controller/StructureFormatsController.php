@@ -30,7 +30,7 @@ class StructureFormatsController extends AdministrateAppController {
 		$this->hook();
 		
 		if ( !empty($this->request->data) ) {
-			if ( $this->StructureFormat->save($this->request->data) ) $this->atimFlash( 'your data has been updated','/Administrate/StructureFormats/detail/'.$structure_id.'/'.$structure_format_id );
+			if ( $this->StructureFormat->save($this->request->data) ) $this->atimFlash(__('your data has been updated'),'/Administrate/StructureFormats/detail/'.$structure_id.'/'.$structure_format_id );
 		} else {
 			$this->request->data = $this->StructureFormat->find('first',array('conditions'=>array('StructureFormat.id'=>$structure_format_id)));
 		}

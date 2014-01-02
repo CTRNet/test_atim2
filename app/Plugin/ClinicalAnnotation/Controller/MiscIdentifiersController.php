@@ -120,7 +120,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				}
 			}
 		}
@@ -194,7 +194,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				}
 			}
 		}
@@ -242,7 +242,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 				
 			}else{
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/' );
@@ -309,7 +309,7 @@ class MiscIdentifiersController extends ClinicalAnnotationAppController {
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+						$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 					}
 				}
 			}else{

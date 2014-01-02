@@ -48,7 +48,7 @@ class BrowserController extends DatamartAppController {
 			$this->request->data['BrowsingIndex']['temporary'] = false;
 			$this->BrowsingIndex->addWritableField(array('temporary'));
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	
@@ -58,7 +58,7 @@ class BrowserController extends DatamartAppController {
 		if(!empty($this->request->data)){
 			$this->BrowsingIndex->atimDelete($index_id);
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
-			$this->atimFlash( 'your data has been deleted', '/Datamart/Browser/index/');
+			$this->atimFlash(__('your data has been deleted'), '/Datamart/Browser/index/');
 		} else {
 			$this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
 		}
@@ -548,7 +548,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->pkey_safeguard = false;
 			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	

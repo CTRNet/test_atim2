@@ -149,7 +149,7 @@ class LabBookMastersController extends LabBookAppController {
 						echo $this->request->data['LabBookMaster']['code'];
 						exit;
 					}else{
-						$this->atimFlash('your data has been saved', $url_to_redirect);
+						$this->atimFlash(__('your data has been saved'), $url_to_redirect);
 					}				
 				}					
 			}
@@ -204,7 +204,7 @@ class LabBookMastersController extends LabBookAppController {
 						require($hook_link); 
 					} 
 					$this->LabBookMaster->synchLabbookRecords($lab_book_master_id, $this->request->data['LabBookDetail']);
-					$this->atimFlash('your data has been updated', '/labbook/LabBookMasters/detail/' . $lab_book_master_id); 
+					$this->atimFlash(__('your data has been updated'), '/labbook/LabBookMasters/detail/' . $lab_book_master_id); 
 				}	
 			}
 		}
@@ -294,7 +294,7 @@ class LabBookMastersController extends LabBookAppController {
 
 				$this->LabBookMaster->synchLabbookRecords($lab_book_master_id, $lab_book['LabBookDetail']);
 				
-				$this->atimFlash('your data has been updated', '/labbook/LabBookMasters/detail/' . $lab_book_master_id); 	
+				$this->atimFlash(__('your data has been updated'), '/labbook/LabBookMasters/detail/' . $lab_book_master_id); 	
 			}
 		}
 	}
@@ -318,7 +318,7 @@ class LabBookMastersController extends LabBookAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->LabBookMaster->atimDelete($lab_book_master_id, true)){
-				$this->atimFlash('your data has been deleted', '/labbook/LabBookMasters/index/');
+				$this->atimFlash(__('your data has been deleted'), '/labbook/LabBookMasters/index/');
 			}else{
 				$this->flash(__('error deleting data - contact administrator'), '/labbook/LabBookMasters/index/');
 			}

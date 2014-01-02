@@ -216,7 +216,7 @@ class CollectionsController extends InventoryManagementAppController {
 						require($hook_link);
 					}
 					$collection_id = $collection_id ?: $this->Collection->getLastInsertId();
-					$this->atimFlash('your data has been saved', '/InventoryManagement/Collections/detail/' . $collection_id);
+					$this->atimFlash(__('your data has been saved'), '/InventoryManagement/Collections/detail/' . $collection_id);
 				}
 			}
 		}
@@ -265,7 +265,7 @@ class CollectionsController extends InventoryManagementAppController {
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash('your data has been updated', '/InventoryManagement/Collections/detail/' . $collection_id);
+					$this->atimFlash(__('your data has been updated'), '/InventoryManagement/Collections/detail/' . $collection_id);
 				}
 			}
 		}
@@ -288,7 +288,7 @@ class CollectionsController extends InventoryManagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
 			if($this->Collection->atimDelete($collection_id, true)) {
-				$this->atimFlash('your data has been deleted', '/InventoryManagement/Collections/search/');
+				$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/Collections/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/search/');
 			}		

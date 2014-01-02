@@ -42,7 +42,7 @@ class TemplateController extends AppController {
 			
 			if ( $submitted_data_validates && $this->Template->save($this->request->data)){
 				$template_id = $this->Template->getLastInsertId();
-				$this->atimFlash( 'your data has been saved','/Tools/Template/edit/'.$template_id );
+				$this->atimFlash(__('your data has been saved'),'/Tools/Template/edit/'.$template_id );
 			}
 		}
 	}	
@@ -145,7 +145,7 @@ class TemplateController extends AppController {
 					$this->TemplateNode->delete($node_to_delete);
 				}
 	
-				$this->atimFlash('your data has been saved', '/Tools/Template/edit/'.$template_id);
+				$this->atimFlash(__('your data has been saved'), '/Tools/Template/edit/'.$template_id);
 				return;
 			}
 		}
@@ -206,7 +206,7 @@ class TemplateController extends AppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/Tools/Template/edit/'.$template_id );
+					$this->atimFlash(__('your data has been updated'),'/Tools/Template/edit/'.$template_id );
 				}
 			}
 		}

@@ -382,7 +382,7 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->addWritableField('flag_tmp');
 			unset($this->request->data['BatchSet']['created_by']);
 			if ( $this->BatchSet->save($this->request->data) ){
-				$this->atimFlash( 'your data has been updated','/Datamart/BatchSets/listall/'.$batch_set_id );
+				$this->atimFlash(__('your data has been updated'),'/Datamart/BatchSets/listall/'.$batch_set_id );
 			}
 		} else {
 			$batch_set = $this->BatchSet->find('first',array('conditions'=>array('BatchSet.id'=>$batch_set_id)));
@@ -403,7 +403,7 @@ class BatchSetsController extends DatamartAppController {
 			return;
 		}
 		$this->BatchSet->delete( $batch_set_id );
-		$this->atimFlash( 'your data has been deleted', '/Datamart/BatchSets/index' );
+		$this->atimFlash(__('your data has been deleted'), '/Datamart/BatchSets/index' );
 	}
 	
 	function deleteInBatch() {
@@ -437,7 +437,7 @@ class BatchSetsController extends DatamartAppController {
 				}
 			}
 			if($deletion_done) {
-				$this->atimFlash( 'your data has been deleted', '/Datamart/BatchSets/index/user' );
+				$this->atimFlash(__('your data has been deleted'), '/Datamart/BatchSets/index/user' );
 			} else {
 				 $this->BatchSet->validationErrors[] = 'check at least one element from the batch set';
 			}
@@ -481,7 +481,7 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->check_writable_fields = false;
 			$this->BatchSet->id = $batch_id;
 			$this->BatchSet->save(array('flag_tmp' => 0));
-			$this->atimFlash('your data has been updated', "/Datamart/BatchSets/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/BatchSets/index");
 		}else{
 			$this->redirect( '/Pages/err_internal?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}
@@ -493,7 +493,7 @@ class BatchSetsController extends DatamartAppController {
 			$this->BatchSet->check_writable_fields = false;
 			$this->BatchSet->id = $batch_set_id;
 			$this->BatchSet->save(array('locked' => 0));
-			$this->atimFlash('your data has been updated', "/Datamart/BatchSets/listall/$batch_set_id");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/BatchSets/listall/$batch_set_id");
 		} else {
 			$this->flash(__('you are not allowed to unlock this batchset'), "/Datamart/BatchSets/index/user");
 		}

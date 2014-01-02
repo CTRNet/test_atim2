@@ -99,7 +99,7 @@ class StorageControlsController extends AdministrateAppController {
 		
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		if($storage_control_data['StorageCtrl']['flag_active']) {
-			$this->atimFlash('you are not allowed to work on active storage type', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('you are not allowed to work on active storage type'), '/Administrate/StorageControls/listAll/');
 			return;
 		}
 		
@@ -137,7 +137,7 @@ class StorageControlsController extends AdministrateAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}	
-					$this->atimFlash('your data has been updated', '/Administrate/StorageControls/listAll/'); 
+					$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/listAll/'); 
 				}	
 			}
 		}
@@ -151,7 +151,7 @@ class StorageControlsController extends AdministrateAppController {
 			// Check no Storage Master use it
 			$existing_storage_count = $this->StorageMaster->find('count', array('conditions' => array('StorageMaster.storage_control_id' => $storage_control_id, 'StorageMaster.deleted' => array('0','1'))));
 			if($existing_storage_count) {
-				$this->atimFlash('this storage type has already been used to build a storage - active status can not be changed', '/Administrate/StorageControls/listAll/');
+				$this->atimFlash(__('this storage type has already been used to build a storage - active status can not be changed'), '/Administrate/StorageControls/listAll/');
 				return;
 			}
 			$new_data['StorageCtrl']['flag_active'] = '0';
@@ -163,7 +163,7 @@ class StorageControlsController extends AdministrateAppController {
 		$this->StorageCtrl->data = array();
 		$this->StorageCtrl->id = $storage_control_id;
 		if($this->StorageCtrl->save($new_data)) {
-			$this->atimFlash('your data has been updated', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/listAll/');
 		}
 	}
 	
@@ -183,10 +183,10 @@ class StorageControlsController extends AdministrateAppController {
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		$storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
 		if($storage_category == 'no_d') {
-			$this->atimFlash('no layout exists', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('no layout exists'), '/Administrate/StorageControls/listAll/');
 			return;
 		} else if($storage_control_data['StorageCtrl']['coord_x_type'] == 'list') {
-			$this->atimFlash('custom layout will be built adding coordinates to a created storage', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('custom layout will be built adding coordinates to a created storage'), '/Administrate/StorageControls/listAll/');
 			return;
 		}
 		$translated_storage_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storage_control_data['StorageCtrl']['storage_type']);

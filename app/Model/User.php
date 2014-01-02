@@ -71,7 +71,7 @@ class User extends AppModel {
 			$this->data = null;
 			$this->check_writable_fields = false;
 			if ( $this->save( $data_to_save ) ) {
-				AppController::getInstance()->atimFlash( 'your data has been updated', $success_flash_link );
+				AppController::getInstance()->atimFlash(__('your data has been updated'), $success_flash_link );
 			}
 		}
 	}

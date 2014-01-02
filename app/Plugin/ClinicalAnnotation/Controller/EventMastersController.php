@@ -175,7 +175,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 				}
 					
 			} else {
@@ -220,7 +220,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 						$this->EventMaster->data = array();
 						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
-					$this->atimFlash('your data has been updated', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
+					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
 				} else {
 					$this->EventMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
@@ -284,7 +284,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
+				$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->request->data = $event_master_data;
@@ -308,7 +308,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atimDelete( $event_master_id )) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			}

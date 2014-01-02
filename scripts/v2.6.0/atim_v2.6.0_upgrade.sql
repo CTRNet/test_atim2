@@ -1806,11 +1806,11 @@ INSERT INTO i18n (id,en,fr) VALUES
 ALTER TABLE structure_permissible_values_custom_controls MODIFY category varchar(50) NOT NULL DEFAULT 'undefined';
 UPDATE structure_permissible_values_custom_controls SET category = 'undefined' WHERE category = '';
 
-SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set'
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set (nothing to do if empty)'
 UNION ALL
 SELECT name AS 'structure_permissible_values_custom_controls category to set' FROM structure_permissible_values_custom_controls WHERE category = 'undefined'
 UNION ALL
-SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set'
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set (nothing to do if empty)'
 UNION ALL
 SELECT '' AS 'structure_permissible_values_custom_controls category to set';
 

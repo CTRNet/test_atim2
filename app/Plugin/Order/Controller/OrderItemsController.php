@@ -162,7 +162,7 @@ class OrderItemsController extends OrderAppController {
 						require($hook_link);
 					}
 					// Redirect
-					$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
+					$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
 				}
 			}
 		}
@@ -393,7 +393,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
+				$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
 			}
 		}
 	}
@@ -491,7 +491,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
+				$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
 			}
 		}
 	}
@@ -555,7 +555,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been deleted - update the aliquot in stock data', '/Order/Orders/detail/'.$order_id);
+				$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), '/Order/Orders/detail/'.$order_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}

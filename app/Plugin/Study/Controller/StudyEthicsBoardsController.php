@@ -101,7 +101,7 @@ exit;
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/Study/StudyEthicsBoards/detail/'.$study_summary_id.'/'.$this->StudyEthicsBoard->id );
+					$this->atimFlash(__('your data has been saved'),'/Study/StudyEthicsBoards/detail/'.$study_summary_id.'/'.$this->StudyEthicsBoard->id );
 					}
 				}
 			}
@@ -159,7 +159,7 @@ exit;
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been updated','/Study/StudyEthicsBoards/detail/'.$study_summary_id.'/'.$study_ethics_board_id );
+						$this->atimFlash(__('your data has been updated'),'/Study/StudyEthicsBoards/detail/'.$study_summary_id.'/'.$study_ethics_board_id );
 						}
 					}
 				}
@@ -190,7 +190,7 @@ exit;
 			// DELETE DATA
 
 			if( $this->StudyEthicsBoard->atimDelete( $study_ethics_board_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
+				$this->atimFlash(__('your data has been deleted'), '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyEthicsBoards/listall/'.$study_summary_id );
 			}

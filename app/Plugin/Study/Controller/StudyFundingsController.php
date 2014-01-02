@@ -101,7 +101,7 @@ exit;
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/Study/StudyFundings/detail/'.$study_summary_id.'/'.$this->StudyFunding->id );
+					$this->atimFlash(__('your data has been saved'),'/Study/StudyFundings/detail/'.$study_summary_id.'/'.$this->StudyFunding->id );
 					}
 				}
 			}
@@ -158,7 +158,7 @@ exit;
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been updated','/Study/StudyFundings/detail/'.$study_summary_id.'/'.$study_funding_id );
+						$this->atimFlash(__('your data has been updated'),'/Study/StudyFundings/detail/'.$study_summary_id.'/'.$study_funding_id );
 						}
 					}
 				}
@@ -189,7 +189,7 @@ exit;
 				// DELETE DATA
 
 				if( $this->StudyFunding->atimDelete( $study_funding_id ) ) {
-					$this->atimFlash( 'your data has been deleted', '/Study/StudyFundings/listall/'.$study_summary_id );
+					$this->atimFlash(__('your data has been deleted'), '/Study/StudyFundings/listall/'.$study_summary_id );
 				} else {
 					$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyFundings/listall/'.$study_summary_id );
 				}

@@ -133,7 +133,7 @@ class BrowsingStepsController extends DatamartAppController {
 		if(!empty($this->request->data)){
 			$this->SavedBrowsingIndex->id = $id;
 			if($this->SavedBrowsingIndex->save($this->request->data)){
-				$this->atimFlash('your data has been saved', '/Datamart/BrowsingSteps/listall/');
+				$this->atimFlash(__('your data has been saved'), '/Datamart/BrowsingSteps/listall/');
 			}
 		}else{
 			$this->request->data = $browsing_index;
@@ -148,6 +148,6 @@ class BrowsingStepsController extends DatamartAppController {
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		$this->SavedBrowsingIndex->atimDelete($id);
-		$this->atimFlash('your data has been deleted', '/Datamart/BrowsingSteps/listall/');
+		$this->atimFlash(__('your data has been deleted'), '/Datamart/BrowsingSteps/listall/');
 	}
 }

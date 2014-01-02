@@ -119,7 +119,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 				}
 			}
 		}
@@ -191,7 +191,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 				}
 			}
 		 }else{
@@ -218,7 +218,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->TreatmentMaster->atimDelete( $tx_master_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
 			}

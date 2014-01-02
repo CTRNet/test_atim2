@@ -84,7 +84,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 					require($hook_link);
 				}
 				
-				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
+				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
 
 			} else  {
 				$this->TreatmentExtendMaster->validationErrors = array();
@@ -138,7 +138,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
+				$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			}
 		}
 	}
@@ -159,7 +159,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {		
 			if( $this->TreatmentExtendMaster->atimDelete( $tx_extend_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 			}	
@@ -192,7 +192,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				}
 				$this->TreatmentExtendMaster->check_writable_fields = false;
 				if($this->TreatmentExtendMaster->saveAll($data)){
-					$this->atimFlash( 'drugs from the associated protocol were imported', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash(__('drugs from the associated protocol were imported'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 				}else{
 					$this->flash(__('unknown error'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 				}

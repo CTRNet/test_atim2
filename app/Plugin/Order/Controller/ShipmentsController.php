@@ -88,7 +88,7 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved','/Order/Orders/detail/'.$order_id.'/' );
+				$this->atimFlash(__('your data has been saved'),'/Order/Orders/detail/'.$order_id.'/' );
 			}
 		}	
 	}
@@ -130,7 +130,7 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id );
+				$this->atimFlash(__('your data has been updated'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} 
 	}
@@ -180,7 +180,7 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atimDelete( $shipment_id )) {
-				$this->atimFlash('your data has been deleted', '/Order/Orders/detail/'.$order_id);
+				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/'.$order_id);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}
@@ -404,7 +404,7 @@ class ShipmentsController extends OrderAppController {
 
 			// Redirect
 			if($remove_done) {
-				$this->atimFlash('your data has been removed - update the aliquot in stock data', $url);
+				$this->atimFlash(__('your data has been removed - update the aliquot in stock data'), $url);
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), $url);
 			}
