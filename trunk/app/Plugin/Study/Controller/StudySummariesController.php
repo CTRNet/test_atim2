@@ -72,7 +72,7 @@ class StudySummariesController extends StudyAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/Study/StudySummaries/detail/'.$this->StudySummary->id );
+					$this->atimFlash(__('your data has been saved'),'/Study/StudySummaries/detail/'.$this->StudySummary->id );
 				}
 			}
 		}
@@ -111,7 +111,7 @@ class StudySummariesController extends StudyAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/Study/StudySummaries/detail/'.$study_summary_id );
+					$this->atimFlash(__('your data has been updated'),'/Study/StudySummaries/detail/'.$study_summary_id );
 				}		
 			}
 		}
@@ -132,7 +132,7 @@ class StudySummariesController extends StudyAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// DELETE DATA
 			if( $this->StudySummary->atimDelete( $study_summary_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Study/StudySummaries/search/');
+				$this->atimFlash(__('your data has been deleted'), '/Study/StudySummaries/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Study/StudySummaries/search/');
 			}	

@@ -40,7 +40,7 @@ class GroupsController extends AdministrateAppController {
 					$this->Aro->id = $aro_data['Aro']['id'];
 					$this->Aro->save($aro_data);
 					
-					$this->atimFlash('your data has been saved', '/Administrate/Permissions/tree/'.$group_id);
+					$this->atimFlash(__('your data has been saved'), '/Administrate/Permissions/tree/'.$group_id);
 				}
 			}else{
 				$this->Group->validationErrors['name'][] = 'this name is already in use';
@@ -79,7 +79,7 @@ class GroupsController extends AdministrateAppController {
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash('your data has been updated', '/Administrate/Groups/detail/'.$group_id);
+					$this->atimFlash(__('your data has been updated'), '/Administrate/Groups/detail/'.$group_id);
 				}
 			}
 		}
@@ -119,7 +119,7 @@ class GroupsController extends AdministrateAppController {
 
 		if(empty($this->request->data)){
 			if ($this->Group->atimDelete($group_id)) {
-				$this->atimFlash('Group deleted', '/Administrate/Groups/index/');
+				$this->atimFlash(__('Group deleted'), '/Administrate/Groups/index/');
 			}
 		}else{
 			$this->flash(__('this group is being used and cannot be deleted'), '/Administrate/Groups/detail/'.$group_id."/");

@@ -54,7 +54,7 @@ class SopMastersController extends SopAppController {
 						require($hook_link); 
 					}		
 									
-					$this->atimFlash( 'your data has been updated','/Sop/SopMasters/detail/'.$this->SopMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been updated'),'/Sop/SopMasters/detail/'.$this->SopMaster->getLastInsertId());
 				}
 			}
 		} 
@@ -108,7 +108,7 @@ class SopMastersController extends SopAppController {
 						require($hook_link); 
 					}		
 					
-					$this->atimFlash( 'your data has been updated','/Sop/SopMasters/detail/'.$sop_master_id.'/');
+					$this->atimFlash(__('your data has been updated'),'/Sop/SopMasters/detail/'.$sop_master_id.'/');
 				}
 			}
 		}
@@ -129,7 +129,7 @@ class SopMastersController extends SopAppController {
 				
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->SopMaster->atimDelete( $sop_master_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Sop/SopMasters/listall/');
+				$this->atimFlash(__('your data has been deleted'), '/Sop/SopMasters/listall/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Sop/SopMasters/listall/');
 			}

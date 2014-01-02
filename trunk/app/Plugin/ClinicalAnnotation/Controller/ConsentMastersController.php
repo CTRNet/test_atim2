@@ -90,7 +90,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
+					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$this->ConsentMaster->id );
 				}
 			}
 		} 
@@ -134,7 +134,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$consent_master_id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/ConsentMasters/detail/'.$participant_id.'/'.$consent_master_id );
 				}
 			}
 		}
@@ -155,7 +155,7 @@ class ConsentMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->ConsentMaster->atimDelete( $consent_master_id )) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/ConsentMasters/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ConsentMasters/listall/'.$participant_id );
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ConsentMasters/listall/'.$participant_id );
 			}

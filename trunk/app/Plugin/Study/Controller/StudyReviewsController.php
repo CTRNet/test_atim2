@@ -101,7 +101,7 @@ exit;
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/Study/StudyReviews/detail/'.$study_summary_id.'/'.$this->StudyReview->id );
+					$this->atimFlash(__('your data has been saved'),'/Study/StudyReviews/detail/'.$study_summary_id.'/'.$this->StudyReview->id );
 					}
 				}
 			}
@@ -158,7 +158,7 @@ exit;
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been updated','/Study/StudyReviews/detail/'.$study_summary_id.'/'.$study_reviews_id );
+						$this->atimFlash(__('your data has been updated'),'/Study/StudyReviews/detail/'.$study_summary_id.'/'.$study_reviews_id );
 						}
 					}
 				}
@@ -188,7 +188,7 @@ exit;
 				// DELETE DATA
 
 				if( $this->StudyReview->atimDelete( $study_reviews_id ) ) {
-					$this->atimFlash( 'your data has been deleted', '/Study/StudyReviews/listall/'.$study_summary_id );
+					$this->atimFlash(__('your data has been deleted'), '/Study/StudyReviews/listall/'.$study_summary_id );
 				} else {
 					$this->flash(__('error deleting data - contact administrator.'), '/Study/StudyReviews/listall/'.$study_summary_id );
 				}

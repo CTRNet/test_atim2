@@ -61,7 +61,7 @@ class OrdersController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved','/Order/Orders/detail/'.$this->Order->id );
+				$this->atimFlash(__('your data has been saved'),'/Order/Orders/detail/'.$this->Order->id );
 			}
 		} 
 	}
@@ -123,7 +123,7 @@ class OrdersController extends OrderAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/Order/Orders/detail/'.$order_id );
+					$this->atimFlash(__('your data has been updated'),'/Order/Orders/detail/'.$order_id );
 				}							
 			}
 		}
@@ -147,7 +147,7 @@ class OrdersController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Order->atimDelete($order_id)) {
-				$this->atimFlash('your data has been deleted', '/Order/Orders/search/');
+				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/search/');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/search/');
 			}

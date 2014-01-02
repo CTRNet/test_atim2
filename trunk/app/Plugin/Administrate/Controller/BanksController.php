@@ -16,7 +16,7 @@ class BanksController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/Banks/detail/'.$this->Bank->id );
+				$this->atimFlash(__('your data has been updated'),'/Administrate/Banks/detail/'.$this->Bank->id );
 			}
 		}
 	}
@@ -44,7 +44,7 @@ class BanksController extends AdministrateAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
-				$this->atimFlash( 'your data has been updated','/Administrate/Banks/detail/'.$bank_id );
+				$this->atimFlash(__('your data has been updated'),'/Administrate/Banks/detail/'.$bank_id );
 			}
 		} else {
 			$this->request->data = $this->Bank->find('first',array('conditions'=>array('Bank.id'=>$bank_id)));
@@ -62,7 +62,7 @@ class BanksController extends AdministrateAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->Bank->atimDelete( $bank_id )) {
-				$this->atimFlash( 'your data has been deleted', '/Administrate/Banks/index');
+				$this->atimFlash(__('your data has been deleted'), '/Administrate/Banks/index');
 			} else {
 				$this->flash(__('error deleting data - contact administrator'), '/Administrate/Banks/index');
 			}

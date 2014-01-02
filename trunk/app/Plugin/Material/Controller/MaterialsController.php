@@ -41,7 +41,7 @@ class MaterialsController extends MaterialAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/material/materials/detail/'.$this->Material->id );
+				$this->atimFlash(__('your data has been updated'),'/material/materials/detail/'.$this->Material->id );
 			}
 		}		
   	}
@@ -73,7 +73,7 @@ class MaterialsController extends MaterialAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/material/materials/detail/'.$material_id );
+					$this->atimFlash(__('your data has been updated'),'/material/materials/detail/'.$material_id );
 				}
 			}
 		}		
@@ -99,7 +99,7 @@ class MaterialsController extends MaterialAppController {
 		if( $hook_link ) { require($hook_link); }
 		
 		if( $this->Material->atimDelete( $material_id ) ) {
-			$this->atimFlash( 'your data has been deleted', '/material/materials/index/');
+			$this->atimFlash(__('your data has been deleted'), '/material/materials/index/');
 		} else {
 			$this->flash(__('error deleting data - contact administrator'), '/material/materials/listall/');
 		}

@@ -203,7 +203,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 		if($update_uses_counter) {
 			
 			// UPDATE ALIQUOT USE COUNTER	
-		
+//TODO Use of view in update process...		
 			if(is_null($aliquot_uses)) {
 				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
 				$aliquot_uses = $view_aliquot_use->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
