@@ -1889,10 +1889,8 @@ class StructuresHelper extends Helper {
 		} else {
 			$language_node = '';
 		}
-		if($language_header_string){
+		if($language_header_count){
 			$language_header = '<tr>'.$language_header.'<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th></tr>';
-		}else{
-			$language_header = '';
 		}
 		
 		return array("header" => $language_node.$language_header.$return_string, "count" => $column_count);
