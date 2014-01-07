@@ -98,7 +98,9 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.progression_time_in_months,
 				DiagnosisDetail.follow_up_from_ovarectomy_in_months,
 				DiagnosisDetail.ca125_progression_time_in_months,
-				DiagnosisDetail.progression_status
+				DiagnosisDetail.progression_status,
+				DiagnosisDetail.histopathology,
+				DiagnosisDetail.reviewed_histopathology
 			FROM participants AS Participant 
 			LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
 			LEFT JOIN qc_tf_dxd_eocs AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
@@ -115,26 +117,56 @@ class ReportsControllerCustom extends ReportsController {
 
 		// *********** Get first EOC ***********
 		
-		$first_eco_chemos_from_participant_id = array();
+		$first_eoc_chemos_from_participant_id = array();
 		if($eoc_primary_ids) {
 			$sql = 
 				"SELECT 
+					TreatmentMaster.id,
 					TreatmentMaster.start_date AS start_date,
 					TreatmentMaster.start_date_accuracy AS start_date_accuracy,
 					TreatmentMaster.finish_date AS finish_date,
 					TreatmentMaster.finish_date_accuracy AS finish_date_accuracy,
-					TreatmentMaster.participant_id
+					TreatmentMaster.participant_id,
+					Drug.generic_name
 				FROM treatment_masters AS TreatmentMaster
+				LEFT JOIN txe_chemos AS TreatmentExtend ON TreatmentExtend.treatment_master_id = TreatmentMaster.id
+				LEFT JOIN drugs AS Drug ON Drug.id = TreatmentExtend.drug_id
 				WHERE TreatmentMaster.deleted <> 1 AND TreatmentMaster.diagnosis_master_id IN (".implode(',',$eoc_primary_ids).") AND TreatmentMaster.treatment_control_id = 14
-				ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.finish_date ASC;";
+				ORDER BY TreatmentMaster.participant_id ASC, TreatmentMaster.finish_date ASC, TreatmentMaster.id ASC;";
 			$eoc_chemo_results = $this->Report->tryCatchQuery($sql);
-			foreach($eoc_chemo_results as $new_res) {
+			foreach($eoc_chemo_results as $new_res) {		
 				$studied_participant_id = $new_res['TreatmentMaster']['participant_id'];
-				if(!isset($first_eco_chemos_from_participant_id[$studied_participant_id])) {
-					$first_eco_chemos_from_participant_id[$studied_participant_id] = $new_res;
+				if(!isset($first_eoc_chemos_from_participant_id[$studied_participant_id])) {
+					$first_eoc_chemos_from_participant_id[$studied_participant_id] = $new_res;
+					$first_eoc_chemos_from_participant_id[$studied_participant_id]['0']['qc_tf_coeur_chemo_drugs'] = isset($new_res['Drug']['generic_name'])? array($new_res['Drug']['generic_name']) : array();			
+				} else if($first_eoc_chemos_from_participant_id[$studied_participant_id]['TreatmentMaster']['id'] == $new_res['TreatmentMaster']['id']) {
+					if(isset($new_res['Drug']['generic_name'])) $first_eoc_chemos_from_participant_id[$studied_participant_id]['0']['qc_tf_coeur_chemo_drugs'][] = $new_res['Drug']['generic_name'];
 				}
 			}
-		}	
+		}
+		
+		// *********** Get first Progression ***********
+		
+		$first_progression_from_participant_id = array();
+		if($eoc_primary_ids) {
+			$sql =
+				"SELECT DISTINCT
+					DiagnosisMaster.id,
+					DiagnosisMaster.primary_id,
+					DiagnosisMaster.participant_id,
+					DiagnosisMaster.dx_date,
+					DiagnosisMaster.dx_date_accuracy
+				FROM diagnosis_masters AS DiagnosisMaster
+				WHERE DiagnosisMaster.diagnosis_control_id = 16 AND DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.primary_id <> 1 AND DiagnosisMaster.primary_id IN (".implode(',',$eoc_primary_ids).")
+				ORDER BY DiagnosisMaster.primary_id ASC, DiagnosisMaster.dx_date ASC";
+			$eoc_progression_results = $this->Report->tryCatchQuery($sql);
+			foreach($eoc_progression_results as $new_res) {
+				$studied_participant_id = $new_res['DiagnosisMaster']['participant_id'];
+				if(!isset($first_progression_from_participant_id[$studied_participant_id])) {
+					$first_progression_from_participant_id[$studied_participant_id] = $new_res;
+				}
+			}
+		}
 		
 		// *********** Get other DX ***********
 		
@@ -160,19 +192,43 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		// *********** Merge all data ***********
-				
+
+		$progression_warnings = array();
 		foreach($main_results as &$new_participant) {
 			$studied_participant_id = $new_participant['Participant']['participant_id'];
 			$new_participant['0'] = array(
 				'qc_tf_coeur_end_of_first_chemo' => '',
+				'qc_tf_coeur_end_of_first_chemo_accuracy' => '',
+				'qc_tf_coeur_chemo_drugs' => '',
+				'qc_tf_coeur_first_progression_date' => '',
+				'qc_tf_coeur_first_first_chemo_to_first_progression_months' => '',
 				'qc_tf_coeur_other_dx_tumor_site_1' => '',
 				'qc_tf_coeur_other_dx_tumor_date_1' => '',
 				'qc_tf_coeur_other_dx_tumor_site_2' => '',
 				'qc_tf_coeur_other_dx_tumor_date_2' => '',
 				'qc_tf_coeur_other_dx_tumor_site_3' => '',
 				'qc_tf_coeur_other_dx_tumor_date_3' => '');
-			if(isset($first_eco_chemos_from_participant_id[$studied_participant_id])) {
-				$new_participant['0']['qc_tf_coeur_end_of_first_chemo'] = $this->tmpFormatdate($first_eco_chemos_from_participant_id[$studied_participant_id]['TreatmentMaster']['finish_date'], $first_eco_chemos_from_participant_id[$studied_participant_id]['TreatmentMaster']['finish_date_accuracy']);
+			if(isset($first_eoc_chemos_from_participant_id[$studied_participant_id])) {			
+				$new_participant['0']['qc_tf_coeur_end_of_first_chemo'] = $this->tmpFormatdate($first_eoc_chemos_from_participant_id[$studied_participant_id]['TreatmentMaster']['finish_date'], $first_eoc_chemos_from_participant_id[$studied_participant_id]['TreatmentMaster']['finish_date_accuracy']);
+				$new_participant['0']['qc_tf_coeur_end_of_first_chemo_accuracy'] = $first_eoc_chemos_from_participant_id[$studied_participant_id]['TreatmentMaster']['finish_date_accuracy'];
+				$new_participant['0']['qc_tf_coeur_chemo_drugs'] = implode(', ',array_filter($first_eoc_chemos_from_participant_id[$studied_participant_id]['0']['qc_tf_coeur_chemo_drugs']));	
+			}
+			if(isset($first_progression_from_participant_id[$studied_participant_id])) {
+				$new_participant['0']['qc_tf_coeur_first_progression_date'] = $this->tmpFormatdate($first_progression_from_participant_id[$studied_participant_id]['DiagnosisMaster']['dx_date'], $first_progression_from_participant_id[$studied_participant_id]['DiagnosisMaster']['dx_date_accuracy']);
+				if(!empty($new_participant['0']['qc_tf_coeur_end_of_first_chemo']) && !empty($first_progression_from_participant_id[$studied_participant_id]['DiagnosisMaster']['dx_date'])) {
+					if(in_array($new_participant['0']['qc_tf_coeur_end_of_first_chemo_accuracy'].$first_progression_from_participant_id[$studied_participant_id]['DiagnosisMaster']['dx_date_accuracy'], array('cc'/*, 'cd', 'dc'*/))) {
+						$first_chemo_date = new DateTime($new_participant['0']['qc_tf_coeur_end_of_first_chemo']);
+						$first_progression_date = new DateTime($first_progression_from_participant_id[$studied_participant_id]['DiagnosisMaster']['dx_date']);
+						$interval = $first_chemo_date->diff($first_progression_date);			
+						if($interval->invert) {
+							$progression_warnings['unable to calculate first chemo to first progression because dates are not chronological'][] = $new_participant['Participant']['participant_identifier'];
+						} else {
+							$new_participant['0']['qc_tf_coeur_first_first_chemo_to_first_progression_months'] = $interval->y*12 + $interval->m;
+						}
+					} else {
+						$progression_warnings['unable to calculate first chemo to first progression with at least one unaccuracy date'][] = $new_participant['Participant']['participant_identifier'];
+					}
+				}
 			}
 			if(isset($other_dx_from_participant_id[$studied_participant_id])) {
 				$id = 0;
@@ -188,6 +244,7 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
+		foreach($progression_warnings as $msg => $patient_ids) $warnings[] = __($msg).' - See TFRI# : '.implode(', ', $patient_ids);
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
 		
 		$array_to_return = array(
