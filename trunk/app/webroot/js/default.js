@@ -1150,60 +1150,71 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
-		$(scope).find("table.structure").each(function(){
-			if($(this).find("th.floatingCell:first").length == 0){
-				return true;
-			}
-			$(this).find("th.floatingCell:last").each(function(){
-				var i = 1;
-				$(this).addClass("testScroll");
-				$(this).prevAll().each(function(){
-					$(this).addClass("testScroll");
-					var colspan = $(this).attr("colspan");
-					if(colspan == undefined){
-					    ++ i
-					}else{
-					    i += colspan * 1;
-					}
-					console.log(this);
-				});
-				for(var j = 1; j <= i; ++ j){
-					$(this).parents("table").eq(0).find("tbody td:nth-child(" + j + ")").addClass("testScroll");
-				}
-			});
-			firstTh = $(this).find("table").find("th.floatingCell").parents("tr:first").find("th:first");
-			firstTh.html('<span style="position: relative; z-index:2">' + firstTh.html() + '</span>');
-			firstTh.append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
-			lastTh = $(this).find("th.floatingCell:last");
-			lastTd = $(this).find("tbody tr:last td.testScroll:last");
-			console.log(lastTd[0]);
-			computeSum = function(obj, cssArr){
-				total = 0;
-				for(var i in cssArr){
-					total += parseFloat(obj.css(cssArr[i]));
-				}
-				return total;
-			};
-			psSize = function(obj, direction){
-				arr = ["margin-%s", "padding-%s", "border-%s-width"];
-				newArr = [];
-				for(var i in arr){
-					newArr.push(arr[i].replace("%s", direction));
-				}
-				return computeSum(obj, newArr);
-			};
-			width = lastTh.width() + lastTh.position().left + psSize(lastTh, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
-			height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
-			$(this).find(".floatingBckGrnd").css({
-				"top" : 0,
-				"left" : 0,
-				"width" : width + "px",
-				"height" : height + "px"
-			});
-		});
-
-		$(".testScroll").css("position", "relative");
+	    $(scope).find("table.structure").each(function(){
+	        //make cells float
+    	    if($(this).find("th.floatingCell:first").length == 0){
+                return true;
+            }
+    	    totalColspan = 0;
+    	    var putIntoRelDiv = function(index, elem){
+    	        $(elem).html(
+                    "<div class='testScroll'>" +
+                        $(elem).html() +
+                    "</div>");
+    	    };
+    	    var putAndCount = function(index, elem){
+    	        var colspan = $(elem).attr("colspan");
+                if(colspan == undefined){
+                    ++ totalColspan
+                }else{
+                    totalColspan += colspan * 1;
+                }
+                putIntoRelDiv(index, elem);
+    	    };
+            $(this).find("th.floatingCell:last").each(function(index, elem){
+                putAndCount(index, elem);
+                $(this).prevAll().each(putAndCount);
+                for(var j = 1; j <= totalColspan; ++ j){
+                    $(this).parents("table").eq(0)
+                        .find("tbody td:nth-child(" + j + ")")
+                        .each(putIntoRelDiv);
+                }
+            });
+            $(this).find("th.floatingCell:last").siblings().eq(0).each(function(){
+               var firstTh = $(this);
+               var lastTd = $(this).parents("table:first")
+                   .find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
+               console.log(firstTh.position());
+               $(this).find(".testScroll").each(function(){
+                   $(this).append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
+                   computeSum = function(obj, cssArr){
+                       total = 0;
+                       for(var i in cssArr){
+                           total += parseFloat(obj.css(cssArr[i]));
+                       }
+                       return total;
+                   };
+                   psSize = function(obj, direction){
+                       arr = ["margin-%s", "padding-%s", "border-%s-width"];
+                       newArr = [];
+                       for(var i in arr){
+                           newArr.push(arr[i].replace("%s", direction));
+                       }
+                       return computeSum(obj, newArr);
+                   };
+                   width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+                   height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+                   $(this).find(".floatingBckGrnd").css({
+                       "top" : "-" + ($(this).offset().top - $(this).parents("th:first").offset().top) + "px",
+                       "left" : "-" + ($(this).offset().left - $(this).parents("th:first").offset().left) + "px",
+                       "width" : width + "px",
+                       "height" : height + "px"
+                   });
+               });
+            });
+	    });
 	}
+	
 	
 	function globalInit(scope){
 		if(window.copyControl){
