@@ -423,6 +423,15 @@ class StorageMastersController extends StorageLayoutAppController {
 		}
 		$this->set("is_ajax", $is_ajax);
 		
+		$storages_nbr_limit = 100;
+		$aliquots_nbr_limit = 400;
+		$tma_slides_nbr_limit = 100;
+		
+		$hook_link = $this->hook('pre_format');
+		if($hook_link){
+			require($hook_link);
+		}
+		
 		// MANAGE STORAGE DATA
 		// Get the storage data
 		$storage_data = null;
@@ -430,9 +439,12 @@ class StorageMastersController extends StorageLayoutAppController {
 		if($storage_master_id){
 			$storage_data = $this->StorageMaster->getOrRedirect($storage_master_id);
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id' => $storage_master_id), 'recursive' => '0'));
+			if(sizeof($tree_data) > $storages_nbr_limit) $tree_data = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many children storages for display').' ('.sizeof($tree_data).')')));
 			$aliquots = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_master_id), 'recursive' => '0'));
+			if(sizeof($aliquots) > $aliquots_nbr_limit) $aliquots = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many aliquots for display').' ('.sizeof($aliquots).')')));
 			$tree_data = array_merge($tree_data, $aliquots);
 			$tma_slides = $this->TmaSlide->find('all', array('conditions' => array('TmaSlide.storage_master_id' => $storage_master_id), 'recursive' => '0'));
+			if(sizeof($tma_slides) > $tma_slides_nbr_limit) $tma_slides = array(array('Generated' => array('storage_tree_view_item_summary' => __('storage contains too many tma slides for display').' ('.sizeof($tma_slides).')')));
 			$tree_data = array_merge($tree_data, $tma_slides);
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%');
 			if(!$is_ajax && !$storage_data['StorageControl']['is_tma_block']) {			
@@ -441,6 +453,10 @@ class StorageMastersController extends StorageLayoutAppController {
 			}
 		}else{
 			$tree_data = $this->StorageMaster->find('all', array('conditions' => array('StorageMaster.parent_id IS NULL'), 'order' => 'CAST(StorageMaster.parent_storage_coord_x AS signed), CAST(StorageMaster.parent_storage_coord_y AS signed)', 'recursive' => '0'));
+			if(sizeof($tree_data) > $storages_nbr_limit) {
+				$this->flash(__('there are too many main storages for display'), '/StorageLayout/StorageMasters/search/');
+				return;
+			}			
 			$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/search');
 			$this->set("search", true);
 			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
@@ -482,7 +498,8 @@ class StorageMastersController extends StorageLayoutAppController {
 		$atim_structure = array();
 		$atim_structure['StorageMaster']	= $this->Structures->get('form','storage_masters_for_storage_tree_view');
 		$atim_structure['AliquotMaster']	= $this->Structures->get('form','aliquot_masters_for_storage_tree_view');
-		$atim_structure['TmaSlide']	= $this->Structures->get('form','tma_slides_for_storage_tree_view');
+		$atim_structure['TmaSlide']			= $this->Structures->get('form','tma_slides_for_storage_tree_view');
+		$atim_structure['Generated']		= $this->Structures->get('form','message_for_storage_tree_view');
 		$this->set('atim_structure', $atim_structure);	
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
@@ -753,5 +770,68 @@ class StorageMastersController extends StorageLayoutAppController {
 		$this->set('result', "[".$result."]");
 	}
 	
+	
+	function contentListView($storage_master_id, $model = null) {
+		$storage_master_data = $this->StorageMaster->getOrRedirect($storage_master_id);
+		
+		$atim_menu = $this->Menus->get('/StorageLayout/StorageMasters/contentListView/%%StorageMaster.id%%');
+		if(!$this->StorageControl->allowCustomCoordinates($storage_master_data['StorageControl']['id'], array('StorageControl' => $storage_master_data['StorageControl']))) {
+			// Check storage supports custom coordinates and disable access to coordinates menu option if required
+			$atim_menu = $this->inactivateStorageCoordinateMenu($atim_menu);
+		}
+		if(empty($storage_master_data['StorageControl']['coord_x_type'])) {
+			// Check storage supports coordinates and disable access to storage layout menu option if required
+			$atim_menu = $this->inactivateStorageLayoutMenu($atim_menu);
+		}
+		$this->set('atim_menu', $atim_menu);
+		$this->set('atim_menu_variables', array('StorageMaster.id' => $storage_master_id));
+		
+		if(!$storage_master_data['StorageControl']['is_tma_block']) {
+			// Get all storage control types to build the add to selected button
+			$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+		}
+		
+		if(!$model) {
+			$this->Structures->set('empty', 'empty_structure');
+			if($storage_master_data['StorageControl']['is_tma_block']) {
+				$this->set('models_to_dispay', array('AliquotMaster' => 'cores'));
+			} else {
+				$this->set('models_to_dispay', array('StorageMaster' => 'storages', 'AliquotMaster' => 'aliquots', 'TmaSlide' => 'tma slides'));
+			}
+			if(!$storage_master_data['StorageControl']['is_tma_block']) {
+				// Get all storage control types to build the add to selected button
+				$this->set('storage_types_from_id', $this->StorageControl->getStorageTypePermissibleValues());
+			}
+			$this->set('is_main_form', true);
+		} else {
+			switch($model) {
+				case 'StorageMaster':
+					$this->request->data = $this->paginate($this->StorageMaster, array('StorageMaster.parent_id'=>$storage_master_id));
+					$this->Structures->set('storage_masters_for_storage_list_view');
+					$this->set('detail_url', '/StorageLayout/StorageMasters/detail/%%StorageMaster.id%%/');
+					break;
+				case 'AliquotMaster':
+					$this->request->data = $this->paginate($this->AliquotMaster, array('AliquotMaster.storage_master_id'=>$storage_master_id));
+					$this->Structures->set('aliquot_masters_for_storage_list_view');
+					$this->set('detail_url', '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/');
+					break;
+				case 'TmaSlide':
+					$this->request->data = $this->paginate($this->TmaSlide, array('TmaSlide.storage_master_id'=>$storage_master_id));
+					$this->Structures->set('tma_slides_for_storage_list_view');		
+					$this->set('detail_url', '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/');
+					break;
+				default:
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			$this->set('is_main_form', false);
+		}
+		
+		//CUTOM CODE
+		
+		$hook_link = $this->hook('format');
+		if( $hook_link ) {
+			require($hook_link);
+		}
+	}
 	
 }
