@@ -934,6 +934,21 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 
 UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='reproductivehistories') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ReproductiveHistory' AND `tablename`='reproductive_histories' AND `field`='para' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- 20140117 ---------------------------------------
 
+UPDATE structure_fields SET  `language_label`='fish' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='fish_ccl' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='fish_ratio' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_lqdy_her2_receptor_score", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("1+", "1+"),("2+", "2+"),("3+", "3+");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_lqdy_her2_receptor_score"), 
+(SELECT id FROM structure_permissible_values WHERE value="1+" AND language_alias="1+"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_lqdy_her2_receptor_score"), 
+(SELECT id FROM structure_permissible_values WHERE value="2+" AND language_alias="2+"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_lqdy_her2_receptor_score"), 
+(SELECT id FROM structure_permissible_values WHERE value="3+" AND language_alias="3+"), "1", "1");
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lqdy_her2_receptor_score') ,  `setting`='' WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='her2_receptor_score' ;
+INSERT INTO i18n (id,en,fr) VALUES ("1+", "1+", "1+"),("2+", "2+", "2+"),("3+", "3+", "3+");
 
 
