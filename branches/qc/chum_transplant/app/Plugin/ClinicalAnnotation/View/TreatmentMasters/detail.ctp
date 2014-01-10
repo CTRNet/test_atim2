@@ -32,7 +32,7 @@
 		$structure_settings = array(
 			'pagination'	=> false,
 			'actions'		=> $is_ajax,
-			'header'		=> __('precision')
+			($is_ajax? 'language_heading' : 'header')		=> __('precision')
 		);
 		
 		if(isset($extended_data_import_process)){
@@ -93,8 +93,6 @@
 		}
 		 
 		if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
-		
-		
 		
 		$final_atim_structure = array();
 		$final_options['type'] = 'detail';
