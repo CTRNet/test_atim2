@@ -1884,7 +1884,7 @@ UPDATE structure_permissible_values_custom_controls SET name = 'orders instituti
 UPDATE structure_permissible_values_custom_controls SET name = 'orders contacts' WHERE name = 'orders_contact';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- 
+-- issue #2811: Manage Storage Content Display in treee view with a number of elements too important
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO structures(`alias`) VALUES ('message_for_storage_tree_view');
