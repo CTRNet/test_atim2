@@ -5,3 +5,5 @@
 		$submitted_data_validates = false;
 	}
 	
+	$fields[] = 'acquisition_label';
+	
