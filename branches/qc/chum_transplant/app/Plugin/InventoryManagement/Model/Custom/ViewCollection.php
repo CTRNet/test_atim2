@@ -15,7 +15,7 @@ class ViewCollectionCustom extends ViewCollection {
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
 		Participant.participant_identifier AS participant_identifier,
-TreatmentDetail.transplant_number,			
+TreatmentDetail.donor_number,			
 		Collection.acquisition_label AS acquisition_label,
 Collection.chum_transplant_type,			
 		Collection.collection_site AS collection_site,
@@ -34,7 +34,7 @@ LEFT JOIN chum_transplant_txd_transplants  AS TreatmentDetail ON TreatmentDetail
 		
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			$title = empty($collection_data['ViewCollection']['participant_identifier'])? '?' : $collection_data['ViewCollection']['participant_identifier'].(empty($collection_data['ViewCollection']['transplant_number'])? '' : $collection_data['ViewCollection']['transplant_number']);
+			$title = empty($collection_data['ViewCollection']['participant_identifier'])? '?' : $collection_data['ViewCollection']['participant_identifier'].(empty($collection_data['ViewCollection']['donor_number'])? '' : $collection_data['ViewCollection']['donor_number']);
 			$return = array(
 				'menu' => array(null, $title),
 				'title' => array(null, __('collection') . ' : ' . $title),

@@ -15,7 +15,7 @@ class ViewSampleCustom extends ViewSample {
 		Collection.participant_id, 
 		
 		Participant.participant_identifier, 
-TreatmentDetail.transplant_number,
+TreatmentDetail.donor_number,
 		
 		Collection.acquisition_label,
 Collection.chum_transplant_type,	
