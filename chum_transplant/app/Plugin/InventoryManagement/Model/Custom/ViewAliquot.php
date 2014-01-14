@@ -9,7 +9,7 @@ class ViewAliquotCustom extends ViewAliquot {
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
 			AliquotMaster.collection_id AS collection_id, 
-			Collection.bank_id, 
+--			Collection.bank_id, 
 			AliquotMaster.storage_master_id AS storage_master_id,
 			Collection.participant_id, 
 			
