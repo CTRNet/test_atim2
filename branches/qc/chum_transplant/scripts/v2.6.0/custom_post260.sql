@@ -350,6 +350,38 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES ('donor number','Donor #','Donneur #');
 UPDATE treatment_extend_controls SET flag_active = 0 WHERE detail_tablename != 'chum_transplant_txe_transplants';
 INSERT INTO structure_validations (structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE field = 'other_transplanted_organ' AND model = 'TreatmentExtendDetail'), 'notEmpty');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='chum_transplant_txd_transplants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE chum_transplant_txd_transplants 
+  ADD COLUMN transplant_status VARCHAR(50) DEFAULt NULL,
+  ADD COLUMN transplant_status_date DATE DEFAULT NULL,
+  ADD COLUMN transplant_status_date_accuracy CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN transplant_status_notes TEXT;
+ALTER TABLE chum_transplant_txd_transplants_revs
+  ADD COLUMN transplant_status VARCHAR(50) DEFAULt NULL,
+  ADD COLUMN transplant_status_date DATE DEFAULT NULL,
+  ADD COLUMN transplant_status_date_accuracy CHAR(1) NOT NULL DEFAULT '',
+  ADD COLUMN transplant_status_notes TEXT;
+INSERT INTO structure_value_domains (domain_name, override, category, source) 
+VALUES 
+("chum_transplant_transplant_status", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Transplant Status\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Transplant Status', 1, 50, 'clinical - treatment');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Transplant Status');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('functional', 'Functional', 'Fonctionnel', '1', @control_id, NOW(), NOW(), 1, 1),
+('rejection', 'Rejection', 'Rejet', '1', @control_id, NOW(), NOW(), 1, 1),
+('nephrectomy','Nephrectomy','Néphrectomie', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'chum_transplant_txd_transplants', 'transplant_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chum_transplant_transplant_status') , '0', '', '', '', 'status', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chum_transplant_txd_transplants', 'transplant_status_date', 'date',  NULL , '0', '', '', '', 'status date', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'chum_transplant_txd_transplants', 'transplant_status_notes', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'details', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='chum_transplant_txd_transplants'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chum_transplant_txd_transplants' AND `field`='transplant_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chum_transplant_transplant_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '2', '30', 'transplant status', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='chum_transplant_txd_transplants'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chum_transplant_txd_transplants' AND `field`='transplant_status_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status date' AND `language_tag`=''), '2', '31', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='chum_transplant_txd_transplants'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='chum_transplant_txd_transplants' AND `field`='transplant_status_notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '2', '32', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('transplant status','Transplant Status','Statu de la greffe');
 
 -- -----------------------------------------------------------------------------------------------------------------------------
 -- FamilyHistories & ReproductiveHistories & ProtocolMasters & Drugs & SOP
@@ -613,7 +645,6 @@ UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=50' WH
 
 exit
 -- Permettre de matcher des collections donors.
--- Voire au niveau de realiquot... si on voit bien l'information du donneur.
 
 
 
