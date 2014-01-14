@@ -12,9 +12,7 @@ class ViewSampleCustom extends ViewSample {
 		
 --		Collection.bank_id, 
 --		Collection.sop_master_id, 
-		Collection.participant_id, 
-Collection.collection_datetime,
-Collection.collection_datetime_accuracy,
+		Collection.participant_id,
 								
 		Participant.participant_identifier, 
 TreatmentDetail.donor_number,

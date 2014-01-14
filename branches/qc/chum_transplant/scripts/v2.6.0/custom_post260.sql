@@ -591,6 +591,13 @@ UPDATE storage_controls SET `flag_active` = '1' WHERE storage_type IN (
 
 UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='col_copy_binding_opt' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="participant only");
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(10);
+UPDATE aliquot_controls SET flag_active=false WHERE id IN(4);
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=50' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+
+
 
 
 
@@ -607,7 +614,6 @@ UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permiss
 exit
 -- Permettre de matcher des collections donors.
 -- Voire au niveau de realiquot... si on voit bien l'information du donneur.
--- Créer les labels par defaut.
 
 
 
