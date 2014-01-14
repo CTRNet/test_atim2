@@ -364,6 +364,8 @@ UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/Protocol/ProtocolMasters%
 -- Link to collection & collecitons
 -- -----------------------------------------------------------------------------------------------------------------------------
 
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE label = 'print barcodes';
+
 UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='bank_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='banks') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_collection_site') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisControl' AND `tablename`='diagnosis_controls' AND `field`='category' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='diagnosis_category') AND `flag_confidential`='0');
@@ -542,32 +544,70 @@ UPDATE specimen_review_controls SET flag_active = 0;
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMaster','AliquotReviewMaster'));
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMaster','AliquotReviewMaster'));
 
+UPDATE structure_formats SET `display_column`='1', `display_order`='1202', `flag_add`='0', `flag_addgrid`='0', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_fields SET language_label = 'aliquot barcode' WHERE language_label = 'barcode' AND model LIKE '%Aliquot%';
+REPLACE INTO i18n (id,en, fr) VALUES ('aliquot barcode', 'Aliquot System Code', 'Aliquot - Code système');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE model='AliquotMaster' AND field='aliquot_label'), 'notEmpty');
+UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='20', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='8' WHERE structure_id=(SELECT id FROM structures WHERE alias='children_aliquots_selection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1203', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1', `display_order`='1200', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='chum_transplant_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chum_transplant_collection_type') AND `flag_confidential`='0');
+
+UPDATE  structure_permissible_values_custom_controls SET flag_active = 1 WHERE name = 'aliquot use and event types';
+
+UPDATE  structure_permissible_values_custom_controls SET flag_active = 1 WHERE name IN ('storage types','storage coordinate titles');
+INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x_size, display_x_size, reverse_x_numbering, display_y_size, reverse_y_numbering, set_temperature, check_conflicts, databrowser_label, flag_active, is_tma_block, detail_tablename, detail_form_alias) 
+VALUES 
+('box100 1-100', 'position', 'integer', 100, 10, '0', 10, '0', '0', 1, 'custom#storage types#box100 1-100', '0', '0', 'std_customs', '')
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'storage types');
+INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) 
+VALUES 
+(@control_id, 'box100 1-100', 'Box100 1-100', 'Boîte100 1-100');
+UPDATE storage_controls SET `flag_active` = '0';
+UPDATE storage_controls SET `flag_active` = '1' WHERE storage_type IN (
+'room',
+'nitrogen locator',
+'fridge',
+'freezer',
+'box',
+'box81 1A-9I',
+'box81',
+'rack16',
+'rack10',
+'rack24',
+'shelf',
+'rack11',
+'rack9',
+'box25',
+'box100 1A-20E', 'box100 1-100');
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='col_copy_binding_opt' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="participant only");
 
 
-+-------------------------------------------------+----------+-----------+-------------+--------------+---------------+--------------+----------------+------------+-------------+
-| structure_alias                                 | flag_add | flag_edit | flag_search | flag_addgrid | flag_editgrid | flag_summary | flag_batchedit | flag_index | flag_detail |
-+-------------------------------------------------+----------+-----------+-------------+--------------+---------------+--------------+----------------+------------+-------------+
-| clinicalcollectionlinks                         |        0 |         0 |           0 |            0 |             0 |            1 |              0 |			 1 |           0 |
-| collections                                     |        1 |         1 |           0 |            0 |             0 |            1 |              0 | 		 1 |           0 |
-| collections_for_collection_tree_view            |        0 |         0 |           0 |            0 |             0 |            1 |              0 | 		 1 |           0 |
-| lab_book_derivatives_summary                    |        0 |         0 |           0 |            0 |             1 |            0 |              0 | 		 1 |           0 |
-| lab_book_realiquotings_summary                  |        0 |         0 |           0 |            0 |             1 |            0 |              0 | 		 1 |           0 |
-| linked_collections                              |        1 |         1 |           0 |            0 |             0 |            0 |              0 | 		 0 |           0 |
-| report_initial_specimens_criteria_and_result    |        0 |         0 |           0 |            0 |             0 |            0 |              0 | 		 1 |           0 |
-| report_list_all_derivatives_criteria_and_result |        0 |         0 |           0 |            0 |             0 |            0 |              0 | 		 1 |           0 |
-| sample_masters_for_search_result                |        0 |         0 |           0 |            0 |             0 |            1 |              0 | 		 1 |           1 |
-| view_aliquot_joined_to_sample_and_collection    |        0 |         0 |           1 |            0 |             0 |            1 |              0 | 		 1 |           0 |
-| view_collection                                 |        0 |         0 |           1 |            0 |             0 |            1 |              0 | 		 1 |           1 |
-| view_sample_joined_to_collection                |        0 |         1 |           1 |            0 |             0 |            1 |              0 | 		 1 |           1 |
-+-------------------------------------------------+----------+-----------+-------------+--------------+---------------+--------------+----------------+------------+-------------+
-12 rows in set (0.03 sec)
 
 
-Supprimer le print barcode en batch
-Attention si receveur... c'est RR1. Sinon C'est DC1/DV1. Donc peut être faut il changer la manière de fonctionner.
-Donc revoir cette partie la.
-Permettre de matcher des collections donors.
-Voire au niveai de realiquot... si on voit bien l'information du donneur
+
+
+
+
+
+
+
+
+
+
+exit
+-- Permettre de matcher des collections donors.
+-- Voire au niveau de realiquot... si on voit bien l'information du donneur.
+-- Créer les labels par defaut.
 
 
 
