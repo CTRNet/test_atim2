@@ -29,21 +29,5 @@ Collection.chum_transplant_type,
 LEFT JOIN chum_transplant_txd_transplants  AS TreatmentDetail ON TreatmentDetail.treatment_master_id = Collection.treatment_master_id
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
-	function summary($variables=array()) {
-		$return = false;
-		
-		if(isset($variables['Collection.id'])) {
-			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			$title = empty($collection_data['ViewCollection']['participant_identifier'])? '?' : $collection_data['ViewCollection']['participant_identifier'].(empty($collection_data['ViewCollection']['donor_number'])? '' : $collection_data['ViewCollection']['donor_number']);
-			$return = array(
-				'menu' => array(null, $title),
-				'title' => array(null, __('collection') . ' : ' . $title),
-				'structure alias' 	=> 'view_collection',
-				'data'				=> $collection_data
-			);
-		}
-		
-		return $return;
-	}
 }
 

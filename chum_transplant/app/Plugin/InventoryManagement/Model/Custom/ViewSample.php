@@ -10,10 +10,12 @@ class ViewSampleCustom extends ViewSample {
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
 		
-		Collection.bank_id, 
-		Collection.sop_master_id, 
+--		Collection.bank_id, 
+--		Collection.sop_master_id, 
 		Collection.participant_id, 
-		
+Collection.collection_datetime,
+Collection.collection_datetime_accuracy,
+								
 		Participant.participant_identifier, 
 TreatmentDetail.donor_number,
 		
