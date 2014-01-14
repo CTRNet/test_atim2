@@ -57,6 +57,9 @@ class AppModel extends Model {
 	 * @var SampleMaster
 	 */
 	var $previous_model = null;
+	private static $locked_views_update = false;
+	private static $cached_views_update = array();
+	private static $cached_views_model = null; //some model, only provides accc
 	
 	const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
 	
@@ -270,6 +273,7 @@ class AppModel extends Model {
 					if($data){
 						//update
 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+						$this->log("A: ".$query);
 						$this->tryCatchquery($query);
 					}else{
 						//delete
@@ -1231,10 +1235,26 @@ class AppModel extends Model {
 						if(strpos($query_part, $foreign_key) === false){
 							continue;
 						}
-						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
 						$at_least_one = true;
-						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
-						$this->tryCatchquery($query);
+						$this->log("B: ".$query_part);
+						if(self::$locked_views_update){
+						    if(!isset(self::$cached_views_update[$this->name])){
+						        self::$cached_views_update[$this->name] = array(); 
+						    }
+						    if(!isset(self::$cached_views_update[$this->name][$foreign_key])){
+						        self::$cached_views_update[$this->name][$foreign_key] = array();
+						    }
+						    if(!isset(self::$cached_views_update[$this->name][$foreign_key][$query_part])){
+						          self::$cached_views_update[$this->name][$foreign_key][$query_part] = array(
+						                "modelTable" => $model->table,
+						                "ids" => array());
+						    }
+						    array_push(self::$cached_views_update[$this->name][$foreign_key][$query_part]["ids"], $this->id);
+						}else{
+    						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+    						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+    						$this->tryCatchquery($query);
+						}
 					}
 					if(!$at_least_one){
 						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
@@ -1332,5 +1352,27 @@ class AppModel extends Model {
 			$data[] = $tmp_data[$key];
 		}
 		unset($tmp_data);
+	}
+	
+	static function acquireBatchViewsUpdateLock(){
+        if(self::$locked_views_update){
+            throw new Exception('Deadlock in acquireBatchViewsUpdateLock');
+        }
+        self::$locked_views_update = true;
+    }
+    
+    static function releaseBatchViewsUpdateLock(){
+        foreach(self::$cached_views_update as $models){
+            foreach($models as $foreign_key => $query_parts){
+                foreach($query_parts as $query_part => $details){
+                    $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN('.implode(",", $details['ids']).')', $query_part);
+                    $query = sprintf('REPLACE INTO %s (%s)', $details["modelTable"], $table_query);
+                    //just "some" model to do the work
+                    $pages = AppModel::getInstance("", "Page");
+                    $pages->tryCatchquery($query);
+                }
+            }
+        }
+        self::$locked_views_update = false;
 	}
 }
