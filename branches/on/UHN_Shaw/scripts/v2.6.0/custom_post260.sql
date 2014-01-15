@@ -1534,9 +1534,33 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='uhn_gene_deletion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_gene_deletion')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gene deletion' AND `language_tag`=''), '1', '441', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('gene deletion','Gene Deletion');
 
+-- 2014-01-15
 
-
-
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Gene Insertion');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('Rb', 'Rb', 'Rb', '1', @control_id),
+('hTert', 'hTert', 'hTert', '1', @control_id),
+('other', 'Other', 'Autre', '1', @control_id);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Gene Deletion');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
+VALUES
+('other', 'Other', 'Autre', '1', @control_id);
+ALTER TABLE sd_der_cell_cultures 
+  ADD COLUMN uhn_gene_insertion_precision varchar(250) DEFAULT NULL;
+ALTER TABLE sd_der_cell_cultures_revs
+  ADD COLUMN uhn_gene_insertion_precision varchar(250) DEFAULT NULL;
+ALTER TABLE sd_der_cell_cultures 
+  ADD COLUMN uhn_gene_deletion_precision varchar(250) DEFAULT NULL;
+ALTER TABLE sd_der_cell_cultures_revs
+  ADD COLUMN uhn_gene_deletion_precision varchar(250) DEFAULT NULL;
+UPDATE structure_formats SET `display_order`='443' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_der_cell_cultures') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='uhn_gene_deletion' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_gene_deletion') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'uhn_gene_deletion_precision', 'input',  NULL , '0', '', '', '', '', 'precision'), 
+('InventoryManagement', 'SampleDetail', '', 'uhn_gene_insertion_precision', 'input',  NULL , '0', '', '', '', '', 'precision');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='uhn_gene_deletion_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '1', '442', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_der_cell_cultures'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='uhn_gene_insertion_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '1', '444', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
 -- TODO
 -- - Add/Hidde DataMartStructures Links
