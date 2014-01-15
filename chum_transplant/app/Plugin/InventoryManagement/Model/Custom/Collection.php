@@ -79,6 +79,22 @@ class CollectionCustom extends Collection {
 		}	
 		return $ret_val;
 	}	
+	
+	
+	function allowDeletion($collection_id){
+		$res = parent::allowDeletion($collection_id);
+		if($res['allow_deletion']) {
+			$ChumTransplantDonorCollectionsList = AppModel::getInstance('InventoryManagement', 'ChumTransplantDonorCollectionsList', true);
+			$is_collection_into_donor_collections_list = $ChumTransplantDonorCollectionsList->find('count', array('conditions' => array('ChumTransplantDonorCollectionsList.collection_id' => $collection_id)));
+			if($is_collection_into_donor_collections_list > 0) {
+				return array('allow_deletion' => false, 'msg' => 'your collection is included into a donor collections list');
+			}
+		}
+		return $res;
+	}
+	
+	
+	
 }
 
 ?>
