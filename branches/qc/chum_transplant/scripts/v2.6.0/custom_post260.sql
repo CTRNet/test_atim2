@@ -598,7 +598,7 @@ UPDATE  structure_permissible_values_custom_controls SET flag_active = 1 WHERE n
 UPDATE  structure_permissible_values_custom_controls SET flag_active = 1 WHERE name IN ('storage types','storage coordinate titles');
 INSERT INTO storage_controls (storage_type, coord_x_title, coord_x_type, coord_x_size, display_x_size, reverse_x_numbering, display_y_size, reverse_y_numbering, set_temperature, check_conflicts, databrowser_label, flag_active, is_tma_block, detail_tablename, detail_form_alias) 
 VALUES 
-('box100 1-100', 'position', 'integer', 100, 10, '0', 10, '0', '0', 1, 'custom#storage types#box100 1-100', '0', '0', 'std_customs', '')
+('box100 1-100', 'position', 'integer', 100, 10, '0', 10, '0', '0', 1, 'custom#storage types#box100 1-100', '0', '0', 'std_customs', '');
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'storage types');
 INSERT INTO structure_permissible_values_customs (control_id, value, en, fr) 
 VALUES 
@@ -628,24 +628,55 @@ UPDATE aliquot_controls SET flag_active=false WHERE id IN(4);
 
 UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=50' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- -------------------------------------------------------------------------------------------------------
+-- Linked collection donor
+-- -------------------------------------------------------------------------------------------------------
 
+CREATE TABLE IF NOT EXISTS `chum_transplant_donor_collections_lists` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `collection_id` int(11) DEFAULT NULL,
+  `donor_id` int(11) DEFAULT NULL,  
+  `created` datetime DEFAULT NULL,
+  `created_by` int(10) unsigned NOT NULL,
+  `modified` datetime DEFAULT NULL,
+  `modified_by` int(10) unsigned NOT NULL,
+  `deleted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `chum_transplant_donor_collections_lists_revs` (
+  `id` int(11) NOT NULL,
+  `collection_id` int(11) DEFAULT NULL,
+  `donor_id` int(11) DEFAULT NULL,  
+  `modified_by` int(10) unsigned NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `chum_transplant_donor_collections_lists`
+  ADD CONSTRAINT `FK_chum_transplant_donor_collections_lists` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`);
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('inv_CAN_1_chumtransplant', 'inv_CAN', 0, 2, 'other donor collections', NULL, '/InventoryManagement/Collections/listOtherDonorCollections/%%Collection.id%%', 'InventoryManagement.ViewCollection::summary', 1, 1);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-exit
--- Permettre de matcher des collections donors.
-
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('collection is not a donor collection', 'Collection is not a donor collection', 'La collection n''est pas une collection de donneur'),
+('no donor collections list has to be deleted', 'No donor collections list has to be deleted', 'Aucune liste de collections de donneur doit être supprimée'),
+('donor collections list has been deleted', 'Donor collections list has been deleted', 'La liste de collections du donneur a été supprimée'),
+('collection has been removed from the donor collections list', 'Collection has been removed from the donor collections list', 'La collection a été supprimée de la liste de collections du donneur'),
+('no donor collections list has to be deleted', 'No donor collections list has to be deleted', 'Aucune liste de collections d''un donneur n''a été supprimée'),
+('other donor collections', 'Other Donor Collections', 'Autres collections du donneur'),
+('click on search to find the other donor collection', 'Click on search to find the other donor collection', 'CLiquer sur Rechercher pour trouver une autre collection de donneur'),
+('selected collection', 'Selected Collection', 'Collection sélectionnée'),
+('you selected the same donor collection', 'You selected the same collection', 'Vous avez sélectionné la même collection'),
+('the selected collection is not a donor collection', 'The selected collection is not a donor collection', 'La collection sélectionnée n''est pas une collection de donneur'),
+('collections are already merged into the same donor collections list', 'Collections are already listed into the same donor collections list', 'Les collections sont déjà inclues dans la même liste de collections d''un donneur'),
+('link to other collection','Link to Other Collection','Lier à une autre collection'),
+('remove collection from list','Remove Collection from List','Supprimer la collection de la liste'),
+('delete list','Delete List','Supprimer la liste'),
+('collections have been merged into the same donor collections list', 'Collections have been merged into the same donor collections list', 'Les collections ont été inclues dans la même liste de collections d''un donneur'),
+('your collection is included into a donor collections list', 
+'Your data cannot be deleted! <br> Collection is included into a donor collections list.', 
+'Vos données ne peuvent être supprimées! La collection est attachée à une liste de collections d''un donneur.'),
+('your collection is included into a donor collections list - status can not be changed', 
+'Collection is included into a donor collections list. Status can not be changed.',
+'La collection est attachée à une liste de collections d''un donneur. Le type ne peut pas être modifié.');
