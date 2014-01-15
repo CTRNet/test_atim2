@@ -62,9 +62,9 @@ class UsersController extends AppController {
 			$this->UserLoginAttempt->save($login_data);
 			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
 			if(!empty($data) && !$data['User']['flag_active'] && $data['User']['username'] == $this->request->data['User']['username']){
-				$this->Auth->flash("that username is disabled");
+				$this->Auth->flash(__("that username is disabled"));
 			}else{
-				$this->Auth->flash('Login failed. Invalid username or password.');
+				$this->Auth->flash(__('Login failed. Invalid username or password.'));
 			}
 		}
 		

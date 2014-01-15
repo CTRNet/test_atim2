@@ -137,7 +137,7 @@ class StorageControlsController extends AdministrateAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}	
-					$this->atimFlash('your data has been updated', '/Administrate/StorageControls/listAll/'); 
+					$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/listAll/'); 
 				}	
 			}
 		}
@@ -163,7 +163,7 @@ class StorageControlsController extends AdministrateAppController {
 		$this->StorageCtrl->data = array();
 		$this->StorageCtrl->id = $storage_control_id;
 		if($this->StorageCtrl->save($new_data)) {
-			$this->atimFlash('your data has been updated', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('your data has been updated'), '/Administrate/StorageControls/listAll/');
 		}
 	}
 	
@@ -183,10 +183,10 @@ class StorageControlsController extends AdministrateAppController {
 		$storage_control_data = $this->StorageCtrl->getOrRedirect($storage_control_id);
 		$storage_category = $this->StorageCtrl->getStorageCategory($storage_control_data);
 		if($storage_category == 'no_d') {
-			$this->atimFlash('no layout exists', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('no layout exists'), '/Administrate/StorageControls/listAll/');
 			return;
 		} else if($storage_control_data['StorageCtrl']['coord_x_type'] == 'list') {
-			$this->atimFlash('custom layout will be built adding coordinates to a created storage', '/Administrate/StorageControls/listAll/');
+			$this->atimFlash(__('custom layout will be built adding coordinates to a created storage'), '/Administrate/StorageControls/listAll/');
 			return;
 		}
 		$translated_storage_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('storage types', $storage_control_data['StorageCtrl']['storage_type']);

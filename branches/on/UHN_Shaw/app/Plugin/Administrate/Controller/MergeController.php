@@ -41,7 +41,7 @@ class MergeController extends AdministrateAppController {
 				
 				$collection_model = AppModel::getInstance('InventoryManagement', 'Collection');
 				$collection_model->atimDelete($from);
-				$this->atimFlash('merge complete', '/Administrate/Merge/index/');
+				$this->atimFlash(__('merge complete'), '/Administrate/Merge/index/');
 			}
 		}
 	}
@@ -115,7 +115,7 @@ class MergeController extends AdministrateAppController {
 					}
 				}
 				
-				$this->atimFlash('merge complete', '/Administrate/Merge/index/');
+				$this->atimFlash(__('merge complete'), '/Administrate/Merge/index/');
 			}
 		}
 	}

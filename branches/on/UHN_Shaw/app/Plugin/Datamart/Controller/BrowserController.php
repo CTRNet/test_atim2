@@ -1,8 +1,6 @@
 <?php
 class BrowserController extends DatamartAppController {
 	
-	static $tmp_browsing_limit = 5;
-	
 	var $uses = array(
 		'Datamart.Browser',
 		'Datamart.DatamartStructure',
@@ -20,8 +18,8 @@ class BrowserController extends DatamartAppController {
 			'conditions' => array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => true),
 			'order'	=> array('BrowsingResult.created DESC'))
 		);
-		
-		while(count($tmp_browsing) > self::$tmp_browsing_limit){
+			
+		while(count($tmp_browsing) > $this->BrowsingIndex->tmp_browsing_limit){
 			$unit = array_pop($tmp_browsing);
 			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingResult->check_writable_fields = false;
@@ -30,6 +28,7 @@ class BrowserController extends DatamartAppController {
 		}
 		
 		$this->set('tmp_browsing', $tmp_browsing);
+		$this->set('tmp_browsing_limit', $this->BrowsingIndex->tmp_browsing_limit);
 		
 		$this->request->data = $this->paginate($this->BrowsingIndex, 
 			array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => false));
@@ -49,7 +48,7 @@ class BrowserController extends DatamartAppController {
 			$this->request->data['BrowsingIndex']['temporary'] = false;
 			$this->BrowsingIndex->addWritableField(array('temporary'));
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	
@@ -59,9 +58,9 @@ class BrowserController extends DatamartAppController {
 		if(!empty($this->request->data)){
 			$this->BrowsingIndex->atimDelete($index_id);
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
-			$this->atimFlash( 'your data has been deleted', '/Datamart/Browser/index/');
+			$this->atimFlash(__('your data has been deleted'), '/Datamart/Browser/index/');
 		} else {
-			$this->flash( 'error deleting data - contact administrator', '/Datamart/Browser/index/');
+			$this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
 		}
 	}
 	
@@ -549,7 +548,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->pkey_safeguard = false;
 			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	

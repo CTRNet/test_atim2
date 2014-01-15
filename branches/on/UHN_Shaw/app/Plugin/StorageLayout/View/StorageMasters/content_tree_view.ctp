@@ -6,7 +6,8 @@
 		'tree' => array(
 			'StorageMaster' => 'StorageMaster',
 			'AliquotMaster' => 'AliquotMaster',
-			'TmaSlide' => 'TmaSlide'
+			'TmaSlide' => 'TmaSlide',
+			'Generated' => 'Generated'
 		)
 	);
 	
@@ -58,7 +59,12 @@
 					'link'=> '/StorageLayout/TmaSlides/detail/%%TmaSlide.tma_block_storage_master_id%%/%%TmaSlide.id%%/',
 					'icon' => 'detail'
 				)
-			)
+			),
+			'Generated' => array(
+				'access to the list' => array(
+					'link'=> '/StorageLayout/StorageMasters/contentListView/'.$atim_menu_variables['StorageMaster.id'],
+					'icon' => 'detail'
+				))
 		),
 		'tree_expand' => array(
 			'StorageMaster' => '/StorageLayout/StorageMasters/contentTreeView/%%StorageMaster.id%%/1/'

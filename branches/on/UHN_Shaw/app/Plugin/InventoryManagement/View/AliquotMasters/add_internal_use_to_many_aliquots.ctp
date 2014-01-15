@@ -1,5 +1,5 @@
 <?php 
-	pr($url_to_cancel);
+	
 	$structure_links = array(
 		'top' => '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/'.$storage_master_id,
 		'bottom' => array('cancel' => $url_to_cancel)
