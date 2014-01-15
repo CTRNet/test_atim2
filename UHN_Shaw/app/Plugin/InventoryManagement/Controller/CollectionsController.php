@@ -78,8 +78,7 @@ class CollectionsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id){
-		// $is_from_tree_view : 0-Normal, 1-Tree view
+	function detail($collection_id, $hide_header = false){
 		unset($_SESSION['InventoryManagement']['TemplateInit']);
 		
 		// MANAGE DATA
@@ -99,13 +98,13 @@ class CollectionsController extends InventoryManagementAppController {
 
 		// Define if this detail form is displayed into the collection content tree view
 		$this->set('is_ajax', $this->request->is('ajax'));
-		$this->set('args', $this->passedArgs);
+		$this->set('hide_header', $hide_header);
 		
 		$template_model = AppModel::getInstance("Tools", "Template", true);
 		$templates = $template_model->getAddFromTemplateMenu($collection_id);
 		$this->set('templates', $templates);
 		
-		if(!$this->request->is('ajax') || (isset($this->passedArgs['tree']) && $this->passedArgs['tree'])){
+		if(!$this->request->is('ajax')){
 			$this->Structures->set('sample_masters_for_collection_tree_view', 'sample_masters_for_collection_tree_view');
 			$sample_data = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleMaster.parent_id' => null), 'recursive' => 0));
 			$ids = array();
@@ -145,6 +144,11 @@ class CollectionsController extends InventoryManagementAppController {
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		
 		$need_to_save = !empty($this->request->data);
+		if(!empty($this->request->data) && !array_key_exists('collection_property', $this->request->data['Collection'])) {
+			// Set collection property to 'participant collection' if field collection property is hidden in add form (default value)
+			$this->request->data['Collection']['collection_property'] = 'participant collection';
+			$this->Collection->addWritableField('collection_property');
+		}
 		if(empty($this->request->data) || isset($this->request->data['FunctionManagement']['col_copy_binding_opt'])){
 			if(!empty($copy_source)){
 				if(empty($this->request->data)){
@@ -217,7 +221,7 @@ class CollectionsController extends InventoryManagementAppController {
 						require($hook_link);
 					}
 					$collection_id = $collection_id ?: $this->Collection->getLastInsertId();
-					$this->atimFlash('your data has been saved', '/InventoryManagement/Collections/detail/' . $collection_id);
+					$this->atimFlash(__('your data has been saved'), '/InventoryManagement/Collections/detail/' . $collection_id);
 				}
 			}
 		}
@@ -266,7 +270,7 @@ class CollectionsController extends InventoryManagementAppController {
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash('your data has been updated', '/InventoryManagement/Collections/detail/' . $collection_id);
+					$this->atimFlash(__('your data has been updated'), '/InventoryManagement/Collections/detail/' . $collection_id);
 				}
 			}
 		}
@@ -289,13 +293,13 @@ class CollectionsController extends InventoryManagementAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete collection			
 			if($this->Collection->atimDelete($collection_id, true)) {
-				$this->atimFlash('your data has been deleted', '/InventoryManagement/Collections/search/');
+				$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/Collections/search/');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/Collections/search/');
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/search/');
 			}		
 		
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/Collections/detail/' . $collection_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/Collections/detail/' . $collection_id);
 		}		
 	}
 	

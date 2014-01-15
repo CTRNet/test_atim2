@@ -31,7 +31,24 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL
-SELECT 'Structures & Spent Time Fields to Review (See below)' AS 'SPENT TIME FIELDS REVIEW'
+SELECT 'Structures & Spent Time Fields to Review' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT 'Spent time field properties should be consistant with the following example (see array below)' AS 'SPENT TIME FIELDS REVIEW'
+UNION ALL
+SELECT '
++--------------------------+-------------+------------------------------+------------------+----------------------------------------+-------------+------------+-------------+----------+-----------+--------------+---------------+----------------+--------------+
+| structure_alias          | model       | field                        | type             | language_label                         | flag_search | flag_index | flag_detail | flag_add | flag_edit | flag_addgrid | flag_editgrid | flag_batchedit | flag_summary |
++--------------------------+-------------+------------------------------+------------------+----------------------------------------+-------------+------------+-------------+----------+-----------+--------------+---------------+----------------+--------------+
+| ad_der_tubes_incl_ml_vol | ViewAliquot | coll_to_stor_spent_time_msg  | input            | collection to storage spent time       |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_der_tubes_incl_ml_vol | ViewAliquot | coll_to_stor_spent_time_msg  | integer_positive | collection to storage spent time (min) |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_der_tubes_incl_ml_vol | ViewAliquot | creat_to_stor_spent_time_msg | input            | creation to storage spent time         |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_der_tubes_incl_ml_vol | ViewAliquot | creat_to_stor_spent_time_msg | integer_positive | creation to storage spent time (min)   |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | coll_to_stor_spent_time_msg  | input            | collection to storage spent time       |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | coll_to_stor_spent_time_msg  | integer_positive | collection to storage spent time (min) |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | rec_to_stor_spent_time_msg   | input            | reception to storage spent time        |           0 |          1 |           1 |        0 |         0 |            0 |             0 |              0 |            0 |
+| ad_spec_tubes            | ViewAliquot | rec_to_stor_spent_time_msg   | integer_positive | reception to storage spent time (min)  |           1 |          0 |           0 |        0 |         0 |            0 |             0 |              0 |            0 |
++--------------------------+-------------+------------------------------+------------------+----------------------------------------+-------------+------------+-------------+----------+-----------+--------------+---------------+----------------+--------------+
+' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL
 SELECT 'Nothing to do if no result in following section' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL
@@ -211,10 +228,7 @@ SELECT 'Query to use for control if section above is not empty' AS 'HELP FOR SPE
 UNION ALL 
 SELECT '----------------------------------------------------------------------------------------------------------' AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL 
-SELECT "SELECT structure_alias, model, field, language_label , flag_search, flag_index, flag_detail
-FROM view_structure_formats_simplified 
-WHERE field like '%spent_time_msg' 
-ORDER BY field, structure_alias" AS 'SPENT TIME FIELDS REVIEW'
+SELECT "SELECT structure_alias, model, field, type, language_label , flag_search, flag_index, flag_detail, flag_add, flag_edit, flag_addgrid, flag_editgrid, flag_batchedit,  flag_summary FROM view_structure_formats_simplified WHERE field like '%spent_time_msg' ORDER BY structure_alias, field;" AS 'SPENT TIME FIELDS REVIEW'
 UNION ALL 
 SELECT '' AS 'SPENT TIME FIELDS REVIEW';
 
@@ -854,6 +868,18 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '60', '', '1', 'creation to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0')
+AND language_label = 'collection to storage spent time (min)';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol')
+AND structure_field_id = (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0')
+AND language_label = 'collection to storage spent time (min)';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '1', 'collection to storage spent time (min)', '0', '', '1', 'inv_coll_to_stor_spent_time_msg_defintion', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Add new specimen type Saliva #2597
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -969,32 +995,40 @@ UPDATE storage_controls SET coord_y_title = null WHERE coord_y_title = '';
 UPDATE storage_controls SET coord_y_size = null WHERE coord_y_size = '';
 UPDATE storage_controls SET display_x_size = 0, display_y_size = 0, horizontal_increment = 0 WHERE coord_y_title IS NOT NULL;
 
-SELECT id AS 'storage control id to correct', 'coord_x_ fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'STORAGE CONTROL REVIEW'
+UNION ALL 
+SELECT 'Storage coordinates review. Please correct detected issues if exists (see below)' AS 'STORAGE CONTROL REVIEW'
+UNION ALL 
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'STORAGE CONTROL REVIEW'
+UNION ALL 
+SELECT CONCAT('storage control id ', id ,' to correct : coord_x_ fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_title IS NULL AND (coord_x_type IS NOT NULL OR coord_x_size IS NOT NULL)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_x_ fields error #2' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_x_ fields (error #2 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_type IS NULL AND coord_x_size IS NOT NULL
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_x_ fields error #3' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_x_ fields (error #3 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_type = 'list' AND (coord_x_title IS NULL OR coord_x_size IS NOT NULL)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_y_ fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_y_ fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_y_title IS NULL AND (coord_y_type IS NOT NULL OR coord_y_size IS NOT NULL)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_y_ fields error #2' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_y_ fields (error #2 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_y_type IS NULL AND coord_y_size IS NOT NULL
 UNION ALL
-SELECT id AS 'storage control id to correct', 'coord_x&y_ fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : coord_x&y_ fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_title IS NULL AND coord_y_title IS NOT NULL
 UNION ALL
-SELECT id AS 'storage control id to correct', 'display_x_size x display_y_size fields error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : display_x_size x display_y_size fields (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE coord_x_size IS NOT NULL AND coord_y_title IS NULL AND (display_x_size * display_y_size) != coord_x_size
 UNION ALL
-SELECT id AS 'storage control id to correct', 'storage temperature error #1' AS 'issue detail' FROM storage_controls 
+SELECT  CONCAT('storage control id ', id ,' to correct : storage temperature (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
 WHERE (detail_form_alias LIKE '%storage_temperature%' AND set_temperature = 0) OR (detail_form_alias NOT LIKE '%storage_temperature%' AND set_temperature = 1)
 UNION ALL
-SELECT id AS 'storage control id to correct', 'storage w. spaces error #1' AS 'issue detail' FROM storage_controls 
-WHERE detail_form_alias LIKE '%storage_w_spaces%' AND coord_x_title IS NULL;
+SELECT  CONCAT('storage control id ', id ,' to correct : storage w. spaces (error #1 - see upgrade script for details)') AS 'STORAGE CONTROL REVIEW' FROM storage_controls 
+WHERE detail_form_alias LIKE '%storage_w_spaces%' AND coord_x_title IS NULL
+UNION ALL 
+SELECT '' AS 'STORAGE CONTROL REVIEW';
 
 -- remove storage temperature from detail_form_alias
 
@@ -1269,7 +1303,17 @@ SELECT '------------------------------------------------------------------------
 UNION ALL 
 SELECT "Added new relationsips into databrowser" as TODO
 UNION ALL
-SELECT "Please flag unactive relationsips if required." as TODO
+SELECT "Please flag inactive relationsips if required (see queries below). Don't forget Collection to Annotation, Treatment,Consent, etc if not requried." as TODO
+UNION ALL
+SELECT "SELECT str1.model AS model_1, str2.model AS model_2, use_field FROM datamart_browsing_controls ctrl, datamart_structures str1, datamart_structures str2 WHERE str1.id = ctrl.id1 AND str2.id = ctrl.id2 AND (ctrl.flag_active_1_to_2 = 1 OR ctrl.flag_active_2_to_1 = 1);" AS TODO
+UNION ALL
+SELECT "UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = 0 WHERE fct.datamart_structure_id = str.id AND/OR str.model IN ('Model1', 'Model2', 'Model...');" as TODO
+UNION ALL
+SELECT "Please flag inactive datamart structure functions if required (see queries below)." as TODO
+UNION ALL
+SELECT "UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...'));" as TODO
+UNION ALL
+SELECT "Please change datamart_structures_relationships_en(and fr).png in \app\webroot\img\dataBrowser" as TODO
 UNION ALL
 SELECT '----------------------------------------------------------------------------------------------------------' AS 'TODO';
 
@@ -1743,3 +1787,143 @@ DELETE FROM structures WHERE alias='storage_w_spaces';
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE event_controls ADD COLUMN use_detail_form_for_index TINYINT(1) NOT NULL DEFAULT '0';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add missing translation linked to permissions rebuild
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr) VALUES 
+('rebuilt lft rght for datamart_browsing_results','Rebuilt lft & rght for datamart_browsing_results', 'Les valeurs lft & rght de datamart_browsing_results ont été regénérées'),
+('language files have been rebuilt', 'Language files have been rebuilt', 'Fichiers de traductions ont été regénérés'),
+('views have been rebuilt', 'Views have been rebuilt', 'Les vues ont été regénérées'),
+('cache has been cleared', 'Cache has been cleared', 'Les fichiers temporaires ont été supprimés');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add message to define structure_permissible_values_custom_controls.category
+-- Plus add aditional category
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE structure_permissible_values_custom_controls MODIFY category varchar(50) NOT NULL DEFAULT 'undefined';
+UPDATE structure_permissible_values_custom_controls SET category = 'undefined' WHERE category = '';
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set (nothing to do if empty)'
+UNION ALL
+SELECT name AS 'structure_permissible_values_custom_controls category to set' FROM structure_permissible_values_custom_controls WHERE category = 'undefined'
+UNION ALL
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'structure_permissible_values_custom_controls category to set (nothing to do if empty)'
+UNION ALL
+SELECT '' AS 'structure_permissible_values_custom_controls category to set';
+
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE category = 'consent';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE category = 'quality control';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE category = 'treatment';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - diagnosis' WHERE category = 'diagnosis';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation' WHERE category = 'annotation';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - contact' WHERE category = 'contact';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - specimen review' WHERE category = 'specimen review';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - gynaecologic' WHERE category = 'gynaecologic';		
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - consent", "clinical - consent");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - consent" AND language_alias="clinical - consent"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("inventory - quality control", "inventory - quality control");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="inventory - quality control" AND language_alias="inventory - quality control"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - treatment", "clinical - treatment");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - treatment" AND language_alias="clinical - treatment"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - diagnosis", "clinical - diagnosis");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - diagnosis" AND language_alias="clinical - diagnosis"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - annotation", "clinical - annotation");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - annotation" AND language_alias="clinical - annotation"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - contact", "clinical - contact");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - contact" AND language_alias="clinical - contact"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - gynaecologic", "clinical - gynaecologic");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - gynaecologic" AND language_alias="clinical - gynaecologic"), "0", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("undefined", "undefined");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="undefined" AND language_alias="undefined"), "", "1");
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="quality control" AND spv.language_alias="quality control";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="gynaecologic" AND spv.language_alias="gynaecologic";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="consent" AND spv.language_alias="consent";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="treatment" AND spv.language_alias="treatment";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="diagnosis" AND spv.language_alias="diagnosis";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="annotation" AND spv.language_alias="annotation";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="contact" AND spv.language_alias="contact";
+DELETE FROM structure_permissible_values WHERE value="quality control" AND language_alias="quality control";
+DELETE FROM structure_permissible_values WHERE value="consent" AND language_alias="consent";
+DELETE FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment";
+DELETE FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis";
+DELETE FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation";
+DELETE FROM structure_permissible_values WHERE value="contact" AND language_alias="contact";
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE category = 'consent';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE category = 'quality control';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE category = 'treatment';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - diagnosis' WHERE category = 'diagnosis';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation' WHERE category = 'annotation';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - contact' WHERE category = 'contact';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - specimen review' WHERE category = 'specimen review';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - gynaecologic' WHERE category = 'gynaecologic';	
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('clinical - annotation', 'Clinical - Annotation','Clinique - Annotation'),
+('clinical - consent', 'Clinical - Consent','Clinique - Consentement'),
+('clinical - contact', 'Clinical - Contact','Clinique - Contact'),
+('clinical - diagnosis', 'Clinical - Diagnosis','Clinique - Diagnostic'),
+('clinical - gynaecologic', 'Clinical - Gynaecologic','Clinique - Gynécologique'),
+('clinical - treatment', 'Clinical - Treatment','Clinique - Traitement'),
+('inventory - quality control', 'Inventory - Quality Control', 'Inventaire - Contrôle de qualité'),
+('inventory - specimen review', 'Inventory - Path Review', 'Inventaire - Rapport d''histologie');
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - family history", "clinical - family history");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - family history" AND language_alias="clinical - family history"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinical - reproductive history", "clinical - reproductive history");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - reproductive history" AND language_alias="clinical - reproductive history"), "", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("inventory - specimen review", "inventory - specimen review");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="inventory - specimen review" AND language_alias="inventory - specimen review"), "", "1");
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('clinical - family history', 'Clinical - Family History','Clinique - Antécédents Familiaux'),
+('clinical - reproductive history', 'Clinical - Reproductive History','Clinique - Gynécologie'),
+('inventory - specimen review', 'Inventory - Path Review', 'Inventaire - Rapport d''histologie');
+UPDATE structure_permissible_values_custom_controls SET name = 'orders institutions' WHERE name = 'orders_institution';
+UPDATE structure_permissible_values_custom_controls SET name = 'orders contacts' WHERE name = 'orders_contact';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- issue #2811: Manage Storage Content Display in treee view with a number of elements too important
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structures(`alias`) VALUES ('message_for_storage_tree_view');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('StorageLayout', 'Generated', '', 'storage_tree_view_item_summary', 'input',  NULL , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='message_for_storage_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='storage_tree_view_item_summary' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('sto_CAN_20', 'sto_CAN_01', 0, 2, 'storage content list', NULL, '/StorageLayout/StorageMasters/contentListView/%%StorageMaster.id%%', 'StorageLayout.StorageMaster::summary', 1, 1);
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('storage content list','Content (List)','Contenu (Liste)'),
+('storage contains too many aliquots for display','Storage contains too many aliquots for display','L''entreposage contient trop d''aliquots pour l''affichage'),
+('storage contains too many children storages for display','Storage contains too many children storages for display','L''entreposage contient trop de sous-entreposages pour l''affichage'),
+('storage contains too many tma slides for display','Storage contains too many TMA slides for display','L''entreposage contient trop de lames de TMA pour l''affichage'),
+('tma slides','TMA slides','Lames de TMA'),
+('access to the list','Access to the list','Accéder à la liste');
+REPLACE INTO i18n (id,en,fr) VALUES ('storages','Storages','Entreposages');
+INSERT INTO structures(`alias`) VALUES ('storage_masters_for_storage_list_view');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='storage_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='storage_control_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='storage_types_from_control_id')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage type' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storage_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storage_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='parent_storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '3', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='storage_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='parent_storage_coord_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '0', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('aliquot_masters_for_storage_list_view');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotControl' AND `tablename`='aliquot_controls' AND `field`='aliquot_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot type' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='barcode' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '21', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '22', '', '0', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquot label' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('tma_slides_for_storage_list_view');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='tma_slides_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='tma_block_identification' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='block' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tma_slides_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '4', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tma_slides_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='storage_coord_y' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '5', '', '0', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='tma_slides_for_storage_list_view'), (SELECT id FROM structure_fields WHERE `model`='TmaSlide' AND `tablename`='tma_slides' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '1', 'tma slide', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('cores','Cores','Cores'), ('there are too many main storages for display', 'There are too many ''main'' storages for display', 'Il existe trop d''entreposages principaux pour l''affichage');
+UPDATE structure_fields SET model = 'Block', field = 'short_label' WHERE field = 'tma_block_identification';
+
+
+

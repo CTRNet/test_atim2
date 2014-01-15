@@ -12,8 +12,8 @@
 	// TRT DATA
 	
 	$structure_settings = array(
-		'actions'=> $is_ajax, 
-		'form_bottom'=> !$is_ajax 
+		'actions'=> ($is_ajax && !isset($extend_form_alias)), 
+		'form_bottom'=> !($is_ajax && !isset($extend_form_alias)) 
 	);
 	
 	$structure_override = array();
@@ -28,11 +28,11 @@
 	
 	$this->Structures->build( $final_atim_structure, $final_options );
 
-	if(isset($extend_form_alias) && !$is_ajax){
+	if(isset($extend_form_alias)){
 		$structure_settings = array(
 			'pagination'	=> false,
-			'actions'		=> false,
-			'header'		=> __('precision')
+			'actions'		=> $is_ajax,
+			($is_ajax? 'language_heading' : 'header')		=> __('precision')
 		);
 		
 		if(isset($extended_data_import_process)){
@@ -93,8 +93,6 @@
 		}
 		 
 		if($display_next_sub_form) $this->Structures->build( $final_atim_structure,  $final_options);
-		
-		
 		
 		$final_atim_structure = array();
 		$final_options['type'] = 'detail';
