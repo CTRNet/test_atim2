@@ -590,7 +590,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='anxiety_depression' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_anxiety')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='anxiety depression' AND `language_tag`=''), '1', '30', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='thermometer_rating' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='thermometer rating' AND `language_tag`=''), '1', '35', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
-
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('EQ-5D Health Questionnaire', 'EQ-5D Health Questionnaire', ''),
  ('method of completion', 'Completed by', ''),
@@ -618,6 +617,268 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('I have some problems with performing my usual activities', 'I have some problems with performing my usual activities', ''),
  ('I am unable to perform my usual activities', 'I am unable to perform my usual activities', '');           
  
+/*
+	Eventum Issue: #2900 - EQ5D Study Score Field
+*/
+
+ALTER TABLE `ed_tfri_study_eq_5d_health` 
+ADD COLUMN `calculated_score` DECIMAL(5,3) NULL DEFAULT NULL AFTER `thermometer_rating`;
+
+ALTER TABLE `ed_tfri_study_eq_5d_health_revs` 
+ADD COLUMN `calculated_score` DECIMAL(5,3) NULL DEFAULT NULL AFTER `thermometer_rating`;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_eq_5d_health', 'calculated_score', 'float',  NULL , '0', '', '', '', 'calculated score', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='calculated_score' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='calculated score' AND `language_tag`=''), '1', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='method_of_completion' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='method_of_completion') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='mobility' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_mobility') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='self-care' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_self_care') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='usual_activities' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_usual_activities') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='pain_discomfort' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_pain') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='anxiety_depression' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_anxiety') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='thermometer_rating' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('calculated score', 'Calculated Score', '');
+
+/*
+	Eventum Issue: #2896 - EQ5D Study Label Change
+*/
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('method of completion', 'Method of Completion', '');
+
+/*
+	Eventum Issue: #2894 - Thermometer Validation
+*/
+ 
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES ((SELECT `id` FROM `structure_fields` WHERE `field` = 'thermometer_rating' ), 'range,-1,101', 'tfri thermometer rating 0-100');
+ 
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri thermometer rating 0-100', 'Thermometer rating must be an integer value between 0 - 100', '');
+  
+/*
+	Eventum Issue: #2893 - Clinical Menu Study - Update name
+*/
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('clin_study', 'Questionnaires', ''); 
+
+/*
+	Eventum Issue: #2892 - Consent status - New value denied/NA
+*/
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_consent_status", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_consent_status"), (SELECT id FROM structure_permissible_values WHERE value="active" AND language_alias="active"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_consent_status"), (SELECT id FROM structure_permissible_values WHERE value="withdrawn" AND language_alias="withdrawn"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("denied or n/a", "denied or n/a");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_consent_status"), (SELECT id FROM structure_permissible_values WHERE value="denied or n/a" AND language_alias="denied or n/a"), "2", "1");
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tfri_consent_status')  WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='tfri_aml_local_consent_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tfri_consent_status')  WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='tfri_other_research_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status');
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='tfri_consent_status')  WHERE model='ConsentMaster' AND tablename='consent_masters' AND field='tfri_icr_consent_status' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='consent_status');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('denied or n/a', 'Denied or N/A', ''); 
+
+/*
+	Eventum Issue: #2903 - EQ5D Study - Add field for Followup Period
+*/
+
+ALTER TABLE `ed_tfri_study_eq_5d_health` 
+ADD COLUMN `followup_period` VARCHAR(45) NULL DEFAULT NULL AFTER `method_of_completion`;
+
+ALTER TABLE `ed_tfri_study_eq_5d_health_revs` 
+ADD COLUMN `followup_period` VARCHAR(45) NULL DEFAULT NULL AFTER `method_of_completion`;
+
+-- Value domain for followup period 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("tfri_followup_period", "open", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("baseline", "tfri baseline");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_followup_period"), (SELECT id FROM structure_permissible_values WHERE value="baseline" AND language_alias="tfri baseline"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("month 3", "tfri month 3");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_followup_period"), (SELECT id FROM structure_permissible_values WHERE value="month 3" AND language_alias="tfri month 3"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("month 6", "tfri month 6");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_followup_period"), (SELECT id FROM structure_permissible_values WHERE value="month 6" AND language_alias="tfri month 6"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("month 12", "tfri month 12");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_followup_period"), (SELECT id FROM structure_permissible_values WHERE value="month 12" AND language_alias="tfri month 12"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("month 18", "tfri month 18");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_followup_period"), (SELECT id FROM structure_permissible_values WHERE value="month 18" AND language_alias="tfri month 18"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("month 24", "tfri month 24");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tfri_followup_period"), (SELECT id FROM structure_permissible_values WHERE value="month 24" AND language_alias="tfri month 24"), "6", "1"); 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_eq_5d_health', 'followup_period', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tfri_followup_period') , '0', '', '', '', 'followup period', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_eq_5d_health'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_eq_5d_health' AND `field`='followup_period' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tfri_followup_period')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='followup period' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri baseline', 'Baseline', ''),
+ ('tfri month 3', 'Month 3', ''),
+ ('tfri month 6', 'Month 6', ''),
+ ('tfri month 12', 'Month 12', ''),
+ ('tfri month 18', 'Month 18', ''),
+ ('tfri month 24', 'Month 24', ''),
+ ('followup period', 'Followup Period', '');
+
+/*
+	Eventum Issue: #2869 - Cell count - two decimal places
+*/
+
+ALTER TABLE `sd_spe_bloods` 
+CHANGE COLUMN `collected_volume` `collected_volume` DECIMAL(10,2) NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_spe_bloods_revs` 
+CHANGE COLUMN `collected_volume` `collected_volume` DECIMAL(10,2) NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_spe_bone_marrows` 
+CHANGE COLUMN `collected_volume` `collected_volume` DECIMAL(10,2) NULL DEFAULT NULL ;
+
+ALTER TABLE `sd_spe_bone_marrows_revs` 
+CHANGE COLUMN `collected_volume` `collected_volume` DECIMAL(10,2) NULL DEFAULT NULL ;
+
+/*
+	Eventum Issue: #2899 - System fields for Clinical forms
+*/
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'created', 'datetime',  NULL , '0', '', '', '', 'created', ''), 
+('ClinicalAnnotation', 'EventMaster', 'event_masters', 'modified', 'datetime',  NULL , '0', '', '', '', 'modified', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='eventmasters'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='created' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='created' AND `language_tag`=''), '1', '900', 'system information', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='eventmasters'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='modified' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='modified' AND `language_tag`=''), '1', '950', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('system information', 'System Information', '');
+
+/*
+	Eventum Issue: #2895 - EQ5D Study - Dropdown to radio
+*/
+ 
+UPDATE structure_fields SET  `type`='radio',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_mobility')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='mobility' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_mobility');
+UPDATE structure_fields SET  `type`='radio',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_self_care')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='self-care' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_self_care');
+UPDATE structure_fields SET  `type`='radio',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_usual_activities')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='usual_activities' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_usual_activities');
+UPDATE structure_fields SET  `type`='radio',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_pain')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='pain_discomfort' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_pain');
+UPDATE structure_fields SET  `type`='radio',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_anxiety')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='anxiety_depression' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_anxiety');
+ 
+/*
+	Eventum Issue: #2904 -  Baseline form version 1
+*/ 
+
+ALTER TABLE `ed_tfri_clinical_section_1` 
+ADD COLUMN `karnofsky_performance_baseline` INT DEFAULT NULL AFTER `event_master_id`,
+ADD COLUMN `karnofsky_date_baseline` DATE DEFAULT NULL AFTER `karnofsky_performance_baseline`,
+ADD COLUMN `baseline_weight` DECIMAL (5,2) DEFAULT NULL AFTER `karnofsky_date_baseline`,
+ADD COLUMN `baseline_height` INT DEFAULT NULL AFTER `baseline_weight`,
+ADD COLUMN `flt_status_at_dx` VARCHAR(75) DEFAULT NULL AFTER `baseline_height`,
+ADD COLUMN `flt_status` VARCHAR(45) DEFAULT NULL AFTER `flt_status_at_dx`,
+ADD COLUMN `flt_date_collection` DATE DEFAULT NULL AFTER `flt_status`,
+ADD COLUMN `flt_date_collection_status` VARCHAR(45) DEFAULT NULL AFTER `flt_date_collection`,
+ADD COLUMN `npm_status_at_dx` VARCHAR(75) DEFAULT NULL AFTER `flt_date_collection_status`,
+ADD COLUMN `npm_status` VARCHAR(45) DEFAULT NULL AFTER `npm_status_at_dx`,
+ADD COLUMN `npm_date_of_collection` DATE DEFAULT NULL AFTER `npm_status`,
+ADD COLUMN `npm_date_collection_status` VARCHAR(45) DEFAULT NULL AFTER `npm_date_of_collection`,
+ADD COLUMN `cepba_status_at_dx` VARCHAR(75) DEFAULT NULL AFTER `npm_date_collection_status`,
+ADD COLUMN `cepba_status` VARCHAR(45) DEFAULT NULL AFTER `cepba_status_at_dx`,
+ADD COLUMN `cepba_date_of_collection` DATE DEFAULT NULL AFTER `cepba_status`,
+ADD COLUMN `cepba_date_collection_status` VARCHAR(45) DEFAULT NULL AFTER `cepba_date_of_collection`,
+ADD COLUMN `other_genetic_testing` TEXT DEFAULT NULL AFTER `cepba_date_collection_status`,
+
+ADD COLUMN `ast_sgot` DECIMAL(5,2) DEFAULT NULL AFTER `other_genetic_testing`,
+ADD COLUMN `ast_sgot_date_collection` DATE DEFAULT NULL AFTER `ast_sgot`,
+ADD COLUMN `total_bilirubin` DECIMAL(5,2) DEFAULT NULL AFTER `ast_sgot_date_collection`,
+ADD COLUMN `total_bilirubin_date_collection` DATE DEFAULT NULL AFTER `total_bilirubin`,
+ADD COLUMN `creatinine` DECIMAL(5,2) DEFAULT NULL AFTER `total_bilirubin_date_collection`,
+ADD COLUMN `creatinine_date_collection` DATE DEFAULT NULL AFTER `creatinine`,
+
+ADD COLUMN `date_of_cbc` DATE DEFAULT NULL AFTER `creatinine_date_collection`,
+ADD COLUMN `wbc` DECIMAL(5,2) DEFAULT NULL AFTER `date_of_cbc`,
+ADD COLUMN `wbc_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `wbc`,
+ADD COLUMN `neutrophils` DECIMAL(5,2) DEFAULT NULL AFTER `wbc_less_that_zero`,
+ADD COLUMN `neutrophils_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `neutrophils`,
+ADD COLUMN `lymphocytes` DECIMAL(5,2) DEFAULT NULL AFTER `neutrophils_less_that_zero`,
+ADD COLUMN `lymphocytes_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `lymphocytes`,
+ADD COLUMN `hemoglobin` DECIMAL(5,2) DEFAULT NULL AFTER `lymphocytes_less_that_zero`,
+ADD COLUMN `hemoglobin_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `hemoglobin`,
+ADD COLUMN `hematocrit` DECIMAL(5,2) DEFAULT NULL AFTER `hemoglobin_less_that_zero`,
+ADD COLUMN `hematocrit_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `hematocrit`,
+ADD COLUMN `platelets` DECIMAL(5,2) DEFAULT NULL AFTER `hematocrit_less_that_zero`,
+ADD COLUMN `platelets_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `platelets`,
+ADD COLUMN `blasts` DECIMAL(5,2) DEFAULT NULL AFTER `platelets_less_that_zero`,
+ADD COLUMN `blasts_less_that_zero` VARCHAR(10) DEFAULT NULL AFTER `blasts`,
+
+ADD COLUMN `rbc_transfusion_prior_cbc_test` VARCHAR(10) DEFAULT NULL AFTER `blasts_less_that_zero`,
+ADD COLUMN `platelet_transfusion_prior_cbc_test` VARCHAR(10) DEFAULT NULL AFTER `rbc_transfusion_prior_cbc_test`,
+ADD COLUMN `leukapheresis_prior_therapy` VARCHAR(10) DEFAULT NULL AFTER `platelet_transfusion_prior_cbc_test`,
+ADD COLUMN `date_of_leukapheresis` DATE DEFAULT NULL AFTER `leukapheresis_prior_therapy`,
+ADD COLUMN `hydroxyurea_prior_day_zero` VARCHAR(10) DEFAULT NULL AFTER `date_of_leukapheresis`,
+
+ADD COLUMN `oth_malignancy_leukemia` VARCHAR(10) DEFAULT NULL AFTER `hydroxyurea_prior_day_zero`,
+ADD COLUMN `oth_malignancy_leukemia_type` VARCHAR(45) DEFAULT NULL AFTER `oth_malignancy_leukemia`,
+ADD COLUMN `oth_malignancy_leukemia_year` YEAR DEFAULT NULL AFTER `oth_malignancy_leukemia_type`,
+ADD COLUMN `oth_malignancy_breast` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_leukemia_year`,
+ADD COLUMN `oth_malignancy_breast_year` YEAR DEFAULT NULL AFTER `oth_malignancy_breast`,
+ADD COLUMN `oth_malignancy_cns` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_breast_year`,
+ADD COLUMN `oth_malignancy_cns_year` YEAR DEFAULT NULL AFTER `oth_malignancy_cns`,
+ADD COLUMN `oth_malignancy_clonal_cytogenetic_abnormality` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_cns_year`,
+ADD COLUMN `oth_malignancy_clonal_cytogenetic_abnormality_year` YEAR DEFAULT NULL AFTER `oth_malignancy_clonal_cytogenetic_abnormality`,
+ADD COLUMN `oth_malignancy_gastrointestinal` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_clonal_cytogenetic_abnormality_year`,
+ADD COLUMN `oth_malignancy_gastrointestinal_year` YEAR DEFAULT NULL AFTER `oth_malignancy_gastrointestinal`,
+ADD COLUMN `oth_malignancy_genitourinary` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_gastrointestinal_year`,
+ADD COLUMN `oth_malignancy_genitourinary_year` YEAR DEFAULT NULL AFTER `oth_malignancy_genitourinary`,
+ADD COLUMN `oth_malignancy_hodgkin` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_genitourinary_year`,
+ADD COLUMN `oth_malignancy_hodgkin_year` YEAR DEFAULT NULL AFTER `oth_malignancy_hodgkin`,
+ADD COLUMN `oth_malignancy_lung` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_hodgkin_year`,
+ADD COLUMN `oth_malignancy_lung_year` YEAR DEFAULT NULL AFTER `oth_malignancy_lung`,
+ADD COLUMN `oth_malignancy_lymphoma` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_lung_year`,
+ADD COLUMN `oth_malignancy_lymphoma_year` YEAR DEFAULT NULL AFTER `oth_malignancy_lymphoma`,
+ADD COLUMN `oth_malignancy_melanoma` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_lymphoma_year`,
+ADD COLUMN `oth_malignancy_melanoma_year` YEAR DEFAULT NULL AFTER `oth_malignancy_melanoma`,
+ADD COLUMN `oth_malignancy_other_skin` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_melanoma_year`,
+ADD COLUMN `oth_malignancy_other_skin_year` YEAR DEFAULT NULL AFTER `oth_malignancy_other_skin`,
+ADD COLUMN `oth_malignancy_myelodysplasia` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_other_skin_year`,
+ADD COLUMN `oth_malignancy_myelodysplasia_year` YEAR DEFAULT NULL AFTER `oth_malignancy_myelodysplasia`,
+ADD COLUMN `oth_malignancy_oropharyngeal` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_myelodysplasia_year`,
+ADD COLUMN `oth_malignancy_oropharyngeal_year` YEAR DEFAULT NULL AFTER `oth_malignancy_oropharyngeal`,
+ADD COLUMN `oth_malignancy_sarcoma` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_oropharyngeal_year`,
+ADD COLUMN `oth_malignancy_sarcoma_year` YEAR DEFAULT NULL AFTER `oth_malignancy_sarcoma`,
+ADD COLUMN `oth_malignancy_thyroid` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_sarcoma_year`,
+ADD COLUMN `oth_malignancy_thyroid_year` YEAR DEFAULT NULL AFTER `oth_malignancy_thyroid`,
+ADD COLUMN `oth_malignancy_other_prior` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_thyroid_year`,
+ADD COLUMN `oth_malignancy_other_prior_type` VARCHAR(45) DEFAULT NULL AFTER `oth_malignancy_other_prior`,
+ADD COLUMN `oth_malignancy_other_prior_year` YEAR DEFAULT NULL AFTER `oth_malignancy_other_prior_type`,
+
+ADD COLUMN `smoking_history_status` VARCHAR(10) DEFAULT NULL AFTER `hydroxyurea_prior_day_zero`,
+ADD COLUMN `smoked_previous_year` VARCHAR(10) DEFAULT NULL AFTER `smoking_history_status`,
+ADD COLUMN `smoked_prior_previous_year` VARCHAR(10) DEFAULT NULL AFTER `smoked_previous_year`,
+ADD COLUMN `years_smoked` INT(11) DEFAULT NULL AFTER `smoked_prior_previous_year`,
+ADD COLUMN `years_smoked_unknown` VARCHAR(10) DEFAULT NULL AFTER `years_smoked`,
+ADD COLUMN `alcohol_consumption_pattern` VARCHAR(50) DEFAULT NULL AFTER `years_smoked_unknown`,
+ADD COLUMN `alcohol_consumption_greater_month` VARCHAR(10) DEFAULT NULL AFTER `alcohol_consumption_pattern`,
+
+ADD COLUMN `exercise_pattern_previous_five_years` VARCHAR(150) DEFAULT NULL AFTER `alcohol_consumption_greater_month`,
+ADD COLUMN `participant_job_or_lifestyle` VARCHAR(50) DEFAULT NULL AFTER `exercise_pattern_previous_five_years`,
+ADD COLUMN `exp_acid_mists_inorganic` VARCHAR(10) DEFAULT NULL AFTER `participant_job_or_lifestyle`,
+ADD COLUMN `exp_aluminum_production` VARCHAR(10) DEFAULT NULL AFTER `exp_acid_mists_inorganic`,
+ADD COLUMN `exp_areca_nut` VARCHAR(10) DEFAULT NULL AFTER `exp_aluminum_production`,
+ADD COLUMN `exp_arsenic` VARCHAR(10) DEFAULT NULL AFTER `exp_areca_nut`,
+ADD COLUMN `exp_asbestos` VARCHAR(10) DEFAULT NULL AFTER `exp_arsenic`,
+ADD COLUMN `exp_benzene` VARCHAR(10) DEFAULT NULL AFTER `exp_asbestos`,
+ADD COLUMN `exp_coal_emission` VARCHAR(10) DEFAULT NULL AFTER `exp_benzene`,
+ADD COLUMN `exp_diesel_engine_exhaust` VARCHAR(10) DEFAULT NULL AFTER `exp_coal_emission`,
+ADD COLUMN `exp_estrogen_postmenopausal_therapy` VARCHAR(10) DEFAULT NULL AFTER `exp_diesel_engine_exhaust`,
+ADD COLUMN `exp_estrogen_progesterone_oral_contraceptives` VARCHAR(10) DEFAULT NULL AFTER `exp_estrogen_postmenopausal_therapy`,
+ADD COLUMN `exp_formaldehyde` VARCHAR(10) DEFAULT NULL AFTER `exp_estrogen_progesterone_oral_contraceptives`,
+ADD COLUMN `exp_radiation` VARCHAR(10) DEFAULT NULL AFTER `exp_formaldehyde`,
+ADD COLUMN `exp_second_hand_smoke` VARCHAR(10) DEFAULT NULL AFTER `exp_radiation`,
+ADD COLUMN `other_exposure_history` TEXT DEFAULT NULL AFTER `exp_second_hand_smoke`;
+
+
+ALTER TABLE `ed_tfri_clinical_section_1_revs` 
+
+ 
+
  
 -- Eventum ID: 2884 WBC and Blast Count
  
