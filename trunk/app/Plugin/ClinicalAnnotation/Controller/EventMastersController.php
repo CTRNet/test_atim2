@@ -220,6 +220,10 @@ class EventMastersController extends ClinicalAnnotationAppController {
 						$this->EventMaster->data = array();
 						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
+					$hook_link = $this->hook('postsave_process_batch');
+					if( $hook_link ) {
+						require($hook_link);
+					}
 					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
 				} else {
 					$this->EventMaster->validationErrors = array();
