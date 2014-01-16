@@ -506,7 +506,7 @@ CREATE TABLE `ed_tfri_study_eq_5d_health` (
   CONSTRAINT `ed_tfri_study_eq_5d_health_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-CREATE TABLE `ed_tfri_study_eq_5d_health` (
+CREATE TABLE `ed_tfri_study_eq_5d_health_revs` (
   `method_of_completion` varchar(45) NULL DEFAULT NULL,
   `mobility` varchar(45) NULL DEFAULT NULL,
   `self-care` varchar(45) NULL DEFAULT NULL,
@@ -834,7 +834,7 @@ ADD COLUMN `creatinine_date_collection` DATE DEFAULT NULL AFTER `creatinine`,
 ADD COLUMN `date_of_cbc` DATE DEFAULT NULL AFTER `creatinine_date_collection`,
 ADD COLUMN `wbc` DECIMAL(5,2) DEFAULT NULL AFTER `date_of_cbc`,
 ADD COLUMN `wbc_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `wbc`,
-ADD COLUMN `neutrophils` DECIMAL(5,2) DEFAULT NULL AFTER `wbc_less_that_zero`,
+ADD COLUMN `neutrophils` DECIMAL(5,2) DEFAULT NULL AFTER `wbc_less_than_zero`,
 ADD COLUMN `neutrophils_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `neutrophils`,
 ADD COLUMN `lymphocytes` DECIMAL(5,2) DEFAULT NULL AFTER `neutrophils_less_than_zero`,
 ADD COLUMN `lymphocytes_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `lymphocytes`,
@@ -914,7 +914,151 @@ ADD COLUMN `exp_second_hand_smoke` VARCHAR(10) DEFAULT NULL AFTER `exp_radiation
 ADD COLUMN `other_exposure_history` TEXT DEFAULT NULL AFTER `exp_second_hand_smoke`;
 
 ALTER TABLE `ed_tfri_clinical_section_1_revs` 
+ADD COLUMN `karnofsky_performance_baseline` INT DEFAULT NULL AFTER `event_master_id`,
+ADD COLUMN `karnofsky_date_baseline` DATE DEFAULT NULL AFTER `karnofsky_performance_baseline`,
+ADD COLUMN `baseline_weight` DECIMAL (5,2) DEFAULT NULL AFTER `karnofsky_date_baseline`,
+ADD COLUMN `baseline_height` INT DEFAULT NULL AFTER `baseline_weight`,
 
+ADD COLUMN `med_history_autoimmune_disease` VARCHAR(10) DEFAULT NULL AFTER `baseline_height`,
+ADD COLUMN `med_history_autoimmune_disease_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_autoimmune_disease`,
+ADD COLUMN `med_history_autoimmune_disease_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_autoimmune_disease_type`,
+ADD COLUMN `med_history_cardiovascular_disease` VARCHAR(10) DEFAULT NULL AFTER `med_history_autoimmune_disease_other`,
+ADD COLUMN `med_history_cardiovascular_disease_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_cardiovascular_disease`,
+ADD COLUMN `med_history_cardiovascular_disease_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_cardiovascular_disease_type`,
+
+ADD COLUMN `med_history_chromosome_abnormality` VARCHAR(10) DEFAULT NULL AFTER `med_history_cardiovascular_disease_other`,
+ADD COLUMN `med_history_chromosome_abnormality_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_chromosome_abnormality`,
+ADD COLUMN `med_history_chromosome_abnormality_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_chromosome_abnormality_type`,
+ADD COLUMN `med_history_cns_psychiatric` VARCHAR(10) DEFAULT NULL AFTER `med_history_chromosome_abnormality_other`,
+ADD COLUMN `med_history_cns_psychiatric_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_cns_psychiatric`,
+ADD COLUMN `med_history_cns_psychiatric_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_cns_psychiatric_type`,
+ADD COLUMN `med_history_endocrine` VARCHAR(10) DEFAULT NULL AFTER `med_history_cns_psychiatric_other`,
+ADD COLUMN `med_history_endocrine_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_endocrine`,
+ADD COLUMN `med_history_endocrine_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_endocrine_type`,
+ADD COLUMN `med_history_gastrointestinal` VARCHAR(10) DEFAULT NULL AFTER `med_history_endocrine_other`,
+ADD COLUMN `med_history_gastrointestinal_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_gastrointestinal`,
+ADD COLUMN `med_history_gastrointestinal_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_gastrointestinal_type`,
+ADD COLUMN `med_history_genitourinary` VARCHAR(10) DEFAULT NULL AFTER `med_history_gastrointestinal_other`,
+ADD COLUMN `med_history_genitourinary_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_genitourinary`,
+ADD COLUMN `med_history_genitourinary_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_genitourinary_type`,
+ADD COLUMN `med_history_hematologic` VARCHAR(10) DEFAULT NULL AFTER `med_history_genitourinary_other`,
+ADD COLUMN `med_history_hematologic_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_hematologic`,
+ADD COLUMN `med_history_hematologic_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_hematologic_type`,
+ADD COLUMN `med_history_liver_disease` VARCHAR(10) DEFAULT NULL AFTER `med_history_hematologic_other`,
+ADD COLUMN `med_history_liver_disease_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_liver_disease`,
+ADD COLUMN `med_history_liver_disease_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_liver_disease_type`,
+ADD COLUMN `med_history_pulmonary` VARCHAR(10) DEFAULT NULL AFTER `med_history_liver_disease_other`,
+ADD COLUMN `med_history_pulmonary_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_pulmonary`,
+ADD COLUMN `med_history_pulmonary_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_pulmonary_type`,
+ADD COLUMN `med_history_infectious` VARCHAR(10) DEFAULT NULL AFTER `med_history_pulmonary_other`,
+ADD COLUMN `med_history_infectious_type` VARCHAR(45) DEFAULT NULL AFTER `med_history_infectious`,
+ADD COLUMN `med_history_infectious_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_infectious_type`,
+ADD COLUMN `med_history_co-existing` VARCHAR(10) DEFAULT NULL AFTER `med_history_infectious_other`,
+ADD COLUMN `med_history_co-existing_other` VARCHAR(150) DEFAULT NULL AFTER `med_history_co-existing`,
+ADD COLUMN `med_history_co-existing_other_two` VARCHAR(150) DEFAULT NULL AFTER `med_history_co-existing_other`,
+
+ADD COLUMN `flt_status_at_dx` VARCHAR(75) DEFAULT NULL AFTER `med_history_co-existing_other`,
+ADD COLUMN `flt_status` VARCHAR(45) DEFAULT NULL AFTER `flt_status_at_dx`,
+ADD COLUMN `flt_date_collection` DATE DEFAULT NULL AFTER `flt_status`,
+ADD COLUMN `flt_date_collection_status` VARCHAR(45) DEFAULT NULL AFTER `flt_date_collection`,
+ADD COLUMN `npm_status_at_dx` VARCHAR(75) DEFAULT NULL AFTER `flt_date_collection_status`,
+ADD COLUMN `npm_status` VARCHAR(45) DEFAULT NULL AFTER `npm_status_at_dx`,
+ADD COLUMN `npm_date_of_collection` DATE DEFAULT NULL AFTER `npm_status`,
+ADD COLUMN `npm_date_collection_status` VARCHAR(45) DEFAULT NULL AFTER `npm_date_of_collection`,
+ADD COLUMN `cepba_status_at_dx` VARCHAR(75) DEFAULT NULL AFTER `npm_date_collection_status`,
+ADD COLUMN `cepba_status` VARCHAR(45) DEFAULT NULL AFTER `cepba_status_at_dx`,
+ADD COLUMN `cepba_date_of_collection` DATE DEFAULT NULL AFTER `cepba_status`,
+ADD COLUMN `cepba_date_collection_status` VARCHAR(45) DEFAULT NULL AFTER `cepba_date_of_collection`,
+ADD COLUMN `other_genetic_testing` TEXT DEFAULT NULL AFTER `cepba_date_collection_status`,
+
+ADD COLUMN `ast_sgot` DECIMAL(5,2) DEFAULT NULL AFTER `other_genetic_testing`,
+ADD COLUMN `ast_sgot_date_collection` DATE DEFAULT NULL AFTER `ast_sgot`,
+ADD COLUMN `total_bilirubin` DECIMAL(5,2) DEFAULT NULL AFTER `ast_sgot_date_collection`,
+ADD COLUMN `total_bilirubin_date_collection` DATE DEFAULT NULL AFTER `total_bilirubin`,
+ADD COLUMN `creatinine` DECIMAL(5,2) DEFAULT NULL AFTER `total_bilirubin_date_collection`,
+ADD COLUMN `creatinine_date_collection` DATE DEFAULT NULL AFTER `creatinine`,
+
+ADD COLUMN `date_of_cbc` DATE DEFAULT NULL AFTER `creatinine_date_collection`,
+ADD COLUMN `wbc` DECIMAL(5,2) DEFAULT NULL AFTER `date_of_cbc`,
+ADD COLUMN `wbc_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `wbc`,
+ADD COLUMN `neutrophils` DECIMAL(5,2) DEFAULT NULL AFTER `wbc_less_than_zero`,
+ADD COLUMN `neutrophils_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `neutrophils`,
+ADD COLUMN `lymphocytes` DECIMAL(5,2) DEFAULT NULL AFTER `neutrophils_less_than_zero`,
+ADD COLUMN `lymphocytes_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `lymphocytes`,
+ADD COLUMN `hemoglobin` DECIMAL(5,2) DEFAULT NULL AFTER `lymphocytes_less_than_zero`,
+ADD COLUMN `hemoglobin_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `hemoglobin`,
+ADD COLUMN `hematocrit` DECIMAL(5,2) DEFAULT NULL AFTER `hemoglobin_less_than_zero`,
+ADD COLUMN `hematocrit_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `hematocrit`,
+ADD COLUMN `platelets` DECIMAL(5,2) DEFAULT NULL AFTER `hematocrit_less_than_zero`,
+ADD COLUMN `platelets_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `platelets`,
+ADD COLUMN `blasts` DECIMAL(5,2) DEFAULT NULL AFTER `platelets_less_than_zero`,
+ADD COLUMN `blasts_less_than_zero` VARCHAR(10) DEFAULT NULL AFTER `blasts`,
+
+ADD COLUMN `rbc_transfusion_prior_cbc_test` VARCHAR(10) DEFAULT NULL AFTER `blasts_less_than_zero`,
+ADD COLUMN `platelet_transfusion_prior_cbc_test` VARCHAR(10) DEFAULT NULL AFTER `rbc_transfusion_prior_cbc_test`,
+ADD COLUMN `leukapheresis_prior_therapy` VARCHAR(10) DEFAULT NULL AFTER `platelet_transfusion_prior_cbc_test`,
+ADD COLUMN `date_of_leukapheresis` DATE DEFAULT NULL AFTER `leukapheresis_prior_therapy`,
+ADD COLUMN `hydroxyurea_prior_day_zero` VARCHAR(10) DEFAULT NULL AFTER `date_of_leukapheresis`,
+
+ADD COLUMN `oth_malignancy_leukemia` VARCHAR(10) DEFAULT NULL AFTER `hydroxyurea_prior_day_zero`,
+ADD COLUMN `oth_malignancy_leukemia_type` VARCHAR(45) DEFAULT NULL AFTER `oth_malignancy_leukemia`,
+ADD COLUMN `oth_malignancy_leukemia_year` YEAR DEFAULT NULL AFTER `oth_malignancy_leukemia_type`,
+ADD COLUMN `oth_malignancy_breast` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_leukemia_year`,
+ADD COLUMN `oth_malignancy_breast_year` YEAR DEFAULT NULL AFTER `oth_malignancy_breast`,
+ADD COLUMN `oth_malignancy_cns` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_breast_year`,
+ADD COLUMN `oth_malignancy_cns_year` YEAR DEFAULT NULL AFTER `oth_malignancy_cns`,
+ADD COLUMN `oth_malignancy_clonal_cytogenetic_abnormality` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_cns_year`,
+ADD COLUMN `oth_malignancy_clonal_cytogenetic_abnormality_year` YEAR DEFAULT NULL AFTER `oth_malignancy_clonal_cytogenetic_abnormality`,
+ADD COLUMN `oth_malignancy_gastrointestinal` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_clonal_cytogenetic_abnormality_year`,
+ADD COLUMN `oth_malignancy_gastrointestinal_year` YEAR DEFAULT NULL AFTER `oth_malignancy_gastrointestinal`,
+ADD COLUMN `oth_malignancy_genitourinary` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_gastrointestinal_year`,
+ADD COLUMN `oth_malignancy_genitourinary_year` YEAR DEFAULT NULL AFTER `oth_malignancy_genitourinary`,
+ADD COLUMN `oth_malignancy_hodgkin` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_genitourinary_year`,
+ADD COLUMN `oth_malignancy_hodgkin_year` YEAR DEFAULT NULL AFTER `oth_malignancy_hodgkin`,
+ADD COLUMN `oth_malignancy_lung` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_hodgkin_year`,
+ADD COLUMN `oth_malignancy_lung_year` YEAR DEFAULT NULL AFTER `oth_malignancy_lung`,
+ADD COLUMN `oth_malignancy_lymphoma` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_lung_year`,
+ADD COLUMN `oth_malignancy_lymphoma_year` YEAR DEFAULT NULL AFTER `oth_malignancy_lymphoma`,
+ADD COLUMN `oth_malignancy_melanoma` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_lymphoma_year`,
+ADD COLUMN `oth_malignancy_melanoma_year` YEAR DEFAULT NULL AFTER `oth_malignancy_melanoma`,
+ADD COLUMN `oth_malignancy_other_skin` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_melanoma_year`,
+ADD COLUMN `oth_malignancy_other_skin_year` YEAR DEFAULT NULL AFTER `oth_malignancy_other_skin`,
+ADD COLUMN `oth_malignancy_myelodysplasia` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_other_skin_year`,
+ADD COLUMN `oth_malignancy_myelodysplasia_year` YEAR DEFAULT NULL AFTER `oth_malignancy_myelodysplasia`,
+ADD COLUMN `oth_malignancy_oropharyngeal` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_myelodysplasia_year`,
+ADD COLUMN `oth_malignancy_oropharyngeal_year` YEAR DEFAULT NULL AFTER `oth_malignancy_oropharyngeal`,
+ADD COLUMN `oth_malignancy_sarcoma` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_oropharyngeal_year`,
+ADD COLUMN `oth_malignancy_sarcoma_year` YEAR DEFAULT NULL AFTER `oth_malignancy_sarcoma`,
+ADD COLUMN `oth_malignancy_thyroid` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_sarcoma_year`,
+ADD COLUMN `oth_malignancy_thyroid_year` YEAR DEFAULT NULL AFTER `oth_malignancy_thyroid`,
+ADD COLUMN `oth_malignancy_other_prior` VARCHAR(10) DEFAULT NULL AFTER `oth_malignancy_thyroid_year`,
+ADD COLUMN `oth_malignancy_other_prior_type` VARCHAR(45) DEFAULT NULL AFTER `oth_malignancy_other_prior`,
+ADD COLUMN `oth_malignancy_other_prior_year` YEAR DEFAULT NULL AFTER `oth_malignancy_other_prior_type`,
+
+ADD COLUMN `smoking_history_status` VARCHAR(10) DEFAULT NULL AFTER `hydroxyurea_prior_day_zero`,
+ADD COLUMN `smoked_previous_year` VARCHAR(10) DEFAULT NULL AFTER `smoking_history_status`,
+ADD COLUMN `smoked_prior_previous_year` VARCHAR(10) DEFAULT NULL AFTER `smoked_previous_year`,
+ADD COLUMN `years_smoked` INT(11) DEFAULT NULL AFTER `smoked_prior_previous_year`,
+ADD COLUMN `years_smoked_unknown` VARCHAR(10) DEFAULT NULL AFTER `years_smoked`,
+ADD COLUMN `alcohol_consumption_pattern` VARCHAR(50) DEFAULT NULL AFTER `years_smoked_unknown`,
+ADD COLUMN `alcohol_consumption_greater_month` VARCHAR(10) DEFAULT NULL AFTER `alcohol_consumption_pattern`,
+
+ADD COLUMN `exercise_pattern_previous_five_years` VARCHAR(150) DEFAULT NULL AFTER `alcohol_consumption_greater_month`,
+ADD COLUMN `participant_job_or_lifestyle` VARCHAR(50) DEFAULT NULL AFTER `exercise_pattern_previous_five_years`,
+ADD COLUMN `exp_acid_mists_inorganic` VARCHAR(10) DEFAULT NULL AFTER `participant_job_or_lifestyle`,
+ADD COLUMN `exp_aluminum_production` VARCHAR(10) DEFAULT NULL AFTER `exp_acid_mists_inorganic`,
+ADD COLUMN `exp_areca_nut` VARCHAR(10) DEFAULT NULL AFTER `exp_aluminum_production`,
+ADD COLUMN `exp_arsenic` VARCHAR(10) DEFAULT NULL AFTER `exp_areca_nut`,
+ADD COLUMN `exp_asbestos` VARCHAR(10) DEFAULT NULL AFTER `exp_arsenic`,
+ADD COLUMN `exp_benzene` VARCHAR(10) DEFAULT NULL AFTER `exp_asbestos`,
+ADD COLUMN `exp_coal_emission` VARCHAR(10) DEFAULT NULL AFTER `exp_benzene`,
+ADD COLUMN `exp_diesel_engine_exhaust` VARCHAR(10) DEFAULT NULL AFTER `exp_coal_emission`,
+ADD COLUMN `exp_estrogen_postmenopausal_therapy` VARCHAR(10) DEFAULT NULL AFTER `exp_diesel_engine_exhaust`,
+ADD COLUMN `exp_estrogen_progesterone_oral_contraceptives` VARCHAR(10) DEFAULT NULL AFTER `exp_estrogen_postmenopausal_therapy`,
+ADD COLUMN `exp_formaldehyde` VARCHAR(10) DEFAULT NULL AFTER `exp_estrogen_progesterone_oral_contraceptives`,
+ADD COLUMN `exp_radiation` VARCHAR(10) DEFAULT NULL AFTER `exp_formaldehyde`,
+ADD COLUMN `exp_second_hand_smoke` VARCHAR(10) DEFAULT NULL AFTER `exp_radiation`,
+ADD COLUMN `other_exposure_history` TEXT DEFAULT NULL AFTER `exp_second_hand_smoke`;
 
 -- Value Domain KPS Options
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("kps_options", "open", "", NULL);
@@ -1029,7 +1173,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('depression requiring treatment', 'depression requiring treatment', ''),
  ('paralysis', 'paralysis', ''),
  ('meningitis/encephalitis', 'meningitis/encephalitis', ''),
- ('seizure disorder', 'seizure disorder'),
+ ('seizure disorder', 'seizure disorder', ''),
  ('stroke/cerebrovascular accident', 'stroke/cerebrovascular accident', '');
  
  
@@ -1146,7 +1290,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('HTLV I/II', 'HTLV I/II', ''),
  ('helicobacter pylori', 'helicobacter pylori', ''),
  ('human papiloma virus (HPV)', 'human papiloma virus (HPV)', ''),
- ('opisthorchis viverrini (liver fluke)', 'opisthorchis viverrini (liver fluke)', '');
+ ('opisthorchis viverrini (liver fluke)', 'opisthorchis viverrini (liver fluke)', '');  med_history_chromosome_abnormality_other
 
 -- Baseline KPS and Past Medical History
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -1163,6 +1307,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'med_history_cardiovascular_disease', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'med history cardiovascular disease', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'med_history_cardiovascular_disease_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='cardiovascular_options') , '0', '', '', '', '', 'med history cardiovascular disease type'), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'med_history_cardiovascular_disease_other', 'input',  NULL , '0', 'size=18', '', '', '', 'med history cardiovascular disease other');
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='karnofsky_performance_baseline' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='kps_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='karnofsky performance baseline' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='karnofsky_date_baseline' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='karnofsky date baseline'), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
@@ -1170,13 +1315,13 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='baseline_height' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='baseline height' AND `language_tag`=''), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_chromosome_abnormality' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='med history chromosome abnormality' AND `language_tag`=''), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_chromosome_abnormality_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chromosome_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history chromosome abnormality type'), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_chromosome_abnormality_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=12' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history chromosome abnormality other'), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_chromosome_abnormality_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=18' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history chromosome abnormality other'), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_autoimmune_disease' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='med history autoimmune disease' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_autoimmune_disease_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='autoimmune_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history autoimmune disease type'), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_autoimmune_disease_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=12' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history autoimmune disease other'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_autoimmune_disease_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=18' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history autoimmune disease other'), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_cardiovascular_disease' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='med history cardiovascular disease' AND `language_tag`=''), '1', '25', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_cardiovascular_disease_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cardiovascular_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history cardiovascular disease type'), '1', '26', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_cardiovascular_disease_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=12' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history cardiovascular disease other'), '1', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='med_history_cardiovascular_disease_other' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=18' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='med history cardiovascular disease other'), '1', '27', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
  
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'med_history_cns_psychiatric', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'med history cns psychiatric', ''), 
@@ -1425,7 +1570,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_genitourinary_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy genitourinary year'), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_hodgkin', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'oth malignancy hodgkin', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_hodgkin_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy hodgkin year'), 
-('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_lung', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'oth malignancy lung', 'select'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_lung', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'oth malignancy lung', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_lung_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy lung year'), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_lymphoma', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'oth malignancy lymphoma', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_lymphoma_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy lymphoma year'), 
@@ -1443,7 +1588,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_thyroid_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy thyroid year'), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_other_prior', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'oth malignancy other prior', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_other_prior_type', 'input',  NULL , '0', 'size=18', '', '', '', 'oth malignancy other prior type'), 
-('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_other_prior_year', 'integer',  NULL , '0', '', '', '', 'oth malignancy other prior year', '');
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_other_prior_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy other prior year');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_leukemia' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy leukemia' AND `language_tag`=''), '1', '155', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_leukemia_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=18' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy leukemia type'), '1', '156', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
@@ -1460,7 +1605,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_genitourinary_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy genitourinary year'), '1', '170', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_hodgkin' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy hodgkin' AND `language_tag`=''), '1', '171', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_hodgkin_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy hodgkin year'), '1', '172', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_lung' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy lung' AND `language_tag`='select'), '1', '173', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_lung' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy lung' AND `language_tag`=''), '1', '173', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_lung_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy lung year'), '1', '174', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_lymphoma' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy lymphoma' AND `language_tag`=''), '1', '175', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_lymphoma_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy lymphoma year'), '1', '176', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
@@ -1478,7 +1623,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_thyroid_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy thyroid year'), '1', '188', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_other_prior' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy other prior' AND `language_tag`=''), '1', '189', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_other_prior_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=18' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy other prior type'), '1', '190', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_other_prior_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy other prior year' AND `language_tag`=''), '1', '191', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_other_prior_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy other prior year'), '1', '191', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
@@ -1541,7 +1686,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('smoked prior previous year', '1.36 Has the participant smoked cigarettes prior to but not during the past year?', ''),
  ('years smoked', '1.37 Enter numbers of years of smoking', ''),
  ('years smoked unknown', '', ''),
- ('alcohol consumption greater month', 'Has participant ever experienced a period of time one month or greater in which alcohol consumption averaged greater than 2 drinks per day?', '');
+ ('alcohol consumption greater month', '1.39 Has participant ever experienced a period of time one month or greater in which alcohol consumption averaged greater than 2 drinks per day?', '');
 
 -- Value domain alcohol consumption
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("alcohol_consumption_pattern_options", "open", "", NULL);
@@ -1656,11 +1801,11 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('exp formaldehyde', 'Formaldehyde', ''),
  ('exp radiation', 'Radiation', ''),
  ('exp second hand smoke', 'Second hand tobacco smoke', ''),
- ('other exposure history', 'other exposure history', '1.43 Is there any other notable history regarding exposure to carcinogenic substances?');    
+ ('other exposure history', '1.43 Is there any other notable history regarding exposure to carcinogenic substances?', '');
  
- 
--- Eventum ID: 2884 WBC and Blast Count
- 
-
--- Eventum ID: 2885 WBC and Blast Count Units 
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
+ ('genetic/molecular testing', 'Genetic/molecular testing (continued)', ''), 
+ ('hematologic findings', 'Hematologic findings', ''),
+ ('exposure substances', '1.42 Has this participant ever been exposed to any of the following substances?', '');
+    
  
