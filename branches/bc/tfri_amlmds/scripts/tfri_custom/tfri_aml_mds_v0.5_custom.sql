@@ -1290,7 +1290,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('HTLV I/II', 'HTLV I/II', ''),
  ('helicobacter pylori', 'helicobacter pylori', ''),
  ('human papiloma virus (HPV)', 'human papiloma virus (HPV)', ''),
- ('opisthorchis viverrini (liver fluke)', 'opisthorchis viverrini (liver fluke)', '');  med_history_chromosome_abnormality_other
+ ('opisthorchis viverrini (liver fluke)', 'opisthorchis viverrini (liver fluke)', '');
 
 -- Baseline KPS and Past Medical History
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -1416,12 +1416,12 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('med history genitourinary type', 'Type', ''),
  ('med history hematologic type', 'Type', ''),
  ('med history liver disease type', 'Type', ''),
- ('med history liver disease other', 'liver disease other', ''), 
+ ('med history liver disease other', 'Specify other liver disease', ''), 
  ('med history pulmonary type', 'Type', ''),
  ('med history infectious type', 'Type', ''),
- ('med history pulmonary other', 'pulmonary other', ''),
- ('med history infectious other', 'infectious other', ''),
- ('med history co-existing', 'Other significant co-existing disease', ''),
+ ('med history pulmonary other', 'Specify other pulmonary', ''),
+ ('med history infectious other', 'Specify other infectious', ''),
+ ('med history co-existing', 'Specify other significant co-existing disease', ''),
  ('med history co-existing other', 'Specify other co-existing', ''),
  ('med history hematologic other', 'Specify other hematologic', ''),           
  ('med history genitourinary other', 'Specify other genitourinary', ''),
@@ -1512,12 +1512,6 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'platelets', 'float',  NULL , '0', '', '', '', 'platelets', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'blasts', 'float',  NULL , '0', '', '', '', 'blasts', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='ast_sgot' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ast sgot' AND `language_tag`=''), '1', '100', 'organ function', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='ast_sgot_date_collection' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ast sgot date collection'), '1', '101', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='total_bilirubin' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total bilirubin' AND `language_tag`=''), '1', '102', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='total_bilirubin_date_collection' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='total bilirubin date collection'), '1', '103', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='creatinine' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='creatinine' AND `language_tag`=''), '1', '104', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='creatinine_date_collection' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='creatinine date collection'), '1', '105', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='date_of_cbc' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date of cbc' AND `language_tag`=''), '1', '110', 'hematologic findings', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='wbc' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='wbc' AND `language_tag`=''), '1', '111', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='neutrophils' AND `type`='float' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='neutrophils' AND `language_tag`=''), '1', '115', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
@@ -1596,7 +1590,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_other_prior_type', 'input',  NULL , '0', 'size=18', '', '', '', 'oth malignancy other prior type'), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_clinical_section_1', 'oth_malignancy_other_prior_year', 'integer',  NULL , '0', '', '', '', '', 'oth malignancy other prior year');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_leukemia' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy leukemia' AND `language_tag`=''), '1', '155', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_leukemia' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy leukemia' AND `language_tag`=''), '1', '155', 'other malignancies', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_leukemia_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=18' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy leukemia type'), '1', '156', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_leukemia_year' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='oth malignancy leukemia year'), '1', '157', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_clinical_section_1'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_clinical_section_1' AND `field`='oth_malignancy_breast' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oth malignancy breast' AND `language_tag`=''), '1', '160', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
@@ -1633,6 +1627,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
+ ('other malignancies', 'Other malignancies', ''),
  ('oth malignancy leukemia', 'Other leukemia', ''), 
  ('oth malignancy breast', 'Breast cancer', ''),
  ('oth malignancy cns', 'Central nervous system (CNS) malignancy (glioblastoma, astrocytoma)', ''),
@@ -1667,6 +1662,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('oth malignancy thyroid year', 'Year of diagnosis', ''),
  ('oth malignancy other prior type', 'Specify other malignancy', ''), 
  ('oth malignancy other prior year', 'Year of diagnosis', ''); 
+
  
 -- Other health history
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
@@ -1690,8 +1686,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('smoked previous year', '1.35 Has the participant smoked cigarettes within the past year?', ''),
  ('smoked prior previous year', '1.36 Has the participant smoked cigarettes prior to but not during the past year?', ''),
  ('years smoked', '1.37 Enter numbers of years of smoking', ''),
- ('years smoked unknown', '', ''),
- ('alcohol consumption greater month', '1.39 Has participant ever experienced a period of time one month or greater in which alcohol consumption averaged greater than 2 drinks per day?', '');
+ ('years smoked unknown', 'Duration unknown', ''),
+ ('alcohol consumption greater month', '1.39 Participant experienced >= one month in which alcohol consumed > than 2 drinks per day?', '');
 
 -- Value domain alcohol consumption
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("alcohol_consumption_pattern_options", "open", "", NULL);
@@ -1711,8 +1707,8 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("exercise_pattern_options", "open", "", NULL);
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("mostly sedentary", "mostly sedentary");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="exercise_pattern_options"), (SELECT id FROM structure_permissible_values WHERE value="mostly sedentary" AND language_alias="mostly sedentary"), "1", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("mostly sedentary", "mostly sedentary");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="exercise_pattern_options"), (SELECT id FROM structure_permissible_values WHERE value="mostly sedentary" AND language_alias="mostly sedentary"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("walk more than one hour 3 times per week or more", "walk more than one hour 3 times per week or more");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="exercise_pattern_options"), (SELECT id FROM structure_permissible_values WHERE value="walk more than one hour 3 times per week or more" AND language_alias="walk more than one hour 3 times per week or more"), "2", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("vigorous exercise for 20 minutes or more once per week", "vigorous exercise for 20 minutes or more once per week");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="exercise_pattern_options"), (SELECT id FROM structure_permissible_values WHERE value="vigorous exercise for 20 minutes or more once per week" AND language_alias="vigorous exercise for 20 minutes or more once per week"), "3", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("vigorous exercise for 20 minutes or more greater than once per week", "vigorous exercise for 20 minutes or more greater than once per week");
@@ -1743,6 +1739,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('vigorous exercise for 20 minutes or more once per week', 'Vigorous exercise for 20 minutes or more once per week', ''), 
  ('vigorous exercise for 20 minutes or more greater than once per week', 'Vigorous exercise for 20 minutes or more greater than once per week', ''),
  ('some activity', 'Some activity', ''),
+ ('walk more than one hour 3 times per week or more', 'Walk more than one hour 3 times per week or more', ''),
  ('mostly active', 'Mostly active', '');
 
 
@@ -1809,11 +1806,43 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('other exposure history', '1.43 Is there any other notable history regarding exposure to carcinogenic substances?', '');
  
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
- ('years smoked unknown', 'Duration unknown', ''),
- ('genetic/molecular testing', 'Genetic/molecular testing (continued)', ''), 
+ ('genetic/molecular testing', 'Genetic/molecular testing', ''), 
  ('hematologic findings', 'Hematologic findings', ''),
  ('exposure substances', '1.42 Has this participant ever been exposed to any of the following substances?', '');
     
 -- Fix years smoked unknown to checkbox type
 UPDATE structure_fields SET  `type`='checkbox',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='years_smoked_unknown' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- Genetic testing value domains
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("flt_status_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="flt_status_options"), (SELECT id FROM structure_permissible_values WHERE value="not done" AND language_alias="not done"), "1", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npm1_status_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npm1_status_options"), (SELECT id FROM structure_permissible_values WHERE value="not done" AND language_alias="not done"), "1", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("flt_date_collection_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="flt_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="flt_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "2", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("npm1_date_collection_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npm1_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="npm1_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="not applicable" AND language_alias="not applicable"), "2", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cepba_status_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cepba_status_options"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cepba_status_options"), (SELECT id FROM structure_permissible_values WHERE value="not done" AND language_alias="not done"), "2", "1");
+
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("cepba_date_collection_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cepba_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cepba_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="not done" AND language_alias="not done"), "2", "1");
+
+
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='flt_status_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='flt_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='flt_date_collection_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='flt_date_collection_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='npm1_status_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='npm_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='npm1_date_collection_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='npm_date_collection_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='cepba_status_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='cepba_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='cepba_date_collection_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='cepba_date_collection_status' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+
 
