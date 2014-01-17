@@ -72,7 +72,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$this->ParticipantContact->id );
 				}
 			}
 		}
@@ -111,7 +111,7 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id );
 				}
 			}
 		}
@@ -130,13 +130,13 @@ class ParticipantContactsController extends ClinicalAnnotationAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if( $this->ParticipantContact->atimDelete( $participant_contact_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 			else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/ParticipantContacts/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/ParticipantContacts/detail/'.$participant_id.'/'.$participant_contact_id);
 		}
 	}
 }

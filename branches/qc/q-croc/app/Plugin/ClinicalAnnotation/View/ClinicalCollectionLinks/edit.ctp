@@ -9,8 +9,7 @@
 		'form_bottom'	=> false, 
 		'form_inputs'	=> false,
 		'actions'		=> false,
-		'pagination'	=> false,
-		'header' 	=> __('collection')
+		'pagination'	=> false
 	);
 	
 	// ************** 1- COLLECTION **************

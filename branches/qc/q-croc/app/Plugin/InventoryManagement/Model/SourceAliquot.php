@@ -9,7 +9,10 @@ class SourceAliquot extends InventoryManagementAppModel {
 		'AliquotMaster' => array(           
 			'className'    => 'InventoryManagement.AliquotMaster',            
 			'foreignKey'    => 'aliquot_master_id'));
-			
+	
+	var $registered_view = array(
+			'InventoryManagement.ViewAliquotUse' => array('SourceAliquot.id')
+	);
 }
 
 ?>

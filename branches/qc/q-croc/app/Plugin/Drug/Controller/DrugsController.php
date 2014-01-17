@@ -3,9 +3,7 @@
 class DrugsController extends DrugAppController {
 
 	var $uses = array(
-		'Drug.Drug',
-		'Protocol.ProtocolExtend',
-		'ClinicalAnnotation.TreatmentExtend'
+		'Drug.Drug'
 	);
 		
 	var $paginate = array('Drug'=>array('limit' => pagination_amount,'order'=>'Drug.generic_name ASC')); 
@@ -45,7 +43,7 @@ class DrugsController extends DrugAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/Drug/Drugs/detail/'.$this->Drug->id );
+				$this->atimFlash(__('your data has been updated'),'/Drug/Drugs/detail/'.$this->Drug->id );
 			}
 		}
   	}
@@ -75,7 +73,7 @@ class DrugsController extends DrugAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/Drug/Drugs/detail/'.$drug_id );
+					$this->atimFlash(__('your data has been updated'),'/Drug/Drugs/detail/'.$drug_id );
 				}
 			}
 		}
@@ -106,12 +104,12 @@ class DrugsController extends DrugAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			$this->Drug->data = null;
 			if( $this->Drug->atimDelete( $drug_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Drug/Drugs/search/');
+				$this->atimFlash(__('your data has been deleted'), '/Drug/Drugs/search/');
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/Drug/Drugs/search/');
+				$this->flash(__('error deleting data - contact administrator'), '/Drug/Drugs/search/');
 			}	
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/Drug/Drugs/detail/'.$drug_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/Drug/Drugs/detail/'.$drug_id);
 		}	
   	}
 }

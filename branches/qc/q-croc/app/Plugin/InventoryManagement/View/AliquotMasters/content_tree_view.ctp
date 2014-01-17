@@ -4,7 +4,13 @@
 	
 	$structure_settings = array(
 		'tree'=>array(
-			'AliquotMaster'	=> 'AliquotMaster'
+			'AliquotMaster'	=> 'AliquotMaster',
+			
+			'QualityCtrl' => 'QualityCtrl',
+			'SampleMaster' => 'SampleMaster',
+			'Shipment' => 'Shipment',
+			'SpecimenReviewMaster' => 'SpecimenReviewMaster',
+			'AliquotInternalUse' => 'AliquotInternalUse'
 		)
 	);
 	
@@ -12,7 +18,7 @@
 	$bottom = array();
 
 	$structure_links = array(
-		'tree'=>array(
+		'tree'=>array(	
 			'AliquotMaster' => array(
 				'detail' => array(
 					'link' => '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/1/',
@@ -20,6 +26,57 @@
 				),
 				'access to all data' => array(
 					'link'=> '/InventoryManagement/AliquotMasters/detail/%%AliquotMaster.collection_id%%/%%AliquotMaster.sample_master_id%%/%%AliquotMaster.id%%/' ,
+					'icon' => 'detail'
+				)
+			),	
+			// *** Aliquot Uses ***			
+			'QualityCtrl' => array(
+				'detail' => array(
+					'link' => '/InventoryManagement/QualityCtrls/detail/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'quality controls'
+				),
+				'access to all data' => array(
+					'link' => '/InventoryManagement/QualityCtrls/detail/%%FunctionManagement.url_ids%%/',
+					'icon' => 'detail'
+				)
+			),
+			'SampleMaster' => array(
+				'detail' => array(
+					'link' => '/InventoryManagement/SampleMasters/detail/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'flask'
+				),
+				'access to all data' => array(
+					'link' => '/InventoryManagement/SampleMasters/detail/%%FunctionManagement.url_ids%%/',
+					'icon' => 'detail'
+				)
+			),
+			'Shipment' => array(
+				'detail' => array(
+					'link' => '/Order/Shipments/detail/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'shipping'
+				),
+				'access to all data' => array(
+					'link' => '/Order/Shipments/detail/%%FunctionManagement.url_ids%%/',
+					'icon' => 'detail'
+				)
+			),
+			'SpecimenReviewMaster' => array(
+				'detail' => array(
+					'link' => '/InventoryManagement/SpecimenReviews/detail/%%FunctionManagement.url_ids%%/%%ViewAliquotUse.aliquot_master_id%%/',
+					'icon' => 'specimen review'
+				),
+				'access to all data' => array(
+					'link' => '/InventoryManagement/SpecimenReviews/detail/%%FunctionManagement.url_ids%%/',
+					'icon' => 'detail'
+				)
+			),
+			'AliquotInternalUse' => array(
+				'detail' => array(
+					'link' => '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/%%FunctionManagement.url_ids%%/1/',
+					'icon' => 'use'
+				),
+				'access to all data' => array(
+					'link' => '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/%%FunctionManagement.url_ids%%/',
 					'icon' => 'detail'
 				)
 			)
@@ -39,7 +96,7 @@
 			)
 		)
 	);
-	
+
 	// EXTRAS
 	
 	$structure_extras = array();

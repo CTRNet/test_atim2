@@ -4,14 +4,15 @@
  *
  * PHP 5
  *
- * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice
  *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Controller
  * @since         CakePHP(tm) v 1.2.0.5436
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
@@ -134,6 +135,7 @@ class ScaffoldTest extends CakeTestCase {
  */
 	public function setUp() {
 		parent::setUp();
+		Configure::write('Config.language', 'eng');
 		$request = new CakeRequest(null, false);
 		$this->Controller = new ScaffoldMockController($request);
 		$this->Controller->response = $this->getMock('CakeResponse', array('_sendHeader'));
@@ -217,6 +219,7 @@ class ScaffoldTest extends CakeTestCase {
 		$this->assertEquals('scaffoldMock', $result['singularVar']);
 		$this->assertEquals('scaffoldMock', $result['pluralVar']);
 		$this->assertEquals(array('id', 'user_id', 'title', 'body', 'published', 'created', 'updated'), $result['scaffoldFields']);
+		$this->assertArrayHasKey('plugin', $result['associations']['belongsTo']['User']);
 	}
 
 /**
@@ -229,7 +232,7 @@ class ScaffoldTest extends CakeTestCase {
 		$this->Controller->theme = 'TestTheme';
 		$this->Controller->viewClass = 'Theme';
 		$this->Controller->constructClasses();
-		$Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
+		new TestScaffoldMock($this->Controller, $this->Controller->request);
 
 		$this->assertEquals('Scaffold', $this->Controller->viewClass);
 	}

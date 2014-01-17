@@ -132,13 +132,15 @@ function initActions(){
 			return true;
 		}
 		
-		$("#actionsTarget").fmMenu({
-			data : $.parseJSON(menuItems), 
-			displayFunction : actionDisplay, 
-			defaultLabel : STR_SELECT_AN_ACTION, 
-			inputName : "data[Browser][search_for]",
-			strBack : STR_BACK
-		});
+		if(menuItems.length > 0){
+    		$("#actionsTarget").fmMenu({
+    			data : $.parseJSON(menuItems), 
+    			displayFunction : actionDisplay, 
+    			defaultLabel : STR_SELECT_AN_ACTION, 
+    			inputName : "data[Browser][search_for]",
+    			strBack : STR_BACK
+    		});
+		}
 		
 		if(!window.errorYouMustSelectAnAction){
 			window.errorYouMustSelectAnAction = "js untranslated errorYouMustSelectAnAction";	
@@ -356,7 +358,7 @@ function initActions(){
 				$(cell).append(" <a href='#' class='icon16 csv_upload file_btn'></a>").data('mode', 'specific');
 				
 				if($(cell).find(".specific_btn").length == 0){
-					$(cell).append(" <a href='#' class='specific_btn'></a>").find(".specific_btn").hide();
+					$(cell).append(" <a href='#' class='icon16 specific specific_btn'></a>").find(".specific_btn").hide();
 					$(cell).find("span:first").addClass("specific_span");
 					tabindex = $(cell).find("input").prop("tabindex");
 				}
@@ -609,11 +611,13 @@ function initActions(){
 				
 				if($(link).data('cached_result')){
 					$("#frame").html($(link).data('cached_result'));
+					initActions();
 				}else{
 					$("#frame").html("<div class='loading'></div>");
 					$.get($(this).attr("href") + "?t=" + new Date().getTime(), function(data){
 						$("#frame").html(data);
 						$(link).data('cached_result', data);
+						initActions();
 					});
 				}
 				return false;
@@ -823,14 +827,13 @@ function initActions(){
 		$(".root_menu_for_header, .main_menu_for_header").css("right", r_pos);
 		
 		//cells
-		$("div.floatingCell").css("left", scrollLeft);
-		$(".floatingBckGrnd").css("left", scrollLeft + contentMargin);
 		if(scrollLeft > contentMargin){
 			$(".floatingBckGrnd .left").css("opacity", 1);
 		}else{
 			$(".floatingBckGrnd .left").css("opacity", 0);
 		}
 		$(".floatingBckGrnd .right div").css("opacity", Math.min(15, scrollLeft) * 0.03);
+		$(".testScroll").css("left", scrollLeft);
 	}
 	
 	function initAutoHideVolume(){
@@ -977,36 +980,34 @@ function initActions(){
 			$(".ajax_search_results").parent().hide();
 			if(history.replaceState){
 				//doesn't work for IE < 10
-				$("input.submit").click(function(){
-					var submit_button = $(this);
+				//TODO: prevent over clicking the submit btn
+				beforeSubmitFct = function(){
 					$("#footer").height(Math.max($("#footer").height(), $(".ajax_search_results").height()));//made to avoid page movement
 					$(".ajax_search_results").html("<div class='loading'>--- " + STR_LOADING + " ---</div>");
 					$(".ajax_search_results").parent().show();
 					flyOverComponents();
-					successFct = function(data){
-						try{
-							data = $.parseJSON(data);
-							$(".ajax_search_results").html(data.page);
-							history.replaceState(data.page, "foo");//storing result in history
-							//update the form action
-							$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
-							handleSearchResultLinks();
-							//stop submit button animation
-							$(submit_button).siblings("a").find("span").removeClass('fetching');
-							flyOverComponents();
-						}catch(exception){
-							//simply submit the form then
-							$("form").submit();
-						}
-					};
-					$.ajax({
-						type	: "POST",
-						url		: $("form").attr("action"),
-						data	: $("form").serialize(),
-						success	: successFct,
-						error	: function(){ $("form").submit(); }
-					});
-					return false;
+				};
+				successFct = function(data){
+					try{
+						data = $.parseJSON(data);
+						$(".ajax_search_results").html(data.page);
+						history.replaceState(data.page, "foo");//storing result in history
+						//update the form action
+						$("form").attr("action", $("form").attr("action").replace(/[0-9]+(\/)*$/, data.new_search_id + "$1"));
+						handleSearchResultLinks();
+						//stop submit button animation
+						$("input.submit").siblings("a").find("span").removeClass('fetching');
+						flyOverComponents();
+					}catch(exception){
+						$(".ajax_search_results").html(data)
+						$("input.submit").siblings("a").find("span").removeClass('fetching');
+					}
+				};
+				$("form").ajaxForm({
+					url		: $("form").attr("action"),
+					success	: successFct,
+					beforeSubmit: beforeSubmitFct,
+					error : function(){console.log("ERROR");}
 				});
 			}
 		}
@@ -1017,8 +1018,14 @@ function initActions(){
 				if(event.state == null){
 					//new / refresh
 					initIndexZones(false);
+					if($(".ajax_search_results_default")){
+						$(".ajax_search_results").html($(".ajax_search_results_default").html());
+						$(".ajax_search_results").parent().show();
+						$(".ajax_search_results_default").remove();
+					}
 				}else{
 					//back/forward
+					$(".ajax_search_results_default").remove();
 					$(".ajax_search_results").html(event.state);
 					$(".ajax_search_results").parent().show();
 					handleSearchResultLinks();
@@ -1027,16 +1034,11 @@ function initActions(){
 			};
 			
 			if(navigator.userAgent.indexOf("Firefox") != -1){
-				//firefox doesnt do the first popstate
-				if(history.state && window.sessionStorage.getItem("lastLocation") != document.location){
-					window.sessionStorage.setItem("lastLocation", document.location);
-					initIndexZones(true);
-					$(".ajax_search_results").html(history.state);
-					$(".ajax_search_results").parent().show();
-					handleSearchResultLinks();
-				}else{
-					initIndexZones(false);
-				}
+				$(".ajax_search_results").html($(".ajax_search_results_default").html());
+				$(".ajax_search_results").parent().show();
+				$(".ajax_search_results_default").remove();
+				handleSearchResultLinks();
+				initIndexZones(false);
 			}
 		}else{
 			//unknown, always consider new
@@ -1148,88 +1150,72 @@ function initActions(){
 	}
 	
 	function initFlyOverCells(scope){
-		$("body").append('<div class="hidden" id="initFlyOverCells"></div>');
-		var tmpDiv = $("#initFlyOverCells");
-		$(scope).find("table").find("th.floatingCell:last").each(function(){
-			//floaintCells are headers. Make their column float for thead and tbody
-			$(this).children().appendTo(tmpDiv);
-			$(this).html('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div><div class="floatingCell">' + $(this).html() + '</div>');
-			var lastDiv = $(this).find("div:last");
-			$(tmpDiv).children().appendTo(lastDiv);
-			$(this).prevAll().each(function(){
-				$(this).html('<div class="floatingCell">' + $(this).html() + '</div>');
-			});
-			initFlyOverCellsLines($(this).parents("table:first"));
-		});
-		$("#tmpDiv").remove();
+	    $(scope).find("table.structure").each(function(){
+	        //make cells float
+    	    if($(this).find("th.floatingCell:first").length == 0){
+                return true;
+            }
+    	    totalColspan = 0;
+    	    var putIntoRelDiv = function(index, elem){
+    	        $(elem).html(
+                    "<div class='testScroll'>" +
+                        $(elem).html() +
+                    "</div>");
+    	    };
+    	    var putAndCount = function(index, elem){
+    	        var colspan = $(elem).attr("colspan");
+                if(colspan == undefined){
+                    ++ totalColspan
+                }else{
+                    totalColspan += colspan * 1;
+                }
+                putIntoRelDiv(index, elem);
+    	    };
+            $(this).find("th.floatingCell:last").each(function(index, elem){
+                putAndCount(index, elem);
+                $(this).prevAll().each(putAndCount);
+                for(var j = 1; j <= totalColspan; ++ j){
+                    $(this).parents("table").eq(0)
+                        .find("tbody td:nth-child(" + j + ")")
+                        .each(putIntoRelDiv);
+                }
+            });
+            $(this).find("th.floatingCell:last").siblings().eq(0).each(function(){
+               var firstTh = $(this);
+               var lastTd = $(this).parents("table:first")
+                   .find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
+               console.log(firstTh.position());
+               $(this).find(".testScroll").each(function(){
+                   $(this).append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
+                   computeSum = function(obj, cssArr){
+                       total = 0;
+                       for(var i in cssArr){
+                           total += parseFloat(obj.css(cssArr[i]));
+                       }
+                       return total;
+                   };
+                   psSize = function(obj, direction){
+                       arr = ["margin-%s", "padding-%s", "border-%s-width"];
+                       newArr = [];
+                       for(var i in arr){
+                           newArr.push(arr[i].replace("%s", direction));
+                       }
+                       return computeSum(obj, newArr);
+                   };
+                   width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+                   height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+                   $(this).find(".floatingBckGrnd").css({
+                       "top" : "-" + ($(this).offset().top - $(this).parents("th:first").offset().top) + "px",
+                       "left" : "-" + ($(this).offset().left - $(this).parents("th:first").offset().left) + "px",
+                       "width" : width + "px",
+                       "height" : height + "px"
+                   });
+               });
+            });
+	    });
 	}
 	
-	function initFlyOverCellsLines(scope){
-		var table = null;
-		if(scope[0].nodeName == "TABLE"){
-			table = scope;
-			scope = $(scope).find("tbody");
-		}else{
-			table = $(scope).parents("table:first");
-		}
-		table.find("th.floatingCell:last").each(function(){
-			//from the last floatingCell index
-			var prevNodes = $(this).prevAll();
-			var length = prevNodes.length + 1;
-			if(prevNodes.length > 0 && $(prevNodes[prevNodes.length - 1]).attr("colspan") > 1){
-				length += $(prevNodes[prevNodes.length - 1]).attr("colspan") - 1;
-			}
-			
-			$("body").append('<div id="initFlyOverCellsLines" class="hidden"></div>');
-			var tmpDiv = $("#initFlyOverCellsLines");
-			$(scope).find("td:nth-child(" + length + ")").each(function(){
-				//for every lines within the scope
-				
-				//apply the rule to self and previous cells
-				var targets = new Array();
-				targets = [this];
-				targets = targets.concat($.makeArray($(this).prevAll()));
-				for(i in targets){
-					$(targets[i]).children().appendTo(tmpDiv);
-					$(targets[i]).html('<div class="floatingCell">' + $(targets[i]).html() + '</div>').find(".floatingCell").css({ 
-						"padding-top" : $(targets[i]).css("padding-top"), 
-						"padding-right" : $(targets[i]).css("padding-right"),
-						"padding-bottom" : $(targets[i]).css("padding-bottom"),
-						"padding-left" : $(targets[i]).css("padding-left")
-					});
-					$(targets[i]).css("padding", 0);
-					var returnTo = $(targets[i]).find(".floatingCell");
-					$(tmpDiv).children().appendTo(returnTo);
-				}
-			});
-		});
-
-		if($(table).find(".floatingBckGrnd").length){
-			resizeFloatingBckGrnd($(table).find(".floatingBckGrnd"));
-		}
-	}
 	
-	function resizeFloatingBckGrnd(floatingBckGrnd){
-		if(floatingBckGrnd && floatingBckGrnd.length){
-			var table = floatingBckGrnd.parents("table:first");
-			if(floatingBckGrnd.data("initialized")){
-				floatingBckGrnd.css({
-					height: (table.find("thead").height() + table.find("tbody").height()) + "px"
-				});
-			}else{
-				floatingBckGrnd.css({
-					width : (contentMargin + table.find("th.floatingCell:last").offset().left + table.find("th.floatingCell:last").width() + parseInt(table.find("th.floatingCell:last").css("padding-right")) - floatingBckGrnd.parents("tr:first").offset().left) + "px",
-					height: (table.find("thead").height() + table.find("tbody").height()) + "px",
-					left: table.find("th.floatingCell:first").offset().left + "px"
-				}).data("initialized", true).find(".left").css({ width : contentMargin + "px", left :  -contentMargin + "px"});
-			}
-		}
-		$(".floatingBckGrnd").each(function(){
-			$(this).css('top', $(this).parents('table:first').offset().top + "px");
-		});
-	}
-	
-
 	function globalInit(scope){
 		if(window.copyControl){
 			initCopyControl();
@@ -1800,3 +1786,7 @@ function initActions(){
 		$("#miscIdPopup").popup();
 	}
 	
+	function dataBrowserHelp(){
+		var diagram_url =	root_url + 'app/webroot/img/dataBrowser/datamart_structures_relationships_' + STR_LANGUAGE + '.png';
+		$("#default_popup").html('<form enctype="multipart/form-data"><div class="descriptive_heading"><h4>' + STR_DATAMART_STRUCTURE_RELATIONSHIPS + '</h4><p></p></div><div style="padding: 10px; background-color: #fff;"><img src="' + diagram_url + '"/></div></form>').popup();
+	}

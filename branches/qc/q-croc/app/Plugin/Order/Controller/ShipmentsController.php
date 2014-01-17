@@ -88,7 +88,7 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved','/Order/Orders/detail/'.$order_id.'/' );
+				$this->atimFlash(__('your data has been saved'),'/Order/Orders/detail/'.$order_id.'/' );
 			}
 		}	
 	}
@@ -130,12 +130,12 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id );
+				$this->atimFlash(__('your data has been updated'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id );
 			}
 		} 
 	}
   
-	function detail( $order_id=null, $shipment_id=null ) {
+	function detail( $order_id=null, $shipment_id=null, $is_from_tree_view = false ) {
 		
 		// MANAGE DATA
 		
@@ -155,6 +155,8 @@ class ShipmentsController extends OrderAppController {
 		$this->set( 'atim_menu_variables', array('Order.id'=>$order_id, 'Shipment.id'=>$shipment_id) );
 		
 		$this->Structures->set('shippeditems', 'atim_structure_for_shipped_items');	
+		
+		$this->set('is_from_tree_view',$is_from_tree_view);
 		
 		$hook_link = $this->hook('format');
 		if($hook_link){
@@ -178,12 +180,12 @@ class ShipmentsController extends OrderAppController {
 		
 		if($arr_allow_deletion['allow_deletion']) {
 			if($this->Shipment->atimDelete( $shipment_id )) {
-				$this->atimFlash('your data has been deleted', 'javascript:history.go(-1)');
+				$this->atimFlash(__('your data has been deleted'), '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', 'javascript:history.go(-1)');
+				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], 'javascript:history.go(-1)');
+			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
 		}
 	}
 	
@@ -199,7 +201,7 @@ class ShipmentsController extends OrderAppController {
 		// Get available order items
 		$available_order_items = $this->OrderItem->find('all', array('conditions' => array('OrderLine.order_id' => $order_id, 'OrderItem.shipment_id IS NULL'), 'order' => 'OrderItem.date_added DESC, OrderLine.id'));
 		if(empty($available_order_items)) { 
-			$this->flash('no new item could be actually added to the shipment', '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
+			$this->flash(__('no new item could be actually added to the shipment'), '/Order/Shipments/detail/'.$order_id.'/'.$shipment_id);  
 		}
 
 		// MANAGE FORM, MENU AND ACTION BUTTONS
@@ -312,7 +314,7 @@ class ShipmentsController extends OrderAppController {
 		}	
 	}
 	
-	function formatDataForShippedItemsSelection($order_items) {
+	function formatDataForShippedItemsSelection($order_items){
 		$sample_control_model = AppModel::getInstance('InventoryManagement', 'SampleControl');
 		$aliquot_control_model = AppModel::getInstance('InventoryManagement', 'AliquotControl');
 		foreach($order_items as $order_item){
@@ -331,7 +333,7 @@ class ShipmentsController extends OrderAppController {
 			$data[$order_item['OrderLine']['id']]['data'][] = $order_item;
 		}
 		
-		return $data;
+		return isset($data) ? $data : array();
 	}
 	
 	function deleteFromShipment($order_id, $order_item_id, $shipment_id){
@@ -402,13 +404,13 @@ class ShipmentsController extends OrderAppController {
 
 			// Redirect
 			if($remove_done) {
-				$this->atimFlash('your data has been removed - update the aliquot in stock data', $url);
+				$this->atimFlash(__('your data has been removed - update the aliquot in stock data'), $url);
 			} else {
-				$this->flash('error deleting data - contact administrator', $url);
+				$this->flash(__('error deleting data - contact administrator'), $url);
 			}
 		
 		} else {
-			$this->flash($arr_allow_deletion['msg'], $url);
+			$this->flash(__($arr_allow_deletion['msg']), $url);
 		}
 	}
 	

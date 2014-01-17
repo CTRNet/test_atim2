@@ -32,7 +32,7 @@ class ViewSample extends InventoryManagementAppModel {
 	
 	static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
-		SampleMaster.parent_id AS parent_sample_id,
+		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
 		
@@ -42,7 +42,7 @@ class ViewSample extends InventoryManagementAppModel {
 		
 		Participant.participant_identifier, 
 		
-		Collection.acquisition_label, 
+		Collection.acquisition_label,
 		
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,

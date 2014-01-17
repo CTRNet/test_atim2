@@ -1,9 +1,5 @@
 <?php 
 	$structure_override = array();
-	$settings = array(
-		'header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => __("more information about the types of samples and aliquots are available %s here", $help_url)),
-		'actions' => false
-	);
 	
 	$dropdown = null;
 	if(isset($is_ccl_ajax)){
@@ -16,7 +12,21 @@
 		}
 		$structure_override['ViewCollection.collection_property'] = "participant collection";
 		$dropdown['ViewCollection.collection_property'] = array("participant collection" => __("participant collection"));
+		$last_5 = "";
+	}else{
+		$settings = array();
+		$final_atim_structure = $atim_structure;
+		include('search_links_n_options.php');
+		$final_options['settings']['return'] = true;
+		$final_options['settings']['pagination'] = false;
+		$final_options['settings']['actions'] = false;
+		$last_5 = $this->Structures->build( $final_atim_structure, $final_options );
 	}
+	
+	$settings = array(
+			'header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => __("more information about the types of samples and aliquots are available %s here", $help_url)),
+			'actions' => false
+	);
 	
 	$final_atim_structure = $atim_structure; 
 	$final_options = array(
@@ -34,7 +44,7 @@
 		'links' => isset($is_ccl_ajax) ? array() : array('bottom' => array(
 			'add collection' => '/InventoryManagement/Collections/add'
 		)),
-		'extras'	=> '<div class="ajax_search_results"></div>'
+		'extras'	=> '<div class="ajax_search_results"></div><div class="ajax_search_results_default">'.$last_5.'</div>'
 	);
 	
 	// CUSTOM CODE
@@ -49,5 +59,4 @@
 	if(!isset($is_ccl_ajax)){
 		$this->Structures->build( $final_atim_structure2, $final_options2 );
 	}
-			
 ?>

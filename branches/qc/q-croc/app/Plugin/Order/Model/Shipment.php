@@ -4,6 +4,10 @@ class Shipment extends OrderAppModel
 {
 	var $name = 'Shipment';
 	var $useTable = 'shipments';
+  
+	var $registered_view = array(
+		'InventoryManagement.ViewAliquotUse' => array('Shipment.id')
+	);
                              
 	function summary( $variables=array() ) {
 		$return = false;
