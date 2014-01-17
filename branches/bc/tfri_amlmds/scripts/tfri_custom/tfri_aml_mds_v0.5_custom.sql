@@ -769,7 +769,7 @@ UPDATE structure_fields SET  `type`='radio',  `structure_value_domain`=(SELECT i
 ALTER TABLE `ed_tfri_clinical_section_1` 
 ADD COLUMN `karnofsky_performance_baseline` INT DEFAULT NULL AFTER `event_master_id`,
 ADD COLUMN `karnofsky_date_baseline` DATE DEFAULT NULL AFTER `karnofsky_performance_baseline`,
-ADD COLUMN `baseline_weight` DECIMAL (5,2) DEFAULT NULL AFTER `karnofsky_date_baseline`,
+ADD COLUMN `baseline_weight` DECIMAL (5,1) DEFAULT NULL AFTER `karnofsky_date_baseline`,
 ADD COLUMN `baseline_height` INT DEFAULT NULL AFTER `baseline_weight`,
 
 ADD COLUMN `med_history_autoimmune_disease` VARCHAR(10) DEFAULT NULL AFTER `baseline_height`,
@@ -1285,7 +1285,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_significant_infectious_options"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "7", "1");
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
- ('EBV positiv', 'EBV positiv', ''),
+ ('EBV positive', 'EBV positive', ''),
  ('HIV positive', 'HIV positive', ''),
  ('HTLV I/II', 'HTLV I/II', ''),
  ('helicobacter pylori', 'helicobacter pylori', ''),
@@ -1391,8 +1391,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('1.5 past medical history', '1.5 Past medical history (check all that apply)', ''), 
  ('karnofsky performance baseline', '1.1 Karnofsky Performance Status (Baseline)', ''),
  ('karnofsky date baseline', '1.2 Date of KPS assessment', ''),
- ('baseline weight', '1.3 Weight', ''),
- ('baseline height', '1.4 Height', ''),
+ ('baseline weight', '1.3 Weight (kg)', ''),
+ ('baseline height', '1.4 Height (cm)', ''),
  ('med history chromosome abnormality', 'Chromosome abnormality', ''),
  ('med history chromosome abnormality type', 'Type', ''),
  ('med history autoimmune disease', 'Autoimmune disease', ''),
@@ -1523,13 +1523,13 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
  ('date of cbc', '1.19 Date of CBC', ''), 
- ('wbc', '1.20 WBC', ''),
- ('neutrophils', '1.21 Neutrophils', ''),
- ('lymphocytes', '1.22 Lymphocytes', ''),
- ('hemoglobin', '1.23 Hemoglobin', ''),
- ('hematocrit', '1.24 Hematocrit', ''),
- ('platelets', '1.25 Platelets', ''),
- ('blasts', '1.26 Blasts', ''), 
+ ('wbc', '1.20 WBC (10e9/L)', ''),
+ ('neutrophils', '1.21 Neutrophils (10e9/L)', ''),
+ ('lymphocytes', '1.22 Lymphocytes (10e9/L)', ''),
+ ('hemoglobin', '1.23 Hemoglobin (10e9/L)', ''),
+ ('hematocrit', '1.24 Hematocrit (10e9/L)', ''),
+ ('platelets', '1.25 Platelets (10e9/L)', ''),
+ ('blasts', '1.26 Blasts (10e9/L)', ''), 
  ('organ function', 'Organ function prior to start of definitive therapy', '');
  
 -- Page 5 baseline continued  
@@ -1754,7 +1754,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
  ('alcohol consumption pattern', '1.38 Typical alcohol consumption pattern in the PREVIOUS YEAR (check one)', ''), 
- ('exercise pattern previous five years', '1.40 Exercise patter in general in the PREVIOUS FIVE YEARS (check one)', ''),
+ ('exercise pattern previous five years', '1.40 Exercise pattern in general in the PREVIOUS FIVE YEARS (check one)', ''),
  ('participant job or lifestyle', '1.41 Participants job (or lifestyle if not working) is', '');
 
 -- Exposure
@@ -1836,7 +1836,6 @@ INSERT INTO structure_value_domains (domain_name, override, category, source) VA
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cepba_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="unknown" AND language_alias="unknown"), "1", "1");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="cepba_date_collection_options"), (SELECT id FROM structure_permissible_values WHERE value="not done" AND language_alias="not done"), "2", "1");
 
-
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='flt_status_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='flt_status' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='flt_date_collection_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='flt_date_collection_status' AND `type`='input' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='npm1_status_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='npm_status' AND `type`='input' AND structure_value_domain  IS NULL ;
@@ -1845,4 +1844,42 @@ UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT 
 UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='cepba_date_collection_options') ,  `setting`='' WHERE model='EventDetail' AND tablename='ed_tfri_clinical_section_1' AND field='cepba_date_collection_status' AND `type`='input' AND structure_value_domain  IS NULL ;
 
 
+/*
+	Eventum Issue: #2908 - Profile - Change label diagnosis
+*/
 
+UPDATE structure_fields SET `language_label`='tfri aml prelim diagnosis' WHERE model='Participant' AND tablename='participants' AND field='tfri_aml_registration_diagnosis' AND `type`='select';
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES 
+ ('tfri aml prelim diagnosis', 'Preliminary diagnosis', ''); 
+ 
+ 
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_mobility')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='mobility' AND `type`='radio' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_mobility');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_self_care')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='self-care' AND `type`='radio' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_self_care');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_usual_activities')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='usual_activities' AND `type`='radio' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_usual_activities');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_pain')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='pain_discomfort' AND `type`='radio' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_pain');
+UPDATE structure_fields SET  `type`='select',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_anxiety')  WHERE model='EventDetail' AND tablename='ed_tfri_study_eq_5d_health' AND field='anxiety_depression' AND `type`='radio' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='eq_5d_anxiety'); 
+
+/*
+	Eventum Issue: #2910 - Profile search form changes
+*/
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_english_french' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_chemo_start' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_standard_regimen' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_chemo_start_unknown' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_regimen_unknown' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+
+/*
+	Eventum Issue: #2911 - Disable all existing clinical lab tests
+*/
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='18';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='35';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='36';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='37';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='38';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='39';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='40';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='41';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='42';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='43';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='44';
+UPDATE `event_controls` SET `flag_active`='0' WHERE `id`='45';
