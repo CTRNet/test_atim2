@@ -8,12 +8,13 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       app.Model
  * @since         CakePHP(tm) v 0.2.9
@@ -49,11 +50,16 @@ class AppModel extends Model {
 	
 	public $pkey_safeguard = true;//whether to prevent data to be saved if the data array contains a pkey different than model->id
 	
+	private $registered_models;//use related to views
+	
 	/**
 	 * @desc Used to store the previous model when a model is recreated for detail search
 	 * @var SampleMaster
 	 */
 	var $previous_model = null;
+	private static $locked_views_update = false;
+	private static $cached_views_update = array();
+	private static $cached_views_model = null; //some model, only provides accc
 	
 	const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
 	
@@ -104,6 +110,11 @@ class AppModel extends Model {
 			AppController::addWarningMsg('saving unvalidated data ['.$this->name.']', true);
 		}
 	
+		if(!isset($data[$this->name]) || empty($data[$this->name])){
+		    //Eventum 2619: When there is no master data, details aren't saved
+		    //properly because cake core flushes them out.
+		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
+		} 
 		return parent::save($data, $validate, $fieldList);
 	}
 	
@@ -119,6 +130,8 @@ class AppModel extends Model {
 		$this->setTrackability();
 		
 		$this->checkFloats();
+		
+		$this->registerModelsToCheck();
 		
 		return true;
 	}
@@ -199,6 +212,77 @@ class AppModel extends Model {
 		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
 	}
 	
+	private function registerModelsToCheck(){
+		$this->registered_models = array();
+		if($this->registered_view && $this->id){
+			foreach($this->registered_view as $registered_view => $foreign_keys){
+				list($plugin_name, $model_name) = explode('.', $registered_view);
+				$model = AppModel::getInstance($plugin_name, $model_name);
+				$pkeys_to_check = array();
+				$pkeys_for_deletion = array();
+				foreach($foreign_keys as $foreign_key){
+					$at_least_one = false;
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $foreign_key) === false){
+							continue;
+						}
+						$at_least_one = true;
+						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+								
+						$results = $this->tryCatchQuery($table_query);
+						foreach($results as $result){
+							$pkeys_for_deletion[] = current(current($result));
+							if(method_exists($model, "getPkeyAndModelToCheck")){
+								$pkeys_to_check[] = $model->getPkeyAndModelToCheck($result);
+							}else{
+								$pkeys_to_check[] = array(
+									'pkey' => current(current($result)),
+									'base_model' => $model->base_model);
+							}
+						}
+					}
+					if(!$at_least_one){
+						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
+					}
+				}
+				if($pkeys_to_check){
+					$this->registered_models[] = array(
+							'model' => $model,
+							'pkeys_to_check' => $pkeys_to_check,
+							'pkeys_for_deletion' => $pkeys_for_deletion,
+					);
+				}
+			}
+		}
+	}
+	
+	private function updateRegisteredModels(){
+		foreach($this->registered_models as $registered_model){
+			//try to find the row
+			$model = $registered_model['model'];
+			foreach($registered_model['pkeys_to_check'] as $pkey_and_model_to_check){
+				$pkey_to_check = $pkey_and_model_to_check['pkey'];
+				$base_model = $pkey_and_model_to_check['base_model'];
+				$pkey_for_deletion = array_shift($registered_model['pkeys_for_deletion']);
+				foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+					if(strpos($query_part, $base_model) === false){
+						continue;
+					}
+					$table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id='.$pkey_to_check, $query_part);
+					$data = $this->tryCatchQuery($table_query);							
+					if($data){
+						//update
+						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+						$this->log("A: ".$query);
+						$this->tryCatchquery($query);
+					}else{
+						//delete
+						$model->delete($pkey_for_deletion, false);
+					}
+				}
+			}
+		}
+	}
 	
 	/*
 		ATiM 2.0 function
@@ -207,29 +291,7 @@ class AppModel extends Model {
 	
 	function atimDelete($model_id, $cascade = true){
 		$this->id = $model_id;
-		
-		//prior to deletion, fetch all affected view data
-		$registered_models = array();
-		if($this->registered_view){
-			foreach($this->registered_view as $registered_view => $foreign_keys){
-				list($plugin_name, $model_name) = explode('.', $registered_view);
-				$model = AppModel::getInstance($plugin_name, $model_name);
-				$pkeys_to_check = array();
-				foreach($foreign_keys as $foreign_key){
-					$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $model::$table_query);
-					$results = $this->tryCatchQuery($table_query);
-					foreach($results as $result){
-						$pkeys_to_check[] = current(current($result));
-					}
-				}
-				if($pkeys_to_check){
-					$registered_models[] = array(
-						'model' => $model,
-						'pkeys_to_check' => array_unique($pkeys_to_check)	
-					);
-				}
-			}
-		}
+		$this->registerModelsToCheck();
 		
 		// delete DATA as normal
 		$this->addWritableField('deleted');
@@ -238,27 +300,9 @@ class AppModel extends Model {
 		// do a FIND of the same DATA, return FALSE if found or TRUE if not found
 		if($this->read()){
 			return false; 
-		}else{
-			foreach($registered_models as $registered_model){
-				//try to find the row
-				$model = $registered_model['model'];
-				$pkeys_to_check = $registered_model['pkeys_to_check'];
-				foreach($pkeys_to_check as $pkey_to_check){
-					$table_query = str_replace('%%WHERE%%', 'AND '.$model->base_model.'.id='.$pkey_to_check, $model::$table_query);
-					$data = $this->tryCatchQuery($table_query);
- 					if($data){
- 						//update
- 						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
- 						$this->tryCatchquery($query);
- 					}else{
- 						//delete
- 						$model->delete($pkey_to_check);
- 					}
-				}
-			}
-			
-			return true; 
 		}
+		$this->updateRegisteredModels();
+		return true; 
 		
 	}
 	
@@ -498,12 +542,11 @@ class AppModel extends Model {
 				list($year, $month, $day) = explode("-", trim($current));
 				$hour = null;
 				$minute = null;
+				$time = null;
 				if(strpos($day, ' ') !== false){
-					$time = null;
 					list($day, $time) = explode(" ", $day);
 					list($hour, $minute) = explode(":", $time);
 				}
-				
 				
 				//used to avoid altering the date when its invalid
 				$go_to_next_field = false;
@@ -1181,18 +1224,46 @@ class AppModel extends Model {
 		return $results;
 	}
 	
-	function afterSave($created){
+	function afterSave($created, $options = Array()){
 		if($this->registered_view){
 			foreach($this->registered_view as $registered_view => $foreign_keys){
 				list($plugin_name, $model_name) = explode('.', $registered_view);
 				$model = AppModel::getInstance($plugin_name, $model_name);
 				foreach($foreign_keys as $foreign_key){
-					$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $model::$table_query);
-					$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
-					$this->tryCatchquery($query);
+					$at_least_one = false;
+					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+						if(strpos($query_part, $foreign_key) === false){
+							continue;
+						}
+						$at_least_one = true;
+						$this->log("B: ".$query_part);
+						if(self::$locked_views_update){
+						    if(!isset(self::$cached_views_update[$this->name])){
+						        self::$cached_views_update[$this->name] = array(); 
+						    }
+						    if(!isset(self::$cached_views_update[$this->name][$foreign_key])){
+						        self::$cached_views_update[$this->name][$foreign_key] = array();
+						    }
+						    if(!isset(self::$cached_views_update[$this->name][$foreign_key][$query_part])){
+						          self::$cached_views_update[$this->name][$foreign_key][$query_part] = array(
+						                "modelTable" => $model->table,
+						                "ids" => array());
+						    }
+						    array_push(self::$cached_views_update[$this->name][$foreign_key][$query_part]["ids"], $this->id);
+						}else{
+    						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+    						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
+    						$this->tryCatchquery($query);
+						}
+					}
+					if(!$at_least_one){
+						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
+					}
 				}
 			}
 		}
+		
+		$this->updateRegisteredModels();
 	}
 
 	function makeTree(array &$in){
@@ -1281,5 +1352,27 @@ class AppModel extends Model {
 			$data[] = $tmp_data[$key];
 		}
 		unset($tmp_data);
+	}
+	
+	static function acquireBatchViewsUpdateLock(){
+        if(self::$locked_views_update){
+            throw new Exception('Deadlock in acquireBatchViewsUpdateLock');
+        }
+        self::$locked_views_update = true;
+    }
+    
+    static function releaseBatchViewsUpdateLock(){
+        foreach(self::$cached_views_update as $models){
+            foreach($models as $foreign_key => $query_parts){
+                foreach($query_parts as $query_part => $details){
+                    $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN('.implode(",", $details['ids']).')', $query_part);
+                    $query = sprintf('REPLACE INTO %s (%s)', $details["modelTable"], $table_query);
+                    //just "some" model to do the work
+                    $pages = AppModel::getInstance("", "Page");
+                    $pages->tryCatchquery($query);
+                }
+            }
+        }
+        self::$locked_views_update = false;
 	}
 }

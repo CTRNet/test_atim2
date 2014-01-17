@@ -9,6 +9,10 @@ class QualityCtrl extends InventoryManagementAppModel {
 			'className'   => 'InventoryManagement.AliquotMaster',
 			 	'foreignKey'  => 'aliquot_master_id')
 	);
+  
+  var $registered_view = array(
+  		'InventoryManagement.ViewAliquotUse' => array('QualityCtrl.id')
+  );
 			
 	function summary($variables=array()) {
 		$return = false;
@@ -24,7 +28,7 @@ class QualityCtrl extends InventoryManagementAppModel {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu' => array('QC', ' : ' . $qc_data['QualityCtrl']['run_id']),
+				'menu' => array(__('quality control abbreviation') , ' : ' . $qc_data['QualityCtrl']['run_id']),
 				'title' => array(null, __('quality control abbreviation') . ' : ' . $qc_data['QualityCtrl']['run_id']),
 	 			'data' => $qc_data,
 				'structure alias'=>'qualityctrls'
@@ -65,10 +69,20 @@ class QualityCtrl extends InventoryManagementAppModel {
 	 */
 	function createCode($qc_id, $storage_data, $qc_data = null, $sample_data = null) {
 		AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
-		$qc_code = 'QC - ' . $qc_id;
-		
-		return $qc_code;
 	}
+	
+	function generateQcCode() {
+		$qc_to_update = $this->find('all', array('conditions' => array('QualityCtrl.qc_code IS NULL'), 'fields' => array('QualityCtrl.id'), 'recursive' => 1));
+		foreach($qc_to_update as $new_qc) {
+			$new_qc_id = $new_qc['QualityCtrl']['id'];
+			$qc_data = array('QualityCtrl' => array('qc_code' => 'QC - ' . $new_qc_id));
+			$this->id = $new_qc_id;
+			$this->data = null;
+			$this->addWritableField(array('qc_code'));
+			$this->save($qc_data, false);			
+		}		
+	}
+	
 }
 
 ?>

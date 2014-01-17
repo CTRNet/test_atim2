@@ -5,10 +5,47 @@ class DropdownsController extends AdministrateAppController {
 		'StructurePermissibleValuesCustomControl'
 		);
 		
-	var $paginate = array('StructurePermissibleValuesCustomControl'=>array('limit' => pagination_amount,'order'=>'StructurePermissibleValuesCustomControl.name ASC')); 		
+	var $paginate = array('StructurePermissibleValuesCustomControl'=>array('limit' => pagination_amount,'order'=>'StructurePermissibleValuesCustomControl.category ASC, StructurePermissibleValuesCustomControl.name ASC')); 		
 	
-	function index(){
+	function index() {
+		// Nothing to do	  	
+	  	
+	  	// CUSTOM CODE: FORMAT DISPLAY DATA
+  		$hook_link = $this->hook('format');
+  		if( $hook_link ) {
+  			require($hook_link);
+  		}
+	}
+	
+	function subIndex($filter = 'all') {
+		if(!in_array($filter, array('all', 'empty', 'not_empty'))) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		$counter_sort_option = false;
+		if(isset($this->passedArgs['sort']) && $this->passedArgs['sort'] == 'Generated.custom_permissible_values_counter') {
+			$counter_sort_option = $this->passedArgs['direction'];
+		}
+		$this->StructurePermissibleValuesCustomControl->bindModel(
+			array('hasMany' => array(
+				'StructurePermissibleValuesCustom'	=> array(
+					'className'  	=> 'Administrate.StructurePermissibleValuesCustom',
+					'foreignKey'	=> 'control_id'))));
 		$this->request->data = $this->paginate($this->StructurePermissibleValuesCustomControl, array('StructurePermissibleValuesCustomControl.flag_active' => '1'));
+		$tmp_results = array();
+		foreach($this->request->data as $new_control) {
+			$custom_permissible_values_counter = sizeof($new_control['StructurePermissibleValuesCustom']);
+			if(($filter == 'all') || ($filter == 'not_empty' && $custom_permissible_values_counter) || ($filter == 'empty' && !$custom_permissible_values_counter)) {
+				$new_control['Generated']['custom_permissible_values_counter'] = $custom_permissible_values_counter;
+				$tmp_results[($counter_sort_option? $custom_permissible_values_counter : '0')][] = $new_control;
+			}			
+		}	
+		if($counter_sort_option == 'asc') {
+			ksort($tmp_results);
+		} else if($counter_sort_option == 'desc') {
+			krsort($tmp_results);
+		}	
+		$this->request->data = array();
+		foreach($tmp_results as $list_of_controls) {
+			foreach($list_of_controls as $new_control) $this->request->data[] = $new_control;
+		}		
 		$this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
 	}
 	
@@ -132,7 +169,7 @@ class DropdownsController extends AdministrateAppController {
 						 $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 					}
 				}
-				$this->atimFlash('your data has been updated', '/Administrate/Dropdowns/view/'.$control_id);
+				$this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/'.$control_id);
 			
 			} else {
 				$this->StructurePermissibleValuesCustomControl->validationErrors = array();
@@ -200,7 +237,7 @@ class DropdownsController extends AdministrateAppController {
 				if(!$this->StructurePermissibleValuesCustom->save($this->request->data)){
 					$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE ); 
 				}
-				$this->atimFlash('your data has been updated', '/Administrate/Dropdowns/view/'.$control_id);
+				$this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/'.$control_id);
 			}
 		}
 	}
@@ -252,7 +289,7 @@ class DropdownsController extends AdministrateAppController {
 				$this->StructurePermissibleValuesCustom->save($data_unit);
 			}
 			$this->StructurePermissibleValuesCustom->getDataSource()->commit();
-			$this->atimFlash('your data has been updated', '/Administrate/Dropdowns/view/'.$control_id);
+			$this->atimFlash(__('your data has been updated'), '/Administrate/Dropdowns/view/'.$control_id);
 		}
 	}
 }

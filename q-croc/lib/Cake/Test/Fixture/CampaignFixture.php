@@ -9,6 +9,7 @@
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
@@ -24,13 +25,6 @@
  * @package       Cake.Test.Fixture
  */
 class CampaignFixture extends CakeTestFixture {
-
-/**
- * name property
- *
- * @var string 'Campaign'
- */
-	public $name = 'Campaign';
 
 /**
  * fields property

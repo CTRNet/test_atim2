@@ -8,4 +8,6 @@ class BrowsingIndex extends DatamartAppModel {
 			'foreignKey'	=>	'root_node_id'
 		)
 	);
+	
+	var $tmp_browsing_limit = 5;
 }

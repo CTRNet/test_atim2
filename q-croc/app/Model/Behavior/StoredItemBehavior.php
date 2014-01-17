@@ -7,7 +7,7 @@ class StoredItemBehavior extends ModelBehavior{
 	
 	private $previous_storage_master_id = null;
 	
-	public function beforeSave(Model $model){
+	public function beforeSave(Model $model, $options = Array()){
 		if($model->id){
 			$prev_data = $model->find('first', array('conditions' => array($model->name.'.'.$model->primaryKey => $model->id)));
 			$this->previous_storage_master_id = $model->name == 'StorageMaster' ? $prev_data['StorageMaster']['parent_id'] : $prev_data[$model->name]['storage_master_id'];
@@ -15,7 +15,7 @@ class StoredItemBehavior extends ModelBehavior{
 		return true;
 	}
 	
-	public function afterSave(Model $model, $created){
+	public function afterSave(Model $model, $created, $options = Array()){
 		$view_storage_master_model = AppModel::getInstance('StorageLayout', 'ViewStorageMaster');
 		$use_key = $model->name == 'StorageMaster' ? 'parent_id' : 'storage_master_id';
 		$new_storage_id = isset($model->data[$model->name][$use_key]) ? $model->data[$model->name][$use_key] : null;

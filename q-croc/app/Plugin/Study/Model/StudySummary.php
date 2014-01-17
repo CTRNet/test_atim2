@@ -36,10 +36,17 @@ class StudySummary extends StudyAppModel
 		foreach($this->find('all', array('order' => 'StudySummary.title ASC')) as $new_study) {
 			$result[$new_study['StudySummary']['id']] = $new_study['StudySummary']['title'];
 		}
+		asort($result);
 		
 		return $result;
 	}
-
+	
+	function getStudyPermissibleValuesForView() {
+		$result = $this->getStudyPermissibleValues();
+		$result['-1'] = __('not applicable');			
+		return $result;
+	}
+	
 	function allowDeletion($study_summary_id) {	
 		$ctrl_model = AppModel::getInstance("Order", "Order", true);
 		$ctrl_value = $ctrl_model->find('count', array('conditions' => array('Order.default_study_summary_id' => $study_summary_id), 'recursive' => '-1'));

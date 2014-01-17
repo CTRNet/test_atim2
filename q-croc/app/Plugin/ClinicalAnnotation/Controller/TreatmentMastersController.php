@@ -5,8 +5,9 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	var $uses = array(
 		'ClinicalAnnotation.Participant',
 		'ClinicalAnnotation.TreatmentMaster', 
-		'ClinicalAnnotation.TreatmentExtend', 
+		'ClinicalAnnotation.TreatmentExtendMaster', 
 		'ClinicalAnnotation.TreatmentControl', 
+		'ClinicalAnnotation.TreatmentExtendControl', 
 		'ClinicalAnnotation.DiagnosisMaster',
 		'Protocol.ProtocolMaster'
 	);
@@ -47,11 +48,11 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->Structures->set($treatment_master_data['TreatmentControl']['form_alias']);
 		$this->Structures->set('view_diagnosis,diagnosis_event_relation_type', 'diagnosis_structure');
 		$this->set('is_ajax', $this->request->is('ajax'));
-		
-		if($treatment_master_data['TreatmentControl']['extend_tablename']){
-			$this->TreatmentExtend = AppModel::atimInstantiateExtend($this->TreatmentExtend, $treatment_master_data['TreatmentControl']['extend_tablename']);
-			$this->set('tx_extend_data', $this->TreatmentExtend->find('all', array('conditions' => array('TreatmentExtend.treatment_master_id' => $tx_master_id))));
-			$this->Structures->set($treatment_master_data['TreatmentControl']['extend_form_alias'], 'extend_form_alias');
+			
+		if($treatment_master_data['TreatmentControl']['treatment_extend_control_id']){
+			$treatment_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($treatment_master_data['TreatmentControl']['treatment_extend_control_id']);
+			$this->set('tx_extend_data', $this->TreatmentExtendMaster->find('all', array('conditions' => array('TreatmentExtendMaster.treatment_master_id' => $tx_master_id, 'TreatmentExtendMaster.treatment_extend_control_id' => $treatment_master_data['TreatmentControl']['treatment_extend_control_id']))));
+			$this->Structures->set($treatment_extend_control_data['TreatmentExtendControl']['detail_form_alias'], 'extend_form_alias');
 			if(!empty($treatment_master_data['TreatmentControl']['extended_data_import_process'])) {
 				$this->set('extended_data_import_process', $treatment_master_data['TreatmentControl']['extended_data_import_process']);
 			}
@@ -118,7 +119,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 				}
 			}
 		}
@@ -155,7 +156,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/listall/%%Participant.id%%'));
 		
 		// Set trt header
-		$this->set('tx_header', __($tx_control_data['TreatmentControl']['tx_method']) . ' - ' . __($tx_control_data['TreatmentControl']['disease_site']));
+		$this->set('tx_header', __($tx_control_data['TreatmentControl']['tx_method']) . (empty($tx_control_data['TreatmentControl']['disease_site'])? '' : ' - ' . __($tx_control_data['TreatmentControl']['disease_site'])));
 		
 		// set DIAGANOSES radio list form
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
@@ -190,7 +191,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved','/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
 				}
 			}
 		 }else{
@@ -217,12 +218,12 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->TreatmentMaster->atimDelete( $tx_master_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id);
 		}
 	}
 }

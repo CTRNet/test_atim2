@@ -65,7 +65,7 @@ class AdminUsersController extends AdministrateAppController {
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
+						$this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
 				//reset password display
@@ -78,9 +78,6 @@ class AdminUsersController extends AdministrateAppController {
 	}
 	
 	function edit($group_id, $user_id){
-		//TODO
-		$this->atimFlash( 'this function is temporarily unusable', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
-		
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id, 'User.id'=>$user_id) );
 		$user_data = $this->User->getOrRedirect($user_id);
 	
@@ -124,7 +121,7 @@ class AdminUsersController extends AdministrateAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
+					$this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
 					return;
 				}
 			}
@@ -154,11 +151,12 @@ class AdminUsersController extends AdministrateAppController {
 			require($hook_link);
 		}
 
-		if ($arr_allow_deletion['allow_deletion']) {
+		if ($arr_allow_deletion['allow_deletion']){
+			$this->User->id = $user_id;
 			$this->User->atimDelete($user_id);
 			$this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/".$group_id);
 		} else {
-			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
+			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.back()');
 		}
 	}
 	
@@ -190,7 +188,7 @@ class AdminUsersController extends AdministrateAppController {
 			$this->User->addWritableField('group_id');
 			$this->User->save(array('User' => array('group_id' => $this->request->data['Group']['id'])), false);
 			$this->SystemVar->setVar('permission_timestamp', time());
-			$this->atimFlash('your data has been saved', '/Administrate/AdminUsers/detail/'.$this->request->data['Group']['id'].'/'.$user_id.'/');
+			$this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/'.$this->request->data['Group']['id'].'/'.$user_id.'/');
 		}else{
 			$this->request->data = $user;
 		}

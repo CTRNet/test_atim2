@@ -34,8 +34,9 @@ class StructurePermissibleValuesCustom extends AppModel {
 		}
 		$conditions = array('StructurePermissibleValuesCustomControl.name' => $control_name);
 		$data = self::$instance->find('all', array('conditions' => $conditions, 'order' => array('StructurePermissibleValuesCustom.display_order', 'StructurePermissibleValuesCustom.'.$lang)));
+		$result = array("defined" => array(), "previously_defined" => array());
 		if(empty($data)){ 
-			return array(); 
+			return $result; 
 		}
 		
 		$result = array("defined" => array(), "previously_defined" => array());
@@ -50,9 +51,30 @@ class StructurePermissibleValuesCustom extends AppModel {
 		}
 		if($data[0]['StructurePermissibleValuesCustom']['display_order'] == 0){
 			//sort alphabetically
-			asort($result['defined']);
-			asort($result['previously_defined']);
+			natcasesort($result['defined']);
+			natcasesort($result['previously_defined']);
 		}
+		
 		return $result;
 	}
+	
+	function getTranslatedCustomDropdownValue($control_name, $value){
+		$lang = self::getLanguage();
+	
+		if(self::$instance == null){
+			self::$instance = new StructurePermissibleValuesCustom();
+			self::$instance->cacheQueries = true;
+		}
+		$conditions = array(
+			'StructurePermissibleValuesCustomControl.name' => $control_name,
+			'StructurePermissibleValuesCustom.value' => $value
+		);
+		$data = self::$instance->find('first', array('conditions' => $conditions));
+		if(empty($data)){
+			return false;
+		}
+		return (isset($data['StructurePermissibleValuesCustom'][$lang]) && (!empty($data['StructurePermissibleValuesCustom'][$lang])))? $data['StructurePermissibleValuesCustom'][$lang]: $value;
+	}
+	
+	
 }

@@ -1,7 +1,37 @@
 <?php
-App::uses('Controller', 'Controller');//required for console
+/**
+ * Application level Controller
+ *
+ * This file is application-wide controller file. You can put all
+ * application-wide controller-related methods here.
+ *
+ * PHP 5
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       app.Controller
+ * @since         CakePHP(tm) v 0.2.9
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
+App::uses('Controller', 'Controller');
+
+/**
+ * Application Controller
+ *
+ * Add your application-wide methods in the class below, your controllers
+ * will inherit them.
+ *
+ * @package		app.Controller
+ * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
+ */
 class AppController extends Controller {
-	
 	private static $missing_translations = array();
 	private static $me = NULL;
 	private static $acl = null;
@@ -29,9 +59,9 @@ class AppController extends Controller {
 		if($this->Session->read('permission_timestamp') < $this->SystemVar->getVar('permission_timestamp')){
 			$this->resetPermissions();
 		}
-		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
+			//echo(Configure::read('Config.language'));
 			$this->Session->write('Config.language', Configure::read('Config.language'));
 		}
 		
@@ -53,7 +83,9 @@ class AppController extends Controller {
 		$log_activity_model->save($log_activity_data);
 		
 		// menu grabbed for HEADER
-		if(!$this->request->is('ajax')){
+		if($this->request->is('ajax')){
+			Configure::write ('debug', 0);
+		}else{
 			$atim_sub_menu_for_header = array();
 			$menu_model = AppModel::getInstance("", "Menu", true);
 			
@@ -97,7 +129,7 @@ class AppController extends Controller {
 			$data = $this->viewVars[$this->passedArgs['batchsetVar']];
 			if(empty($data)){
 				unset($this->passedArgs['batchsetVar']);
-				$this->flash('there is no data to add to a temporary batchset', 'javascript:history.back()');
+				$this->flash(__('there is no data to add to a temporary batchset'), 'javascript:history.back()');
 				return false;
 			}
 			if(isset($this->passedArgs['batchsetCtrl'])){
@@ -142,7 +174,7 @@ class AppController extends Controller {
 		if(Configure::read('debug') > 0){
 			$this->flash($message, $url);
 		}else{
-			$_SESSION['ctrapp_core']['confirm_msg'] = __($message);
+			$_SESSION['ctrapp_core']['confirm_msg'] = $message;
 			$this->redirect($url);
 		}
 	}
@@ -155,9 +187,7 @@ class AppController extends Controller {
 		Configure::write('Config.language', 'eng');
 		Configure::write('Acl.classname', 'AtimAcl');
 		Configure::write('Acl.database', 'default');
-	
-		define('CONFIDENTIAL_MARKER', __('confidential data'));
-	
+		
 		// ATiM2 configuration variables from Datatable
 	
 		define('VALID_INTEGER', '/^[-+]?[\\s]?[0-9]+[\\s]?$/');
@@ -205,33 +235,11 @@ class AppController extends Controller {
 		$logged_in_user		= CakeSession::read('Auth.User.id');
 		$logged_in_group	= CakeSession::read('Auth.User.group_id');
 	
-		// get CONFIG for logged in user
-		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-					"user_id" => $logged_in_user
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
-		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-					"Config.group_id" => $logged_in_group,
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-	
+        $config_results = $config_data_model->getConfig(CakeSession::read('Auth.User.group_id'),
+                                                        CakeSession::read('Auth.User.id'));
 		// parse result, set configs/defines
 		if ( $config_results ) {
+			
 			Configure::write('Config.language', $config_results['Config']['config_language']);
 			foreach ( $config_results['Config'] as $config_key => $config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
@@ -256,6 +264,9 @@ class AppController extends Controller {
 				}
 			}
 		}
+		
+		define('CONFIDENTIAL_MARKER', __('confidential data')); // Moved here to allow translation
+		
 		if(Configure::read('debug') == 0){
 			set_error_handler("myErrorHandler");
 		}
@@ -646,6 +657,25 @@ class AppController extends Controller {
 	}
 	
 	/**
+	 * Handles automatic pagination of model records Adding 
+	 * the necessary bind on the model to fetch detail level, if there is a unique ctrl id
+	 * @param Model|string $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
+	 * @param string|array $scope Conditions to use while paginating
+	 * @param array $whitelist List of allowed options for paging
+	 * @return array Model query results
+	 */
+	public function paginate($object = null, $scope = array(), $whitelist = array()) {
+		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
+		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
+			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
+			if($is_master_model && isset($scope[$model_name.'.'.$control_foreign]) && preg_match('/^[0-9]+$/', $scope[$model_name.'.'.$control_foreign])) {
+				self::buildDetailBinding($object, array($model_name.'.'.$control_foreign => $scope[$model_name.'.'.$control_foreign]), $empty_structure_alias);
+			}
+		}
+		return parent::paginate($object, $scope, $whitelist);
+	}
+		
+	/**
 	 * Finds and paginate search results. Stores search in cache.
 	 * Handles detail level when there is a unique ctrl_id.
 	 * Defines/updates the result structure.
@@ -881,6 +911,7 @@ class AppController extends Controller {
 	 * -i18n version field
 	 * -language files
 	 * -cache
+	 * -Delete all browserIndex > Limit
 	 * -databrowser lft rght
 	 */
 	function newVersionSetup(){
@@ -896,7 +927,7 @@ class AppController extends Controller {
 		
 		//rebuild language files
 		$filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
-		$filef = fopen("../../app/Locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
+		$filef = fopen("../../app/Locale/fra/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
 		$i18n = $i18n_model->find('all');
 		foreach ( $i18n as &$i18n_line){
 			//Takes information returned by query and creates variable for each field
@@ -923,20 +954,48 @@ class AppController extends Controller {
 			fwrite($filee, $english);
 			fwrite($filef, $french);
 		}
+		fclose($filee);
+		fclose($filef);
+		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
-		//rebuilts lft rght in datamart_browsing_result if needed. Since v2.5.0.
+		//rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmp_browsing_limit. Since v2.5.0.
+		$browsing_index_model = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+		$root_node_ids_to_keep = array();
+		$user_root_node_counter = 0;
+		$last_user_id = null;
+		$force_rebuild_left_rght = false;
+		$tmp_browsing = $browsing_index_model->find('all', array('conditions' => array('BrowsingIndex.temporary' => true), 'order' => array('BrowsingResult.user_id, BrowsingResult.created DESC')));
+		foreach($tmp_browsing as $new_browsing_index) {
+			if($last_user_id != $new_browsing_index['BrowsingResult']['user_id'] || $user_root_node_counter <  $browsing_index_model->tmp_browsing_limit) {
+				if($last_user_id != $new_browsing_index['BrowsingResult']['user_id']) $user_root_node_counter = 0;
+				$last_user_id = $new_browsing_index['BrowsingResult']['user_id'];
+				$user_root_node_counter++;
+				$root_node_ids_to_keep[$new_browsing_index['BrowsingIndex']['root_node_id']] = $new_browsing_index['BrowsingIndex']['root_node_id'];
+			} else {
+				//Some browsing index will be deleted
+				$force_rebuild_left_rght = true;
+			}
+		}
+		$result_ids_to_keep = $root_node_ids_to_keep;
+		$new_parent_ids = $root_node_ids_to_keep;
+		$loop_counter = 0;
+		while(!empty($new_parent_ids)) {
+			//Just in case
+			$loop_counter++;
+			if($loop_counter > 100) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$new_parent_ids = $browsing_result_model->find('list', array('conditions' => array("BrowsingResult.parent_id" => $new_parent_ids), 'fields' => array('BrowsingResult.id')));
+			$result_ids_to_keep = array_merge($result_ids_to_keep, $new_parent_ids);
+		}
+		if(!empty($result_ids_to_keep)) {
+			$browsing_index_model->deleteAll("BrowsingIndex.root_node_id NOT IN (".implode(',',$root_node_ids_to_keep).")");
+			$browsing_result_model->deleteAll("BrowsingResult.id NOT IN (".implode(',',$result_ids_to_keep).")");
+		}
 		$result = $browsing_result_model->find('first', array('conditions' => array('NOT' => array('BrowsingResult.parent_id' => NULL), 'BrowsingResult.lft' => NULL)));
-		if($result){
+		if($result || $force_rebuild_left_rght){
 			self::addWarningMsg(__('rebuilt lft rght for datamart_browsing_results'));
 			$browsing_result_model->recover('parent');
 		}
-			
-		///Close file
-		fclose($filee);
-		fclose($filef);
-			
-		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
 		//rebuild views
 		$view_models = array(
@@ -983,6 +1042,27 @@ class AppController extends Controller {
 		Cache::clear(false, '_cake_model_');
 		AppController::addWarningMsg(__('cache has been cleared'));
 			
+		// Clean up parent to sample control + aliquot control
+		$studied_sample_control_id = array();
+		$active_sample_control_ids = array();
+		$this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
+		
+		$conditions = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => NULL,
+				'ParentToDerivativeSampleControl.flag_active' => true);
+		while($active_parent_sample_types = $this->ParentToDerivativeSampleControl->find('all', array('conditions' => $conditions))) {
+			foreach($active_parent_sample_types as $new_parent_sample_type) {
+				$active_sample_control_ids[] = $new_parent_sample_type['DerivativeControl']['id'];
+				$studied_sample_control_id[] = $new_parent_sample_type['DerivativeControl']['id'];
+			}
+			$conditions = array(
+				'ParentToDerivativeSampleControl.parent_sample_control_id' => $active_sample_control_ids,
+				'ParentToDerivativeSampleControl.flag_active' => true,
+				'not' => array('ParentToDerivativeSampleControl.derivative_sample_control_id' => $studied_sample_control_id));
+		}
+		$this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		$this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 		$this->Version->check_writable_fields = false;

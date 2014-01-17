@@ -80,7 +80,7 @@ class MiscIdentifiersController extends AdministrateAppController {
 					require($hook_link);
 				}
 				
-				$this->atimFlash( 'your data has been saved', '/Administrate/MiscIdentifiers/manage/'.$mi_ctrl_id );
+				$this->atimFlash(__('your data has been saved'), '/Administrate/MiscIdentifiers/manage/'.$mi_ctrl_id );
 			}
 		}
 		
