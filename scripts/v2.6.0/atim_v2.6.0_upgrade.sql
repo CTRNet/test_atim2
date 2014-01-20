@@ -1,4 +1,4 @@
-INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+﻿INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES('2.6.0', NOW(),'to define','to define');
 
 REPLACE INTO i18n (id,en,fr) VALUES
@@ -1925,5 +1925,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('cores','Cores','Cores'), ('there are too many main storages for display', 'There are too many ''main'' storages for display', 'Il existe trop d''entreposages principaux pour l''affichage');
 UPDATE structure_fields SET model = 'Block', field = 'short_label' WHERE field = 'tma_block_identification';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- add missing translation
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('this is not a time','Data entry is not a time','La donnée saisie n''est pas un temps');
 
 
