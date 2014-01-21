@@ -174,8 +174,8 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(empty($sample_data)) { 
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
-		$sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
-		$sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
+		if(array_key_exists('coll_to_rec_spent_time_msg', $sample_data['ViewSample'])) $sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
+		if(array_key_exists('coll_to_creation_spent_time_msg', $sample_data['ViewSample'])) $sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
 		 
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {

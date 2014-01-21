@@ -1,13 +1,6 @@
 <?php
-
-	if(!empty($collection_data) && !$need_to_save) {
-		if(isset($collection_data['TreatmentMaster']['start_date']) && !empty($collection_data['TreatmentMaster']['start_date'])) {
-			$this->set('default_qcroc_collection_date', $collection_data['TreatmentMaster']['start_date']);
-			if(in_array($collection_data['TreatmentMaster']['start_date_accuracy'], array('m','d'))) {
-				AppController::addWarningMsg(__('the treatment date used as default collection date was rough'));
-			}
-		}
+	
+	if(!$need_to_save) {
 		$this->set('default_qcroc_protocol', 'Q-CROC-01');
-	} else if(empty($collection_data)) {
-		$this->set('default_qcroc_protocol', 'Q-CROC-01');
+		if(!empty($copy_source) && !empty($this->request->data)) $this->request->data['FunctionManagement']['col_copy_binding_opt'] = 2;
 	}
