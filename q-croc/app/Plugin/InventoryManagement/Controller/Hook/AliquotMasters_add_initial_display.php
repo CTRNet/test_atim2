@@ -121,7 +121,7 @@
 		
 	} else if(in_array($this->request->data[0]['parent']['ViewSample']['sample_type'], array('blood','pbmc','plasma')) && $aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
 		
-		// ************ TISSUE TUBE ***************************
+		// ************ BLOOD DERIVATIVE TUBE ***************************
 		
 		foreach($this->request->data as $new_data_set){
 			$tmp_default_aliquot_data = array();

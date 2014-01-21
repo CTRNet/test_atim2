@@ -19,7 +19,6 @@ class AliquotMasterCustom extends AliquotMaster {
 	}
 	
 	function updateTimeRemainedInRNAlater($collection_id, $sample_master_id = null, $aliquot_master_id = null) {
-pr("updateTimeRemainedInRNAlater($collection_id, $sample_master_id, $aliquot_master_id");	
 		$this->addWritableField(array('time_remained_in_rna_later_days'));	
 		
 		//Get All Tissue Tubes To Review
@@ -39,7 +38,7 @@ pr("updateTimeRemainedInRNAlater($collection_id, $sample_master_id, $aliquot_mas
 				'type' => 'INNER',
 				'conditions' => array('SpecimenDetail.sample_master_id = AliquotMaster.sample_master_id')));
 		$tissue_tubes = $this->find('all', array('conditions' => $conditions, 'joins' => $joins, 'recursive' => '0'));
-				
+		
 		$aliquots_to_update = array();
 		$warnings = array();
 		foreach($tissue_tubes as $new_tissue_tube) {
@@ -103,9 +102,7 @@ pr("updateTimeRemainedInRNAlater($collection_id, $sample_master_id, $aliquot_mas
 					}
 				}
 			}
-			
-pr("*** $tissue_tube_qcroc_barcode *** [$qcroc_collection_date($qcroc_collection_date_accuracy)|$qcroc_collection_time=>$processing_date($processing_date_accuracy) ccl: $old_time_remained_in_rna_later_days => $new_time_remained_in_rna_later_days ");			
-			
+						
 			if($old_time_remained_in_rna_later_days != $new_time_remained_in_rna_later_days) {
 				$aliquot_data_to_update = array(
 					'AliquotMaster' => array('id' => $tissue_tube_aliquot_master_id),
@@ -117,7 +114,8 @@ pr("*** $tissue_tube_qcroc_barcode *** [$qcroc_collection_date($qcroc_collection
 		}
 		foreach($warnings as $new_msg => $tubes) {
 			AppController::addWarningMsg($new_msg.' '.(str_replace('%s',implode(', ',$tubes),__('see tissue tube(s) # %s'))));
-		}
+		}	
+		
 		return;			
 	}
 }

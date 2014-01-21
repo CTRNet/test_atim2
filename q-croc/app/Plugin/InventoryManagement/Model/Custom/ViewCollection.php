@@ -97,7 +97,7 @@ Collection.qcroc_coordinator AS qcroc_coordinator
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 	
 		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff : JGH', 'Staff : Sites'))));
+		$all_values = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => array('Staff : JGH', 'Staff : Sites', 'Staff : HDQ'))));
 		foreach($all_values as $new_value) $result[$new_value['StructurePermissibleValuesCustom']['value']] = strlen($new_value['StructurePermissibleValuesCustom'][$lang])? $new_value['StructurePermissibleValuesCustom'][$lang] : $new_value['StructurePermissibleValuesCustom']['value'];
 	
 		asort($result);
