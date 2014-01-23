@@ -30,7 +30,7 @@ class SopMasterCustom extends SopMaster
 		$sop_versions = $this->getSopVersions();		
 		foreach($this->find('all', array('conditions' => $conditions, 'order' => 'SopMaster.activated_date DESC')) as $sop) {
 			$version = array_key_exists($sop['SopMaster']['version'], $sop_versions)? $sop_versions[$sop['SopMaster']['version']] : $sop['SopMaster']['version'];
-			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.$sop['SopMaster']['activated_date']." | V#".$version.']';
+			$result[$sop['SopMaster']['id']] = $sop['SopMaster']['code'].' ['.(empty($sop['SopMaster']['activated_date'])? '?' : $sop['SopMaster']['activated_date'])." | V#".$version.']';
 		}
 		return $result;
 	}	

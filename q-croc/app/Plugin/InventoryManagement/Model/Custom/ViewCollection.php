@@ -23,40 +23,40 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 
-Collection.qcroc_protocol AS qcroc_protocol,
-Collection.qcroc_banking_nbr AS qcroc_banking_nbr,
-Participant.qcroc_initials AS qcroc_initials,
+MiscIdentifier.misc_identifier_control_id AS qcroc_protocol_id,
+MiscIdentifier.identifier_value AS qcroc_patient_no,
 Collection.qcroc_collection_date AS qcroc_collection_date,
 Collection.qcroc_collection_date_accuracy AS qcroc_collection_date_accuracy,
 
 Collection.qcroc_sop_followed AS qcroc_sop_followed,
 Collection.qcroc_sop_deviations AS qcroc_sop_deviations,
 
-Collection.qcroc_prior_to_chemo AS qcroc_prior_to_chemo,
-Collection.qcroc_prior_to_chemo_specify AS  qcroc_prior_to_chemo_specify,
-Collection.qcroc_cycle AS qcroc_cycle,
-Collection.qcroc_is_baseline AS qcroc_is_baseline,
+-- Blood
+			
+Collection.qcroc_banking_nbr AS qcroc_banking_nbr,
 
+-- Biopsy
+			
 Collection.qcroc_biopsy_type AS qcroc_biopsy_type,
-Collection.qcroc_liver_segment AS qcroc_liver_segment,
-Collection.qcroc_lesion_size_sup_2_cm AS qcroc_lesion_size_sup_2_cm,
-Collection.qcroc_lesion_size_cm AS qcroc_lesion_size_cm,
 Collection.qcroc_radiologist AS qcroc_radiologist,
 Collection.qcroc_coordinator AS qcroc_coordinator
 			
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.id = Collection.misc_identifier_id AND MiscIdentifier.deleted != 1	
 		WHERE Collection.deleted <> 1 %%WHERE%%';	
 		
 	function summary($variables=array()) {
 		$return = false;
 		
 		if(isset($variables['Collection.id'])) {
+			$this->unbindModel(array('belongsTo' => array('Collection','Participant','DiagnosisMaster','ConsentMaster')));
+			$this->bindModel(array('belongsTo' => array('MiscIdentifierControl' => array('className' => 'ClinicalAnnotation.MiscIdentifierControl', 'foreignKey' => 'qcroc_protocol_id'))));
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id'])));
-			
+			$patient_no = $collection_data['ViewCollection']['qcroc_banking_nbr']? $collection_data['MiscIdentifierControl']['misc_identifier_name'].'-'.$collection_data['ViewCollection']['qcroc_patient_no'] : 'n/a';		
 			$return = array(
-				'menu' => array(null, $collection_data['ViewCollection']['participant_identifier'] . ' ' .$collection_data['ViewCollection']['qcroc_collection_date']),
-				'title' => array(null, __('collection') . ' : ' . $collection_data['ViewCollection']['participant_identifier']),
+				'menu' => array(null, $patient_no . ' ' .$collection_data['ViewCollection']['qcroc_collection_date']),
+				'title' => array(null, __('collection') . ' : ' . $patient_no),
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data
 			);

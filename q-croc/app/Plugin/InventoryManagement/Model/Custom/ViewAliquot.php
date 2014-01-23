@@ -16,6 +16,10 @@ class ViewAliquotCustom extends ViewAliquot {
 			Participant.participant_identifier, 
 			
 			Collection.acquisition_label, 
+
+MiscIdentifier.misc_identifier_control_id AS qcroc_protocol_id,
+MiscIdentifier.identifier_value AS qcroc_patient_no,
+Collection.collection_site AS collection_site,
 			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
@@ -72,6 +76,7 @@ AliquotMaster.qcroc_barcode,
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.id = Collection.misc_identifier_id AND MiscIdentifier.deleted != 1
 			WHERE AliquotMaster.deleted != 1 %%WHERE%%';
 	
 	

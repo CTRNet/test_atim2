@@ -6,6 +6,11 @@
 		
 		// ************ TISSUE TUBE ***************************
 		
+		$MiscIdentifierControl = AppModel::getInstance('ClinicalAnnotation', 'MiscIdentifierControl', true);
+		$qcroc_misc_identifier_controls = $MiscIdentifierControl->find('all', array('conditions' => array("MiscIdentifierControl.misc_identifier_name LIKE 'Q-CROC-%'")));
+		$qcroc_protocols = array();
+		foreach($qcroc_misc_identifier_controls as $new_misc_identifier_control) $qcroc_protocols[$new_misc_identifier_control['MiscIdentifierControl']['id']] = $new_misc_identifier_control['MiscIdentifierControl']['misc_identifier_name'];
+			
 		foreach($this->request->data as $new_data_set){
 			$tmp_default_aliquot_data = array();
 		
@@ -17,9 +22,8 @@
 			foreach($tmp_full_tissues_data as $tmp_rec) {
 				$full_tissues_data_from_id[$tmp_rec['SampleMaster']['id']] = $tmp_rec;
 				if($tmp_rec['SampleControl']['sample_type'] = 'tissue') $tissue_counter++;
-			}
-			
-			$label_study = (preg_match("/^Q-CROC-([0-9]+)$/", $new_data_set['parent']['ViewSample']['qcroc_protocol'], $matches))? $matches[1] : '?';
+			}		
+			$label_study = ($new_data_set['parent']['ViewSample']['qcroc_protocol_id'] && preg_match("/^Q-CROC-([0-9]+)$/", $qcroc_protocols[$new_data_set['parent']['ViewSample']['qcroc_protocol_id']], $matches))? $matches[1] : '?';
 			$label_pre_post = '?';
 			switch($new_data_set['parent']['ViewSample']['qcroc_biopsy_type']) {
 				case 'pre':
@@ -30,7 +34,7 @@
 					break;
 				default:
 			}
-			$label_patient_id = empty($new_data_set['parent']['ViewSample']['participant_identifier'])? '?' : $new_data_set['parent']['ViewSample']['participant_identifier'];
+			$label_patient_id = empty($new_data_set['parent']['ViewSample']['qcroc_patient_no'])? '?' : $new_data_set['parent']['ViewSample']['qcroc_patient_no'];
 			$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = $label_study.'-'.$label_pre_post.'-'.$label_patient_id.'-'.(in_array($tissue_counter, array('1','2','3'))? $tissue_counter : '?');
 					
 			$fields_to_duplicate = array();

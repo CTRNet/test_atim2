@@ -275,7 +275,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			if($hook_link){
 				require($hook_link);
 			}
-			
+		
 			//save
 			if(empty($errors) && !empty($qc_data_to_save)){
 				$this->QualityCtrl->addWritableField(array('sample_master_id', 'aliquot_master_id'));
