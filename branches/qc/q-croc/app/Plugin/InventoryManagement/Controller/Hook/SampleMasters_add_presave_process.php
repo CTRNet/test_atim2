@@ -7,3 +7,16 @@
 		$submitted_data_validates = false;		
 	}
 	
+	if($is_specimen) {
+		switch($this->request->data['SampleControl']['sample_type']) {
+			case 'tissue':
+				if(strlen($collection_data['Collection']['qcroc_banking_nbr'])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				break;
+			case 'blood':
+				if(strlen($collection_data['Collection']['qcroc_biopsy_type'])) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				break;
+			default:
+				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	}	
+	

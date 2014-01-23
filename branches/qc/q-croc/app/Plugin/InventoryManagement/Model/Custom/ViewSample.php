@@ -37,10 +37,11 @@ class ViewSampleCustom extends ViewSample {
 --		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 --		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 --		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
-		
-Collection.qcroc_biopsy_type AS qcroc_biopsy_type,
-Collection.qcroc_cycle AS qcroc_cycle,
-Collection.qcroc_protocol AS qcroc_protocol
+
+MiscIdentifier.misc_identifier_control_id AS qcroc_protocol_id,
+MiscIdentifier.identifier_value AS qcroc_patient_no,
+Collection.collection_site AS collection_site,
+Collection.qcroc_biopsy_type AS qcroc_biopsy_type
 	
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -52,6 +53,7 @@ Collection.qcroc_protocol AS qcroc_protocol
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+LEFT JOIN misc_identifiers AS MiscIdentifier ON MiscIdentifier.id = Collection.misc_identifier_id AND MiscIdentifier.deleted != 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
 }

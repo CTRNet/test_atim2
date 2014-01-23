@@ -1,5 +1,9 @@
 <?php
-
+	
+	$qcroc_collection_type = empty($this->request->data['Collection']['qcroc_biopsy_type'])? 'blood' : 'tissue';
+	foreach($controls as $qcroc_key => $qcroc_sample_controls) if($qcroc_sample_controls['SampleControl']['sample_type'] != $qcroc_collection_type) unset($controls[$qcroc_key]);
+	$this->set('specimen_sample_controls_list', $controls);
+	
 	$contain_tissue = false;
 	if(isset($sample_data)) {
 		foreach($sample_data as $tmp) {
