@@ -434,3 +434,13 @@ INSERT IGNORE INTO i18n (id,en) VALUES
 ('you can only create quality control for dna and rna','You can only create quality control for dna and rna'),
 ('quality control score unit and sample type mismatch','quality control score unit and sample type mismatch'),
 ('quality control type and sample type mismatch','Quality control type and sample type mismatch');
+
+-- RNA DNA concentration
+
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='concentration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1', `flag_editgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='concentration_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='concentration_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='volume & concentration' 
+WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol_and_conc') 
+AND structure_field_id=(SELECT id FROM structure_fields WHERE `tablename`='aliquot_masters' AND `field`='initial_volume');
+INSERT INTO i18n (id,en) VALUES ('volume & concentration','Volume & Concentration');
+
