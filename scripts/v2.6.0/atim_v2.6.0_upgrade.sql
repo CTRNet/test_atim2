@@ -1954,7 +1954,14 @@ DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM st
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='custom_permissible_values_counter' AND `language_label`='number of values' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 INSERT INTO i18n (id,en,fr) VALUES ('number of values used as input', 'Number of values used as input', 'Nombre de valeurs utilisées comme entrée');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+- Issue #2943: Login Error Management : New rules 
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('your connection has been temporarily disabled','Your connection has been temporarily disabled','votre connexion a été temporairement désactivée'),
+('login failed. that username has been disabled', 'Login failed. That username has been disabled.','L''ouverture de session a échoué. L''utilisateur a été désactivé');
 
 
 

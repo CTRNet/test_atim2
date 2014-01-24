@@ -386,4 +386,15 @@ Cache::config('default', array('engine' => 'File'));
 Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 600);
 
+/**
+ * Maximum number of login attempts (max_login_attempts_from_IP) before an IP address is locked.
+ * Time in minute (time_mn_IP_disabled) before an IP adress can retest login.
+ */
+Configure::write('max_login_attempts_from_IP', 5);
+Configure::write('time_mn_IP_disabled', 10);
+/**
+ * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
+ */
+Configure::write('max_user_login_attempts', 5);
+
 unset($debug);
