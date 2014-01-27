@@ -1983,13 +1983,7 @@ VALUES
 ('passwords should contains at least one lowercase letter', 'Passwords should contains at least one lowercase letter', 'Les mots de passe doivent contenir au moins une lettre minuscule'),
 ('passwords should contains at least one number', 'Passwords should contains at least one number', 'Les mots de passe doivent contenir au moins un chiffre'),
 ('passwords should contains at least one special character', 'Passwords should contains at least one special character', 'Les mots de passe doivent contenir au moins un caractère spécial');
-
-
-
-
-
-
-
-
-
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('password should be different than the previous one','Password should be different than the previous one','Le mot de passe doit être différent du précédent');
 
