@@ -44,7 +44,7 @@ class AdminUsersController extends AdministrateAppController {
 				
 				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->request->data['User']['password'], 'confirm_password' => $this->request->data['Generated']['field1']));
-				$this->User->validatePassword($password_data);
+				$this->User->validatePassword($password_data, $this->request->data['User']['username']);
 				
 				$this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
 				$submitted_data_validates = empty($this->User->validationErrors);
