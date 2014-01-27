@@ -1963,6 +1963,17 @@ VALUES
 ('your connection has been temporarily disabled','Your connection has been temporarily disabled','votre connexion a été temporairement désactivée'),
 ('login failed. that username has been disabled', 'Login failed. That username has been disabled.','L''ouverture de session a échoué. L''utilisateur a été désactivé');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+- Issue #2943: Login Error Management : New rules 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('Login failed. Invalid username or password or disabled user.', 'Login failed. Invalid username or password or disabled user.', 'L''ouverture de session a échoué. Nom d''utilisateur ou mot de passe invalide ou ustilisateur désactivé.');
+
+
+
+
 
 
 

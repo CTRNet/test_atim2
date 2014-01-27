@@ -83,10 +83,10 @@ class UsersController extends AppController {
 			);
 			$this->UserLoginAttempt->save($login_data);
 			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
+			$login_failed_message = 'Login failed. Invalid username or password or disabled user.';
 			if(!empty($data) && !$data['User']['flag_active'] && $data['User']['username'] == $this->request->data['User']['username']){
-				$this->Auth->flash(__("that username is disabled"));
+				//$login_failed_message = "that username is disabled";
 			}else{
-				$login_failed_message = 'Login failed. Invalid username or password.';
 				if(!empty($data) && $data['User']['username'] == $this->request->data['User']['username']){
 					$last_login_attempts_for_username = $this->UserLoginAttempt->find('all', array('conditions' => array('UserLoginAttempt.username' => $this->request->data['User']['username']), 'order' => array('UserLoginAttempt.id DESC'), 'limit' => Configure::read('max_user_login_attempts')));
 					$disable_user = true;
@@ -97,11 +97,11 @@ class UsersController extends AppController {
 						if(!$this->User->save(array('User' => array('id' => $data['User']['id'], 'flag_active' => 0)), false)) {
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 						}
-						$login_failed_message = 'login failed. that username has been disabled';
+						//$login_failed_message = 'login failed. that username has been disabled';
 					}
-				}				
-				$this->Auth->flash(__($login_failed_message));
+				}
 			}
+			$this->Auth->flash(__($login_failed_message));
 		}
 		
 		
