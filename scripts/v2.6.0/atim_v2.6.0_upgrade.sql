@@ -1971,6 +1971,21 @@ INSERT INTO i18n (id,en,fr)
 VALUES 
 ('Login failed. Invalid username or password or disabled user.', 'Login failed. Invalid username or password or disabled user.', 'L''ouverture de session a échoué. Nom d''utilisateur ou mot de passe invalide ou ustilisateur désactivé.');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+- Issue #2944: Password creation: new rules 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('password should be different than username','Password should be different than username','Le mot de passe doit être différent du nom d''utilisateur'),
+('passwords minimal length %s', 'Passwords must have a minimal length of %s characters', 'Les mots de passe doivent avoir une longueur minimale de %s caractères'),
+('passwords should contains at least one uppercase letter', 'Passwords should contains at least one uppercase letter', 'Les mots de passe doivent contenir au moins une lettre majuscule'),
+('passwords should contains at least one lowercase letter', 'Passwords should contains at least one lowercase letter', 'Les mots de passe doivent contenir au moins une lettre minuscule'),
+('passwords should contains at least one number', 'Passwords should contains at least one number', 'Les mots de passe doivent contenir au moins un chiffre'),
+('passwords should contains at least one special character', 'Passwords should contains at least one special character', 'Les mots de passe doivent contenir au moins un caractère spécial');
+
+
+
 
 
 
