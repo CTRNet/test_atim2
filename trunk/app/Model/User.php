@@ -5,7 +5,7 @@ class User extends AppModel {
 	
 	var $actsAs = array('Acl' => array('requester'));
 
-	const PASSWORD_MINIMAL_LENGTH = 6;
+	const PASSWORD_MINIMAL_LENGTH = 8;
 	
 	function parentNode() {
 		if(isset($this->data['User']['group_id'])){
@@ -54,7 +54,7 @@ class User extends AppModel {
 	
 	function savePassword(array $data, $error_flash_link, $success_flash_link){
 		assert($this->id);
-		$this->validatePassword($data, $error_flash_link);
+		$this->validatePassword($data);
 		
 		if($this->validationErrors){
 			AppController::getInstance()->flash(__($this->validationErrors['password'][0]), $error_flash_link);
@@ -80,17 +80,26 @@ class User extends AppModel {
 	 * Will throw a flash message if the password is not valid
 	 * @param array $data
 	 */
-	function validatePassword(array $data){
+	function validatePassword(array $data, $created_user_name = null){
 		if ( !isset($data['User']['new_password'], $data['User']['confirm_password']) ) {
 			//do nothing
 			$this->validationErrors['password'][] = 'internal error';
-		}else{
-			if ($data['User']['new_password'] !== $data['User']['confirm_password']){
+		}else if ($data['User']['new_password'] !== $data['User']['confirm_password']){
 				$this->validationErrors['password'][] = 'passwords do not match'; 
+		} else {
+			if($created_user_name) {
+				if($created_user_name == $data['User']['new_password']) $this->validationErrors['password'][] = 'password should be different than username'; 
+			} else if($this->id) {
+				if($this->find('count', array('conditions' =>array('User.id' => $this->id, 'User.username ' => $data['User']['new_password']))))$this->validationErrors['password'][] = 'password should be different than username'; 
+				if($this->find('count', array('conditions' =>array('User.id' => $this->id, 'User.password ' => Security::hash($data['User']['new_password'], null, true)))))$this->validationErrors['password'][] = 'password should be different than the previous one';
+			} else {
+				$this->validationErrors['password'][] = 'internal error';
 			}
-			if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH){
-				$this->validationErrors['password'][] = 'passwords minimal length';
-			}
+			if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH) $this->validationErrors['password'][] = str_replace('%s', self::PASSWORD_MINIMAL_LENGTH, __('passwords minimal length %s'));
+			if(!preg_match('/[A-Z]+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one uppercase letter';
+			if(!preg_match('/[a-z]+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one lowercase letter';
+			if(!preg_match('/[1-9]+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one number';
+			if(!preg_match('/\W+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one special character';
 		}
 	}
 
