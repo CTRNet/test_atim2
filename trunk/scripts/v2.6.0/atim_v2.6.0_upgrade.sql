@@ -1955,7 +1955,7 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Adminis
 INSERT INTO i18n (id,en,fr) VALUES ('number of values used as input', 'Number of values used as input', 'Nombre de valeurs utilisées comme entrée');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
-- Issue #2943: Login Error Management : New rules 
+-- Issue #2943: Login Error Management : New rules 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr) 
@@ -1964,26 +1964,51 @@ VALUES
 ('login failed. that username has been disabled', 'Login failed. That username has been disabled.','L''ouverture de session a échoué. L''utilisateur a été désactivé');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
-- Issue #2943: Login Error Management : New rules 
+-- Issue #2943: Login Error Management : New rules 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO i18n (id,en,fr) 
 VALUES 
-('Login failed. Invalid username or password or disabled user.', 'Login failed. Invalid username or password or disabled user.', 'L''ouverture de session a échoué. Nom d''utilisateur ou mot de passe invalide ou ustilisateur désactivé.');
+('Login failed. Invalid username or password or disabled user.', 'Login failed. Invalid username/password or disabled user.', 'L''ouverture de session a échoué. Nom d''utilisateur/mot de passe invalide ou ustilisateur désactivé.');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
-- Issue #2944: Password creation: new rules 
+-- Issue #2944: Password creation: new rules 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
 ('password should be different than username','Password should be different than username','Le mot de passe doit être différent du nom d''utilisateur'),
-('passwords minimal length %s', 'Passwords must have a minimal length of %s characters', 'Les mots de passe doivent avoir une longueur minimale de %s caractères'),
-('passwords should contains at least one uppercase letter', 'Passwords should contains at least one uppercase letter', 'Les mots de passe doivent contenir au moins une lettre majuscule'),
-('passwords should contains at least one lowercase letter', 'Passwords should contains at least one lowercase letter', 'Les mots de passe doivent contenir au moins une lettre minuscule'),
-('passwords should contains at least one number', 'Passwords should contains at least one number', 'Les mots de passe doivent contenir au moins un chiffre'),
-('passwords should contains at least one special character', 'Passwords should contains at least one special character', 'Les mots de passe doivent contenir au moins un caractère spécial');
+('password should be different than the previous one','Password should be different than the previous one','Le mot de passe doit être différent du précédent');
+DELETE from structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field in ('password','new_password'));
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='User' AND `field`='password'), 'notEmpty', 'password is required'),
+((SELECT id FROM structure_fields WHERE `model`='User' AND `field`='new_password'), 'notEmpty', 'password is required');
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
-('password should be different than the previous one','Password should be different than the previous one','Le mot de passe doit être différent du précédent');
+('password_format_error_msg_3',
+'Passwords must have a minimal length of 8 characters and contains both uppercase letters, lowercase letters, numbers and special characters.',
+'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules, de chiffres et de caractères spéciaux.'),
+('password_format_error_msg_2',
+'Passwords must have a minimal length of 8 characters and contains both uppercase letters, lowercase letters and numbers.',
+'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules et de chiffres.'),
+('password_format_error_msg_1',
+'Passwords must have a minimal length of 8 characters and contains lowercase letters.',
+'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres minuscules.');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #2945: Authentication credentials expiration 
+-- Change Valide UserName format message
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE users ADD COLUMN password_modified datetime DEFAULT NULL;
+INSERT INTO i18n (id,en,fr) VALUES (
+'your password has expired. please change your password for security reason.',
+'Your password has expired. Please change your password for security reason.', 
+'Votre mot de passe a expiré. Veuillez changer votre mot de passe pour des raisons de sécurité.');
+
+UPDATE structure_validations SET language_message = 'a valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only' WHERE language_message = 'A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.';
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('a valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only',
+'A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.',
+'Un nom d''utilisateur valide est requis composé de 5 à 15 caractères et un mélange de caractères alphabétiques et numériques uniquement.');

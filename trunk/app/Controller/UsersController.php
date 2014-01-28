@@ -43,14 +43,13 @@ class UsersController extends AppController {
 				$start_date = new DateTime($last_attempt_time);
 				$end_date = new DateTime($current_timestamp[0][0]['CURRENT_TIMESTAMP']);
 				$interval = $start_date->diff($end_date);			
-				if(!$interval->invert) {		
-					if($interval->y || $interval->m || $interval->d || (($interval->h*60 + $interval->i) >= $mn_IP_disabled)) $is_locked_IP = false;
-				}
+				if((!$interval->invert) && ($interval->y || $interval->m || $interval->d || (($interval->h*60 + $interval->i) >= $mn_IP_disabled))) $is_locked_IP = false;
 			}
 		}	
 		if($is_locked_IP) {
 			$this->Auth->flash(__('your connection has been temporarily disabled'));
 		} else if($this->Auth->login() && (!isset($this->passedArgs['login']) || !empty($this->request->data))){
+			$reset_pwd = false;
 			if(!empty($this->request->data)){
 				//successfulll login
 				$login_data = array(
@@ -63,6 +62,20 @@ class UsersController extends AppController {
 				$_SESSION['ctrapp_core']['warning_no_trace_msg'] = array();//init
 				$_SESSION['ctrapp_core']['warning_trace_msg'] = array();//init
 				$_SESSION['ctrapp_core']['info_msg'] = array();//init
+				//Authentication credentials expiration 
+				$user_data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
+				if(!$user_data['User']['password_modified']) {
+					$reset_pwd = true;
+				} else {
+					$last_password_modified = $user_data['User']['password_modified'];
+					$current_timestamp = $this->UserLoginAttempt->tryCatchQuery('SELECT CURRENT_TIMESTAMP');
+					$start_date = new DateTime($last_password_modified);
+					$end_date = new DateTime($current_timestamp[0][0]['CURRENT_TIMESTAMP']);
+					$interval = $start_date->diff($end_date);
+					if(Configure::read('password_validity_period_month') && (!$interval->invert || (($interval->y*12 + $interval->m) >= Configure::read('password_validity_period_month')))) {
+						$reset_pwd = true;
+					}
+				}
 			}
 			if(!$this->Session->read('search_id')){
 				$this->Session->write('search_id', 1);
@@ -71,7 +84,10 @@ class UsersController extends AppController {
 			$this->resetPermissions();
 			if(isset($this->passedArgs['login'])){
 				$this->render('ok');
-			}else{
+			}else if($reset_pwd) {
+				AppController::addWarningMsg(__('your password has expired. please change your password for security reason.'));
+				$this->redirect('/Customize/Passwords/index/');
+			} else {
 				$this->redirect('/Menus');
 			}
 		}else if(isset($this->request->data['User'])){
@@ -82,19 +98,19 @@ class UsersController extends AppController {
 						"succeed" => false
 			);
 			$this->UserLoginAttempt->save($login_data);
-			$data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
+			$user_data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
 			$login_failed_message = 'Login failed. Invalid username or password or disabled user.';
-			if(!empty($data) && !$data['User']['flag_active'] && $data['User']['username'] == $this->request->data['User']['username']){
+			if(!empty($user_data) && !$user_data['User']['flag_active'] && $user_data['User']['username'] == $this->request->data['User']['username']){
 				//$login_failed_message = "that username is disabled";
 			}else{
-				if(!empty($data) && $data['User']['username'] == $this->request->data['User']['username']){
-					$last_login_attempts_for_username = $this->UserLoginAttempt->find('all', array('conditions' => array('UserLoginAttempt.username' => $this->request->data['User']['username']), 'order' => array('UserLoginAttempt.id DESC'), 'limit' => Configure::read('max_user_login_attempts')));
-					$disable_user = true;
-					foreach($last_login_attempts_for_username as $login_attempt) if($login_attempt['UserLoginAttempt']['succeed']) $disable_user = false;
+				if(!empty($user_data) && $user_data['User']['username'] == $this->request->data['User']['username']){
+					$last_login_attempts_for_username = $this->UserLoginAttempt->find('all', array('conditions' => array('UserLoginAttempt.username' => $this->request->data['User']['username']), 'order' => array('UserLoginAttempt.id DESC'), 'limit' => Configure::read('max_user_login_attempts')));			
+					$disable_user = (empty($last_login_attempts_for_username) || ($last_login_attempts_for_username[0]['UserLoginAttempt']['attempt_time'] < $user_data['User']['modified']))? false : true;
+					if($disable_user) foreach($last_login_attempts_for_username as $login_attempt) if($login_attempt['UserLoginAttempt']['succeed']) $disable_user = false;
 					if($disable_user) {
 						$this->User->check_writable_fields = false;
-						$this->User->id = $data['User']['id'];
-						if(!$this->User->save(array('User' => array('id' => $data['User']['id'], 'flag_active' => 0)), false)) {
+						$this->User->id = $user_data['User']['id'];
+						if(!$this->User->save(array('User' => array('id' => $user_data['User']['id'], 'flag_active' => 0)), false)) {
 							$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 						}
 						//$login_failed_message = 'login failed. that username has been disabled';

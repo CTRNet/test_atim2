@@ -65,7 +65,8 @@ class User extends AppModel {
 			//all good! save
 			$data_to_save = array('User' => array(
 				'group_id' => $this->data['User']['group_id'],
-				'password' => Security::hash($data['User']['new_password'], null, true))
+				'password' => Security::hash($data['User']['new_password'], null, true),
+				'password_modified' => now())
 			);
 			
 			$this->data = null;
@@ -95,11 +96,21 @@ class User extends AppModel {
 			} else {
 				$this->validationErrors['password'][] = 'internal error';
 			}
-			if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH) $this->validationErrors['password'][] = str_replace('%s', self::PASSWORD_MINIMAL_LENGTH, __('passwords minimal length %s'));
-			if(!preg_match('/[A-Z]+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one uppercase letter';
-			if(!preg_match('/[a-z]+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one lowercase letter';
-			if(!preg_match('/[1-9]+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one number';
-			if(!preg_match('/\W+/', $data['User']['new_password'])) $this->validationErrors['password'][] = 'passwords should contains at least one special character';
+			$password_security_level = in_array(Configure::read('password_security_level'), array(0,1,2,3))? Configure::read('password_security_level') : '3';
+			$password_format_error = false;
+			switch($password_security_level) {
+				case '3':
+					if(!preg_match('/\W+/', $data['User']['new_password'])) $password_format_error = true;
+				case '2':
+					if(!preg_match('/[A-Z]+/', $data['User']['new_password'])) $password_format_error = true;
+					if(!preg_match('/[1-9]+/', $data['User']['new_password'])) $password_format_error = true;
+				case '1':
+					if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH) $password_format_error = true;
+					if(!preg_match('/[a-z]+/', $data['User']['new_password'])) $password_format_error = true;
+				case '0':
+				default:
+			}
+			if($password_format_error) $this->validationErrors['password'][] = 'password_format_error_msg_'.$password_security_level;
 		}
 	}
 
