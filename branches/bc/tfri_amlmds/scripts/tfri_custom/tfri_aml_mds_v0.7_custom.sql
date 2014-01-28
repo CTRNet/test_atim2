@@ -280,7 +280,8 @@ ADD COLUMN `b_lyphoblastic_with_TEL-AML1` VARCHAR(45) NULL DEFAULT NULL AFTER `b
 ADD COLUMN `b_lyphoblastic_hyperdiploidy` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_with_TEL-AML1`,
 ADD COLUMN `b_lyphoblastic_hypodiploidy` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_hyperdiploidy`,
 ADD COLUMN `b_lyphoblastic_with_IL3-IGH` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_hypodiploidy`,
-ADD COLUMN `b_lyphoblastic_with_TCF3-PBX1` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_with_IL3-IGH`;
+ADD COLUMN `b_lyphoblastic_with_TCF3-PBX1` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_with_IL3-IGH`,
+ADD COLUMN `tfri_other_common_dx` VARCHAR(150) NULL DEFAULT NULL AFTER `tfri_other_diagnosis`;
 
 ALTER TABLE `dxd_tfri_other_revs` 
 DROP COLUMN `tfri_b_lyphoblastic_leukemia_lymphoma`,
@@ -295,7 +296,8 @@ ADD COLUMN `b_lyphoblastic_with_TEL-AML1` VARCHAR(45) NULL DEFAULT NULL AFTER `b
 ADD COLUMN `b_lyphoblastic_hyperdiploidy` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_with_TEL-AML1`,
 ADD COLUMN `b_lyphoblastic_hypodiploidy` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_hyperdiploidy`,
 ADD COLUMN `b_lyphoblastic_with_IL3-IGH` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_hypodiploidy`,
-ADD COLUMN `b_lyphoblastic_with_TCF3-PBX1` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_with_IL3-IGH`;
+ADD COLUMN `b_lyphoblastic_with_TCF3-PBX1` VARCHAR(45) NULL DEFAULT NULL AFTER `b_lyphoblastic_with_IL3-IGH`,
+ADD COLUMN `tfri_other_common_dx` VARCHAR(150) NULL DEFAULT NULL AFTER `tfri_other_diagnosis`;
 
 -- Drop demo field
 -- delete structure_formats
@@ -358,4 +360,45 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('b lyphoblastic with IL3-IGH', 'B lyphoblastic leukemia/lymphoma with t(5;14)(q31;q132)IL3-IGH', ''),
  ('b lyphoblastic with TCF3-PBX1', 'B lyphoblastic leukemia/lymphoma with t(1;19)(q23;p13.3); TCF3-PBX1', ''),  
  ('b lymphoblastic', '6. B lymphoblastic leukemia/lymphoma', '');
+
+-- Add value domain for other diagnosis
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("other_dx_options", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="ALL" AND language_alias="ALL"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("APL", "APL");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="APL" AND language_alias="APL"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("CLL", "CLL");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="CLL" AND language_alias="CLL"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("CML", "CML");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="CML" AND language_alias="CML"), "4", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="Lymphoma" AND language_alias="Lymphoma"), "6", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Aplastic anemia", "Aplastic anemia");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="Aplastic anemia" AND language_alias="Aplastic anemia"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Other malignant hematologic disorder", "Other malignant hematologic disorder");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="Other malignant hematologic disorder" AND language_alias="Other malignant hematologic disorder"), "7", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("Other non-malignant hematologic disorder", "Other non-malignant hematologic disorder");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="Other non-malignant hematologic disorder" AND language_alias="Other non-malignant hematologic disorder"), "8", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="other_dx_options"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "9", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('APL', 'APL', ''),
+ ('CLL', 'CLL', ''),
+ ('CML', 'CML', ''),  
+ ('Lymphoma', 'Lymphoma', ''),
+ ('ALL', 'ALL', ''),
+ ('Aplastic anemia', 'Aplastic anemia', ''),  
+ ('Other malignant hematologic disorder', 'Other malignant hematologic disorder', ''),
+ ('Other non-malignant hematologic disorder', 'Other non-malignant hematologic disorder', '');
+ 
+-- Add field
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'dxd_tfri_other', 'tfri_other_common_dx', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='other_dx_options') , '0', '', '', '', 'tfri other common dx', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_tfri_other'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tfri_other' AND `field`='tfri_other_common_dx' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='other_dx_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tfri other common dx' AND `language_tag`=''), '2', '88', 'other diagnosis', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='tfri other diagnosis' WHERE model='DiagnosisDetail' AND tablename='dxd_tfri_other' AND field='tfri_other_diagnosis' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tfri_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tfri_other' AND `field`='tfri_other_diagnosis' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_tfri_other') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='dxd_tfri_other' AND `field`='tfri_other_common_dx' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='other_dx_options') AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri other common dx', 'Other common diagnosis ', ''),
+ ('tfri other diagnosis', 'If other diagnosis, specify', '');
 
