@@ -1,6 +1,3 @@
-﻿INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.0', NOW(),'to define','to define');
-
 REPLACE INTO i18n (id,en,fr) VALUES
 ('children', 'Children', 'Enfants'),
 ('results', 'Results', 'Résultats');
@@ -2031,3 +2028,22 @@ UPDATE structure_permissible_values_custom_controls SET name = 'Specimen Supplie
 UPDATE structure_permissible_values_custom_controls SET name = 'Storage Coordinate Titles' WHERE name = 'storage coordinate titles';
 UPDATE structure_permissible_values_custom_controls SET name = 'Storage Types' WHERE name = 'storage types';
 INSERT INTO i18n (id,en,fr) VALUES ('undefined','Undefined','Non défini');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Username control
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'username too small - to change (nothing to do if empty)'
+UNION ALL 
+SELECT username AS 'username too small - to change (nothing to do if empty)' from users where LENGTH(username) < 5
+UNION ALL 
+SELECT '' AS 'username too small - to change (nothing to do if empty)';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Versions table
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+﻿INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+VALUES('2.6.0', NOW(),'5564','n/a');
+
+
