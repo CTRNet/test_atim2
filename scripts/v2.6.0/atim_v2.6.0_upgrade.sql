@@ -2012,3 +2012,22 @@ VALUES
 ('a valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only',
 'A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.',
 'Un nom d''utilisateur valide est requis composé de 5 à 15 caractères et un mélange de caractères alphabétiques et numériques uniquement.');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change structure_permissible_values_custom_controls.name with upperletters
+-- Issue #2756: Missing Translations 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_permissible_values_custom_controls SET name = 'Aliquot Use and Event Types' WHERE name = 'aliquot use and event types';
+UPDATE structure_permissible_values_custom_controls SET name = 'Consent Form Versions' WHERE name = 'consent form versions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Laboratory Sites' WHERE name = 'laboratory sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'Laboratory Staff' WHERE name = 'laboratory staff';
+UPDATE structure_permissible_values_custom_controls SET name = 'Orders Contacts' WHERE name = 'orders contacts';
+UPDATE structure_permissible_values_custom_controls SET name = 'Orders Institutions' WHERE name = 'orders institutions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Quality Control Tools' WHERE name = 'quality control tools';
+UPDATE structure_permissible_values_custom_controls SET name = 'SOP Versions' WHERE name = 'sop versions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Specimen Collection Sites' WHERE name = 'specimen collection sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'Specimen Supplier Departments' WHERE name = 'specimen supplier departments';
+UPDATE structure_permissible_values_custom_controls SET name = 'Storage Coordinate Titles' WHERE name = 'storage coordinate titles';
+UPDATE structure_permissible_values_custom_controls SET name = 'Storage Types' WHERE name = 'storage types';
+INSERT INTO i18n (id,en,fr) VALUES ('undefined','Undefined','Non défini');
