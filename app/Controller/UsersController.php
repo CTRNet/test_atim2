@@ -38,12 +38,11 @@ class UsersController extends AppController {
 		} else {
 			foreach($last_login_attempts_from_ip as $login_attempt) if($login_attempt['UserLoginAttempt']['succeed']) $is_locked_IP = false;
 			if($is_locked_IP) {
-				$last_attempt_time = $last_login_attempts_from_ip[($max_login_attempts_from_IP-1)]['UserLoginAttempt']['attempt_time'];
-				$current_timestamp = $this->UserLoginAttempt->tryCatchQuery('SELECT CURRENT_TIMESTAMP');			
+				$last_attempt_time = $last_login_attempts_from_ip[($max_login_attempts_from_IP-1)]['UserLoginAttempt']['attempt_time'];			
 				$start_date = new DateTime($last_attempt_time);
-				$end_date = new DateTime($current_timestamp[0][0]['CURRENT_TIMESTAMP']);
+				$end_date = new DateTime(now());
 				$interval = $start_date->diff($end_date);			
-				if((!$interval->invert) && ($interval->y || $interval->m || $interval->d || (($interval->h*60 + $interval->i) >= $mn_IP_disabled))) $is_locked_IP = false;
+				if($interval->y || $interval->m || $interval->d || (($interval->h*60 + $interval->i) >= $mn_IP_disabled)) $is_locked_IP = false;
 			}
 		}	
 		if($is_locked_IP) {
@@ -56,7 +55,8 @@ class UsersController extends AppController {
 						"username"			=> $this->request->data['User']['username'],
 						"ip_addr"			=> $_SERVER['REMOTE_ADDR'],
 						"succeed"			=> true,
-						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT']
+						"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT'],
+						"attempt_time"		=> now()
 				);
 				$this->UserLoginAttempt->save($login_data);
 				$_SESSION['ctrapp_core']['warning_no_trace_msg'] = array();//init
@@ -68,11 +68,10 @@ class UsersController extends AppController {
 					$reset_pwd = true;
 				} else {
 					$last_password_modified = $user_data['User']['password_modified'];
-					$current_timestamp = $this->UserLoginAttempt->tryCatchQuery('SELECT CURRENT_TIMESTAMP');
 					$start_date = new DateTime($last_password_modified);
-					$end_date = new DateTime($current_timestamp[0][0]['CURRENT_TIMESTAMP']);
+					$end_date = new DateTime(now());
 					$interval = $start_date->diff($end_date);
-					if(Configure::read('password_validity_period_month') && (!$interval->invert || (($interval->y*12 + $interval->m) >= Configure::read('password_validity_period_month')))) {
+					if(Configure::read('password_validity_period_month') && (($interval->y*12 + $interval->m) >= Configure::read('password_validity_period_month'))) {
 						$reset_pwd = true;
 					}
 				}
@@ -92,12 +91,6 @@ class UsersController extends AppController {
 			}
 		}else if(isset($this->request->data['User'])){
 			//failed login
-			$login_data = array(
-						"username" => $this->request->data['User']['username'],
-						"ip_addr" => $_SERVER['REMOTE_ADDR'],
-						"succeed" => false
-			);
-			$this->UserLoginAttempt->save($login_data);
 			$user_data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
 			$login_failed_message = 'Login failed. Invalid username or password or disabled user.';
 			if(!empty($user_data) && !$user_data['User']['flag_active'] && $user_data['User']['username'] == $this->request->data['User']['username']){
@@ -117,6 +110,15 @@ class UsersController extends AppController {
 					}
 				}
 			}
+			//UserLoginAttempt->save() should be after user->save() for test "$last_login_attempts_for_username[0]['UserLoginAttempt']['attempt_time']. ' < ' . $user_data['User']['modified']" above
+			$login_data = array(
+					"username" => $this->request->data['User']['username'],
+					"ip_addr" => $_SERVER['REMOTE_ADDR'],
+					"succeed" => false,
+					"http_user_agent"	=> $_SERVER['HTTP_USER_AGENT'],
+					"attempt_time"		=> now()
+			);
+			$this->UserLoginAttempt->save($login_data);
 			$this->Auth->flash(__($login_failed_message));
 		}
 		

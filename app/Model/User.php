@@ -96,13 +96,14 @@ class User extends AppModel {
 			} else {
 				$this->validationErrors['password'][] = 'internal error';
 			}
-			$password_security_level = in_array(Configure::read('password_security_level'), array(0,1,2,3))? Configure::read('password_security_level') : '3';
+			$password_security_level = in_array(Configure::read('password_security_level'), array(0,1,2,3,4))? Configure::read('password_security_level') : '4';
 			$password_format_error = false;
 			switch($password_security_level) {
-				case '3':
+				case '4':
 					if(!preg_match('/\W+/', $data['User']['new_password'])) $password_format_error = true;
-				case '2':
+				case '3':
 					if(!preg_match('/[A-Z]+/', $data['User']['new_password'])) $password_format_error = true;
+				case '2':
 					if(!preg_match('/[1-9]+/', $data['User']['new_password'])) $password_format_error = true;
 				case '1':
 					if( strlen($data['User']['new_password']) < self::PASSWORD_MINIMAL_LENGTH) $password_format_error = true;
