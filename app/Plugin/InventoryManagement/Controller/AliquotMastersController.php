@@ -1036,6 +1036,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function addInternalUseToManyAliquots($storage_master_id = null) {
+//TODO: See issue#2702
+$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$initial_display = false;
 		$aliquot_ids = array();
 		$studied_storage = null;
