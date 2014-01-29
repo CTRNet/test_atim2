@@ -389,18 +389,22 @@ Configure::write('Session.timeout', $debug ? 3600 : 600);
 /**
  * Define the complexity of a password format:
  *	- level 0: No constrain
- *	- level 1: Minimal length of 8 characters + contains lowercase letters		
- *	- level 2: level 1 + contains uppercase letters + contains numbers
- *	- level 3: level 2 + special characters [!, $, etc]
+ *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter		
+ *	- level 2: level 1 + contains at least one number	
+ *	- level 3: level 2 + contains at least one uppercase letter
+ *	- level 4: level 3 + special at least one character [!$-_.]
  */
-Configure::write('password_security_level', 3);
+Configure::write('password_security_level', 2);
 
 /**
- * Maximum number of login attempts (max_login_attempts_from_IP) before an IP address is locked.
+ * Maximum number of successive failed login attempts (max_login_attempts_from_IP) before an IP address is disabled.
  * Time in minute (time_mn_IP_disabled) before an IP adress can retest login.
  */
 Configure::write('max_login_attempts_from_IP', 5);
-Configure::write('time_mn_IP_disabled', 10);
+/**
+ * Time in minute (time_mn_IP_disabled) before an IP adress is reactivated.
+ */
+Configure::write('time_mn_IP_disabled', 20);
 
 /**
  * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.

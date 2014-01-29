@@ -47,7 +47,7 @@ class AdminUsersController extends AdministrateAppController {
 				$this->User->validatePassword($password_data, $this->request->data['User']['username']);
 				
 				$this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
-				$this->request->data['User']['password_modified'] = 'now()';
+				$this->request->data['User']['password_modified'] = null; //To force user to change password at next login
 				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->request->data['User']['group_id'] = $group_id;
 				$this->request->data['User']['flag_active'] = true;
