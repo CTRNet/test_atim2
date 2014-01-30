@@ -2041,7 +2041,7 @@ SELECT '' AS 'username too small - to change (nothing to do if empty)';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Disable addInternalUseToManyAliquots()
- -----------------------------------------------------------------------------------------------------------------------------------
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE link LIKE '%addInternalUseToManyAliquots%';
 
@@ -2049,7 +2049,7 @@ UPDATE datamart_structure_functions SET flag_active = 0 WHERE link LIKE '%addInt
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-﻿INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES('2.6.0', NOW(),'5564','n/a');
 
 
