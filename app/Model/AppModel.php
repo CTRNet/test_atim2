@@ -1365,7 +1365,7 @@ class AppModel extends Model {
         foreach(self::$cached_views_update as $models){
             foreach($models as $foreign_key => $query_parts){
                 foreach($query_parts as $query_part => $details){
-                    $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN('.implode(",", $details['ids']).')', $query_part);
+                    $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN('.implode(",", array_unique($details['ids'])).')', $query_part);
                     $query = sprintf('REPLACE INTO %s (%s)', $details["modelTable"], $table_query);
                     //just "some" model to do the work
                     $pages = AppModel::getInstance("", "Page");
