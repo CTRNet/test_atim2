@@ -208,10 +208,16 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				}
 				unset($data_unit);
 				
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+								
 				// Launch Save Process
 				if(empty($this->request->data)) {
 					$this->EventMaster->validationErrors[][] = 'at least one record has to be created';
 				} else if(empty($errors_tracking)){
+					AppModel::acquireBatchViewsUpdateLock();
 					//save all
 					$this->EventMaster->addWritableField(array('event_control_id','participant_id','diagnosis_master_id'));
 					$this->EventMaster->writable_fields_mode = 'addgrid';
@@ -224,6 +230,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
+					AppModel::releaseBatchViewsUpdateLock();
 					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
 				} else {
 					$this->EventMaster->validationErrors = array();
