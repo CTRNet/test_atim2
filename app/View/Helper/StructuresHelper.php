@@ -2100,16 +2100,16 @@ class StructuresHelper extends Helper {
 								$settings['class'] .= " jqueryAutocomplete";
 							}
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
-							if($sfs['type'] == "hidden"){
+							if($sfs['type'] == "hidden"){							
 								if(strlen($current['label'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
 									}
 									$current['label'] = "";
 								}
 								if(strlen($current['heading'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
 									}
 									$current['heading'] = "";
 								}

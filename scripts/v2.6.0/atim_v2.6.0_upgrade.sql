@@ -2046,6 +2046,12 @@ SELECT '' AS 'username too small - to change (nothing to do if empty)';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE link LIKE '%addInternalUseToManyAliquots%';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#2968: Edit Specimen Review: Copy Control Fields Duplicated
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Core' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
