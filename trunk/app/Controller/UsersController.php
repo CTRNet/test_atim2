@@ -64,7 +64,7 @@ class UsersController extends AppController {
 				$_SESSION['ctrapp_core']['info_msg'] = array();//init
 				//Authentication credentials expiration 
 				$user_data = $this->User->find('first', array('conditions' => array('User.username' => $this->request->data['User']['username'])));
-				if(!$user_data['User']['password_modified']) {
+				if(!$user_data['User']['password_modified'] && Configure::read('password_validity_period_month')) {
 					$reset_pwd = true;
 				} else {
 					$last_password_modified = $user_data['User']['password_modified'];
