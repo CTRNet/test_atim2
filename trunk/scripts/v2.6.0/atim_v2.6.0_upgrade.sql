@@ -1230,7 +1230,7 @@ VALUES
 UPDATE structure_value_domains SET domain_name = 'storage_types_from_control_id' WHERE domain_name = 'storage_type';
 
 DELETE FROM i18n WHERE id = 'storages';
-INSERT INTO i18n (id,en,fr) VALUES ('storages','Storages','Entreposage');
+INSERT INTO i18n (id,en,fr) VALUES ('storages','Storage','Entreposage');
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("storages", "storages");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="storages" AND language_alias="storages"), "", "1");
 
@@ -1402,7 +1402,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 -- Be able to see storage layout from storage detail form  #2524
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('move storage content','Move Storage Content','Déplacer contenu entreposage');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('move storage content','Move Storage Contents','Déplacer contenu entreposage');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Unused parent and reentrant   #2690
@@ -1425,10 +1425,10 @@ SELECT '' AS 'TODO';
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
 ('add items to shipment','Add Items to Shipment','Ajouter article à une expédition'),
-('no new item could be actually added to the shipment','No new item could be actually added to the shipment.','Aucun nouvel article ne peut actuellement être ajouté à l''envoi.'),
-('order item exists for the deleted shipment','Your data cannot be deleted! <br>Item exists for the deleted shipment.','Vos données ne peuvent être supprimées! Des articles sont liés à votre envoi.'),
+('no new item could be actually added to the shipment','No new item was added to the shipment.','Aucun nouvel article ne peut actuellement être ajouté à l''envoi.'),
+('order item exists for the deleted shipment','Your data cannot be deleted! <br>Order item exists for the shipment.','Vos données ne peuvent être supprimées! Des articles sont liés à votre envoi.'),
 ('add shipment','Add Shipment','Ajouter une expédition'),
-('shipment exists for the deleted order','Your data cannot be deleted! <br>Shipments exist for the deleted order.','Vos données ne peuvent être supprimées! Des envois existent pour votre commande.'),
+('shipment exists for the deleted order','Your data cannot be deleted! <br>Shipment records exist for the order.','Vos données ne peuvent être supprimées! Des envois existent pour votre commande.'),
 ('add items to shipment','Add Items to Shipment','Ajouter article à un envoi'),
 ('add shipment','Add Shipment','Ajouter un envoi'),
 ('define as shipped','Define as shipped','Définir comme envoyé'),
@@ -1441,7 +1441,7 @@ VALUES
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
-('you are not allowed to work on this batchset', 'You are not allowed to work on this batchset', 'Vous n''êtes pas authorisés à travailler sur ce lot de données'),
+('you are not allowed to work on this batchset', 'You are not allowed to alter on this batchset', 'Vous n''êtes pas authorisés à travailler sur ce lot de données'),
 ('this batchset is locked', 'This batchset is locked', 'Ce lot de données est bloqué');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1684,10 +1684,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='report_list_all_storages_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '101', 'children storages', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('list all children storages', 'List all children storages', 'Afficher tous les sous-entreposages'),
-('list all children from a list of storages', 'List all children storages from a list of storages', 'Afficher tous les sous-entreposages d''une liste d''entreposages'),
-('more than 10 storages have been selected - please redefine search criteria', 'More than 10 storages have been defines as search criteria. Please redefine search criteria.', 'Plus de 10 entreposages ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
-('stutied storages', 'Stutied Storages', 'Entreposages étudiés'),
+('list all children storages', 'List all child storage entities', 'Afficher tous les sous-entreposages'),
+('list all children from a list of storages', 'List all child storage entities', 'Afficher tous les sous-entreposages d''une liste d''entreposages'),
+('more than 10 storages have been selected - please redefine search criteria', 'More than 10 storage entities have been defines as search criteria. Please redefine search criteria.', 'Plus de 10 entreposages ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
+('stutied storages', 'Studied Storages', 'Entreposages étudiés'),
 ('children storages', 'Children Storages', 'Sous-entreposages');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1712,7 +1712,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='report_list_all_related_diagnosis_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='diagnosis relation system code' AND `language_tag`=''), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('more than 100 records have been selected - please redefine search criteria', 'More than 100 related have been defines as search criteria. Please redefine search criteria.', 'Plus de 100 données ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
+('more than 100 records have been selected - please redefine search criteria', 'More than 100 records returned. Please redefine search criteria.', 'Plus de 100 données ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
 ('list all related diagnosis', 'List all related diagnosis', 'Afficher tous les évenements de diagnostic connexes'),
 ('list all related diagnosis from a list of diagnosis or participants', 'List all related diagnosis from a list of diagnosis or participants', 'Afficher tous les évenements de diagnostic connexes à partir d''une liste de diagnostics ou de participants');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
@@ -1926,7 +1926,7 @@ UPDATE structure_fields SET model = 'Block', field = 'short_label' WHERE field =
 -- add missing translation
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('this is not a time','Data entry is not a time','La donnée saisie n''est pas un temps');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('this is not a time','Data entered is not a valid time','La donnée saisie n''est pas un temps');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue#2912: custom drop down list pagination 
@@ -1983,13 +1983,13 @@ INSERT INTO structure_validations(structure_field_id, rule, language_message) VA
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
 ('password_format_error_msg_3',
-'Passwords must have a minimal length of 8 characters and contains both uppercase letters, lowercase letters, numbers and special characters.',
+'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters, numbers and special characters.',
 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules, de chiffres et de caractères spéciaux.'),
 ('password_format_error_msg_2',
-'Passwords must have a minimal length of 8 characters and contains both uppercase letters, lowercase letters and numbers.',
+'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters and numbers.',
 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules et de chiffres.'),
 ('password_format_error_msg_1',
-'Passwords must have a minimal length of 8 characters and contains lowercase letters.',
+'Passwords must have a minimum length of 8 characters and contain lowercase letters.',
 'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres minuscules.');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1999,8 +1999,8 @@ VALUES
 
 ALTER TABLE users ADD COLUMN password_modified datetime DEFAULT NULL;
 INSERT INTO i18n (id,en,fr) VALUES (
-'your password has expired. please change your password for security reason.',
-'Your password has expired. Please change your password for security reason.', 
+'your password has expired. Please change your password for security reason.',
+'Your password has expired. Please change your password for security reasons.', 
 'Votre mot de passe a expiré. Veuillez changer votre mot de passe pour des raisons de sécurité.');
 
 UPDATE structure_validations SET language_message = 'a valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only' WHERE language_message = 'A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.';
@@ -2050,22 +2050,6 @@ UPDATE datamart_structure_functions SET flag_active = 0 WHERE link LIKE '%addInt
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Core' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-
--- -----------------------------------------------------------------------------------------------------------------------------------
--- Issue#2786: set flag_confidential = 1 to appropriated fields
--- -----------------------------------------------------------------------------------------------------------------------------------
-
-UPDATE structure_fields SET flag_confidential = '1' WHERE field IN ('first_name','last_name','date_of_birth','middle_name') AND model = 'Participant';
-ALTER TABLE participant_contacts ADD COLUMN `confidential` tinyint(1) DEFAULT '0';
-ALTER TABLE participant_contacts_revs ADD COLUMN `confidential` tinyint(1) DEFAULT '0';
-INSERT INTO structures(`alias`) VALUES ('participantcontacts_confidential');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ParticipantContact', 'participant_contacts', 'confidential', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '1', '', '', '', 'confidential', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='participantcontacts_confidential'), (SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='confidential' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confidential' AND `language_tag`=''), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='participantcontacts'), (SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='confidential' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confidential' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_fields SET flag_confidential = '0' WHERE field = 'confidential' AND model = 'ParticipantContact';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
