@@ -244,11 +244,11 @@ DELETE FROM menus WHERE use_link LIKE '/ClinicalAnnotation/ProductMasters/%';
 DELETE FROM menus WHERE use_link LIKE '/ClinicalAnnotation/ClinicalCollectionLinks/%' AND id = 'clin_CAN_67';
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
-('collections content','Collections Content','Contenu des collections'),
+('collections content','Collection Content','Contenu des collections'),
 ('links to collections','Links to collections','Liens aux collections'),
 ('collections links','Collection Links','Liens de la collections'),
 ('linked collection','Linked Collection','Collection liée'),
-('collection to link','Collection to link','Collection à lier'),
+('collection to link','Collections to link','Collection à lier'),
 ('use inventory management module to delete the entire collection','Use ''Inventory Management'' module to delete the entire collection','Utiliser le module de ''Gestion des échantillons'' pour supprimer l''intégralité de la collection');
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
@@ -286,7 +286,7 @@ INNER JOIN structure_fields sfi ON sfi.id = sfo.structure_field_id
 INNER JOIN structures st ON st.id = sfo.structure_id
 WHERE st.alias = 'aliquot_masters' AND sfi.field = 'aliquot_label'); 
 UPDATE structure_formats SET display_column = (display_column +2) WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines');
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('orders','Orders','Commandes'),('order lines','Order lines','Lignes de commande'),('records linked to study', 'Data linked to study', 'Données attachées à l''étude');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('orders','Orders','Commandes'),('order lines','Order lines','Lignes de commande'),('records linked to study', 'Records linked to study', 'Données attachées à l''étude');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Display all aliquot uses as a node into the collection tree view  #2452
@@ -425,7 +425,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
 ('batch actions / reports','Batch Actions / Reports','Traitement par lot / Rapports'),
-('more than 1000 records are returned by the query - please redefine search criteria', 'More than 1000 records are returned by the query. Please redefine search criteria.', 'Plus de 1000 données ont été retournées par la requête. Veuillez redéfinir les critères de recherche.');
+('more than 1000 records are returned by the query - please redefine search criteria', 'Query returned more than 1000 records. Please redefine search criteria.', 'Plus de 1000 données ont été retournées par la requête. Veuillez redéfinir les critères de recherche.');
 
 -- batch set creation
 
@@ -672,9 +672,9 @@ INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv
 
 INSERT INTO i18n (id,en,fr) 
 VALUES 
-('at least one precision is defined as protocol component', 'At least one precision is defined as protocol component', 'Au moins une précision est définie comme composante de ce protocole'),
-('at least one precision is defined as treatment component','At least one precision is defined as treatment component', 'Au moins une précision est définie comme composante de ce traitement'),
-('drug is defined as a component of at least one protocol','Drug is defined as a component of at least one protocol', 'Le médicament est défini comme un composant d''au moins un protocole');
+('at least one precision is defined as protocol component', 'Unable to delete protocol. Please delete all associated precision records first.', 'Au moins une précision est définie comme composante de ce protocole'),
+('at least one precision is defined as treatment component','Unable to delete treatment record. Please delete all associated precision records first.', 'Au moins une précision est définie comme composante de ce traitement'),
+('drug is defined as a component of at least one protocol','Unable to delete drug. This drug is associated with treatment protocols. Please remove from all treatment protocols before deletion.', 'Le médicament est défini comme un composant d''au moins un protocole');
 
 -- specific upgrade statements of txe_chemos -- 
 
@@ -1734,7 +1734,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('selected derivatives', 'Selected Derivatives', 'Dérivés sélectionnés'),
 ('specimens', 'Specimens', 'Spécimens'),
 ('recurrent', 'Recurrent', 'Récurrent'),
-('delivery department or door', 'DeliveryDepartment or Door', 'Service de livraison ou porte'),
+('delivery department or door', 'Delivery Department or Door', 'Service de livraison ou porte'),
 ('delivery notes', 'Delivery Notes', 'Notes de livraison'),
 ('delivery phone #', 'Delivery Phone #', 'Téléphone pour livraison'),
 ('display name', 'Display Name', 'Afficher le nom'),
