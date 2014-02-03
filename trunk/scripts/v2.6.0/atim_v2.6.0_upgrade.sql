@@ -2052,10 +2052,21 @@ UPDATE datamart_structure_functions SET flag_active = 0 WHERE link LIKE '%addInt
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Core' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Review Master/Detail forms for TreatmentExtend and ProtocolExtend
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Protocol Master/detail forms clean up
+DELETE FROM structure_formats 
+WHERE structure_id IN (SELECT structures.id FROM protocol_controls, structures WHERE protocol_controls.detail_form_alias = structures.alias) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model` IN ('ProtocolMaster','ProtocolControl') AND `field` IN ('notes','code','tumour_group','name','type'));
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='pd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='arm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='protocolmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Protocol' AND `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='arm' AND `language_label`='arm' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- Protocol Extend Master/detail forms clean up
+INSERT INTO structures(`alias`) VALUES ('protocol_extend_masters');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
 VALUES('2.6.0', NOW(),'5564','n/a');
-
-
