@@ -52,7 +52,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		if($treatment_master_data['TreatmentControl']['treatment_extend_control_id']){
 			$treatment_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($treatment_master_data['TreatmentControl']['treatment_extend_control_id']);
 			$this->set('tx_extend_data', $this->TreatmentExtendMaster->find('all', array('conditions' => array('TreatmentExtendMaster.treatment_master_id' => $tx_master_id, 'TreatmentExtendMaster.treatment_extend_control_id' => $treatment_master_data['TreatmentControl']['treatment_extend_control_id']))));
-			$this->Structures->set($treatment_extend_control_data['TreatmentExtendControl']['detail_form_alias'], 'extend_form_alias');
+			$this->Structures->set($treatment_extend_control_data['TreatmentExtendControl']['form_alias'], 'extend_form_alias');
 			if(!empty($treatment_master_data['TreatmentControl']['extended_data_import_process'])) {
 				$this->set('extended_data_import_process', $treatment_master_data['TreatmentControl']['extended_data_import_process']);
 			}
