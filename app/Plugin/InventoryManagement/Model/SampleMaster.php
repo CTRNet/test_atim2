@@ -45,7 +45,7 @@ class SampleMaster extends InventoryManagementAppModel {
 		'InventoryManagement.ViewSample' => array(
 			'SampleMaster.id', 
 			'ParentSampleMaster.id', 
-			'SpecimenSampleMaster.id.'),
+			'SpecimenSampleMaster.id'),
 		'InventoryManagement.ViewAliquot' => array(
 			'SampleMaster.id', 
 			'ParentSampleMaster.id', 
