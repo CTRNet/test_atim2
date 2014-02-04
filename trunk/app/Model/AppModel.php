@@ -59,6 +59,8 @@ class AppModel extends Model {
 	var $previous_model = null;
 	private static $locked_views_update = false;
 	private static $cached_views_update = array();
+	private static $cached_views_delete = array();
+	private static $cached_views_insert = array();
 	private static $cached_views_model = null; //some model, only provides accc
 	
 	const ACCURACY_REPLACE_STR = '%5$s(IF(%2$s = "c", %1$s, IF(%2$s = "d", CONCAT(SUBSTR(%1$s, 1, 7), %3$s), IF(%2$s = "m", CONCAT(SUBSTR(%1$s, 1, 4), %3$s), IF(%2$s = "y", CONCAT(SUBSTR(%1$s, 1, 4), %4$s), IF(%2$s = "h", CONCAT(SUBSTR(%1$s, 1, 10), %3$s), IF(%2$s = "i", CONCAT(SUBSTR(%1$s, 1, 13), %3$s), %1$s)))))))';
@@ -262,8 +264,15 @@ class AppModel extends Model {
 	    foreach($this->registered_models as $registered_model){
 	        //try to find the row
 	        $model = $registered_model['model'];
-	        $model->delete($registered_model['pkeys_for_deletion'], false);
-	        foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+			if(self::$locked_views_update){
+				if(!isset(self::$cached_views_delete[$model->plugin.'.'.$model->name])){
+					self::$cached_views_delete[$model->plugin.'.'.$model->name] = array("pkeys_for_deletion" => array());
+				}
+				self::$cached_views_delete[$model->plugin.'.'.$model->name]["pkeys_for_deletion"] = array_merge(self::$cached_views_delete[$model->plugin.'.'.$model->name]["pkeys_for_deletion"], $registered_model['pkeys_for_deletion']);
+			}else{
+				$model->delete($registered_model['pkeys_for_deletion'], false);
+			}
+			foreach(explode("UNION ALL", $model::$table_query) as $query_part){
 	            $ids = array();
 	            $base_model = null;
 	            for($i = count($registered_model['pkeys_to_check']) - 1; $i >= 0; -- $i){
@@ -283,9 +292,22 @@ class AppModel extends Model {
 	                }
 	            }
 	            if($ids){
-	                $table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id IN('.implode(", ", $ids).')', $query_part);
-	                $query = sprintf('INSERT INTO %s (%s)', $model->table, $table_query);
-	                $this->tryCatchquery($query);
+	            	if(self::$locked_views_update){
+	            		if(!isset(self::$cached_views_insert[$model->table])){
+	            			self::$cached_views_insert[$model->table] = array();
+	            		}
+	            		if(!isset(self::$cached_views_insert[$model->table][$base_model])){
+	            			self::$cached_views_insert[$model->table][$base_model] = array();
+	            		}
+	            		if(!isset(self::$cached_views_insert[$model->table][$base_model][$query_part])){
+	            			self::$cached_views_insert[$model->table][$base_model][$query_part] = array("ids" => array());
+	            		}
+	            		self::$cached_views_insert[$model->table][$base_model][$query_part]["ids"] = array_merge(self::$cached_views_insert[$model->table][$base_model][$query_part]["ids"], $ids);
+	            	}else{
+	            		$table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id IN('.implode(", ", $ids).')', $query_part);
+	          			$query = sprintf('INSERT INTO %s (%s)', $model->table, $table_query);
+	       				$this->tryCatchquery($query);
+	            	}
 	                $registered_model['pkeys_to_check'] = array_values($registered_model['pkeys_to_check']); //reindex from 0
 	            }
 	        }
@@ -1383,6 +1405,25 @@ class AppModel extends Model {
                 }
             }
         }
+        foreach(self::$cached_views_delete as $plugin_model => $details){
+        	list($plugin_name, $model_name) = explode('.', $plugin_model);	
+        	$model = AppModel::getInstance($plugin_name, $model_name);
+        	$model->delete(array_unique($details['pkeys_for_deletion']), false);
+		}
+		foreach(self::$cached_views_insert as $model_table => $base_models){
+			foreach($base_models as $base_model => $query_parts){
+				foreach($query_parts as $query_part => $details){
+					$table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id IN('.implode(", ", array_unique($details['ids'])).')', $query_part);
+					$query = sprintf('INSERT INTO %s (%s)', $model_table, $table_query);
+					//just "some" model to do the work
+					$pages = AppModel::getInstance("", "Page");
+					$pages->tryCatchquery($query);
+				}
+			}
+		}		
+		self::$cached_views_update = array();
+		self::$cached_views_delete = array();
+		self::$cached_views_insert = array();
         self::$locked_views_update = false;
 	}
 }
