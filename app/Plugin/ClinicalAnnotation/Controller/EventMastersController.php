@@ -58,6 +58,8 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			// Set structure
 			$control_data = $this->EventControl->getOrRedirect($event_control_id);
 			$this->Structures->set($control_data['EventControl']['form_alias']);
+			self::buildDetailBinding($this->EventMaster,
+			    $search_criteria, $control_data['EventControl']['form_alias']);
 		}
 		
 		// MANAGE DATA
