@@ -19,7 +19,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
+$debug = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -383,7 +383,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', true);
+Configure::write('use_compression', false);
 Configure::write('Session.timeout', $debug ? 3600 : 600);
 
 /**
@@ -416,6 +416,6 @@ Configure::write('max_user_login_attempts', 5);
  * Keep empty if no control has to be done.
  * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
  */
-Configure::write('password_validity_period_month', 3);
+Configure::write('password_validity_period_month', null);
 
 unset($debug);
