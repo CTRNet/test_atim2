@@ -16,7 +16,6 @@ class User extends AppModel {
 		}
 		if($this->id){
 			$data = $this->find('first', array('conditions' => array('User.id' => $this->id, 'User.deleted' => array(0, 1))));
-			$this->log(print_r($data, true), 'debug');
 			return array('Group' => array('id' => $data['User']['group_id']));
 		}
 		throw new Exception('Insufficient data to determine parentNode');
