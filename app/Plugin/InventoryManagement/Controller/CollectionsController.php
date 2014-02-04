@@ -69,11 +69,13 @@ class CollectionsController extends InventoryManagementAppController {
 		
 		if(empty($search_id)){
 			//index
-			$this->request->data = $this->ViewCollection->find('all', 
-					array('conditions' => array('Collection.created_by' => $this->Session->read('Auth.User.id')),
-					      'order' => array('Collection.created DESC'), 
-						  'limit' => 5)
-			);
+			if(!isset($this->request->query['nolatest'])){
+        		$this->request->data = $this->ViewCollection->find('all', 
+        				array('conditions' => array('Collection.created_by' => $this->Session->read('Auth.User.id')),
+        				      'order' => array('Collection.created DESC'), 
+        					  'limit' => 5)
+        		);
+			}
 			$this->render('index');
 		}
 	}
