@@ -1271,18 +1271,16 @@ class AppModel extends Model {
 	                    }
 	                    $at_least_one = true;
 	                    if(self::$locked_views_update){
-	                        if(!isset(self::$cached_views_update[$this->name])){
-	                            self::$cached_views_update[$this->name] = array();
+	                        if(!isset(self::$cached_views_update[$model->table])){
+	                            self::$cached_views_update[$model->table] = array();
 	                        }
-	                        if(!isset(self::$cached_views_update[$this->name][$foreign_key])){
-	                            self::$cached_views_update[$this->name][$foreign_key] = array();
+	                        if(!isset(self::$cached_views_update[$model->table][$foreign_key])){
+	                            self::$cached_views_update[$model->table][$foreign_key] = array();
 	                        }
-	                        if(!isset(self::$cached_views_update[$this->name][$foreign_key][$query_part])){
-	                            self::$cached_views_update[$this->name][$foreign_key][$query_part] = array(
-	                                    "modelTable" => $model->table,
-	                                    "ids" => array());
+	                        if(!isset(self::$cached_views_update[$model->table][$foreign_key][$query_part])){
+	                            self::$cached_views_update[$model->table][$foreign_key][$query_part] = array("ids" => array());
 	                        }
-	                        array_push(self::$cached_views_update[$this->name][$foreign_key][$query_part]["ids"], $this->id);
+	                        array_push(self::$cached_views_update[$model->table][$foreign_key][$query_part]["ids"], $this->id);
 	                    }else{
 	                        $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
 	                        $query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
@@ -1398,11 +1396,11 @@ class AppModel extends Model {
     }
     
     static function releaseBatchViewsUpdateLock(){
-        foreach(self::$cached_views_update as $models){
+        foreach(self::$cached_views_update as $model_table => $models){
             foreach($models as $foreign_key => $query_parts){
                 foreach($query_parts as $query_part => $details){
                     $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN('.implode(",", array_unique($details['ids'])).')', $query_part);
-                    $query = sprintf('REPLACE INTO %s (%s)', $details["modelTable"], $table_query);
+                    $query = sprintf('REPLACE INTO %s (%s)', $model_table, $table_query);
                     //just "some" model to do the work
                     $pages = AppModel::getInstance("", "Page");
                     $pages->tryCatchquery($query);
