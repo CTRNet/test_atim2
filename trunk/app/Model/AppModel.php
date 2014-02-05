@@ -112,12 +112,16 @@ class AppModel extends Model {
 			AppController::addWarningMsg('saving unvalidated data ['.$this->name.']', true);
 		}
 	
-		if(!isset($data[$this->name]) || empty($data[$this->name])){
+		if((!isset($data[$this->name]) || empty($data[$this->name])) 
+		&& isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) 
+		&& $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']
+		&& isset($data[$this->Behaviors->MasterDetail->__settings[$this->name]['detail_class']])) {
 		    //Eventum 2619: When there is no master data, details aren't saved
 		    //properly because cake core flushes them out.
 		    //NL Comment See notes on eventum $data[$this->name]['-'] = "foo";
-			if(isset($this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) && $this->Behaviors->MasterDetail->__settings[$this->name]['is_master_model']) $data[$this->name]['-'] = "foo";
+			$data[$this->name]['-'] = "foo";
 		} 
+		
 		return parent::save($data, $validate, $fieldList);
 	}
 	
