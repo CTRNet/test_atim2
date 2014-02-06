@@ -269,12 +269,16 @@ class AppModel extends Model {
 	        //try to find the row
 	        $model = $registered_model['model'];
 			if(self::$locked_views_update){
-				if(!isset(self::$cached_views_delete[$model->plugin.'.'.$model->name])){
-					self::$cached_views_delete[$model->plugin.'.'.$model->name] = array("pkeys_for_deletion" => array());
+				if(!isset(self::$cached_views_delete[$model->table])){
+					self::$cached_views_delete[$model->table] = array();
 				}
-				self::$cached_views_delete[$model->plugin.'.'.$model->name]["pkeys_for_deletion"] = array_merge(self::$cached_views_delete[$model->plugin.'.'.$model->name]["pkeys_for_deletion"], $registered_model['pkeys_for_deletion']);
+				if(!isset(self::$cached_views_delete[$model->table][$model->primaryKey])){
+					self::$cached_views_delete[$model->table][$model->primaryKey] = array("pkeys_for_deletion" => array());
+				}
+				self::$cached_views_delete[$model->table][$model->primaryKey]["pkeys_for_deletion"] = array_merge(self::$cached_views_delete[$model->table][$model->primaryKey]["pkeys_for_deletion"], $registered_model['pkeys_for_deletion']);
 			}else{
-				$model->delete($registered_model['pkeys_for_deletion'], false);
+				$query = sprintf('DELETE FROM %s  WHERE %s IN (%s)', $model->table, $model->primaryKey, implode(',',$registered_model['pkeys_for_deletion']));	//To fix issue#2980: Edit Storage & View Update 
+				$this->tryCatchquery($query);
 			}
 			foreach(explode("UNION ALL", $model::$table_query) as $query_part){
 	            $ids = array();
@@ -1396,29 +1400,28 @@ class AppModel extends Model {
     }
     
     static function releaseBatchViewsUpdateLock(){
+    	//just "some" model to do the work
+    	$pages = AppModel::getInstance("", "Page");
         foreach(self::$cached_views_update as $model_table => $models){
             foreach($models as $foreign_key => $query_parts){
                 foreach($query_parts as $query_part => $details){
                     $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN('.implode(",", array_unique($details['ids'])).')', $query_part);
                     $query = sprintf('REPLACE INTO %s (%s)', $model_table, $table_query);
-                    //just "some" model to do the work
-                    $pages = AppModel::getInstance("", "Page");
-                    $pages->tryCatchquery($query);
+					$pages->tryCatchquery($query);
                 }
             }
         }
-        foreach(self::$cached_views_delete as $plugin_model => $details){
-        	list($plugin_name, $model_name) = explode('.', $plugin_model);	
-        	$model = AppModel::getInstance($plugin_name, $model_name);
-        	$model->delete(array_unique($details['pkeys_for_deletion']), false);
+        foreach(self::$cached_views_delete as $model_table => $models){
+        	foreach($models as $primary_key => $details){
+        		$query = sprintf('DELETE FROM %s  WHERE %s IN (%s,9)', $model_table, $primary_key, implode(',',$details['pkeys_for_deletion']));	//To fix issue#2980: Edit Storage & View Update 
+				$pages->tryCatchquery($query);
+        	}
 		}
 		foreach(self::$cached_views_insert as $model_table => $base_models){
 			foreach($base_models as $base_model => $query_parts){
 				foreach($query_parts as $query_part => $details){
 					$table_query = str_replace('%%WHERE%%', 'AND '.$base_model.'.id IN('.implode(", ", array_unique($details['ids'])).')', $query_part);
 					$query = sprintf('INSERT INTO %s (%s)', $model_table, $table_query);
-					//just "some" model to do the work
-					$pages = AppModel::getInstance("", "Page");
 					$pages->tryCatchquery($query);
 				}
 			}
