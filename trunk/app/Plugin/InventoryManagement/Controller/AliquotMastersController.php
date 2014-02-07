@@ -348,6 +348,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)){
 				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				//save
 				$batch_ids = array();
 				foreach($this->request->data as $created_aliquots){
@@ -372,6 +374,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					require($hook_link); 
 				}
 					
+				AppModel::releaseBatchViewsUpdateLock();
+				
 				if($is_batch_process) {
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_data = array('BatchSet' => array(
@@ -546,6 +550,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			// Save data
 			if($submitted_data_validates) {
+				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				$this->AliquotMaster->addWritableField('storage_master_id');
@@ -561,6 +568,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}	
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				$this->atimFlash(__('your data has been updated'), '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 				return;
