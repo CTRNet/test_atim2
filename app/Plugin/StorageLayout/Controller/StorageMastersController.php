@@ -335,6 +335,8 @@ class StorageMastersController extends StorageLayoutAppController {
 			if($submitted_data_validates) {
 				$this->StorageMaster->addWritableField(array('storage_control_id', 'parent_id', 'selection_label', 'temperature', 'temp_unit'));
 				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				// Save storage data
 				$this->StorageMaster->id = $storage_master_id;		
 				if($this->StorageMaster->save($this->request->data, false)) {
@@ -354,7 +356,8 @@ class StorageMastersController extends StorageLayoutAppController {
 					}		
 					$this->atimFlash(__('your data has been updated'), '/StorageLayout/StorageMasters/detail/' . $storage_master_id); 
 				}
-					
+
+				AppModel::releaseBatchViewsUpdateLock();
 			}
 		}
 	}

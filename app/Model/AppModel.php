@@ -1399,6 +1399,26 @@ class AppModel extends Model {
         self::$locked_views_update = true;
     }
     
+    static function manageViewUpdate($model_table, $foreign_key, $ids, $query_part){
+    	if(self::$locked_views_update){
+    		if(!isset(self::$cached_views_update[$model_table])){
+    			self::$cached_views_update[$model_table] = array();
+    		}
+    		if(!isset(self::$cached_views_update[$model_table][$foreign_key])){
+    			self::$cached_views_update[$model_table][$foreign_key] = array();
+    		}
+    		if(!isset(self::$cached_views_update[$model_table][$foreign_key][$query_part])){
+    			self::$cached_views_update[$model_table][$foreign_key][$query_part] = array("ids" => array());
+    		}
+    		self::$cached_views_update[$model_table][$foreign_key][$query_part]["ids"] = array_merge(self::$cached_views_update[$model_table][$foreign_key][$query_part]["ids"], $ids);
+    	}else{
+    		$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.' IN ('.implode(',',$ids).')', $query_part);
+    		$query = sprintf('REPLACE INTO %s (%s)', $model_table, $table_query);
+    		$pages = AppModel::getInstance("", "Page");
+    		$pages->tryCatchquery($query);
+    	}
+    }
+    
     static function releaseBatchViewsUpdateLock(){
     	//just "some" model to do the work
     	$pages = AppModel::getInstance("", "Page");
@@ -1413,7 +1433,7 @@ class AppModel extends Model {
         }
         foreach(self::$cached_views_delete as $model_table => $models){
         	foreach($models as $primary_key => $details){
-        		$query = sprintf('DELETE FROM %s  WHERE %s IN (%s,9)', $model_table, $primary_key, implode(',',$details['pkeys_for_deletion']));	//To fix issue#2980: Edit Storage & View Update 
+        		$query = sprintf('DELETE FROM %s  WHERE %s IN (%s)', $model_table, $primary_key, implode(',',array_unique($details['pkeys_for_deletion'])));	//To fix issue#2980: Edit Storage & View Update 
 				$pages->tryCatchquery($query);
         	}
 		}
