@@ -1946,6 +1946,9 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			// 3- SAVE PROCESS
 			
 			if(empty($errors)) {
+				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$new_aliquot_ids = array(); 
 				foreach($this->request->data as $parent_id => $parent_and_children){
 					
@@ -2023,13 +2026,15 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 					}
 					
 					// D- Update parent aliquot current volume
-					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, (empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? false : true), false);
+					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, true, false);
 				}
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				if(empty($aliquot_id)) {
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
@@ -2757,6 +2762,9 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 
 			if($validates){		
 				if($to_update['AliquotMaster']){
+					
+					AppModel::acquireBatchViewsUpdateLock();
+					
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 										
@@ -2780,6 +2788,8 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 					if( $hook_link ) {
 						require($hook_link);
 					}
+					
+					AppModel::releaseBatchViewsUpdateLock();
 					
  					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				}else{

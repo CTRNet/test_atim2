@@ -2091,22 +2091,22 @@ INSERT INTO structures(`alias`) VALUES ('protocol_extend_masters');
 
 UPDATE datamart_structure_functions SET flag_active = '0' WHERE link = '/ClinicalAnnotation/Participants/batchEdit/';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#2983: realiquot in batch tissue tubes: The aliquot uses/event counter is not updated
+-- Including : In newVersionSetup(), Add code to correct all
+--     . Wrong AliquotMaster.user_counter,
+--     . Wrong AliquotMaster.current_volume,
+--     . Realiquoting.parent_used_volume not null when (Parent)AliquotControl.volume_unit is null,
+--     . InternalUse.used_volume not null when AliquotControl.volume_unit is null,
+--     . SourceAliquot.used_volume not null when AliquotControl.volume_unit is null,
+--     . QualityControl.used_volume not null when AliquotControl.volume_unit is null
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('aliquot used volume has been removed for following aliquots : ', 'Aliquot used volume has been removed for following aliquots : ', 'Le volume utilisé a été supprimé pour les aliquots : '),
+('aliquot current volume has been corrected for following aliquots : ','Aliquot current volume has been corrected for following aliquots : ', 'Le volume courant a été corrigé pour les aliquots : '),
+('aliquot use counter has been corrected for following aliquots : ', 'Aliquot Uses/Events counter has been corrected for following aliquots : ', 'Le nombre d''Utilisations/Événements a été corrigé pour les aliquots : ');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
