@@ -1041,9 +1041,13 @@ class AppController extends Controller {
 
 		// *** 6 *** Use Counter and Current Volume clean up
 		
-		AppModel::acquireBatchViewsUpdateLock();
+		$ViewAliquot_model = AppModel::getInstance("InventoryManagement", "ViewAliquot", false);	//To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
+		$tmp_aliquot_model_cacheSources = $ViewAliquot_model->cacheSources;
+		$ViewAliquot_model->cacheSources = false;
+		$ViewAliquot_model->schema();
 		$AliquotMaster_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
 		$AliquotMaster_model->check_writable_fields = false;
+		AppModel::acquireBatchViewsUpdateLock();
 		//-A-Use counter
 		$use_counters_updated = array();
 		//Search all aliquots linked to at least one use and having use_counter = 0
@@ -1190,14 +1194,17 @@ class AppController extends Controller {
 				$ViewAliquotUse_model->query('REPLACE INTO '.$ViewAliquotUse_model->table. '('.str_replace('%%WHERE%%', 'AND AliquotMaster.id IN ('.implode(',',array_keys($used_volume_updated)).')', $query).')');
 			}
 			AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ').(implode(', ', $use_counters_updated)));
-		}
-		
+		}	
+		$ViewAliquot_model->cacheSources = $tmp_aliquot_model_cacheSources;
+		$ViewAliquot_model->schema();
+
 		// *** 7 *** clear cache
 
 		Cache::clear(false);
 		Cache::clear(false, 'structures');
 		Cache::clear(false, 'menus');
 		Cache::clear(false, 'browser');
+		Cache::clear(false, 'models');
 		Cache::clear(false, '_cake_core_');
 		Cache::clear(false, '_cake_model_');
 		AppController::addWarningMsg(__('cache has been cleared'));
