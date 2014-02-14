@@ -614,6 +614,8 @@ class StorageMastersController extends StorageLayoutAppController {
 			$conflicts_found = $this->StorageMaster->checkBatchLayoutConflicts($data, 'TmaSlide', 'barcode', $storage_config) || $conflicts_found;
 			$err = $this->StorageMaster->validationErrors;
 			
+			AppModel::acquireBatchViewsUpdateLock();
+			
 			//update StorageMaster
 			$this->StorageMaster->check_writable_fields = false;
 			$this->StorageMaster->updateAndSaveDataArray($storages_initial_data, "StorageMaster", "parent_storage_coord_x", "parent_storage_coord_y", "parent_id", $data, $this->StorageMaster, $storage_data);
@@ -626,6 +628,8 @@ class StorageMastersController extends StorageLayoutAppController {
 			$this->TmaSlide->check_writable_fields = false;
 			$this->StorageMaster->updateAndSaveDataArray($tmas_initial_data, "TmaSlide", "storage_coord_x", "storage_coord_y", "storage_master_id", $data, $this->TmaSlide, $storage_data);
 
+			AppModel::releaseBatchViewsUpdateLock();
+			
 			if($conflicts_found){
 				AppController::addWarningMsg(__('your data has been saved'));
 				$this->StorageMaster->validationErrors = $err;

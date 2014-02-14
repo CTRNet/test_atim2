@@ -654,7 +654,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				
 			if($submitted_data_validates) {
 				
-				AppModel::acquireBatchViewsUpdateLock();
+				//AppModel::acquireBatchViewsUpdateLock(); See issue #2981
 				
 				// Save sample data
 				$this->SampleMaster->id = $sample_master_id;
@@ -682,7 +682,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					$this->atimFlash(__('your data has been updated'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}
 					
-				AppModel::releaseBatchViewsUpdateLock();					
+				//AppModel::releaseBatchViewsUpdateLock(); See issue #2981					
 			}
 		}
 	}

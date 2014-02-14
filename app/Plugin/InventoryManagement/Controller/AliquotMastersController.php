@@ -803,6 +803,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)){
 
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				//saving
 				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id'));
 				$this->AliquotInternalUse->writable_fields_mode = 'addgrid';
@@ -833,6 +835,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($hook_link){
 					require($hook_link);
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				if($aliquot_master_id != null){
 					$this->atimFlash(__('your data has been saved'), $url_to_cancel);
@@ -2351,6 +2355,8 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			
 			if(empty($errors)) {
 				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$new_aliquot_ids = array();
 				
 				//C- Save Process
@@ -2406,6 +2412,8 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				//redirect
 				if($aliquot_master_id == null){
