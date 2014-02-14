@@ -2138,4 +2138,4 @@ VALUES
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.0', NOW(),'5564','n/a');
+VALUES('2.6.0', NOW(),'5596?','n/a');
