@@ -353,6 +353,7 @@ class OrderItemsController extends OrderAppController {
 			}			
 			
 			if($submitted_data_validates){
+				AppModel::acquireBatchViewsUpdateLock();
 				$this->OrderItem->addWritableField(array('order_line_id', 'status', 'aliquot_master_id'));
 				foreach($aliquot_ids_to_add as $added_aliquot_master_id) {
 					// Add order item
@@ -391,6 +392,8 @@ class OrderItemsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				// Redirect
 				$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
