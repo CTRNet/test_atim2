@@ -281,10 +281,6 @@ class ReportsController extends DatamartAppController {
 				if($LinkedModel) {
 					// Take care about selected items
 					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
-						pr($this->request->data);
-						pr($linked_datamart_structure['DatamartStructure']['model']);
-						pr($LinkedModel->primaryKey);
-						exit;
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
 					$ids = array_filter($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey]);

@@ -58,6 +58,8 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			// Set structure
 			$control_data = $this->EventControl->getOrRedirect($event_control_id);
 			$this->Structures->set($control_data['EventControl']['form_alias']);
+			self::buildDetailBinding($this->EventMaster,
+			    $search_criteria, $control_data['EventControl']['form_alias']);
 		}
 		
 		// MANAGE DATA
@@ -175,7 +177,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
 				}
 					
 			} else {
@@ -208,10 +210,16 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				}
 				unset($data_unit);
 				
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+								
 				// Launch Save Process
 				if(empty($this->request->data)) {
 					$this->EventMaster->validationErrors[][] = 'at least one record has to be created';
 				} else if(empty($errors_tracking)){
+					AppModel::acquireBatchViewsUpdateLock();
 					//save all
 					$this->EventMaster->addWritableField(array('event_control_id','participant_id','diagnosis_master_id'));
 					$this->EventMaster->writable_fields_mode = 'addgrid';
@@ -220,7 +228,12 @@ class EventMastersController extends ClinicalAnnotationAppController {
 						$this->EventMaster->data = array();
 						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
-					$this->atimFlash('your data has been updated', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
+					$hook_link = $this->hook('postsave_process_batch');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					AppModel::releaseBatchViewsUpdateLock();
+					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
 				} else {
 					$this->EventMaster->validationErrors = array();
 					foreach($errors_tracking as $field => $msg_and_lines) {
@@ -284,7 +297,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
+				$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->request->data = $event_master_data;
@@ -308,12 +321,12 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atimDelete( $event_master_id )) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 		}
 	}
 }

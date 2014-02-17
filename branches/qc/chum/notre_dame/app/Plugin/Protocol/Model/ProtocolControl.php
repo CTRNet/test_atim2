@@ -2,8 +2,8 @@
 
 class ProtocolControl extends ProtocolAppModel {
 
-   	var $useTable = 'protocol_controls';
- 
+	var $master_form_alias = 'protocolmasters';
+ 	
  	/**
 	 * Get permissible values array gathering all existing protocol types.
 	 *
@@ -41,6 +41,10 @@ class ProtocolControl extends ProtocolAppModel {
 		
 		return $result;
 	}
+
+   	function afterFind($results, $primary = false) {
+   		return $this->applyMasterFormAlias($results, $primary);
+   	}
 }
 
 ?>

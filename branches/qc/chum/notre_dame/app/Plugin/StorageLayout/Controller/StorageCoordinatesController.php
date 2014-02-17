@@ -102,7 +102,7 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash('your data has been saved', '/StorageLayout/StorageCoordinates/listAll/' . $storage_master_id);				
+					$this->atimFlash(__('your data has been saved'), '/StorageLayout/StorageCoordinates/listAll/' . $storage_master_id);				
 				}
 			}
 		}
@@ -139,13 +139,13 @@ class StorageCoordinatesController extends StorageLayoutAppController {
 		if($arr_allow_deletion['allow_deletion']) {
 			// Delete coordinate
 			if($this->StorageCoordinate->atimDelete($storage_coordinate_id)) {
-				$this->atimFlash('your data has been deleted', $flash_url);
+				$this->atimFlash(__('your data has been deleted'), $flash_url);
 			} else {
-				$this->flash('error deleting data - contact administrator', $flash_url);
+				$this->flash(__('error deleting data - contact administrator'), $flash_url);
 			}		
 		
 		} else {
-			$this->flash($arr_allow_deletion['msg'], $flash_url);
+			$this->flash(__($arr_allow_deletion['msg']), $flash_url);
 		}			
 	}
 }

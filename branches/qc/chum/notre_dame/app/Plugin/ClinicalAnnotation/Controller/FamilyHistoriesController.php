@@ -138,7 +138,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 					require($hook_link);
 				}
 				
-				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id );
 
 			} else  {
 				$this->FamilyHistory->validationErrors = array();
@@ -207,7 +207,7 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/FamilyHistories/detail/'.$participant_id.'/'.$family_history_id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/FamilyHistories/detail/'.$participant_id.'/'.$family_history_id );
 				}				
 			}
 		}
@@ -235,12 +235,12 @@ class FamilyHistoriesController extends ClinicalAnnotationAppController {
 			
 			$flash_link = '/ClinicalAnnotation/FamilyHistories/listall/'.$participant_id;
 			if ($this->FamilyHistory->atimDelete($family_history_id)) {
-				$this->atimFlash( 'your data has been deleted', $flash_link );
+				$this->atimFlash(__('your data has been deleted'), $flash_link );
 			} else {
-				$this->flash( 'error deleting data - contact administrator', $flash_link );
+				$this->flash(__('error deleting data - contact administrator'), $flash_link );
 			}	
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/FamilyHistories/detail/'.$participant_id.'/'.$family_history_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/FamilyHistories/detail/'.$participant_id.'/'.$family_history_id);
 		}	
 	}
 }

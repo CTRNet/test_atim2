@@ -207,7 +207,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		if($parent_id == 0){
 			if($dx_ctrl['DiagnosisControl']['category'] != 'primary'){
 				//is not a primary but has no parent
-				$this->flash('invalid control id', 'javascript:history.back();');
+				$this->flash(__('invalid control id'), 'javascript:history.back();');
 			}
 		}else{
 			$parent_dx = $this->DiagnosisMaster->find('first', array('conditions' => array('DiagnosisMaster.id' => $parent_id, 'DiagnosisMaster.participant_id' => $participant_id)));
@@ -215,7 +215,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 				$this->redirect( '/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );				
 			}
 			if(($dx_ctrl['DiagnosisControl']['category'] == 'primary') || ($dx_ctrl['DiagnosisControl']['category'] == 'secondary') &&  ($parent_dx['DiagnosisControl']['category'] == 'secondary')) {
-				$this->flash('invalid control id', 'javascript:history.back();');
+				$this->flash(__('invalid control id'), 'javascript:history.back();');
 			}
 		}
 		
@@ -277,7 +277,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 						require($hook_link);
 					}
 					
-					$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/' );
+					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id.'/' );
 				}
 			}
 		}
@@ -352,7 +352,7 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id );
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id );
 				}
 			}
 		}
@@ -375,12 +375,12 @@ class DiagnosisMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->DiagnosisMaster->atimDelete( $diagnosis_master_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/DiagnosisMasters/listall/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/DiagnosisMasters/detail/'.$participant_id.'/'.$diagnosis_master_id);
 		}		
 	}
 	

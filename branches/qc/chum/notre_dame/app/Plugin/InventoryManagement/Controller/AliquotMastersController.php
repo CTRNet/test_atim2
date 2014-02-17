@@ -145,7 +145,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->request->data[0]['ids'] = $sample_master_id;
 			$this->request->data[0]['realiquot_into'] = $aliquot_control_id;
 		} else if(empty($this->request->data)){ 
-			$this->flash(__('you have been redirected automatically').' (#'.__LINE__.')', $url_to_cancel, 5);
+			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;
 		}
 
@@ -385,14 +385,14 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
 					
-					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
 					if($this->request->is('ajax')){
 						ob_end_clean();
 						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => -1));
 						exit;
 					}else{
-						$this->atimFlash('your data has been saved', '/InventoryManagement/SampleMasters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
+						$this->atimFlash(__('your data has been saved'), '/InventoryManagement/SampleMasters/detail/' . $samples[0]['ViewSample']['collection_id'] . '/' . $sample_master_id);
 					}
 				}
 				
@@ -601,7 +601,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
-		$this->atimFlash('your data has been updated', '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
+		$this->atimFlash(__('your data has been updated'), '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 	}
 	
 	function delete($collection_id, $sample_master_id, $aliquot_master_id) {
@@ -625,12 +625,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { require($hook_link); }
 				
-				$this->atimFlash('your data has been deleted', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+				$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id . '/' . $aliquot_master_id);
 		}		
 	}
 	
@@ -839,7 +839,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				AppModel::releaseBatchViewsUpdateLock();
 				
 				if($aliquot_master_id != null){
-					$this->atimFlash('your data has been saved', $url_to_cancel);
+					$this->atimFlash(__('your data has been saved'), $url_to_cancel);
 				
 				}else{
 					//batch
@@ -860,7 +860,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
 					
-					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 					
 				}
 			}else{
@@ -1007,7 +1007,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, false)) { 
 						$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 					}
-					$this->atimFlash('your data has been saved', '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/' . $aliquot_master_id . '/' . $aliquot_use_id . '/');
+					$this->atimFlash(__('your data has been saved'), '/InventoryManagement/AliquotMasters/detailAliquotInternalUse/' . $aliquot_master_id . '/' . $aliquot_use_id . '/');
 				} 
 			}
 		}
@@ -1042,13 +1042,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 			if(!$this->AliquotMaster->updateAliquotUseAndVolume($aliquot_master_id, true, true)) { $deletion_done = false; }
 		}
 		if($deletion_done) {
-			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
+			$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $flash_url); 
 		} else {
-			$this->flash('error deleting data - contact administrator', $flash_url); 
+			$this->flash(__('error deleting data - contact administrator'), $flash_url); 
 		}	
 	}
 	
 	function addInternalUseToManyAliquots($storage_master_id = null) {
+//TODO: See issue#2702
+$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$initial_display = false;
 		$aliquot_ids = array();
 		$studied_storage = null;
@@ -1068,7 +1070,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			foreach($all_children_storages as $new_child) $storage_ids[] = $new_child['StorageMaster']['id'];
 			$aliquot_ids = $this->AliquotMaster->find('list', array('conditions' => array('AliquotMaster.storage_master_id' => $storage_ids, 'AliquotMaster.in_stock' => array('yes - available','yes - not available')), 'fields' => array('AliquotMaster.id'), 'recursive' => '-1'));
 			if(empty($aliquot_ids)) {
-				$this->flash((__('no aliquot is contained into this storage')), $url_to_cancel, 5);
+				$this->flash(__('no aliquot is contained into this storage'), $url_to_cancel, 5);
 				return;
 			}
 			if(empty($this->request->data)) $initial_display = true;
@@ -1180,7 +1182,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 				
 				if($storage_master_id != null){
-					$this->atimFlash('your data has been saved', $url_to_cancel);
+					$this->atimFlash(__('your data has been saved'), $url_to_cancel);
 				
 				} else {
 					//batch
@@ -1195,7 +1197,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 					$batch_set_model->saveWithIds($batch_set_data, $batch_ids);
 						
-					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				}
 			}
 		}
@@ -1234,7 +1236,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 		$available_sample_aliquots_w_volume = $this->AliquotMaster->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 		
 		if(empty($available_sample_aliquots_w_volume) && empty($available_sample_aliquots_wo_volume)){
-			$this->flash('no new sample aliquot could be actually defined as source aliquot', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+			$this->flash(__('no new sample aliquot could be actually defined as source aliquot'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 		}
 		$available_sample_aliquots = array(
 			'vol' 		=> $available_sample_aliquots_w_volume,
@@ -1461,7 +1463,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					require($hook_link);
 				}				
 				
-				$this->atimFlash('your data has been saved', '/InventoryManagement/SampleMasters/detail/'.$source_data['SampleMaster']['collection_id'].'/'.$source_data['SampleMaster']['id']);
+				$this->atimFlash(__('your data has been saved'), '/InventoryManagement/SampleMasters/detail/'.$source_data['SampleMaster']['collection_id'].'/'.$source_data['SampleMaster']['id']);
 			}
 		}else{
 			$this->request->data = $source_data;
@@ -1503,9 +1505,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		
 		$flash_url = '/InventoryManagement/SampleMasters/detail/' . $source_data['SampleMaster']['collection_id'] . '/' . $source_data['SampleMaster']['id'];
 		if($deletion_done) {
-			$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url); 
+			$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $flash_url); 
 		} else {
-			$this->flash('error deleting data - contact administrator', $flash_url); 
+			$this->flash(__('error deleting data - contact administrator'), $flash_url); 
 		}
 	}
 
@@ -1723,7 +1725,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$lab_book_code = $this->request->data['Realiquoting']['lab_book_master_code'];
 				$sync_with_lab_book = $this->request->data['Realiquoting']['sync_with_lab_book']; 
 			}else{
-				$this->flash($sync_response, "javascript:history.back()", 5);
+				$this->flash(__($sync_response), "javascript:history.back()", 5);
 				return;
 			}
 		}
@@ -2117,7 +2119,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$lab_book_code = $this->request->data['Realiquoting']['lab_book_master_code'];
 				$sync_with_lab_book = $this->request->data['Realiquoting']['sync_with_lab_book']; 
 			}else{
-				$this->flash($sync_response, "javascript:history.back()", 5);
+				$this->flash(__($sync_response), "javascript:history.back()", 5);
 				return;
 			}
 		}
@@ -2234,7 +2236,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 				$msg = __('no new aliquot could be actually defined as realiquoted child for the following parent aliquot(s)').': ['.implode(",", $tmp_barcode).']';
 				
 				if(empty($this->request->data)) {
-					$this->flash($msg, "javascript:history.back()", 5);
+					$this->flash(__($msg), "javascript:history.back()", 5);
 					return;
 				} else {
 					AppController::addWarningMsg($msg);
@@ -2513,7 +2515,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 					require($hook_link);
 				}
 				
-				$this->atimFlash('your data has been saved', '/InventoryManagement/AliquotMasters/detail/'.$data['AliquotMasterChildren']['collection_id'].'/'.$data['AliquotMasterChildren']['sample_master_id'].'/'.$data['AliquotMasterChildren']['id']);
+				$this->atimFlash(__('your data has been saved'), '/InventoryManagement/AliquotMasters/detail/'.$data['AliquotMasterChildren']['collection_id'].'/'.$data['AliquotMasterChildren']['sample_master_id'].'/'.$data['AliquotMasterChildren']['id']);
 			}
 		}else{
 			$this->request->data = $data;
@@ -2563,15 +2565,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 				}
 		
 				if($this->AliquotMaster->updateAliquotUseAndVolume($realiquoting_data['AliquotMaster']['id'], true, true)) {
-					$this->atimFlash('your data has been deleted - update the aliquot in stock data', $flash_url);
+					$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), $flash_url);
 				} else {
-					$this->flash('error deleting data - contact administrator', $flash_url);
+					$this->flash(__('error deleting data - contact administrator'), $flash_url);
 				}
 			} else {
-				$this->flash('error deleting data - contact administrator', $flash_url);
+				$this->flash(__('error deleting data - contact administrator'), $flash_url);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], $flash_url);
+			$this->flash(__($arr_allow_deletion['msg']), $flash_url);
 		}
 	}
 	

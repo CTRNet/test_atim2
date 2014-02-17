@@ -490,7 +490,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved', '/InventoryManagement/QualityCtrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
+				$this->atimFlash(__('your data has been saved'), '/InventoryManagement/QualityCtrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
 		
@@ -522,15 +522,15 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
 				}
-				$this->atimFlash( 'your data has been deleted', 
+				$this->atimFlash(__('your data has been deleted'), 
 						'/InventoryManagement/QualityCtrls/listAll/'
 						.$qc_data['SampleMaster']['collection_id'].'/'
 						.$qc_data['QualityCtrl']['sample_master_id'].'/');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/QualityCtrls/listAll/' . $collection_id . '/' . $sample_master_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/QualityCtrls/listAll/' . $collection_id . '/' . $sample_master_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/QualityCtrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/QualityCtrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
 		}
 	}
 }

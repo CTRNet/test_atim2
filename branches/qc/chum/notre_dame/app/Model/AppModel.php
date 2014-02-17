@@ -135,9 +135,7 @@ class AppModel extends Model {
 		}
 		
 		$this->setTrackability();
-		
 		$this->checkFloats();
-		
 		$this->registerModelsToCheck();
 		
 		return true;
@@ -219,49 +217,52 @@ class AppModel extends Model {
 		$this->data[$this->name]['modified'] = now();//CakePHP should do it... doens't work.
 	}
 	
+	
 	private function registerModelsToCheck(){
-		$this->registered_models = array();
-		if($this->registered_view && $this->id){
-			foreach($this->registered_view as $registered_view => $foreign_keys){
-				list($plugin_name, $model_name) = explode('.', $registered_view);
-				$model = AppModel::getInstance($plugin_name, $model_name);
-				$pkeys_to_check = array();
-				$pkeys_for_deletion = array();
-				foreach($foreign_keys as $foreign_key){
-					$at_least_one = false;
-					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
-						if(strpos($query_part, $foreign_key) === false){
-							continue;
-						}
-						$at_least_one = true;
-						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
-								
-						$results = $this->tryCatchQuery($table_query);
-						foreach($results as $result){
-							$pkeys_for_deletion[] = current(current($result));
-							if(method_exists($model, "getPkeyAndModelToCheck")){
-								$pkeys_to_check[] = $model->getPkeyAndModelToCheck($result);
-							}else{
-								$pkeys_to_check[] = array(
-									'pkey' => current(current($result)),
-									'base_model' => $model->base_model);
-							}
-						}
-					}
-					if(!$at_least_one){
-						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
-					}
-				}
-				if($pkeys_to_check){
-					$this->registered_models[] = array(
-							'model' => $model,
-							'pkeys_to_check' => $pkeys_to_check,
-							'pkeys_for_deletion' => $pkeys_for_deletion,
-					);
-				}
-			}
-		}
+	    $this->registered_models = array();
+	    if($this->registered_view && $this->id){
+	        foreach($this->registered_view as $registered_view => $foreign_keys){
+	            list($plugin_name, $model_name) = explode('.', $registered_view);
+	            $model = AppModel::getInstance($plugin_name, $model_name);
+	            $pkeys_to_check = array();
+	            $pkeys_for_deletion = array();
+	            foreach($foreign_keys as $foreign_key){
+	                $at_least_one = false;
+	                
+	                foreach(explode("UNION ALL", $model::$table_query) as $query_part){
+	                    if(strpos($query_part, $foreign_key) === false){
+	                        continue;
+	                    }
+	                    $at_least_one = true;
+	                    $table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
+	
+	                    $results = $this->tryCatchQuery($table_query);
+	                    foreach($results as $result){
+	                        $pkeys_for_deletion[] = current(current($result));
+	                        if(method_exists($model, "getPkeyAndModelToCheck")){
+	                            $pkeys_to_check[] = $model->getPkeyAndModelToCheck($result);
+	                        }else{
+	                            $pkeys_to_check[] = array(
+	                                    'pkey' => current(current($result)),
+	                                    'base_model' => $model->base_model);
+	                        }
+	                    }
+	                }
+	                if(!$at_least_one){
+	                    throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
+	                }
+	            }
+	            if($pkeys_to_check){
+	                $this->registered_models[] = array(
+	                        'model' => $model,
+	                        'pkeys_to_check' => $pkeys_to_check,
+	                        'pkeys_for_deletion' => $pkeys_for_deletion,
+	                );
+	            }
+	        }
+	    }
 	}
+	
 	
 	private function updateRegisteredModels(){
 	    foreach($this->registered_models as $registered_model){
@@ -1299,29 +1300,8 @@ class AppModel extends Model {
 	}
 	
 	function afterSave($created, $options = Array()){
-		if($this->registered_view){
-			foreach($this->registered_view as $registered_view => $foreign_keys){
-				list($plugin_name, $model_name) = explode('.', $registered_view);
-				$model = AppModel::getInstance($plugin_name, $model_name);
-				foreach($foreign_keys as $foreign_key){
-					$at_least_one = false;
-					foreach(explode("UNION ALL", $model::$table_query) as $query_part){
-						if(strpos($query_part, $foreign_key) === false){
-							continue;
-						}
-						$table_query = str_replace('%%WHERE%%', 'AND '.$foreign_key.'='.$this->id, $query_part);
-						$at_least_one = true;
-						$query = sprintf('REPLACE INTO %s (%s)', $model->table, $table_query);
-						$this->tryCatchquery($query);
-					}
-					if(!$at_least_one){
-						throw new Exception("No queries part fitted with the foreign key ".$foreign_key);
-					}
-				}
-			}
-		}
-		
-		$this->updateRegisteredModels();
+	    $this->updateRegisteredViews();
+	    $this->updateRegisteredModels();
 	}
 
 	function makeTree(array &$in){

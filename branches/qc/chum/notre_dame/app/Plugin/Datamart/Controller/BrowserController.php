@@ -48,7 +48,7 @@ class BrowserController extends DatamartAppController {
 			$this->request->data['BrowsingIndex']['temporary'] = false;
 			$this->BrowsingIndex->addWritableField(array('temporary'));
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	
@@ -58,9 +58,9 @@ class BrowserController extends DatamartAppController {
 		if(!empty($this->request->data)){
 			$this->BrowsingIndex->atimDelete($index_id);
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
-			$this->atimFlash( 'your data has been deleted', '/Datamart/Browser/index/');
+			$this->atimFlash(__('your data has been deleted'), '/Datamart/Browser/index/');
 		} else {
-			$this->flash( 'error deleting data - contact administrator', '/Datamart/Browser/index/');
+			$this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
 		}
 	}
 	
@@ -318,26 +318,30 @@ class BrowserController extends DatamartAppController {
 					if($this->BrowsingControl->find1ToN($current_structure_id, $parent_node['BrowsingResult']['browsing_structures_id'])){
 						//valid parent
 						$browsing_result = $this->BrowsingResult->findById($parent_node['BrowsingResult']['id']);
-						$counters_structure_fields[] = array(
-							'model'	=> '0',
-							'field'	=> 'counter_'.$parent_node['BrowsingResult']['id'],
-							'type'	=> 'integer_positive',
-							'flag_search'	=> 1,
-							'flag_search_readonly'	=> 0,
-							'display_column'	=> 1,
-							'display_order'	=> 1,
-							'language_label'	=> $browsing_result['DatamartStructure']['display_name'],
-							'language_heading'	=> '',
-							'tablename'	=> '',
-							'language_tag'	=> '',
-							'language_help' => '',
-							'setting' => '',
-							'default' => '',
-							'flag_confidential' => '',
-							'flag_float' => '',
-							'margin' => '',
-							'StructureValidation' => array()
-						);
+						if(false){
+						    //Disabled: Adds a counter field to search forms when going from 
+						    // 1 to N. Unclear if useful.
+    						$counters_structure_fields[] = array(
+    							'model'	=> '0',
+    							'field'	=> 'counter_'.$parent_node['BrowsingResult']['id'],
+    							'type'	=> 'integer_positive',
+    							'flag_search'	=> 1,
+    							'flag_search_readonly'	=> 0,
+    							'display_column'	=> 1,
+    							'display_order'	=> 1,
+    							'language_label'	=> $browsing_result['DatamartStructure']['display_name'],
+    							'language_heading'	=> '',
+    							'tablename'	=> '',
+    							'language_tag'	=> '',
+    							'language_help' => '',
+    							'setting' => '',
+    							'default' => '',
+    							'flag_confidential' => '',
+    							'flag_float' => '',
+    							'margin' => '',
+    							'StructureValidation' => array()
+    						);
+						}
 						$current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
 					}else{
 						break;
@@ -548,7 +552,7 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->pkey_safeguard = false;
 			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	

@@ -40,7 +40,7 @@ class GroupsController extends AdministrateAppController {
 					$this->Aro->id = $aro_data['Aro']['id'];
 					$this->Aro->save($aro_data);
 					
-					$this->atimFlash('your data has been saved', '/Administrate/Permissions/tree/'.$group_id);
+					$this->atimFlash(__('your data has been saved'), '/Administrate/Permissions/tree/'.$group_id);
 				}
 			}else{
 				$this->Group->validationErrors['name'][] = 'this name is already in use';
@@ -50,7 +50,7 @@ class GroupsController extends AdministrateAppController {
 
 	function edit($group_id) {
 		if($group_id == 1){
-			$this->flash('the group administrators cannot be edited', '/Administrate/Groups/detail/1');
+			$this->flash(__('the group administrators cannot be edited'), '/Administrate/Groups/detail/1');
 		}
 		$this->Group->getOrRedirect($group_id);
 		
@@ -79,7 +79,7 @@ class GroupsController extends AdministrateAppController {
 					if( $hook_link ) { 
 						require($hook_link); 
 					}
-					$this->atimFlash('your data has been updated', '/Administrate/Groups/detail/'.$group_id);
+					$this->atimFlash(__('your data has been updated'), '/Administrate/Groups/detail/'.$group_id);
 				}
 			}
 		}
@@ -112,17 +112,17 @@ class GroupsController extends AdministrateAppController {
 
 	function delete( $group_id) {
 		if($group_id == 1){
-			$this->flash('the group administrators cannot be deleted', '/Administrate/Groups/detail/1');
+			$this->flash(__('the group administrators cannot be deleted'), '/Administrate/Groups/detail/1');
 		}
 		$this->request->data = $this->User->find('first',array('conditions'=>array('User.group_id'=>$group_id)));
 		$this->hook();
 
 		if(empty($this->request->data)){
 			if ($this->Group->atimDelete($group_id)) {
-				$this->atimFlash('Group deleted', '/Administrate/Groups/index/');
+				$this->atimFlash(__('Group deleted'), '/Administrate/Groups/index/');
 			}
 		}else{
-			$this->flash('this group is being used and cannot be deleted', '/Administrate/Groups/detail/'.$group_id."/");
+			$this->flash(__('this group is being used and cannot be deleted'), '/Administrate/Groups/detail/'.$group_id."/");
 		}
 	}
 
