@@ -78,9 +78,36 @@ UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1
 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'TreatmentMaster', 'FamilyHistory', 'SpecimenReviewMaster', 'TreatmentExtendMaster', 'AliquotReviewMaster'))
 OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'TreatmentMaster', 'FamilyHistory', 'SpecimenReviewMaster', 'TreatmentExtendMaster', 'AliquotReviewMaster'));
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add structure_permissible_values_custom_controls.category
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE name = 'quality control tools';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE name = 'qc consent version';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'qc visit label';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'qc mycoplasma tests';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'researchers';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'rna purification method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'laterality';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'treatment facility';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'information source';
+UPDATE structure_permissible_values_custom_controls SET category = 'order', name = 'shipping cie' WHERE name = 'qc_nd_shipping_cie';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'DNA RNA : Storage solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'DNA RNA : Source storage method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'RNA : Extraction method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'DNA RNA : Source storage solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Ascite Cells : Storage solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Ascite Cells : Storage method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Cell Culture : Collection method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Cell Culture : Hormone';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Cell Culture : Solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Cell Culture : Storage solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Tissue : Storage solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Tissue : Storage method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Blood cell : Storage solution';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'Amp. RNA : Amp. method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'DNA : Extraction method';
+UPDATE structure_permissible_values_custom_controls SET category = 'inventory', name = 'procure slice origins' WHERE name = 'procure _slice origins';
 
 
 
