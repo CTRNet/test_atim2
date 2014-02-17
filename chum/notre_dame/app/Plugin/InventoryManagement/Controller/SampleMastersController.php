@@ -653,6 +653,9 @@ class SampleMastersController extends InventoryManagementAppController {
 			}
 				
 			if($submitted_data_validates) {
+				
+				//AppModel::acquireBatchViewsUpdateLock(); See issue #2981
+				
 				// Save sample data
 				$this->SampleMaster->id = $sample_master_id;
 				if($this->SampleMaster->save($this->request->data, false)) {				
@@ -677,7 +680,9 @@ class SampleMastersController extends InventoryManagementAppController {
 					}
 					
 					$this->atimFlash('your data has been updated', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);		
-				}				
+				}
+					
+				//AppModel::releaseBatchViewsUpdateLock(); See issue #2981					
 			}
 		}
 	}
@@ -1125,6 +1130,8 @@ class SampleMastersController extends InventoryManagementAppController {
 			if(empty($errors)){
 				unset($_SESSION['derivative_batch_process']);
 				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				//save
 				$child_ids = array();
 				
@@ -1193,6 +1200,8 @@ class SampleMastersController extends InventoryManagementAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				if(is_null($unique_aliquot_master_data)) {
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);

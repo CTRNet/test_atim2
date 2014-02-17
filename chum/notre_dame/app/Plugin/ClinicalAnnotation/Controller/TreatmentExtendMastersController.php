@@ -72,7 +72,9 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				require($hook_link); 
 			}			
 			
-			if(empty($errors)) {		
+			if(empty($errors)) {
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				foreach($this->request->data as $new_data) {
 					$this->TreatmentExtendMaster->id = null;
 					$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
@@ -84,7 +86,9 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 					require($hook_link);
 				}
 				
-				$this->atimFlash( 'your data has been saved', '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
+				AppModel::releaseBatchViewsUpdateLock();
+				
+				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
 
 			} else  {
 				$this->TreatmentExtendMaster->validationErrors = array();
