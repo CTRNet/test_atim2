@@ -58,17 +58,17 @@ UPDATE storage_controls SET display_y_size = 1 WHERE id = 109;
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 190, 189, 192);
 
-----------------------------------------------------------------------------------------------------------
-Queries to desactivate 'Participant Identifiers' demo report
-----------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------
+-- Queries to desactivate 'Participant Identifiers' demo report
+-- --------------------------------------------------------------------------------------------------------
 
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'participant identifiers';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');
 
-----------------------------------------------------------------------------------------------------------
-Added new relationsips into databrowser
-Please flag unactive relationsips if required.
-----------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------
+-- Added new relationsips into databrowser
+-- Please flag unactive relationsips if required.
+-- --------------------------------------------------------------------------------------------------------
 
 UPDATE datamart_structure_functions fct, datamart_structures str
 SET fct.flag_active = 0 
@@ -109,9 +109,24 @@ UPDATE structure_permissible_values_custom_controls SET category = 'inventory' W
 UPDATE structure_permissible_values_custom_controls SET category = 'inventory' WHERE name = 'DNA : Extraction method';
 UPDATE structure_permissible_values_custom_controls SET category = 'inventory', name = 'procure slice origins' WHERE name = 'procure _slice origins';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Manon request / Box25
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+REPLACE INTO i18n (id,en,fr) VALUES ('box25','Box25 1-25','Boîte25 1-25');
+SELECT id AS storage_master_id_issue_if_not_empty 
+FROM storage_masters 
+WHERE parent_id IN (SELECT id FROM storage_masters WHERE storage_control_id = 17 AND short_label REGEXP ('^0[0-9]$') AND selection_label REGEXP ('^17[0-9]-[0-9]-0[0-9]$') AND deleted <> 1);
+UPDATE storage_masters
+SET short_label = SUBSTRING(short_label, 2), selection_label = CONCAT(SUBSTRING(selection_label, 1, 6),SUBSTRING(selection_label, 8))
+WHERE storage_control_id = 17 AND short_label REGEXP ('^0[0-9]$') AND selection_label REGEXP ('^17[0-9]-[0-9]-0[0-9]$') AND deleted <> 1 ;
+UPDATE storage_masters_revs
+SET short_label = SUBSTRING(short_label, 2), selection_label = CONCAT(SUBSTRING(selection_label, 1, 6),SUBSTRING(selection_label, 8))
+WHERE storage_control_id = 17 AND short_label REGEXP ('^0[0-9]$') AND selection_label REGEXP ('^17[0-9]-[0-9]-0[0-9]$') ;
+UPDATE structure_permissible_values_customs SET `en` = 'Box25 1-25', `fr` = 'Boîte25 1-25' WHERE `en` = 'Box25 1-25';
 
-5585-5597
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Version
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
+UPDATE versions SET branch_build_number = '????' WHERE version_number = '2.6.0';
