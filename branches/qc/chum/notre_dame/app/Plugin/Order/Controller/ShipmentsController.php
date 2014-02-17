@@ -235,7 +235,10 @@ class ShipmentsController extends OrderAppController {
 				require($hook_link); 
 			}
 					
-			if ($submitted_data_validates) {	
+			if ($submitted_data_validates) {
+
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				// Launch Save Process
 				$order_line_to_update = array();
 				
@@ -308,6 +311,9 @@ class ShipmentsController extends OrderAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
+				
 				$this->atimFlash(__('your data has been saved').'<br>'.__('aliquot storage data were deleted (if required)'), 
 					'/Order/Shipments/detail/'.$order_id.'/'.$shipment_id.'/');
 			}		

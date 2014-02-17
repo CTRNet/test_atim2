@@ -278,6 +278,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 			//save
 			if(empty($errors) && !empty($qc_data_to_save)){
+				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$this->QualityCtrl->addWritableField(array('sample_master_id', 'aliquot_master_id'));
 				$this->QualityCtrl->writable_fields_mode = 'addgrid';
 				$this->QualityCtrl->saveAll($qc_data_to_save, array('validate' => false));
@@ -316,7 +319,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					require($hook_link); 
 				}
 				
-				$this->atimFlash( 'your data has been saved', $target);
+				AppModel::releaseBatchViewsUpdateLock();
+				
+				$this->atimFlash(__('your data has been saved'), $target);
 				return;
 			
 			}else{
