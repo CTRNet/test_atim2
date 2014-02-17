@@ -10,7 +10,8 @@
 	
 	// ************** 1- COLLECTION **************
 	$structure_settings = array(
-		'actions'		=> false
+		'actions'	=> false,
+		'header' 	=> array('title' => __('collection'), 'description' => null)
 	);
 	
 	$final_atim_structure = $empty_structure;
@@ -18,7 +19,7 @@
 		'type'		=> 'detail', 
 		'data'		=> array(), 
 		'settings'	=> $structure_settings,
-		'extras'	=> $this->Structures->ajaxIndex('InventoryManagement/Collections/detail/'.$collection_data['id'])
+		'extras'	=> $this->Structures->ajaxIndex('InventoryManagement/Collections/detail/'.$collection_data['id'].'/1')
 	);
 
 	// CUSTOM CODE

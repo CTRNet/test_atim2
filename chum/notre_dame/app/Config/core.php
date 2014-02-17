@@ -383,7 +383,39 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 600);
+
+/**
+ * Define the complexity of a password format:
+ *	- level 0: No constrain
+ *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter		
+ *	- level 2: level 1 + contains at least one number	
+ *	- level 3: level 2 + contains at least one uppercase letter
+ *	- level 4: level 3 + special at least one character [!$-_.]
+ */
+Configure::write('password_security_level', 2);
+
+/**
+ * Maximum number of successive failed login attempts (max_login_attempts_from_IP) before an IP address is disabled.
+ * Time in minute (time_mn_IP_disabled) before an IP adress can retest login.
+ */
+Configure::write('max_login_attempts_from_IP', 5);
+/**
+ * Time in minute (time_mn_IP_disabled) before an IP adress is reactivated.
+ */
+Configure::write('time_mn_IP_disabled', 20);
+
+/**
+ * Maximum number of login attempts with a same username (max_user_login_attempts) before a username is disabled.
+ */
+Configure::write('max_user_login_attempts', 5);
+
+/**
+ * Period of password validity in month. 
+ * Keep empty if no control has to be done.
+ * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
+ */
+Configure::write('password_validity_period_month', null);
 
 unset($debug);

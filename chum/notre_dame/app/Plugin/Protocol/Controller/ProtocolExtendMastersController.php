@@ -14,14 +14,14 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 	function listall($protocol_master_id){
 		$protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		if(!$protocol_master_data['ProtocolControl']['protocol_extend_control_id']){
-			$this->flash( 'no additional data has to be defined for this type of protocol', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+			$this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			return;
 		}
 		
 		$protocol_extend_control_data = $this->ProtocolExtendControl->getOrRedirect($protocol_master_data['ProtocolControl']['protocol_extend_control_id']);
 		$this->request->data = $this->paginate($this->ProtocolExtendMaster, array('ProtocolExtendMaster.protocol_master_id'=>$protocol_master_id, 'ProtocolExtendMaster.protocol_extend_control_id'=>$protocol_master_data['ProtocolControl']['protocol_extend_control_id']));
 		
-		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['detail_form_alias']);
+		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['form_alias']);
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 
 		$hook_link = $this->hook('format');
@@ -35,7 +35,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		if(!$protocol_master_data['ProtocolControl']['protocol_extend_control_id']){
-			$this->flash( 'no additional data has to be defined for this type of protocol', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+			$this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			return;
 		}
 		
@@ -43,7 +43,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		$this->request->data = $this->ProtocolExtendMaster->find('first', array('conditions' => $condtions));
 		if(empty($this->request->data)) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$this->Structures->set($this->request->data['ProtocolExtendControl']['detail_form_alias'] );
+		$this->Structures->set($this->request->data['ProtocolExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtendMaster.id'=>$protocol_extend_master_id));
 		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 
@@ -62,14 +62,14 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		if(!$protocol_master_data['ProtocolControl']['protocol_extend_control_id']){
-			$this->flash( 'no additional data has to be defined for this type of protocol', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+			$this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			return;
 		}
 
 		// Set tablename to use
 		$protocol_extend_control_data = $this->ProtocolExtendControl->getOrRedirect($protocol_master_data['ProtocolControl']['protocol_extend_control_id']);
 		
-		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['detail_form_alias'] );
+		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 
@@ -93,7 +93,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id );
+				$this->atimFlash(__('your data has been saved'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id );
 			}
 		}
 	}
@@ -104,7 +104,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		if(!$protocol_master_data['ProtocolControl']['protocol_extend_control_id']){
-			$this->flash( 'no additional data has to be defined for this type of protocol', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+			$this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			return;
 		}
 
@@ -112,7 +112,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		$prot_extend_data = $this->ProtocolExtendMaster->find('first', array('conditions' => $condtions));
 		if(empty($prot_extend_data)) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$this->Structures->set($prot_extend_data['ProtocolExtendControl']['detail_form_alias'] );
+		$this->Structures->set($prot_extend_data['ProtocolExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtendMaster.id'=>$protocol_extend_master_id));
 		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 		
@@ -139,7 +139,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/Protocol/ProtocolExtendMasters/detail/'.$protocol_master_id.'/'.$protocol_extend_master_id);
+				$this->atimFlash(__('your data has been updated'),'/Protocol/ProtocolExtendMasters/detail/'.$protocol_master_id.'/'.$protocol_extend_master_id);
 			}
 		}
 	}
@@ -150,7 +150,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		// Get treatment master row for extended data
 		$protocol_master_data = $this->ProtocolMaster->getOrRedirect($protocol_master_id);
 		if(!$protocol_master_data['ProtocolControl']['protocol_extend_control_id']){
-			$this->flash( 'no additional data has to be defined for this type of protocol', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+			$this->flash(__('no additional data has to be defined for this type of protocol'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			return;
 		}
 		
@@ -167,12 +167,12 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if( $this->ProtocolExtendMaster->atimDelete( $protocol_extend_master_id ) ) {
-				$this->atimFlash( 'your data has been deleted', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+				$this->atimFlash(__('your data has been deleted'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
+				$this->flash(__('error deleting data - contact administrator'), '/Protocol/ProtocolMasters/detail/'.$protocol_master_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/Protocol/ProtocolExtendMaster/detail/'.$protocol_master_id.'/'.$protocol_extend_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/Protocol/ProtocolExtendMaster/detail/'.$protocol_master_id.'/'.$protocol_extend_master_id);
 		}
 		
 	}

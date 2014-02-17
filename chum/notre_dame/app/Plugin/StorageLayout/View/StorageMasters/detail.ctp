@@ -8,7 +8,7 @@
 	
 	//Basic
 	$structure_links['bottom']['edit'] = '/StorageLayout/StorageMasters/edit/' . $atim_menu_variables['StorageMaster.id'];
-	$structure_links['bottom']['add storage event to stored aliquots'] = '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/' . $atim_menu_variables['StorageMaster.id'];
+//TODO: See issue#2702	$structure_links['bottom']['add storage event to stored aliquots'] = '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/' . $atim_menu_variables['StorageMaster.id'];
 	if($is_tma) {
 		// No children storage could be added to a TMA block
 		// Add button to create slide

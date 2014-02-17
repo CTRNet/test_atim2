@@ -174,8 +174,8 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(empty($sample_data)) { 
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
-		$sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
-		$sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
+		if(array_key_exists('coll_to_rec_spent_time_msg', $sample_data['ViewSample'])) $sample_data['SampleMaster']['coll_to_rec_spent_time_msg']  = $sample_data['ViewSample']['coll_to_rec_spent_time_msg'];
+		if(array_key_exists('coll_to_creation_spent_time_msg', $sample_data['ViewSample'])) $sample_data['SampleMaster']['coll_to_creation_spent_time_msg']  = $sample_data['ViewSample']['coll_to_creation_spent_time_msg'];
 		 
 		$is_specimen = true;
 		switch($sample_data['SampleControl']['sample_category']) {
@@ -512,7 +512,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						echo json_encode(array('goToNext' => true, 'display' => '', 'id' => $sample_master_id));
 						exit;
 					}else{
-						$this->atimFlash('your data has been saved', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+						$this->atimFlash(__('your data has been saved'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 					}	
 				}					
 			}
@@ -679,7 +679,7 @@ class SampleMastersController extends InventoryManagementAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash('your data has been updated', '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);		
+					$this->atimFlash(__('your data has been updated'), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);		
 				}
 					
 				//AppModel::releaseBatchViewsUpdateLock(); See issue #2981					
@@ -722,14 +722,14 @@ class SampleMastersController extends InventoryManagementAppController {
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { require($hook_link); }
 					
-				$this->atimFlash('your data has been deleted', '/InventoryManagement/Collections/detail/' . $collection_id);
+				$this->atimFlash(__('your data has been deleted'), '/InventoryManagement/Collections/detail/' . $collection_id);
 			
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/Collections/detail/' . $collection_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/Collections/detail/' . $collection_id);
 			}
 			
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/SampleMasters/detail/' . $collection_id . '/' . $sample_master_id);
 		}		
 	}
 	
@@ -947,7 +947,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			if(is_numeric($result)){
 				$lab_book_id = $result;
 			}else{
-				$this->flash($result, $url_to_cancel, 5);
+				$this->flash(__($result), $url_to_cancel, 5);
 				return;
 			}
 			$lab_book_data = $lab_book->findById($lab_book_id);
@@ -1212,12 +1212,12 @@ class SampleMastersController extends InventoryManagementAppController {
 					));
 					$batch_set_model->check_writable_fields = false;
 					$batch_set_model->saveWithIds($batch_set_data, $child_ids);
-					$this->atimFlash('your data has been saved', '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
+					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				} else {
 					if(!isset($unique_aliquot_master_data['AliquotMaster'])){
 						$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 					}
-					$this->atimFlash('your data has been saved','/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
+					$this->atimFlash(__('your data has been saved'),'/InventoryManagement/SampleMasters/detail/' .$unique_aliquot_master_data['AliquotMaster']['collection_id'] . '/' . $child_ids[0].'/');					
 				}
 				
 			}else{

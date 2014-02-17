@@ -44,13 +44,14 @@ class AdminUsersController extends AdministrateAppController {
 				
 				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->request->data['User']['password'], 'confirm_password' => $this->request->data['Generated']['field1']));
-				$this->User->validatePassword($password_data);
+				$this->User->validatePassword($password_data, $this->request->data['User']['username']);
 				
 				$this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
+				$this->request->data['User']['password_modified'] = null; //To force user to change password at next login
 				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->request->data['User']['group_id'] = $group_id;
 				$this->request->data['User']['flag_active'] = true;
-				$this->User->addWritableField(array('group_id', 'flag_active'));
+				$this->User->addWritableField(array('group_id', 'flag_active','password_modified'));
 				$aro_m = AppModel::getInstance('', 'Aro', true);
 				$aro_m->check_writable_fields = false;
 				
@@ -65,7 +66,7 @@ class AdminUsersController extends AdministrateAppController {
 						if( $hook_link ) {
 							require($hook_link);
 						}
-						$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
+						$this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/'.$group_id.'/'.$this->User->getLastInsertId().'/' );
 					}
 				}
 				//reset password display
@@ -121,7 +122,7 @@ class AdminUsersController extends AdministrateAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been saved', '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
+					$this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/'.$group_id.'/'.$user_id.'/' );
 					return;
 				}
 			}
@@ -156,7 +157,7 @@ class AdminUsersController extends AdministrateAppController {
 			$this->User->atimDelete($user_id);
 			$this->atimFlash(__('your data has been deleted'), "/Administrate/AdminUsers/listall/".$group_id);
 		} else {
-			$this->flash( $arr_allow_deletion['msg'], 'javascript:history.back()');
+			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.back()');
 		}
 	}
 	
@@ -188,7 +189,7 @@ class AdminUsersController extends AdministrateAppController {
 			$this->User->addWritableField('group_id');
 			$this->User->save(array('User' => array('group_id' => $this->request->data['Group']['id'])), false);
 			$this->SystemVar->setVar('permission_timestamp', time());
-			$this->atimFlash('your data has been saved', '/Administrate/AdminUsers/detail/'.$this->request->data['Group']['id'].'/'.$user_id.'/');
+			$this->atimFlash(__('your data has been saved'), '/Administrate/AdminUsers/detail/'.$this->request->data['Group']['id'].'/'.$user_id.'/');
 		}else{
 			$this->request->data = $user;
 		}
