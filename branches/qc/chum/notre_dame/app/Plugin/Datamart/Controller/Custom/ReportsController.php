@@ -236,7 +236,7 @@ pr('TO Review');exit;
 		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 	
-		if($parameters['Participant']['id']) {
+		if(isset($parameters['Participant']['id'])) {
 			//From databrowser
 			$participant_ids = $parameters['Participant']['id'];
 			$header = array(
