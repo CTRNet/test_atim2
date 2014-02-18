@@ -1184,9 +1184,16 @@ function initActions(){
                var firstTh = $(this);
                var lastTd = $(this).parents("table:first")
                    .find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
-               console.log(firstTh.position());
                $(this).find(".testScroll").each(function(){
-                   $(this).append('<div class="floatingBckGrnd"><div class="right"><div></div></div><div class="left"></div></div>');
+                   var currHtml = $(this).html(); 
+                   $(this).html(
+                       '<span style="z-index: 2; position: relative;">' 
+                           + currHtml 
+                       + '</span>'
+                       + '<div class="floatingBckGrnd">'
+                           + '<div class="right"><div></div></div>'
+                           + '<div class="left"></div>'
+                       + '</div>');
                    computeSum = function(obj, cssArr){
                        total = 0;
                        for(var i in cssArr){
