@@ -533,6 +533,15 @@ function initActions(){
 		});
 	}
 	
+	function initFlyOverCellsLines(newLines){
+	    totalColspan = $(".floatingBckGrnd").data("totalColspan");
+	    $(newLines).each(function(index, element){
+	        for(var i = 0; i <= totalColspan; ++ i){
+	            putIntoRelDiv(i, $(element).find("td:nth-child(" + i + ")"));
+	        }
+	    })
+	};
+	
 	function initAddLine(scope){
 		$(scope).find(".addLineLink").each(function(){
 			//get the table row
@@ -562,6 +571,7 @@ function initActions(){
 						initLabBook(newLines);
 					}
 					initAccuracy(newLines);
+					resizeFloatingBckGrnd($(table).find(".floatingBckGrnd"));
 					initFlyOverCellsLines(newLines);
 					flyOverComponents();
 					
@@ -629,9 +639,53 @@ function initActions(){
 		}
 	}
 	
-	function removeLine(){
-		var floatingBckGrnd = $(this).parents("table:first").find(".floatingBckGrnd");
-		$(this).parents("tr:first").remove();
+	function resizeFloatingBckGrnd(floatingBckGrnd){
+	    table = $(floatingBckGrnd).parents("table:first");
+	    computeSum = function(obj, cssArr){
+            total = 0;
+            for(var i in cssArr){
+                total += parseFloat(obj.css(cssArr[i]));
+            }
+            return total;
+        };
+        psSize = function(obj, direction){
+            arr = ["margin-%s", "padding-%s", "border-%s-width"];
+            newArr = [];
+            for(var i in arr){
+                newArr.push(arr[i].replace("%s", direction));
+            }
+            return computeSum(obj, newArr);
+        };
+        var totalColspan = $(floatingBckGrnd).data("totalColspan");
+        var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
+        if(!lastTd.length){
+            //no more rows
+            lastTd = $(table).find("thead th:last").eq(0);
+        }
+        var firstTh = $(table).find("th.floatingCell:last").siblings().eq(0);
+        console.log($(lastTd).get(0));
+        console.log($(firstTh).get(0));
+        width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
+        height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
+        if($(floatingBckGrnd).data("onlyDimension") == undefined){
+            $(floatingBckGrnd).data("onlyDimension", true);
+            $(floatingBckGrnd).css({
+                "top" : "-" + ($(floatingBckGrnd).offset().top - $(floatingBckGrnd).parents("th:first").offset().top - $(floatingBckGrnd).position().top) + "px",
+                "left" : "-" + ($(floatingBckGrnd).offset().left - $(firstTh).offset().left) + "px",
+                "width" : width + "px",
+                "height" : height + "px"
+            });
+        }else{
+            $(floatingBckGrnd).css({
+                "width" : width + "px",
+                "height" : height + "px"
+            });
+        }
+	}
+	
+	function removeLine(event){
+		var floatingBckGrnd = $(event.target).parents("table:first").find(".floatingBckGrnd");
+		$(event.target).parents("tr:first").remove();
 		resizeFloatingBckGrnd(floatingBckGrnd);
 		return false;
 	}
@@ -1149,6 +1203,13 @@ function initActions(){
 		flyOverComponents();
 	}
 	
+	function putIntoRelDiv(index, elem){
+        $(elem).html(
+            "<div class='testScroll'>" +
+                $(elem).html() +
+            "</div>");
+    };
+	
 	function initFlyOverCells(scope){
 	    $(scope).find("table.structure").each(function(){
 	        //make cells float
@@ -1156,12 +1217,7 @@ function initActions(){
                 return true;
             }
     	    totalColspan = 0;
-    	    var putIntoRelDiv = function(index, elem){
-    	        $(elem).html(
-                    "<div class='testScroll'>" +
-                        $(elem).html() +
-                    "</div>");
-    	    };
+    	    
     	    var putAndCount = function(index, elem){
     	        var colspan = $(elem).attr("colspan");
                 if(colspan == undefined){
@@ -1194,29 +1250,8 @@ function initActions(){
                            + '<div class="right"><div></div></div>'
                            + '<div class="left"></div>'
                        + '</div>');
-                   computeSum = function(obj, cssArr){
-                       total = 0;
-                       for(var i in cssArr){
-                           total += parseFloat(obj.css(cssArr[i]));
-                       }
-                       return total;
-                   };
-                   psSize = function(obj, direction){
-                       arr = ["margin-%s", "padding-%s", "border-%s-width"];
-                       newArr = [];
-                       for(var i in arr){
-                           newArr.push(arr[i].replace("%s", direction));
-                       }
-                       return computeSum(obj, newArr);
-                   };
-                   width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
-                   height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
-                   $(this).find(".floatingBckGrnd").css({
-                       "top" : "-" + ($(this).offset().top - $(this).parents("th:first").offset().top) + "px",
-                       "left" : "-" + ($(this).offset().left - $(this).parents("th:first").offset().left) + "px",
-                       "width" : width + "px",
-                       "height" : height + "px"
-                   });
+                   $(this).find(".floatingBckGrnd").data("totalColspan", totalColspan);
+                   resizeFloatingBckGrnd($(this).find(".floatingBckGrnd"));
                });
             });
 	    });
