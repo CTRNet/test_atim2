@@ -1,8 +1,13 @@
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-SET FOREIGN_KEY_CHECKS=0;
-
--- -----------------------------------------------------------
+-- ------------------------------------------------------
+-- ATiM Demo Data Script
+-- version: 2.6.0
+--
+-- Note: 
+--    Run after atim_v2.6.0_full_installation.sql
+--
+-- For more information: 
+--    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
+-- ------------------------------------------------------
 
 INSERT INTO `ad_blocks` (`aliquot_master_id`, `block_type`, `patho_dpt_block_code`) VALUES
 (1, 'frozen', ''),

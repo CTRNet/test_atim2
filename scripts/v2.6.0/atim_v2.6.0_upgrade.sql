@@ -1,3 +1,11 @@
+-- ------------------------------------------------------
+-- ATiM v2.6.0 Upgrade Script
+-- version: 2.6.0
+--
+-- For more information: 
+--    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
+-- ------------------------------------------------------
+
 REPLACE INTO i18n (id,en,fr) VALUES
 ('children', 'Children', 'Enfants'),
 ('results', 'Results', 'Résultats');
@@ -2151,4 +2159,4 @@ update users set username = 'user1' where username = 'user';
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.0', NOW(),'5596?','n/a');
+VALUES('2.6.0', NOW(),'5617','n/a');
