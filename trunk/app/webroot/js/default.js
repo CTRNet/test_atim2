@@ -662,9 +662,7 @@ function initActions(){
             //no more rows
             lastTd = $(table).find("thead th:last").eq(0);
         }
-        var firstTh = $(table).find("th.floatingCell:last").siblings().eq(0);
-        console.log($(lastTd).get(0));
-        console.log($(firstTh).get(0));
+        var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
         width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
         height = Math.ceil(lastTd.position().top + lastTd.outerHeight() - firstTh.position().top);
         if($(floatingBckGrnd).data("onlyDimension") == undefined){
@@ -1236,7 +1234,7 @@ function initActions(){
                         .each(putIntoRelDiv);
                 }
             });
-            $(this).find("th.floatingCell:last").siblings().eq(0).each(function(){
+            $(this).find("th.floatingCell:last").parent().find("th:first").each(function(){
                var firstTh = $(this);
                var lastTd = $(this).parents("table:first")
                    .find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
