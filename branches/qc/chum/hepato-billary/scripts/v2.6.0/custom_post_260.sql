@@ -28,7 +28,7 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name = 'Consent Form Versions';
 
-INSERT INTO i18n ('consent v2013-01-08','Consent v2013-01-08');
+INSERT INTO i18n (id,en) VALUES ('consent v2013-01-08','Consent v2013-01-08');
 
 -- ------------------------------------------------------------------------------------------------
 -- Treatment
@@ -192,6 +192,8 @@ WHERE td.survival_time_in_months IS NOT NULL AND td.survival_time_in_months != (
 SELECT '+-----------------+--------------------+-----------------------+----------------+----------------------+---------------------------------+' AS 'END TODO'
 UNION ALL
 SELECT '' AS 'END TODO';
+
+INSERT INTO i18n (id,en) VALUES ('surgery complications','Surgery Complications');
 
 -- ------------------------------------------------------------------------------------------------
 -- Event
@@ -430,3 +432,96 @@ UPDATE structure_permissible_values_custom_controls SET category = 'clinical - a
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation', name = 'Follow-up : Recurrence treatment' WHERE name = 'follow-up : recurrence treatment';
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation', name = 'Medical imagings : Radiologic TACE response' WHERE name = 'medical imagings : radiologic TACE response';
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment', name = 'TACE : Complication treatment' WHERE name = 'TACE : complication treatment';
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Principal surgery')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: principal surgery')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Other organ resection')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: other organ resection')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Pathological report')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: pathological report')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Type of drain')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: type of drain')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Type of glue')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: type of glue')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgey - Liver detail : Liver appearance')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver detail : liver appearance')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgey - Liver detail : Type of vascular occlusion')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver detail : type of vascular occlusion')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgey - Liver pancreas : Pancreas appearance')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver pancreas : pancreas appearance')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgey - Liver pancreas : Anastomosis type')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - liver pancreas : anastomosis type')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery - Complication : Organ list')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - complication : organ list')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Chemotherapy : Reason of change')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : reason of change')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Chemotherapy : Toxicity')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : toxicity')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery - Complication: Treatment')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery - complication: treatment')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Local treatment type')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: local treatment type')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery - Complication : Type')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey - complication : type')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery : Surgeon list')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgey : surgeon list')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Doctor : Speciality list')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('doctor : speciality list')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Chemotherapy : Regimen list')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('chemotherapy : regimen list')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Hepatitis Treatment')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('hepatitis treatment')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Type of hepatitis')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('type of hepatitis')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Cirrhosis type')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('cirrhosis type')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Surgery: Complication treatment')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('surgery: complication treatment')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Liver metastasis : Hitologic type')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('liver metastasis : hitologic type')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Liver metastasis : Tumor site')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('liver metastasis : tumor site')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('GenHeMACS enzymatic milieu')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('genHeMACS enzymatic milieu')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Bile Ducts List')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('Bile Ducts List')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Follow-up : Recurrence localization')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('follow-up : recurrence localization')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Follow-up : Recurrence treatment')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('follow-up : recurrence treatment')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('Medical imagings : Radiologic TACE response')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('medical imagings : radiologic TACE response')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('TACE : Complication treatment')" WHERE source = "StructurePermissibleValuesCustom::getCustomDropdown('TACE : complication treatment')";
+
+-- ------------------------------------------------------------------------------------------------
+-- Clinical Collection Link
+-- ------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ------------------------------------------------------------------------------------------------
+-- Inventory
+-- ------------------------------------------------------------------------------------------------
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(181, 185);
+UPDATE structure_formats SET `flag_float`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_float`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='aliquot code' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='used_aliq_in_stock_details') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `tablename`='specimen_details' WHERE model='SpecimenDetail' AND field='qc_hb_sample_code';
+
+
+
+
+
+
+
+
+
+
+-- ------------------------------------------------------------------------------------------------
+-- Datamart
+-- ------------------------------------------------------------------------------------------------
+
+DELETE FROM datamart_structure_functions WHERE datamart_structure_id IN (SELECT id FROM datamart_structures WHERE model IN ('ParticipantContact') AND display_name = 'contacts');
+DELETE FROM datamart_browsing_controls WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ParticipantContact') AND display_name = 'contacts');
+DELETE FROM datamart_browsing_controls WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ParticipantContact') AND display_name = 'contacts');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMaster', 'ALiquotReviewMaster')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('SpecimenReviewMaster', 'ALiquotReviewMaster'));
+
+-- ------------------------------------------------------------------------------------------------
+-- Report
+-- ------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+ajouter blood type a summary
