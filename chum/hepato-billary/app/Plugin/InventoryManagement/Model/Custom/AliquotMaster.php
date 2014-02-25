@@ -3,6 +3,40 @@ class AliquotMasterCustom extends AliquotMaster{
 	var $useTable = 'aliquot_masters';
 	var $name = 'AliquotMaster';
 	
+	function summary($variables=array()) {
+		$return = false;
+	
+		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
+				
+			$result = $this->find('first', array('conditions'=>array('AliquotMaster.collection_id'=>$variables['Collection.id'], 'AliquotMaster.sample_master_id'=>$variables['SampleMaster.id'], 'AliquotMaster.id'=>$variables['AliquotMaster.id'])));
+			if(!isset($result['AliquotMaster']['storage_coord_y'])){
+				$result['AliquotMaster']['storage_coord_y'] = "";
+			}
+			
+			$aliquot_precision = '';
+			if(array_key_exists('block_type', $result['AliquotDetail']) && $result['AliquotDetail']['block_type']) {
+				$query = array(
+						'recursive' => 2,
+						'conditions' => array('StructureValueDomain.domain_name' => 'block_type'));
+				App::uses("StructureValueDomain", 'Model');
+				$structure_value_domain_model = new StructureValueDomain();
+				$blood_types_list = $structure_value_domain_model->find('first', $query);
+				if(isset($blood_types_list['StructurePermissibleValue'])) {
+					foreach($blood_types_list['StructurePermissibleValue'] as $new_type) if($new_type['value'] == $result['AliquotDetail']['block_type']) $aliquot_precision = ' - '.__($new_type['language_alias']);
+				}
+			}
+			
+			$return = array(
+					'menu'	        	=> array(null, __($result['AliquotControl']['aliquot_type']) . $aliquot_precision . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'title'		  		=> array(null, __($result['AliquotControl']['aliquot_type']) . ' : '. $result['AliquotMaster']['aliquot_label']),
+					'data'				=> $result,
+					'structure alias'	=> 'aliquot_masters'
+			);
+		}
+	
+		return $return;
+	}	
+	
 	function generateDefaultAliquotLabel($sample_master_id, $aliquot_control_data) {
 		// Parameters check: Verify parameters have been set
 		if(empty($sample_master_id) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
