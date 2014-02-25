@@ -542,9 +542,19 @@ UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='hospital_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='hospital_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- --------------------------------------------------------------------------------------------------------
+-- DATAMART BROWSING CONTROL
+-- --------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection')) 
+AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TreatmentMaster', 'EventMaster'));
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id2 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection')) 
+AND id1 IN (SELECT id FROM datamart_structures WHERE model IN ('TreatmentMaster', 'EventMaster'));
 
 -- --------------------------------------------------------------------------------------------------------
--- PARTICIPANT IDENTIFIER REPORT
+-- VERSION
 -- --------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET branch_build_number = '5621' WHERE version_number = '2.6.0';
