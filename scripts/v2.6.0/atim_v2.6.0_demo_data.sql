@@ -9,6 +9,8 @@
 --    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
 -- ------------------------------------------------------
 
+SET FOREIGN_KEY_CHECKS=0;
+
 INSERT INTO `ad_blocks` (`aliquot_master_id`, `block_type`, `patho_dpt_block_code`) VALUES
 (1, 'frozen', ''),
 (2, 'frozen', ''),
