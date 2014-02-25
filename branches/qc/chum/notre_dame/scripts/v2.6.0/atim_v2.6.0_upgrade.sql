@@ -1,3 +1,11 @@
+-- ------------------------------------------------------
+-- ATiM v2.6.0 Upgrade Script
+-- version: 2.6.0
+--
+-- For more information: 
+--    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
+-- ------------------------------------------------------
+
 REPLACE INTO i18n (id,en,fr) VALUES
 ('children', 'Children', 'Enfants'),
 ('results', 'Results', 'Résultats');
@@ -476,6 +484,8 @@ SELECT "ALTER TABLE protocol_extend_masters DROP COLUMN tmp_old_extend_id;" AS '
 UNION ALL
 SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN protocol_master_id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
 UNION ALL
+SELECT "UPDATE protocol_extend_masters SET deleted = 1 WHERE protocol_master_id IN (SELECT id FROM protocol_masters WHERE deleted = 1);" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
 SELECT "" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE';
 
 SELECT '----------------------------------------------------------------------------------------------------------'  AS 'CUSTOM PROTOCOL EXTEND MODEL, CONTROLER AND VIEW UPGRADE'
@@ -551,6 +561,7 @@ ALTER TABLE pe_chemos ADD CONSTRAINT FK_pe_chemos_protocol_extend_masters FOREIG
 INSERT INTO protocol_extend_masters_revs (id, protocol_extend_control_id, protocol_master_id, modified_by, version_created) (SELECT protocol_extend_master_id, @protocol_extend_control_id, protocol_master_id, modified_by, version_created FROM pe_chemos_revs ORDER BY version_id ASC);
 ALTER TABLE protocol_extend_masters DROP COLUMN tmp_old_extend_id;
 ALTER TABLE pe_chemos_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN protocol_master_id;
+UPDATE protocol_extend_masters SET deleted = 1 WHERE protocol_master_id IN (SELECT id FROM protocol_masters WHERE deleted = 1);
 
 -- **** TREATMENT EXTEND ****
 	
@@ -587,6 +598,8 @@ UNION ALL
 SELECT "ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
 UNION ALL
 SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);"  AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
 UNION ALL
 SELECT '' AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE';
 
@@ -689,6 +702,7 @@ ALTER TABLE txe_chemos ADD CONSTRAINT FK_txe_chemos_treatment_extend_masters FOR
 INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_chemos_revs ORDER BY version_id ASC);
 ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
 ALTER TABLE txe_chemos_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
+UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);
 
 -- specific upgrade statements of txe_surgeries --
 
@@ -703,6 +717,7 @@ ALTER TABLE txe_surgeries ADD CONSTRAINT FK_txe_surgeries_treatment_extend_maste
 INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_surgeries_revs ORDER BY version_id ASC);
 ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
 ALTER TABLE txe_surgeries_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
+UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);
 
 -- specific upgrade statements of txe_radiations --
 
@@ -1835,19 +1850,19 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinica
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - gynaecologic" AND language_alias="clinical - gynaecologic"), "0", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("undefined", "undefined");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="undefined" AND language_alias="undefined"), "", "1");
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="quality control" AND spv.language_alias="quality control";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="gynaecologic" AND spv.language_alias="gynaecologic";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="consent" AND spv.language_alias="consent";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="treatment" AND spv.language_alias="treatment";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="diagnosis" AND spv.language_alias="diagnosis";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="annotation" AND spv.language_alias="annotation";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="contact" AND spv.language_alias="contact";
-DELETE FROM structure_permissible_values WHERE value="quality control" AND language_alias="quality control";
-DELETE FROM structure_permissible_values WHERE value="consent" AND language_alias="consent";
-DELETE FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment";
-DELETE FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis";
-DELETE FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation";
-DELETE FROM structure_permissible_values WHERE value="contact" AND language_alias="contact";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="quality control" AND spv.language_alias="quality control";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="gynaecologic" AND spv.language_alias="gynaecologic";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="consent" AND spv.language_alias="consent";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="treatment" AND spv.language_alias="treatment";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="diagnosis" AND spv.language_alias="diagnosis";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="annotation" AND spv.language_alias="annotation";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="contact" AND spv.language_alias="contact";
+DELETE FROM structure_permissible_values WHERE value="quality control" AND language_alias="quality control" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="consent" AND language_alias="consent" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="contact" AND language_alias="contact" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE category = 'consent';
 UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE category = 'quality control';
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE category = 'treatment';
@@ -2134,8 +2149,14 @@ VALUES
 ('your own password is invalid','Your own password is invalid','Votre propre mot de passe n''est pas valide');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change username user
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+update users set username = 'user1' where username = 'user';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.0', NOW(),'5596?','n/a');
+VALUES('2.6.0', NOW(),'5617','n/a');
