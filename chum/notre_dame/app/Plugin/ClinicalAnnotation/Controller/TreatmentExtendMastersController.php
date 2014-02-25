@@ -177,7 +177,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		if($tx_master_data['TreatmentMaster']['participant_id'] != $participant_id) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		
 		if(is_numeric($tx_master_data['TreatmentMaster']['protocol_master_id'])){
-			$protcola_extend_master_data = $this->ProtocolExtendMaster->getOrRedirect($tx_master_data['TreatmentMaster']['protocol_master_id']);
+			$protcol_data = $this->ProtocolMaster->getOrRedirect($tx_master_data['TreatmentMaster']['protocol_master_id']);
 			$prot_extend_data = $this->ProtocolExtendMaster->find('all', array('conditions'=>array('ProtocolExtendMaster.protocol_master_id' => $tx_master_data['TreatmentMaster']['protocol_master_id'])));
 			$data = array();
 			if(empty($prot_extend_data)){

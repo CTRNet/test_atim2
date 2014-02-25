@@ -1193,7 +1193,7 @@ class AppController extends Controller {
 			foreach(explode("UNION ALL", $ViewAliquotUse_model::$table_query) as $query) {
 				$ViewAliquotUse_model->query('REPLACE INTO '.$ViewAliquotUse_model->table. '('.str_replace('%%WHERE%%', 'AND AliquotMaster.id IN ('.implode(',',array_keys($used_volume_updated)).')', $query).')');
 			}
-			AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ').(implode(', ', $use_counters_updated)));
+			AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ').(implode(', ', $used_volume_updated)));
 		}	
 		$ViewAliquot_model->cacheSources = $tmp_aliquot_model_cacheSources;
 		$ViewAliquot_model->schema();
