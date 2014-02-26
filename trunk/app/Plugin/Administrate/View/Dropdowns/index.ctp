@@ -9,7 +9,7 @@
 		'settings' => array(
 			'header' => __('used lists', null),
 			'actions'	=> false), 
-		'extras' => $this->Structures->ajaxIndex('/Administrate/Dropdowns/subIndex/not_empty')
+		'extras' => $this->Structures->ajaxIndex('Administrate/Dropdowns/subIndex/not_empty')
 	);
 	
 	$display_next_form = true; 
@@ -32,7 +32,7 @@
 		'settings' => array(
 			'header' => __('empty lists', null),
 			'actions'	=> true), 
-		'extras' => $this->Structures->ajaxIndex('/Administrate/Dropdowns/subIndex/empty')
+		'extras' => $this->Structures->ajaxIndex('Administrate/Dropdowns/subIndex/empty')
 	);
 	
 	$display_next_form = true; 
