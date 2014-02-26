@@ -1,7 +1,5 @@
 <?php
 
-	if($event_control_data['EventControl']['use_addgrid']) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
 	// --------------------------------------------------------------------------------
 	// Check Event Type could be created more than once
 	// --------------------------------------------------------------------------------
