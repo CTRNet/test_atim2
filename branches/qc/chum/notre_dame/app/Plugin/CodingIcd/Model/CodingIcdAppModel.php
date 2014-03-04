@@ -39,17 +39,29 @@ class CodingIcdAppModel extends AppModel {
 		if (!$db = ConnectionManager::getDataSource($this->useDbConfig)) {
 			return false;
 		}
-
 			
 		foreach($terms as $term){
-			if($exact_search){
-				$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
-			}else{
-				$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
+			
+			if(strlen($term) > 3) {
+				if($exact_search){
+					$term = "+".preg_replace("/(\s)([^ \t\r\n\v\f])/", "$1+$2", trim($term));
+				}else{
+					$term = preg_replace("/([^ \t\r\n\v\f])(\s)/", "$1*$2", trim($term))."*";
+				}
+				$term = $db->value($term);
+				$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST (".$term." IN BOOLEAN MODE)";
+			} else {
+				//See issue#3019: Disease Code: Search on short string like 'C61' failed 
+				$small_term_conditions = '';
+				foreach($search_fields as $new_field) {
+					if($exact_search){
+						$conditions[] = "$new_field LIKE '$term'";
+					} else {
+						$conditions[] = "$new_field LIKE '%$term%'";
+					}
+				}
 			}
-			$term = $db->value($term);
-			$conditions[] = "MATCH(".implode(", ", $search_fields).") AGAINST (".$term." IN BOOLEAN MODE)";
-		}
+		}	
 		
 		if($limit != null){
 			$data = $this->find('all', array(
