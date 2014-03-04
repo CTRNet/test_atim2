@@ -452,13 +452,15 @@ class StructuresHelper extends Helper {
 			');
 		}
 
-        $this->updateUnsanitizeList($options, $atim_structure);
-		$sanitized_data = Sanitize::clean($data);
-		if($options['settings']['no_sanitization']){
-			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+		if($options['type'] != 'csv') {
+	        $this->updateUnsanitizeList($options, $atim_structure);
+			$sanitized_data = Sanitize::clean($data);
+			if($options['settings']['no_sanitization']){
+				$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+			}
+			$data = $sanitized_data;
+			unset($sanitized_data);
 		}
-		$data = $sanitized_data;
-		unset($sanitized_data);
 		
 		$this->updateDataWithAccuracy($data, $atim_structure);//will not update tree view data
 		
