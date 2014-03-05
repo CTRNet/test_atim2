@@ -51,61 +51,30 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_ar_qcrocs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Core' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='review_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
-
-
-
-
-
-
-
-
-
-select 'isis' as msg;
-exit;
-
-
-
-
-
-
-
-
-
-
-
-
---Section to review -----------------------------------------------------------------------------------
-
-
-
-
-
-
-TODO
-----------------------------------------------------------------------------------------------------------
-Added new relationsips into databrowser
-Please flag inactive relationsips if required (see queries below). Don't forget Collection to Annotation, Treatment,Consent, etc if not requried.
-SELECT str1.model AS model_1, str2.model AS model_2, use_field FROM datamart_browsing_controls ctrl, datamart_structures str1, datamart_structures str2 WHERE str1.id = ctrl.id1 AND str2.id = ctrl.id2 AND (ctrl.flag_active_1_
-o_2 = 1 OR ctrl.flag_active_2_to_1 = 1);
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = 0 WHERE fct.datamart_structure_id = str.id AND/OR str.model IN ('Model1', 'Model2', 'Model...');
-Please flag inactive datamart structure functions if required (see queries below).
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...')) OR id2 IN (SELECT id FROM datamart_struct
-res WHERE model IN ('Model1', 'Model2', 'Model...'));
-Please change datamart_structures_relationships_en(and fr).png in appwebrootimgdataBrowser
-----------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 -- -------------------------------------------------------------------------------------------------------------------------
 -- Disable sample type : saliva and csf
 -- -------------------------------------------------------------------------------------------------------------------------
 
-UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 190, 189, 192);
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(181, 183, 182, 185);
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- Event
+-- -------------------------------------------------------------------------------------------------------------------------
+
+update event_controls SET disease_site = '' WHERE flag_active = 1;
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- Treatment
+-- -------------------------------------------------------------------------------------------------------------------------
+
+update treatment_controls SET disease_site = '' WHERE flag_active = 1;
+
+-- -------------------------------------------------------------------------------------------------------------------------
+-- CLINICAL COLLECTION LINK
+-- -------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
@@ -113,18 +82,21 @@ UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(18
 
 
 
--- --------------------------------------------------------------------------------------------------------
--- Added new relationsips into databrowser
--- Please flag unactive relationsips if required.
--- --------------------------------------------------------------------------------------------------------
 
-UPDATE datamart_structure_functions fct, datamart_structures str
-SET fct.flag_active = 0 
-WHERE fct.datamart_structure_id = str.id AND str.model IN ('DiagnosisMaster', 'TreatmentMaster', 'FamilyHistory', 'SpecimenReviewMaster', 'TreatmentExtendMaster', 'AliquotReviewMaster');
 
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
-WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'TreatmentMaster', 'FamilyHistory', 'SpecimenReviewMaster', 'TreatmentExtendMaster', 'AliquotReviewMaster'))
-OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('DiagnosisMaster', 'TreatmentMaster', 'FamilyHistory', 'SpecimenReviewMaster', 'TreatmentExtendMaster', 'AliquotReviewMaster'));
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
