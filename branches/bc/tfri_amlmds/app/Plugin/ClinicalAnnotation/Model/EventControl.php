@@ -59,7 +59,7 @@ class EventControl extends ClinicalAnnotationAppModel {
 		foreach($event_ctrl_data as $event_ctrl){
 			$links[] = array(
 					'order' => $event_ctrl['EventControl']['display_order'],
-					'label' => __($event_ctrl['EventControl']['event_type']).' - '.__($event_ctrl['EventControl']['disease_site']),
+					'label' => __($event_ctrl['EventControl']['event_type']).(empty($event_ctrl['EventControl']['disease_site'])? '' : ' - '.__($event_ctrl['EventControl']['disease_site'])),
 					'link' => '/ClinicalAnnotation/EventMasters/add/'.$participant_id.'/'.$event_ctrl['EventControl']['id']
 			);
 		}

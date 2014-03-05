@@ -23,6 +23,11 @@
 	$final_atim_structure = $atim_structure; 
 	$final_options = array('data' => $quality_ctrl_data, 'links' => $structure_links);
 	
+	if($is_from_tree_view) {
+		$final_options['settings']['header'] =  __('quality control');
+		unset($final_options['links']['bottom']['list']);
+	}
+	
 	// CUSTOM CODE
 	$hook_link = $this->Structures->hook();
 	if( $hook_link ) { 

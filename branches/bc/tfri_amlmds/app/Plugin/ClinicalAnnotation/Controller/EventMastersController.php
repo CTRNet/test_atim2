@@ -18,35 +18,56 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		$this->set( 'atim_menu', $this->Menus->get( '/'.$this->params['plugin'].'/'.$this->params['controller'].'/'.$this->params['action'].'/'.$this->params['pass'][0] ) );
 	}
 	
-	function listall( $event_group, $participant_id, $event_control_id=null ){
-		// set FILTER, used as this->data CONDITIONS
-		if ( !isset($_SESSION['MasterDetail_filter']) || !$event_control_id ) {
-			$_SESSION['MasterDetail_filter'] = array();
-			
-			$_SESSION['MasterDetail_filter']['EventMaster.participant_id'] = $participant_id;
-			$_SESSION['MasterDetail_filter']['EventControl.event_group'] = $event_group;
-			
+	function listall( $event_group, $participant_id, $event_control_id=null ){		
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		
+		$search_criteria = array();
+		if(!$event_control_id) {
+			// 1 - MANAGE DISPLAY
+			$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
+			$controls_for_subform_display = array();
+			foreach($event_controls as $new_ctrl) {
+				if($new_ctrl['EventControl']['use_detail_form_for_index']) {
+					// Controls that should be listed using detail form
+					$controls_for_subform_display[$new_ctrl['EventControl']['id']] = $new_ctrl;
+					$controls_for_subform_display[$new_ctrl['EventControl']['id']]['EventControl']['ev_header'] = __($new_ctrl['EventControl']['event_type']) . (empty($new_ctrl['EventControl']['disease_site'])? '' : ' - ' . __($new_ctrl['EventControl']['disease_site']));
+				} else {
+					$controls_for_subform_display['-1']['EventControl'] = array('id' => '-1', 'ev_header' => null);
+				}
+			}
+			ksort($controls_for_subform_display);
+			$this->set('controls_for_subform_display', $controls_for_subform_display);
+			// find all EVENTCONTROLS, for ADD form
+			$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
+			$this->set('add_links', $add_links);
+			// Set structure
+			$this->Structures->set('eventmasters');							
+		} else if($event_control_id == '-1') {	
+			// 2 - DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
+			// Set search criteria
+			$search_criteria['EventMaster.participant_id'] = $participant_id;
+			$search_criteria['EventControl.event_group'] = $event_group;
+			$search_criteria['EventControl.use_detail_form_for_index'] = '0';
+			// Set structure
 			$this->Structures->set('eventmasters');
 		} else {
-			$_SESSION['MasterDetail_filter']['EventMaster.event_control_id'] = $event_control_id;
-			
-			$filter_data = $this->EventControl->getOrRedirect($event_control_id);
-			$this->Structures->set($filter_data['EventControl']['form_alias']);
+			// 3 -  DISPLAY ALL EVENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
+			// Set search criteria
+			$search_criteria['EventMaster.participant_id'] = $participant_id;
+			$search_criteria['EventControl.id'] = $event_control_id;
+			// Set structure
+			$control_data = $this->EventControl->getOrRedirect($event_control_id);
+			$this->Structures->set($control_data['EventControl']['form_alias']);
+			self::buildDetailBinding($this->EventMaster,
+			    $search_criteria, $control_data['EventControl']['form_alias']);
 		}
-			
+		
 		// MANAGE DATA
-		$participant_data = $this->Participant->getOrRedirect($participant_id);
-
-		$this->request->data = $this->paginate($this->EventMaster, $_SESSION['MasterDetail_filter']);
-		
-		// MANAGE FORM, MENU AND ACTION BUTTONS
-		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id, 'EventControl.id'=>$event_control_id) );
-		
-		// find all EVENTCONTROLS, for ADD form
-		$event_controls = $this->EventControl->find('all', array('conditions'=>array('EventControl.event_group'=>$event_group, 'EventControl.flag_active' => '1' )));
-		$add_links = $this->EventControl->buildAddLinks($event_controls, $participant_id, $event_group);
-		$this->set('add_links', $add_links);
+		$this->request->data = $event_control_id? $this->paginate($this->EventMaster, $search_criteria) : array();
 				
+		// MANAGE FORM, MENU AND ACTION BUTTONS
+		$this->set( 'atim_menu_variables', array('EventMaster.event_group'=>$event_group,'Participant.id'=>$participant_id));
+		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
@@ -111,12 +132,13 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu', $this->Menus->get('/'.$this->params['plugin'].'/'.$this->params['controller'].'/listall/'.$event_group) );
 		$this->set( 'atim_menu_variables', array('EventControl.event_group'=>$event_group,'Participant.id'=>$participant_id,'EventControl.id'=>$event_control_id) );
-		$this->set('ev_header', __($event_control_data['EventControl']['event_type']) . ' - ' . __($event_control_data['EventControl']['disease_site']));
+		$this->set('ev_header', __($event_control_data['EventControl']['event_type']) . (empty($event_control_data['EventControl']['disease_site'])? '' : ' - ' . __($event_control_data['EventControl']['disease_site'])));
 		
 		// set FORM ALIAS based off VALUE from CONTROL table
 		$this->Structures->set('empty', 'empty_structure');
 		$this->Structures->set($event_control_data['EventControl']['form_alias']);
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
+		$this->set('use_addgrid', $event_control_data['EventControl']['use_addgrid']);
 					
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -124,30 +146,103 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			require($hook_link); 
 		}
 		
-		if ( !empty($this->request->data) ) {
-			$this->request->data['EventMaster']['participant_id'] = $participant_id;
-			$this->request->data['EventMaster']['event_control_id'] = $event_control_id;
-
-			$this->request->data['EventMaster']['event_group'] = $event_group;
-			$this->request->data['EventMaster']['event_type'] = $event_control_data['EventControl']['event_type'];
-			$this->request->data['EventMaster']['disease_site'] = $event_control_data['EventControl']['disease_site'];
-			
-			// LAUNCH SPECIAL VALIDATION PROCESS
-			$submitted_data_validates = true;
-			
-			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { 
-				require($hook_link); 
+		if ( empty($this->request->data)) {
+			if($event_control_data['EventControl']['use_addgrid']) $this->request->data = array(array());
+				
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
 			}
-
-			$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
-			if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
-				$hook_link = $this->hook('postsave_process');
+			
+		} else {
+			if(!$event_control_data['EventControl']['use_addgrid']) {
+				
+				// 1 - ** Single data save ** 
+				
+				$this->request->data['EventMaster']['participant_id'] = $participant_id;
+				$this->request->data['EventMaster']['event_control_id'] = $event_control_id;
+				
+				// LAUNCH SPECIAL VALIDATION PROCESS
+				$submitted_data_validates = true;
+				
+				// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+				$hook_link = $this->hook('presave_process');
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				
+				$this->EventMaster->addWritableField(array('participant_id', 'event_control_id', 'diagnosis_master_id'));
+				if ($submitted_data_validates && $this->EventMaster->save($this->request->data) ) {
+					$hook_link = $this->hook('postsave_process');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$this->EventMaster->getLastInsertId());
+				}
+					
+			} else {
+				
+				// 2 - ** Multi lines save ** 
+				
+				$errors_tracking = array();
+				
+				// Launch Structure Fields Validation
+				$diagnosis_master_id = $this->request->data['EventMaster']['diagnosis_master_id'];
+				unset($this->request->data['EventMaster']);
+						
+				$row_counter = 0;
+				foreach($this->request->data as &$data_unit){
+					$row_counter++;
+				
+					$data_unit['EventMaster']['event_control_id'] = $event_control_id;
+					$data_unit['EventMaster']['participant_id'] = $participant_id;
+					$data_unit['EventMaster']['diagnosis_master_id'] = $diagnosis_master_id;
+					
+					$this->EventMaster->id = null;
+					$this->EventMaster->set($data_unit);
+					if(!$this->EventMaster->validates()){
+						foreach($this->EventMaster->validationErrors as $field => $msgs) {
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg)$errors_tracking[$field][$msg][] = $row_counter;
+						}
+					}
+					$data_unit = $this->EventMaster->data;
+				}
+				unset($data_unit);
+				
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+								
+				// Launch Save Process
+				if(empty($this->request->data)) {
+					$this->EventMaster->validationErrors[][] = 'at least one record has to be created';
+				} else if(empty($errors_tracking)){
+					AppModel::acquireBatchViewsUpdateLock();
+					//save all
+					$this->EventMaster->addWritableField(array('event_control_id','participant_id','diagnosis_master_id'));
+					$this->EventMaster->writable_fields_mode = 'addgrid';
+					foreach($this->request->data as $new_data_to_save) {
+						$this->EventMaster->id = null;
+						$this->EventMaster->data = array();
+						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+					}
+					$hook_link = $this->hook('postsave_process_batch');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					AppModel::releaseBatchViewsUpdateLock();
+					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
+				} else {
+					$this->EventMaster->validationErrors = array();
+					foreach($errors_tracking as $field => $msg_and_lines) {
+						foreach($msg_and_lines as $msg => $lines) {
+							$this->EventMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
+						}
+					}
+				}
+				
 			}
 		} 
 	}
@@ -202,7 +297,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been updated','/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
+				$this->atimFlash(__('your data has been updated'),'/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 			}
 		} else {
 			$this->request->data = $event_master_data;
@@ -226,12 +321,12 @@ class EventMastersController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ($this->EventMaster->atimDelete( $event_master_id )) {
-				$this->atimFlash( 'your data has been deleted', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id );
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$event_master_id);
 		}
 	}
 }

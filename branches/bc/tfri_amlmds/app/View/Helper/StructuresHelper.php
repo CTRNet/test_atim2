@@ -225,7 +225,17 @@ class StructuresHelper extends Helper {
 				}
 			}
 			
-
+			//Fix for issue #2622 : Date accuracy won't be considered for display of Databrowser Nodes merge 
+			//Note: Don't have to add a fix too for csv export on 'same line' because we work on db date format for csv export
+			$model_synonyms = array();
+			foreach($structure['Sfs'] as $new_field) {				
+				if(preg_match('/^([0-9]+\-)(.+)$/', $new_field['model'], $matches)) {
+					$main_model = $matches[2];
+					$model_synonymous = $matches[0];
+					if(!isset($structure['Accuracy'][$model_synonymous]) && isset($structure['Accuracy'][$main_model])) $structure['Accuracy'][$model_synonymous] = $structure['Accuracy'][$main_model];
+				}
+			}
+			
 			foreach($data as &$data_line){
 				foreach($structure['Accuracy'] as $model => $fields){
 					foreach($fields as $date_field => $accuracy_field){
@@ -258,6 +268,27 @@ class StructuresHelper extends Helper {
 			}
 			
 		}
+	}
+	
+	private function updateUnsanitizeList(&$options, $atim_structure){
+    	if(isset($atim_structure['Sfs'])){
+    	    //no sanitization on select
+    	    $flag = 'flag_'.$options['type'];
+    	    foreach($atim_structure['Sfs'] as $sfs){
+    	        if($sfs[$flag] && $sfs['type'] == 'select'){
+    	            $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+    	        }
+    	    }
+    	}else if($options['type'] == "tree"){
+    	    foreach($atim_structure as $structure){
+    	        //no sanitization on select
+    	        foreach($structure['Sfs'] as $sfs){
+    	            if($sfs['flag_index'] && $sfs['type'] == 'select'){
+    	                $options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
+    	            }
+    	        }
+    	    }
+    	}
 	}
 
 	/**
@@ -420,17 +451,8 @@ class StructuresHelper extends Helper {
 				<div class="extra">'.$options['extras']['start'].'</div>
 			');
 		}
-		
-		if(isset($atim_structure['Sfs'])){
-			//no sanitization on select
-			$flag = 'flag_'.$options['type'];
-			foreach($atim_structure['Sfs'] as $sfs){
-				if($sfs[$flag] && $sfs['type'] == 'select'){
-					$options['settings']['no_sanitization'][$sfs['model']][] = $sfs['field'];
-				}
-			}
-		}
-		
+
+        $this->updateUnsanitizeList($options, $atim_structure);
 		$sanitized_data = Sanitize::clean($data);
 		if($options['settings']['no_sanitization']){
 			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
@@ -828,7 +850,6 @@ class StructuresHelper extends Helper {
 					&& !array_key_exists($current_value, $table_row_part['settings']['options']['previously_defined'])
 					&& count($table_row_part['settings']['options']) > 1
 				){
-					//TODO FMLHHHHHH
 					//add the unmatched value if there is more than a value
 					if(($options['type'] == "search" || $options['type'] == "batchedit") && $current_value == ""){
 						//this is a search or batchedit and the value is the empty one, not really an "unmatched" one
@@ -1207,25 +1228,44 @@ class StructuresHelper extends Helper {
 			if($options['settings']['csv_header']){
 				//first call, build all structures
 				$options['type'] = 'index';
+				$node_name_line = array();
+				$heading_line = array();
+				$display_heading = false;
+				$lines = array();			
 				foreach($csv::$nodes_info as $node_id => $node_info){
+					$heading_sub_line = array();
 					$sub_line = array();
 					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
 					foreach($csv::$structures[$node_id] as $table_column){
+						$last_heading = '';
 						foreach($table_column as $fm => $table_row){
-							foreach($table_row as $table_row_part){
+							foreach($table_row as $table_row_part){							
+								if(strlen($table_row_part['heading'])) {
+									$display_heading = true;
+									$last_heading = $table_row_part['heading'];
+								}						
+								$heading_sub_line[] = $last_heading;
 								$sub_line[] = $table_row_part['label'];
+								if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+									$sub_line[] = __('accuracy');
+									$heading_sub_line[] = $last_heading;
+								}
 							}
 						}
 						
 					}
 					$csv::$nodes_info[$node_id]['cols_count'] = count($sub_line);
 					for($i = 1; $i <= $node_info['max_length']; ++ $i){
-						foreach($sub_line as $sub_line_part){
-							$line[] = $sub_line_part.' ('.$node_info['display_name']." $i)";
+						foreach($sub_line as $sub_line_key => $sub_line_part){
+							$node_name_line[] = $node_info['display_name']." $i";
+							$heading_line[] = $heading_sub_line[$sub_line_key];
+							$line[] = $sub_line_part;
 						}
 					}
 				}
-				$options['type'] = 'csv';//go back to csv
+				$options['type'] = 'csv';//go back to csv	
+				$this->Csv->addRow($node_name_line);
+				if($display_heading) $this->Csv->addRow($heading_line);
 				$this->Csv->addRow($line);
 			}
 			
@@ -1245,9 +1285,14 @@ class StructuresHelper extends Helper {
 							foreach($table_column as $table_row){
 								foreach($table_row as $table_row_part){
 									if(isset($model_data[$table_row_part['model']][$table_row_part['field']])){
-										$lines[$pkey][] =  trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
+										if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+											$lines[$pkey] = array_merge($lines[$pkey], $this->getDateValuesFormattedForExcel($model_data[$table_row_part['model']], $table_row_part['field'], $table_row_part['type']));
+										} else {
+											$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
+										}	
 									}else{
 										$lines[$pkey][] = '';
+										if(in_array($table_row_part['type'], array('date', 'datetime'))) $lines[$pkey][] = "";
 									}
 								}
 							}
@@ -1273,23 +1318,44 @@ class StructuresHelper extends Helper {
 			
 			if(is_array($table_structure) && count($data)){
 				//header line
-				$line = array();
-				if($options['settings']['csv_header']){
+				if($options['settings']['csv_header']){					
+					$node_name_line = array();
+					$language_node_list = array();
+					$heading_line = array();
+					$display_heading = false;
+					$line = array();
 					if(empty($options['settings']['columns_names'])){
 						foreach($table_structure as $table_column){
+							$last_heading = '';
 							foreach($table_column as $fm => $table_row){
-								foreach($table_row as $table_row_part){
-									$line[] = $table_row_part['label'];
+								foreach($table_row as $table_row_part){	
+									$structure_group_name = isset($table_row_part['structure_group_name'])? $table_row_part['structure_group_name'] : '';
+									$node_name_line[] = $structure_group_name;
+									$language_node_list[$structure_group_name] = '-1';
+									if(strlen($table_row_part['heading'])) {
+										$last_heading = $table_row_part['heading'];
+										$display_heading = true;
+									}
+									$heading_line[] = $last_heading;
+									$line[] = $table_row_part['label'];							
+									if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+										$node_name_line[] = $structure_group_name;
+										$heading_line[] = $last_heading;
+										$line[] = __('accuracy');
+									}
 								}
 							}
 						}
 					}else{
+						// Multi-Lines and Multi Column Report Display: Date format for excel not supported
+						// No heading to manage
 						$line = array_merge(array(''), $options['settings']['columns_names']);
 					}
+					if(!empty($node_name_line) && sizeof($language_node_list) > 1) $this->Csv->addRow($node_name_line);
+					if($display_heading) $this->Csv->addRow($heading_line);
 					$this->Csv->addRow($line);
 				}
 				
-	
 				//content
 				if(empty($options['settings']['columns_names'])){
 					foreach($data as $data_unit){
@@ -1298,9 +1364,14 @@ class StructuresHelper extends Helper {
 							foreach ( $table_column as $fm => $table_row){
 								foreach($table_row as $table_row_part){
 									if(isset($data_unit[$table_row_part['model']][$table_row_part['field']])){
-										$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+										if(in_array($table_row_part['type'], array('date', 'datetime'))) {
+											$line = array_merge($line, $this->getDateValuesFormattedForExcel($data_unit[$table_row_part['model']], $table_row_part['field'], $table_row_part['type']));
+										} else {	
+											$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+										}
 									}else{
 										$line[] = "";
+										if(in_array($table_row_part['type'], array('date', 'datetime'))) $line[] = "";
 									}
 								}
 							}
@@ -1308,6 +1379,7 @@ class StructuresHelper extends Helper {
 						$this->Csv->addRow($line);
 					}
 				}else{
+					// Multi-Lines and Multi Column Report Display: Date format for excel not supported
 					foreach($table_structure as $table_column){
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
@@ -1330,7 +1402,50 @@ class StructuresHelper extends Helper {
 			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 		}
 	}
-
+	
+	/**
+	 * Rebuild date that has been formated by function updateDataWithAccuracy() to be formated for CSV export
+	 * @param array $model_data
+	 * @param array $field
+	 * @param array $field_type date or datetime
+	 */
+	function getDateValuesFormattedForExcel($model_data, $field, $field_type) {	
+		$reformatted_date = array();
+		if(isset($model_data[$field])) {
+			if(!empty($model_data[$field])) {	
+				$accuracy =  isset($model_data[$field.'_accuracy'])? $model_data[$field.'_accuracy'] : 'c';
+				$reformatted_date  = $model_data[$field];
+				if(($field_type == 'date' && !preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $reformatted_date)) || ($field_type == 'datetime' && !preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}\ [0-9]{2}\:[0-9]{2}(\:[0-9][0-9]){0,1}$/', $reformatted_date))) {				
+					//Add regular expression on date to be sure date has been first formated by updateDataWithAccuracy() (not done when exproting data on same line from databrowser)
+					switch($accuracy) {
+						case 'y':
+							$reformatted_date = str_replace('±','',  $reformatted_date);
+						case 'm':
+							 $reformatted_date = str_replace('%s',  $reformatted_date, '%s-01-01'.($field_type == 'date'? '' : ' 00:00'));
+							break;
+						case 'd':
+							 $reformatted_date = str_replace('%s',  $reformatted_date, '%s-01'.($field_type == 'date'? '' : ' 00:00'));
+							break;
+						case 'h':
+							 $reformatted_date = str_replace('%s',  $reformatted_date, '%s 00:00');
+							break;
+						case 'i':
+							$reformatted_date = str_replace('%s',  $reformatted_date, '%s:00');
+							break;
+						default:
+					}
+				}
+				$date_values[] = $reformatted_date;
+				$date_values[] = __('date_accuracy_value_'.$accuracy);
+			} else {
+				$date_values =  array('-','-');
+			}
+		} 
+		return $date_values;
+	}
+	
+	
+	
 
 	/**
 	 * Echoes a structure in a tree format
@@ -1392,7 +1507,6 @@ class StructuresHelper extends Helper {
 						<tr><td>
 							<ul class="tree_root">
 					');
-					
 					$this->buildTreeNode($atim_structures, $options, $data);
 					
 					echo('
@@ -1433,7 +1547,7 @@ class StructuresHelper extends Helper {
 	 * @param array $data
 	 */
 	private function buildTreeNode(array &$atim_structures, array $options, array $data){
-		$accuracy_updated = array(); 
+		$accuracy_updated = array();
 		foreach($data as $data_key => &$data_val){
 			// unset CHILDREN from data, to not confuse STACK function
 			$children = array();
@@ -1584,6 +1698,10 @@ class StructuresHelper extends Helper {
 	private function buildDisplayHeader(array $table_structure, array $options){
 		$column_count = 0;
 		$return_string = '<tr>';
+		$language_node = '';
+		$language_node_string = "";
+		$language_node_count = 0;
+		$language_node_list = array();
 		$language_header = '';
 		$language_header_string = "";
 		$language_header_count = 0;
@@ -1593,6 +1711,7 @@ class StructuresHelper extends Helper {
 			if(count($options['links'][$key])){
 				++ $colspan;
 				$column_count ++;
+				$language_node_count++;
 				$language_header_count ++;
 			}
 		}
@@ -1650,10 +1769,26 @@ class StructuresHelper extends Helper {
 			$content_columns_count /= 2;
 			$current_col_number = 0;
 			$first_cell = true;
-			foreach ($table_structure as $table_column){
+			$previous_structure_group = null;
+			$structure_group_change = false;
+			foreach ($table_structure as $table_column){	
+				$new_column = true;
 				foreach ($table_column as $table_row){
 					foreach($table_row as $table_row_part){
 						if (($table_row_part['type'] != 'hidden' && strlen($table_row_part['label']) > 0) || $first_cell){
+						    if(isset($table_row_part['structure_group'])){
+						        if($previous_structure_group != $table_row_part['structure_group']){
+						            $structure_group_change = true;
+						            $previous_structure_group = $table_row_part['structure_group'];
+						        }else{
+						            $structure_group_change = false;
+						        }
+						    }else if($previous_structure_group){
+						        $structure_group_change = true;
+						        $previous_structure_group = null;
+						    }else{
+						        $structure_group_change = false;
+						    }
 							$first_cell = false;
 
 							// label and help/info marker, if available...
@@ -1668,12 +1803,24 @@ class StructuresHelper extends Helper {
 							}
 							$batchset = '';
 
-							if($table_row_part['heading']){
-								$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>'; 
+							if($structure_group_change) {
+								if($language_node_count > 0){
+									$language_node .= '<th colspan="'.$language_node_count.'">'.(trim($language_node_string) ? '<div class="indexLangHeader">'.$language_node_string.'</div>' : '').'</th>';
+								}
+								$language_node_count = 0;
+								$language_node_string = isset($table_row_part['structure_group_name'])? $table_row_part['structure_group_name'] : '';
+								$language_node_list[$language_node_string] = '-1';
+							}
+							++ $language_node_count;
+							if($table_row_part['heading'] || $structure_group_change || $new_column){
+								if($language_header_count > 0){
+									$language_header .= '<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th>';
+								} 
 								$language_header_count = 0;
 								$language_header_string = $table_row_part['heading']; 
 							}
 							++ $language_header_count;
+							$new_column = false;
 							
 							$default_sorting_direction = isset($_REQUEST['direction']) ? $_REQUEST['direction'] : 'asc';
 							$default_sorting_direction = strtolower($default_sorting_direction);
@@ -1725,6 +1872,7 @@ class StructuresHelper extends Helper {
 				<th>&nbsp;</th>
 			';
 			$column_count ++;
+			$language_node_count++;
 			$language_header_count ++;
 		}
 		
@@ -1733,11 +1881,19 @@ class StructuresHelper extends Helper {
 				</tr>
 		';
 		
-		if($language_header_string){
+		if(sizeof($language_node_list) > 1) {
+			if($language_node_string){
+				$language_node = '<tr>'.$language_node.'<th colspan="'.$language_node_count.'">'.(trim($language_node_string) ? '<div class="indexLangHeader">'.$language_node_string.'</div>' : '').'</th></tr>';
+			}
+			if($language_node) $language_node .= '<th>&nbsp;</th>';
+		} else {
+			$language_node = '';
+		}
+		if($language_header_count){
 			$language_header = '<tr>'.$language_header.'<th colspan="'.$language_header_count.'">'.(trim($language_header_string) ? '<div class="indexLangHeader">'.$language_header_string.'</div>' : '').'</th></tr>';
 		}
 		
-		return array("header" => $language_header.$return_string, "count" => $column_count);
+		return array("header" => $language_node.$language_header.$return_string, "count" => $column_count);
 		
 	}
 
@@ -1830,7 +1986,9 @@ class StructuresHelper extends Helper {
 						"flag_confidential"	=> $sfs['flag_confidential'],
 						"flag_float"		=> $sfs['flag_float'],
 						"readonly"			=> isset($sfs["flag_".$options['type']."_readonly"]) && $sfs["flag_".$options['type']."_readonly"],
-						"margin"			=> $sfs['margin']
+						"margin"			=> $sfs['margin'],
+					    "structure_group"   => isset($sfs['structure_group']) ? $sfs['structure_group'] : null,
+					    "structure_group_name"   => isset($sfs['structure_group_name']) ? $sfs['structure_group_name'] : null
 					);
 					$settings = $my_default_settings_arr;
 					
@@ -1942,16 +2100,16 @@ class StructuresHelper extends Helper {
 								$settings['class'] .= " jqueryAutocomplete";
 							}
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
-							if($sfs['type'] == "hidden"){
+							if($sfs['type'] == "hidden"){							
 								if(strlen($current['label'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
 									}
 									$current['label'] = "";
 								}
 								if(strlen($current['heading'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
 									}
 									$current['heading'] = "";
 								}
@@ -2585,7 +2743,7 @@ class StructuresHelper extends Helper {
 			AppController::addWarningMsg(__("no data for [%s.%s]" , $table_row_part['model'], $table_row_part['field']));
 		}
 		
-		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail')){
+		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail') && $current_value){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				if(strpos($table_row_part['setting'], $trigger) !== false){
 					eval('$instance = '.$key.'::getSingleton();');
