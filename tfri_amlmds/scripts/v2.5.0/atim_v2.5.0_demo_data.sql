@@ -1634,3 +1634,5 @@ SET FOREIGN_KEY_CHECKS=1;
 
 UPDATE `groups` SET `flag_show_confidential` = '1'WHERE `id` = '1';
 UPDATE `versions` SET `permissions_regenerated` = '0';
+
+UPDATE users SET flag_active=1 WHERE id IN (1,2);

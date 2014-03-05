@@ -1,4 +1,11 @@
 <?php
+	require('search_links_n_options.php');
+	$final_options['settings']['return'] = true;
+	$final_options['settings']['pagination'] = false;
+	$final_options['settings']['header'] = false;
+	$final_options['settings']['actions'] = false;
+	$last_5 = $this->Structures->build( $final_atim_structure, $final_options );
+
 	$structure_links = array(
 		'bottom'=>array(
 			'add participant'=>'/ClinicalAnnotation/Participants/add'
@@ -16,7 +23,7 @@
 	$final_atim_structure2 = $empty_structure;
 	$final_options2 = array(
 		'links'		=> $structure_links,
-		'extras'	=> '<div class="ajax_search_results"></div>'
+		'extras'	=> '<div class="ajax_search_results"></div><div class="ajax_search_results_default">'.$last_5.'</div>'
 	);
 	
 	// CUSTOM CODE

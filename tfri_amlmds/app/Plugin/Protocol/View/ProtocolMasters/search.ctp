@@ -2,7 +2,7 @@
 
 	$add_links = array();
 	foreach ( $protocol_controls as $protocol_control ) {
-		$add_links[__($protocol_control['ProtocolControl']['tumour_group']).' - '.__($protocol_control['ProtocolControl']['type'])] = '/Protocol/ProtocolMasters/add/'.$protocol_control['ProtocolControl']['id'].'/';
+		$add_links[(empty($protocol_control['ProtocolControl']['tumour_group'])? '' : __($protocol_control['ProtocolControl']['tumour_group']).' - ').__($protocol_control['ProtocolControl']['type'])] = '/Protocol/ProtocolMasters/add/'.$protocol_control['ProtocolControl']['id'].'/';
 	}
 
 	$structure_links = array(

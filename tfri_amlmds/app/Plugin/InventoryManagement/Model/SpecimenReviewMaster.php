@@ -9,6 +9,10 @@ class SpecimenReviewMaster extends InventoryManagementAppModel {
 		)
 	);
 	
+	var $registered_view = array(
+		'InventoryManagement.ViewAliquotUse' => array('SpecimenReviewMaster.id')
+	);
+	
 	function allowSpecimeReviewDeletion($specimen_review_id){
 		return array('allow_deletion' => true, 'msg' => '');
 	}

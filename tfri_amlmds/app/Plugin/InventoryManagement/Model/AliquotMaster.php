@@ -47,7 +47,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	var $registered_view = array(
 		'InventoryManagement.ViewAliquot' => array('AliquotMaster.id'),
-		'InventoryManagement.ViewAliquotUse' => array('AliquotMasterChild.id')
+		'InventoryManagement.ViewAliquotUse' => array('AliquotMaster.id', 'AliquotMasterChild.id')
 	);
 		
 	function summary($variables=array()) {
@@ -170,9 +170,9 @@ class AliquotMaster extends InventoryManagementAppModel {
 						
 				$total_used_volume = 0;
 				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $view_aliquot_use->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
-				foreach($aliquot_uses as $id => $aliquot_use){
-					$used_volume = $aliquot_use['ViewAliquotUse']['used_volume'];
+				$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
+				foreach($aliquot_uses as $aliquot_use){
+					$used_volume = $aliquot_use['0']['used_volume'];
 					if(!empty($used_volume)){
 						// Take used volume in consideration only when this one is not empty
 						if((!is_numeric($used_volume)) || ($used_volume < 0)){
@@ -202,11 +202,11 @@ class AliquotMaster extends InventoryManagementAppModel {
 		
 		if($update_uses_counter) {
 			
-			// UPDATE ALIQUOT USE COUNTER	
-		
+			// UPDATE ALIQUOT USE COUNTER
+				
 			if(is_null($aliquot_uses)) {
 				$view_aliquot_use = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", true);
-				$aliquot_uses = $view_aliquot_use->find('all', array('conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_id)));
+				$aliquot_uses = $this->tryCatchQuery(str_replace('%%WHERE%%', "AND AliquotMaster.id= $aliquot_master_id", $view_aliquot_use::$table_query));
 			}
 			
 			$aliquot_data_to_save['use_counter'] = sizeof($aliquot_uses);
@@ -418,8 +418,8 @@ class AliquotMaster extends InventoryManagementAppModel {
 	}
 	
 	function hasChild(array $aliquot_master_ids){
-		$realiquoting = AppModel::getInstance("InventoryManagement", "Realiquoting", TRUE);
-		return array_filter($realiquoting->find('list', array('fields' => array('Realiquoting.parent_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_ids), 'group' => array('Realiquoting.parent_aliquot_master_id'))));
+		$ViewAliquotUse = AppModel::getInstance("InventoryManagement", "ViewAliquotUse", TRUE);
+		return array_filter($ViewAliquotUse->find('list', array('fields' => array('ViewAliquotUse.aliquot_master_id'), 'conditions' => array('ViewAliquotUse.aliquot_master_id' => $aliquot_master_ids), 'group' => array('ViewAliquotUse.aliquot_master_id'))));
 	}
 	
 	

@@ -56,7 +56,7 @@ class VersionsController extends AdministrateAppController {
 		echo("</ul>");
 		echo "Master models test completed";
 		if($error){
-			echo " with error(s)";
+			echo "<span class='err'>with error(s)</span>";
 		}
 		
 		echo "<br/><br/>";
@@ -68,9 +68,10 @@ class VersionsController extends AdministrateAppController {
 			if(AppController::checkLinkPermission($datamart_structure['DatamartStructure']['index_link'])){
 				echo '<span style="color: green;">',$datamart_structure['DatamartStructure']['index_link'],'</span><br/>';
 			}else{
-				echo '<span style="color: red;">',$datamart_structure['DatamartStructure']['index_link'],' ---- INVALID LINK</span><br/>';
+				echo '<span class="err" style="color: red;">',$datamart_structure['DatamartStructure']['index_link'],' ---- INVALID LINK</span><br/>';
 			}
 		}
+		echo '<span id="done"></span>';
 		$this->layout = false;
 		$this->render(false);
 	}
