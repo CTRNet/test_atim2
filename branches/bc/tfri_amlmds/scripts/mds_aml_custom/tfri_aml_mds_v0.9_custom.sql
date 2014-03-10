@@ -308,7 +308,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('partial response (following treatment)', 'Partial response (following treatment)', ''),
  ('12.4 method documentation', '12.4 Indicate method of documentation', ''),
  ('progression', 'Section 12', ''),
- ('disease status mds', 'Disease Status Documentation for MDS', '');        
+ ('failure', 'Failure', ''),
+ ('disease status mds', 'Disease Status (MDS)', '');        
 
 
 -- ----------------------------------------------------------------------
@@ -412,7 +413,50 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('new complete remission (CR)', 'New complete remission (CR)', ''), 
  ('confirmation of ongoing relapse', 'Confirmation of ongoing relapse', ''),
  ('confirmation of ongoing complete remission (CR)', 'Confirmation of ongoing complete remission (CR)', ''), 
- ('disease status aml', 'Disease Status Documentation for AML', ''),
+ ('disease status aml', 'Disease Status (AML)', ''),
  ('aml disease status', '11.3 Indicate disease status finding', ''),
  ('11.4 method documentation', '11.4 Indicate method of documentation', ''),
- ('clones present', 'Were abnormal clones present?', '');     
+ ('clones present', '11.5 Were abnormal clones present?', ''),
+ ('method doc peripheral blood cbc', 'Peripheral blood CBC', '');
+ 
+-- ----------------------------------------------------------------------
+-- Eventum ID:3032 Profile - Reduce size of other fields
+-- ---------------------------------------------------------------------- 
+UPDATE structure_fields SET `setting`='size=25' WHERE model='Participant' AND tablename='participants' AND field='tfri_aml_other_diagnosis' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET `setting`='size=25' WHERE model='Participant' AND tablename='participants' AND field='tfri_cause_of_death_other' AND `type`='input' AND structure_value_domain  IS NULL ; 
+
+ 
+-- ----------------------------------------------------------------------
+-- Eventum ID:3029 PROFILE - ID validation error
+-- ----------------------------------------------------------------------
+UPDATE `structure_validations` SET `rule`='range,999,1601' WHERE `structure_field_id`=(SELECT `id` FROM `structure_fields` WHERE `field` = 'participant_identifier' AND `model` = 'Participant') AND `rule` = 'range,999,1600';
+
+
+-- ----------------------------------------------------------------------
+-- Eventum ID:3030 PROFILE - Age at registration validation
+-- ----------------------------------------------------------------------
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES ((SELECT `id` FROM `structure_fields` WHERE `field` = 'tfri_age_at_registration'), 'range,-1,101', 'tfri error age range');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri error age range', 'Age at registration must be an integer between 0 and 100', '');
+
+ 
+-- ----------------------------------------------------------------------
+-- Eventum ID:3031 Profile - Date changes
+-- ---------------------------------------------------------------------- 
+
+-- Change date of acknowledgement to date of enrolment
+ALTER TABLE `participants` 
+CHANGE COLUMN `tfri_aml_date_acknowledgement` `tfri_aml_date_enrolment_part_2` DATE NULL DEFAULT NULL ;
+ALTER TABLE `participants_revs` 
+CHANGE COLUMN `tfri_aml_date_acknowledgement` `tfri_aml_date_enrolment_part_2` DATE NULL DEFAULT NULL ;
+
+UPDATE `structure_fields` SET `field`='tfri_aml_date_enrolment_part_2', `language_label`='tfri_aml_date_enrolment_part_2' WHERE `field`='tfri_aml_date_acknowledgement';
+
+UPDATE structure_formats SET `display_column`='2', `display_order`='20', `language_heading`='tfri study acknowledgement' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_registration' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='25' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_day_zero' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='30', `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='tfri_aml_date_enrolment_part_2' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('tfri_aml_date_enrolment_part_2', 'Date of Enrolment Part II', ''),    
+ ('tfri aml date registration', 'Date of Registration (Enrolment Part I)', '');
