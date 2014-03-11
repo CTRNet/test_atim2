@@ -8,6 +8,6 @@
 		$new_event_data = $this->EventMaster->completeVolumetry($new_event_data, $submitted_data_validates);
 		$new_event_data = $this->EventMaster->setScores($event_control_data['EventControl']['event_type'], $new_event_data, $submitted_data_validates);
 	}
-	$this->request->data = $event_control_data['EventControl']['use_addgrid']? $this->request->data : $processed_event_data['0'];
+	$this->request->data = $event_control_data['EventControl']['use_addgrid']? $processed_event_data: $processed_event_data['0'];
 	
 ?>

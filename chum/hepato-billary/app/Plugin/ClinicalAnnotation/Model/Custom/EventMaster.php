@@ -23,8 +23,10 @@ class EventMasterCustom extends EventMaster{
 		if(isset($event_data['EventDetail']['hospitalization_end_date'])
 		&& isset($event_data['EventMaster']['event_date'])) {
 			$start_date = $event_data['EventMaster']['event_date'];
+			$start_date_accuracy = isset($event_data['EventMaster']['event_date_accuracy'])? $event_data['EventMaster']['event_date_accuracy']: null;
 			$end_date =  $event_data['EventDetail']['hospitalization_end_date'];
-			$event_data['EventDetail']['hospitalization_duration_in_days'] = $this->getDuration($start_date,$end_date, 'hospitalization duration in days');
+			$end_date_accuracy = isset($event_data['EventDetail']['hospitalization_end_date_accuracy'])? $event_data['EventDetail']['hospitalization_end_date_accuracy']: null;
+			$event_data['EventDetail']['hospitalization_duration_in_days'] = $this->getDuration($start_date, $end_date, 'hospitalization duration in days', $start_date_accuracy, $end_date_accuracy);
 		}
 		return $event_data;
 	}
@@ -33,14 +35,32 @@ class EventMasterCustom extends EventMaster{
 		if(isset($event_data['EventDetail']['intensive_care_end_date'])
 		&& isset($event_data['EventMaster']['event_date'])) {
 			$start_date = $event_data['EventMaster']['event_date'];
+			$start_date_accuracy = isset($event_data['EventMaster']['event_date_accuracy'])? $event_data['EventMaster']['event_date_accuracy']: null;
 			$end_date =  $event_data['EventDetail']['intensive_care_end_date'];
-			$event_data['EventDetail']['intensive_care_duration_in_days'] = $this->getDuration($start_date,$end_date, 'intensive care duration in days');
+			$end_date_accuracy = isset($event_data['EventDetail']['intensive_care_end_date_accuracy'])? $event_data['EventDetail']['intensive_care_end_date_accuracy']: null;
+			$event_data['EventDetail']['intensive_care_duration_in_days'] = $this->getDuration($start_date,$end_date, 'intensive care duration in days', $start_date_accuracy, $end_date_accuracy);
 		}
 		return $event_data;
 	}
 	
 	
-	function getDuration($start_date, $end_date, $field_label) {
+	function getDuration($start_date, $end_date, $field_label, $start_date_accuracy = null, $end_date_accuracy = null) {
+		if(!is_array($start_date)) {
+			if($start_date_accuracy != 'c') {
+				$start_date = array('year'=> null, 'month'=> null, 'day'=>null);
+			} else {
+				if(!preg_match('/^([0-9]{4})-([0-9]{2})\-([0-9]{2})$/', $start_date, $matches)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				$start_date = array('year'=> $matches[1], 'month'=> $matches[2], 'day'=>$matches[3]);
+			}		
+		}
+		if(!is_array($end_date)) {
+			if($end_date_accuracy != 'c') {
+				$end_date = array('year'=> null, 'month'=> null, 'day'=>null);
+			} else {
+				if(!preg_match('/^([0-9]{4})-([0-9]{2})\-([0-9]{2})$/', $end_date, $matches)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				$end_date = array('year'=> $matches[1], 'month'=> $matches[2], 'day'=>$matches[3]);
+			}
+		}
 		if(empty($start_date['month']) || empty($start_date['day']) || empty($start_date['year']) || empty($end_date['month']) || empty($end_date['day']) || empty($end_date['year'])){
 			// At least one date is missing to continue
 			AppController::addWarningMsg(str_replace('%field%', __($field_label,true), __('the dates accuracy is not sufficient: the field [%%field%%] can not be generated', true)));
