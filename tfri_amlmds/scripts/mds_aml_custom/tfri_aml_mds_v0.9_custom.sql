@@ -526,7 +526,53 @@ CREATE TABLE `ed_tfri_study_fact_leu` (
 
 
 CREATE TABLE `ed_tfri_study_fact_leu_revs` (
- 
+  `followup_period` INT(11) DEFAULT NULL,
+  `date_completion` DATE DEFAULT NULL,
+  `method_of_completion` VARCHAR(50) DEFAULT NULL,
+  `phy_lack_energy` INT(11) DEFAULT NULL,
+  `phy_nausea` INT(11) DEFAULT NULL,
+  `phy_family_needs` INT(11) DEFAULT NULL,
+  `phy_pain` INT(11) DEFAULT NULL,
+  `phy_bothered_side_effects` INT(11) DEFAULT NULL,
+  `phy_ill` INT(11) DEFAULT NULL,
+  `phy_forced_bed` INT(11) DEFAULT NULL,
+  `well_being_close_friend` INT(11) DEFAULT NULL,
+  `well_being_emotional_support` INT(11) DEFAULT NULL,
+  `well_being_family_accepted` INT(11) DEFAULT NULL,
+  `well_being_family_communication` INT(11) DEFAULT NULL,
+  `well_being_partner_closeness` INT(11) DEFAULT NULL,
+  `well_being_sex_life_indicator` INT(11) DEFAULT NULL,
+  `well_being_satisfied_sex` INT(11) DEFAULT NULL,
+  `emotional_feel_sad` INT(11) DEFAULT NULL,
+  `emotional_coping` INT(11) DEFAULT NULL,
+  `emotional_losing_hope` INT(11) DEFAULT NULL,
+  `emotional_nervous` INT(11) DEFAULT NULL,
+  `emotional_worry_dying` INT(11) DEFAULT NULL,
+  `emotional_condition_worse` INT(11) DEFAULT NULL,
+  `functional_able_work` INT(11) DEFAULT NULL,
+  `functional_work_fulfilling` INT(11) DEFAULT NULL,
+  `functional_enjoy_life` INT(11) DEFAULT NULL,
+  `functional_accepted_illness`INT(11) DEFAULT NULL,
+  `functional_sleeping_well` INT(11) DEFAULT NULL,
+  `functional_enjoy_things_fun` INT(11) DEFAULT NULL,
+  `functional_content_life` INT(11) DEFAULT NULL,
+  `additional_bothered_fevers` INT(11) DEFAULT NULL,
+  `additional_pain_certain_areas` INT(11) DEFAULT NULL,
+  `additional_bothered_chills` INT(11) DEFAULT NULL,
+  `additional_night_sweats` INT(11) DEFAULT NULL,
+  `additional_lumps_swelling` INT(11) DEFAULT NULL,
+  `additional_bleed_easily` INT(11) DEFAULT NULL,
+  `additional_bruise_easily` INT(11) DEFAULT NULL,
+  `additional_weak_all_over` INT(11) DEFAULT NULL,
+  `additional_tired_easily` INT(11) DEFAULT NULL,
+  `additional_losing_weight` INT(11) DEFAULT NULL,
+  `additional_good_appetite` INT(11) DEFAULT NULL,
+  `additional_usual_activities` INT(11) DEFAULT NULL,
+  `additional_worry_infections` INT(11) DEFAULT NULL,
+  `additional_uncertain_future` INT(11) DEFAULT NULL,
+  `additional_worry_new_symptoms` INT(11) DEFAULT NULL,
+  `additional_emotional_ups_downs` INT(11) DEFAULT NULL,
+  `additional_isolated_treatment` INT(11) DEFAULT NULL, 
   `event_master_id` int(11) NOT NULL,
   KEY `event_master_id` (`event_master_id`),
   CONSTRAINT `ed_tfri_study_fact_leu_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
@@ -736,3 +782,405 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('additional isolated treatment', '(LEU7) I feel isolated from others because of my illness or treatment', ''),
  ('additional concerns', 'ADDITIONAL CONCERNS', ''), 
  ('completion details', 'COMPLETION DETAILS', '');   
+ 
+ 
+-- ----------------------------------------------------------------------
+-- Eventum ID:3038 Questionnaire form - Baseline costs
+-- ----------------------------------------------------------------------
+
+-- Add control rows
+INSERT INTO `event_controls` (`disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES ('tfri', 'study', 'Baseline-Costs', '1', 'ed_tfri_study_baseline_costs', 'ed_tfri_study_baseline_costs', '3', 'clinical|study|Baseline-Costs', '0', '0', '0');
+
+-- Create table
+CREATE TABLE `ed_tfri_study_baseline_costs` (
+  `birth_year` INT(11) DEFAULT NULL,
+  `birth_month` INT(11) DEFAULT NULL,
+  `sex` VARCHAR(10) DEFAULT NULL,
+  `working_full_time_start` DATE DEFAULT NULL,
+  `working_full_time_end` DATE DEFAULT NULL,
+  `working_part_time_start` DATE DEFAULT NULL,
+  `working_part_time_end` DATE DEFAULT NULL,
+  `volunteer_work_start` DATE DEFAULT NULL,
+  `volunteer_work_end` DATE DEFAULT NULL,
+  `short_term_disability_source` VARCHAR(50) DEFAULT NULL,
+  `short_term_disability_start` DATE DEFAULT NULL,
+  `short_term_disability_end` DATE DEFAULT NULL,
+  `long_term_disability_source` VARCHAR(50) DEFAULT NULL,
+  `long_term_disability_start` DATE DEFAULT NULL,
+  `long_term_disability_end` DATE DEFAULT NULL,
+  `other_disability_reason` VARCHAR(100) DEFAULT NULL,
+  `other_disability_start` DATE DEFAULT NULL,
+  `other_disability_end` DATE DEFAULT NULL, 
+  `retired_start` DATE DEFAULT NULL,
+  `retired_end` DATE DEFAULT NULL,
+  `self-employed_start` DATE DEFAULT NULL,
+  `self-employed_end` DATE DEFAULT NULL,
+  `homemaker_start` DATE DEFAULT NULL,
+  `homemaker_end` DATE DEFAULT NULL,
+  `not_working_ei_start` DATE DEFAULT NULL,
+  `not_working_ei_end` DATE DEFAULT NULL,
+  `maternity_leave_start` DATE DEFAULT NULL,
+  `maternity_leave_end` DATE DEFAULT NULL,
+  `full_time_student_start` DATE DEFAULT NULL,
+  `full_time_student_end` DATE DEFAULT NULL,
+  `part_time_student_start` DATE DEFAULT NULL,
+  `part_time_student_end` DATE DEFAULT NULL,
+  `total_income_before_tax` VARCHAR(50) DEFAULT NULL,
+  `annual_household_income_before_tax` VARCHAR(50) DEFAULT NULL,
+  `num_people_sharing_income` VARCHAR(50) DEFAULT NULL,
+  `marital_status` VARCHAR(50) DEFAULT NULL,
+  `ethnic_group_aboriginal` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_asian` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_black_african` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_pacific_islander` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_south_asian` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_white` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_decline_or_na` VARCHAR(10) DEFAULT NULL,
+  `education_completed_elementary` VARCHAR(10) DEFAULT NULL,
+  `education_completed_some_highschool` VARCHAR(10) DEFAULT NULL,
+  `education_completed_tech_community_college` VARCHAR(10) DEFAULT NULL,
+  `education_completed_some_university` VARCHAR(10) DEFAULT NULL,
+  `education_completed_bachelor_degree` VARCHAR(10) DEFAULT NULL,
+  `education_completed_highschool_diploma` VARCHAR(10) DEFAULT NULL,
+  `education_completed_graduate_degree` VARCHAR(10) DEFAULT NULL,
+  `method_completion` VARCHAR(50) DEFAULT NULL,
+  `date_of_completion` DATE DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`),
+  CONSTRAINT `ed_tfri_study_baseline_costs_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `ed_tfri_study_baseline_costs_revs` (
+  `birth_year` INT(11) DEFAULT NULL,
+  `birth_month` INT(11) DEFAULT NULL,
+  `sex` VARCHAR(10) DEFAULT NULL,
+  `working_full_time_start` DATE DEFAULT NULL,
+  `working_full_time_end` DATE DEFAULT NULL,
+  `working_part_time_start` DATE DEFAULT NULL,
+  `working_part_time_end` DATE DEFAULT NULL,  
+  `volunteer_work_start` DATE DEFAULT NULL,
+  `volunteer_work_end` DATE DEFAULT NULL,
+  `short_term_disability_source` VARCHAR(50) DEFAULT NULL,
+  `short_term_disability_start` DATE DEFAULT NULL,
+  `short_term_disability_end` DATE DEFAULT NULL,
+  `long_term_disability_source` VARCHAR(50) DEFAULT NULL,
+  `long_term_disability_start` DATE DEFAULT NULL,
+  `long_term_disability_end` DATE DEFAULT NULL,
+  `other_disability_reason` VARCHAR(100) DEFAULT NULL,
+  `other_disability_start` DATE DEFAULT NULL,
+  `other_disability_end` DATE DEFAULT NULL, 
+  `retired_start` DATE DEFAULT NULL,
+  `retired_end` DATE DEFAULT NULL,
+  `self-employed_start` DATE DEFAULT NULL,
+  `self-employed_end` DATE DEFAULT NULL,
+  `homemaker_start` DATE DEFAULT NULL,
+  `homemaker_end` DATE DEFAULT NULL,
+  `not_working_ei_start` DATE DEFAULT NULL,
+  `not_working_ei_end` DATE DEFAULT NULL,
+  `maternity_leave_start` DATE DEFAULT NULL,
+  `maternity_leave_end` DATE DEFAULT NULL,
+  `full_time_student_start` DATE DEFAULT NULL,
+  `full_time_student_end` DATE DEFAULT NULL,
+  `part_time_student_start` DATE DEFAULT NULL,
+  `part_time_student_end` DATE DEFAULT NULL,
+  `total_income_before_tax` VARCHAR(50) DEFAULT NULL,
+  `annual_household_income_before_tax` VARCHAR(50) DEFAULT NULL,
+  `num_people_sharing_income` VARCHAR(50) DEFAULT NULL,
+  `marital_status` VARCHAR(50) DEFAULT NULL,
+  `ethnic_group_aboriginal` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_asian` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_black_african` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_pacific_islander` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_south_asian` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_white` VARCHAR(10) DEFAULT NULL,
+  `ethnic_group_decline_or_na` VARCHAR(10) DEFAULT NULL,
+  `education_completed_elementary` VARCHAR(10) DEFAULT NULL,
+  `education_completed_some_highschool` VARCHAR(10) DEFAULT NULL,
+  `education_completed_tech_community_college` VARCHAR(10) DEFAULT NULL,
+  `education_completed_some_university` VARCHAR(10) DEFAULT NULL,
+  `education_completed_bachelor_degree` VARCHAR(10) DEFAULT NULL,
+  `education_completed_highschool_diploma` VARCHAR(10) DEFAULT NULL,
+  `education_completed_graduate_degree` VARCHAR(10) DEFAULT NULL,
+  `method_completion` VARCHAR(50) DEFAULT NULL,
+  `date_of_completion` DATE DEFAULT NULL,
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`),
+  CONSTRAINT `ed_tfri_study_baseline_costs_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Add structures
+INSERT INTO `structures` (`alias`) VALUES ('ed_tfri_study_baseline_costs');
+
+-- Value domain (disability source options)
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("disability_source_options", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("cpp/federal", "cpp/federal");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="disability_source_options"), (SELECT id FROM structure_permissible_values WHERE value="cpp/federal" AND language_alias="cpp/federal"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("provincial", "provincial");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="disability_source_options"), (SELECT id FROM structure_permissible_values WHERE value="provincial" AND language_alias="provincial"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("employer", "employer");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="disability_source_options"), (SELECT id FROM structure_permissible_values WHERE value="employer" AND language_alias="employer"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("don\'t know", "don\'t know");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="disability_source_options"), (SELECT id FROM structure_permissible_values WHERE value="don\'t know" AND language_alias="don\'t know"), "4", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('cpp/federal', 'CPP/Federal', ''),
+ ('provincial', 'Provincial', ''),
+ ('employer', 'Employer', ''),
+ ("don\'t know", "Don\'t know", '');
+
+-- Value domain (Annual income options)
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("annual_income_options", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("less than $5000", "less than $5000");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="less than $5000" AND language_alias="less than $5000"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$5,000 - $9,990", "$5,000 - $9,990");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$5,000 - $9,990" AND language_alias="$5,000 - $9,990"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$10,000 - $19,999", "$10,000 - $19,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$10,000 - $19,999" AND language_alias="$10,000 - $19,999"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$20,000 - $29,999", "$20,000 - $29,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$20,000 - $29,999" AND language_alias="$20,000 - $29,999"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$30,000 - $39,999", "$30,000 - $39,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$30,000 - $39,999" AND language_alias="$30,000 - $39,999"), "5", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$40,000 - $49,999", "$40,000 - $49,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$40,000 - $49,999" AND language_alias="$40,000 - $49,999"), "6", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$50,000 - $59,999", "$50,000 - $59,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$50,000 - $59,999" AND language_alias="$50,000 - $59,999"), "7", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$60,000 - $69,999", "$60,000 - $69,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$60,000 - $69,999" AND language_alias="$60,000 - $69,999"), "8", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$70,000 - $79,999", "$70,000 - $79,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$70,000 - $79,999" AND language_alias="$70,000 - $79,999"), "9", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$80,000 - $89,999", "$80,000 - $89,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$80,000 - $89,999" AND language_alias="$80,000 - $89,999"), "10", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$90,000 - $99,999", "$90,000 - $99,999");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$90,000 - $99,999" AND language_alias="$90,000 - $99,999"), "11", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$100,000 - $124,999", "$100,000 - $124,99");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$100,000 - $124,999" AND language_alias="$100,000 - $124,999"), "12", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("more than $125,000", "more than $125,000");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="more than $125,00" AND language_alias="more than $125,00"), "13", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("do not wish to answer", "do not wish to answer");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="do not wish to answer" AND language_alias="do not wish to answer"), "14", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('less than $5000', 'Less than $5000', ''),
+ ('$5,000 - $9,990', '$5,000 - $9,990', ''),
+ ('$10,000 - $19,999', '$10,000 - $19,999', ''),
+ ('$20,000 - $29,999', '$20,000 - $29,999', ''),
+ ('$30,000 - $39,999', '$30,000 - $39,999', ''),
+ ('$40,000 - $49,999', '$40,000 - $49,999', ''),
+ ('$50,000 - $59,999', '$50,000 - $59,999', ''), 
+ ('$60,000 - $69,999', '$60,000 - $69,999', ''), 
+ ('$70,000 - $79,999', '$70,000 - $79,999', ''), 
+ ('$80,000 - $89,999', '$80,000 - $89,999', ''),   
+ ('$90,000 - $99,999', '$90,000 - $99,999', ''), 
+ ('$100,000 - $124,999', '$100,000 - $124,999', ''), 
+ ('more than $125,000', 'More than $125,000', ''), 
+ ('do not wish to answer', 'Do not wish to answer', '');
+
+-- Value domain (Household numbers)
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("num_household_options", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("live alone", "live alone");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="num_household_options"), (SELECT id FROM structure_permissible_values WHERE value="live alone" AND language_alias="live alone"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("myself and one other", "myself and one other");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="num_household_options"), (SELECT id FROM structure_permissible_values WHERE value="myself and one other" AND language_alias="myself and one other"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("2 others", "2 others");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="num_household_options"), (SELECT id FROM structure_permissible_values WHERE value="2 others" AND language_alias="2 others"), "3", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("3 others", "3 others");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="num_household_options"), (SELECT id FROM structure_permissible_values WHERE value="3 others" AND language_alias="3 others"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("more than 3 others", "more than 3 others");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="num_household_options"), (SELECT id FROM structure_permissible_values WHERE value="more than 3 others" AND language_alias="more than 3 others"), "5", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('live alone', 'Live alone', ''), 
+ ('myself and one other', 'Myself and one other', ''),   
+ ('2 others', '2 others', ''), 
+ ('3 others', '3 others', ''), 
+ ('more than 3 others', 'More than 3 others', ''); 
+
+-- Value domain (Marital status)
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("martial_status_options", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="martial_status_options"), (SELECT id FROM structure_permissible_values WHERE value="married" AND language_alias="married"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("living as married or common-law", "living as married or common-law");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="martial_status_options"), (SELECT id FROM structure_permissible_values WHERE value="living as married or common-law" AND language_alias="living as married or common-law"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="martial_status_options"), (SELECT id FROM structure_permissible_values WHERE value="divorced" AND language_alias="divorced"), "3", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="martial_status_options"), (SELECT id FROM structure_permissible_values WHERE value="single" AND language_alias="single"), "4", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("widowed", "widowed");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="martial_status_options"), (SELECT id FROM structure_permissible_values WHERE value="widowed" AND language_alias="widowed"), "5", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="martial_status_options"), (SELECT id FROM structure_permissible_values WHERE value="separated" AND language_alias="separated"), "6", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('married', 'Married', ''), 
+ ('living as married or common-law', 'Living as Married or with a Common-law partner', ''),   
+ ('divorced', 'Divorced', ''), 
+ ('single', 'Single', ''), 
+ ('widowed', 'Widowed', ''), 
+ ('separated', 'Separated but still legally married', '');
+
+
+-- Build form (Page 1)
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'working_full_time_start', 'date',  NULL , '0', '', '', '', 'working full time start', ''),
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'working_part_time_start', 'date',  NULL , '0', '', '', '', 'working part time start', ''),
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'working_part_time_end', 'date',  NULL , '0', '', '', '', 'working part time end', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'volunteer_work_end', 'date',  NULL , '0', '', '', '', '', 'volunteer work end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'working_full_time_end', 'date',  NULL , '0', '', '', '', '', 'working full time end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'volunteer_work_start', 'date',  NULL , '0', '', '', '', 'volunteer work start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'short_term_disability_source', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='disability_source_options') , '0', '', '', '', 'short term disability source', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'short_term_disability_start', 'date',  NULL , '0', '', '', '', 'short term disability start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'short_term_disability_end', 'date',  NULL , '0', '', '', '', '', 'short term disability end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'long_term_disability_start', 'date',  NULL , '0', '', '', '', 'long term disability start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'long_term_disability_end', 'date',  NULL , '0', '', '', '', '', 'long term disability end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'long_term_disability_source', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='disability_source_options') , '0', '', '', '', 'long term disability source', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'other_disability_start', 'date',  NULL , '0', '', '', '', 'other disability start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'other_disability_end', 'date',  NULL , '0', '', '', '', '', 'other disability end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'other_disability_reason', 'input',  NULL , '0', 'size=25', '', '', 'other disability reason', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'retired_start', 'date',  NULL , '0', '', '', '', 'retired start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'retired_end', 'date',  NULL , '0', '', '', '', '', 'retired end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'self-employed_start', 'date',  NULL , '0', '', '', '', 'self-employed start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'self-employed_end', 'date',  NULL , '0', '', '', '', '', 'self-employed end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'homemaker_start', 'date',  NULL , '0', '', '', '', 'homemaker start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'homemaker_end', 'date',  NULL , '0', '', '', '', '', 'homemaker end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'not_working_ei_start', 'date',  NULL , '0', '', '', '', 'not working ei start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'not_working_ei_end', 'date',  NULL , '0', '', '', '', '', 'not working ei end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'maternity_leave_start', 'date',  NULL , '0', '', '', '', 'maternity leave start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'maternity_leave_end', 'date',  NULL , '0', '', '', '', '', 'maternity leave end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'full_time_student_start', 'date',  NULL , '0', '', '', '', 'full time student start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'full_time_student_end', 'date',  NULL , '0', '', '', '', '', 'full time student end'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'part_time_student_start', 'date',  NULL , '0', '', '', '', 'part time student start', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'part_time_student_end', 'date',  NULL , '0', '', '', '', '', 'part time student end');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='working_full_time_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='working full time start' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='working_part_time_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='working part time start' AND `language_tag`=''), '1', '8', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='working_part_time_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='working part time end' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'),  
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='volunteer_work_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='volunteer work end'), '1', '13', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='working_full_time_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='working full time end'), '1', '6', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='volunteer_work_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='volunteer work start' AND `language_tag`=''), '1', '12', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='short_term_disability_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='disability_source_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='short term disability source' AND `language_tag`=''), '1', '16', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='short_term_disability_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='short term disability start' AND `language_tag`=''), '1', '14', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='short_term_disability_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='short term disability end'), '1', '15', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='long_term_disability_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='long term disability start' AND `language_tag`=''), '1', '17', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='long_term_disability_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='long term disability end'), '1', '18', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='long_term_disability_source' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='disability_source_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='long term disability source' AND `language_tag`=''), '1', '19', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='other_disability_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='other disability start' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='other_disability_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other disability end'), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='other_disability_reason' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=25' AND `default`='' AND `language_help`='' AND `language_label`='other disability reason' AND `language_tag`=''), '1', '22', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='retired_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='retired start' AND `language_tag`=''), '1', '30', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='retired_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='retired end'), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='self-employed_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='self-employed start' AND `language_tag`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='self-employed_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='self-employed end'), '1', '36', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='homemaker_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='homemaker start' AND `language_tag`=''), '1', '40', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='homemaker_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='homemaker end'), '1', '41', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='not_working_ei_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='not working ei start' AND `language_tag`=''), '1', '42', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='not_working_ei_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='not working ei end'), '1', '43', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='maternity_leave_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='maternity leave start' AND `language_tag`=''), '1', '44', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='maternity_leave_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='maternity leave end'), '1', '45', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='full_time_student_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='full time student start' AND `language_tag`=''), '1', '46', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='full_time_student_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='full time student end'), '1', '47', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='part_time_student_start' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='part time student start' AND `language_tag`=''), '1', '50', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='part_time_student_end' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='part time student end'), '1', '51', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('working full time start', 'a) Working a full-time (>=35 hours per week). Start date', ''),
+ ('working part time start', 'b) Working a part-time (1-34 hours per week) paying job. Start date', ''),
+ ('working part time end', 'End date', ''),
+ ('volunteer work end', 'End date', ''),
+ ('working full time end', 'End date', ''),
+ ('volunteer work start', 'c) Volunteer work. Start date', ''),
+ ('short term disability source', 'Short-term disability source', ''),
+ ('short term disability start', 'd) Short-term disability for your current health condition. Start date', ''),
+ ('short term disability end', 'End date', ''),
+ ('long term disability source', 'Long-term disability source', ''),
+ ('long term disability start', 'e) Long-term disability for your current health condition. Start date', ''),
+ ('long term disability end', 'End date', ''),
+ ('other disability start', 'f) Disability for another reason. Start date', ''),
+ ('other disability end', 'End date', ''),
+ ('other disability reason', 'Specify other reason', ''),
+ ('retired start', 'g) Retired start date', ''),
+ ('retired end', 'End date', ''),
+ ('self-employed start', 'h) Self-employed start date', ''),
+ ('self-employed end', 'End date', ''),
+ ('homemaker start', 'i) Homemaker start date', ''), 
+ ('homemaker end', 'End date', ''),
+ ('not working ei start', 'j) Not working and on EI. Start date', ''),
+ ('not working ei end', 'End date', ''),
+ ('not working without ei start', 'k) Not working without EI. Start date', ''),
+ ('not working without ei end', 'End date', ''),
+ ('maternity leave start', 'l) Maternity leave. Start date', ''),
+ ('maternity leave end', 'End date', ''),
+ ('full time student start', 'm) Full-time student. Start date', ''), 
+ ('full time student end', 'End date', ''),
+ ('part time student start', 'n) Part-time student. Start date', ''),
+ ('part time student end', 'End date', '');
+ 
+-- Build form (Page 2)
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'total_income_before_tax', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='annual_income_options') , '0', '', '', '', 'total income before tax', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'annual_household_income_before_tax', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='annual_income_options') , '0', '', '', '', 'annual household income before tax', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'num_people_sharing_income', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='num_household_options') , '0', '', '', '', 'num people sharing income', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'marital_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='martial_status_options') , '0', '', '', '', 'marital status', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_aboriginal', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'ethnic group aboriginal', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_asian', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'ethnic group asian'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_black_african', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'ethnic group black african', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_pacific_islander', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'ethnic group pacific islander'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_south_asian', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'ethnic group south asian', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_white', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'ethnic group white'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'ethnic_group_decline_or_na', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'ethnic group decline or na', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_elementary', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'education completed elementary', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_some_highschool', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'education completed some highschool'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_tech_community_college', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'education completed tech community college', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_some_university', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'education completed some university'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_bachelor_degree', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'education completed bachelor degree', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_highschool_diploma', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', '', 'education completed highschool diploma'), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'education_completed_graduate_degree', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'education completed graduate degree', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='total_income_before_tax' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='annual_income_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total income before tax' AND `language_tag`=''), '1', '60', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='annual_household_income_before_tax' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='annual_income_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='annual household income before tax' AND `language_tag`=''), '1', '61', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='num_people_sharing_income' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='num_household_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='num people sharing income' AND `language_tag`=''), '1', '65', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='marital_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='martial_status_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='marital status' AND `language_tag`=''), '1', '66', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_aboriginal' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethnic group aboriginal' AND `language_tag`=''), '1', '70', 'ethnic group heading', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_asian' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ethnic group asian'), '1', '71', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_black_african' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethnic group black african' AND `language_tag`=''), '1', '72', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_pacific_islander' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ethnic group pacific islander'), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_south_asian' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethnic group south asian' AND `language_tag`=''), '1', '75', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_white' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='ethnic group white'), '1', '76', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='ethnic_group_decline_or_na' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ethnic group decline or na' AND `language_tag`=''), '1', '77', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_elementary' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='education completed elementary' AND `language_tag`=''), '1', '80', 'education heading', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_some_highschool' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='education completed some highschool'), '1', '81', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_tech_community_college' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='education completed tech community college' AND `language_tag`=''), '1', '82', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_some_university' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='education completed some university'), '1', '83', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_bachelor_degree' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='education completed bachelor degree' AND `language_tag`=''), '1', '84', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_highschool_diploma' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='education completed highschool diploma'), '1', '85', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='education_completed_graduate_degree' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='education completed graduate degree' AND `language_tag`=''), '1', '86', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('total income before tax', '2. What was your total annual income from before taxes last calendar year', ''),
+ ('annual household income before tax', '3. What was your annual household income, before taxes, last calendar year', ''),
+ ('num people sharing income', '4. How many other people do you share your home at the present time', ''),
+ ('marital status', '5. Presently are you:', ''),
+ ('ethnic group aboriginal', 'Aboriginal', ''),
+ ('ethnic group asian', 'Asian', ''),
+ ('ethnic group black african', 'Black or African Canadian', ''),
+ ('ethnic group pacific islander', 'Pacific Islander', ''),
+ ('ethnic group south asian', 'South Asian', ''),  
+ ('ethnic group white', 'White', ''),  
+ ('ethnic group decline or na', 'Decline to answer or do not know', ''),  
+ ('education completed elementary', 'Elementary school', ''),  
+ ('education completed some highschool', 'Some high school', ''),  
+ ('education completed tech community college', 'Technical/Community College', ''),  
+ ('education completed some university', 'Some University', ''),  
+ ('education completed bachelor degree', 'Bachelor Degree at University', ''),
+ ('education completed highschool diploma', 'HIgh school diploma', ''),
+ ('education completed graduate degree', 'University degree above a Bachelor degree', ''); 
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'date_completion', 'date',  NULL , '0', '', '', '', 'date completion', ''), 
+('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_baseline_costs', 'method_of_completion', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='method_of_completion') , '0', '', '', '', 'method of completion', '');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES  
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='date_completion' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date completion' AND `language_tag`=''), '1', '90', 'completion details', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_baseline_costs'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_baseline_costs' AND `field`='method_of_completion' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='method_of_completion')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method of completion' AND `language_tag`=''), '1', '91', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+ ('ethnic group heading', '6. What ethnic group do you consider yourself to belong to', ''),
+ ('education heading', '7. What is the highest level of formal education that you have completed', ''); 
+
+           
