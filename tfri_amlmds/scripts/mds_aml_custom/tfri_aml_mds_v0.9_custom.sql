@@ -574,9 +574,11 @@ CREATE TABLE `ed_tfri_study_fact_leu_revs` (
   `additional_emotional_ups_downs` INT(11) DEFAULT NULL,
   `additional_isolated_treatment` INT(11) DEFAULT NULL, 
   `event_master_id` int(11) NOT NULL,
-  KEY `event_master_id` (`event_master_id`),
-  CONSTRAINT `ed_tfri_study_fact_leu_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 
 -- Add structure
@@ -675,10 +677,11 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_fact_leu', 'emotional_nervous', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options') , '0', '', '', '', 'emotional nervous', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_fact_leu', 'emotional_worry_dying', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options') , '0', '', '', '', 'emotional worry dying', ''), 
 ('ClinicalAnnotation', 'EventDetail', 'ed_tfri_study_fact_leu', 'emotional_condition_worse', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options') , '0', '', '', '', 'emotional condition worse', '');
+
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_feel_sad' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional feel sad' AND `language_tag`=''), '1', '30', 'emotional well-being', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_coping' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional coping' AND `language_tag`=''), '1', '31', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
-((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_losing_hope' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional losing hope' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_losing_hope' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional losing hope' AND `language_tag`=''), '1', '32', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_nervous' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional nervous' AND `language_tag`=''), '1', '33', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_worry_dying' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional worry dying' AND `language_tag`=''), '1', '34', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='ed_tfri_study_fact_leu'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='ed_tfri_study_fact_leu' AND `field`='emotional_condition_worse' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='fact-leu_options')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='emotional condition worse' AND `language_tag`=''), '1', '35', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
@@ -904,8 +907,10 @@ CREATE TABLE `ed_tfri_study_baseline_costs_revs` (
   `method_completion` VARCHAR(50) DEFAULT NULL,
   `date_of_completion` DATE DEFAULT NULL,
   `event_master_id` int(11) NOT NULL,
-  KEY `event_master_id` (`event_master_id`),
-  CONSTRAINT `ed_tfri_study_baseline_costs_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`)
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- Add structures
@@ -952,10 +957,10 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("$80,000
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$80,000 - $89,999" AND language_alias="$80,000 - $89,999"), "10", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("$90,000 - $99,999", "$90,000 - $99,999");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$90,000 - $99,999" AND language_alias="$90,000 - $99,999"), "11", "1");
-INSERT INTO structure_permissible_values (value, language_alias) VALUES("$100,000 - $124,999", "$100,000 - $124,99");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("$100,000 - $124,999", "$100,000 - $124,999");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="$100,000 - $124,999" AND language_alias="$100,000 - $124,999"), "12", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("more than $125,000", "more than $125,000");
-INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="more than $125,00" AND language_alias="more than $125,00"), "13", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="more than $125,000" AND language_alias="more than $125,000"), "13", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("do not wish to answer", "do not wish to answer");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="annual_income_options"), (SELECT id FROM structure_permissible_values WHERE value="do not wish to answer" AND language_alias="do not wish to answer"), "14", "1");
 
@@ -1182,5 +1187,3 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('ethnic group heading', '6. What ethnic group do you consider yourself to belong to', ''),
  ('education heading', '7. What is the highest level of formal education that you have completed', ''); 
-
-           
