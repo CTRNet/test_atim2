@@ -1231,6 +1231,28 @@ class AppController extends Controller {
 		$this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
 		$this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
 		
+		// *** 9 *** Clean up structure_permissible_values_custom_controls counters values
+		
+		$StructurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
+		$has_many_details = array(
+				'hasMany' => array(
+						'StructurePermissibleValuesCustom' => array(
+								'className' => 'StructurePermissibleValuesCustom',
+								'foreignKey' => 'control_id')));
+		$StructurePermissibleValuesCustomControl->bindModel($has_many_details);
+		$all_cusom_lists_controls = $StructurePermissibleValuesCustomControl->find('all');
+		foreach($all_cusom_lists_controls as $new_custom_list) {
+			$values_used_as_input_counter = 0;
+			$values_counter = 0;
+			foreach($new_custom_list['StructurePermissibleValuesCustom'] as $new_custom_value) {
+				if(!$new_custom_value['deleted']) {
+					$values_counter++;
+					if($new_custom_value['use_as_input']) $values_used_as_input_counter++;
+				}
+			}
+			$StructurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $values_counter, values_used_as_input_counter = $values_used_as_input_counter WHERE id = ".$new_custom_list['StructurePermissibleValuesCustomControl']['id']);
+		}
+		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 		$this->Version->check_writable_fields = false;
