@@ -81,6 +81,152 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='path_mstage' AND `language_label`='' AND `language_tag`='m stage' AND `type`='input' AND `setting`='size=1,maxlength=3' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='path_stage_summary' AND `language_label`='' AND `language_tag`='summary' AND `type`='input' AND `setting`='size=1, maxlength=3' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_path_stage_summary' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+-- --------------------------------------------------------------------------------------------------------
+-- RADIO
+-- --------------------------------------------------------------------------------------------------------
+
+INSERT INTO treatment_extend_controls (detail_tablename, detail_form_alias, flag_active, type, databrowser_label)
+VALUES
+('qc_lady_txe_radiations','qc_lady_txe_radiations','1','radiation procedure','radiation procedure');
+UPDATE treatment_controls SET treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'qc_lady_txe_radiations') WHERE tx_method = 'radiation' AND flag_Active = 1;			
+CREATE TABLE IF NOT EXISTS `qc_lady_txe_radiations` (
+  `radiation_procedure` varchar(100) DEFAULT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  KEY `FK_qc_lady_txe_radiations_treatment_extend_masters` (`treatment_extend_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_lady_txe_radiations_revs` (
+  `radiation_procedure` varchar(100) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_lady_txe_radiations`
+  ADD CONSTRAINT `FK_qc_lady_txe_radiations_treatment_extend_masters` FOREIGN KEY (`treatment_extend_master_id`) REFERENCES `treatment_extend_masters` (`id`);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_lady_radiation_procedures", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Radiation Procedure\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Radiation Procedure', 1, 100, 'clinical - treatment');
+INSERT INTO structures(`alias`) VALUES ('qc_lady_txe_radiations');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'qc_lady_txe_radiations', 'radiation_procedure', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_radiation_procedures') , '0', '', '', '', 'radiation procedure', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txe_radiations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_lady_txe_radiations' AND `field`='radiation_procedure' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_radiation_procedures')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='radiation procedure' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('radiation procedure','Radiation Procedure', 'Procédure');
+
+-- --------------------------------------------------------------------------------------------------------
+-- IMMUNO
+-- --------------------------------------------------------------------------------------------------------
+
+INSERT INTO treatment_extend_controls (detail_tablename, detail_form_alias, flag_active, type, databrowser_label)
+VALUES
+('qc_lady_txe_immunos','qc_lady_txe_immunos','1','immunotherapy drug','immunotherapy drug');
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`) VALUES
+(null, 'immunotherapy', '', 1, 'qc_lady_txd_immunos', 'qc_lady_txd_immunos', 0, 1, 'importDrugFromChemoProtocol', 'immunotherapy', 0);
+UPDATE treatment_controls SET treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'qc_lady_txe_immunos') WHERE tx_method = 'immunotherapy' AND flag_Active = 1;			
+CREATE TABLE IF NOT EXISTS `qc_lady_txd_immunos` (
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `qc_lady_txd_immunos_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_lady_txd_immunos`
+  ADD CONSTRAINT `qc_lady_txd_immunos_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_lady_txd_immunos');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='tx_intent' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='intent')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_intent' AND `language_label`='intent' AND `language_tag`=''), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_protocol_name' AND `language_label`='protocol' AND `language_tag`=''), '1', '9', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structures(`alias`) VALUES ('qc_lady_txe_immunos');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'qc_lady_txe_immunos', 'dose', 'input',  NULL , '0', 'size=10', '', 'help_dose', 'dose', ''), 
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'qc_lady_txe_immunos', 'drug_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='drug_list') , '0', '', '', 'help_drug_id', 'drug', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txe_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_lady_txe_immunos' AND `field`='dose' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='help_dose' AND `language_label`='dose' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_lady_txe_immunos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_lady_txe_immunos' AND `field`='drug_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_drug_id' AND `language_label`='drug' AND `language_tag`=''), '1', '1', 'drugs', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '1', '0', '1', '0');
+
+UPDATE treatment_controls SET applied_protocol_control_id = NULL, extended_data_import_process  = NULL WHERE detail_tablename IN ('qc_lady_txd_hormonos', 'qc_lady_txd_immunos');
+DELETE FROM protocol_controls WHERE detail_tablename = 'qc_lady_pd_hormonos';
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_lady_pd_hormonos');
+DELETE FROM structures WHERE alias='qc_lady_pd_hormonos';
+DROP TABLE qc_lady_pd_hormonos;
+DROP TABLE qc_lady_pd_hormonos_revs;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("immunotherapy", "immunotherapy");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="type"), (SELECT id FROM structure_permissible_values WHERE value="immunotherapy" AND language_alias="immunotherapy"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ("immunotherapy", "Immunotherapy", "Immunothérapie");
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='protocolmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_surgical_procedures') ,  `setting`='' WHERE model='TreatmentExtendDetail' AND tablename='txe_surgeries' AND field='surgical_procedure' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_surgical_procedures');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_immunos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-49' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `language_label`='protocol' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `language_help`='help_protocol_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+
+CREATE TABLE IF NOT EXISTS `qc_lady_txe_immunos` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  KEY `FK_qc_lady_txe_immunos_drugs` (`drug_id`),
+  KEY `FK_qc_lady_txe_immunos_treatment_extend_masters` (`treatment_extend_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_lady_txe_immunos_revs` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+ALTER TABLE `qc_lady_txe_immunos`
+  ADD CONSTRAINT `FK_qc_lady_txe_immunos_treatment_extend_masters` FOREIGN KEY (`treatment_extend_master_id`) REFERENCES `treatment_extend_masters` (`id`),
+  ADD CONSTRAINT `FK_qc_lady_txe_immunos_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`);
+
+INSERT INTO i18n (id,en,fr) VALUES ('immunotherapy drug','Immunotherapy Drug','Molécule d''immunothérapie');
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_hormonos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-49' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `language_label`='protocol' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `language_help`='help_protocol_name' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+
+DROP TABLE IF EXISTS qc_lady_txe_hormonos;
+DROP TABLE IF EXISTS qc_lady_txe_hormonos_revs;
+CREATE TABLE IF NOT EXISTS `qc_lady_txe_hormonos` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  KEY `FK_qc_lady_txe_hormonos_drugs` (`drug_id`),
+  KEY `FK_qc_lady_txe_hormonos_treatment_extend_masters` (`treatment_extend_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_lady_txe_hormonos_revs` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+ALTER TABLE `qc_lady_txe_hormonos`
+  ADD CONSTRAINT `FK_qc_lady_txe_hormonos_treatment_extend_masters` FOREIGN KEY (`treatment_extend_master_id`) REFERENCES `treatment_extend_masters` (`id`),
+  ADD CONSTRAINT `FK_qc_lady_txe_hormonos_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`);
+
+UPDATE treatment_extend_controls SET type = 'hormonotherapy drug', databrowser_label = 'hormonotherapy drug' WHERE detail_tablename = 'qc_lady_txe_hormonos';
+
+INSERT INTO i18n (id,en,fr) VALUES ('hormonotherapy drug','Hormonotherapy Drug','Molécule d''hormonothérapie');
+
+UPDATE i18n SET fr  = 'Procédure de biopsie' WHERE id = 'biopsy procedure';
+UPDATE i18n SET fr  = 'Procédure de radiation' WHERE id = 'radiation procedure';
+UPDATE i18n SET fr  = 'Effectué' WHERE id = 'performed';
+
+
+
+
+
+
+
 
 
 
@@ -94,5 +240,9 @@ DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHER
 
 
 Probleme encodeage utf8 de 'prevision' et des description fr des code ICD10 et ICDo3, etc. A verifier lors de la migration.
+
+
+
+
 
 

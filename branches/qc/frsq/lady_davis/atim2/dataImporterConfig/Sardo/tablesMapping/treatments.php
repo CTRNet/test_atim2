@@ -28,7 +28,7 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 					if(Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['last_name']!= Config::$participants[$jgh_nbr]['tx_worksheet_patient_data']['last_name']) {
 						Config::$summary_msg[$summary_msg_title_participant]['@@ERROR@@']['Last Names Are Different (Dx Vs Tx)'][] = "See JGH# ".$new_line_data['No de dossier']." line $excel_line_counter : (tx worksheet) ".Config::$participants[$jgh_nbr]['tx_worksheet_patient_data']['last_name']." != (dx worksheet) ".Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['last_name'];
 					}
-					if(Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['vital_status']!= Config::$participants[$jgh_nbr]['tx_worksheet_patient_data']['last_name']) {
+					if(Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['vital_status']!= Config::$participants[$jgh_nbr]['tx_worksheet_patient_data']['vital_status']) {
 						Config::$summary_msg[$summary_msg_title_participant]['@@ERROR@@']['Vital Status Are Different (Dx Vs Tx)'][] = "See JGH# ".$new_line_data['No de dossier']." line $excel_line_counter : (tx worksheet) ".Config::$participants[$jgh_nbr]['tx_worksheet_patient_data']['vital_status']." != (dx worksheet) ".Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['vital_status'];
 					}
 				} else {
@@ -61,16 +61,29 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 					case 'PROTOC':
 						$treatment_control_id = '1';
 						break;
+						
+					case 'HORM':
+						$treatment_control_id = '5';
+						break;
+					case 'RADIO':
+						$treatment_control_id = '2';
+						break;
+					case 'IMMUNO':
+						$treatment_control_id = '8';
+						break;
 					default: 
 						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Following treatment types have not been imported'][$new_line_data['Type traitement']] = $new_line_data['Type traitement'];
 /*
-|  1 | chemotherapy              | txd_chemos                   |
-|  2 | radiation                 | txd_radiations               |
-|  3 | surgery                   | txd_surgeries                |
-|  4 | surgery without extension | txd_surgeries                |
-|  5 | hormonotherapy            | qc_lady_txd_hormonos         |
-|  6 | surgery                   | qc_lady_txd_biopsy_surgeries |
-|  7 | biopsy                    | qc_lady_txd_biopsy_surgeries |
+
+REVISION
+BILAN
+IMAGE
+VISITE
+CYTO
+AUTRE
+MEDIC
+
+EXAM
  */
 				}
 				
@@ -115,6 +128,9 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 					} else if(!preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $start_date)) die('ERR 33829798237293 : '.$start_date);
 					//Record data
 					$trt_key = '';
+					$txd_tablename = '';
+					$txe_tablename = '';
+					$drug_type = '';
 					switch($new_line_data['Type traitement']) {
 						case 'CHIR':
 							//Surgery
@@ -221,7 +237,25 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 							break;
 							
 						case 'CHIMIO':
-							$trt_key = 'CHIMIO-'.(empty($start_date)? ($treatment_master_id + 1) : $start_date);
+							$txd_tablename = 'txd_chemos';
+							$txe_tablename = 'txe_chemos';
+							$drug_type = 'chemotherapy';
+							$treatment_extend_control_id = 1;
+						case 'HORM':
+							if(empty($txd_tablename)) {
+								$txd_tablename = 'qc_lady_txd_hormonos';
+								$txe_tablename = 'qc_lady_txe_hormonos';
+								$drug_type = 'hormonal';
+								$treatment_extend_control_id = 3;
+							}
+						case 'IMMUNO':
+							if(empty($txd_tablename)) {
+								$txd_tablename = 'qc_lady_txd_immunos';
+								$txe_tablename = 'qc_lady_txe_immunos';
+								$drug_type = 'immunotherapy';
+								$treatment_extend_control_id = 6;
+							}
+							$trt_key = $new_line_data['Type traitement'].'-'.(empty($start_date)? ($treatment_master_id + 1) : $start_date);
 							$trt_treatment_master_id = '';
 							if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key])) {
 								$treatment_master_id++;
@@ -233,7 +267,7 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 										'start_date' => $start_date,
 										'start_date_accuracy' => $start_date_accuracy,
 										'participant_id' => $participant_id) ,
-									'txd_chemos'	=> array(
+									$txd_tablename	=> array(
 										'treatment_master_id' => $treatment_master_id),
 									'treatment_extends' => array());
 								$trt_treatment_master_id = $treatment_master_id;
@@ -243,11 +277,12 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 							}
 							if($new_line_data['Traitement']) {
 								$drug_id = null;
-								if(!isset(Config::$drugs[$new_line_data['Traitement']])) {
-									$drug_id = customInsertRecord(array('generic_name' => $new_line_data['Traitement'], 'type' => 'chemotherapy'), 'drugs');
-									Config::$drugs[$new_line_data['Traitement']] = $drug_id;
+								$drug_key = $new_line_data['Traitement'].'-'.$drug_type;
+								if(!isset(Config::$drugs[$drug_key])) {
+									$drug_id = customInsertRecord(array('generic_name' => $new_line_data['Traitement'], 'type' => $drug_type), 'drugs');
+									Config::$drugs[$drug_key] = $drug_id;
 								} else {
-									$drug_id = Config::$drugs[$new_line_data['Traitement']];
+									$drug_id = Config::$drugs[$drug_key];
 								}
 								if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$drug_id])) {
 									$treatment_extend_master_id ++;
@@ -255,10 +290,50 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 										array(
 											'treatment_extend_masters' => array(
 												'id' => $treatment_extend_master_id,
-												'treatment_extend_control_id' => 1,
+												'treatment_extend_control_id' => $treatment_extend_control_id,
 												'treatment_master_id' => $trt_treatment_master_id),
-											'txe_chemos' => array(
+											$txe_tablename => array(
 												'drug_id' => $drug_id,
+												'treatment_extend_master_id' => $treatment_extend_master_id));
+								}
+							}
+							break;	
+							
+						case 'RADIO':
+							$trt_key = 'RADIO-'.(empty($start_date)? ($treatment_master_id + 1) : $start_date);
+							$trt_treatment_master_id = '';
+							if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key])) {
+								$treatment_master_id++;
+								Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key] = array(
+									'treatment_masters' => array(
+										'id' => $treatment_master_id,
+										'treatment_control_id' => $treatment_control_id,
+										'diagnosis_master_id' => $diagnosis_master_id,
+										'start_date' => $start_date,
+										'start_date_accuracy' => $start_date_accuracy,
+										'participant_id' => $participant_id) ,
+									'txd_radiations'	=> array(
+										'treatment_master_id' => $treatment_master_id),
+									'treatment_extends' => array());
+								$trt_treatment_master_id = $treatment_master_id;
+							
+							} else {
+								$trt_treatment_master_id = Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_masters']['id'];
+							}
+							if($new_line_data['Traitement']) {
+								$procedure = $new_line_data['Traitement'];
+								if(strlen($procedure) > 100) die('ERR 2376 876287683276 66 '.$procedure);
+								Config::$radiation_procedures[strtolower($procedure)] = $procedure;
+								if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$procedure])) {
+									$treatment_extend_master_id ++;
+									Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$procedure] =
+										array(
+											'treatment_extend_masters' => array(
+												'id' => $treatment_extend_master_id,
+												'treatment_extend_control_id' => 5,
+												'treatment_master_id' => $trt_treatment_master_id),
+											'qc_lady_txe_radiations' => array(
+												'radiation_procedure' => strtolower($procedure),
 												'treatment_extend_master_id' => $treatment_extend_master_id));
 								}
 							}
@@ -295,7 +370,10 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 								//diff
 								Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Duplicated PROTOC'][] = "Protocole ".$new_line_data['Traitement']." has been assigned twice to the same patient for the same date. See JGH# $jgh_nbr line $excel_line_counter";
 							}
-							break;		
+							break;	
+							
+							
+							
 					}
 				}				
 			}
