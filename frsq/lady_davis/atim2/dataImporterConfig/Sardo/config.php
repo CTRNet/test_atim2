@@ -71,6 +71,9 @@ class Config{
 	static $morphos = array();
 	static $surgical_procedures = array();
 	static $biopsy_procedures = array();
+	static $radiation_procedures = array();
+	static $drugs = array();
+	static $protocols = array();
 	
 	
 
@@ -188,6 +191,15 @@ function addonFunctionEnd(){
 		customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
 	}
 	
+	//Record Radiation Procedure
+	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiation Procedure'";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$row = $results->fetch_assoc();
+	$control_id = $row['id'];
+	foreach(Config::$radiation_procedures as $value => $fr) {
+		customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+	}
+	
 	//Record data
 	foreach(Config::$participants as $jgh_nbr => $patient_data) {
 		if(!empty($participant_data['participant_id'])) {
@@ -203,13 +215,40 @@ function addonFunctionEnd(){
 							//Create Treatment
 							foreach($p_data_level2['Treatment'] as $tx_data) {
 								$treatment_master_id = customInsertRecord($tx_data['treatment_masters'], 'treatment_masters');						
-								customInsertRecord($tx_data['qc_lady_txd_biopsy_surgeries'], 'qc_lady_txd_biopsy_surgeries', true);
+								if(array_key_exists('qc_lady_txd_biopsy_surgeries', $tx_data)) {
+									customInsertRecord($tx_data['qc_lady_txd_biopsy_surgeries'], 'qc_lady_txd_biopsy_surgeries', true);
+								} else if(array_key_exists('txd_chemos', $tx_data)) {
+									customInsertRecord($tx_data['txd_chemos'], 'txd_chemos', true);
+								} else if(array_key_exists('txd_radiations', $tx_data)) {
+									customInsertRecord($tx_data['txd_radiations'], 'txd_radiations', true);
+								} else if(array_key_exists('qc_lady_txd_hormonos', $tx_data)) {
+									customInsertRecord($tx_data['qc_lady_txd_hormonos'], 'qc_lady_txd_hormonos', true);
+								} else if(array_key_exists('qc_lady_txd_immunos', $tx_data)) {
+									customInsertRecord($tx_data['qc_lady_txd_immunos'], 'qc_lady_txd_immunos', true);
+								} else {
+									pr($tx_data);
+									die('ERR 77738883773');
+								}
 								$treatment_extends = array();
 								if(isset($tx_data['treatment_extends'])) {
 									foreach($tx_data['treatment_extends'] as $txe_data) {
 										customInsertRecord($txe_data['treatment_extend_masters'], 'treatment_extend_masters');
-										if(array_key_exists('txe_surgeries', $txe_data)) customInsertRecord($txe_data['txe_surgeries'], 'txe_surgeries', true);
-										if(array_key_exists('qc_lady_txe_biopsies', $txe_data)) customInsertRecord($txe_data['qc_lady_txe_biopsies'], 'qc_lady_txe_biopsies', true);
+										if(array_key_exists('txe_surgeries', $txe_data)) {
+											customInsertRecord($txe_data['txe_surgeries'], 'txe_surgeries', true);
+										} else if(array_key_exists('qc_lady_txe_biopsies', $txe_data)) {
+											customInsertRecord($txe_data['qc_lady_txe_biopsies'], 'qc_lady_txe_biopsies', true);
+										} else if(array_key_exists('txe_chemos', $txe_data)) {
+											customInsertRecord($txe_data['txe_chemos'], 'txe_chemos', true);
+										} else if(array_key_exists('qc_lady_txe_hormonos', $txe_data)) {
+											customInsertRecord($txe_data['qc_lady_txe_hormonos'], 'qc_lady_txe_hormonos', true);
+										} else if(array_key_exists('qc_lady_txe_radiations', $txe_data)) {
+											customInsertRecord($txe_data['qc_lady_txe_radiations'], 'qc_lady_txe_radiations', true);
+										} else if(array_key_exists('qc_lady_txe_immunos', $txe_data)) {
+											customInsertRecord($txe_data['qc_lady_txe_immunos'], 'qc_lady_txe_immunos', true);
+										} else {
+											pr($txe_data);
+											die('ERR 2387 6872 368 32');
+										}
 									}
 								}
 							}
@@ -217,7 +256,7 @@ function addonFunctionEnd(){
 					}
 				}
 			} else {
-				pr($patient_data);
+				//Msg already displayed
 			}
 		} else {
 			//Msg already displayed
