@@ -54,7 +54,7 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 			$jgh_nbr = $new_line_data['No de dossier'];
 			if(!isset(Config::$participants[$jgh_nbr])) {
 				//Get participant data
-				$query = "SELECT p.id AS participant_id, i.identifier_value, p.first_name, p.last_name, p.vital_status, p.date_of_death, p.date_of_death_accuracy
+				$query = "SELECT p.id AS participant_id, i.identifier_value, p.first_name, p.last_name, p.vital_status, p.date_of_birth, p.date_of_birth_accuracy, p.date_of_death, p.date_of_death_accuracy
 					FROM misc_identifiers i
 					INNER JOIN participants p ON p.id = i.participant_id
 					WHERE i.deleted != 1 AND i.misc_identifier_control_id = 6 AND i.identifier_value = '$jgh_nbr'";
@@ -69,9 +69,11 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 					$row = $res->fetch_assoc();
 					Config::$participants[$jgh_nbr] = array(
 						'participant_id' => $row['participant_id'],
-						'first_name' => $row['first_name'],
-						'last_name' => $row['last_name'],
+						'db_first_name' => $row['first_name'],
+						'db_last_name' => $row['last_name'],
 						'db_vital_status' => $row['vital_status'],
+						'date_of_birth' => $row['date_of_birth'],
+						'date_of_birth_accuracy' => $row['date_of_birth_accuracy'],
 						'db_date_of_death' => $row['date_of_death'],
 						'db_date_of_death_accuracy' => $row['date_of_death_accuracy'],
 						'dx_worksheet_patient_data' =>array(
@@ -113,18 +115,20 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 							$participant_data_to_update['vital_status'] = "vital_status = '$file_vital_status'";
 							$participant_data_to_update['date_of_death'] = "date_of_death = '$file_date_of_death'";
 							$participant_data_to_update['date_of_death_accuracy'] = "date_of_death_accuracy = '$file_date_of_death_accuracy'";
+							Config::$summary_msg[$summary_msg_title_participant]['@@MESSAGE@@']['Patient defined as deceased in file (but not into ATiM): Will update both vital status and date of death)'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 						}
 					} else if($db_vital_status == $file_vital_status && $db_vital_status == 'deceased') {
 						if(empty($db_date_of_death) && !empty($file_date_of_death)) {
 							$participant_data_to_update['date_of_death'] = "date_of_death = '$file_date_of_death'";
 							$participant_data_to_update['date_of_death_accuracy'] = "date_of_death_accuracy = '$file_date_of_death_accuracy'";
+							Config::$summary_msg[$summary_msg_title_participant]['@@MESSAGE@@']['Patient is deceased but date of death is missing into ATiM: Will update date of death)'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 						} else if(!empty($db_date_of_death) && empty($file_date_of_death)) {
-							Config::$summary_msg[$summary_msg_title_participant]['@@MESSAGE@@']['Date of death just defined in db'][] = "See JGH# $jgh_nbr line $excel_line_counter";
+							Config::$summary_msg[$summary_msg_title_participant]['@@MESSAGE@@']['Date of death just defined in db (nothing will be updated)'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 						} else if($db_date_of_death != $file_date_of_death || $db_date_of_death_accuracy != $file_date_of_death_accuracy) {
-							Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Dates of death are different in db and file'][] = "See JGH# $jgh_nbr line $excel_line_counter [$file_date_of_death($file_date_of_death_accuracy) != $db_date_of_death($db_date_of_death_accuracy)]";
+							Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Dates of death are different in db and file (nothing will be updated)'][] = "See JGH# $jgh_nbr line $excel_line_counter [$file_date_of_death($file_date_of_death_accuracy) != $db_date_of_death($db_date_of_death_accuracy)]";
 						}
 					} else {
-						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Vital status are different in db and file'][] = "See JGH# $jgh_nbr line $excel_line_counter [(ATiM) $db_vital_status != (file) ".(empty($file_vital_status)? 'No value' : $file_vital_status)."]";
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Vital status are different in db and file (nothing will be updated)'][] = "See JGH# $jgh_nbr line $excel_line_counter [(ATiM) $db_vital_status != (file) ".(empty($file_vital_status)? 'No value' : $file_vital_status)."]";
 					}
 					Config::$participants[$jgh_nbr]['participant_db_data_to_update'] = $participant_data_to_update;
 				}
@@ -142,6 +146,18 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 					$dx_date = $matches[1].'-01';
 					$dx_date_accuracy = 'd';
 				} else if(!preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $dx_date)) die('ERR 383287632876287326 8 : '.$dx_date);
+				$age_at_dx = '';
+				if($dx_date && Config::$participants[$jgh_nbr]['date_of_birth']) {
+					$start_date = new DateTime(Config::$participants[$jgh_nbr]['date_of_birth']);
+					$end_date = new DateTime($dx_date);
+					$interval = $start_date->diff($end_date);
+					if($interval->invert) {
+						die('ERR 2763 8726387 687 632 '.$jgh_nbr.' '.$dx_date.' '.Config::$participants[$jgh_nbr]['date_of_birth']);
+					} else {
+						$age_at_dx = $interval->y;
+						$age_at_dx = empty($age_at_dx)? '0' : $age_at_dx;
+					}
+				}
 				$laterality = '';
 				switch($new_line_data['Latéralité']) {
 					case 'Droite':
@@ -156,6 +172,11 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 					default:
 						die('ERR 3283 8628763 8726 832 : '.$new_line_data['Latéralité'].' line : '.$excel_line_counter);
 				}
+				$tumour_grade = $new_line_data['Grade CIM-O'];
+				if(!in_array($new_line_data['Grade CIM-O'], array('1','2','3',''))) {
+					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Grade'][] = "See JGH# $jgh_nbr line. Grade ".$new_line_data['Grade CIM-O']." is not supported.";
+					$tumour_grade = '';
+				}
 				$diagnosis_master_id++;
 				$dx_data = array(
 					'diagnosis_masters' => array(
@@ -166,23 +187,21 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 //						'parent_id' => '**TODO**',
 						'dx_date' => $dx_date,
 						'dx_date_accuracy' => $dx_date_accuracy,
-						'age_at_dx' => '**TODO**',							
+						'age_at_dx' => $age_at_dx,							
 						'icd10_code' => $icd10_code,
 						'morphology' => $morphology,
 						'clinical_stage_summary' => '',
 						'qc_lady_clinical_stage_summary_at_dx' => '',
+						'tumour_grade' => $tumour_grade,
 						'survival_time_months' => '**TODO**'),
 					'qc_lady_dxd_breasts' => array(
 						'diagnosis_master_id' => $diagnosis_master_id,
 						'laterality' => $laterality));
 				if(isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Diagnosis'])) Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Bilateral tumor to confirm'][] = "2 different diagnoses will be created, check if just one bilateral has to be created. See JGH# $jgh_nbr line $excel_line_counter";
-				if(isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Diagnosis'][$laterality])) echo('ERR 276 287362876 328 : line : '.$excel_line_counter.'<br>');
-				Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Diagnosis'][$laterality] = $dx_data;
-				if(!in_array($new_line_data['Grade CIM-O'], array('1','2','3',''))) {
-					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Grade'][] = "See JGH# $jgh_nbr line. Grade ".$new_line_data['Grade CIM-O']." is not supported.";
-				} else {
-					Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Diagnosis'][$laterality]['tmp_grade'] = $new_line_data['Grade CIM-O'];
+				if(isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Diagnosis'][$laterality])) {
+					Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Diagnostics look like to be defined twice (same date, topo, morphom laterality, etc) : Only one will be created - please confirm'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 				}
+				Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Diagnosis'][$laterality] = $dx_data;
 			}
 		}
 	} 
