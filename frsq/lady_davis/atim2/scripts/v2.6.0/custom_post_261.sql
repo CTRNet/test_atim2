@@ -296,24 +296,11 @@ INSERT INTO i18n (id,en,fr) VALUES ('last contact','Last Contact Date','Date der
 
 UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-
-
-
-
+INSERT INTO i18n (id,en) VALUES ('unable to calculate survival','Unable to calculate survival'),('survival has been calculated with at least one unaccuracy date','Survival has been calculated with at least one unaccuracy date');
 
 
 
 
 Probleme encodeage utf8 de 'prevision' et des description fr des code ICD10 et ICDo3, etc. A verifier lors de la migration.
 Protocol : Ajouter les drugs si possible
-Survival ajouter code pour le calculer
-
-
-
-
-
-
-
-
-
 

@@ -1,4 +1,4 @@
 <?php 
 
-	$this->DiagnosisMaster->updateAgeAtDx('Participant',$participant_id);
+	$this->DiagnosisMaster->updateAgeAtDxAndSurvival('Participant',$participant_id);
 	
