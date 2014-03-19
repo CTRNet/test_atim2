@@ -1,3 +1,3 @@
 <?php 
 
-	$this->DiagnosisMaster->updateAgeAtDx('DiagnosisMaster', $diagnosis_master_id);
+	$this->DiagnosisMaster->updateAgeAtDxAndSurvival('DiagnosisMaster', $diagnosis_master_id);

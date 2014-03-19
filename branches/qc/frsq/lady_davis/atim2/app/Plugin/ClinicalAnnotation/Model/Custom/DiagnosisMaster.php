@@ -4,7 +4,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	var $useTable = 'diagnosis_masters';
 	var $name = 'DiagnosisMaster';
 	
-	function updateAgeAtDx($model, $primary_key_id) {	
+	function updateAgeAtDxAndSurvival($model, $primary_key_id) {	
 		$criteria = array(
 			'DiagnosisControl.category' => 'primary', 
 			'DiagnosisControl.controls_type' => array('breast'),
@@ -21,6 +21,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		$warnings = array();
 		foreach($dx_to_check as $new_dx) {
 			$dx_id = $new_dx['DiagnosisMaster']['id'];
+			//Age At Dx
 			$previous_age_at_dx = $new_dx['DiagnosisMaster']['age_at_dx'];
 			$new_age_at_dx = '';
 			if($new_dx['DiagnosisMaster']['dx_date'] && $new_dx['Participant']['date_of_birth']) {
@@ -38,12 +39,47 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				$warnings[3] = __('unable to calculate age at diagnosis').': '.__('missing date');
 			}	
 			if($new_age_at_dx != $previous_age_at_dx) {
-				$dx_to_update[] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => $new_age_at_dx));
+				$dx_to_update[$dx_id] = array('DiagnosisMaster' => array('id' => $dx_id, 'age_at_dx' => $new_age_at_dx));
+			}
+			//Survival
+			$previous_survival_time_months = $new_dx['DiagnosisMaster']['survival_time_months'];
+			$new_survival_time_months = '';
+			if($new_dx['DiagnosisMaster']['dx_date'] && ($new_dx['Participant']['date_of_death'] || $new_dx['Participant']['qc_lady_last_contact_date'])) {
+				$survival_end_date = '';
+				$survival_end_date_accuracy = '';
+				if($new_dx['Participant']['date_of_death_accuracy']) {
+					$survival_end_date = $new_dx['Participant']['date_of_death'];
+					$survival_end_date_accuracy = $new_dx['Participant']['date_of_death_accuracy'];
+				} else if($new_dx['Participant']['qc_lady_last_contact_date']) {
+					$survival_end_date = $new_dx['Participant']['qc_lady_last_contact_date'];
+					$survival_end_date_accuracy = 'c';
+				} else {
+					AppController::getInstance()->redirect( '/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true );
+				}
+				if(($new_dx['DiagnosisMaster']['dx_date_accuracy'] != 'c') || ($survival_end_date_accuracy != 'c')) $warnings[1] = __('survival has been calculated with at least one unaccuracy date');
+				$start_date = new DateTime($new_dx['DiagnosisMaster']['dx_date']);
+				$end_date = new DateTime($survival_end_date);
+				$interval = $start_date->diff($end_date);
+				if($interval->invert) {
+					$warnings[2] = __('unable to calculate survival').': '.__('error in the date definitions');
+				} else {
+					$new_survival_time_months = $interval->y*12 + $interval->m;
+					$new_survival_time_months = empty($new_survival_time_months)? '0' : $new_survival_time_months;
+				}
+			} else {
+				$warnings[3] = __('unable to calculate survival').': '.__('missing date');
+			}
+			if($new_survival_time_months != $previous_survival_time_months) {
+				if(isset($dx_to_update[$dx_id])) {
+					$dx_to_update[$dx_id]['DiagnosisMaster']['survival_time_months'] = $new_survival_time_months;
+				} else {
+					$dx_to_update[$dx_id] = array('DiagnosisMaster' => array('id' => $dx_id, 'survival_time_months' => $new_survival_time_months));
+				}
 			}
 		}
 		foreach($warnings as $new_warning) AppController::getInstance()->addWarningMsg($new_warning);
 		
-		$this->addWritableField(array('age_at_dx'));
+		$this->addWritableField(array('age_at_dx','survival_time_months'));
 		foreach($dx_to_update as $dx_data) {
 			$thid->data = array();
 			$this->id = $dx_data['DiagnosisMaster']['id'];
