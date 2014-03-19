@@ -27,7 +27,8 @@ class Config{
 	//if reading excel file
 	
 //	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/COEUR-OTB-#1_20131129.xls";
- 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
+ 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors_nominal.xls";
+// 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
  	
  	
 	static $xls_header_rows = 1;
@@ -74,6 +75,7 @@ class Config{
 	static $radiation_procedures = array();
 	static $drugs = array();
 	static $protocols = array();
+	static $imaging_types = array();
 	
 	
 
@@ -133,8 +135,8 @@ function addonFunctionStart(){
 	
 	loadDxCodes($tmp_xls_reader, $sheets_keys);
 	loadDiagnosis($tmp_xls_reader, $sheets_keys);
-	loadTreatments($tmp_xls_reader, $sheets_keys);
 	loadReceptors($tmp_xls_reader, $sheets_keys);
+	loadTreatments($tmp_xls_reader, $sheets_keys);
 	
 	
 	
@@ -152,7 +154,7 @@ function addonFunctionEnd(){
 				$participant_id = $participant_data['participant_id'];
 				$participant_data_to_update[] = "modified = '".Config::$migration_date."'";
 				$participant_data_to_update[] = "modified_by = '".Config::$db_created_id."'";
-				$update_query = "UPDATE participants SET ".implode(', ',$participant_data_to_update)." WHERE id = $participant_id";
+				$update_query = "UPDATE participants SET ".implode(', ',$participant_data_to_update)." WHERE id = $participant_id";	
 				mysqli_query(Config::$db_connection, $update_query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$update_query."]");
 				$update_query = "
 					INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,
@@ -205,6 +207,18 @@ function addonFunctionEnd(){
 		if(!empty($participant_data['participant_id'])) {
 			if(isset($patient_data['diagnoses_data'])) {
 				foreach($patient_data['diagnoses_data'] as $tmp_date_dx => $pt_data_level1) {
+					if(array_key_exists('tmp_receptor_data', $pt_data_level1)) {
+						if(!empty($pt_data_level1['tmp_receptor_data'])) {
+							foreach ($pt_data_level1['tmp_receptor_data'] as $tx_type => $tmp_1) {
+								foreach ($tmp_1 as $tx_date => $tmp_2) {
+									foreach ($tmp_2 as $tx => $tmp_3) {
+										Config::$summary_msg['Receptor - Worksheet Sardo Receptors']['@@ERROR@@']['Unlinked Receptor Data (no data will be imported)'][] = "See JGH# $jgh_nbr: A $tx_type ($tx) on $tx_date has been defined in receptor worksheet but does not exist into Tx worksheet";
+									}
+								}
+							}
+						}
+						unset($pt_data_level1['tmp_receptor_data']);
+					}
 					foreach($pt_data_level1 as $icd10_code_morphology => $p_data_level2) {
 						//Create Diagnosis
 						foreach($p_data_level2['Diagnosis'] as $dx_data) {
@@ -253,6 +267,18 @@ function addonFunctionEnd(){
 								}
 							}
 						}
+						if(isset($p_data_level2['Event'])) {
+							//Create Event
+							foreach($p_data_level2['Event'] as $ev_data) {
+								$treatment_master_id = customInsertRecord($ev_data['event_masters'], 'event_masters');
+								if(array_key_exists('qc_lady_imagings', $ev_data)) {
+									customInsertRecord($ev_data['qc_lady_imagings'], 'qc_lady_imagings', true);
+								} else {
+									pr($ev_data);
+									die('ERR 7773888377322');
+								}
+							}
+						}
 					}
 				}
 			} else {
@@ -263,43 +289,94 @@ function addonFunctionEnd(){
 		}
 	}
 	
+	//EMPTY DATES CLEAN UP
 	
-//TODO calculer age au dx + survie	
+	$date_times_to_check = array(
+		'participants.date_of_death',
+		'diagnosis_masters.dx_date',
+		'event_masters.event_date',
+		'treatment_masters.start_date',
+		'participant_messages.due_date');	
+	foreach($date_times_to_check as $table_field) {
+		$names = explode(".", $table_field);
+		$table = $names[0];
+		$field = $names[1];
+		$query = "UPDATE $table SET $field = null WHERE $field LIKE '0000-00-00%'";
+		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
+		if(Config::$insert_revs){
+			$query = "UPDATE ".$table."_revs SET $field = null WHERE $field LIKE '0000-00-00%'";
+			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");
+		}
+		$field_accuracy = $field.'_accuracy';
+		$query = "UPDATE $table SET $field_accuracy = 'c' WHERE $field_accuracy = '' AND $field IS NOT NULL";
+		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
+		if(Config::$insert_revs){
+			$query = "UPDATE ".$table."_revs SET $field = null WHERE $field LIKE '0000-00-00%'";
+			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");
+		}
+	}
 	
-	// EMPTY DATES CLEAN UP
+	// Survival in month
 	
-	// 	$date_times_to_check = array(
-	// 		'collections.collection_datetime',
-	// 		'diagnosis_masters.dx_date',
-	// 		'event_masters.event_date',
-	// 		'participants.date_of_birth',
-	// 		'participants.date_of_death',
-	// 		'participants.qc_tf_suspected_date_of_death',
-	// 		'participants.qc_tf_last_contact',
-	// 		'treatment_masters.start_date',
-	// 		'treatment_masters.finish_date');
-	
-	// 	foreach($date_times_to_check as $table_field) {
-	// 		$names = explode(".", $table_field);
-	// 		$table = $names[0];
-	// 		$field = $names[1];
-	
-	// 		$query = "UPDATE $table SET $field = null WHERE $field LIKE '0000-00-00%'";
-	// 		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
-	// 		if(Config::$insert_revs){
-	// 			$query = "UPDATE ".$table."_revs SET $field = null WHERE $field LIKE '0000-00-00%'";
-	// 			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");
-	// 		}
-	
-	// 		$field_accuracy = $field.'_accuracy';
-	// 		$query = "UPDATE $table SET $field_accuracy = 'c' WHERE $field_accuracy = '' AND $field IS NOT NULL";
-	// 		mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null.");
-	// 		if(Config::$insert_revs){
-	// 			$query = "UPDATE ".$table."_revs SET $field = null WHERE $field LIKE '0000-00-00%'";
-	// 			mysqli_query(Config::$db_connection, $query) or die("set field $table_field 0000-00-00 to null (revs).");
-	// 		}
-	// 	}
-	
+	$query = "SELECT MAX(last_contact_date) AS final_last_contact_date, participant_id
+		FROM (
+			SELECT date_of_death AS last_contact_date, id AS participant_id FROM participants WHERE deleted <> 1 AND date_of_death IS NOT NULL
+			UNION ALL
+			SELECT MAX(dx_date) AS last_contact_date, participant_id FROM diagnosis_masters WHERE deleted <> 1 AND dx_date IS NOT NULL GROUP BY participant_id
+			UNION ALL
+			SELECT MAX(start_date) AS last_contact_date, participant_id FROM treatment_masters WHERE deleted <> 1 AND start_date IS NOT NULL GROUP BY participant_id
+			UNION ALL
+			SELECT MAX(event_date) AS last_contact_date, participant_id FROM event_masters WHERE deleted <> 1 AND event_date IS NOT NULL GROUP BY participant_id
+			UNION ALL
+			SELECT MAX(consent_signed_date) AS last_contact_date, participant_id FROM consent_masters WHERE deleted <> 1 AND consent_signed_date IS NOT NULL GROUP BY participant_id
+			UNION ALL
+			SELECT MAX(collection_datetime) AS last_contact_date, participant_id FROM collections WHERE deleted <> 1 AND collection_datetime IS NOT NULL GROUP BY participant_id
+		) AS res GROUP BY participant_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [$query] ".__LINE__);
+	while($row = $results->fetch_assoc()) {
+		$last_contact_date = $row['final_last_contact_date'];
+		$participant_id = $row['participant_id'];
+		//Last Contact Date Update
+		$participant_data_to_update = array("qc_lady_last_contact_date = '$last_contact_date'");
+		$participant_data_to_update[] = "modified = '".Config::$migration_date."'";
+		$participant_data_to_update[] = "modified_by = '".Config::$db_created_id."'";
+		$update_query = "UPDATE participants SET ".implode(', ',$participant_data_to_update)." WHERE id = $participant_id";
+		mysqli_query(Config::$db_connection, $update_query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$update_query."]");
+		$update_query = "
+			INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,
+			sex,race,vital_status,notes,date_of_death,date_of_death_accuracy,
+			cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,
+			last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
+			modified_by,
+			version_created,
+			qc_lady_spouse_name)
+			(SELECT id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,
+			sex,race,vital_status,notes,date_of_death,date_of_death_accuracy,
+			cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,
+			last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
+			modified_by,
+			modified,
+			qc_lady_spouse_name FROM participants WHERE id = $participant_id);";
+		mysqli_query(Config::$db_connection, $update_query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$update_query."]");
+		//survival in month
+		$query2 = "SELECT dx_date, id FROM diagnosis_masters WHERE diagnosis_control_id = '20' AND dx_date IS NOT NULL AND participant_id = $participant_id AND deleted <> 1;";
+		$results2 = mysqli_query(Config::$db_connection, $query2) or die(__FUNCTION__." [$query2] ".__LINE__);
+		while($row2 = $results2->fetch_assoc()) {
+			$dx_date = $row2['dx_date'];
+			$diagnosis_master_id = $row2['id'];
+			$start_date = new DateTime($dx_date);
+			$end_date = new DateTime($last_contact_date);
+			$interval = $start_date->diff($end_date);
+			if($interval->invert) {
+				echo 'survival cannot be calculated because dates are not chronological'.$participant_id.'<br>';
+			} else {
+				$new_survival = $interval->y*12 + $interval->m;
+				$update_query = "UPDATE diagnosis_masters SET survival_time_months = $new_survival WHERE id = $diagnosis_master_id";
+				mysqli_query(Config::$db_connection, $update_query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$update_query."]");
+				$update_query = "UPDATE diagnosis_masters_revs SET survival_time_months = $new_survival WHERE id = $diagnosis_master_id";
+			}
+		}
+	}
 	
 // 	$query = "UPDATE versions SET permissions_regenerated = 0";
 // 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");

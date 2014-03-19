@@ -221,15 +221,80 @@ UPDATE i18n SET fr  = 'Procédure de biopsie' WHERE id = 'biopsy procedure';
 UPDATE i18n SET fr  = 'Procédure de radiation' WHERE id = 'radiation procedure';
 UPDATE i18n SET fr  = 'Effectué' WHERE id = 'performed';
 
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_hormonos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_hormonos' AND `field`='completed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_radiations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_radiations' AND `field`='rad_completed' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
 
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical' WHERE name = 'Participant Races';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - diagnosis' WHERE name = 'Tumor Sites';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE name = 'Morphology';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE name = 'Morphology Precision';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE name = 'Topography';
+UPDATE structure_permissible_values_custom_controls SET category = 'clinical - annotation', values_max_length = '100' WHERE name = 'Imaging Types';
 
+DELETE FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Imaging Types');
+DELETE FROM structure_permissible_values_customs_revs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Imaging Types');
 
+ALTER TABLE qc_lady_imagings MODIFY `type` varchar(100) DEFAULT NULL;
+ALTER TABLE qc_lady_imagings_revs MODIFY `type` varchar(100) DEFAULT NULL;
 
+UPDATE event_controls SET use_detail_form_for_index = 1 WHERE id = 53;
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'tumour_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_histological_grade') , '0', '', '', '', 'grade CIM-O', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_dx_breasts'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_histological_grade')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='grade CIM-O' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('grade CIM-O','Grade CIM-O','Grade CIM-O');
 
+UPDATE event_controls SET use_detail_form_for_index = 1 WHERE id = 52;
 
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_lady_her2_receptor_antibody", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'HER Receptor Antibody\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('HER Receptor Antibody', 1, 50, 'clinical - treatment');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'her2_receptor_antibody', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_her2_receptor_antibody') , '0', '', '', '', '', 'antibody');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='her2_receptor_antibody' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_her2_receptor_antibody')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='antibody'), '2', '138', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE qc_lady_txd_biopsy_surgeries ADD COLUMN her2_receptor_antibody varchar(50) DEFAULT NULL;
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs ADD COLUMN her2_receptor_antibody varchar(50) DEFAULT NULL;
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'HER Receptor Antibody');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('4B5','','', '1', @control_id, NOW(), NOW(), 1, 1),
+('CB11','','', '1', @control_id, NOW(), NOW(), 1, 1),
+('TAB 250','','', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO i18n (id,en,fr) VALUES ('antibody','Antibody','Anticorps');
 
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_equivocal_result')  WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='er_receptor_ccl' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_equivocal_result')  WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='pr_receptor_ccl' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_equivocal_result')  WHERE model='TreatmentDetail' AND tablename='qc_lady_txd_biopsy_surgeries' AND field='fish_ccl' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_positive_negative_result');
 
+ALTER TABLE qc_lady_txd_biopsy_surgeries ADD COLUMN residual_disease char(1) DEFAULT '';
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs ADD COLUMN residual_disease char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'residual_disease', 'yes_no',  NULL , '0', '', '', '', 'residual disease', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='residual_disease' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='residual disease' AND `language_tag`=''), '2', '124', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='116' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_patho_evaluations') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='residual_disease' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('residual disease','residual disease','Maladie résiduelle');
+
+ALTER TABLE qc_lady_txd_biopsy_surgeries ADD COLUMN oncotype_dx int(8) DEFAULT NULL;
+ALTER TABLE qc_lady_txd_biopsy_surgeries_revs ADD COLUMN oncotype_dx int(8) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_lady_txd_biopsy_surgeries', 'oncotype_dx', 'integer_positive',  NULL , '0', '', '', '', 'oncotype dx', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='oncotype_dx' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='oncotype dx' AND `language_tag`=''), '2', '150', 'genetic testing', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('genetic testing','Genetic Testing','Tests Génétiques'),('oncotype dx','Oncotype DX','Oncotype DX');
+
+UPDATE protocol_controls SET tumour_group = '';
+
+ALTER TABLE participants ADD COLUMN qc_lady_last_contact_date date DEFAULT NULL;
+ALTER TABLE participants_revs ADD COLUMN qc_lady_last_contact_date date DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_lady_last_contact_date', 'date',  NULL , '0', '', '', '', 'last contact', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_lady_last_contact_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last contact' AND `language_tag`=''), '3', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('last contact','Last Contact Date','Date dernier contact');
+
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
@@ -240,6 +305,12 @@ UPDATE i18n SET fr  = 'Effectué' WHERE id = 'performed';
 
 
 Probleme encodeage utf8 de 'prevision' et des description fr des code ICD10 et ICDo3, etc. A verifier lors de la migration.
+Protocol : Ajouter les drugs si possible
+Survival ajouter code pour le calculer
+
+
+
+
 
 
 
