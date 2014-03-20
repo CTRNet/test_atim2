@@ -27,7 +27,7 @@ class Config{
 	//if reading excel file
 	
 //	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/COEUR-OTB-#1_20131129.xls";
- 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors_nominal.xls";
+ 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors_denominalized.xls";
 // 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
  	
  	
@@ -76,10 +76,63 @@ class Config{
 	static $drugs = array();
 	static $protocols = array();
 	static $imaging_types = array();
-	
-	
-
-
+	static $protocol_drugs = array(
+		'Protocole FEC' => array(),
+		'Protocole AC' => array(),
+		'Protocole TC' => array(),
+		'Etude BETH BRAS 1B' => array(),
+		'Protocole Taxol/Herceptin' => array('Taxol' => null, 'Herceptin' => null),
+		'Etude NSABP B-36 BRAS AC' => array(),
+		'Protocole Taxol qSEM' => array('Taxol' => null),
+		'Protocole CMF' => array(),
+		'Protocole Taxol/Carboplatin' => array('Taxol' => null, 'Carboplatine' => null),
+		'Etude NSABP B-40 BRAS 2B' => array(),
+		'Etude NSABP B-38 BRAS AC-P' => array(),
+		'Etude MA-17-R' => array(),
+		'Etude McG 0713' => array(),
+		'Protocole Carboplatin/Gemcitabine' => array('Carboplatine' => null, 'Gemcitabine' => null),
+		'Protocole Herceptin + Vinorelbine' => array('Herceptin' => null, 'Vinorelbine' => null),
+		'Protocole FEC + Docetaxel' => array('FEC' => null, 'Docetaxel' => null),
+		'Etude BORDEN-001' => array(),
+		'Etude NSABP B-42' => array(),
+		'Protocole GemCap' => array(),
+		'Protocole TAC' => array(),
+		'Etude NSABP B-41 BRAS 1' => array(),
+		'Etude NSABP B-40 BRAS 1B' => array(),
+		'Etude NSABP B-36 BRAS FEC' => array(),
+		'Protocole TCH' => array(),
+		'Protocole AC Taxol' => array('Taxol' => null),
+		'Etude NSABP B-38 BRAS AC-PG' => array(),
+		'Etude NSABP B-41 BRAS 2' => array(),
+		'Protocole CMF po' => array(),
+		'Protocole Taxol q3SEM' => array('Taxol' => null),
+		'Etude AT' => array(),
+		'Etude NSABP B-40 BRAS 2A' => array(),
+		'Etude NSABP FB-6' => array(),
+		'Protocole TCH (Cyclophosphamide)' => array('Cyclophosphamide' => null),
+		'Protocole Taxol/Cisplatin' => array('Taxol' => null, 'Cisplatine' => null),
+		'Etude Trastuzumab + Paclitaxel + Carboplatine' => array('Trastuzumab' => null, 'Paclitaxel' => null, 'Carboplatine' => null),
+		'Protocole CCH' => array(),
+		'Protocole Taxotère' => array('Taxotère' => null),
+		'Protocole AC-TH' => array(),
+		'Protocole MF' => array(),
+		'Protocole Herceptin q3SEM' => array('Herceptin' => null),
+		'Protocole Caelyx + Herceptin' => array('Caelyx' => null, 'Herceptin' => null),
+		'Etude A4021004 BRAS A' => array(),
+		'Protocole Cisplatin-Gemcitabine' => array('Cisplatine' => null, 'Gemcitabine' => null),
+		'Protocole FAC' => array(),
+		'Etude NSABP B-38 BRAS TAC' => array(),
+		'Protocole CHB Zoladex + Tamoxifene' => array('Zoladex' => null, 'Tamoxifene' => null),
+		'Protocole Herceptin qSEM' => array('Herceptin' => null),
+		'Protocole Gemcitabine/Docetaxel' => array('Gemcitabine' => null, 'Docetaxel' => null),
+		'Protocole HX' => array(),
+		'Protocole Carboplatin-Taxotère' => array('Carboplatine' => null, 'Taxotère' => null),
+		'Protocole 5-FU' => array('5-FU' => null),
+		'Etude NSABP B-47 BRAS 1A' => array(),
+		'Protocole Cisplatin + Taxotère' => array('Cisplatine' => null, 'Taxotère' => null),
+		'Etude NSABP B-40 BRAS 1A' => array(),
+		'Etude NSABP B-40 BRAS 3B' => array(),
+		'Etude NSABP B-47 BRAS 1B' => array());
 }
 
 //add your end queries here
@@ -137,12 +190,6 @@ function addonFunctionStart(){
 	loadDiagnosis($tmp_xls_reader, $sheets_keys);
 	loadReceptors($tmp_xls_reader, $sheets_keys);
 	loadTreatments($tmp_xls_reader, $sheets_keys);
-	
-	
-	
-	
-	
-
 }
 
 function addonFunctionEnd(){
@@ -330,17 +377,20 @@ function addonFunctionEnd(){
 			UNION ALL
 			SELECT MAX(consent_signed_date) AS last_contact_date, participant_id FROM consent_masters WHERE deleted <> 1 AND consent_signed_date IS NOT NULL GROUP BY participant_id
 			UNION ALL
-			SELECT MAX(collection_datetime) AS last_contact_date, participant_id FROM collections WHERE deleted <> 1 AND collection_datetime IS NOT NULL GROUP BY participant_id
+			SELECT MAX(collection_datetime) AS last_contact_date, participant_id FROM collections WHERE deleted <> 1 AND collection_datetime IS NOT NULL AND participant_id IS NOT NULL GROUP BY participant_id
 		) AS res GROUP BY participant_id";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." [$query] ".__LINE__);
 	while($row = $results->fetch_assoc()) {
 		$last_contact_date = $row['final_last_contact_date'];
+		$matches = array();
+		if(!preg_match('/^([0-9]{4}\-[0-9]{2}\-[0-9]{2})/', $last_contact_date, $matches)) die('ERR 2387 2987298 729837');
+		$last_contact_date = $matches[1];
 		$participant_id = $row['participant_id'];
 		//Last Contact Date Update
 		$participant_data_to_update = array("qc_lady_last_contact_date = '$last_contact_date'");
 		$participant_data_to_update[] = "modified = '".Config::$migration_date."'";
 		$participant_data_to_update[] = "modified_by = '".Config::$db_created_id."'";
-		$update_query = "UPDATE participants SET ".implode(', ',$participant_data_to_update)." WHERE id = $participant_id";
+		$update_query = "UPDATE participants SET ".implode(', ',$participant_data_to_update)." WHERE id = $participant_id;";
 		mysqli_query(Config::$db_connection, $update_query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$update_query."]");
 		$update_query = "
 			INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,
