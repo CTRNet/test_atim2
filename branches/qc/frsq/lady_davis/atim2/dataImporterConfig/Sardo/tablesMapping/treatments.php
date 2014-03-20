@@ -156,7 +156,6 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 						$trt_key = '';
 						$txd_tablename = '';
 						$txe_tablename = '';
-						$drug_type = '';
 						switch($new_line_data['Type traitement']) {
 							case 'CHIR':
 								//Surgery
@@ -283,20 +282,17 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 							case 'CHIMIO':
 								$txd_tablename = 'txd_chemos';
 								$txe_tablename = 'txe_chemos';
-								$drug_type = 'chemotherapy';
 								$treatment_extend_control_id = 1;
 							case 'HORM':
 								if(empty($txd_tablename)) {
 									$txd_tablename = 'qc_lady_txd_hormonos';
 									$txe_tablename = 'qc_lady_txe_hormonos';
-									$drug_type = 'hormonal';
 									$treatment_extend_control_id = 3;
 								}
 							case 'IMMUNO':
 								if(empty($txd_tablename)) {
 									$txd_tablename = 'qc_lady_txd_immunos';
 									$txe_tablename = 'qc_lady_txe_immunos';
-									$drug_type = 'immunotherapy';
 									$treatment_extend_control_id = 6;
 								}
 								$trt_key = $new_line_data['Type traitement'].'-'.(empty($start_date)? ($treatment_master_id + 1) : $start_date);
@@ -321,12 +317,12 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 								}
 								if($new_line_data['Traitement']) {
 									$drug_id = null;
-									$drug_key = $new_line_data['Traitement'].'-'.$drug_type;
-									if(!isset(Config::$drugs[$drug_key])) {
-										$drug_id = customInsertRecord(array('generic_name' => $new_line_data['Traitement'], 'type' => $drug_type), 'drugs');
-										Config::$drugs[$drug_key] = $drug_id;
+									$drug_name = str_replace('Létrozole', 'Letrozole', $new_line_data['Traitement']);
+									if(!isset(Config::$drugs[$drug_name])) {
+										$drug_id = customInsertRecord(array('generic_name' => $drug_name), 'drugs');
+										Config::$drugs[$drug_name] = $drug_id;
 									} else {
-										$drug_id = Config::$drugs[$drug_key];
+										$drug_id = Config::$drugs[$drug_name];
 									}
 									if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$drug_id])) {
 										$treatment_extend_master_id ++;
@@ -410,6 +406,34 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 										'txd_chemos'	=> array(
 											'treatment_master_id' => $treatment_master_id),
 										'treatment_extends' => array());
+									if(!array_key_exists($new_line_data['Traitement'], Config::$protocol_drugs)) die('ERR 237687 6328763287 632 '.$new_line_data['Traitement']);
+									foreach(Config::$protocol_drugs[$new_line_data['Traitement']] as $drug_name => $drug_id) {
+										$txe_tablename = 'txe_chemos';
+										$treatment_extend_control_id = 1;
+										if(!$drug_id) {
+											if(!isset(Config::$drugs[$drug_name])) {
+												$drug_id = customInsertRecord(array('generic_name' => $drug_name), 'drugs');
+												Config::$drugs[$drug_name] = $drug_id;
+											} else {
+												$drug_id = Config::$drugs[$drug_name];
+											}
+											Config::$protocol_drugs[$new_line_data['Traitement']][$drug_name] = $drug_id;
+											$protocol_extend_master_id = customInsertRecord(array('protocol_master_id' => $protocol_master_id, 'protocol_extend_control_id' => '1'), 'protocol_extend_masters');
+											customInsertRecord(array('protocol_extend_master_id' => $protocol_extend_master_id, 'drug_id' => $drug_id), 'pe_chemos', true);	
+										}
+										if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$drug_id])) {
+											$treatment_extend_master_id ++;
+											Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$drug_id] =
+												array(
+													'treatment_extend_masters' => array(
+														'id' => $treatment_extend_master_id,
+														'treatment_extend_control_id' => $treatment_extend_control_id,
+														'treatment_master_id' => $treatment_master_id),
+													$txe_tablename => array(
+														'drug_id' => $drug_id,
+														'treatment_extend_master_id' => $treatment_extend_master_id));
+										}
+									}
 								} else {
 									//diff
 									Config::$summary_msg[$summary_msg_title]['@@WARNING@@']['Duplicated PROTOC (see dx not equal to bilateral)'][] = "Protocole ".$new_line_data['Traitement']." has been assigned twice to the same patient for the same date. See JGH# $jgh_nbr line $excel_line_counter";
