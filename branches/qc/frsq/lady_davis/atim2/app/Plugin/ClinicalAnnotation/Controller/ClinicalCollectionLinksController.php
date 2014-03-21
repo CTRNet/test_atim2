@@ -57,7 +57,7 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			}
 		}
 		
-		$order = 'Collection.acquisition_label ASC';
+		$order = 'Collection.collection_datetime ASC';
 		
 		$joins = array(
 			DiagnosisMaster::joinOnDiagnosisDup('Collection.diagnosis_master_id'), 

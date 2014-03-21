@@ -512,8 +512,10 @@ function addReceptorData(&$treatment_data, &$dx_receptor_data, $start_date, $tre
 				case 'Négatif':
 					$processed_rec_data['lymph_node_ccl'] = 'negative';
 					break;
-				case '':
 				case 'Pas fait':
+					$processed_rec_data['lymph_node_collection'] = 'n';
+					break;
+				case '':
 				case 'N/S':
 					break;
 				default:
@@ -529,7 +531,9 @@ function addReceptorData(&$treatment_data, &$dx_receptor_data, $start_date, $tre
 					die('ERR 23 876327632 87633');
 				}
 			}
+			
 			if(strlen($processed_rec_data['lymph_node_ccl'].$processed_rec_data['nbr_of_lymph_nodes_positive'])) {
+				if($processed_rec_data['lymph_node_collection'] == 'n') die('ERR 2387 28736872 68726832');
 				$processed_rec_data['lymph_node_collection'] = 'y';
 			}
 			//Grade
