@@ -25,7 +25,7 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/TMA_layout_20121200_Verob_130920.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/CHUQ-LL-Test.xls';
 	static $use_windows_xls_offset = false;
 	
 	static $xls_header_rows = 1;

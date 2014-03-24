@@ -128,6 +128,14 @@ Config::$config_files[] = $relative_path.'dx_unknown_primary.php';
 Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){
+	
+//TODO	
+Modify script based on changes done on 20140321
+1- qc_tf_dxd_metastasis.type chanegd to qc_tf_dxd_metastasis.site
+2- update treatment_controls SET disease_site = '', databrowser_label = tx_method WHERE disease_site = 'general';
+3- update event_controls SET disease_site = '', databrowser_label = event_type WHERE flag_active = 1;
+4- UPDATE diagnosis_controls SET controls_type = 'other' WHERE controls_type  = 'undetailed' AND flag_active =1;	
+	
 	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
 	"=====================================================================".Config::$line_break_tag."
