@@ -290,7 +290,7 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisMaster.participant_id,
 				DiagnosisMaster.dx_date,
 				DiagnosisMaster.dx_date_accuracy,
-				DiagnosisDetail.type
+				DiagnosisDetail.site
 				
 			FROM diagnosis_masters AS DiagnosisMaster
 			INNER JOIN qc_tf_dxd_metastasis AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
@@ -319,9 +319,9 @@ class ReportsControllerCustom extends ReportsController {
 				if(empty($metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date']) && !empty($new_res['DiagnosisMaster']['dx_date'])) {
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date'] = $new_res['DiagnosisMaster']['dx_date'];
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date_accuracy'] = $new_res['DiagnosisMaster']['dx_date_accuracy'];
-					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_type'] = $new_res['DiagnosisDetail']['type'];			
+					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_type'] = $new_res['DiagnosisDetail']['site'];			
 				} else if(!empty($new_res['DiagnosisDetail']['type'])) {
-					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['other_types'][] = __($new_res['DiagnosisDetail']['type']);
+					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['other_types'][] = __($new_res['DiagnosisDetail']['site']);
 				}
 			}
 		}
