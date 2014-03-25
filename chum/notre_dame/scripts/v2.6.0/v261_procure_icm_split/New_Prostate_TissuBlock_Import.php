@@ -11,11 +11,14 @@
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-$file_path = "C:/_Perso/Server/icm/data/Selection blocs paraffine - ProCure_20140320.xls";
+$file_name = "Selection blocs paraffine - ProCure_20140325.xls";
+$file_path = "C:/_Perso/Server/icm/data/".$file_name;
 require_once 'Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
+
+set_time_limit('3600');
 
 //-- DB PARAMETERS ---------------------------------------------------------------------------------------------------------------------------
 
@@ -71,8 +74,10 @@ if($procure_study) {
 	die('ERR 889383839393');
 }
 
-/*
+
 global $patho_dpt_storage_master_id;
+$patho_dpt_storage_master_id = '';
+/*
 $query = "SELECT id FROM storage_masters WHERE short_label = 'Patho.Dpt.' AND storage_control_id = 1 AND deleted != 1;";
 $patho_dpt_storage_master_res = mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
 $patho_dpt_storage_master = mysqli_fetch_assoc($patho_dpt_storage_master_res);
@@ -105,8 +110,8 @@ $summary_data = array(
 	'nbr of oct blocks created' => 0,
 	'nbr of paraffin blocks created' => 0,
 		
-	'nbr of oct blocks matching' => 0,
-	'nbr of paraffin blocks matching' => 0);
+	'nbr of oct blocks matching (updated)' => 0,
+	'nbr of paraffin blocks matching (updated)' => 0);
 
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 
@@ -123,13 +128,19 @@ foreach($XlsReader->sheets[$sheets_nbr['2014']]['cells'] as $line => $new_line) 
 		loadNewBlocks($new_line_data, $line_counter);	
 	}
 }
-foreach($unsupported_origin_of_slice as $procure_origin_of_slice => $patient_bank_nbr) recordAndSortMsg('warning', implode(', ',$patient_bank_nbr), '-1', "Un-migrated origin of slice: $procure_origin_of_slice. Added to notes");
+foreach($unsupported_origin_of_slice as $procure_origin_of_slice => $patient_bank_nbr) recordAndSortMsg('warning', implode(', ',$patient_bank_nbr), '-', "Msg#1 :: Un-migrated origin of slice: <b>$procure_origin_of_slice</b>. Added to notes");
 
-//TODO updateView();
-echo "****************** PROCESS DONE ******************************<br><br><br>";
-echo "<br>****************** SUMMRAY ******************************<br><br><br>";
+$query = "UPDATE versions SET permissions_regenerated = 0;";
+mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
+
+echo "****************** MIGRATION FROM $file_name To ATiM ******************************<br><br><br>";
+echo "<br><br>****************** SUMMRAY ******************************<br><br><br>";
+foreach($summary_data as $title => $count) {
+	echo "<b>$title</b> : $count<br>";
+}
+echo "<br><br>****************** ERRORS AND WARNINGS ******************************<br><br><br>";
 printMessages();
-echo "<br>****************** QUERIES ******************************<br><br><br>";
+echo "<br><br>****************** QUERIES ******************************<br><br><br>";
 printQueries();
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -231,7 +242,7 @@ function loadNewBlocks($new_line_data, $line_counter) {
 			}
 		}
 		if(empty($db_sample_data_from_id)) {
-			recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "No tissue exists into ATiM. All tissues and blocks have to be created manually.");
+			recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#2 :: No tissue exists into ATiM. All tissues and blocks have to be created manually.");
 			return;
 		}
 		
@@ -286,7 +297,8 @@ function loadNewBlocks($new_line_data, $line_counter) {
 								'block_type' => $column_blocks_properties['block_type'],
 								'procure_origin_of_slice' => $procure_origin_of_slice,
 								'sample_position_code' => $new_sample_position_code,
-								'notes' => $notes
+								'notes' => $notes,
+								'column_name' => $column_name
 							);
 							$blocks_from_excel[] = $tmp_data;
 							if($column_blocks_properties['block_type'] == 'OCT') {
@@ -297,26 +309,28 @@ function loadNewBlocks($new_line_data, $line_counter) {
 						}		
 					} else if(preg_match('/^([TN]{1})(\((RA|RP|LA|LP)\)){0,1}$/', $new_blocks_set, $matches)) {
 						if($column_blocks_properties['T_vs_N'] != $matches[1]) {
-							recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Tumor Presence Error: Value defined by column name '".utf8_decode($column_name)."' = ".$column_blocks_properties['T_vs_N']." different than value ".$matches[1]." extracted from cell value [$new_blocks_set].");
-						}
-						$procure_origin_of_slice = isset($matches[3])? $matches[3] : '';
-						$tmp_data = array(
-							'bank' => $column_blocks_properties['bank'],
-							'T_vs_N' => $column_blocks_properties['T_vs_N'],
-							'patho_dpt_block_code' => $new_line_data['# patho'],
-							'block_type' => $column_blocks_properties['block_type'],
-							'procure_origin_of_slice' => $procure_origin_of_slice,
-							'sample_position_code' => '',
-							'notes' => ''
-						);	
-						$blocks_from_excel[] = $tmp_data;			
-						if($column_blocks_properties['block_type'] == 'OCT') {
-							$summary_data['nbr of excel oct blocks']++;
+							recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#3 :: Tumor Presence Error: Value defined by column name '".utf8_decode($column_name)."' = ".$column_blocks_properties['T_vs_N']." different than value ".$matches[1]." extracted from cell value [$new_blocks_set].");
 						} else {
-							$summary_data['nbr of excel paraffin blocks']++;
+							$procure_origin_of_slice = isset($matches[3])? $matches[3] : '';
+							$tmp_data = array(
+								'bank' => $column_blocks_properties['bank'],
+								'T_vs_N' => $column_blocks_properties['T_vs_N'],
+								'patho_dpt_block_code' => $new_line_data['# patho'],
+								'block_type' => $column_blocks_properties['block_type'],
+								'procure_origin_of_slice' => $procure_origin_of_slice,
+								'sample_position_code' => '',
+								'notes' => '',
+								'column_name' => $column_name
+							);	
+							$blocks_from_excel[] = $tmp_data;			
+							if($column_blocks_properties['block_type'] == 'OCT') {
+								$summary_data['nbr of excel oct blocks']++;
+							} else {
+								$summary_data['nbr of excel paraffin blocks']++;
+							}
 						}
 					} else {
-						recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Unable to extract blocks information from cell value [$new_blocks_set] of column '".utf8_decode($column_name)."'.");	
+						recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#4 :: Unable to extract blocks information from cell value [$new_blocks_set] of column '".utf8_decode($column_name)."'.");	
 					}
 				}
 			}
@@ -328,6 +342,7 @@ function loadNewBlocks($new_line_data, $line_counter) {
 		$aliquot_to_update = array();
 		$aliquot_to_create = array();
 		foreach($blocks_from_excel as $new_block_from_excel) {
+			$column_name = $new_block_from_excel['column_name'];
 			$block_description = " See block [".$new_block_from_excel['sample_position_code'].'('.$new_block_from_excel['procure_origin_of_slice'].')'."] of column '".utf8_decode($column_name)."'.";
 			$excel_block_type = $new_block_from_excel['block_type'];
 			$create_new_block = true;
@@ -347,19 +362,19 @@ function loadNewBlocks($new_line_data, $line_counter) {
 					$aliquot_master_id_to_update = current($res);
 					if(!isset($aliquot_to_update[$aliquot_master_id_to_update])) {
 						if(!isset($match_criteria['sample_position_code'])) {
-							recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Match between ATiM and excel blocks has not been done considering block position. Only following criteria have been used : ".implode(', ', $match_criteria).".".$block_description);
+							recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#5 :: Match between ATiM and excel blocks has not been done considering block position. Only following criteria have been used : <b>".implode(' </b>,  <b>', $match_criteria)."</b>. ATiM Block will be updated.".$block_description);
 						}
 						$aliquot_to_update[$aliquot_master_id_to_update] = array(
 							'excel_data' => array_merge(array('aliquot_master_id_to_update' => $aliquot_master_id_to_update), $new_block_from_excel),
 							'db_data' => $db_aliquot_data_from_id[$aliquot_master_id_to_update]);
 					} else {
-						recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "More than one excel $excel_block_type blocks match the same ATiM $excel_block_type block considering following criteria :  ".implode(', ', $match_criteria).". New block will be created : ".$block_description);
+						recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#6 :: More than one excel $excel_block_type blocks match the same ATiM $excel_block_type block considering following criteria :  <b>".implode(' </b>,  <b>', $match_criteria)."</b>. New block will be created : ".$block_description);
 						$create_new_block = true;
 					}
 				} else if(sizeof($res) > 1) {
-					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "More than one ATiM $excel_block_type blocks match block from excel considering following criteria : ".implode(', ', $match_criteria).". Match between ATiM block and excel block has to be done manually.".$block_description);
+					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#7 :: More than one ATiM $excel_block_type blocks match block from excel considering following criteria :  <b>".implode(' </b>,  <b>', $match_criteria)."</b>. Match between ATiM block and excel block has to be done manually.".$block_description);
 				} else {
-					recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "No ATiM $excel_block_type blocks match block from excel considering following criteria : ".implode(', ', $match_criteria).". New block will be created.".$block_description);
+					recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#8 :: No ATiM $excel_block_type blocks match block from excel considering following criteria :  <b>".implode(' </b>,  <b>', $match_criteria)."</b>. New block will be created.".$block_description);
 					$create_new_block = true;	
 				}
 			}
@@ -372,23 +387,23 @@ function loadNewBlocks($new_line_data, $line_counter) {
 				} else if(sizeof($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]) > 1){
 					$all_sample_labels_for_display = array();
 					foreach($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N] as $new_sample_id_tmp) $all_sample_labels_for_display[] = $db_sample_data_from_id[$new_sample_id_tmp]['qc_nd_sample_label'];
-					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "More than one '$new_block_from_excel_T_vs_N' tissues [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Link between block and tissue has to be done manually.". $block_description);
+					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#9 :: More than one '$new_block_from_excel_T_vs_N' tissues [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Block creation then link between to tissue has to be done manually.". $block_description);
 				} else if(sizeof($db_sample_id_from_criteria['T_vs_N']['other']) == 1) {
 					$sample_master_id_to_link = current($db_sample_id_from_criteria['T_vs_N']['other']);
-					recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "Linked a '$new_block_from_excel_T_vs_N' $excel_block_type block to a tissue having no 'Sequence number' like 'T' or 'N'.". $block_description);	
+					recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "Msg#10 :: Created and linked a '$new_block_from_excel_T_vs_N' $excel_block_type block to a tissue having no 'Sequence number' like 'T' or 'N'.". $block_description);	
 				} else if(sizeof($db_sample_id_from_criteria['T_vs_N']['other']) > 1){
 					$all_sample_labels_for_display = array();
 					foreach($db_sample_id_from_criteria['T_vs_N']['other'] as $new_sample_id_tmp) $all_sample_labels_for_display[] = $db_sample_data_from_id[$new_sample_id_tmp]['qc_nd_sample_label'];
-					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "More than one tissues having no 'Sequence number' like 'T' or 'N' [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Link between block and tissue has to be done manually.".$block_description);
+					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#11 :: More than one tissues having no 'Sequence number' like 'T' or 'N' [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Block creation and link between to tissue has to be done manually.".$block_description);
 				} else if(sizeof($db_sample_id_from_criteria['T_vs_N'][(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')])) {
-					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Try to link a block '$new_block_from_excel_T_vs_N' to an existing sample '".(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')."'.".$block_description);
+					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#12 :: Try to create and link a block '$new_block_from_excel_T_vs_N' to an existing sample '".(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')."'. Block won't be created. ".$block_description);
 				} else {
 					die('ERR 84894940044');
 				}
 				if($sample_master_id_to_link) {
 					if($new_block_from_excel['patho_dpt_block_code'] && !empty($db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])) {
 						if(!in_array($new_block_from_excel['patho_dpt_block_code'], $db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])) {
-							recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Linked $excel_block_type block to sample '".$db_sample_data_from_id[$sample_master_id_to_link]['qc_nd_sample_label']."' but the path report codes between db [".implode(', ',$db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])."] and file [".$new_block_from_excel['patho_dpt_block_code']."] don't seam to match.".$block_description);	
+							recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#13 :: Created and linked $excel_block_type block to sample '".$db_sample_data_from_id[$sample_master_id_to_link]['qc_nd_sample_label']."' but the path report codes between db [".implode(', ',$db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])."] and file [".$new_block_from_excel['patho_dpt_block_code']."] don't seam to match.".$block_description);	
 						}
 					}
 					$aliquot_to_create[] = array_merge(
@@ -401,27 +416,29 @@ function loadNewBlocks($new_line_data, $line_counter) {
 		}
 		
 		// *** Run Queries ***
-if(false) {		
+
+		//1-ATiM Aliquot Update
+		
 		$queries_to_update = array();
 		foreach($aliquot_to_update as $new_aliquot_to_update) {
 			$excel_aliquot_data = $new_aliquot_to_update['excel_data'];
 			$db_aliquot_data = $new_aliquot_to_update['db_data'];			
 			$aliquot_master_id = $db_aliquot_data['aliquot_master_id'];
 			$data_for_update = array('AliquotMaster' => array(), 'AliquotDetail' => array());
-			$block_description = " See block [".$db_aliquot_data['aliquot_label'].'('.$excel_aliquot_data['sample_position_code'].'/'.$excel_aliquot_data['procure_origin_of_slice'].')'."].";
+			$block_description = " See updated atim block [".$db_aliquot_data['aliquot_label'].' || ('.$excel_aliquot_data['sample_position_code'].'/'.$excel_aliquot_data['procure_origin_of_slice'].')'." || aliquot_master_id = $aliquot_master_id] .";
 			// Bank Check
 			if($excel_aliquot_data['bank'] == 'procure') {
 				if(!$db_aliquot_data['study_summary_id']) {
 					$data_for_update['AliquotMaster']['study_summary_id'] = $procure_study_summary_id;
-					recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "A PROCURE aliquot was not linked to a study in ATiM. Updated link to PROCURE. $block_description");
+					recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "Msg#14 :: A PROCURE aliquot was not linked to a study in ATiM. Updated link to PROCURE. $block_description");
 				} else if($db_aliquot_data['study_summary_id'] != $procure_study_summary_id) {
 					$data_for_update['AliquotMaster']['study_summary_id'] = $procure_study_summary_id;
-					recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "A PROCURE aliquot was already linked to a study (".$db_aliquot_data['study_title'].") in ATiM. Changed link to PROCURE. $block_description");
+					recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#15 :: A PROCURE aliquot was already linked to a study (".$db_aliquot_data['study_title'].") in ATiM. Changed link to PROCURE. $block_description");
 				}
 			} else {
 				if($db_aliquot_data['study_summary_id'] == $procure_study_summary_id) {
 					$data_for_update['AliquotMaster']['study_summary_id'] = '';
-					recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "An ICM aliquot was linked to a study PROCURE in ATiM. Changed link to nothing. $block_description");	
+					recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#16 :: An ICM aliquot was linked to a study PROCURE in ATiM. Changed link to nothing. $block_description");	
 				}
 			}
 			// T_vs_N Check
@@ -433,8 +450,8 @@ if(false) {
 						$patient_bank_nbr, 
 						$line_counter, 
 						(($matches[1] == 'T')? 
-							"A tissue having a 'sequence number' like 'T' in ATiM is linked to a block in excel having no tumor presence. $block_description" :
-							"A tissue having a 'sequence number' like 'N' in ATiM is linked to a block in excel having tumor presence. $block_description" ));
+							"Msg#17.1 :: A tissue having a 'sequence number' like 'T' in ATiM is linked to a block in excel having no tumor presence. $block_description" :
+							"Msg#17.2 :: A tissue having a 'sequence number' like 'N' in ATiM is linked to a block in excel having tumor presence. $block_description" ));
 				}
 			}
 			// patho dpt block code Check
@@ -442,7 +459,7 @@ if(false) {
 				if(!$db_aliquot_data['patho_dpt_block_code']) {
 					$data_for_update['AliquotDetail']['patho_dpt_block_code'] = $excel_aliquot_data['patho_dpt_block_code'];
 				} else if($db_aliquot_data['patho_dpt_block_code'] != $excel_aliquot_data['patho_dpt_block_code']) {
-					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "The Patho Depratment Codes are different in ATiM (".$db_aliquot_data['patho_dpt_block_code'].") and excel (".$excel_aliquot_data['patho_dpt_block_code']."). $block_description");
+					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#18 :: The Patho Depratment Codes are different in ATiM (".$db_aliquot_data['patho_dpt_block_code'].") and excel (".$excel_aliquot_data['patho_dpt_block_code']."). $block_description");
 				}
 			}
 			// Block type Check
@@ -450,11 +467,11 @@ if(false) {
 				case 'OCT':
 				case 'isopentane + OCT':
 				case 'frozen':
-					$summary_data['nbr of oct blocks matching']++;
+					$summary_data['nbr of oct blocks matching (updated)']++;
 					if($excel_aliquot_data['block_type'] != 'OCT') die('ERR 8839893938383.1');
 					break;
 				case 'paraffin':
-					$summary_data['nbr of paraffin blocks matching']++;
+					$summary_data['nbr of paraffin blocks matching (updated)']++;
 					if($excel_aliquot_data['block_type'] != 'paraffin') die('ERR 8839893938383.2');
 					break;
 				default:
@@ -465,7 +482,7 @@ if(false) {
 				if(!$db_aliquot_data['procure_origin_of_slice']) {
 					$data_for_update['AliquotDetail']['procure_origin_of_slice'] = $excel_aliquot_data['procure_origin_of_slice'];
 				} else if($db_aliquot_data['procure_origin_of_slice'] != $excel_aliquot_data['procure_origin_of_slice']) {
-					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "The Origines of slide are different in ATiM (".$db_aliquot_data['procure_origin_of_slice'].") and excel (".$excel_aliquot_data['procure_origin_of_slice']."). $block_description");
+					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#19 :: The Origines of slide are different in ATiM (".$db_aliquot_data['procure_origin_of_slice'].") and excel (".$excel_aliquot_data['procure_origin_of_slice']."). $block_description");
 				}
 			}
 			// Position Code check
@@ -473,7 +490,7 @@ if(false) {
 				if(!$db_aliquot_data['sample_position_code']) {
 					$data_for_update['AliquotDetail']['sample_position_code'] = $excel_aliquot_data['sample_position_code'];
 				} else if($db_aliquot_data['sample_position_code'] != $excel_aliquot_data['sample_position_code']) {
-					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "The Block Positions Codes are different in ATiM (".$db_aliquot_data['sample_position_code'].") and excel (".$excel_aliquot_data['sample_position_code']."). $block_description");
+					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#20 :: The Block Positions Codes are different in ATiM (".$db_aliquot_data['sample_position_code'].") and excel (".$excel_aliquot_data['sample_position_code']."). $block_description");
 				}
 			}
 			// Storage Master
@@ -491,39 +508,46 @@ if(false) {
 			// Set queries for update
 			if($data_for_update['AliquotMaster'] || $data_for_update['AliquotDetail']) {			
 				foreach($data_for_update AS $model => $data) {
-					switch($model) {
-						case 'AliquotMaster':
-							$set_arr = array("modified = '$modified'", "modified_by = '$modified_by'");
-							if($field == 'notes') {
-								$set_arr[] = "$field = $value";
-							} else if($field == 'study_summary_id' && empty($value)) {
-								$set_arr[] = "$field = null";
-							} else {
-								$set_arr[] = "$field = '$value'";
-							}
-							$queries_to_update[] = "UPDATE aliquot_masters SET ".implode(', ', $set_arr)." WHERE id = $aliquot_master_id";
-							$queries_to_update[] = "INSERT INTO aliquot_masters_revs (id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, stored_by, product_code, notes, modified_by, version_created)
-								(SELECT id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, stored_by, product_code, notes, '$modified_by', '$modified'
-								FROM aliquot_masters WHERE id = $aliquot_master_id)";			
-							break;
-						case 'AliquotDetail':
-							$set_arr = array();
-							foreach($data as $field => $value) $set_arr[] = "$field = '$value'";
-							if($data) $queries_to_update[] = "UPDATE ad_blocks SET ".implode(', ', $set_arr)." WHERE aliquot_master_id = $aliquot_master_id";
-							$queries_to_update[] = "INSERT INTO ad_blocks_revs (aliquot_master_id, block_type, sample_position_code, patho_dpt_block_code, tmp_gleason_primary_grade, tmp_gleason_secondary_grade, tmp_tissue_primary_desc, tmp_tissue_secondary_desc, histogel_use, version_created, procure_origin_of_slice, tumor_presence) 
-								(SELECT aliquot_master_id, block_type, sample_position_code, patho_dpt_block_code, tmp_gleason_primary_grade, tmp_gleason_secondary_grade, tmp_tissue_primary_desc, tmp_tissue_secondary_desc, histogel_use, '$modified', procure_origin_of_slice, tumor_presence
-								FROM ad_blocks WHERE aliquot_master_id = $aliquot_master_id);";
-							break;
-						default:
-							die('ERR 9948449949');
+					foreach($data as $field => $value) {
+						switch($model) {
+							case 'AliquotMaster':
+								$set_arr = array("modified = '$modified'", "modified_by = '$modified_by'");
+								if($field == 'notes') {
+									$set_arr[] = "$field = $value";
+								} else if($field == 'study_summary_id' && empty($value)) {
+									$set_arr[] = "$field = null";
+								} else {
+									$set_arr[] = "$field = '$value'";
+								}
+								$queries_to_update[] = "UPDATE aliquot_masters SET ".implode(', ', $set_arr)." WHERE id = $aliquot_master_id";
+								$queries_to_update[] = "INSERT INTO aliquot_masters_revs (id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, stored_by, product_code, notes, modified_by, version_created)
+									(SELECT id, barcode, aliquot_label, aliquot_control_id, collection_id, sample_master_id, sop_master_id, initial_volume, current_volume, in_stock, in_stock_detail, use_counter, study_summary_id, storage_datetime, storage_datetime_accuracy, storage_master_id, storage_coord_x, storage_coord_y, stored_by, product_code, notes, '$modified_by', '$modified'
+									FROM aliquot_masters WHERE id = $aliquot_master_id)";			
+								break;
+							case 'AliquotDetail':
+								$set_arr = array();
+								foreach($data as $field => $value) $set_arr[] = "$field = '$value'";
+								if($data) $queries_to_update[] = "UPDATE ad_blocks SET ".implode(', ', $set_arr)." WHERE aliquot_master_id = $aliquot_master_id";
+								$queries_to_update[] = "INSERT INTO ad_blocks_revs (aliquot_master_id, block_type, sample_position_code, patho_dpt_block_code, tmp_gleason_primary_grade, tmp_gleason_secondary_grade, tmp_tissue_primary_desc, tmp_tissue_secondary_desc, histogel_use, version_created, procure_origin_of_slice, tumor_presence) 
+									(SELECT aliquot_master_id, block_type, sample_position_code, patho_dpt_block_code, tmp_gleason_primary_grade, tmp_gleason_secondary_grade, tmp_tissue_primary_desc, tmp_tissue_secondary_desc, histogel_use, '$modified', procure_origin_of_slice, tumor_presence
+									FROM ad_blocks WHERE aliquot_master_id = $aliquot_master_id);";
+								break;
+							default:
+								die('ERR 9948449949');
+						}
 					}
 				}
+			} else {
+				recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "Msg#21 :: No data to update. $block_description");
 			}
 		}	
 		foreach($queries_to_update AS $new_query) {
 			$all_queries["patient:$patient_bank_nbr line:$line_counter"][] =$new_query;
 			mysqli_query($db_connection, $new_query) or die("query failed [".$new_query."]: " . mysqli_error($db_connection)."]");
 		}
+		
+		//2-Aliquot Creation
+			
 		foreach($aliquot_to_create as $new_aliquot_to_create) {
 			// AliquotMaster
 			$aliquot_master = array(
@@ -540,7 +564,7 @@ if(false) {
 				'modified_by' => "'".$modified_by."'");
 			if($new_aliquot_to_create['bank'] == 'procure') $aliquot_master['study_summary_id'] = "'".$procure_study_summary_id."'";
 			if($new_aliquot_to_create['block_type'] == 'paraffin') {
-				$aliquot_master['storage_master_id'] = "'".$patho_dpt_storage_master_id."'";
+//TODO?				$aliquot_master['storage_master_id'] = "'".$patho_dpt_storage_master_id."'";
 				$summary_data['nbr of paraffin blocks created']++;
 			} else {
 				$summary_data['nbr of oct blocks created']++;
@@ -580,8 +604,7 @@ if(false) {
 				FROM ad_blocks WHERE aliquot_master_id = $aliquot_master_id);";
 			$all_queries["patient:$patient_bank_nbr line:$line_counter"][] =$query;		
 			mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
-		}	
-}
+		}
 	} else if(!empty($new_line_data['# prostate bank'])) {
 		die("Participant [".$new_line_data['# prostate bank']."] is unknown. See line $line_counter.");
 	}
@@ -596,100 +619,6 @@ function getParticipantId($new_line_data, $line_counter) {
 	$participant_id_res = mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
 	$participant_id = mysqli_fetch_assoc($participant_id_res);
 	return ($participant_id && $participant_id['participant_id'])? $participant_id['participant_id'] : false;
-}
-
-
-
-
-
-
-function updateView() {
-	global $modified_by;
-	global $modified;
-	global $db_connection;
-	
-	//TODO Validate nothing else to do
-		
-	$query =
-		"REPLACE INTO view_aliquots ( SELECT
-		AliquotMaster.id AS aliquot_master_id,
-		AliquotMaster.sample_master_id AS sample_master_id,
-		AliquotMaster.collection_id AS collection_id,
-		Collection.bank_id,
-		AliquotMaster.storage_master_id AS storage_master_id,
-		Collection.participant_id,
-		
-		Participant.participant_identifier,
-		
-		Collection.acquisition_label,
-		
-		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
-		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
-		ParentSampleControl.sample_type AS parent_sample_type,
-		ParentSampleMaster.sample_control_id AS parent_sample_control_id,
-		SampleControl.sample_type,
-		SampleMaster.sample_control_id,
-		
-		AliquotMaster.barcode,
-		AliquotMaster.aliquot_label,
-		AliquotControl.aliquot_type,
-		AliquotMaster.aliquot_control_id,
-		AliquotMaster.in_stock,
-		
-		StorageMaster.code,
-		StorageMaster.selection_label,
-		AliquotMaster.storage_coord_x,
-		AliquotMaster.storage_coord_y,
-		
-		StorageMaster.temperature,
-		StorageMaster.temp_unit,
-		
-		AliquotMaster.created,
-		
-		IF(AliquotMaster.storage_datetime IS NULL, NULL,
-		IF(Collection.collection_datetime IS NULL, -1,
-		IF(Collection.collection_datetime_accuracy != 'c' OR AliquotMaster.storage_datetime_accuracy != 'c', -2,
-		IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
-		IF(AliquotMaster.storage_datetime IS NULL, NULL,
-		IF(SpecimenDetail.reception_datetime IS NULL, -1,
-		IF(SpecimenDetail.reception_datetime_accuracy != 'c' OR AliquotMaster.storage_datetime_accuracy != 'c', -2,
-		IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
-		IF(AliquotMaster.storage_datetime IS NULL, NULL,
-		IF(DerivativeDetail.creation_datetime IS NULL, -1,
-		IF(DerivativeDetail.creation_datetime_accuracy != 'c' OR AliquotMaster.storage_datetime_accuracy != 'c', -2,
-		IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-			
-		IF(LENGTH(AliquotMaster.notes) > 0, 'y', 'n') AS has_notes,
-			
-		MiscIdentifier.identifier_value AS identifier_value,
-		Collection.visit_label AS visit_label,
-		Collection.diagnosis_master_id AS diagnosis_master_id,
-		Collection.consent_master_id AS consent_master_id,
-		AliquotMaster.in_stock_detail,
-		AliquotMaster.study_summary_id,
-		SampleMaster.qc_nd_sample_label AS qc_nd_sample_label
-		
-		FROM aliquot_masters AS AliquotMaster
-		INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
-		INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
-		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
-		LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
-		LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
-		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
-		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-		LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
-		LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
-		LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
-		LEFT JOIN banks As Bank ON Collection.bank_id = Bank.id AND Bank.deleted <> 1
-		LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Bank.misc_identifier_control_id AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-		LEFT JOIN misc_identifier_controls AS MiscIdentifierControl ON MiscIdentifier.misc_identifier_control_id=MiscIdentifierControl.id
-		WHERE AliquotMaster.deleted != 1 AND AliquotMaster.modified = '$modified' AND AliquotMaster.modified_by = '$modified_by')";
-	mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
 }
 
 //====================================================================================================================================================
@@ -737,16 +666,16 @@ function printMessages() {
 	
 	echo "<br><FONT color='red'><b> ---- Message Per Participant -------------------------------------------</b></FONT><br><br>";
 	foreach($messages as $patient_info => $patient_msgs) {
-		echo "<b>$patient_info</b><br>";
-		foreach($patient_msgs AS $msg)echo " . . . $msg<br>";
+		echo "<b>*** $patient_info ***</b><br>";
+		foreach($patient_msgs AS $msg)echo "$msg<br>";
 	}
 }
 
 function printQueries(){
 	global $all_queries;
 	foreach($all_queries as $patient_info => $queries) {
-		echo "<b>$patient_info</b>";
-		foreach($queries AS $new_query) echo " . . . $new_query<br>";
+		echo "<b>$patient_info</b><br>";
+		foreach($queries AS $new_query) echo "<i><font color='#848484'>$new_query</i></font><br>";
 	}
 }
 
