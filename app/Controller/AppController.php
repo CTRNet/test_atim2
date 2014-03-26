@@ -1253,6 +1253,15 @@ class AppController extends Controller {
 			$StructurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $values_counter, values_used_as_input_counter = $values_used_as_input_counter WHERE id = ".$new_custom_list['StructurePermissibleValuesCustomControl']['id']);
 		}
 		
+		// *** 10 *** rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmp_browsing_limit. Since v2.5.0.
+		
+		$storage_master_model = AppModel::getInstance('StorageLayout', 'StorageMaster', true);
+		$result = $storage_master_model->find('first', array('conditions' => array('NOT' => array('StorageMaster.parent_id' => NULL), 'StorageMaster.lft' => NULL)));
+		if($result){
+			self::addWarningMsg(__('rebuilt lft rght for storage_masters'));
+			$storage_master_model->recover('parent');
+		}
+		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));
 		$this->Version->check_writable_fields = false;
