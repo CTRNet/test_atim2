@@ -17,7 +17,7 @@ WHERE study_summary_id = (SELECT id FROM study_summaries WHERE title = 'PROCURE'
 AND collection_id NOT IN (SELECT collections.id FROM collections INNER JOIN banks ON banks.id = collections.bank_id AND banks.name = 'prostate')
 AND deleted <> 1;
 
-ALTER TABLE collections ADD COLUMN tmp_procure_collection char(1) DEFAULT '0';
+ALTER TABLE collections ADD COLUMN tmp_procure_collection char(1) NOT NULL DEFAULT '0';
 UPDATE collections SET tmp_procure_collection = '1' WHERE id IN (SELECT collection_id FROM aliquot_masters WHERE study_summary_id = @procure_study_summary_id);
 
 -- ALIQUOT CLEAN UP ----------------------------------------------------------
@@ -279,6 +279,8 @@ DELETE FROM std_tma_blocks WHERE storage_master_id NOT IN (SELECT storage_master
 DELETE FROM storage_masters WHERE id NOT IN (SELECT storage_master_id FROM storage_masters_for_deletion);
    DELETE FROM storage_masters_revs WHERE id NOT IN (SELECT id FROM storage_masters);
 DROP TABLE storage_masters_for_deletion;
+
+UPDATE storage_masters SET lft = NULL, rght = NULL;
 
 -- study
 

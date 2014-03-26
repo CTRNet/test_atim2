@@ -67,6 +67,8 @@ SELECT CONCAT(@aliquot_deleted, '/' , @aliquot_total, ' have been deleted') AS a
 
 DELETE FROM aliquot_masters WHERE study_summary_id != @procure_study_summary_id OR study_summary_id IS NULL;
    DELETE FROM aliquot_masters_revs WHERE id NOT IN (SELECT id FROM aliquot_masters);
+UPDATE aliquot_masters SET study_summary_id = NULL;
+UPDATE aliquot_masters_revs SET study_summary_id = NULL;
 
 -- SAMPLE CLEAN UP -----------------------------------------------------------
 
@@ -177,6 +179,8 @@ DELETE FROM collections WHERE tmp_procure_collection != '1';
 
 ALTER TABLE collections DROP COLUMN tmp_procure_collection;
 
+SELECT 'empty collection' as msg, acquisition_label, id FROM collections WHERE deleted <> 1 AND id NOT IN (SELECT DISTINCT collection_id FROM aliquot_masters WHERE deleted <> 1);
+
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 -- PARTICIPANT
@@ -209,6 +213,8 @@ DELETE FROM qc_nd_cd_generals WHERE consent_master_id NOT IN ( SELECT id FROM co
    DELETE FROM qc_nd_cd_generals_revs WHERE consent_master_id NOT IN (SELECT consent_master_id FROM qc_nd_cd_generals);
 DELETE FROM consent_masters WHERE participant_id NOT IN (SELECT participant_id FROM collections WHERE participant_id IS NOT NULL) OR consent_control_id NOT IN (3,5);
    DELETE FROM consent_masters_revs WHERE id NOT IN (SELECT id FROM consent_masters);    
+DELETE FROM consent_controls WHERE id NOT IN (3,5);
+select participant_id AS 'participant linked to prostate consent' FROM consent_masters WHERE consent_control_id = 3 AND deleted <> 1;
 
 -- MESSAGES -----------------------------------------------------------
 
@@ -344,32 +350,44 @@ DELETE FROM storage_masters WHERE id NOT IN (SELECT storage_master_id FROM stora
    DELETE FROM storage_masters_revs WHERE id NOT IN (SELECT id FROM storage_masters);
 DROP TABLE storage_masters_for_deletion;
 
+UPDATE storage_masters SET lft = NULL, rght = NULL;
+
+-- study
+
+SELECT 'object linked to other study' AS issue, std.title AS study, 'order_lines' AS tablename, CONCAT('order_id = ',ol.order_id) AS id FROM order_lines ol INNER JOIN study_summaries std ON std.id = ol.study_summary_id WHERE ol.study_summary_id != @procure_study_summary_id
+UNION ALL
+SELECT 'object linked to other study' AS issue, std.title AS study, 'orders' AS tablename, CONCAT('order_id = ',od.id) AS id FROM orders od INNER JOIN study_summaries std ON std.id = od.default_study_summary_id WHERE default_study_summary_id != @procure_study_summary_id
+UNION ALL
+SELECT 'object linked to other study' AS issue, std.title AS study, 'aliquot_internal_uses' AS tablename, CONCAT('aliquot_master_id = ',aliquot_master_id) AS id FROM aliquot_internal_uses us INNER JOIN study_summaries std ON std.id = us.study_summary_id  WHERE study_summary_id != @procure_study_summary_id;
+DELETE FROM study_summaries WHERE id NOT IN (
+	SELECT DISTINCT study_summary_id FROM aliquot_masters WHERE study_summary_id IS NOT NULL
+	UNION ALL
+	SELECT DISTINCT study_summary_id FROM aliquot_internal_uses WHERE study_summary_id IS NOT NULL
+	UNION ALL
+	SELECT DISTINCT study_summary_id FROM order_lines WHERE study_summary_id IS NOT NULL
+	UNION ALL
+	SELECT DISTINCT default_study_summary_id FROM orders WHERE default_study_summary_id IS NOT NULL
+);
+   DELETE FROM study_summaries_revs WHERE id NOT IN (SELECT id FROM study_summaries);
+
+-- users
+
+UPDATE users SET flag_active = 0, deleted = 1 WHERE group_id NOT IN (SELECT id FROM groups WHERE name IN ('Syst. Admin.','Users Prostate'));
+UPDATE groups SET deleted = 1 WHERE name NOT IN ('Syst. Admin.','Users Prostate');
+
 -- order
 
 SELECT IF(COUNT(*) = 0, "No error on order", "Order items exist") AS msg  FROM order_items;
 TRUNCATE order_items;
 TRUNCATE order_items_revs;
-SET FOREIGN_KEY_CHECKS=0;
+-- SET FOREIGN_KEY_CHECKS=0;
 TRUNCATE shipments;
 TRUNCATE shipments_revs;
 TRUNCATE order_lines;
 TRUNCATE order_lines_revs;
 TRUNCATE orders;
 TRUNCATE orders_revs;
-SET FOREIGN_KEY_CHECKS=1;
-
--- study
-
-SELECT 'object linked to procure study' AS issue, 'aliquot_masters' AS tablename, CONCAT('aliquot_master_id = ',id) AS id FROM aliquot_masters WHERE study_summary_id != @procure_study_summary_id AND study_summary_id IS NOT NULL
-UNION ALL
-SELECT 'object linked to procure study' AS issue, 'order_lines' AS tablename, CONCAT('order_id = ',order_id) AS id FROM order_lines WHERE study_summary_id != @procure_study_summary_id AND study_summary_id IS NOT NULL
-UNION ALL
-SELECT 'object linked to procure study' AS issue, 'orders' AS tablename, CONCAT('order_id = ',id) AS id FROM orders WHERE default_study_summary_id != @procure_study_summary_id AND default_study_summary_id IS NOT NULL
-UNION ALL
-SELECT 'object linked to procure study' AS issue, 'aliquot_internal_uses' AS tablename, CONCAT('aliquot_master_id = ',aliquot_master_id) AS id FROM aliquot_internal_uses WHERE study_summary_id != @procure_study_summary_id AND study_summary_id IS NOT NULL;
-SET FOREIGN_KEY_CHECKS=0;
-DELETE FROM study_summaries WHERE title != 'PROCURE';
-SET FOREIGN_KEY_CHECKS=1;
+-- SET FOREIGN_KEY_CHECKS=1;
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
