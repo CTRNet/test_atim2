@@ -74,14 +74,11 @@ SELECT IF(COUNT(*) = 0,
 ) AS 'Control of structure_permissible_values_customs.value size (2)' 
 FROM  structure_permissible_values_custom_controls WHERE LENGTH(name) > 250;
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Add rebuild lft rght for storage_masters
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
+INSERT INTO i18n (id,en,fr) VALUES ('rebuilt lft rght for storage_masters','Rebuilt lft & rght for storage_masters', 'Les valeurs lft & rght de storage_masters ont été regénérées');
 
 
 
