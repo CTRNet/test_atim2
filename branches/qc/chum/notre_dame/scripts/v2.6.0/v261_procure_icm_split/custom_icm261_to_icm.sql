@@ -296,3 +296,4 @@ SELECT 'object linked to procure study' AS issue, 'aliquot_internal_uses' AS tab
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', "<FONT color='red'>ICM - Test</FONT>", "<FONT color='red'>ICM - Test</FONT>");
