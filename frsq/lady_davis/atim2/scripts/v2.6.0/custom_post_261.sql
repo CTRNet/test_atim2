@@ -349,13 +349,54 @@ UPDATE structure_formats SET `display_column`='1', `display_order`='16' WHERE st
 UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='path_tstage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `language_heading`='grade' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_lady_txd_biopsy_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_lady_txd_biopsy_surgeries' AND `field`='histological_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_histological_grade') AND `flag_confidential`='0');
 
+-- --------------------------------------------------------------------------------------------------------
+-- Chemo Dose and weight
+-- --------------------------------------------------------------------------------------------------------
 
+ALTER TABLE txd_chemos ADD COLUMN qc_lady_weight_kg int(4) DEFAULT NULL;
+ALTER TABLE txd_chemos_revs ADD COLUMN qc_lady_weight_kg int(4) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_chemos', 'qc_lady_weight_kg', 'input',  NULL , '0', 'size=5', '', '', 'weight (kg)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='qc_lady_weight_kg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='weight (kg)' AND `language_tag`=''), '2', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('weight (kg)','weight (kg)','poids (kg)');
+ALTER TABLE txe_chemos ADD COLUMN qc_lady_dose_unit varchar(20) DEFAULT NULL;
+ALTER TABLE txe_chemos_revs ADD COLUMN qc_lady_dose_unit varchar(20) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_lady_chemo_dose_unit", "", "", "StructurePermissibleValuesCustom::getCustomDropdown(\'Chemo Dose Units\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Chemo Dose Units', 1, 10, 'clinical - treatment');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Chemo Dose Units');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('mg','','', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'txe_chemos', 'unit', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_chemo_dose_unit') , '0', 'size=5', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='txe_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='txe_chemos' AND `field`='unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_chemo_dose_unit')  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '1', '1', '0', '1', '0');
+UPDATE structure_fields SET `setting`='' WHERE model='TreatmentExtendDetail' AND tablename='txe_chemos' AND field='unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_chemo_dose_unit');
+UPDATE structure_fields SET field = 'qc_lady_dose_unit' WHERE model='TreatmentExtendDetail' AND tablename='txe_chemos' AND field='unit' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_lady_chemo_dose_unit');
 
+-- --------------------------------------------------------------------------------------------------------
+-- Clean up tissue_laterality = ('Mastectomy','Excision l', 'Reconstruc','Dissection','Insertion', 'D')
+-- --------------------------------------------------------------------------------------------------------
 
-
-
-
-http://localhost/jgh_breast/InventoryManagement/SampleMasters/detail/727/3300/
-    missing reference key [Mastectomy] for field [tissue_laterality]
-
+UPDATE sample_masters sm, sd_spe_tissues sd
+SET sm.modified = now(), sm.modified_by = 1, sm.notes = CONCAT(notes, '\n[Wrong tissue laterality values cleaned on ',DATE_FORMAT(NOW(),'%Y-%m-%d'),' : ', sd.tissue_laterality, ']')
+WHERE sd.sample_master_id = sm.id AND sd.tissue_laterality IN ('Mastectomy','Excision l', 'Reconstruc','Dissection','Insertion', 'D') AND sm.deleted <> 1;
+UPDATE sample_masters sm, sd_spe_tissues sd
+SET sd.tissue_laterality = ''
+WHERE sd.sample_master_id = sm.id AND sd.tissue_laterality IN ('Mastectomy','Excision l', 'Reconstruc','Dissection','Insertion', 'D') AND sm.deleted <> 1;
+UPDATE structure_fields SET  `setting`='cols=40,rows=6' WHERE model='SampleMaster' AND tablename='sample_masters' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+INSERT INTO `sample_masters_revs` 
+(`sample_control_id`, `id`, `sample_code`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `parent_sample_type`, `sop_master_id`, `qc_lady_sop_followed`, 
+`qc_lady_sop_deviations`, `product_code`, `is_problematic`, `notes`, `modified_by`, `version_created`) 
+(SELECT `sample_control_id`, `id`, `sample_code`, `initial_specimen_sample_id`, `initial_specimen_sample_type`, `collection_id`, `parent_id`, `parent_sample_type`, `sop_master_id`, `qc_lady_sop_followed`, 
+`qc_lady_sop_deviations`, `product_code`, `is_problematic`, `notes`, `modified_by`, `modified` FROM sample_masters WHERE notes LIKE '%[Wrong tissue laterality values cleaned on%');
+INSERT INTO `sd_spe_tissues_revs` (`sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`, 
+`tissue_size`, `tissue_size_unit`, `tissue_weight`, `tissue_weight_unit`, `qc_lady_tissue_type`, `qc_lady_tumor_location`, `qc_lady_under_radiological_guidance`, `version_created`)
+(SELECT `sample_master_id`, `tissue_source`, `tissue_nature`, `tissue_laterality`, `pathology_reception_datetime`, `pathology_reception_datetime_accuracy`,
+`tissue_size`, `tissue_size_unit`, `tissue_weight`, `tissue_weight_unit`, `qc_lady_tissue_type`, `qc_lady_tumor_location`, `qc_lady_under_radiological_guidance`, `modified`
+FROM sd_spe_tissues INNER JOIN sample_masters ON sample_masters.id = sd_spe_tissues.sample_master_id WHERE notes LIKE '%[Wrong tissue laterality values cleaned on%');
+INSERT INTO `specimen_details_revs` (`sample_master_id`, `supplier_dept`, `time_at_room_temp_mn`, `reception_by`, `reception_datetime`, `reception_datetime_accuracy`, `version_created`)
+(SELECT `sample_master_id`, `supplier_dept`, `time_at_room_temp_mn`, `reception_by`, `reception_datetime`, `reception_datetime_accuracy`, `modified` 
+FROM specimen_details INNER JOIN sample_masters ON sample_masters.id = specimen_details.sample_master_id WHERE notes LIKE '%[Wrong tissue laterality values cleaned on%');
 
