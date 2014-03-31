@@ -30,8 +30,8 @@ class PreferencesAdminController extends AdministrateAppController {
 		if(!empty($this->request->data)){
 			$this->Config->preSave($config_results,
 								   $this->request->data,
-								   $user_id,
-								   $group_id);
+								   $group_id,
+								   $user_id);
 			
 			$this->Config->set($this->request->data);
 			
