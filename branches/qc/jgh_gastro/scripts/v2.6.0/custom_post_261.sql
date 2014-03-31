@@ -139,7 +139,7 @@ UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FR
 
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES
-('molecular testing','molecular testing','Test moléculaire'),
+('molecular testing','Molecular Testing','Test moléculaire'),
 ('biochemical test','Biochemical Test','Test biochimique');
 
 
@@ -180,44 +180,69 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT INTO i18n (id,en) VALUES ('access to archived tissue','Access to archived tissue'),('biopsy extra piece collection','Biopsy extra piece collection');
 
+-- --------------------------------------------------------------------------------------------------------
+-- Reporductiv History
+-- --------------------------------------------------------------------------------------------------------
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/ReproductiveHistories%';
 
+-- --------------------------------------------------------------------------------------------------------
+-- Clinical Collections Links
+-- --------------------------------------------------------------------------------------------------------
 
+UPDATE structure_formats SET `flag_override_tag`='0', `language_tag`='', `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventControl' AND `tablename`='event_controls' AND `field`='event_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='event_type_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='clinicalcollectionlinks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+-- --------------------------------------------------------------------------------------------------------
+-- Trt
+-- --------------------------------------------------------------------------------------------------------
 
+UPDATE treatment_controls SET disease_site = '' WHERE flag_active = 1;
 
+-- --------------------------------------------------------------------------------------------------------
+-- PARTICIPANT IDENTIFIER REPORT
+-- --------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-PARTICIPANT IDENTIFIER REPORT
-----------------------------------------------------------------------------------------------------------
-Queries to desactivate 'Participant Identifiers' demo report
-----------------------------------------------------------------------------------------------------------
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'participant identifiers';
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');
 
-TODO
-----------------------------------------------------------------------------------------------------------
-Added new relationsips into databrowser
-Please flag inactive relationsips if required (see queries below). Don't forget Collection to Annotation, Treatment,Consent, etc if not requried.
-SELECT str1.model AS model_1, str2.model AS model_2, use_field FROM datamart_browsing_controls ctrl, datamart_structures str1, datamart_structures str2 WHERE str1.id = ctrl.id1 AND str2.id = ctrl.id2 AND (ctrl.flag_active_1_to_2 = 1 OR ctrl.flag_active_2_to_1 = 1);
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = 0 WHERE fct.datamart_structure_id = str.id AND/OR str.model IN ('Model1', 'Model2', 'Model...');
-Please flag inactive datamart structure functions if required (see queries below).
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...'));
-Please change datamart_structures_relationships_en(and fr).png in appwebrootimgdataBrowser
-----------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------
+-- PAth Review
+-- --------------------------------------------------------------------------------------------------------
 
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/SpecimenReviews/listAll%';
+
+-- --------------------------------------------------------------------------------------------------------
+-- DataBrowser
+-- --------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ViewCollection') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'EventMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'FamilyHistory') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'ViewSample');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'aliquot_master_id');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'SpecimenReviewMaster');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ReproductiveHistory') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContact') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'Participant');
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
+
+-- --------------------------------------------------------------------------------------------------------
+-- Inventory
+-- --------------------------------------------------------------------------------------------------------
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 192);
+
+
+
+Be able to track bank order to patho dept, etc.... They receive sample from patho dept or other banks.
+Be able to track order to other bansk, and also received sample, etc...
