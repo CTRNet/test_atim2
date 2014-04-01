@@ -242,7 +242,28 @@ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMast
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 192);
 
+-- --------------------------------------------------------------------------------------------------------
+-- Local Order
+-- --------------------------------------------------------------------------------------------------------
 
+ALTER TABLE orders ADD COLUMN qc_gastro_central_bank_order tinyint(1) NOT NULL DEFAULT '0';
+ALTER TABLE orders_revs ADD COLUMN qc_gastro_central_bank_order tinyint(1) NOT NULL DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Order', 'orders', 'qc_gastro_central_bank_order', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'central bank order', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='orders'), (SELECT id FROM structure_fields WHERE `model`='Order' AND `tablename`='orders' AND `field`='qc_gastro_central_bank_order' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='central bank order' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('central bank order','Central Biobank Order','Commande de la biobanque centrale');
+ALTER TABLE shipments ADD COLUMN qc_gastro_central_bank_order tinyint(1) NOT NULL DEFAULT '0';
+ALTER TABLE shipments_revs ADD COLUMN qc_gastro_central_bank_order tinyint(1) NOT NULL DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Order', 'Shipment', 'shipments', 'qc_gastro_central_bank_order', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'central bank order', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='shipments'), (SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='qc_gastro_central_bank_order' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='central bank order' AND `language_tag`=''), '0', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_edit_readonly`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='qc_gastro_central_bank_order' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('this field should be empty for central biobank order', 'This field should be empty for central biobank order', 'Ce champ doit être vide pour une commande de la biobanque centrale');
+INSERT INTO i18n (id,en,fr) VALUES ('received aliquot - shipement', 'received aliquot - shipement', 'ALiquot recu - Envoi');
 
-Be able to track bank order to patho dept, etc.... They receive sample from patho dept or other banks.
-Be able to track order to other bansk, and also received sample, etc...
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('returned aliquot', 'Returned Aliquot', 'Aliquot Retourné', '1', @control_id, NOW(), NOW(), 1, 1)

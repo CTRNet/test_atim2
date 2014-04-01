@@ -2177,7 +2177,7 @@ class StructuresHelper extends Helper {
 						if(count($dropdown_result['defined']) == 2 
 							&& isset($sfs['flag_'.$options['type'].'_readonly']) 
 							&& $sfs['flag_'.$options['type'].'_readonly'] 
-							&& $add_blank
+							&& isset($add_blank) && $add_blank
 						){
 							//unset the blank value, the single value for a disabled field should be default
 							unset($dropdown_result['defined'][""]);
