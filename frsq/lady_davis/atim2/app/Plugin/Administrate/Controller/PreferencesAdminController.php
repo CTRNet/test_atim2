@@ -13,8 +13,8 @@ class PreferencesAdminController extends AdministrateAppController {
 		// get USER data
 		
 		$config_results	= $this->Config->getConfig(
-				$user_id,
-				$group_id);
+				$group_id,
+				$user_id);
 		
 		$this->request->data['Config'] = $config_results['Config'];
 	}
@@ -24,14 +24,14 @@ class PreferencesAdminController extends AdministrateAppController {
 		$this->set( 'atim_menu_variables', array('Group.id'=>$group_id,'User.id'=>$user_id) );
 		
 		$config_results	= $this->Config->getConfig(
-				$user_id,
-				$group_id);
+				$group_id,
+				$user_id);
 		
 		if(!empty($this->request->data)){
 			$this->Config->preSave($config_results,
 								   $this->request->data,
-								   $user_id,
-								   $group_id);
+								   $group_id,
+								   $user_id);
 			
 			$this->Config->set($this->request->data);
 			
