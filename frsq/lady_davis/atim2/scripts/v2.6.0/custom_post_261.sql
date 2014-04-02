@@ -400,3 +400,11 @@ INSERT INTO `specimen_details_revs` (`sample_master_id`, `supplier_dept`, `time_
 (SELECT `sample_master_id`, `supplier_dept`, `time_at_room_temp_mn`, `reception_by`, `reception_datetime`, `reception_datetime_accuracy`, `modified` 
 FROM specimen_details INNER JOIN sample_masters ON sample_masters.id = specimen_details.sample_master_id WHERE notes LIKE '%[Wrong tissue laterality values cleaned on%');
 
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('ViewCollection')) 
+AND id2 IN (SELECT id FROM datamart_structures WHERE model IN ('TreatmentMaster'));
+
+
+
+
+UPDATE versions SET branch_build_number = WHERE version_number = '2.6.1';
