@@ -236,6 +236,8 @@ WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'ParticipantContac
 UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 
 WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'AliquotReviewMaster') AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot');
 
+UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = 0 WHERE fct.datamart_structure_id = str.id AND str.model IN ('AliquotReviewMaster', 'SpecimenReviewMaster', 'FamilyHistory', 'ReproductiveHistory',  'MiscIdentifier');
+
 -- --------------------------------------------------------------------------------------------------------
 -- Inventory
 -- --------------------------------------------------------------------------------------------------------
@@ -266,4 +268,145 @@ INSERT INTO i18n (id,en,fr) VALUES ('received aliquot - shipement', 'received al
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`) 
 VALUES 
-('returned aliquot', 'Returned Aliquot', 'Aliquot Retourné', '1', @control_id, NOW(), NOW(), 1, 1)
+('returned aliquot', 'Returned Aliquot', 'Aliquot Retourné', '1', @control_id, NOW(), NOW(), 1, 1);
+
+ALTER TABLE qc_gastro_cd_consents DROP COLUMN id;
+ALTER TABLE qc_gastro_cd_consents DROP COLUMN created;
+ALTER TABLE qc_gastro_cd_consents DROP COLUMN created_by;
+ALTER TABLE qc_gastro_cd_consents DROP COLUMN modified;
+ALTER TABLE qc_gastro_cd_consents DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_cd_consents DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_bladders DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_bladders DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_bladders DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_bladders DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_bladders DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_bladders DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_larynx DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_larynx DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_lip_oral DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_lip_oral DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_lungs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_lungs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_lungs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_lungs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_lungs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_lungs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_nas_sinus DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_nas_sinus DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_pharynx DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_pharynx DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN version_id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles DROP COLUMN version_created;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN version_id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals DROP COLUMN version_created;
+ALTER TABLE qc_gastro_ed_cap_report_sal_glands DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_sal_glands DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_testis DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_testis DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_testis DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_testis DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_testis DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_testis DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_thyroid DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_thyroid DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_lifestyle DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_lifestyle DROP COLUMN deleted;
+
+ALTER TABLE qc_gastro_ed_lifestyle MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE qc_gastro_ed_lifestyle ADD CONSTRAINT FK_qc_gastro_ed_lifestyle_event_masters FOREIGN KEY (event_master_id) REFERENCES event_masters (id);
+
+ALTER TABLE qc_gastro_cd_consents_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_cd_consents_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_cd_consents_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_cd_consents_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_cd_consents_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_cd_consents_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_bladders_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_bladders_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_bladders_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_bladders_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_bladders_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_bladders_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_kidneys_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_larynx_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_lip_oral_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_lungs_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_lungs_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_lungs_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_lungs_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_lungs_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_lungs_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_melanomas_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_nas_sinus_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_pharynx_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_needles_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_prostate_radicals_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_sal_glands_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_testis_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_cap_report_testis_revs DROP COLUMN created;
+ALTER TABLE qc_gastro_ed_cap_report_testis_revs DROP COLUMN created_by;
+ALTER TABLE qc_gastro_ed_cap_report_testis_revs DROP COLUMN modified;
+ALTER TABLE qc_gastro_ed_cap_report_testis_revs DROP COLUMN modified_by;
+ALTER TABLE qc_gastro_ed_cap_report_testis_revs DROP COLUMN deleted;
+ALTER TABLE qc_gastro_ed_cap_report_thyroid_revs DROP COLUMN id;
+ALTER TABLE qc_gastro_ed_lifestyle_revs DROP COLUMN id;
+
+ALTER TABLE qc_gastro_ed_biochemical_test_revs DROP INDEX event_master_id;
+ALTER TABLE qc_gastro_ed_immunohistochemistry_revs DROP INDEX event_master_id;
+ALTER TABLE qc_gastro_ed_molecular_testing_revs DROP INDEX event_master_id;
+
+UPDATE qc_gastro_ed_cap_report_thyroid_revs SET version_id = (version_id + 1000);
+ALTER TABLE qc_gastro_ed_cap_report_thyroid_revs MODIFY version_id int(11) NOT NULL AUTO_INCREMENT;
+UPDATE qc_gastro_ed_cap_report_thyroid_revs SET version_id = (version_id - 999);
+
+
+
+
+
+
+UPDATE versions SET branch_build_number = WHERE version_number = '2.6.1';
