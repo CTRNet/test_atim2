@@ -10,7 +10,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	);
 	
 	var $paginate = array(
-		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date DESC')
+		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date ASC')
 	);
 	
 	function beforeFilter( ) {
@@ -20,6 +20,9 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	
 	function listall( $event_group, $participant_id, $event_control_id=null ){		
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		
+		//TODO Temporary fix linked to issue #3040: TreatmentMaster & EventMaster listall: var $paginate data won't be used
+		if(!isset($this->passedArgs['sort'])) $this->EventMaster->order = $this->paginate['EventMaster']['order'];
 		
 		$search_criteria = array();
 		if(!$event_control_id) {
