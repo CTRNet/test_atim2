@@ -1676,3 +1676,6 @@ SET FOREIGN_KEY_CHECKS=1;
 UPDATE `groups` SET `flag_show_confidential` = '1'WHERE `id` = '1';
 UPDATE `versions` SET `permissions_regenerated` = '0';
 UPDATE users SET flag_active=1 WHERE id IN (1,2);
+
+UPDATE event_controls SET use_addgrid = 1, use_detail_form_for_index = 1 WHERE disease_site = 'general' AND event_type = 'follow up';
+UPDATE structure_formats SET `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ed_all_clinical_followup') AND structure_field_id NOT IN (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary');
