@@ -140,14 +140,6 @@ UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FR
 
 UPDATE aliquot_controls SET flag_active = 1 WHERE sample_control_id IN (SELECT id FROM sample_controls WHERE sample_type LIKE 'other fluid%');
 
-ALTER TABLE ld_lymph_dxd_histo_transformations ADD COLUMN `lymphoma_type` varchar(250) NOT NULL DEFAULT '';
-ALTER TABLE ld_lymph_dxd_histo_transformations_revs ADD COLUMN `lymphoma_type` varchar(250) NOT NULL DEFAULT '';
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'DiagnosisDetail', 'ld_lymph_dxd_histo_transformations', 'lymphoma_type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='custom_lymphoma_type_list') , '0', '', '', '', 'lymphoma type', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='ld_lymph_dx_histological_transformation'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dxd_histo_transformations' AND `field`='lymphoma_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_lymphoma_type_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymphoma type' AND `language_tag`=''), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_formats SET `display_order`='9' WHERE structure_id=(SELECT id FROM structures WHERE alias='ld_lymph_dx_histological_transformation') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ld_lymph_dxd_histo_transformations' AND `field`='lymphoma_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_lymphoma_type_list') AND `flag_confidential`='0');
-
 ALTER TABLE ld_lymph_dxd_histo_transformations MODIFY `unusual_site_value` varchar(50) DEFAULT '';
 ALTER TABLE ld_lymph_dxd_histo_transformations_revs MODIFY `unusual_site_value` varchar(50) DEFAULT '';
 DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="ld_lymph_dx_histo_transf_unusual_site" AND spv.value="bone" AND spv.language_alias="bone";
@@ -157,7 +149,6 @@ DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN
 DELETE FROM structure_permissible_values WHERE value="liver" AND language_alias="liver" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
 DELETE FROM structure_permissible_values WHERE value="ms" AND language_alias="unusual site ms" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
 DELETE FROM structure_permissible_values WHERE value="cns" AND language_alias="unusual site cns" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
-
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Histo Transformation : Unusual Sites\')" WHERE domain_name = 'ld_lymph_dx_histo_transf_unusual_site';
 INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Histo Transformation : Unusual Sites', 1, 50, 'clinical - diagnosis');
 SET @control_id = LAST_INSERT_ID();
@@ -168,3 +159,31 @@ VALUES
 ('unusual site cns', 'CNS', 'CNS', '1', @control_id, NOW(), NOW(), 1, 1),
 ('unusual site ms', 'MS', 'MS', '1', @control_id, NOW(), NOW(), 1, 1);
 
+ALTER TABLE diagnosis_masters ADD COLUMN `ld_lymph_lymphoma_type` varchar(250) NOT NULL DEFAULT '';
+ALTER TABLE diagnosis_masters_revs ADD COLUMN `ld_lymph_lymphoma_type` varchar(250) NOT NULL DEFAULT '';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_dx_histological_transformation'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `field`='lymphoma_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='custom_lymphoma_type_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymphoma type' AND `language_tag`=''), '1', '9', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE diagnosis_masters dm, ld_lymph_dx_lymphomas dd
+SET dm.ld_lymph_lymphoma_type = dd.lymphoma_type
+WHERE dm.id = dd.diagnosis_master_id;
+UPDATE diagnosis_masters_revs dm, ld_lymph_dx_lymphomas_revs dd
+SET dm.ld_lymph_lymphoma_type = dd.lymphoma_type
+WHERE dm.id = dd.diagnosis_master_id AND dm.version_created = dd.version_created;
+UPDATE structure_fields SET model = 'DiagnosisMaster', tablename = 'diagnosis_masters', field = 'ld_lymph_lymphoma_type' WHERE `field`='lymphoma_type' AND tablename = 'ld_lymph_dx_lymphomas';
+ALTER TABLE ld_lymph_dx_lymphomas DROP COLUMN `lymphoma_type`;
+ALTER TABLE ld_lymph_dx_lymphomas_revs DROP COLUMN `lymphoma_type`;
+
+UPDATE datamart_reports SET associated_datamart_structure_id = (SELECT id FROM datamart_structures WHERE model = 'Participant') WHERE name = 'ld_lymph_specimen_nbr_report';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'FunctionManagement', '', 'ld_lymph_limit_to_available_sample', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '0', '', '', '', 'limit search on available samples', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_specimen_nbr_report_params'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='ld_lymph_limit_to_available_sample' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='limit search on available samples' AND `language_tag`=''), '0', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('limit search on available samples', 'Limit search on available samples');
+INSERT INTO i18n (id,en,fr) VALUES 
+('more than 1000 records are returned by the query - please redefine search criteria',
+'More than 1000 records are returned by the query! Please redefine search criteria!',
+'Plus de 1000 enregistrements sont retournés par la requête! Veuillez redéfinir vos paramêtres de recherche!');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', '0', '', 'ld_lymph_in_stock_aliquot_nbr', 'input',  NULL , '0', 'size=3', '', '', 'aliquots number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ld_lymph_specimen_nbr_report_res'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ld_lymph_in_stock_aliquot_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='aliquots number' AND `language_tag`=''), '0', '8', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
