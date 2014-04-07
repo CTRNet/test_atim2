@@ -418,7 +418,8 @@ function loadNewBlocks($new_line_data, $line_counter) {
 		// *** Run Queries ***
 
 		//1-ATiM Aliquot Update
-		
+Attention aucun bloc ICM ne doit être créé.
+Les blocs de patho pour l'ICM seront listés au niveau du  patient car ils sont dispos mais pas propriété de la banque		
 		$queries_to_update = array();
 		foreach($aliquot_to_update as $new_aliquot_to_update) {
 			$excel_aliquot_data = $new_aliquot_to_update['excel_data'];
