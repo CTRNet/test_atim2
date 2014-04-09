@@ -101,7 +101,7 @@ class Participant extends ClinicalAnnotationAppModel {
 		}			
 
 		$participant_contact_model = AppModel::getInstance("ClinicalAnnotation", "ParticipantContact", true);
-		$nbr_contacts = $participant_contact_model->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id)));
+		$nbr_contacts = $participant_contact_model->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, array('OR' => array('ParticipantContact.confidential != 1','ParticipantContact.confidential = 1')))));
 		if ($nbr_contacts > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_contacts';

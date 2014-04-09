@@ -452,13 +452,15 @@ class StructuresHelper extends Helper {
 			');
 		}
 
-        $this->updateUnsanitizeList($options, $atim_structure);
-		$sanitized_data = Sanitize::clean($data);
-		if($options['settings']['no_sanitization']){
-			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+		if($options['type'] != 'csv') {
+	        $this->updateUnsanitizeList($options, $atim_structure);
+			$sanitized_data = Sanitize::clean($data);
+			if($options['settings']['no_sanitization']){
+				$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+			}
+			$data = $sanitized_data;
+			unset($sanitized_data);
 		}
-		$data = $sanitized_data;
-		unset($sanitized_data);
 		
 		$this->updateDataWithAccuracy($data, $atim_structure);//will not update tree view data
 		
@@ -2100,16 +2102,16 @@ class StructuresHelper extends Helper {
 								$settings['class'] .= " jqueryAutocomplete";
 							}
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
-							if($sfs['type'] == "hidden"){
+							if($sfs['type'] == "hidden"){							
 								if(strlen($current['label'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
 									}
 									$current['label'] = "";
 								}
 								if(strlen($current['heading'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
 									}
 									$current['heading'] = "";
 								}
@@ -2175,7 +2177,7 @@ class StructuresHelper extends Helper {
 						if(count($dropdown_result['defined']) == 2 
 							&& isset($sfs['flag_'.$options['type'].'_readonly']) 
 							&& $sfs['flag_'.$options['type'].'_readonly'] 
-							&& $add_blank
+							&& isset($add_blank) && $add_blank
 						){
 							//unset the blank value, the single value for a disabled field should be default
 							unset($dropdown_result['defined'][""]);

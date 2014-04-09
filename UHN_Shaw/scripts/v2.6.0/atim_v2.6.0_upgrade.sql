@@ -1,5 +1,10 @@
-INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.0', NOW(),'to define','to define');
+-- ------------------------------------------------------
+-- ATiM v2.6.0 Upgrade Script
+-- version: 2.6.0
+--
+-- For more information: 
+--    http://www.ctrnet.ca/mediawiki/index.php/Main_Page
+-- ------------------------------------------------------
 
 REPLACE INTO i18n (id,en,fr) VALUES
 ('children', 'Children', 'Enfants'),
@@ -247,11 +252,11 @@ DELETE FROM menus WHERE use_link LIKE '/ClinicalAnnotation/ProductMasters/%';
 DELETE FROM menus WHERE use_link LIKE '/ClinicalAnnotation/ClinicalCollectionLinks/%' AND id = 'clin_CAN_67';
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
-('collections content','Collections Content','Contenu des collections'),
+('collections content','Collection Content','Contenu des collections'),
 ('links to collections','Links to collections','Liens aux collections'),
 ('collections links','Collection Links','Liens de la collections'),
 ('linked collection','Linked Collection','Collection liée'),
-('collection to link','Collection to link','Collection à lier'),
+('collection to link','Collections to link','Collection à lier'),
 ('use inventory management module to delete the entire collection','Use ''Inventory Management'' module to delete the entire collection','Utiliser le module de ''Gestion des échantillons'' pour supprimer l''intégralité de la collection');
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
@@ -289,7 +294,7 @@ INNER JOIN structure_fields sfi ON sfi.id = sfo.structure_field_id
 INNER JOIN structures st ON st.id = sfo.structure_id
 WHERE st.alias = 'aliquot_masters' AND sfi.field = 'aliquot_label'); 
 UPDATE structure_formats SET display_column = (display_column +2) WHERE structure_id = (SELECT id FROM structures WHERE alias='orderlines');
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('orders','Orders','Commandes'),('order lines','Order lines','Lignes de commande'),('records linked to study', 'Data linked to study', 'Données attachées à l''étude');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('orders','Orders','Commandes'),('order lines','Order lines','Lignes de commande'),('records linked to study', 'Records linked to study', 'Données attachées à l''étude');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Display all aliquot uses as a node into the collection tree view  #2452
@@ -428,7 +433,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) 
 VALUES 
 ('batch actions / reports','Batch Actions / Reports','Traitement par lot / Rapports'),
-('more than 1000 records are returned by the query - please redefine search criteria', 'More than 1000 records are returned by the query. Please redefine search criteria.', 'Plus de 1000 données ont été retournées par la requête. Veuillez redéfinir les critères de recherche.');
+('more than 1000 records are returned by the query - please redefine search criteria', 'Query returned more than 1000 records. Please redefine search criteria.', 'Plus de 1000 données ont été retournées par la requête. Veuillez redéfinir les critères de recherche.');
 
 -- batch set creation
 
@@ -478,6 +483,8 @@ UNION ALL
 SELECT "ALTER TABLE protocol_extend_masters DROP COLUMN tmp_old_extend_id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
 UNION ALL
 SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN protocol_master_id;" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE protocol_extend_masters SET deleted = 1 WHERE protocol_master_id IN (SELECT id FROM protocol_masters WHERE deleted = 1);" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE'
 UNION ALL
 SELECT "" AS 'CUSTOM PROTOCOL EXTEND TABLES TO UPGRADE';
 
@@ -554,6 +561,7 @@ ALTER TABLE pe_chemos ADD CONSTRAINT FK_pe_chemos_protocol_extend_masters FOREIG
 INSERT INTO protocol_extend_masters_revs (id, protocol_extend_control_id, protocol_master_id, modified_by, version_created) (SELECT protocol_extend_master_id, @protocol_extend_control_id, protocol_master_id, modified_by, version_created FROM pe_chemos_revs ORDER BY version_id ASC);
 ALTER TABLE protocol_extend_masters DROP COLUMN tmp_old_extend_id;
 ALTER TABLE pe_chemos_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN protocol_master_id;
+UPDATE protocol_extend_masters SET deleted = 1 WHERE protocol_master_id IN (SELECT id FROM protocol_masters WHERE deleted = 1);
 
 -- **** TREATMENT EXTEND ****
 	
@@ -590,6 +598,8 @@ UNION ALL
 SELECT "ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
 UNION ALL
 SELECT "ALTER TABLE ***EXTEND_TABLENAME***_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;" AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
+UNION ALL
+SELECT "UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);"  AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE'
 UNION ALL
 SELECT '' AS 'CUSTOM TREATMENT EXTEND TABLES TO UPGRADE';
 
@@ -675,9 +685,9 @@ INSERT INTO `datamart_structures` (`id`, `plugin`, `model`, `structure_id`, `adv
 
 INSERT INTO i18n (id,en,fr) 
 VALUES 
-('at least one precision is defined as protocol component', 'At least one precision is defined as protocol component', 'Au moins une précision est définie comme composante de ce protocole'),
-('at least one precision is defined as treatment component','At least one precision is defined as treatment component', 'Au moins une précision est définie comme composante de ce traitement'),
-('drug is defined as a component of at least one protocol','Drug is defined as a component of at least one protocol', 'Le médicament est défini comme un composant d''au moins un protocole');
+('at least one precision is defined as protocol component', 'Unable to delete protocol. Please delete all associated precision records first.', 'Au moins une précision est définie comme composante de ce protocole'),
+('at least one precision is defined as treatment component','Unable to delete treatment record. Please delete all associated precision records first.', 'Au moins une précision est définie comme composante de ce traitement'),
+('drug is defined as a component of at least one protocol','Unable to delete drug. This drug is associated with treatment protocols. Please remove from all treatment protocols before deletion.', 'Le médicament est défini comme un composant d''au moins un protocole');
 
 -- specific upgrade statements of txe_chemos -- 
 
@@ -692,6 +702,7 @@ ALTER TABLE txe_chemos ADD CONSTRAINT FK_txe_chemos_treatment_extend_masters FOR
 INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_chemos_revs ORDER BY version_id ASC);
 ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
 ALTER TABLE txe_chemos_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
+UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);
 
 -- specific upgrade statements of txe_surgeries --
 
@@ -706,6 +717,7 @@ ALTER TABLE txe_surgeries ADD CONSTRAINT FK_txe_surgeries_treatment_extend_maste
 INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_surgeries_revs ORDER BY version_id ASC);
 ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
 ALTER TABLE txe_surgeries_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
+UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);
 
 -- specific upgrade statements of txe_radiations --
 
@@ -1233,7 +1245,7 @@ VALUES
 UPDATE structure_value_domains SET domain_name = 'storage_types_from_control_id' WHERE domain_name = 'storage_type';
 
 DELETE FROM i18n WHERE id = 'storages';
-INSERT INTO i18n (id,en,fr) VALUES ('storages','Storages','Entreposage');
+INSERT INTO i18n (id,en,fr) VALUES ('storages','Storage','Entreposage');
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("storages", "storages");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="storages" AND language_alias="storages"), "", "1");
 
@@ -1405,7 +1417,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 -- Be able to see storage layout from storage detail form  #2524
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ('move storage content','Move Storage Content','Déplacer contenu entreposage');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('move storage content','Move Storage Contents','Déplacer contenu entreposage');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Unused parent and reentrant   #2690
@@ -1428,10 +1440,10 @@ SELECT '' AS 'TODO';
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
 ('add items to shipment','Add Items to Shipment','Ajouter article à une expédition'),
-('no new item could be actually added to the shipment','No new item could be actually added to the shipment.','Aucun nouvel article ne peut actuellement être ajouté à l''envoi.'),
-('order item exists for the deleted shipment','Your data cannot be deleted! <br>Item exists for the deleted shipment.','Vos données ne peuvent être supprimées! Des articles sont liés à votre envoi.'),
+('no new item could be actually added to the shipment','No new item was added to the shipment.','Aucun nouvel article ne peut actuellement être ajouté à l''envoi.'),
+('order item exists for the deleted shipment','Your data cannot be deleted! <br>Order item exists for the shipment.','Vos données ne peuvent être supprimées! Des articles sont liés à votre envoi.'),
 ('add shipment','Add Shipment','Ajouter une expédition'),
-('shipment exists for the deleted order','Your data cannot be deleted! <br>Shipments exist for the deleted order.','Vos données ne peuvent être supprimées! Des envois existent pour votre commande.'),
+('shipment exists for the deleted order','Your data cannot be deleted! <br>Shipment records exist for the order.','Vos données ne peuvent être supprimées! Des envois existent pour votre commande.'),
 ('add items to shipment','Add Items to Shipment','Ajouter article à un envoi'),
 ('add shipment','Add Shipment','Ajouter un envoi'),
 ('define as shipped','Define as shipped','Définir comme envoyé'),
@@ -1444,7 +1456,7 @@ VALUES
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
-('you are not allowed to work on this batchset', 'You are not allowed to work on this batchset', 'Vous n''êtes pas authorisés à travailler sur ce lot de données'),
+('you are not allowed to work on this batchset', 'You are not allowed to alter on this batchset', 'Vous n''êtes pas authorisés à travailler sur ce lot de données'),
 ('this batchset is locked', 'This batchset is locked', 'Ce lot de données est bloqué');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1687,10 +1699,10 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='report_list_all_storages_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='ViewStorageMaster' AND `tablename`='view_storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20,url=/storagelayout/storage_masters/autoComplete/' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage selection label' AND `language_tag`=''), '0', '101', 'children storages', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('list all children storages', 'List all children storages', 'Afficher tous les sous-entreposages'),
-('list all children from a list of storages', 'List all children storages from a list of storages', 'Afficher tous les sous-entreposages d''une liste d''entreposages'),
-('more than 10 storages have been selected - please redefine search criteria', 'More than 10 storages have been defines as search criteria. Please redefine search criteria.', 'Plus de 10 entreposages ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
-('stutied storages', 'Stutied Storages', 'Entreposages étudiés'),
+('list all children storages', 'List all child storage entities', 'Afficher tous les sous-entreposages'),
+('list all children from a list of storages', 'List all child storage entities', 'Afficher tous les sous-entreposages d''une liste d''entreposages'),
+('more than 10 storages have been selected - please redefine search criteria', 'More than 10 storage entities have been defines as search criteria. Please redefine search criteria.', 'Plus de 10 entreposages ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
+('stutied storages', 'Studied Storages', 'Entreposages étudiés'),
 ('children storages', 'Children Storages', 'Sous-entreposages');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -1715,7 +1727,7 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='report_list_all_related_diagnosis_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='primary_id' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='diagnosis relation system code' AND `language_tag`=''), '0', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
-('more than 100 records have been selected - please redefine search criteria', 'More than 100 related have been defines as search criteria. Please redefine search criteria.', 'Plus de 100 données ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
+('more than 100 records have been selected - please redefine search criteria', 'More than 100 records returned. Please redefine search criteria.', 'Plus de 100 données ont été définis comme critères de recherche. Veuillez redéfinir les critères de recherche.'),
 ('list all related diagnosis', 'List all related diagnosis', 'Afficher tous les évenements de diagnostic connexes'),
 ('list all related diagnosis from a list of diagnosis or participants', 'List all related diagnosis from a list of diagnosis or participants', 'Afficher tous les évenements de diagnostic connexes à partir d''une liste de diagnostics ou de participants');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES 
@@ -1737,7 +1749,7 @@ INSERT IGNORE INTO i18n (id,en,fr) VALUES
 ('selected derivatives', 'Selected Derivatives', 'Dérivés sélectionnés'),
 ('specimens', 'Specimens', 'Spécimens'),
 ('recurrent', 'Recurrent', 'Récurrent'),
-('delivery department or door', 'DeliveryDepartment or Door', 'Service de livraison ou porte'),
+('delivery department or door', 'Delivery Department or Door', 'Service de livraison ou porte'),
 ('delivery notes', 'Delivery Notes', 'Notes de livraison'),
 ('delivery phone #', 'Delivery Phone #', 'Téléphone pour livraison'),
 ('display name', 'Display Name', 'Afficher le nom'),
@@ -1838,19 +1850,19 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("clinica
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="clinical - gynaecologic" AND language_alias="clinical - gynaecologic"), "0", "1");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("undefined", "undefined");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="permissible_values_custom_categories"), (SELECT id FROM structure_permissible_values WHERE value="undefined" AND language_alias="undefined"), "", "1");
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="quality control" AND spv.language_alias="quality control";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="gynaecologic" AND spv.language_alias="gynaecologic";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="consent" AND spv.language_alias="consent";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="treatment" AND spv.language_alias="treatment";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="diagnosis" AND spv.language_alias="diagnosis";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="annotation" AND spv.language_alias="annotation";
-DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id WHERE spv.value="contact" AND spv.language_alias="contact";
-DELETE FROM structure_permissible_values WHERE value="quality control" AND language_alias="quality control";
-DELETE FROM structure_permissible_values WHERE value="consent" AND language_alias="consent";
-DELETE FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment";
-DELETE FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis";
-DELETE FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation";
-DELETE FROM structure_permissible_values WHERE value="contact" AND language_alias="contact";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="quality control" AND spv.language_alias="quality control";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="gynaecologic" AND spv.language_alias="gynaecologic";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="consent" AND spv.language_alias="consent";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="treatment" AND spv.language_alias="treatment";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="diagnosis" AND spv.language_alias="diagnosis";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="annotation" AND spv.language_alias="annotation";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name = 'permissible_values_custom_categories' AND spv.value="contact" AND spv.language_alias="contact";
+DELETE FROM structure_permissible_values WHERE value="quality control" AND language_alias="quality control" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="consent" AND language_alias="consent" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="treatment" AND language_alias="treatment" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="diagnosis" AND language_alias="diagnosis" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="annotation" AND language_alias="annotation" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="contact" AND language_alias="contact" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - consent' WHERE category = 'consent';
 UPDATE structure_permissible_values_custom_controls SET category = 'inventory - quality control' WHERE category = 'quality control';
 UPDATE structure_permissible_values_custom_controls SET category = 'clinical - treatment' WHERE category = 'treatment';
@@ -1925,5 +1937,226 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('cores','Cores','Cores'), ('there are too many main storages for display', 'There are too many ''main'' storages for display', 'Il existe trop d''entreposages principaux pour l''affichage');
 UPDATE structure_fields SET model = 'Block', field = 'short_label' WHERE field = 'tma_block_identification';
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- add missing translation
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('this is not a time','Data entered is not a valid time','La donnée saisie n''est pas un temps');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#2912: custom drop down list pagination 
+-- Add  custom drop down list items counter
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE structure_permissible_values_custom_controls 
+  ADD COLUMN  values_used_as_input_counter INT(7) DEFAULT '0',
+  ADD COLUMN  values_counter INT(7) DEFAULT '0';
+UPDATE structure_permissible_values_custom_controls ctrl
+INNER JOIN (SELECT control_id, count(*) as counter FROM structure_permissible_values_customs WHERE deleted != 1 GROUP BY control_id) values_customs ON ctrl.id = values_customs.control_id
+INNER JOIN (SELECT control_id, count(*) as counter FROM structure_permissible_values_customs WHERE deleted != 1  AND use_as_input = 1 GROUP BY control_id) values_customs_used_as_input ON ctrl.id = values_customs_used_as_input.control_id
+SET ctrl.values_counter = values_customs.counter,  ctrl.values_used_as_input_counter = values_customs_used_as_input.counter;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'StructurePermissibleValuesCustomControl', 'structure_permissible_values_custom_controls', 'values_counter', 'input',  NULL , '0', 'size=5', '', 'NULL', 'number of values', ''), 
+('Administrate', 'StructurePermissibleValuesCustomControl', 'structure_permissible_values_custom_controls', 'values_used_as_input_counter', 'input',  NULL , '0', 'size=5', '', '', 'number of values used as input', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='administrate_dropdowns'), (SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustomControl' AND `tablename`='structure_permissible_values_custom_controls' AND `field`='values_counter' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='NULL' AND `language_label`='number of values' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='administrate_dropdowns'), (SELECT id FROM structure_fields WHERE `model`='StructurePermissibleValuesCustomControl' AND `tablename`='structure_permissible_values_custom_controls' AND `field`='values_used_as_input_counter' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='number of values used as input' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='administrate_dropdowns') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='custom_permissible_values_counter' AND `language_label`='number of values' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='custom_permissible_values_counter' AND `language_label`='number of values' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Administrate' AND `model`='Generated' AND `tablename`='' AND `field`='custom_permissible_values_counter' AND `language_label`='number of values' AND `language_tag`='' AND `type`='input' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('number of values used as input', 'Number of values used as input', 'Nombre de valeurs utilisées comme entrée');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #2943: Login Error Management : New rules 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('your connection has been temporarily disabled','Your connection has been temporarily disabled','votre connexion a été temporairement désactivée'),
+('login failed. that username has been disabled', 'Login failed. That username has been disabled.','L''ouverture de session a échoué. L''utilisateur a été désactivé');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #2943: Login Error Management : New rules 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('Login failed. Invalid username or password or disabled user.', 'Login failed. Invalid username/password or disabled user.', 'L''ouverture de session a échoué. Nom d''utilisateur/mot de passe invalide ou ustilisateur désactivé.');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #2944: Password creation: new rules 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('password should be different than username','Password should be different than username','Le mot de passe doit être différent du nom d''utilisateur'),
+('password should be different than the previous one','Password should be different than the previous one','Le mot de passe doit être différent du précédent');
+DELETE from structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE field in ('password','new_password'));
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='User' AND `field`='password'), 'notEmpty', 'password is required'),
+((SELECT id FROM structure_fields WHERE `model`='User' AND `field`='new_password'), 'notEmpty', 'password is required');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('password_format_error_msg_3',
+'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters, numbers and special characters.',
+'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules, de chiffres et de caractères spéciaux.'),
+('password_format_error_msg_2',
+'Passwords must have a minimum length of 8 characters and contain uppercase letters, lowercase letters and numbers.',
+'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres majuscules, de lettres minuscules et de chiffres.'),
+('password_format_error_msg_1',
+'Passwords must have a minimum length of 8 characters and contain lowercase letters.',
+'Les mots de passe doivent avoir une longueur minimale de 8 caractères et être composés de lettres minuscules.');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #2945: Authentication credentials expiration 
+-- Change Valide UserName format message
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE users ADD COLUMN password_modified datetime DEFAULT NULL;
+INSERT INTO i18n (id,en,fr) VALUES (
+'your password has expired. Please change your password for security reason.',
+'Your password has expired. Please change your password for security reasons.', 
+'Votre mot de passe a expiré. Veuillez changer votre mot de passe pour des raisons de sécurité.');
+
+UPDATE structure_validations SET language_message = 'a valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only' WHERE language_message = 'A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.';
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('a valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only',
+'A valid username is required, between 5 to 15, and a mix of alphabetical and numeric characters only.',
+'Un nom d''utilisateur valide est requis composé de 5 à 15 caractères et un mélange de caractères alphabétiques et numériques uniquement.');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change structure_permissible_values_custom_controls.name with upperletters
+-- Issue #2756: Missing Translations 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_permissible_values_custom_controls SET name = 'Aliquot Use and Event Types' WHERE name = 'aliquot use and event types';
+UPDATE structure_permissible_values_custom_controls SET name = 'Consent Form Versions' WHERE name = 'consent form versions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Laboratory Sites' WHERE name = 'laboratory sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'Laboratory Staff' WHERE name = 'laboratory staff';
+UPDATE structure_permissible_values_custom_controls SET name = 'Orders Contacts' WHERE name = 'orders contacts';
+UPDATE structure_permissible_values_custom_controls SET name = 'Orders Institutions' WHERE name = 'orders institutions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Quality Control Tools' WHERE name = 'quality control tools';
+UPDATE structure_permissible_values_custom_controls SET name = 'SOP Versions' WHERE name = 'sop versions';
+UPDATE structure_permissible_values_custom_controls SET name = 'Specimen Collection Sites' WHERE name = 'specimen collection sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'Specimen Supplier Departments' WHERE name = 'specimen supplier departments';
+UPDATE structure_permissible_values_custom_controls SET name = 'Storage Coordinate Titles' WHERE name = 'storage coordinate titles';
+UPDATE structure_permissible_values_custom_controls SET name = 'Storage Types' WHERE name = 'storage types';
+INSERT INTO i18n (id,en,fr) VALUES ('undefined','Undefined','Non défini');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Username control
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT '----------------------------------------------------------------------------------------------------------' AS 'username too small - to change (nothing to do if empty)'
+UNION ALL 
+SELECT username AS 'username too small - to change (nothing to do if empty)' from users where LENGTH(username) < 5
+UNION ALL 
+SELECT '' AS 'username too small - to change (nothing to do if empty)';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Disable addInternalUseToManyAliquots()
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = 0 WHERE link LIKE '%addInternalUseToManyAliquots%';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#2968: Edit Specimen Review: Copy Control Fields Duplicated
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ar_breast_tissue_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Core' AND `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `language_label`='copy control' AND `language_tag`='' AND `type`='checkbox' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#2786: set flag_confidential = 1 to appropriated fields
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_fields SET flag_confidential = '1' WHERE field IN ('first_name','last_name','date_of_birth','middle_name') AND model = 'Participant';
+ALTER TABLE participant_contacts ADD COLUMN `confidential` tinyint(1) DEFAULT '0';
+ALTER TABLE participant_contacts_revs ADD COLUMN `confidential` tinyint(1) DEFAULT '0';
+INSERT INTO structures(`alias`) VALUES ('participantcontacts_confidential');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ParticipantContact', 'participant_contacts', 'confidential', 'checkbox', (SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox') , '1', '', '', '', 'confidential', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participantcontacts_confidential'), (SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='confidential' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confidential' AND `language_tag`=''), '1', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participantcontacts'), (SELECT id FROM structure_fields WHERE `model`='ParticipantContact' AND `tablename`='participant_contacts' AND `field`='confidential' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='1' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='confidential' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET flag_confidential = '0' WHERE field = 'confidential' AND model = 'ParticipantContact';
+INSERT INTO i18n (id,en,fr) VALUES ('confidential','Confidential','Confidentiel');
+REPLACE INTO i18n (id,en,fr) VALUES 
+('error_fk_participant_linked_contacts',
+'Your data cannot be deleted! Linked contact record exists for this participant. Please note some contacts may be confidential and hidden.',
+'Vos données ne peuvent être supprimées! Le participant que vous essayez de supprimer est lié à un contact! Certains contacts peuvent être confidentiels et caché.');
+ 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Review Master/Detail forms for TreatmentExtend and ProtocolExtend
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+-- Protocol Master/detail forms clean up
+DELETE FROM structure_formats 
+WHERE structure_id IN (SELECT structures.id FROM protocol_controls, structures WHERE protocol_controls.detail_form_alias = structures.alias) 
+AND structure_field_id IN (SELECT id FROM structure_fields WHERE `model` IN ('ProtocolMaster','ProtocolControl') AND `field` IN ('notes','code','tumour_group','name','type'));
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='pd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='arm' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='protocolmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='Protocol' AND `model`='ProtocolMaster' AND `tablename`='protocol_masters' AND `field`='arm' AND `language_label`='arm' AND `language_tag`='' AND `type`='input' AND `setting`='size=20' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- Protocol Extend Master/detail forms clean up
+INSERT INTO structures(`alias`) VALUES ('protocol_extend_masters');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Disable Participant.batchEdit()
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE datamart_structure_functions SET flag_active = '0' WHERE link = '/ClinicalAnnotation/Participants/batchEdit/';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#2983: realiquot in batch tissue tubes: The aliquot uses/event counter is not updated
+-- Including : In newVersionSetup(), Add code to correct all
+--     . Wrong AliquotMaster.user_counter,
+--     . Wrong AliquotMaster.current_volume,
+--     . Realiquoting.parent_used_volume not null when (Parent)AliquotControl.volume_unit is null,
+--     . InternalUse.used_volume not null when AliquotControl.volume_unit is null,
+--     . SourceAliquot.used_volume not null when AliquotControl.volume_unit is null,
+--     . QualityControl.used_volume not null when AliquotControl.volume_unit is null
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('aliquot used volume has been removed for following aliquots : ', 'Aliquot used volume has been removed for following aliquots : ', 'Le volume utilisé a été supprimé pour les aliquots : '),
+('aliquot current volume has been corrected for following aliquots : ','Aliquot current volume has been corrected for following aliquots : ', 'Le volume courant a été corrigé pour les aliquots : '),
+('aliquot use counter has been corrected for following aliquots : ', 'Aliquot Uses/Events counter has been corrected for following aliquots : ', 'Le nombre d''Utilisations/Événements a été corrigé pour les aliquots : ');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue#3012: Password change: Add control on old password or administrator password
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structures(`alias`) VALUES ('old_password_for_change');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'FunctionManagement', '', 'old_password', 'password',  NULL , '0', '', '', '', 'old password', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='old_password_for_change'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='old_password' AND `type`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='old password' AND `language_tag`=''), '1', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('admin_user_password_for_change');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'FunctionManagement', '', 'admin_user_password_for_change', 'password',  NULL , '0', '', '', '', 'your password', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='admin_user_password_for_change'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='admin_user_password_for_change' AND `type`='password' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='your password' AND `language_tag`=''), '1', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO i18n(id,en,fr) VALUES ('old password','Old Password','Ancien mot de pass'),('your password','Enter Your Password','Saisissez votre mot de passe');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `field`='old_password'), 'notEmpty'),
+((SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `field`='admin_user_password_for_change'), 'notEmpty');
+UPDATE structure_formats SET `display_order`='3', `language_heading`='security control' WHERE structure_id=(SELECT id FROM structures WHERE alias='admin_user_password_for_change') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='admin_user_password_for_change' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('security control','Security Control','Contrôle de sécurité');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('your old password is invalid','Your old password is invalid','Votre ancien mot de passe n''est pas valide'),
+('your own password is invalid','Your own password is invalid','Votre propre mot de passe n''est pas valide');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Change username user
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+update users set username = 'user1' where username = 'user';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Versions table
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+VALUES('2.6.0', NOW(),'5617','n/a');

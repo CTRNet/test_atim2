@@ -16,4 +16,8 @@ class TreatmentExtendControl extends ClinicalAnnotationAppModel {
 		return $result;
 	}
 	
+	function afterFind($results, $primary = false) {
+		return $this->applyMasterFormAlias($results, $primary);
+	}
+	
 }

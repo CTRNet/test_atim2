@@ -24,7 +24,7 @@ class CodingIcdAppController extends AppController {
 				return false;
 			}
 
-			$this->request->data = $model_to_use->globalSearch(array($this->request->data[0]['term']), isset($this->request->data['exact_search']) && $this->request->data['exact_search'], false, $limit + 1);
+			$this->request->data = $model_to_use->globalSearch(array($this->request->data[0]['term']), isset($this->request->data['exact_search']) && $this->request->data['exact_search'], true, $limit + 1);
 			
 			if(count($this->request->data) > $limit){
 				unset($this->request->data[$limit]);
