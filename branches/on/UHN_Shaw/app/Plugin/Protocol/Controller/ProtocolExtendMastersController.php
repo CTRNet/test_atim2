@@ -21,7 +21,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		$protocol_extend_control_data = $this->ProtocolExtendControl->getOrRedirect($protocol_master_data['ProtocolControl']['protocol_extend_control_id']);
 		$this->request->data = $this->paginate($this->ProtocolExtendMaster, array('ProtocolExtendMaster.protocol_master_id'=>$protocol_master_id, 'ProtocolExtendMaster.protocol_extend_control_id'=>$protocol_master_data['ProtocolControl']['protocol_extend_control_id']));
 		
-		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['detail_form_alias']);
+		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['form_alias']);
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 
 		$hook_link = $this->hook('format');
@@ -43,7 +43,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		$this->request->data = $this->ProtocolExtendMaster->find('first', array('conditions' => $condtions));
 		if(empty($this->request->data)) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$this->Structures->set($this->request->data['ProtocolExtendControl']['detail_form_alias'] );
+		$this->Structures->set($this->request->data['ProtocolExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtendMaster.id'=>$protocol_extend_master_id));
 		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 
@@ -69,7 +69,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		// Set tablename to use
 		$protocol_extend_control_data = $this->ProtocolExtendControl->getOrRedirect($protocol_master_data['ProtocolControl']['protocol_extend_control_id']);
 		
-		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['detail_form_alias'] );
+		$this->Structures->set($protocol_extend_control_data['ProtocolExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id));
 		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 
@@ -112,7 +112,7 @@ class ProtocolExtendMastersController extends ProtocolAppController {
 		$prot_extend_data = $this->ProtocolExtendMaster->find('first', array('conditions' => $condtions));
 		if(empty($prot_extend_data)) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		$this->Structures->set($prot_extend_data['ProtocolExtendControl']['detail_form_alias'] );
+		$this->Structures->set($prot_extend_data['ProtocolExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('ProtocolMaster.id'=>$protocol_master_id, 'ProtocolExtendMaster.id'=>$protocol_extend_master_id));
 		$this->set( 'atim_menu', $this->Menus->get('/Protocol/ProtocolMasters/detail/%%ProtocolMaster.id%%') );
 		

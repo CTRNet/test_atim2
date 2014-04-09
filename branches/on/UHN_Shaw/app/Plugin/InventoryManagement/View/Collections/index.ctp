@@ -2,8 +2,10 @@
 	$structure_override = array();
 	
 	$dropdown = null;
+	$display_search_section = true;
 	if(isset($is_ccl_ajax)){
-		//forece participant collection
+	    $display_search_section = false;
+		//force participant collection
 		foreach($atim_structure['Sfs'] as &$field){
 			if($field['field'] == "collection_property"){
 				$field['flag_search_readonly'] = true;
@@ -14,14 +16,19 @@
 		$dropdown['ViewCollection.collection_property'] = array("participant collection" => __("participant collection"));
 		$last_5 = "";
 	}else{
-		$settings = array();
+	    $settings = array();
 		$final_atim_structure = $atim_structure;
 		include('search_links_n_options.php');
 		$final_options['settings']['return'] = true;
 		$final_options['settings']['pagination'] = false;
 		$final_options['settings']['actions'] = false;
-		$last_5 = $this->Structures->build( $final_atim_structure, $final_options );
-	}
+		if(isset($this->request->query['nolatest'])){
+		    $last_5 = "";
+		    $display_search_section = false;
+		}else{
+		    $last_5 = $this->Structures->build( $final_atim_structure, $final_options );
+	    }
+    }
 	
 	$settings = array(
 			'header' => array('title' => __('search type', null).': '.__('collections', null), 'description' => __("more information about the types of samples and aliquots are available %s here", $help_url)),
@@ -56,7 +63,7 @@
 	// BUILD FORM
 	$this->Structures->build( $final_atim_structure, $final_options );
 	
-	if(!isset($is_ccl_ajax)){
+	if($display_search_section){
 		$this->Structures->build( $final_atim_structure2, $final_options2 );
 	}
 ?>

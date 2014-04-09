@@ -23,29 +23,10 @@ class DropdownsController extends AdministrateAppController {
 		if(isset($this->passedArgs['sort']) && $this->passedArgs['sort'] == 'Generated.custom_permissible_values_counter') {
 			$counter_sort_option = $this->passedArgs['direction'];
 		}
-		$this->StructurePermissibleValuesCustomControl->bindModel(
-			array('hasMany' => array(
-				'StructurePermissibleValuesCustom'	=> array(
-					'className'  	=> 'Administrate.StructurePermissibleValuesCustom',
-					'foreignKey'	=> 'control_id'))));
-		$this->request->data = $this->paginate($this->StructurePermissibleValuesCustomControl, array('StructurePermissibleValuesCustomControl.flag_active' => '1'));
-		$tmp_results = array();
-		foreach($this->request->data as $new_control) {
-			$custom_permissible_values_counter = sizeof($new_control['StructurePermissibleValuesCustom']);
-			if(($filter == 'all') || ($filter == 'not_empty' && $custom_permissible_values_counter) || ($filter == 'empty' && !$custom_permissible_values_counter)) {
-				$new_control['Generated']['custom_permissible_values_counter'] = $custom_permissible_values_counter;
-				$tmp_results[($counter_sort_option? $custom_permissible_values_counter : '0')][] = $new_control;
-			}			
-		}	
-		if($counter_sort_option == 'asc') {
-			ksort($tmp_results);
-		} else if($counter_sort_option == 'desc') {
-			krsort($tmp_results);
-		}	
-		$this->request->data = array();
-		foreach($tmp_results as $list_of_controls) {
-			foreach($list_of_controls as $new_control) $this->request->data[] = $new_control;
-		}		
+		$conditions = array('StructurePermissibleValuesCustomControl.flag_active' => '1');
+		if($filter == 'empty') $conditions['StructurePermissibleValuesCustomControl.values_counter'] = '0';
+		else if($filter == 'not_empty') $conditions[] = 'StructurePermissibleValuesCustomControl.values_counter != 0';
+		$this->request->data = $this->paginate($this->StructurePermissibleValuesCustomControl, $conditions);	
 		$this->Structures->set("administrate_dropdowns", 'administrate_dropdowns');
 	}
 	

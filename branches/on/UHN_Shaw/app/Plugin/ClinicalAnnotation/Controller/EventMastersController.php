@@ -10,7 +10,7 @@ class EventMastersController extends ClinicalAnnotationAppController {
 	);
 	
 	var $paginate = array(
-		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date DESC')
+		'EventMaster'=>array('limit' => pagination_amount,'order'=>'EventMaster.event_date ASC')
 	);
 	
 	function beforeFilter( ) {
@@ -58,6 +58,8 @@ class EventMastersController extends ClinicalAnnotationAppController {
 			// Set structure
 			$control_data = $this->EventControl->getOrRedirect($event_control_id);
 			$this->Structures->set($control_data['EventControl']['form_alias']);
+			self::buildDetailBinding($this->EventMaster,
+			    $search_criteria, $control_data['EventControl']['form_alias']);
 		}
 		
 		// MANAGE DATA
@@ -208,10 +210,16 @@ class EventMastersController extends ClinicalAnnotationAppController {
 				}
 				unset($data_unit);
 				
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+								
 				// Launch Save Process
 				if(empty($this->request->data)) {
 					$this->EventMaster->validationErrors[][] = 'at least one record has to be created';
 				} else if(empty($errors_tracking)){
+					AppModel::acquireBatchViewsUpdateLock();
 					//save all
 					$this->EventMaster->addWritableField(array('event_control_id','participant_id','diagnosis_master_id'));
 					$this->EventMaster->writable_fields_mode = 'addgrid';
@@ -220,6 +228,11 @@ class EventMastersController extends ClinicalAnnotationAppController {
 						$this->EventMaster->data = array();
 						if(!$this->EventMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 					}
+					$hook_link = $this->hook('postsave_process_batch');
+					if( $hook_link ) {
+						require($hook_link);
+					}
+					AppModel::releaseBatchViewsUpdateLock();
 					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/EventMasters/listall/'.$event_group.'/'.$participant_id.'/');
 				} else {
 					$this->EventMaster->validationErrors = array();

@@ -35,7 +35,7 @@
 				$final_options['type'] = 'detail';
 				$final_options['settings']['header'] = $new_control['EventControl']['ev_header'];
 				$final_options['settings']['actions'] = $counter == sizeof($controls_for_subform_display);
-				$final_options['extras'] = $this->Structures->ajaxIndex('/ClinicalAnnotation/EventMasters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$new_control['EventControl']['id']);
+				$final_options['extras'] = $this->Structures->ajaxIndex('ClinicalAnnotation/EventMasters/listall/'.$atim_menu_variables['EventMaster.event_group'].'/'.$atim_menu_variables['Participant.id'].'/'.$new_control['EventControl']['id']);
 		
 				$hook_link = $this->Structures->hook('subform');
 				if( $hook_link ) { require($hook_link); }

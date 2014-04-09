@@ -320,6 +320,8 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 	}
 	
 	function batchEdit(){
+//TODO not supported anymore
+$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
 		if(empty($this->request->data)){
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
