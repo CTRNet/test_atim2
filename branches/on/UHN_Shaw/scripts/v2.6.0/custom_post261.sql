@@ -191,5 +191,65 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='dx_recurrence'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='uhn_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_diagnosis_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='site' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0'), 
 ((SELECT id FROM structures WHERE alias='dx_recurrence'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_other_diagnosis_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx method' AND `language_label`='dx_method' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+CREATE TABLE uhn_txd_surgeries_revs (
+  residual_disease varchar(50) DEFAULT NULL,
+  treatment_master_id int(11) NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/Protocol/%';
+UPDATE structure_formats SET `flag_add`='0', `flag_add_readonly`='0', `flag_edit`='0', `flag_edit_readonly`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='protocolmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ProtocolControl' AND `tablename`='protocol_controls' AND `field`='tumour_group' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol tumour group') AND `flag_confidential`='0');
+UPDATE protocol_controls SET tumour_group = '';
+INSERT INTO protocol_masters (`code`, `protocol_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('Taxol + Carboplatinum', 1, NOW(), NOW(), 1, 1);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code = 'Taxol + Carboplatinum');
+INSERT INTO pd_chemos (`protocol_master_id`) 
+VALUES 
+(@protocol_master_id);
+INSERT INTO protocol_extend_masters (`protocol_master_id`, `protocol_extend_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+(@protocol_master_id, 1, NOW(), NOW(), 1, 1);
+SET @protocol_extend_master_id = LAST_INSERT_ID();
+INSERT INTO pe_chemos (`drug_id`, `protocol_extend_master_id`) 
+VALUES 
+((SELECT id FROM drugs WHERE generic_name = 'Carboplatinum'), @protocol_extend_master_id);
+INSERT INTO protocol_extend_masters (`protocol_master_id`, `protocol_extend_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+(@protocol_master_id, 1, NOW(), NOW(), 1, 1);
+SET @protocol_extend_master_id = LAST_INSERT_ID();
+INSERT INTO pe_chemos (`drug_id`, `protocol_extend_master_id`) 
+VALUES 
+((SELECT id FROM drugs WHERE generic_name = 'Taxol'), @protocol_extend_master_id);
+INSERT INTO protocol_masters (`code`, `protocol_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+('Taxol + CisPlatinum', 1, NOW(), NOW(), 1, 1);
+SET @protocol_master_id = (SELECT id FROM protocol_masters WHERE code = 'Taxol + CisPlatinum');
+INSERT INTO pd_chemos (`protocol_master_id`) 
+VALUES 
+(@protocol_master_id);
+INSERT INTO protocol_extend_masters (`protocol_master_id`, `protocol_extend_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+(@protocol_master_id, 1, NOW(), NOW(), 1, 1);
+SET @protocol_extend_master_id = LAST_INSERT_ID();
+INSERT INTO pe_chemos (`drug_id`, `protocol_extend_master_id`) 
+VALUES 
+((SELECT id FROM drugs WHERE generic_name = 'CisPlatinum'), @protocol_extend_master_id);
+INSERT INTO protocol_extend_masters (`protocol_master_id`, `protocol_extend_control_id`, `modified`, `created`, `created_by`, `modified_by`) 
+VALUES 
+(@protocol_master_id, 1, NOW(), NOW(), 1, 1);
+SET @protocol_extend_master_id = LAST_INSERT_ID();
+INSERT INTO pe_chemos (`drug_id`, `protocol_extend_master_id`) 
+VALUES 
+((SELECT id FROM drugs WHERE generic_name = 'Taxol'), @protocol_extend_master_id);
+INSERT INTO protocol_masters_revs (`protocol_control_id`, `code`, `name`, `modified_by`, `id`, `version_created`) (SELECT protocol_control_id, code, name, created_by, id, created FROM protocol_masters);
+INSERT INTO pd_chemos_revs (`protocol_master_id`, `version_created`) (SELECT protocol_master_id, created FROM pd_chemos INNER JOIN protocol_masters ON id = protocol_master_id);
+INSERT INTO protocol_extend_masters_revs (`protocol_master_id`, `protocol_extend_control_id`, `modified_by`, `id`, `version_created`) (SELECT protocol_master_id, protocol_extend_control_id, created_by, id, created FROM protocol_extend_masters);
+INSERT INTO pe_chemos_revs (`protocol_extend_master_id`, `version_created`) (SELECT protocol_extend_master_id, created FROM pe_chemos INNER JOIN protocol_extend_masters ON id = protocol_extend_master_id);
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='protocol_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='protocol_site_list') AND `flag_confidential`='0');
+
+
+
 
 
