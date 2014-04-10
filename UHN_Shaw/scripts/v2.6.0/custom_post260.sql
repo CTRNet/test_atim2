@@ -1336,19 +1336,8 @@ INSERT INTO structure_permissible_values (value, language_alias) VALUES("no-OCT"
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="block_type"), (SELECT id FROM structure_permissible_values WHERE value="no-OCT" AND language_alias="no-OCT"), "2", "1");
 INSERT INTO i18n (id,en) VALUES ("no-OCT", "No-OCT");
 
-ALTER TABLE ad_tubes ADD COLUMN uhn_storage_method VARCHAR(50) DEFAULT NULL, ADD COLUMN uhn_storage_solution VARCHAR(50) DEFAULT NULL;
-ALTER TABLE ad_tubes_revs ADD COLUMN uhn_storage_method VARCHAR(50) DEFAULT NULL, ADD COLUMN uhn_storage_solution VARCHAR(50) DEFAULT NULL;
-INSERT INTO structure_value_domains (domain_name, source) VALUES 
-("uhn_tissue_storage_solution", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Storage Solution\')");
-INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
-VALUES 
-('Tissue Storage Solution', 'inventory', 1, 50);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Storage Solution');
-INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
-VALUES
-('OCT', 'OCT', '', '1', @control_id),
-('tripsine', 'Tripsine', '', '1', @control_id),
-('collagenase', 'Collagenase', '', '1', @control_id);
+ALTER TABLE ad_tubes ADD COLUMN uhn_storage_method VARCHAR(50) DEFAULT NULL;
+ALTER TABLE ad_tubes_revs ADD COLUMN uhn_storage_method VARCHAR(50) DEFAULT NULL;
 INSERT INTO structure_value_domains (domain_name, source) VALUES 
 ("uhn_tissue_storage_method", "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Storage Method\')");
 INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
@@ -1357,55 +1346,56 @@ VALUES
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Storage Method');
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`) 
 VALUES
+('tripsine', 'Tripsine', '', '1', @control_id),
+('pronase', 'Pronase', '', '1', @control_id),
+('collagenase', 'Collagenase', '', '1', @control_id),
 ('snap frozen', 'Snap Frozen', '', '1', @control_id);
 UPDATE aliquot_controls SET detail_form_alias = CONCAT(detail_form_alias,',uhn_tissue_tube') WHERE sample_control_id = 3 AND aliquot_type = 'tube';
 INSERT INTO structures(`alias`) VALUES ('uhn_tissue_tube');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'uhn_storage_solution', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_solution') , '0', '', '', '', 'storage solution', ''), 
 ('InventoryManagement', 'AliquotDetail', 'ad_tubes', 'uhn_storage_method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_method') , '0', '', '', '', 'storage method', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='uhn_tissue_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='uhn_storage_solution' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_solution')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage solution' AND `language_tag`=''), '1', '71', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='uhn_tissue_tube'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='uhn_storage_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_tissue_storage_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='storage method' AND `language_tag`=''), '1', '72', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
-INSERT INTO i18n (id,en) VALUES ('storage solution','Storage Solution'),('storage method','Storage Method'); 
+INSERT INTO i18n (id,en) VALUES ('storage method','Storage Method'); 
 
 UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','control block','cell gel matrix','core','slide','tube','whatman paper') NOT NULL COMMENT 'Generic name.';
+ALTER TABLE aliquot_controls MODIFY `aliquot_type` enum('block','representative block','cell gel matrix','core','slide','tube','whatman paper') NOT NULL COMMENT 'Generic name.';
 SET @tissue_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue');
 INSERT INTO `aliquot_controls` (`id`, `sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
-(null, (SELECT id FROM sample_controls WHERE sample_type = 'tissue'), 'control block', NULL, 'uhn_ad_spec_tiss_control_blocks', 'ad_blocks', NULL, 1, 'Tissue block', 0, 'tissue|control block');
+(null, (SELECT id FROM sample_controls WHERE sample_type = 'tissue'), 'representative block', NULL, 'uhn_ad_spec_tiss_representative_blocks', 'ad_blocks', NULL, 1, 'Tissue block', 0, 'tissue|representative block');
 SET @tissue_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'tissue');
 INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active) 
 VALUES
-((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'tube'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'control block'), 1),
-((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'block'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'control block'), 1),
-((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'control block'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'slide'), 1),
-((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'control block'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'core'), 1);
+((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'tube'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'representative block'), 1),
+((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'block'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'representative block'), 1),
+((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'representative block'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'slide'), 1),
+((SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'representative block'), (SELECT id FROM aliquot_controls WHERE sample_control_id = @tissue_control_id  AND aliquot_type = 'core'), 1);
 UPDATE realiquoting_controls SET flag_active=false WHERE id IN(10);
-INSERT INTO i18n (id,en) VALUES ('control block','Control Block');
+INSERT INTO i18n (id,en) VALUES ('representative block','Representative Block');
 ALTER TABLE ad_blocks ADD COLUMN uhn_section_identification VARCHAR(20) DEFAULT NULL;
 ALTER TABLE ad_blocks_revs ADD COLUMN uhn_section_identification VARCHAR(20) DEFAULT NULL;
 
-INSERT INTO structures(`alias`) VALUES ('uhn_ad_spec_tiss_control_blocks');
-INSERT INTO structure_value_domains (domain_name) VALUES ("uhn_control_block_section_identification");
+INSERT INTO structures(`alias`) VALUES ('uhn_ad_spec_tiss_representative_blocks');
+INSERT INTO structure_value_domains (domain_name) VALUES ("uhn_representative_block_section_identification");
 INSERT INTO structure_permissible_values (value, language_alias) VALUES("inked", "inked"),("non-inked", "non-inked");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES 
-((SELECT id FROM structure_value_domains WHERE domain_name="uhn_control_block_section_identification"), (SELECT id FROM structure_permissible_values WHERE value="inked" AND language_alias="inked"), "1", "1"),
-((SELECT id FROM structure_value_domains WHERE domain_name="uhn_control_block_section_identification"), (SELECT id FROM structure_permissible_values WHERE value="non-inked" AND language_alias="non-inked"), "2", "1");
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_representative_block_section_identification"), (SELECT id FROM structure_permissible_values WHERE value="inked" AND language_alias="inked"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="uhn_representative_block_section_identification"), (SELECT id FROM structure_permissible_values WHERE value="non-inked" AND language_alias="non-inked"), "2", "1");
 INSERT INTO structure_permissible_values_custom_controls (name, category, flag_active, values_max_length) 
 VALUES 
-('Control Block - Section Identification', 'inventory', 1, 20);
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Control Block - Section Identification');
+('Representative Block - Section Identification', 'inventory', 1, 20);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Representative Block - Section Identification');
 INSERT INTO i18n (id,en) VALUES ('inked', 'Inked'),('non-inked', 'Non-Inked');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'uhn_section_identification', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_control_block_section_identification') , '0', '', '', '', 'section', '');
+('InventoryManagement', 'AliquotDetail', 'ad_blocks', 'uhn_section_identification', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='uhn_representative_block_section_identification') , '0', '', '', '', 'section', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='uhn_ad_spec_tiss_control_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='uhn_section_identification' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_control_block_section_identification')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='section' AND `language_tag`=''), '1', '70', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+((SELECT id FROM structures WHERE alias='uhn_ad_spec_tiss_representative_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='uhn_section_identification' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_representative_block_section_identification')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='section' AND `language_tag`=''), '1', '70', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
 INSERT INTO i18n (id,en) VALUES ('section','Section');
 INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE model='AliquotDetail' AND field='uhn_section_identification'), 'notEmpty');
 INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE model='AliquotDetail' AND field='block_type'), 'notEmpty');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='uhn_section_identification' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_control_block_section_identification')  AND `flag_confidential`='0'), '0', '2', '', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_blocks' AND `field`='uhn_section_identification' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='uhn_representative_block_section_identification')  AND `flag_confidential`='0'), '0', '2', '', '', '1', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
 UPDATE structure_formats SET `display_order`='40' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET display_column = 1 WHERE display_column = 2 AND structure_id IN (SELECT id FROM structures WHERE alias IN ('derivatives','specimens','sd_der_cell_cultures','sd_der_plasmas','sd_spe_tissues','sd_der_serums','sd_spe_ascites','sd_spe_bloods','sd_undetailed_derivatives'));
