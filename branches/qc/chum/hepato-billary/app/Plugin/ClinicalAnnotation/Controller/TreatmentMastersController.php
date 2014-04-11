@@ -12,7 +12,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		'Protocol.ProtocolMaster'
 	);
 	
-	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date DESC'));
+	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date ASC'));
 
 	function listall($participant_id){
 		// MANAGE DATA
