@@ -84,40 +84,70 @@ UPDATE structure_formats SET `flag_edit`='0', `flag_search`='0', `flag_addgrid`=
 
 UPDATE structure_formats SET `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='txe_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='txe_chemos' AND `field`='method' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') AND `flag_confidential`='0');
 
+ALTER TABLE qc_hb_txd_surgery_livers
+ ADD COLUMN liver_size_x int(3) DEFAULT NULL,
+ ADD COLUMN liver_size_y int(3) DEFAULT NULL,
+ ADD COLUMN liver_size_z int(3) DEFAULT NULL;
+ALTER TABLE qc_hb_txd_surgery_livers_revs
+ ADD COLUMN liver_size_x int(3) DEFAULT NULL,
+ ADD COLUMN liver_size_y int(3) DEFAULT NULL,
+ ADD COLUMN liver_size_z int(3) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_size_x', 'integer',  NULL , '0', 'size=3', '', '', 'liver size x', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_size_y', 'integer',  NULL , '0', 'size=3', '', '', '', '-'), 
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_hb_txd_surgery_livers', 'liver_size_z', 'integer',  NULL , '0', 'size=3', '', '', '', '-');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='liver_size_x' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='liver size x' AND `language_tag`=''), '2', '14', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='liver_size_y' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '2', '14', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txd_surgery_livers'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_hb_txd_surgery_livers' AND `field`='liver_size_z' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '2', '14', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+INSERT INTO i18n (id,en) VALUES ('liver size x','Liver Size (cm x cm x cm)'),('cycles','Cycles');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-SELECT id, deleted FROM protocol_masters WHERE (code = 'Folfox ') 
-
-
-
-
-
-
-
-- ds Liver Surgery : ajouter "liver size" avec 3 champs pour pourvoir entrer 3 nombres
 - ds Chemotherapy : être capable de noter les complications comme pour la chirurgie (date, type, traitement etc.. )
-- Supprimer chimio et crééercycle
-supprimer dose dans chimio 
-ajouter cycle 1-3, etc
-Method = IV sauf per-os capecitabin
 
+INSERT INTO treatment_extend_controls (detail_tablename, detail_form_alias, flag_active, type, databrowser_label)
+VALUES 
+('qc_hb_txe_chemotherapy_complications','qc_hb_txe_chemotherapy_complications','1','chemotherapy complications','chemotherapy complications');
+INSERT INTO structures(`alias`) VALUES ('qc_hb_txe_chemotherapy_complications');
+INSERT INTO structure_value_domains (domain_name,source) VALUES ('qc_hb_chemotherapy_complication_list',"StructurePermissibleValuesCustom::getCustomDropdown(\'Chemotherapy - Complication : Type\')");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'qc_hb_txe_chemotherapy_complications', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chemotherapy_complication_list') , '0', '', '', '', 'chemotherapy complication type', ''), 
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'qc_hb_txe_chemotherapy_complications', 'date', 'date',  NULL , '0', '', '', '', 'date', ''), 
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'qc_hb_txe_chemotherapy_complications', 'notes', 'input',  NULL , '0', 'rows=3,cols=30', '', '', 'notes', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_chemotherapy_complications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_hb_txe_chemotherapy_complications' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_hb_chemotherapy_complication_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='chemotherapy complication type' AND `language_tag`=''), '0', '0', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_chemotherapy_complications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_hb_txe_chemotherapy_complications' AND `field`='date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_txe_chemotherapy_complications'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='qc_hb_txe_chemotherapy_complications' AND `field`='notes' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) VALUES ('Chemotherapy - Complication : Type', 1, 250, 'clinical - treatment');
+CREATE TABLE qc_hb_txe_chemotherapy_complications (
+  `type` varchar(250) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  notes text,
+  treatment_extend_master_id int(11) NOT NULL,
+  KEY FK_qc_hb_txe_chemotherapy_complications_treatment_extend_masters (treatment_extend_master_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE qc_hb_txe_chemotherapy_complications_revs (
+  `type` varchar(250) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  notes text, 
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  treatment_extend_master_id int(11) NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+ALTER TABLE `qc_hb_txe_chemotherapy_complications`
+  ADD CONSTRAINT FK_qc_hb_txe_chemotherapy_complications_treatment_extend_masters FOREIGN KEY (treatment_extend_master_id) REFERENCES treatment_extend_masters (id);
+INSERT INTO i18n (id,en) VALUES ('chemotherapy complications','Chemotherapy Complications'),('chemotherapy complication type','Chemotherapy Complication Type');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='qc_hb_txe_chemotherapy_complications' AND `field`='type'), 'notEmpty');
 
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txe_chemotherapy_complications');
+UPDATE structure_formats SET `display_column`='2' WHERE `display_column`='1' AND structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications');
+UPDATE structure_formats SET `display_column`='1' WHERE `display_column`='0' AND structure_id=(SELECT id FROM structures WHERE alias='qc_hb_txe_surgery_complications');
+
+ALTER TABLE qc_hb_txe_chemotherapy_complications ADD COLUMN date_accuracy CHAR(1) NOT NULL DEFAULT '';
+ALTER TABLE qc_hb_txe_chemotherapy_complications_revs ADD COLUMN date_accuracy CHAR(1) NOT NULL DEFAULT '';
+
+UPDATE versions SET branch_build_number = '5706' WHERE version_number = 'v2.6.1';
+UPDATE users SET flag_active = 0 WHERE username IN ('MichEn');
 
