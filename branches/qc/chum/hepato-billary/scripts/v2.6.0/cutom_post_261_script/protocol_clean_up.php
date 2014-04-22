@@ -250,7 +250,7 @@ mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysq
 $query = "INSERT INTO treatment_extend_masters_revs (`treatment_extend_control_id`, `treatment_master_id`, `modified_by`, `id`, `version_created`) 
 	(SELECT `treatment_extend_control_id`, `treatment_master_id`, `modified_by`, `id`, `modified` FROM treatment_extend_masters);";
 mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
-$query = "INSERT INTO `chumhepato`.`txe_chemos_revs` (`drug_id`, `method`, `qc_hb_cycles`, `treatment_extend_master_id`, `version_created`) 
+$query = "INSERT INTO `txe_chemos_revs` (`drug_id`, `method`, `qc_hb_cycles`, `treatment_extend_master_id`, `version_created`) 
 	(SELECT `drug_id`, `method`, `qc_hb_cycles`, `treatment_extend_master_id`, `modified` FROM txe_chemos INNER JOIN treatment_extend_masters ON treatment_extend_masters.id = txe_chemos.treatment_extend_master_id)";
 mysqli_query($db_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_connection)."]");
 
@@ -370,7 +370,7 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false/*, 
 	mysqli_query($db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 
 	$record_id = mysqli_insert_id($db_connection);
-	$additional_fields = $is_detail_table? array('version_created' => "'$modified'", "modified_by" => $modified_by) : array('id' => "$record_id", 'version_created' => "'$modified'", "modified_by" => $modified_by);
+	$additional_fields = $is_detail_table? array('version_created' => "'$modified'") : array('id' => "$record_id", 'version_created' => "'$modified'", "modified_by" => $modified_by);
 	if(true) {
 		$rev_insert_arr = array_merge($data_to_insert, $additional_fields);
 		$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
