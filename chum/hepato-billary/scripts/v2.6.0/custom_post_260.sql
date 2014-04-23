@@ -923,10 +923,3 @@ ALTER TABLE qc_hb_ed_intensive_cares_revs DROP INDEX event_master_id;
 ALTER TABLE qc_hb_ed_lab_report_liver_metastases_revs DROP INDEX diagnosis_master_id;
 
 ALTER TABLE qc_hb_ed_score_okudas_revs MODIFY `ascite` char(1) DEFAULT '';
-
--- --------------------------------------------------------------------------------------------------------
--- VERSION
--- --------------------------------------------------------------------------------------------------------
-
-UPDATE versions SET branch_build_number = '5621' WHERE version_number = '2.6.0';
-SELECT 'update versions.branch_build_number' AS TODO;
