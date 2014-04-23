@@ -7,7 +7,7 @@
 -- ------------------------------------------------------
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
--- Issue#xxxx: xxxx
+-- Issue#3039: Display of signs as percentage, lower than, etc in language_label, drop down list, etc 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
@@ -27,21 +27,9 @@ VALUES
 ('mucinous adenocarcinoma (greater than 50% mucinous)', 'Mucinous adenocarcinoma (greater than 50% mucinous)', 'Adénocarcinome mucineux (composante mucineuse à plus de 50%)'),
 ('signet-ring cell carcinoma (greater than 50% signet-ring cells)', 'Signet-ring cell carcinoma (greater than 50% signet ring cells)', 'Carcinome a cellules en bague (cellules en bague à plus de 50%)');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Versions table
+-- -----------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
+VALUES('2.6.2', NOW(),'5710','n/a');
