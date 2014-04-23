@@ -19,7 +19,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 2;
+$debug = 0;
 /**
  * CakePHP Debug Level:
  *
@@ -383,7 +383,7 @@ Cache::config('menus', array('engine' => 'File', 'path' => CACHE . "menus", 'dur
 Cache::config('browser', array('engine' => 'File', 'path' => CACHE . "browser", 'duration' => $duration));
 Cache::config('default', array('engine' => 'File'));
 
-Configure::write('use_compression', false);
+Configure::write('use_compression', true);
 Configure::write('Session.timeout', $debug ? 3600 : 600);
 
 /**
@@ -394,7 +394,7 @@ Configure::write('Session.timeout', $debug ? 3600 : 600);
  *	- level 3: level 2 + contains at least one uppercase letter
  *	- level 4: level 3 + special at least one character [!$-_.]
  */
-Configure::write('password_security_level', 2);
+Configure::write('password_security_level', 1);
 
 /**
  * Maximum number of successive failed login attempts (max_login_attempts_from_IP) before an IP address is disabled.
