@@ -266,6 +266,7 @@ SELECT 'Correct remnant_liver_volume if required (editing/saving record in atim)
 UNION ALL
 SELECT '+-----------------+--------------------+-----------------------+----------------+----------------------+---------------------------------+' AS TODO;
 SELECT 
+em.participant_id,
 ed.event_master_id, 
 ed.total_liver_volume, 
 ed.resected_liver_volume, 
@@ -283,6 +284,7 @@ SELECT 'Correct remnant_liver_percentage if required (editing/saving record in a
 UNION ALL
 SELECT '+-----------------+--------------------+-----------------------+----------------+----------------------+---------------------------------+' AS TODO;
 SELECT 
+em.participant_id,
 ed.event_master_id, 
 ed.total_liver_volume, 
 ed.resected_liver_volume, 
