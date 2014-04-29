@@ -19,7 +19,7 @@ DROP TABLE txe_radiations; DROP TABLE txe_radiations_revs;
 
 
 -- structure_permissible_values_custom_controls category
-----------------------------------------------------------------------------------------------------------
+-- --------------------------------------------------------------------------------------------------------
 UPDATE structure_permissible_values_custom_controls SET name = 'Method to complete questionnaire', category = 'clinical - annotation' WHERE name = 'method to complete questionnaire';
 UPDATE structure_permissible_values_custom_controls SET name = 'Questionnaire recovery method', category = 'clinical - annotation' WHERE name = 'questionnaire recovery method';
 UPDATE structure_permissible_values_custom_controls SET name = 'Questionnaire verification result', category = 'clinical - annotation' WHERE name = 'questionnaire verification result';
