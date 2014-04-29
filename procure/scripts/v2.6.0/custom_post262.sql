@@ -27,4 +27,14 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='BR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='PR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
-UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.1';
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_aps_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_aps_ibfk_2;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP FOREIGN KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_2;
+
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP KEY procure_ed_clinical_followup_worksheet_aps_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP KEY procure_ed_clinical_followup_worksheet_aps_ibfk_2;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_1;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP KEY procure_ed_clinical_followup_worksheet_clinical_events_ibfk_2;
+
+UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.2';
