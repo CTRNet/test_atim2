@@ -1238,6 +1238,7 @@ class StructuresHelper extends Helper {
 					$heading_sub_line = array();
 					$sub_line = array();
 					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
+					$csv::$structures[$node_id] = $this->titleHtmlSpecialCharsDecode($csv::$structures[$node_id], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 					foreach($csv::$structures[$node_id] as $table_column){
 						$last_heading = '';
 						foreach($table_column as $fm => $table_row){
@@ -1316,6 +1317,7 @@ class StructuresHelper extends Helper {
 			//default mode, multi lines
 			$options['type'] = 'index';
 			$table_structure = $this->buildStack($atim_structure, $options);
+			$table_structure = $this->titleHtmlSpecialCharsDecode($table_structure, isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 			$options['type'] = 'csv';//go back to csv
 			
 			if(is_array($table_structure) && count($data)){
@@ -1403,6 +1405,25 @@ class StructuresHelper extends Helper {
 			
 			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 		}
+	}
+	
+	/**
+	 * Convert all HTML entities to their applicable characters for all headings, labels and tags of the structure
+	 * @param array $table_structure Structure to work on
+	 * @param string $encoding Enconding
+	 * @return array $table_structure Processed structrue
+	 */
+	function titleHtmlSpecialCharsDecode($table_structure, $encoding) {
+		foreach($table_structure as &$table_column){
+			foreach($table_column as &$table_row){
+				foreach($table_row as &$table_row_part){
+					$table_row_part['heading'] = html_entity_decode($table_row_part['heading'], ENT_NOQUOTES, $encoding);
+					$table_row_part['label'] = html_entity_decode($table_row_part['label'], ENT_NOQUOTES, $encoding);
+					$table_row_part['tag'] = html_entity_decode($table_row_part['tag'], ENT_NOQUOTES, $encoding);
+				}
+			}
+		}
+		return $table_structure;
 	}
 	
 	/**
@@ -2177,7 +2198,7 @@ class StructuresHelper extends Helper {
 						if(count($dropdown_result['defined']) == 2 
 							&& isset($sfs['flag_'.$options['type'].'_readonly']) 
 							&& $sfs['flag_'.$options['type'].'_readonly'] 
-							&& $add_blank
+							&& isset($add_blank) && $add_blank
 						){
 							//unset the blank value, the single value for a disabled field should be default
 							unset($dropdown_result['defined'][""]);
