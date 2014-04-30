@@ -1,4 +1,4 @@
--- to run after custom254.sql
+-- to run after custom_post_251.sql & /v261_procure_icm_split/New_Prostate_TissuBlock_Import.php
 -- use to delete all procure data
 
 SELECT 'SCRIPT TO DELETE ALL PROCURE RECORDS' as message;

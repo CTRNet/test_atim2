@@ -1,0 +1,42 @@
+-- ---------------------------------------------------------------------------------------------
+Here are steps to clean up and migrate the current v2.5.4 ICM ATiM to:
+--   - atimv2.6.2 ICM (with no PROCURE data)
+--   - atimv2.6.2 PROCURE - ICM (with no ICM data)
+-- ---------------------------------------------------------------------------------------------
+
+On atimv2icmprod v2.5.4 dump:
+-> execute /icm/scripts/v2.6.0/atim_v2.6.0_upgrade.sql
+-> execute /icm/scripts/v2.6.0/custom_post_260.sql
+-> execute /icm/scripts/v2.6.0/atim_v2.6.1_upgrade.sql
+-> execute /icm/scripts/v2.6.0/custom_post_261.sql
+-> Launch /icm/scripts/v2.6.0//v621_procure_icm_split/New_Prostate_TissuBlock_Import.php
+
+Duplicate current atimv2icmprod database (v261) to:
+-> atimv26icmprod
+-> atimv26procuretmp
+
+-- ICM ---------------------------------------------------------------------------------
+
+On atimv26icmprod:
+-> execute /icm/scripts/v2.6.0//v621_procure_icm_split/custom_icm261_to_icm.sql
+-> execute /icm/scripts/v2.6.0/atim_v2.6.2_upgrade.sql
+-> execute /icm/scripts/v2.6.0/custom_post_262.sql
+
+-- PROCURE ---------------------------------------------------------------------------------
+
+Create database atimv26procure
+-> atim_procure_v2.6.0_full_installation.sql
+-> atim_v2.6.1_upgrade.sql
+-> atim_v2.6.2_upgrade.sql
+-> custom_post262.sql
+
+On atimv26procuretmp:
+-> execute ./v621_procure_icm_split/custom_icm261_to_procure.sql
+-> execute atim_v2.6.2_upgrade.sql
+
+Create the custom version of chum procure with no data
+php to copy data
+
+
+
+
