@@ -206,7 +206,13 @@ class BrowserController extends DatamartAppController {
 		//handle display data
 		$render = 'browse_checklist';
 		if($check_list){
-			$this->Browser->initDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']));
+		    $order = null;
+		    if(isset($this->passedArgs["sort"])){
+		        $order = $this->passedArgs["sort"]." ".$this->passedArgs["direction"];
+		    }
+			$this->Browser->initDataLoad(
+                $browsing, $merge_to,
+			    explode(",", $browsing['BrowsingResult']['id_csv']), $order);
 			
 			if(!$this->Browser->valid_permission){
 				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
@@ -262,10 +268,6 @@ class BrowserController extends DatamartAppController {
 				$this->set("result_structure", $this->Browser->result_structure);
 				$this->request->data = $this->Browser->getDataChunk(self::$display_limit);
 				$this->set("header", array('title' => __('result'), 'description' => $this->Browser->checklist_header));
-				if(is_array($this->request->data)){
-					//sort this->data on URL
-					$this->request->data = AppModel::sortWithUrl($this->request->data, $this->passedArgs);
-				}
 			}else{
 				//overflow
 				$this->request->data = 'all';
