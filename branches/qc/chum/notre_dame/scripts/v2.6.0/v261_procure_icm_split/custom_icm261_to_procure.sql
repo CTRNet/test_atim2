@@ -1,4 +1,4 @@
--- to run after custom254.sql
+-- to run after custom_post_251.sql & /v261_procure_icm_split/New_Prostate_TissuBlock_Import.php
 -- use to delete all data not flagged as procure
 
 SELECT 'SCRIPT TO DELETE ALL RECORDS NOT LINKED TO PROCURE' as message;

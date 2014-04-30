@@ -13,6 +13,7 @@
 
 $file_name = "Selection blocs paraffine - ProCure_20140325.xls";
 $file_path = "C:/_Perso/Server/icm/data/".$file_name;
+//ICM SERVER $file_path = "/ATiM/icm/v2/ATiM-Split/".$file_name;
 require_once 'Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -29,12 +30,21 @@ $db_pwd			= "";
 $db_schema		= "icm";
 $db_charset		= "utf8";
 
+/* ICM SERVER
+$db_ip			= "localhost";
+$db_port 		= "";
+$db_user 		= "root";
+$db_pwd			= "am3-y-4606";
+$db_schema		= "icmtmp";
+$db_charset		= "utf8";
+*/
+
 //-- DB CONNECTION ---------------------------------------------------------------------------------------------------------------------------
 
 global $db_connection;
 
 $db_connection = @mysqli_connect(
-		$db_ip.":".$db_port,
+		$db_ip.(empty($db_port)? '' : ":").$db_port,
 		$db_user,
 		$db_pwd
 ) or die("Could not connect to MySQL");
@@ -96,6 +106,9 @@ $unsupported_origin_of_slice = array();
 global $messages;
 $messages = array();
 
+global $messages_codes;
+$messages_codes = array();
+
 global $all_queries;
 $all_queries = array();
 
@@ -138,7 +151,11 @@ echo "<br><br>****************** SUMMRAY ******************************<br><br><
 foreach($summary_data as $title => $count) {
 	echo "<b>$title</b> : $count<br>";
 }
+
 echo "<br><br>****************** ERRORS AND WARNINGS ******************************<br><br><br>";
+ksort($messages_codes);
+echo "<b>Recorded messages codes </b> : <br> ".implode('<br>',$messages_codes)."<br><br>";
+
 printMessages();
 echo "<br><br>****************** QUERIES ******************************<br><br><br>";
 printQueries();
@@ -379,38 +396,43 @@ function loadNewBlocks($new_line_data, $line_counter) {
 				}
 			}
 			if($create_new_block) {	
-				// No block matching into database => block has to be create and linked to a sample.
-				$sample_master_id_to_link = null;
-				$new_block_from_excel_T_vs_N = $new_block_from_excel['T_vs_N'];
-				if(sizeof($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]) == 1) {
-					$sample_master_id_to_link = current($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]);
-				} else if(sizeof($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]) > 1){
-					$all_sample_labels_for_display = array();
-					foreach($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N] as $new_sample_id_tmp) $all_sample_labels_for_display[] = $db_sample_data_from_id[$new_sample_id_tmp]['qc_nd_sample_label'];
-					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#9 :: More than one '$new_block_from_excel_T_vs_N' tissues [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Block creation then link between to tissue has to be done manually.". $block_description);
-				} else if(sizeof($db_sample_id_from_criteria['T_vs_N']['other']) == 1) {
-					$sample_master_id_to_link = current($db_sample_id_from_criteria['T_vs_N']['other']);
-					recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "Msg#10 :: Created and linked a '$new_block_from_excel_T_vs_N' $excel_block_type block to a tissue having no 'Sequence number' like 'T' or 'N'.". $block_description);	
-				} else if(sizeof($db_sample_id_from_criteria['T_vs_N']['other']) > 1){
-					$all_sample_labels_for_display = array();
-					foreach($db_sample_id_from_criteria['T_vs_N']['other'] as $new_sample_id_tmp) $all_sample_labels_for_display[] = $db_sample_data_from_id[$new_sample_id_tmp]['qc_nd_sample_label'];
-					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#11 :: More than one tissues having no 'Sequence number' like 'T' or 'N' [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Block creation and link between to tissue has to be done manually.".$block_description);
-				} else if(sizeof($db_sample_id_from_criteria['T_vs_N'][(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')])) {
-					recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#12 :: Try to create and link a block '$new_block_from_excel_T_vs_N' to an existing sample '".(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')."'. Block won't be created. ".$block_description);
+				if($new_block_from_excel['bank'] == 'icm' && $new_block_from_excel['block_type'] == 'paraffin') {
+					recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#25 :: Missing ICM paraffin block won't be created into ATiM.".$block_description);
+//TODO Teodora souhaitais lier directement ces blocs de paraffin au patient (au niveau de clinical annotation)
 				} else {
-					die('ERR 84894940044');
-				}
-				if($sample_master_id_to_link) {
-					if($new_block_from_excel['patho_dpt_block_code'] && !empty($db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])) {
-						if(!in_array($new_block_from_excel['patho_dpt_block_code'], $db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])) {
-							recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#13 :: Created and linked $excel_block_type block to sample '".$db_sample_data_from_id[$sample_master_id_to_link]['qc_nd_sample_label']."' but the path report codes between db [".implode(', ',$db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])."] and file [".$new_block_from_excel['patho_dpt_block_code']."] don't seam to match.".$block_description);	
-						}
+					// No block matching into database => block has to be create and linked to a sample.
+					$sample_master_id_to_link = null;
+					$new_block_from_excel_T_vs_N = $new_block_from_excel['T_vs_N'];
+					if(sizeof($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]) == 1) {
+						$sample_master_id_to_link = current($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]);
+					} else if(sizeof($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N]) > 1){
+						$all_sample_labels_for_display = array();
+						foreach($db_sample_id_from_criteria['T_vs_N'][$new_block_from_excel_T_vs_N] as $new_sample_id_tmp) $all_sample_labels_for_display[] = $db_sample_data_from_id[$new_sample_id_tmp]['qc_nd_sample_label'];
+						recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#9 :: More than one '$new_block_from_excel_T_vs_N' tissues [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Block creation then link to tissue has to be done manually.". $block_description);
+					} else if(sizeof($db_sample_id_from_criteria['T_vs_N']['other']) == 1) {
+						$sample_master_id_to_link = current($db_sample_id_from_criteria['T_vs_N']['other']);
+						recordAndSortMsg('message', $patient_bank_nbr, $line_counter, "Msg#10 :: Created and linked a '$new_block_from_excel_T_vs_N' $excel_block_type block to a tissue having no 'Sequence number' like 'T' or 'N'.". $block_description);	
+					} else if(sizeof($db_sample_id_from_criteria['T_vs_N']['other']) > 1){
+						$all_sample_labels_for_display = array();
+						foreach($db_sample_id_from_criteria['T_vs_N']['other'] as $new_sample_id_tmp) $all_sample_labels_for_display[] = $db_sample_data_from_id[$new_sample_id_tmp]['qc_nd_sample_label'];
+						recordAndSortMsg('todo', $patient_bank_nbr, $line_counter, "Msg#11 :: More than one tissues having no 'Sequence number' like 'T' or 'N' [".implode(', ',$all_sample_labels_for_display)."] already exist in ATiM. Block creation and link to tissue has to be done manually.".$block_description);
+					} else if(sizeof($db_sample_id_from_criteria['T_vs_N'][(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')])) {
+						recordAndSortMsg('error', $patient_bank_nbr, $line_counter, "Msg#12 :: Try to create and link a block '$new_block_from_excel_T_vs_N' to an existing sample '".(($new_block_from_excel_T_vs_N=='T')? 'N' : 'T')."'. Block won't be created. ".$block_description);
+					} else {
+						die('ERR 84894940044');
 					}
-					$aliquot_to_create[] = array_merge(
-						array('sample_master_id' => $sample_master_id_to_link, 
-							'qc_nd_sample_label' => $db_sample_data_from_id[$sample_master_id_to_link]['qc_nd_sample_label'],
-							'collection_id' => $db_sample_data_from_id[$sample_master_id_to_link]['collection_id']), 
-						$new_block_from_excel);
+					if($sample_master_id_to_link) {
+						if($new_block_from_excel['patho_dpt_block_code'] && !empty($db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])) {
+							if(!in_array($new_block_from_excel['patho_dpt_block_code'], $db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])) {
+								recordAndSortMsg('warning', $patient_bank_nbr, $line_counter, "Msg#13 :: Created and linked $excel_block_type block to sample '".$db_sample_data_from_id[$sample_master_id_to_link]['qc_nd_sample_label']."' but the path report codes between db [".implode(', ',$db_sample_data_from_id[$sample_master_id_to_link]['patho_dpt_block_codes'])."] and file [".$new_block_from_excel['patho_dpt_block_code']."] don't seam to match.".$block_description);	
+							}
+						}
+						$aliquot_to_create[] = array_merge(
+							array('sample_master_id' => $sample_master_id_to_link, 
+								'qc_nd_sample_label' => $db_sample_data_from_id[$sample_master_id_to_link]['qc_nd_sample_label'],
+								'collection_id' => $db_sample_data_from_id[$sample_master_id_to_link]['collection_id']), 
+							$new_block_from_excel);
+					}
 				}
 			}
 		}
@@ -418,8 +440,7 @@ function loadNewBlocks($new_line_data, $line_counter) {
 		// *** Run Queries ***
 
 		//1-ATiM Aliquot Update
-Attention aucun bloc ICM ne doit être créé.
-Les blocs de patho pour l'ICM seront listés au niveau du  patient car ils sont dispos mais pas propriété de la banque		
+			
 		$queries_to_update = array();
 		foreach($aliquot_to_update as $new_aliquot_to_update) {
 			$excel_aliquot_data = $new_aliquot_to_update['excel_data'];
@@ -548,7 +569,7 @@ Les blocs de patho pour l'ICM seront listés au niveau du  patient car ils sont 
 		}
 		
 		//2-Aliquot Creation
-			
+		
 		foreach($aliquot_to_create as $new_aliquot_to_create) {
 			// AliquotMaster
 			$aliquot_master = array(
@@ -638,6 +659,12 @@ function formatNewLineData($headers, $data) {
 
 function recordAndSortMsg($type, $patient_bank_nbr, $line_counter, $msg) {
 	global $messages;
+	global $messages_codes;
+	
+	if(!preg_match('/^(Msg#[0-9]{1,3})\ ::\ /', $msg, $matches)) {
+		die('ERR 66276872687326827 '.$msg);
+	}
+	$messages_codes[$matches[1]] = $matches[1];
 	
 	switch($type) {
 		case 'error':
