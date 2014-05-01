@@ -77,7 +77,9 @@ $truncate_arr = array(
 	'participants', 'participants_revs',
 	'misc_identifiers', 'misc_identifiers_revs',
 	'consent_masters', 'consent_masters_revs',
-	'procure_cd_sigantures', 'procure_cd_sigantures_revs'
+	'procure_cd_sigantures', 'procure_cd_sigantures_revs',
+	'participant_messages','participant_messages_revs', 
+	'participant_contacts', 'participant_contacts_revs'
 );
 foreach($truncate_arr as $tablename) 	mysqli_query($db_procure_connection, "TRUNCATE $tablename;") or die("query failed ["."TRUNCATE $tablename;"."]: " . mysqli_error($db_procure_connection)."]");
 foreignKeyCheck(1);
@@ -313,30 +315,45 @@ while($res = mysqli_fetch_assoc($query_res)) {
 	foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// Questionnaire
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** QUESTIONNAIRES ******************************<br><br>";
+
+//TODO From Excel (No data of atim to migrate
 
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// Contacts & Messages
+//--------------------------------------------------------------------------------------------------------------------------------------------
 
+echo "<br><br>****************** CONTACTS & MESSAGES ******************************<br><br>";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+foreach(array('participant_contacts', 'participant_contacts_revs') as $tablename) {
+	$query = "INSERT INTO $db_procure_schema.$tablename (SELECT * FROM $db_icm_schema.$tablename);";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+}
+$message_fields = array('id',
+	'date_requested',
+	'date_requested_accuracy',
+	'author',
+	'message_type',
+	'title',
+	'description',
+	'due_date',
+	'due_date_accuracy',
+	'expiry_date',
+	'expiry_date_accuracy',
+	'participant_id',
+	'done',
+	'status');
+$fields = implode(',',$message_fields).',created,created_by,modified,modified_by,deleted';
+$query = "INSERT INTO $db_procure_schema.participant_messages (".str_replace('status','qc_nd_status',$fields).") (SELECT $fields FROM $db_icm_schema.participant_messages);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+$fields = implode(',',$message_fields).',modified_by,version_id,version_created';
+$query = "INSERT INTO $db_procure_schema.participant_messages_revs (".str_replace('status','qc_nd_status',$fields).") (SELECT $fields FROM $db_icm_schema.participant_messages_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
 
 
 
@@ -356,6 +373,9 @@ mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: 
 pr('done');
 
 exit;
+
+
+
 
 
 
