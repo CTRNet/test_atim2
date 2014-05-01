@@ -121,3 +121,28 @@ ALTER TABLE procure_cd_sigantures_revs
   ADD COLUMN `qc_nd_contact_for_additional_data` varchar(10) DEFAULT NULL,
   ADD COLUMN `qc_nd_inform_significant_discovery` varchar(50) DEFAULT NULL,
   ADD COLUMN `qc_nd_inform_discovery_on_other_disease` varchar(10) DEFAULT NULL;
+  
+UPDATE menus SET flag_active =1 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantMessages%';
+UPDATE menus SET flag_active =1 WHERE use_link LIKE '/ClinicalAnnotation/ParticipantContacts%';
+ 
+ALTER TABLE participant_contacts MODIFY phone varchar(30) NOT NULL DEFAULT '';
+ALTER TABLE participant_contacts_revs MODIFY phone varchar(30) NOT NULL DEFAULT '';
+
+ALTER TABLE participant_messages ADD COLUMN qc_nd_status varchar(20);
+ALTER TABLE participant_messages_revs ADD COLUMN qc_nd_status varchar(20);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_participant_message_status", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_participant_message_status"), (SELECT id FROM structure_permissible_values WHERE value="pending" AND language_alias="pending"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_participant_message_status"), (SELECT id FROM structure_permissible_values WHERE value="in process" AND language_alias="in process"), "2", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_participant_message_status"), (SELECT id FROM structure_permissible_values WHERE value="completed" AND language_alias="completed"), "3", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ParticipantMessage', 'participant_messages', 'status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_participant_message_status') , '0', '', '', '', 'status', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participantmessages'), (SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_participant_message_status')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='status' AND `language_tag`=''), '2', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+UPDATE structure_fields SET field = 'qc_nd_status' WHERE field = 'status' AND model = 'ParticipantMessage';
+UPDATE structure_formats SET `display_column`='2', `display_order`='17' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantmessages') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='expiry_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2', `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantmessages') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='date_requested' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2', `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='participantmessages') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ParticipantMessage' AND `tablename`='participant_messages' AND `field`='due_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE datamart_browsing_controls 
+SET flag_active_1_to_2 = 1, flag_active_2_to_1 = 1 
+WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN('ParticipantMessage', 'ParticipantContact')) AND id2 IN (SELECT id FROM datamart_structures WHERE model = 'Participant');
