@@ -27,7 +27,7 @@ class Config{
 	//if reading excel file
 	
 //	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/COEUR-OTB-#1_20131129.xls";
- 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors_denominalized.xls";
+ 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/Nominal/SardoDxTxReceptors_nominal_20140404.xls";
 // 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
  	
  	
