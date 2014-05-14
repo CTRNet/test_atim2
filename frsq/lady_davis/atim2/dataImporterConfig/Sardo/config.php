@@ -27,7 +27,7 @@ class Config{
 	//if reading excel file
 	
 //	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/COEUR-OTB-#1_20131129.xls";
- 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/Nominal/SardoDxTxReceptors_nominal_20140404.xls";
+ 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/AllSardoData_20140513.xls";
 // 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
  	
  	
@@ -150,6 +150,7 @@ $relative_path = '../jgh_breast/dataImporterConfig/Sardo/tablesMapping/';
 Config::$config_files[] = $relative_path.'diagnosis.php';
 Config::$config_files[] = $relative_path.'treatments.php';
 Config::$config_files[] = $relative_path.'receptors.php';
+Config::$config_files[] = $relative_path.'histories.php';
 
 // Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc.php';
 // Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc_progression_no_site.php';
@@ -190,13 +191,16 @@ function addonFunctionStart(){
 	loadDiagnosis($tmp_xls_reader, $sheets_keys);
 	loadReceptors($tmp_xls_reader, $sheets_keys);
 	loadTreatments($tmp_xls_reader, $sheets_keys);
+	loadFamHisto($tmp_xls_reader, $sheets_keys);
+	loadReproHisto($tmp_xls_reader, $sheets_keys);
 }
 
 function addonFunctionEnd(){
 	// Update Profile
 	foreach(Config::$participants as $jgh_nbr => $participant_data) {
-		if($participant_data['participant_id']) {
+		if($participant_data['participant_id']) {			
 			$participant_data_to_update = $participant_data['participant_db_data_to_update'];
+			$participant_data_to_update[] = "qc_lady_sardo_data_migration_date = '".Config::$migration_date."'";		
 			if($participant_data_to_update) {
 				$participant_id = $participant_data['participant_id'];
 				$participant_data_to_update[] = "modified = '".Config::$migration_date."'";
@@ -331,6 +335,13 @@ function addonFunctionEnd(){
 			} else {
 				//Msg already displayed
 			}
+			if(isset($patient_data['family_histories'])) {
+				foreach($patient_data['family_histories'] as $new_histo_data) customInsertRecord($new_histo_data, 'family_histories', false);	
+			}
+			if(isset($patient_data['reproductive_histories'])) {
+				foreach($patient_data['reproductive_histories'] as $new_histo_data) customInsertRecord($new_histo_data, 'reproductive_histories', false);
+			}
+			
 		} else {
 			//Msg already displayed
 		}
@@ -485,7 +496,6 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 			$data_to_insert[$key] = "'".str_replace("'", "''", $value)."'";
 		}
 	}
-	//}
 
 	$insert_arr = array_merge($data_to_insert, $created);
 	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).")";
