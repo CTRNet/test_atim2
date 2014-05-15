@@ -18,9 +18,6 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
-		//TODO Temporary fix linked to issue #3040: TreatmentMaster & EventMaster listall: var $paginate data won't be used 
-		if(!isset($this->passedArgs['sort'])) $this->TreatmentMaster->order = $this->paginate['TreatmentMaster']['order'];	
-			
 		$this->request->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id' => $participant_id));
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
