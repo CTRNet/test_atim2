@@ -665,6 +665,9 @@ class AppController extends Controller {
 	 * @return array Model query results
 	 */
 	public function paginate($object = null, $scope = array(), $whitelist = array()) {
+		//TODO Temporary fix linked to issue #3040: TreatmentMaster & EventMaster listall: var $paginate data won't be used 
+		if(!is_null($object) && !isset($this->passedArgs['sort']) && isset($this->paginate[$object->name]['order'])) $object->order = $this->paginate[$object->name]['order'];
+		
 		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
 		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
 			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
