@@ -403,10 +403,3 @@ ALTER TABLE qc_gastro_ed_molecular_testing_revs DROP INDEX event_master_id;
 UPDATE qc_gastro_ed_cap_report_thyroid_revs SET version_id = (version_id + 1000);
 ALTER TABLE qc_gastro_ed_cap_report_thyroid_revs MODIFY version_id int(11) NOT NULL AUTO_INCREMENT;
 UPDATE qc_gastro_ed_cap_report_thyroid_revs SET version_id = (version_id - 999);
-
-
-
-
-
-
-UPDATE versions SET branch_build_number = WHERE version_number = '2.6.1';
