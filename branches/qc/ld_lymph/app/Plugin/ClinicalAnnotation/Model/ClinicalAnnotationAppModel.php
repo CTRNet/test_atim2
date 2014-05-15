@@ -3,12 +3,13 @@
 class ClinicalAnnotationAppModel extends AppModel {
 	
 	function validateIcd10WhoCode($id){
-		App::uses('CodingIcd.CodingIcd10Who', 'Model');
-		return CodingIcd10Who::validateId($id);
+		$icd10_model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
+		return $icd10_model::validateId($id);
 	}
 	
 	function validateIcd10CaCode($id){
-		return CodingIcd10Ca::validateId($id);
+		$icd10_model = AppModel::getInstance('CodingIcd', 'CodingIcd10Ca', true);
+		return $icd10_model::validateId($id);
 	}
 	
 	function validateIcdo3TopoCode($id){
