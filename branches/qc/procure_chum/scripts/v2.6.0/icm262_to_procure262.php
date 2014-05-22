@@ -67,6 +67,23 @@ if($modified) {
 
 $bank_identification = 'PS1P';
 
+$no_labo_to_db_data = array();
+$query = "SELECT p.id AS participant_id, m.identifier_value, cm.consent_signed_date
+	FROM participants p
+	INNER JOIN misc_identifiers m ON m.participant_id = p.id AND m.deleted <> 1 
+	INNER JOIN misc_identifier_controls mc ON mc.id = m.misc_identifier_control_id
+	LEFT JOIN consent_masters cm ON cm.participant_id = p.id
+	WHERE p.deleted <> 1 AND m.deleted <> 1 AND mc.misc_identifier_name = 'prostate bank no lab' AND cm.deleted <> 1
+	ORDER BY p.id ASC, cm.consent_signed_date DESC";
+$query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_icm_connection)."]");
+While($res = mysqli_fetch_assoc($query_res)) {
+	if(!isset($no_labo_to_db_data[$res['identifier_value']])) {
+		$no_labo_to_db_data[$res['identifier_value']] = array(
+			'participant_id' => $res['participant_id'],
+			'consent_signed_date' => $res['consent_signed_date']);
+	}
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // Trunkate : to remove
 //TODO
@@ -79,7 +96,9 @@ $truncate_arr = array(
 	'consent_masters', 'consent_masters_revs',
 	'procure_cd_sigantures', 'procure_cd_sigantures_revs',
 	'participant_messages','participant_messages_revs', 
-	'participant_contacts', 'participant_contacts_revs'
+	'participant_contacts', 'participant_contacts_revs',
+	'event_masters', 'event_masters_revs',
+	'procure_ed_lifestyle_quest_admin_worksheets', 'procure_ed_lifestyle_quest_admin_worksheets_revs'
 );
 foreach($truncate_arr as $tablename) 	mysqli_query($db_procure_connection, "TRUNCATE $tablename;") or die("query failed ["."TRUNCATE $tablename;"."]: " . mysqli_error($db_procure_connection)."]");
 foreignKeyCheck(1);
@@ -214,6 +233,8 @@ mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: 
 $query = "UPDATE misc_identifier_controls midc SET midc.flag_active = 0 WHERE midc.misc_identifier_name = 'code-barre';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
 
+echo "done<br>";
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // CONSENTS
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -315,14 +336,139 @@ while($res = mysqli_fetch_assoc($query_res)) {
 	foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
 }
 
+echo "done<br>";
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // Questionnaire
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 echo "<br><br>****************** QUESTIONNAIRES ******************************<br><br>";
 
-//TODO From Excel (No data of atim to migrate
+$query = "SELECT id FROM event_controls WHERE event_type = 'procure questionnaire administration worksheet';";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+$res = mysqli_fetch_assoc($query_res);
+$event_control_id = $res['id'];
+require_once 'Excel/reader.php';
+$file_path = "C:/_Perso/Server/procure_chum/data/Biobanque ProCure 2005-2012--25-02-2014.xls";
+$XlsReader = new Spreadsheet_Excel_Reader();
+$XlsReader->read($file_path);
+foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+$headers = array();
+$nl_labos_linked_to_approximative_date_equal_to_cst_date = array();
+$nl_labos_with_no_questionnaire = array();
+$line_counter = 0;
+$q_errors = array('empty date' => array(), 'no_labo_unknown' => array(), 'more than one' => array());
+foreach($XlsReader->sheets[$sheets_nbr['Cas complet']]['cells'] as $line => $new_line) {
+	$line_counter++;
+	if($line_counter == 1) {
+		$headers = $new_line;
+	} else {
+		//Get line data
+		$new_line_data = array();
+		foreach($headers as $key => $field) {
+			if(isset($new_line[$key])) {
+				$new_line_data[utf8_encode($field)] = utf8_encode($new_line[$key]);
+			} else {
+				$new_line_data[utf8_encode($field)] = '';
+			}
+		}
+		//Manage data
+		$approximative_date = '';
+		$q_no_labo = ((strlen($new_line_data['NoLabo']) == '3')? '500' : '50').$new_line_data['NoLabo'];	
+		$q_revision_date_tmp = getDateAndAccuracy($new_line_data['Date de révision'], 'Date de révision', $line_counter, true);
+		$q_revision_date = $q_revision_date_accuracy = null;
+		if($q_revision_date_tmp) {
+			$q_revision_date = $q_revision_date_tmp['date'];
+			$q_revision_date_accuracy = $q_revision_date_tmp['accuracy'];
+			$approximative_date = $q_revision_date;
+		}
+		$q_reception_date_tmp = getDateAndAccuracy($new_line_data['Date de reception'], 'Date de reception', $line_counter, true);
+		$q_reception_date = $q_reception_date_accuracy = null;
+		if($q_reception_date_tmp) {
+			$q_reception_date = $q_reception_date_tmp['date'];
+			$q_reception_date_accuracy = $q_reception_date_tmp['accuracy'];
+			$approximative_date = $q_reception_date;
+		}
+		if(isset($no_labo_to_db_data[$q_no_labo])) {
+			if(isset($no_labo_to_db_data[$q_no_labo]['qc_done']) && $no_labo_to_db_data[$q_no_labo]['qc_done']) {
+				$q_errors['more than one'][] = $q_no_labo;
+			} else {
+				$no_labo_to_db_data[$q_no_labo]['qc_done'] = true;
+				if(!$approximative_date)  {
+					if(empty($no_labo_to_db_data[$q_no_labo]['consent_signed_date'])) {
+						$q_errors['empty date'][] = $q_no_labo;
+					} else {
+						$approximative_date = $no_labo_to_db_data[$q_no_labo]['consent_signed_date'];
+						$nl_labos_linked_to_approximative_date_equal_to_cst_date[] = $q_no_labo;
+					}
+				}
+				if($approximative_date) {
+					$detail_data = array();
+					foreach(array('Distribué', 'Reçu', 'Vérifié', 'Révisé', 'Complet') as $excel_field) if(!in_array($new_line_data[$excel_field], array('0','1', ''))) die('ERR 2376 287632 ');
+					if($new_line_data['Révisé'] || $q_revision_date) {
+						$detail_data = array(
+							'delivery_date' => "'$approximative_date'", 'delivery_date_accuracy' => "'y'",
+							'recovery_date' => "'".($q_reception_date? $q_reception_date : $approximative_date)."'", 'recovery_date_accuracy' => ($q_reception_date? "'$q_reception_date_accuracy'" : "'y'"),
+							'verification_date' => "'$approximative_date'", 'verification_date_accuracy' => "'y'",
+							'revision_date' => "'".($q_revision_date? $q_revision_date : $approximative_date)."'", 'revision_date_accuracy' => ($q_revision_date? "'$q_revision_date_accuracy'" : "'y'"),
+							'verification_result' => ($new_line_data['Complet'] == '1')? "'complete'" : (($new_line_data['Complet'] == '0')? "'incomplete'" : "''"));
+					} else if($new_line_data['Vérifié']) {
+						$detail_data = array(
+							'delivery_date' => "'$approximative_date'", 'delivery_date_accuracy' => "'y'",
+							'recovery_date' => "'".($q_reception_date? $q_reception_date : $approximative_date)."'", 'recovery_date_accuracy' => ($q_reception_date? "'$q_reception_date_accuracy'" : "'y'"),
+							'verification_date' => "'$approximative_date'", 'verification_date_accuracy' => "'y'",
+							'verification_result' => ($new_line_data['Complet'] == '1')? "'complete'" : (($new_line_data['Complet'] == '0')? "'incomplete'" : "''"));
+					} else if($new_line_data['Reçu'] || $q_reception_date) {
+						$detail_data = array(
+							'delivery_date' => "'$approximative_date'", 'delivery_date_accuracy' => "'y'",
+							'recovery_date' => "'".($q_reception_date? $q_reception_date : $approximative_date)."'", 'recovery_date_accuracy' => ($q_reception_date? "'$q_reception_date_accuracy'" : "'y'"));
+					} else if($new_line_data['Distribué']) {
+						$detail_data = array(
+							'delivery_date' => "'$approximative_date'", 'delivery_date_accuracy' => "'y'");
+					}
+					if($detail_data) {
+						//EventMaster
+						$query = "INSERT INTO $db_procure_schema.event_masters (participant_id, event_control_id, procure_form_identification, event_summary,created,created_by,modified,modified_by)
+							VALUES
+							(".$no_labo_to_db_data[$q_no_labo]['participant_id'].", $event_control_id, '', '', '$modified', $modified_by, '$modified', $modified_by);";
+						
+						mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+						$event_master_id = mysqli_insert_id($db_procure_connection);
+						//EventDetail
+						$fields = 'event_master_id,'.implode(', ', array_keys($detail_data));
+						$values = $event_master_id.','.implode(', ', $detail_data);
+						$query = "INSERT INTO $db_procure_schema.procure_ed_lifestyle_quest_admin_worksheets ($fields) VALUES ($values);";
+						
+						mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+					} else {
+						$nl_labos_with_no_questionnaire[] = $q_no_labo;
+						if($new_line_data['Complet']) die('ERR 23 7687326 872 '.$line_counter);					
+					}
+				}
+			}
+		} else {
+			$q_errors['no_labo_unknown'][] = $q_no_labo;
+		}
+	}
+}
+//procure_form_identification
+$query = "UPDATE $db_procure_schema.event_masters ev, $db_procure_schema.participants p SET ev.procure_form_identification = CONCAT(p.participant_identifier, ' V0 -QUE1') WHERE p.id = ev.participant_id AND ev.event_control_id = $event_control_id;";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+//Revs table
+$query = "INSERT INTO $db_procure_schema.event_masters_revs (id, participant_id, event_control_id, procure_form_identification, event_summary, modified_by, version_created)
+	(SELECT id, participant_id, event_control_id, procure_form_identification, event_summary, modified_by, modified from $db_procure_schema.event_masters WHERE event_control_id = $event_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.procure_ed_lifestyle_quest_admin_worksheets_revs (event_master_id, delivery_date, recovery_date, verification_date, revision_date, verification_result, version_created)
+	(SELECT event_master_id, delivery_date, recovery_date, verification_date, revision_date, verification_result, modified FROM $db_procure_schema.procure_ed_lifestyle_quest_admin_worksheets INNER JOIN $db_procure_schema.event_masters ON event_masters.id = event_master_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+//Messages
+if($q_errors['empty date']) echo "Error: NoLabos [".implode(', ',$q_errors['empty date'])."] defined into questionnaire is both not linked to a date into questionnaire excel file and not linked to a consent date into ATiM database : unable to set a questionnaire approximative date so no questionnaire will be created<br><br>";
+if($q_errors['no_labo_unknown']) echo "Error: NoLabos [".implode(', ',$q_errors['no_labo_unknown'])."] defined into questionnaire excel file does not match a patient into ATiM database<br><br>";
+if($q_errors['more than one']) echo "Error: NoLabos [".implode(', ',$q_errors['more than one'])."] are linked to more than one questionnaire. Only the first one will be created<br><br>";
+if($nl_labos_with_no_questionnaire) echo "Error: NoLabos [".implode(', ',$nl_labos_with_no_questionnaire)."] defined into questionnaire are not linked to questionnaire data : no questionnaire will be created<br><br>";
+if($nl_labos_linked_to_approximative_date_equal_to_cst_date) echo "Error: NoLabos [".implode(', ',$nl_labos_linked_to_approximative_date_equal_to_cst_date)."] defined into questionnaire are not linked to questionnaire date : used consent date as approximative date<br><br>";
 
+echo "done<br>";
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // Contacts & Messages
@@ -355,6 +501,7 @@ $fields = implode(',',$message_fields).',modified_by,version_id,version_created'
 $query = "INSERT INTO $db_procure_schema.participant_messages_revs (".str_replace('status','qc_nd_status',$fields).") (SELECT $fields FROM $db_icm_schema.participant_messages_revs);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
 
+echo "done<br>";
 
 
 
@@ -384,10 +531,6 @@ exit;
 
 
 
-pr('done');
-exit;
-
-
 
 //====================================================================================================================================================
 
@@ -402,5 +545,54 @@ function pr($var) {
 	print_r($var);
 	echo '</pre>';
 }	
+
+function getDateAndAccuracy($date, $field, $line, $change_date_format = false) {
+	$date_matches = array(
+		'janv' => '01', 
+		'février' => '02', 
+		'mars' => '03', 
+		'avr' => '04', 
+		'avril' => '04', 
+		'mai' => '05', 
+		'juin' => '06', 
+		'déc' => '12');
+	$date = str_replace(array(' (v02)', '13-7-2010'), array('', '13-07-2010'), strtolower($date));
+	$res = null;
+	if(empty($date)) {
+		return null;
+	} else if(preg_match('/^([0-9]{5})$/', $date, $matches)) {
+		//format excel date integer representation
+		$php_offset = 946746000;//2000-01-01 (12h00 to avoid daylight problems)
+		$xls_offset = 36526;//2000-01-01
+		$date = date(($change_date_format? "Y-d-m" : "Y-m-d"), $php_offset + (($date - $xls_offset) * 86400));
+		$res = array('date' => $date, 'accuracy' => 'c', 'format' => '# 1 #');
+	} else if(preg_match('/^(0[1-9]|1[0-2])\-(19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[2].$matches[3].'-'.$matches[1].'-01', 'accuracy' => 'd', 'format' => '# 2 #');
+	} else if(preg_match('/^(0[1-9]|[12][0-9]|3[0-1])[\-\/](0[1-9]|1[0-2])[\-\/](19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[3].$matches[4].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c', 'format' => '# 3 #');
+	} else if(preg_match('/^(0[1-9]|[12][0-9]|3[0-1])[\-\/](0[1-9]|1[0-2])[\-\/]([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => '20'.$matches[3].'-'.$matches[2].'-'.$matches[1], 'accuracy' => 'c', 'format' => '# 4 #');
+	} else if(preg_match('/^([1-9])[\-\/](0[1-9]|1[0-2])[\-\/](19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[3].$matches[4].'-'.$matches[2].'-0'.$matches[1], 'accuracy' => 'c', 'format' => '# 5 #');
+	} else if(preg_match('/^(19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[1].$matches[2].'-01-01', 'accuracy' => 'm', 'format' => '# 6 #');
+	} else if(preg_match('/^([1-9])[\-\ ]('.implode('|', array_keys($date_matches)).')[\-\ ](19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[3].$matches[4].'-'.str_replace(array_keys($date_matches), $date_matches, $matches[2]).'-0'.$matches[1], 'accuracy' => 'c', 'format' => '# 7 #');
+	} else if(preg_match('/^(0[1-9]|[12][0-9]|3[0-1])[\-\ ]('.implode('|', array_keys($date_matches)).')[\-\ ](19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[3].$matches[4].'-'.str_replace(array_keys($date_matches), $date_matches, $matches[2]).'-'.$matches[1], 'accuracy' => 'c', 'format' => '# 8 #');
+	} else if(preg_match('/^(0[1-9]|[12][0-9]|3[0-1])[\-\ ]('.implode('|', array_keys($date_matches)).')[\-\ ]([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => '20'.$matches[3].'-'.str_replace(array_keys($date_matches), $date_matches, $matches[2]).'-'.$matches[1], 'accuracy' => 'c', 'format' => '# 9 #');
+	} else if(preg_match('/^('.implode('|', array_keys($date_matches)).')\ (19|20)([0-9]{2})$/',$date, $matches)) {
+		$res = array('date' => $matches[2].$matches[3].'-'.str_replace(array_keys($date_matches), $date_matches, $matches[1]).'-01', 'accuracy' => 'd', 'format' => '# 10 #');
+	} else {
+		echo "Format of date '$date' is not supported! [field '$field' - line: $line]<br>";
+		return null;
+	}
+	if(!preg_match('/^(19|20)([0-9]{2})\-(0[1-9]|1[0-2])\-(0[1-9]|[12][0-9]|3[0-1])$/',$res['date'], $matches)) {
+		echo "Format of date '$date' is not supported! [field '$field' - line: $line]<br>";
+		return null;
+	}
+	return $res;
+}
 
 ?>
