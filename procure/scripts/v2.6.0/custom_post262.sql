@@ -41,4 +41,6 @@ INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `s
 ('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'patient_identity_verified', 'checkbox',  NULL , '0', '', '', '', 'confirm that the identity of the patient has been verified', '');
 UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='patient_identity_verified' AND `type`='checkbox' AND `structure_value_domain` IS NULL ) WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='patient_identity_verified' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 192);
+
 UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.2';
