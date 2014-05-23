@@ -23,9 +23,11 @@ Collection.procure_visit AS procure_visit,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created 
+		Collection.created AS created,
+MiscIdentifier.identifier_value AS qc_nd_no_labo 
 		FROM collections AS Collection 
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {

@@ -12,6 +12,7 @@ $db_icm_ip			= "127.0.0.1";
 $db_icm_port 		= "3306";
 $db_icm_user 		= "root";
 $db_icm_pwd			= "";
+global $db_icm_schema;
 $db_icm_schema		= "icm";
 $db_icm_charset		= "utf8";
 
@@ -19,6 +20,7 @@ $db_procure_ip			= "127.0.0.1";
 $db_procure_port 		= "3306";
 $db_procure_user 		= "root";
 $db_procure_pwd			= "";
+global $db_procure_schema;
 $db_procure_schema		= "procurechum";
 $db_procure_charset		= "utf8";
 
@@ -98,7 +100,11 @@ $truncate_arr = array(
 	'participant_messages','participant_messages_revs', 
 	'participant_contacts', 'participant_contacts_revs',
 	'event_masters', 'event_masters_revs',
-	'procure_ed_lifestyle_quest_admin_worksheets', 'procure_ed_lifestyle_quest_admin_worksheets_revs'
+	'procure_ed_lifestyle_quest_admin_worksheets', 'procure_ed_lifestyle_quest_admin_worksheets_revs',
+	'storage_masters','std_rooms','std_cupboards','std_nitro_locates','std_incubators','std_fridges','std_freezers','std_boxs','std_racks','std_shelfs','std_tma_blocks',
+	'storage_masters_revs','std_rooms_revs','std_cupboards_revs','std_nitro_locates_revs','std_incubators_revs','std_fridges_revs','std_freezers_revs','std_boxs_revs','std_racks_revs','std_shelfs_revs','std_tma_blocks_revs',	
+	'collections', 'collections_revs',
+	'study_summaries', 'study_summaries_revs'
 );
 foreach($truncate_arr as $tablename) 	mysqli_query($db_procure_connection, "TRUNCATE $tablename;") or die("query failed ["."TRUNCATE $tablename;"."]: " . mysqli_error($db_procure_connection)."]");
 foreignKeyCheck(1);
@@ -359,6 +365,11 @@ $nl_labos_with_no_questionnaire = array();
 $line_counter = 0;
 $q_errors = array('empty date' => array(), 'no_labo_unknown' => array(), 'more than one' => array());
 foreach($XlsReader->sheets[$sheets_nbr['Cas complet']]['cells'] as $line => $new_line) {
+	
+//TODO
+continue; 
+//TODO
+		
 	$line_counter++;
 	if($line_counter == 1) {
 		$headers = $new_line;
@@ -503,6 +514,143 @@ mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: 
 
 echo "done<br>";
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// STORAGES
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** STORAGES ******************************<br><br>";
+
+$query = "TRUNCATE storage_controls;";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");		
+$query = "INSERT INTO $db_procure_schema.storage_controls (SELECT * FROM $db_icm_schema.storage_controls);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+$storage_tables = array('storage_masters','std_rooms','std_cupboards','std_nitro_locates','std_incubators','std_fridges','std_freezers','std_boxs','std_racks','std_shelfs','std_tma_blocks');
+foreach($storage_tables as $new_table) {
+	$query = "INSERT INTO $db_procure_schema.$new_table (SELECT * FROM $db_icm_schema.$new_table);";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+	$new_table = $new_table.'_revs';
+	$query = "INSERT INTO $db_procure_schema.$new_table (SELECT * FROM $db_icm_schema.$new_table);";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+}
+
+echo "done<br>";
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// STUDY
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** STUDIES ******************************<br><br>";
+
+echo "Following fields won't be migrated : qc_nd_researcher, qc_nd_contact, qc_nd_code<br><br>";
+
+$fields = array(
+	'id',
+	'disease_site',
+	'study_type',
+	'study_science',
+	'study_use',
+	'title',
+	'start_date',
+	'start_date_accuracy',
+	'end_date',
+	'end_date_accuracy',
+	'summary',
+	'abstract',
+	'hypothesis',
+	'approach',
+	'analysis',
+	'significance',
+	'additional_clinical',
+	'path_to_file');	
+$field_strg = implode(', ', array_merge($fields, array('created','created_by','modified','modified_by','deleted')));
+$query = "INSERT INTO $db_procure_schema.study_summaries ($field_strg) (SELECT $field_strg FROM $db_icm_schema.study_summaries);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+$field_strg = implode(', ', array_merge($fields, array('modified_by','version_id','version_created')));
+$query = "INSERT INTO $db_procure_schema.study_summaries_revs ($field_strg) (SELECT $field_strg FROM $db_icm_schema.study_summaries_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+
+echo "done<br>";
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// ORDER
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** ORDERS ******************************<br><br>";
+
+echo "Nothing migrated<br><br>";
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+// INVENTORY
+//--------------------------------------------------------------------------------------------------------------------------------------------
+
+// -- COLLECTION --------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** COLLECTIONS ******************************<br><br>";
+
+$procure_control_id = migrateCustomList('Specimen Collection Sites%', 'Specimen Collection Sites%');
+$query = "DELETE FROM $db_procure_schema.structure_permissible_values_customs WHERE control_id = $procure_control_id AND value NOT IN (SELECT distinct collection_site FROM $db_icm_schema.collections WHERE collection_site IS NOT NULL);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+
+$fields = array(
+	'id',
+	'collection_site',
+	'collection_datetime',
+	'collection_datetime_accuracy',
+	'collection_property',
+	'collection_notes',
+	'participant_id',
+	'procure_visit');
+$field_strg = implode(', ', array_merge($fields, array('created','created_by','modified','modified_by','deleted')));
+$query = "INSERT INTO $db_procure_schema.collections ($field_strg) (SELECT ".str_replace('procure_visit', 'visit_label', $field_strg)." FROM $db_icm_schema.collections);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+$field_strg = implode(', ', array_merge($fields, array('modified_by','version_id','version_created')));
+$query = "INSERT INTO $db_procure_schema.collections_revs ($field_strg) (SELECT ".str_replace('procure_visit', 'visit_label', $field_strg)." FROM $db_icm_schema.collections_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+
+echo "done<br>";
+
+// -- SAMPLES --------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** SAMPLES ******************************<br><br>";
+
+
+
+
+
+
+
+
+
+/*
+
+ICM sample controls
+
++----+--------------------+-----------------+------------------------+---------------------------------------+----------------------+---------------+--------------------+
+| id | sample_type        | sample_category | qc_nd_sample_type_code | detail_form_alias                     | detail_tablename     | display_order | databrowser_label  |
++----+--------------------+-----------------+------------------------+---------------------------------------+----------------------+---------------+--------------------+
+|  2 | blood              | specimen        | B                      | sd_spe_bloods,specimens               | sd_spe_bloods        |             0 | blood              |
+|  3 | tissue             | specimen        | T                      | sd_spe_tissues,specimens              | sd_spe_tissues       |             0 | tissue             |
+|  4 | urine              | specimen        | U                      | sd_spe_urines,specimens               | sd_spe_urines        |             0 | urine              |
+|  7 | blood cell         | derivative      | BLD-C                  | sd_der_blood_cells,derivatives        | sd_der_blood_cells   |             0 | blood cell         |
+|  8 | pbmc               | derivative      | PBMC                   | sd_der_pbmcs,derivatives              | sd_der_pbmcs         |             0 | pbmc               |
+|  9 | plasma             | derivative      | PLS                    | sd_der_plasmas,derivatives            | sd_der_plasmas       |             0 | plasma             |
+| 10 | serum              | derivative      | SER                    | sd_der_serums,derivatives             | sd_der_serums        |             0 | serum              |
+| 11 | cell culture       | derivative      | C-CULT                 | sd_der_cell_cultures,derivatives      | sd_der_cell_cultures |             0 | cell culture       |
+| 12 | dna                | derivative      | DNA                    | sd_der_dnas,derivatives               | sd_der_dnas          |             0 | dna                |
+| 13 | rna                | derivative      | RNA                    | sd_der_rnas,derivatives               | sd_der_rnas          |             0 | rna                |
+| 14 | concentrated urine | derivative      | CONC-U                 | sd_undetailed_derivatives,derivatives | sd_der_urine_cons    |             0 | concentrated urine |
+| 15 | centrifuged urine  | derivative      | CENT-U                 | sd_undetailed_derivatives,derivatives | sd_der_urine_cents   |             0 | centrifuged urine  |
+| 18 | b cell             | derivative      | LB                     | sd_undetailed_derivatives,derivatives | sd_der_b_cells       |             0 | b cell             |
++----+--------------------+-----------------+------------------------+---------------------------------------+----------------------+---------------+--------------------+
+
+*/
+
+
+
+
+
+
+
 
 
 
@@ -593,6 +741,32 @@ function getDateAndAccuracy($date, $field, $line, $change_date_format = false) {
 		return null;
 	}
 	return $res;
+}
+
+function migrateCustomList($icm_list_name, $procure_list_name) {
+	global $db_procure_connection;
+	global $db_procure_schema;
+	global $db_icm_schema;
+	
+	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE '$icm_list_name'";
+	$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+	$res = mysqli_fetch_assoc($res);
+	$icm_control_id = $res['id'];
+	
+	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE '$procure_list_name'";
+	$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+	$res = mysqli_fetch_assoc($res);
+	$procure_control_id = $res['id'];	
+	
+	$queries = array(
+			"DELETE FROM $db_procure_schema.structure_permissible_values_customs WHERE control_id = $procure_control_id;",
+			"DELETE FROM $db_procure_schema.structure_permissible_values_customs_revs WHERE control_id = $procure_control_id;",
+			"INSERT INTO $db_procure_schema.structure_permissible_values_customs (control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by, deleted) 
+				(SELECT $procure_control_id, value, en, fr, display_order, use_as_input, created, created_by, modified, modified_by, deleted FROM $db_icm_schema.structure_permissible_values_customs WHERE control_id = $icm_control_id);",
+			"INSERT INTO $db_procure_schema.structure_permissible_values_customs_revs (id, control_id, value, en, fr, display_order, use_as_input, modified_by, version_created) (SELECT id, control_id, value, en, fr, display_order, use_as_input, modified_by, modified FROM $db_procure_schema.structure_permissible_values_customs WHERE control_id = $procure_control_id);");
+	foreach($queries AS $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."]: " . mysqli_error($db_procure_connection)."]");
+	
+	return $procure_control_id;
 }
 
 ?>
