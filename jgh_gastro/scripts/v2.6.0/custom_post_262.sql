@@ -19,4 +19,4 @@ INSERT INTO i18n (id,en,fr) VALUES
 ('you can not record path number [%s] twice', 'You can not record Pathology Number [%s] twice!', 'Vous ne pouvez enregistrer le numéro de pathologie [%s] deux fois!'),
 ('the path_num [%s] has already been recorded', 'The Pathology Number [%s] has already been recorded!', 'Le numéro de pathologie [%s] a déjà été enregistré!');
 
-UPDATE versions SET branch_build_number = '5746' WHERE version_number = '2.6.2';
+UPDATE versions SET branch_build_number = '5747' WHERE version_number = '2.6.2';
