@@ -27,4 +27,16 @@ class SampleMasterCustom extends SampleMaster {
 		
 		return $return;
 	}
+	
+	
+	function validates($options = array()){
+		$val_res = parent::validates($options);
+		if(isset($this->data['SampleDetail']['blood_type'])
+		&& !in_array($this->data['SampleDetail']['blood_type'], array('k2-EDTA','paxgene','serum'))) {
+			$this->validationErrors['blood_type'][] = 'this blood type can not be used anymore';
+			return false;
+		}
+		return $val_res;
+	}	
+	
 }
