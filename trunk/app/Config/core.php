@@ -4,8 +4,6 @@
  *
  * Use it to configure core behavior of Cake.
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -19,7 +17,7 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$debug = 0;
+$debug = 2;
 /**
  * CakePHP Debug Level:
  *
@@ -45,7 +43,7 @@ $debug = 0;
  * - `handler` - callback - The callback to handle errors. You can set this to any callable type,
  *   including anonymous functions.
  *   Make sure you add App::uses('MyHandler', 'Error'); when using a custom handler class
- * - `level` - int - The level of errors you are interested in capturing.
+ * - `level` - integer - The level of errors you are interested in capturing.
  * - `trace` - boolean - Include stack traces for errors in log files.
  *
  * @see ErrorHandler for more information on error handling and configuration.
@@ -97,8 +95,8 @@ $debug = 0;
  * /app/webroot/.htaccess
  *
  * And uncomment the App.baseUrl below. But keep in mind
- * that plugin assets such as images, CSS and Javascript files
- * will not work without url rewriting!
+ * that plugin assets such as images, CSS and JavaScript files
+ * will not work without URL rewriting!
  * To work around this issue you should either symlink or copy
  * the plugin assets into you app's webroot directory. This is
  * recommended even when you are using mod_rewrite. Handling static
@@ -254,7 +252,7 @@ $debug = 0;
  * Plug in your own custom JavaScript compressor by dropping a script in your webroot to handle the
  * output, and setting the config below to the name of the script.
  *
- * To use, prefix your JavaScript link URLs with '/cjs/' instead of '/js/' or use JavaScriptHelper::link().
+ * To use, prefix your JavaScript link URLs with '/cjs/' instead of '/js/' or use JsHelper::link().
  */
 	//Configure::write('Asset.filter.js', 'custom_javascript_output_filter.php');
 
@@ -270,6 +268,14 @@ $debug = 0;
  * any date & time related errors.
  */
 	//date_default_timezone_set('UTC');
+
+/**
+ * `Config.timezone` is available in which you can set users' timezone string.
+ * If a method of CakeTime class is called with $timezone parameter as null and `Config.timezone` is set,
+ * then the value of `Config.timezone` will be used. This feature allows you to set users' timezone just
+ * once instead of passing it each time in function calls.
+ */
+	//Configure::write('Config.timezone', 'Europe/Paris');
 
 /**
  *
@@ -389,8 +395,8 @@ Configure::write('Session.timeout', $debug ? 3600 : 600);
 /**
  * Define the complexity of a password format:
  *	- level 0: No constrain
- *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter		
- *	- level 2: level 1 + contains at least one number	
+ *	- level 1: Minimal length of 8 characters + contains at least one lowercase letter
+ *	- level 2: level 1 + contains at least one number
  *	- level 3: level 2 + contains at least one uppercase letter
  *	- level 4: level 3 + special at least one character [!$-_.]
  */
@@ -412,7 +418,7 @@ Configure::write('time_mn_IP_disabled', 20);
 Configure::write('max_user_login_attempts', 5);
 
 /**
- * Period of password validity in month. 
+ * Period of password validity in month.
  * Keep empty if no control has to be done.
  * When password is unvalid, a warning message will be displayed and the user will be redirect to the change password form.
  */

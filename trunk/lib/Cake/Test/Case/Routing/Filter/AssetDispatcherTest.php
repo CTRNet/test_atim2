@@ -3,20 +3,26 @@
  * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
- * Licensed under The Open Group Test Suite License
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       Cake.Test.Case.Routing.Filter
  * @since         CakePHP(tm) v 2.2
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('AssetDispatcher', 'Routing/Filter');
 App::uses('CakeEvent', 'Event');
 App::uses('CakeResponse', 'Network');
 
+/**
+ * Class AssetDispatcherTest
+ *
+ * @package       Cake.Test.Case.Routing.Filter
+ */
 class AssetDispatcherTest extends CakeTestCase {
 
 /**
@@ -124,7 +130,7 @@ class AssetDispatcherTest extends CakeTestCase {
 	}
 
 /**
- * Test that no exceptions are thrown for //index.php type urls.
+ * Test that no exceptions are thrown for //index.php type URLs.
  *
  * @return void
  */
