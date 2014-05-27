@@ -2,8 +2,6 @@
 /**
  * PaginatorHelperTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -88,9 +86,9 @@ class PaginatorHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testHasPrevious() {
-		$this->assertSame($this->Paginator->hasPrev(), false);
+		$this->assertFalse($this->Paginator->hasPrev());
 		$this->Paginator->request->params['paging']['Article']['prevPage'] = true;
-		$this->assertSame($this->Paginator->hasPrev(), true);
+		$this->assertTrue($this->Paginator->hasPrev());
 		$this->Paginator->request->params['paging']['Article']['prevPage'] = false;
 	}
 
@@ -100,9 +98,9 @@ class PaginatorHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testHasNext() {
-		$this->assertSame($this->Paginator->hasNext(), true);
+		$this->assertTrue($this->Paginator->hasNext());
 		$this->Paginator->request->params['paging']['Article']['nextPage'] = false;
-		$this->assertSame($this->Paginator->hasNext(), false);
+		$this->assertFalse($this->Paginator->hasNext());
 		$this->Paginator->request->params['paging']['Article']['nextPage'] = true;
 	}
 
@@ -2232,7 +2230,7 @@ class PaginatorHelperTest extends CakeTestCase {
  */
 	public function testParam() {
 		$result = $this->Paginator->param('count');
-		$this->assertIdentical(62, $result);
+		$this->assertSame(62, $result);
 
 		$result = $this->Paginator->param('imaginary');
 		$this->assertNull($result);
