@@ -43,4 +43,13 @@ UPDATE structure_formats SET `structure_field_id`=(SELECT `id` FROM structure_fi
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(188, 192);
 
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_sample_joined_to_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders contacts')" WHERE domain_name = 'orders_contact';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders institutions')" WHERE domain_name = 'orders_institution';
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('procure slice origins')" WHERE domain_name = 'procure_slice_origins';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('questionnaire version date')" WHERE domain_name = 'procure_questionnaire_version';
+
 UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.2';
