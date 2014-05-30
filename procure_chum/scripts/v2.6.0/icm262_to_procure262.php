@@ -9,19 +9,19 @@ set_time_limit('3600');
 //-- DB PARAMETERS ---------------------------------------------------------------------------------------------------------------------------
 
 $db_icm_ip			= "127.0.0.1";
-$db_icm_port 		= "3306";
+$db_icm_port 		= "";
 $db_icm_user 		= "root";
-$db_icm_pwd			= "";
+$db_icm_pwd			= "am3-y-4606";
 global $db_icm_schema;
-$db_icm_schema		= "icm";
+$db_icm_schema		= "icmtest";
 $db_icm_charset		= "utf8";
 
 $db_procure_ip			= "127.0.0.1";
-$db_procure_port 		= "3306";
+$db_procure_port 		= "";
 $db_procure_user 		= "root";
-$db_procure_pwd			= "";
+$db_procure_pwd			= "am3-y-4606";
 global $db_procure_schema;
-$db_procure_schema		= "procurechum";
+$db_procure_schema		= "procuretest";
 $db_procure_charset		= "utf8";
 
 //-- DB CONNECTION ---------------------------------------------------------------------------------------------------------------------------
@@ -112,7 +112,19 @@ $truncate_arr = array(
 	'sd_der_pbmcs', 
 	'sd_der_serums',
 	'sd_der_plasmas',
-	'sd_spe_urines'
+	'sd_spe_urines',
+	'sd_der_urine_cents',
+	'sd_spe_tissues',
+	'sd_der_dnas',
+	'sd_der_rnas',
+		
+	'aliquot_masters',
+	'ad_whatman_papers',
+	'ad_tubes',
+	'ad_blocks',
+	'source_aliquots',
+	'quality_ctrls',
+	'aliquot_internal_uses'
 );
 foreach($truncate_arr as $tablename) {
 	mysqli_query($db_procure_connection, "TRUNCATE $tablename;") or die("query failed ["."TRUNCATE $tablename;"."]: " . mysqli_error($db_procure_connection)."]");
@@ -124,11 +136,17 @@ foreignKeyCheck(1);
 // USERS/GROUPS
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** USERS/GROUPS ******************************<br><br>";
+echo "<br><br>****************** USERS/GROUPS ******************************<br>";
+echo "** Import banks,group,users<br>";
+echo "** In-activated all users no in group 'Users Prostate'<br>";
+echo "**************************************************************<br><br>";
 
-foreignKeyCheck(0);
+foreach(array('users','groups','banks') as $tablename) {
+	$query = "DELETE FROM $db_procure_schema.$tablename;";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
 foreach(array('banks','groups','users') as $tablename) {
-	$query = "REPLACE INTO $db_procure_schema.$tablename (SELECT * FROM $db_icm_schema.$tablename);";
+	$query = "INSERT INTO $db_procure_schema.$tablename (SELECT * FROM $db_icm_schema.$tablename);";
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
 $tablename = 'banks';
@@ -151,15 +169,32 @@ if($res['count']) die('ERR 7387383989309.2');
 $query = "UPDATE users SET flag_active = 0 WHERE group_id != (SELECT id FROM groups WHERE name = 'Users Prostate') AND username != 'NicoEn';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
-echo "done<br>";
-
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // PARTICIPANTS & MISC-IDENTIFIERS
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** PARTICIPANTS ******************************<br><br>";
-
-echo "Following participants fields wont't be migrated :<br> - last_visit_date,<br> - sardo_participant_id, <br> - sardo_medical_record_number, <br> - last_sardo_import_date, <br> - qc_nd_from_center, <br> - is_anonymous, <br> - anonymous_reason, <br> - anonymous_precision<br><br>";
+echo "<br><br>****************** PARTICIPANTS ******************************<br>";
+echo "** Following participants fields wont't be migrated : cod_icd10_code(cause décés), language_preferred, sex, last_visit_date, sardo_participant_id, sardo_medical_record_number, last_sardo_import_date, qc_nd_from_center, is_anonymous, anonymous_reason, anonymous_precision<br>";
+$participants_fields = array(
+	'id',
+	'first_name',
+	'last_name',
+	'date_of_birth',
+	'date_of_birth_accuracy',
+	'vital_status',
+	'notes',
+	'date_of_death',
+	'date_of_death_accuracy',
+	'last_chart_checked_date',
+	'last_chart_checked_date_accuracy',
+	'last_modification',
+	'last_modification_ds_id',
+	'qc_nd_last_contact'
+);
+echo "** Following field will be migrated : ".implode(', ',$participants_fields)."<br>";
+echo "** Participant Identifier will be replaced by bare-code<br>";;
+echo "** Import following identifiers: Prostate NoLabo, St luc hospital number, hd hospital number, nd hospital number, ramq, old no labo<br>";
+echo "**************************************************************<br><br>";
 
 $query = "select participant_identifier, date_of_death, approximate_date_of_death FROM participants WHERE approximate_date_of_death IS NOT NULL AND deleted <> 1;";
 $query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
@@ -169,32 +204,6 @@ While($res = mysqli_fetch_assoc($query_res)) {
 }
 if($participant_identifiers) echo "Participants (#syst code = ".implode(', ',$participant_identifiers).") have an approximate date of death in ICM version : Dates won't be migrated<br><br>";
 
-$participants_fields = array(
-	'id',
-	'title',
-	'first_name',
-	'middle_name',
-	'last_name',
-	'date_of_birth',
-	'date_of_birth_accuracy',
-	'marital_status',
-	'language_preferred',
-	'sex',
-	'race',
-	'vital_status',
-	'notes',
-	'date_of_death',
-	'date_of_death_accuracy',
-	'cod_icd10_code',
-	'secondary_cod_icd10_code',
-	'cod_confirmation_source',
-	'participant_identifier',
-	'last_chart_checked_date',
-	'last_chart_checked_date_accuracy',
-	'last_modification',
-	'last_modification_ds_id',
-	'qc_nd_last_contact'
-);
 //Record data into participants
 $fields = implode(', ', array_merge($participants_fields, array('created','created_by','modified','modified_by','deleted')));
 $query = "REPLACE INTO $db_procure_schema.participants ($fields) (SELECT $fields FROM $db_icm_schema.participants);";
@@ -214,7 +223,7 @@ While($res = mysqli_fetch_assoc($query_res)) {
 if($participant_identifiers) echo "Participants (#syst code = ".implode(', ',$participant_identifiers).") have no barcode or barcode with a wrong format<br><br>";
 $participant_ids_with_no_barcode = $participant_identifiers;
 //Record Misc Identifier data
-mysqli_query($db_procure_connection, "TRUNCATE misc_identifier_controls;") or die("query failed ["."TRUNCATE misc_identifier_controls;"."]: " . mysqli_error($db_procure_connection)."]");
+mysqli_query($db_procure_connection, "DELETE FROM misc_identifier_controls;") or die("query failed ["."DELETE FROM misc_identifier_controls;"."]: " . mysqli_error($db_procure_connection)."]");
 $query = "REPLACE INTO $db_procure_schema.misc_identifier_controls (SELECT * FROM $db_icm_schema.misc_identifier_controls);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = "REPLACE INTO $db_procure_schema.misc_identifiers (SELECT * FROM $db_icm_schema.misc_identifiers);";
@@ -236,6 +245,15 @@ $query = "UPDATE participants part, misc_identifiers mid, misc_identifier_contro
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = "UPDATE participants SET participant_identifier = CONCAT('$bank_identification', '0000') WHERE id IN (".implode(',',$participant_ids_with_no_barcode).");";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "SELECT part.participant_identifier, part.res FROM (SELECT count(*) AS res, participant_identifier FROM participants WHERE deleted <> 1 GROUP BY participant_identifier) as part WHERE part.res > 1;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+While($res = mysqli_fetch_assoc($query_res)) {
+	$p_ident = $res['participant_identifier'];
+	$p_ident_res = $res['res'];
+	echo "ERROR: $p_ident_res patient have been migrated with participant identifier = $p_ident.<br><br>";
+	$query = "UPDATE participants SET participant_identifier = CONCAT(participant_identifier,'#',id) WHERE participant_identifier = '$p_ident';";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
 $fields = implode(', ', array_merge($participants_fields, array('modified_by','modified')));
 $fields_revs = implode(', ', array_merge($participants_fields, array('modified_by','version_created')));
 $query = "INSERT INTO participants_revs ($fields_revs) (SELECT $fields FROM participants);";
@@ -256,15 +274,25 @@ echo "done<br>";
 // CONSENTS
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** CONSENTS ******************************<br><br>";
-
-echo "Following consents fields won't be migrated :
-<br> - consent_version_date
-<br> - invitation_date
-<br> - consent_status
-<br> - status_date
-<br> - reason_denied
-<br> - consent_control_id<br><br>";
+echo "<br><br>****************** CONSENTS ******************************<br>";
+$cst_detail_fields = array(
+	'consent_master_id',
+	'qc_nd_biological_material_use',
+	'qc_nd_use_of_urine',
+	'qc_nd_use_of_blood',
+	'qc_nd_research_other_disease',
+	'qc_nd_urine_blood_use_for_followup',
+	'qc_nd_stop_followup',
+	'qc_nd_stop_followup_date',
+	'qc_nd_allow_questionnaire',
+	'qc_nd_stop_questionnaire',
+	'qc_nd_stop_questionnaire_date',
+	'qc_nd_contact_for_additional_data',
+	'qc_nd_inform_significant_discovery',
+	'qc_nd_inform_discovery_on_other_disease');
+echo "** Following fields will be migrated :  consent_language, consent_signed_date, consent_signed_date_accuracy,notes, ".implode(', ',$cst_detail_fields)."<br>";
+echo "** Following consents fields won't be migrated : consent_version_date, invitation_date, consent_status, status_date, reason_denied, (consent_control_id)<br>";
+echo "**********************************************************<br><br>";
 
 $query = "SELECT * FROM (SELECT count(*) as count, participant_id FROM consent_masters WHERE deleted <> 1 GROUP BY participant_id) AS res WHERE res.count > 1;";
 $query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
@@ -313,21 +341,6 @@ $queries = array(
 	"UPDATE consent_masters_revs cst, participants p SET cst.procure_form_identification = CONCAT(p.participant_identifier, ' V0 -CSF1') WHERE p.id = cst.participant_id;");
 foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 //Consent Detail
-$cst_detail_fields = array(
-	'consent_master_id',
-	'qc_nd_biological_material_use',
-	'qc_nd_use_of_urine',
-	'qc_nd_use_of_blood',
-	'qc_nd_research_other_disease',
-	'qc_nd_urine_blood_use_for_followup',
-	'qc_nd_stop_followup',
-	'qc_nd_stop_followup_date',
-	'qc_nd_allow_questionnaire',
-	'qc_nd_stop_questionnaire',
-	'qc_nd_stop_questionnaire_date',
-	'qc_nd_contact_for_additional_data',
-	'qc_nd_inform_significant_discovery',
-	'qc_nd_inform_discovery_on_other_disease');
 $fields = implode(', ', $cst_detail_fields);
 $fields_icm = str_replace('qc_nd_','',$fields);
 $query = "INSERT INTO $db_procure_schema.procure_cd_sigantures ($fields) (SELECT $fields_icm FROM $db_icm_schema.cd_icm_generics);";
@@ -352,6 +365,24 @@ while($res = mysqli_fetch_assoc($query_res)) {
 		"UPDATE consent_masters_revs SET procure_form_identification = CONCAT('".$res['participant_identifier']."', ' V0 -CSF', $sct_nbr) WHERE id = ".$res['consent_master_id'].";");
 	foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
+//consent control
+$query = "SELECT count(*) as nbr, 'consent_masters' as type FROM consent_masters
+	UNION ALL
+	SELECT count(*) as nbr, 'procure_cd_sigantures' as type FROM procure_cd_sigantures;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$consent_masters_count = null;
+$procure_cd_sigantures_count = null;
+while($res = mysqli_fetch_assoc($query_res)) {	
+	switch($res['type']) {
+		case 'consent_masters':
+			$consent_masters_count = $res['nbr'];
+			break;
+		case 'procure_cd_sigantures':
+			$procure_cd_sigantures_count = $res['nbr'];
+			break;
+	}
+}
+if($consent_masters_count != $procure_cd_sigantures_count) die('ERR 2387 62876 32873 ');
 
 echo "done<br>";
 
@@ -359,8 +390,11 @@ echo "done<br>";
 // Questionnaire
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** QUESTIONNAIRES ******************************<br><br>";
+echo "<br><br>****************** QUESTIONNAIRES ******************************<br>";
+echo "** Mirgation from excel file<br>";
+echo "****************************************************************<br><br>";
 
+if(false){
 $query = "SELECT id FROM event_controls WHERE event_type = 'procure questionnaire administration worksheet';";
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $res = mysqli_fetch_assoc($query_res);
@@ -376,11 +410,6 @@ $nl_labos_with_no_questionnaire = array();
 $line_counter = 0;
 $q_errors = array('empty date' => array(), 'no_labo_unknown' => array(), 'more than one' => array());
 foreach($XlsReader->sheets[$sheets_nbr['Cas complet']]['cells'] as $line => $new_line) {
-	
-//TODO
-continue; 
-//TODO
-		
 	$line_counter++;
 	if($line_counter == 1) {
 		$headers = $new_line;
@@ -489,19 +518,14 @@ if($q_errors['no_labo_unknown']) echo "Error: NoLabos [".implode(', ',$q_errors[
 if($q_errors['more than one']) echo "Error: NoLabos [".implode(', ',$q_errors['more than one'])."] are linked to more than one questionnaire. Only the first one will be created<br><br>";
 if($nl_labos_with_no_questionnaire) echo "Error: NoLabos [".implode(', ',$nl_labos_with_no_questionnaire)."] defined into questionnaire are not linked to questionnaire data : no questionnaire will be created<br><br>";
 if($nl_labos_linked_to_approximative_date_equal_to_cst_date) echo "Error: NoLabos [".implode(', ',$nl_labos_linked_to_approximative_date_equal_to_cst_date)."] defined into questionnaire are not linked to questionnaire date : used consent date as approximative date<br><br>";
-
+}
 echo "done<br>";
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // Contacts & Messages
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** CONTACTS & MESSAGES ******************************<br><br>";
-
-foreach(array('participant_contacts', 'participant_contacts_revs') as $tablename) {
-	$query = "INSERT INTO $db_procure_schema.$tablename (SELECT * FROM $db_icm_schema.$tablename);";
-	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-}
+echo "<br><br>****************** CONTACTS & MESSAGES ******************************<br>";
 $message_fields = array('id',
 	'date_requested',
 	'date_requested_accuracy',
@@ -516,6 +540,13 @@ $message_fields = array('id',
 	'participant_id',
 	'done',
 	'status');
+echo "** Migration of fields : ".implode(',', $message_fields)."<br>";
+echo "***************************************************************<br><br>";
+
+foreach(array('participant_contacts', 'participant_contacts_revs') as $tablename) {
+	$query = "INSERT INTO $db_procure_schema.$tablename (SELECT * FROM $db_icm_schema.$tablename);";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
 $fields = implode(',',$message_fields).',created,created_by,modified,modified_by,deleted';
 $query = "INSERT INTO $db_procure_schema.participant_messages (".str_replace('status','qc_nd_status',$fields).") (SELECT $fields FROM $db_icm_schema.participant_messages);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -529,13 +560,34 @@ echo "done<br>";
 // STORAGES
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** STORAGES ******************************<br><br>";
+echo "<br><br>****************** STORAGES ******************************<br>";
+echo "all field will be migrated<br>";
+echo "**********************************************************<br><br>";
 
-$query = "TRUNCATE storage_controls;";
+$query = "DELETE FROM storage_controls;";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");		
 $query = "INSERT INTO $db_procure_schema.storage_controls (SELECT * FROM $db_icm_schema.storage_controls);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$storage_tables = array('storage_masters','std_rooms','std_cupboards','std_nitro_locates','std_incubators','std_fridges','std_freezers','std_boxs','std_racks','std_shelfs','std_tma_blocks');
+foreignKeyCheck(0);
+//Master
+$new_table = 'storage_masters';
+$query = "INSERT INTO $db_procure_schema.$new_table (SELECT * FROM $db_icm_schema.$new_table);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$new_table = $new_table.'_revs';
+$query = "INSERT INTO $db_procure_schema.$new_table (SELECT * FROM $db_icm_schema.$new_table);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+foreignKeyCheck(1);
+//FK control
+$query = "SELECT count(*) as failed FROM storage_masters WHERE parent_id IS NOT NULL AND parent_id NOT IN (SELECT id FROM storage_masters);";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$res = mysqli_fetch_assoc($query_res);
+if($res['failed']) die('ERR 23876287632 ');
+$query = "SELECT count(*) as failed FROM storage_masters WHERE storage_control_id NOT IN (SELECT id FROM storage_controls);";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$res = mysqli_fetch_assoc($query_res);
+if($res['failed']) die('ERR 23876287633 ');
+//Detail tables
+$storage_tables = array('std_rooms','std_cupboards','std_nitro_locates','std_incubators','std_fridges','std_freezers','std_boxs','std_racks','std_shelfs','std_tma_blocks');
 foreach($storage_tables as $new_table) {
 	$query = "INSERT INTO $db_procure_schema.$new_table (SELECT * FROM $db_icm_schema.$new_table);";
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -550,29 +602,19 @@ echo "done<br>";
 // STUDY
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** STUDIES ******************************<br><br>";
-
-echo "Following fields won't be migrated : qc_nd_researcher, qc_nd_contact, qc_nd_code<br><br>";
+echo "<br><br>****************** STUDIES ******************************<br>";
+echo "** Following fields will be migrated : title, start_date, start_date_accuracy,end_date,end_date_accuracy,summary<br>";
+echo "** Following fields won't be migrated : qc_nd_researcher, qc_nd_contact, qc_nd_code<br>";
+echo "*********************************************************<br><br>";
 
 $fields = array(
 	'id',
-	'disease_site',
-	'study_type',
-	'study_science',
-	'study_use',
 	'title',
 	'start_date',
 	'start_date_accuracy',
 	'end_date',
 	'end_date_accuracy',
-	'summary',
-	'abstract',
-	'hypothesis',
-	'approach',
-	'analysis',
-	'significance',
-	'additional_clinical',
-	'path_to_file');	
+	'summary');	
 $field_strg = implode(', ', array_merge($fields, array('created','created_by','modified','modified_by','deleted')));
 $query = "INSERT INTO $db_procure_schema.study_summaries ($field_strg) (SELECT $field_strg FROM $db_icm_schema.study_summaries);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -590,13 +632,15 @@ echo "<br><br>****************** ORDERS ******************************<br><br>";
 
 echo "Nothing migrated<br><br>";
 
+flush();
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // INVENTORY
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 // -- COLLECTION --------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** COLLECTIONS ******************************<br><br>";
+echo "<br><br>****************** COLLECTIONS ******************************<br>";
 
 $procure_control_id = migrateCustomList('Specimen Collection Sites%', 'Specimen Collection Sites%');
 $query = "DELETE FROM $db_procure_schema.structure_permissible_values_customs WHERE control_id = $procure_control_id AND value NOT IN (SELECT distinct collection_site FROM $db_icm_schema.collections WHERE collection_site IS NOT NULL);";
@@ -611,6 +655,9 @@ $fields = array(
 	'collection_notes',
 	'participant_id',
 	'procure_visit');
+echo "** Following fields will be migrated : ".implode(', ', $fields)."<br>";
+echo "*****************************************************************<br><br>";
+
 $field_strg = implode(', ', array_merge($fields, array('created','created_by','modified','modified_by','deleted')));
 $query = "INSERT INTO $db_procure_schema.collections ($field_strg) (SELECT ".str_replace('procure_visit', 'visit_label', $field_strg)." FROM $db_icm_schema.collections);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -622,13 +669,21 @@ echo "done<br>";
 
 // -- SAMPLES --------------------------------------------------------------------------------------------------------------------------------------------
 
-echo "<br><br>****************** SAMPLES ******************************<br><br>";
+echo "<br><br>****************** SAMPLES ******************************<br>";
+$sample_master_fields = "id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,notes,created,created_by,modified,modified_by,deleted";
+$specimen_fields = "sample_master_id,supplier_dept,time_at_room_temp_mn,reception_by,reception_datetime,reception_datetime_accuracy";
+$derivative_fields = "sample_master_id,creation_by,creation_datetime,creation_datetime_accuracy";
+echo "** Sample fields $sample_master_fields will be migrated!<br>";
+echo "** Warning: Sample fields qc_nd_sample_label, is_problematic won't be migrated!<br>";
+echo "** Specimen fields $specimen_fields will be migrated!<br>";
+echo "** Warning: Specimen fields type_code, sequence_number won't be migrated!<br>";
+echo "** Derivative fields $derivative_fields will be migrated!<br>";
+echo "** Warning: Derivative fields creation_site won't be migrated!<br>";
+echo "** Warning: Blood cell will be migrated to pbmc!<br>";
+echo "** Warning: concentrated urine will be migrated to centrifuged urine!<br>";
+echo "*********************************************************<br><br>";
 
 //SAMPLE MASTERS
-
-echo "Warning: Sample fields qc_nd_sample_label, is_problematic won't be migrated!<br><br>";
-echo "Warning: Specimen fields type_code, sequence_number won't be migrated!<br><br>";
-echo "Warning: Derivative fields creation_site won't be migrated!<br><br>";
 
 $migrated_sample_types = array('blood','blood cell','centrifuged urine','concentrated urine','dna','pbmc','plasma','rna','serum','tissue','urine');
 $query = "SELECT sample_type, id FROM sample_controls WHERE id IN (SELECT DISTINCT sample_control_id FROM sample_masters WHERE deleted <> 1)";
@@ -647,16 +702,14 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 	if($sample_controls_data[$res['sample_type']] != $res['id']) die('ERR 23 762387 623 2.2');
 }
 $sample_control_ids = implode(',',$sample_controls_data);
-$fields = "id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,notes,created,created_by,modified,modified_by,deleted";
-$query = "INSERT INTO $db_procure_schema.sample_masters ($fields) (SELECT $fields from $db_icm_schema.sample_masters WHERE sample_control_id IN ($sample_control_ids));";
+$query = "INSERT INTO $db_procure_schema.sample_masters ($sample_master_fields) (SELECT $sample_master_fields from $db_icm_schema.sample_masters WHERE sample_control_id IN ($sample_control_ids));";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = str_replace(array('sample_masters', 'created,created_by,modified,modified_by,deleted'), array('sample_masters_revs', 'modified_by,version_id,version_created'), $query);
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
 //SPECIMENS
 
-$fields = "sample_master_id,supplier_dept,time_at_room_temp_mn,reception_by,reception_datetime,reception_datetime_accuracy";
-$query = "INSERT INTO $db_procure_schema.specimen_details ($fields) (SELECT $fields FROM $db_icm_schema.specimen_details INNER JOIN $db_icm_schema.sample_masters ON id = sample_master_id WHERE sample_control_id IN ($sample_control_ids));";
+$query = "INSERT INTO $db_procure_schema.specimen_details ($specimen_fields) (SELECT $specimen_fields FROM $db_icm_schema.specimen_details INNER JOIN $db_icm_schema.sample_masters ON id = sample_master_id WHERE sample_control_id IN ($sample_control_ids));";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = str_replace(array('specimen_details', ',reception_datetime_accuracy'), array('specimen_details_revs',',reception_datetime_accuracy,version_id,version_created'), $query);
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -687,8 +740,7 @@ mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line
 
 //DERIVATIVE
 
-$fields = "sample_master_id,creation_by,creation_datetime,creation_datetime_accuracy";
-$query = "INSERT INTO $db_procure_schema.derivative_details ($fields) (SELECT $fields FROM $db_icm_schema.derivative_details INNER JOIN $db_icm_schema.sample_masters ON id = sample_master_id WHERE sample_control_id IN ($sample_control_ids));";
+$query = "INSERT INTO $db_procure_schema.derivative_details ($derivative_fields) (SELECT $derivative_fields FROM $db_icm_schema.derivative_details INNER JOIN $db_icm_schema.sample_masters ON id = sample_master_id WHERE sample_control_id IN ($sample_control_ids));";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = str_replace(array('derivative_details', ',reception_datetime_accuracy'), array('derivative_details_revs',',creation_datetime_accuracy,version_id,version_created'), $query);
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -762,57 +814,477 @@ $sample_codes = array();
 While($res = mysqli_fetch_assoc($query_res)) {
 	$sample_codes[] = $res['sample_code'];
 }
-if($sample_codes) echo "ERROR: Urines (#sample syst code = ".implode(', ',$sample_codes).") have colelcted volume different than ml. Set to ml.<br><br>";
+if($sample_codes) echo "ERROR: Urines (#sample syst code = ".implode(', ',$sample_codes).") have collected volume different than ml. Set to ml.<br><br>";
 $query = "UPDATE sd_spe_urines SET collected_volume_unit = 'ml';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = "UPDATE sd_spe_urines_revs SET collected_volume_unit = 'ml';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
+echo "<br>- - - - - - - - -  URINE CONCENTRÉ/CENTRIFUGÉE - - - - - - - - - -<br><br>";
 
-
-
-
-
-
-
-
-
-//TODO
-//blood cell => pbmc attention pour les aliquots pas de flag
-//concetrated urine > centrifug. avec un flag
-//Remetre a jour pour les dérivé de blood cell parent_sample_type
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-$query = "UPDATE versions SET permissions_regenerated = '0';";
+$fields = 'sample_master_id';
+$query = "INSERT INTO $db_procure_schema.sd_der_urine_cents ($fields ,qc_nd_concentrated) (SELECT $fields, 'y' FROM $db_icm_schema.sd_der_urine_cons);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.sd_der_urine_cents_revs ($fields ,qc_nd_concentrated,version_id,version_created) (SELECT $fields ,'y',version_id,version_created FROM $db_icm_schema.sd_der_urine_cons_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.sd_der_urine_cents ($fields) (SELECT $fields FROM $db_icm_schema.sd_der_urine_cents);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.sd_der_urine_cents_revs ($fields ,version_created) (SELECT $fields ,version_created FROM $db_icm_schema.sd_der_urine_cents_revs ORDER BY version_id ASC);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sample_masters SET sample_control_id = ".$sample_controls_data['centrifuged urine']." WHERE sample_control_id = ".$sample_controls_data['concentrated urine'].";";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sample_masters_revs SET sample_control_id = ".$sample_controls_data['centrifuged urine']." WHERE sample_control_id = ".$sample_controls_data['concentrated urine'].";";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sample_masters SET parent_sample_type = 'centrifuged urine' WHERE parent_sample_type = 'concentrated urine';";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sample_masters_revs SET parent_sample_type = 'centrifuged urine' WHERE parent_sample_type = 'concentrated urine';";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  TISSUE - - - - - - - - - -<br><br>";
+
+echo "Warning: Tissue fields tmp_buffer_use won't be migrated!<br><br>";
+
+$tissue_fields = 'sample_master_id,pathology_reception_datetime,pathology_reception_datetime_accuracy,tissue_size,tissue_size_unit,tissue_weight,tissue_weight_unit';
+$query = "INSERT INTO $db_procure_schema.sd_spe_tissues ($tissue_fields ,procure_transfer_to_pathology_on_ice) (SELECT $tissue_fields,SUBSTRING(tmp_on_ice,1,1) FROM $db_icm_schema.sd_spe_tissues);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.sd_spe_tissues_revs ($tissue_fields ,procure_transfer_to_pathology_on_ice) (SELECT $tissue_fields,SUBSTRING(tmp_on_ice,1,1) FROM $db_icm_schema.sd_spe_tissues_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");	
+$query = "SELECT * FROM (
+	SELECT sm.id AS sample_master_id, sm.sample_code, substr(collection_datetime,1,10) AS collection_datetime, substr(pathology_reception_datetime,1,10) AS pathology_reception_date, substr(pathology_reception_datetime,12,5) AS pathology_reception_time
+	FROM collections col
+	INNER JOIN sample_masters sm ON sm.collection_id = col.id
+	INNER JOIN sd_spe_tissues ts ON ts.sample_master_id = sm.id
+	WHERE pathology_reception_datetime is not null AND pathology_reception_datetime_accuracy in('c','') AND pathology_reception_datetime != '0000-00-00' AND sm.deleted <> 1
+) AS res WHERE res.collection_datetime != res.pathology_reception_date";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$sample_codes = array();
+While($res = mysqli_fetch_assoc($query_res)) {
+	$sample_codes[] = $res['sample_code'];
+}
+if($sample_codes) echo "ERROR: Tissue (#sample syst code = ".implode(', ',$sample_codes).") have collection date != pathology reception date. See icm database.<br><br>";
+$query = "UPDATE sd_spe_tissues SET procure_arrival_in_pathology_time =  substr(pathology_reception_datetime,12,5) WHERE pathology_reception_datetime is not null AND pathology_reception_datetime_accuracy in('c','') AND pathology_reception_datetime != '0000-00-00'";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sd_spe_tissues SET pathology_reception_datetime =  '', pathology_reception_datetime_accuracy = '';";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sd_spe_tissues ts, participants p, collections col, sample_masters sm
+	SET procure_tissue_identification = CONCAT(participant_identifier, ' ', procure_visit, ' ', ' -PST1')
+	WHERE p.id = col.participant_id AND col.id = sm.collection_id AND sm.id = ts.sample_master_id AND sm.deleted <> 1;";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE sample_masters SET modified = '$modified', modified_by = '$modified_by' WHERE sample_control_id IN (".$sample_controls_data['tissue'].")";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+//add new line in rev table for tissue
+$tmp_fields = str_replace('created,created_by,modified,modified_by,deleted', '', $sample_master_fields);;
+$query = "INSERT INTO sample_masters_revs ($tmp_fields modified_by,version_created) (SELECT $tmp_fields modified_by, modified from sample_masters WHERE sample_control_id IN (".$sample_controls_data['tissue']."));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO specimen_details_revs ($specimen_fields, version_created) (SELECT $specimen_fields, modified from sample_masters INNER JOIN specimen_details ON id = sample_master_id WHERE sample_control_id IN (".$sample_controls_data['tissue']."));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO sd_spe_tissues_revs ($tissue_fields, procure_tissue_identification, version_created) (SELECT $tissue_fields,procure_tissue_identification, modified from sample_masters INNER JOIN sd_spe_tissues ON id = sample_master_id WHERE sample_control_id IN (".$sample_controls_data['tissue']."));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  DNA - - - - - - - - - -<br><br>";
+echo "Warning: DNA fields source_cell_passage_number, source_temperature, source_temp_unit, tmp_source_milieu, tmp_source_storage_method won't be migrated!<br><br>";
+$query = "INSERT INTO $db_procure_schema.sd_der_dnas (sample_master_id,qc_nd_extraction_method) (SELECT sample_master_id,tmp_extraction_method FROM $db_icm_schema.sd_der_dnas);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.sd_der_dnas_revs (sample_master_id,qc_nd_extraction_method ,version_id,version_created) (SELECT sample_master_id,tmp_extraction_method ,version_id,version_created FROM $db_icm_schema.sd_der_dnas_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+migrateCustomList('DNA : Extraction method', 'DNA : Extraction method');
+
+echo "<br>- - - - - - - - -  RNA - - - - - - - - - -<br><br>";
+echo "Warning: RNA fields source_cell_passage_number, source_temperature, source_temp_unit, tmp_source_milieu, tmp_source_storage_method won't be migrated!<br><br>";
+$query = "INSERT INTO $db_procure_schema.sd_der_rnas (sample_master_id,qc_nd_extraction_method) (SELECT sample_master_id,tmp_extraction_method FROM $db_icm_schema.sd_der_rnas);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.sd_der_rnas_revs (sample_master_id,qc_nd_extraction_method ,version_id,version_created) (SELECT sample_master_id,tmp_extraction_method ,version_id,version_created FROM $db_icm_schema.sd_der_rnas_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+migrateCustomList('RNA : Extraction method', 'RNA : Extraction method');
+
+echo "<br>- - - - - - - - -  Sample Migration Control - - - - - - - - - -<br><br>";
+
+$query = "SELECT count(*) as nbr, deleted from sample_masters WHERE id NOT IN (SELECT sample_master_id FROM specimen_details UNION ALL SELECT sample_master_id FROM derivative_details) GROUP BY deleted;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+WHILE($res = mysqli_fetch_assoc($query_res)) {
+	if($res['nbr']) echo "ERROR: ".$res['nbr']." sample_masters records with deleted = ".$res['deleted']." are not linked to specimen_details or derivatvie_details tables.<br><br>";
+}
+$query = "SELECT count(*) as nbr, deleted from sample_masters WHERE id NOT IN (SELECT sample_master_id FROM sd_spe_bloods UNION ALL
+	SELECT sample_master_id FROM sd_der_plasmas UNION ALL
+	SELECT sample_master_id FROM sd_der_pbmcs UNION ALL
+	SELECT sample_master_id FROM sd_der_serums UNION ALL
+	SELECT sample_master_id FROM sd_spe_urines UNION ALL
+	SELECT sample_master_id FROM sd_der_urine_cents UNION ALL
+	SELECT sample_master_id FROM sd_spe_tissues UNION ALL
+	SELECT sample_master_id FROM sd_der_dnas UNION ALL
+	SELECT sample_master_id FROM sd_der_rnas) GROUP BY deleted;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+WHILE($res = mysqli_fetch_assoc($query_res)) {
+	if($res['nbr']) echo "ERROR: ".$res['nbr']." sample_masters records with deleted = ".$res['deleted']." are not linked to details table.<br><br>";
+}
+
+flush();
+
+// -- ALIQUOTS --------------------------------------------------------------------------------------------------------------------------------------------
+
+echo "<br><br>****************** ALIQUOTS ******************************<br>";
+$aliquot_master_fields = "id, collection_id, sample_master_id, initial_volume,current_volume,in_stock,in_stock_detail,use_counter,study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,notes,created,created_by,modified,modified_by,deleted";
+echo "** Aliquot fields $aliquot_master_fields will be migrated!<br>";
+echo "** Aliquot label will be migrated to barcode and changed to unique value if required!<br>";
+echo "** Warning: Aliquot fields sop_master_id,product_code,lot # won't be migrated!<br>";
+echo "*********************************************************<br><br>";
+
+//ALIQUOT MASTERS
+
+//aliquot controls check
+$query = "SELECT sc.sample_type, sc.id AS sample_control_id, ac.id AS aliquot_control_id, aliquot_type, ac.detail_tablename, ac.volume_unit
+	FROM sample_controls sc INNER JOIN aliquot_controls ac ON ac.sample_control_id = sc.id
+	WHERE ac.flag_active = '1' AND sc.sample_type IN ('".implode("','", $migrated_sample_types)."')";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$aliquot_control_data = array();
+while ($res = mysqli_fetch_assoc($query_res)) {
+	$aliquot_control_data[$res['sample_type']][$res['aliquot_type']]['procure_aliquot_control_id'] = $res['aliquot_control_id'];
+	$aliquot_control_data[$res['sample_type']][$res['aliquot_type']]['detail_tablename'] = $res['detail_tablename'];
+	$aliquot_control_data[$res['sample_type']][$res['aliquot_type']]['volume_unit'] = $res['volume_unit'];
+}
+$query = "SELECT sc.sample_type, sc.id AS sample_control_id, ac.id AS aliquot_control_id, aliquot_type, ac.detail_tablename, ac.volume_unit
+	FROM sample_controls sc INNER JOIN aliquot_controls ac ON ac.sample_control_id = sc.id
+	WHERE ac.flag_active = '1' AND ac.id IN (SELECT DISTINCT aliquot_control_id FROM aliquot_masters WHERE deleted <> 1)";
+$query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+$icm_blood_cell_tube_ctrl_id = null;
+$icm_concentrated_urine_ctrl_id = null;
+while ($res = mysqli_fetch_assoc($query_res)) {
+	$sample_type = $res['sample_type'];
+	$aliquot_type = $res['aliquot_type'];
+	$aliquot_control_id = $res['aliquot_control_id'];
+	$detail_tablename = $res['detail_tablename'];
+	if($sample_type == 'concentrated urine' && $aliquot_type == 'tube') {
+		$icm_concentrated_urine_ctrl_id =$aliquot_control_id;
+		if($aliquot_control_data['centrifuged urine'][$aliquot_type]['detail_tablename'] != $detail_tablename) die('ERR 2387 6287 633 '.$sample_type.' '.$aliquot_type.' '.$detail_tablename);
+		if($aliquot_control_data['centrifuged urine'][$aliquot_type]['volume_unit'] != $res['volume_unit']) die('ERR 2387 6287 633 22'.$sample_type.' '.$aliquot_type.' '.$detail_tablename);
+		$aliquot_control_data['*** concentrated urine ***'] = $aliquot_control_data['centrifuged urine'];
+		$aliquot_control_data['*** concentrated urine ***'][$aliquot_type]['icm_aliquot_control_id'] = $aliquot_control_id;
+	} else if($sample_type == 'blood cell' && $aliquot_type == 'tube') {
+		$icm_blood_cell_tube_ctrl_id = $aliquot_control_id;
+		if($aliquot_control_data['pbmc'][$aliquot_type]['detail_tablename'] != $detail_tablename) die('ERR 2387 6287 633 '.$sample_type.' '.$aliquot_type.' '.$detail_tablename);
+		if($aliquot_control_data['pbmc'][$aliquot_type]['volume_unit'] != $res['volume_unit']) die('ERR 2387 6287 633 22'.$sample_type.' '.$aliquot_type.' '.$detail_tablename);
+		$aliquot_control_data['*** blood cell ***'] = $aliquot_control_data['pbmc'];
+		$aliquot_control_data['*** blood cell ***'][$aliquot_type]['icm_aliquot_control_id'] = $aliquot_control_id;
+	} else if(array_key_exists($sample_type, $aliquot_control_data)) {
+		if($sample_type == 'urine' && $aliquot_type == 'tube') {
+			echo "WARNING: Urine tube will be migrated to urine cup<br><br>";
+			$aliquot_type = 'cup';
+		}
+		if(!array_key_exists($aliquot_type, $aliquot_control_data[$sample_type])) die('ERR 2387 6287 632 '.$sample_type.' '.$aliquot_type);
+		if($aliquot_control_data[$sample_type][$aliquot_type]['detail_tablename'] != $detail_tablename) die('ERR 2387 6287 633 '.$sample_type.' '.$aliquot_type.' '.$detail_tablename);
+		if($aliquot_control_data[$sample_type][$aliquot_type]['volume_unit'] != $res['volume_unit']) die('ERR 2387 6287 633 22'.$sample_type.' '.$aliquot_type.' '.$detail_tablename);
+		$aliquot_control_data[$sample_type][$aliquot_type]['icm_aliquot_control_id'] = $aliquot_control_id;
+	} else {
+		echo "WARNING: $sample_type $aliquot_type won't be migrated<br><br>";
+	}
+}
+//aliquot_masters
+foreach($aliquot_control_data as $sample_type => $new_ctr_tmp) {
+	foreach($new_ctr_tmp as $aliquot_type => $new_ctr) {
+		if(array_key_exists('icm_aliquot_control_id', $new_ctr)) {
+			$procure_fields = "aliquot_control_id,barcode,aliquot_label, $aliquot_master_fields";
+			$icm_fields = $new_ctr['procure_aliquot_control_id'].",barcode,aliquot_label, $aliquot_master_fields";
+			$query = "INSERT INTO $db_procure_schema.aliquot_masters ($procure_fields) (SELECT $icm_fields from $db_icm_schema.aliquot_masters WHERE aliquot_control_id = ".$new_ctr['icm_aliquot_control_id'].");";		
+			mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+			$query = str_replace(array('aliquot_masters', 'created,created_by,modified,modified_by,deleted'), array('aliquot_masters_revs', 'modified_by,version_id,version_created'), $query);
+			mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+		} else {
+			echo "Message: No $sample_type $aliquot_type exists into icm database<br><br>";
+		}
+	}
+}
+
+echo "<br>- - - - - - - - -  Blood: Whatman Paper - - - - - - - - - -<br><br>";
+
+echo "Warning: Wahtman Paper field used volume won't be migrated!<br><br>";
+$fields = 'aliquot_master_id';
+$query = "INSERT INTO $db_procure_schema.ad_whatman_papers ($fields) (SELECT $fields FROM $db_icm_schema.ad_whatman_papers);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_whatman_papers_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_whatman_papers_revs);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  Blood: Tube - - - - - - - - - -<br><br>";
+
+$fields = 'aliquot_master_id';
+$icm_aliquot_control_id = $aliquot_control_data['blood']['tube']['icm_aliquot_control_id'];
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($fields) (SELECT $fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  PBMC/blood cell: Tube - - - - - - - - - -<br><br>";
+
+$fields = 'aliquot_master_id';
+echo "Warning: Fields cell_count, concentration, tmp_storage_solution won't be migrated!<br><br>";
+$icm_aliquot_control_ids = $aliquot_control_data['*** blood cell ***']['tube']['icm_aliquot_control_id']; //.','.$aliquot_control_data['pbmc']['tube']['icm_aliquot_control_id'];
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($fields) (SELECT $fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id IN ($icm_aliquot_control_ids));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id IN ($icm_aliquot_control_ids));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  Plasma: Tube - - - - - - - - - -<br><br>";
+
+$fields = 'aliquot_master_id,hemolysis_signs';
+echo "Fields hemolysis_signs will be migrated!<br><br>";
+$icm_aliquot_control_id = $aliquot_control_data['plasma']['tube']['icm_aliquot_control_id'];
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($fields) (SELECT $fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  SERUM: Tube - - - - - - - - - -<br><br>";
+
+$fields = 'aliquot_master_id,hemolysis_signs';
+echo "Fields hemolysis_signs will be migrated!<br><br>";
+$icm_aliquot_control_id = $aliquot_control_data['serum']['tube']['icm_aliquot_control_id'];
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($fields) (SELECT $fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  Urine: Tube - - - - - - - - - -<br><br>";
+
+$fields = 'aliquot_master_id';
+$icm_aliquot_control_id = $aliquot_control_data['urine']['cup']['icm_aliquot_control_id'];
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($fields) (SELECT $fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  centrifuged urine,concentrated urine - - - - - - - - - -<br><br>";
+
+$fields = 'aliquot_master_id';
+$icm_aliquot_control_ids = $aliquot_control_data['*** concentrated urine ***']['tube']['icm_aliquot_control_id'].','.$aliquot_control_data['centrifuged urine']['tube']['icm_aliquot_control_id'];
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($fields) (SELECT $fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id IN ($icm_aliquot_control_ids));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id IN ($icm_aliquot_control_ids));";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  Tissue: Block - - - - - - - - - -<br><br>";
+
+echo "Message: Fields [qc_nd_gleason_primary_grade, qc_nd_gleason_secondary_grade, qc_nd_tissue_primary_desc, qc_nd_tissue_secondary_desc,qc_nd_tumor_presence, qc_nd_sample_position_code, procure_origin_of_slice] Will be migrated<br><br>";
+echo "Mesage: If ICM.block_type = OCT => procure.block_type = frozen &  procure.procure_freezing_type = OCT<br>";
+echo "Mesage: If ICM.block_type = isopentane + OCT => procure.block_type = frozen &  procure.procure_freezing_type = ISO+OCT<br>";
+echo "Mesage: If ICM.block_type = paraffin => procure.block_type = paraffin &  procure.procure_freezing_type = ''<br>";
+$fields = 'aliquot_master_id';
+$icm_aliquot_control_id = $aliquot_control_data['tissue']['block']['icm_aliquot_control_id'];
+$block_matches = array(
+	'OCT' => array('block_type' => 'frozen', 'procure_freezing_type' => 'OCT'),	
+	'isopentane + OCT' => array('block_type' => 'frozen', 'procure_freezing_type' => 'ISO+OCT'),
+	'paraffin' => array('block_type' => 'paraffin', 'procure_freezing_type' => ''));
+foreach($block_matches as $icm_bloc_type => $procure_block_data) {
+	$procure_block_type = $procure_block_data['block_type'];
+	$procure_freezing_type = $procure_block_data['procure_freezing_type'];
+	$icm_fields = "aliquot_master_id, '$procure_block_type', '$procure_freezing_type', tmp_gleason_primary_grade, tmp_gleason_secondary_grade, tmp_tissue_primary_desc, tmp_tissue_secondary_desc,tumor_presence, sample_position_code, procure_origin_of_slice, patho_dpt_block_code";
+	$procure_fields = "aliquot_master_id, block_type,procure_freezing_type,qc_nd_gleason_primary_grade, qc_nd_gleason_secondary_grade, qc_nd_tissue_primary_desc, qc_nd_tissue_secondary_desc,qc_nd_tumor_presence, qc_nd_sample_position_code, procure_origin_of_slice, patho_dpt_block_code";
+	$query = "INSERT INTO $db_procure_schema.ad_blocks ($procure_fields) (SELECT $icm_fields FROM $db_icm_schema.ad_blocks INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id AND block_type = '$icm_bloc_type');";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	$query = "INSERT INTO $db_procure_schema.ad_blocks_revs ($procure_fields ,version_id,version_created) (SELECT $icm_fields ,version_id,version_created FROM $db_icm_schema.ad_blocks_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id AND block_type = '$icm_bloc_type');";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
+echo "Message: Block Patho Nb (patho_dpt_block_code) will be moved to tissue level.<br><br>";
+$query = "SELECT res2.sample_master_id FROM (
+		SELECT res.sample_master_id, count(*) as nbr FROM (
+			SELECT DISTINCT ad.patho_dpt_block_code, am.sample_master_id
+			FROM ad_blocks ad
+			INNER JOIN aliquot_masters am ON am.id = ad.aliquot_master_id
+			WHERE am.deleted <> 1 AND ad.patho_dpt_block_code IS NOT NULL AND ad.patho_dpt_block_code NOT LIKE '') AS res
+		GROUP BY res.sample_master_id) AS res2
+	WHERE res2.nbr > 1";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$sample_codes = array();
+while ($res = mysqli_fetch_assoc($query_res)) {
+	$sample_codes[] = $res['sample_master_id'];
+}
+$tmp_conditions = '';
+if($sample_codes) {
+	echo "Error: Following tissues with sample codes = [".implode(', ',$sample_codes)."] are linked to more than one pathology report number: to clean up and to migrate manually<br><br>";
+	$tmp_conditions = " AND am.sample_master_id NOT IN (".implode(', ',$sample_codes).")";
+}
+$query_res = "UPDATE ad_blocks ad, aliquot_masters am, sd_spe_tissues sd
+	SET sd.procure_report_number = ad.patho_dpt_block_code
+	WHERE am.id = ad.aliquot_master_id AND am.sample_master_id = sd.sample_master_id
+	AND am.deleted <> 1 AND ad.patho_dpt_block_code IS NOT NULL AND ad.patho_dpt_block_code NOT LIKE '' $tmp_conditions";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  DNA: tube - - - - - - - - - -<br><br>";
+
+echo "Fields qc_nd_storage_solution will be migrated!<br><br>";
+$icm_aliquot_control_id = $aliquot_control_data['dna']['tube']['icm_aliquot_control_id'];
+$icm_fields = 'aliquot_master_id,tmp_storage_solution';
+$procure_fields = 'aliquot_master_id,qc_nd_storage_solution';
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($procure_fields) (SELECT $icm_fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($procure_fields ,version_id,version_created) (SELECT $icm_fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+migrateCustomList('DNA RNA : Storage solution','DNA RNA : Storage solution');
+
+echo "<br>- - - - - - - - -  RNA: tube - - - - - - - - - -<br><br>";
+
+echo "Fields qc_nd_storage_solution, qc_nd_purification_method will be migrated!<br><br>";
+$icm_aliquot_control_id = $aliquot_control_data['rna']['tube']['icm_aliquot_control_id'];
+$icm_fields = 'aliquot_master_id,tmp_storage_solution,chum_purification_method';
+$procure_fields = 'aliquot_master_id,qc_nd_storage_solution,qc_nd_purification_method';
+$query = "INSERT INTO $db_procure_schema.ad_tubes ($procure_fields) (SELECT $icm_fields FROM $db_icm_schema.ad_tubes INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "INSERT INTO $db_procure_schema.ad_tubes_revs ($procure_fields ,version_id,version_created) (SELECT $icm_fields ,version_id,version_created FROM $db_icm_schema.ad_tubes_revs INNER JOIN $db_icm_schema.aliquot_masters ON id = aliquot_master_id WHERE aliquot_control_id = $icm_aliquot_control_id);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+migrateCustomList('RNA purification method','RNA purification method');
+
+echo "<br>- - - - - - - - -  Sample Migration Control - - - - - - - - - -<br><br>";
+
+$query = "SELECT count(*) as nbr, deleted from aliquot_masters WHERE id NOT IN (
+	SELECT aliquot_master_id FROM ad_tubes UNION ALL
+	SELECT aliquot_master_id FROM ad_blocks UNION ALL
+	SELECT aliquot_master_id FROM ad_whatman_papers) GROUP BY deleted;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+WHILE($res = mysqli_fetch_assoc($query_res)) {
+	if($res['nbr']) echo "ERROR: ".$res['nbr']." aliquot_masters records with deleted = ".$res['deleted']." are not linked to details table.<br><br>";
+}
+
+flush();
+
+echo "<br>- - - - - - - - -  Barcode Clean Up - - - - - - - - - -<br><br>";
+
+$queries = array(
+	"UPDATE aliquot_masters SET barcode = CONCAT('tmp_#',id);",
+		
+	"UPDATE aliquot_masters am
+	SET am.barcode = am.aliquot_label
+	WHERE am.deleted <> 1
+	AND am.aliquot_label IN ( 
+		SELECT aliquot_label 
+		FROM(
+			SELECT count(*) AS nbr, aliquot_label 
+			FROM aliquot_masters 
+			WHERE deleted <> 1 AND aliquot_label REGEXP '^PS1P[0-9]{4}\ V[0-9]{1,2}\ \-[A-Z]{3,4}[0-9]{1,2}$' 
+			GROUP BY aliquot_label) grouped_am
+		WHERE grouped_am.nbr = 1
+	);",
+		
+	"UPDATE aliquot_masters SET aliquot_label = '' WHERE barcode NOT LIKE 'tmp_#%';",
+		
+	"UPDATE aliquot_masters am 
+	INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+	INNER JOIN  sample_masters sm ON sm.id = am.sample_master_id 
+	INNER JOIN sample_controls sc ON sc.id = sm.sample_control_id
+	INNER JOIN collections col ON col.id = sm.collection_id
+	INNER JOIN participants p ON p.id = col.participant_id
+	LEFT JOIN sd_spe_bloods bl ON bl.sample_master_id = sm.id
+	LEFT JOIN ad_blocks block ON block.aliquot_master_id = am.id 
+	SET am.barcode = CONCAT(p.participant_identifier, ' ', col.procure_visit, ' -##', sc.sample_type, '##', ac.aliquot_type, '##', IF(bl.blood_type IS NULL,'',bl.blood_type), '##', IF(block.block_type IS NULL,'',block.block_type))
+	WHERE am.barcode LIKE 'tmp_#%' AND am.deleted <> 1;");
+foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+$query = "SELECT id , barcode FROM aliquot_masters WHERE barcode like '%-##%' ORDER BY barcode, id ASC;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$barcode_counter = 1;
+$last_barcode = null;
+while ($res = mysqli_fetch_assoc($query_res)) {
+	$barcode = $res['barcode'];
+	$aliquot_master_id = $res['id'];
+	if($last_barcode != $barcode) {
+		$last_barcode = $barcode;
+		$barcode_counter = 1;
+	}
+	if(!preg_match('/^(.+\-)##([a-z\ ]+)##([a-z\ ]+)##([A-Za-z\ \-0-9]*)##([a-z\ ]*)$/', $barcode, $matches)) die('ERR 23 76287 62876287 2 '.$barcode);
+	$suffix = '';
+	Switch($matches[2].'/'.$matches[3]) {
+		case 'blood/whatman paper':
+			$suffix = 'WHT';
+			break;
+		case 'blood/tube':
+			$suffix = str_replace(array('paxgene','k2-EDTA','serum'), array('RNB','EDB','SRB'), $matches[4]);
+			break;
+		case 'pbmc/tube':
+			$suffix = 'BFC';
+			break;
+		case 'plasma/tube':
+			$suffix = 'PLA';
+			break;
+		case 'serum/tube':
+			$suffix = 'SER';
+			break;
+		case 'dna/tube':
+			$suffix = 'DNA';
+			break;
+		case 'rna/tube':
+			$suffix = 'RNA';
+			break;			
+		case 'urine/cup':
+			$suffix = 'URI';
+			break;
+		case 'centrifuged urine/tube':
+			$suffix = 'URN';
+			break;
+		case 'tissue/block':
+			if($matches[5] == 'paraffin') {
+				$suffix = 'PAR';
+			} else {
+				$suffix = 'FRZ';
+			}
+			break;
+		default:
+			$suffix = '???';
+	}
+	$barcode = $matches[1].$suffix.$barcode_counter;
+	$query = "UPDATE aliquot_masters SET barcode = '$barcode' WHERE id = $aliquot_master_id";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
+//Insert one line in rev table
+$query = "UPDATE aliquot_masters SET modified = '$modified', modified_by = '$modified_by' WHERE deleted <> 1";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$master_field = "id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,
+	in_stock,in_stock_detail,use_counter,study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,
+	storage_coord_y,product_code,notes,qc_nd_stored_by";
+$query = "INSERT INTO aliquot_masters_revs ($master_field, modified_by,version_created) (SELECT $master_field, modified_by, modified from aliquot_masters);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$detail_fields = array(
+	'ad_tubes' => "aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,procure_expiration_date,
+		procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,qc_nd_purification_method",
+	'ad_blocks' => "aliquot_master_id,block_type,procure_freezing_type,patho_dpt_block_code,procure_freezing_ending_time,procure_origin_of_slice,procure_dimensions,
+		time_spent_collection_to_freezing_end_mn,procure_classification,qc_nd_gleason_primary_grade,qc_nd_gleason_secondary_grade,qc_nd_tissue_primary_desc,
+		qc_nd_tissue_secondary_desc,qc_nd_tumor_presence,qc_nd_sample_position_code",
+	'ad_whatman_papers' => "aliquot_master_id,used_blood_volume,used_blood_volume_unit,procure_card_completed_at,procure_card_sealed_date,procure_card_sealed_date_accuracy");
+foreach($detail_fields as $tablename => $fields) {
+	$query = "INSERT INTO ".$tablename."_revs ($fields, version_created) (SELECT $fields, modified from aliquot_masters INNER JOIN ".$tablename." ON id = aliquot_master_id);";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
+
+echo "<br>- - - - - - - - -  Source Aliquots - - - - - - - - - -<br><br>";
+
+$query = "INSERT INTO $db_procure_schema.source_aliquots (SELECT * FROM $db_icm_schema.source_aliquots);";
+$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = str_replace('source_aliquots', 'source_aliquots_revs', $query);
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  aliquot_internal_uses - - - - - - - - - -<br><br>";
+
+$query = "INSERT INTO $db_procure_schema.aliquot_internal_uses (SELECT * FROM $db_icm_schema.aliquot_internal_uses);";
+$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = str_replace('aliquot_internal_uses', 'aliquot_internal_uses_revs', $query);
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+echo "<br>- - - - - - - - -  quality controls - - - - - - - - - -<br><br>";
+
+echo "Fields qc_code, run_by, date, type, score, unit, used_volume, notes will be migreated will be migrated!<br><br>";
+echo "Fields qc_type_precision,chip_model,tool,run_id,position_into_run,conclusion won't be migreated as field... added to note.!<br><br>";
+echo "Fields qc_nd_is_irrelevant won't be migreated !<br><br>";
+$icm_fields = "id,sample_master_id,aliquot_master_id,qc_code,run_by, date, date_accuracy, type, score, unit, used_volume, CONCAT('[Type:',IF(qc_type_precision IS NULL,'',qc_type_precision),'|Chip:',IF(chip_model IS NULL,'',chip_model),'|Tool:',IF(tool IS NULL,'',tool),'|Run#:',IF(run_id IS NULL,'',run_id),'|Position:',IF(position_into_run IS NULL,'',position_into_run),'|Conclusion:',IF(conclusion IS NULL,'',conclusion),'] ',IF(notes IS NULL,'',notes)), created,created_by,modified,modified_by,deleted";
+$procure_fields = 'id,sample_master_id,aliquot_master_id,qc_code,procure_analysis_by, date, date_accuracy, type, score, unit, used_volume, notes, created,created_by,modified,modified_by,deleted';
+$query = "INSERT INTO $db_procure_schema.quality_ctrls ($procure_fields) (SELECT $icm_fields FROM $db_icm_schema.quality_ctrls);";
+$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = str_replace(array('quality_ctrls','created,created_by,modified,modified_by,deleted'), array('quality_ctrls_revs','modified_by,version_id,version_created'), $query);
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE $db_procure_schema.quality_ctrls SET notes = REPLACE(notes, '[Type:|Chip:|Tool:|Run#:|Position:|Conclusion:]', '');";
+$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE $db_procure_schema.quality_ctrls_revs SET notes = REPLACE(notes, '[Type:|Chip:|Tool:|Run#:|Position:|Conclusion:]', '');";
+$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
 pr('done');
 
-
-
-
-
-
-
+//TODO $query = "UPDATE versions SET permissions_regenerated = '0';";
+//TODO mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
 //====================================================================================================================================================
 //TODO To delete
@@ -902,6 +1374,82 @@ $query =
 		WHERE SampleMaster.deleted != 1);';
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
+$query = "TRUNCATE view_aliquots;";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query =
+	'REPLACE INTO view_aliquots (
+		SELECT 
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.sample_master_id AS sample_master_id,
+			AliquotMaster.collection_id AS collection_id, 
+			Collection.bank_id, 
+			AliquotMaster.storage_master_id AS storage_master_id,
+			Collection.participant_id, 
+			
+			Participant.participant_identifier, 
+			
+			Collection.acquisition_label, 
+			Collection.procure_visit AS procure_visit,
+			
+			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
+			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
+			ParentSampleControl.sample_type AS parent_sample_type,
+			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
+			SampleControl.sample_type,
+			SampleMaster.sample_control_id,
+			
+			AliquotMaster.barcode,
+			AliquotMaster.aliquot_label,
+			AliquotControl.aliquot_type,
+			AliquotMaster.aliquot_control_id,
+			AliquotMaster.in_stock,
+			
+			StorageMaster.code,
+			StorageMaster.selection_label,
+			AliquotMaster.storage_coord_x,
+			AliquotMaster.storage_coord_y,
+			
+			StorageMaster.temperature,
+			StorageMaster.temp_unit,
+			
+			AliquotMaster.created,
+			
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(Collection.collection_datetime IS NULL, -1,
+			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
+			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(DerivativeDetail.creation_datetime IS NULL, -1,
+			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
+			 
+			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
+			MiscIdentifier.identifier_value AS qc_nd_no_labo  
+			
+			FROM aliquot_masters AS AliquotMaster
+			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
+			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
+			LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
+			LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
+			LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
+			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
+			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
+			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+			LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
+			WHERE AliquotMaster.deleted != 1);';
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
 //====================================================================================================================================================
 //====================================================================================================================================================
 
@@ -971,12 +1519,12 @@ function migrateCustomList($icm_list_name, $procure_list_name) {
 	global $db_procure_schema;
 	global $db_icm_schema;
 	
-	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE '$icm_list_name'";
+	$query = "SELECT id FROM $db_icm_schema.structure_permissible_values_custom_controls WHERE name LIKE '$icm_list_name'";
 	$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	$res = mysqli_fetch_assoc($res);
 	$icm_control_id = $res['id'];
 	
-	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE '$procure_list_name'";
+	$query = "SELECT id FROM $db_procure_schema.structure_permissible_values_custom_controls WHERE name LIKE '$procure_list_name'";
 	$res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	$res = mysqli_fetch_assoc($res);
 	$procure_control_id = $res['id'];	
