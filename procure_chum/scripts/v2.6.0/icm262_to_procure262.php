@@ -11,7 +11,7 @@ set_time_limit('3600');
 $db_icm_ip			= "127.0.0.1";
 $db_icm_port 		= "";
 $db_icm_user 		= "root";
-$db_icm_pwd			= "am3-y-4606";
+$db_icm_pwd			= "";
 global $db_icm_schema;
 $db_icm_schema		= "icmtest";
 $db_icm_charset		= "utf8";
@@ -19,7 +19,7 @@ $db_icm_charset		= "utf8";
 $db_procure_ip			= "127.0.0.1";
 $db_procure_port 		= "";
 $db_procure_user 		= "root";
-$db_procure_pwd			= "am3-y-4606";
+$db_procure_pwd			= "";
 global $db_procure_schema;
 $db_procure_schema		= "procuretest";
 $db_procure_charset		= "utf8";
@@ -1241,7 +1241,7 @@ $query = "INSERT INTO aliquot_masters_revs ($master_field, modified_by,version_c
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $detail_fields = array(
 	'ad_tubes' => "aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,procure_expiration_date,
-		procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,qc_nd_purification_method",
+		procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method",
 	'ad_blocks' => "aliquot_master_id,block_type,procure_freezing_type,patho_dpt_block_code,procure_freezing_ending_time,procure_origin_of_slice,procure_dimensions,
 		time_spent_collection_to_freezing_end_mn,procure_classification,qc_nd_gleason_primary_grade,qc_nd_gleason_secondary_grade,qc_nd_tissue_primary_desc,
 		qc_nd_tissue_secondary_desc,qc_nd_tumor_presence,qc_nd_sample_position_code",
