@@ -1029,7 +1029,6 @@ function initActions(){
 			drawTree($.parseJSON(window.wizardTreeData));
 		}
 		if($(".ajax_search_results").length == 1){
-			$(".ajax_search_results").parent().hide();
 			if(history.replaceState){
 				//doesn't work for IE < 10
 				//TODO: prevent over clicking the submit btn
@@ -1067,14 +1066,9 @@ function initActions(){
 		if(history.replaceState){
 			window.onpopstate = function(event) {
 				//retrieving result from history
-				if(event.state == null){
+				if(event.state == null || typeof(event.state) == "object"){
 					//new / refresh
 					initIndexZones(false);
-					if($(".ajax_search_results_default")){
-						$(".ajax_search_results").html($(".ajax_search_results_default").html());
-						$(".ajax_search_results").parent().show();
-						$(".ajax_search_results_default").remove();
-					}
 				}else{
 					//back/forward
 					$(".ajax_search_results_default").remove();
@@ -1085,13 +1079,11 @@ function initActions(){
 				}
 			};
 			
-			if(navigator.userAgent.indexOf("Firefox") != -1){
-				$(".ajax_search_results").html($(".ajax_search_results_default").html());
-				$(".ajax_search_results").parent().show();
-				$(".ajax_search_results_default").remove();
-				handleSearchResultLinks();
-				initIndexZones(false);
-			}
+			$(".ajax_search_results").html($(".ajax_search_results_default").html());
+			$(".ajax_search_results").parent().show();
+			$(".ajax_search_results_default").remove();
+			handleSearchResultLinks();
+			initIndexZones(false);
 		}else{
 			//unknown, always consider new
 			initIndexZones(false);

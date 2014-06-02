@@ -9,11 +9,14 @@ class CodingIcdAppModel extends AppModel {
 	function getDescription($id){
 		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 		$data = $this->find('first', array('conditions' => array('id' => $id), 'fields' => array($lang."_description")));
-		if(is_array($data)){//useless if, but php generates a bogus warning without it
+		$description = '';
+		if(is_array($data) && !empty($data)) {
+			//useless if, but php generates a bogus warning without it
 			$data = array_values($data);
 			$data = array_values($data[0]);
+			$description = $data[0];
 		}
-		return $data[0];
+		return $description;
 	}
 	
 	function globalValidateId($id){

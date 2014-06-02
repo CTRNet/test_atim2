@@ -1230,7 +1230,12 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 	$barcode = $matches[1].$suffix.$barcode_counter;
 	$query = "UPDATE aliquot_masters SET barcode = '$barcode' WHERE id = $aliquot_master_id";
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	$barcode_counter++;
 }
+Vérifier barcode unique
+
+SELECT count(*) as nbr_of_barcode_dup FROM (SELECT barcode, count(*) as dub FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) as res WHERE res.dub > 1;
+
 //Insert one line in rev table
 $query = "UPDATE aliquot_masters SET modified = '$modified', modified_by = '$modified_by' WHERE deleted <> 1";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -1283,13 +1288,14 @@ $res = mysqli_query($db_procure_connection, $query) or die("query failed [".$que
 
 pr('done');
 
-//TODO $query = "UPDATE versions SET permissions_regenerated = '0';";
-//TODO mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "UPDATE versions SET permissions_regenerated = '0';";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
 //====================================================================================================================================================
 //TODO To delete
 //====================================================================================================================================================
 
+/*
 $query = "TRUNCATE view_collections;";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = 
@@ -1449,6 +1455,7 @@ $query =
 			LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
 			WHERE AliquotMaster.deleted != 1);';
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+*/
 
 //====================================================================================================================================================
 //====================================================================================================================================================
