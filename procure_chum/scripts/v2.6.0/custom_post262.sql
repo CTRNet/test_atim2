@@ -52,4 +52,6 @@ UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::g
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('procure slice origins')" WHERE domain_name = 'procure_slice_origins';
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('questionnaire version date')" WHERE domain_name = 'procure_questionnaire_version';
 
+UPDATE structure_formats SET `flag_search`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_hemolysis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='ad_tubes' AND `field`='hemolysis_signs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.2';
