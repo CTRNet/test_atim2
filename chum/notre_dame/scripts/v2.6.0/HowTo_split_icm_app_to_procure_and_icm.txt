@@ -29,6 +29,7 @@ Create database atimv26procure
 -> atim_v2.6.1_upgrade.sql
 -> atim_v2.6.2_upgrade.sql
 -> custom_post262.sql
+-> custom_post262_chum.sql
 
 On atimv26procuretmp:
 -> execute ./v621_procure_icm_split/custom_icm261_to_procure.sql

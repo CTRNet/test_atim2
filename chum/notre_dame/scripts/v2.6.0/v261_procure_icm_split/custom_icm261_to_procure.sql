@@ -181,6 +181,67 @@ ALTER TABLE collections DROP COLUMN tmp_procure_collection;
 
 SELECT 'empty collection' as msg, acquisition_label, id FROM collections WHERE deleted <> 1 AND id NOT IN (SELECT DISTINCT collection_id FROM aliquot_masters WHERE deleted <> 1);
 
+-- CONTROL
+
+SELECT count(*) AS sample_with_no_details_1 from sample_masters WHERE id NOT IN (SELECT sample_master_id FROM specimen_details UNION ALL SELECT sample_master_id FROM derivative_details);
+SELECT count(*) AS sample_with_no_details_2 from sample_masters WHERE id NOT IN (
+SELECT sample_master_id FROM sd_der_amp_rnas UNION ALL
+SELECT sample_master_id FROM sd_der_ascite_cells UNION ALL
+SELECT sample_master_id FROM sd_der_ascite_sups UNION ALL
+SELECT sample_master_id FROM sd_der_b_cells UNION ALL
+SELECT sample_master_id FROM sd_der_blood_cells UNION ALL
+SELECT sample_master_id FROM sd_der_bone_marrow_susps UNION ALL
+SELECT sample_master_id FROM sd_der_cdnas UNION ALL
+SELECT sample_master_id FROM sd_der_cell_cultures UNION ALL
+SELECT sample_master_id FROM sd_der_cell_lysates UNION ALL
+SELECT sample_master_id FROM sd_der_csf_cells UNION ALL
+SELECT sample_master_id FROM sd_der_csf_sups UNION ALL
+SELECT sample_master_id FROM sd_der_cystic_fl_cells UNION ALL
+SELECT sample_master_id FROM sd_der_cystic_fl_sups UNION ALL
+SELECT sample_master_id FROM sd_der_dnas UNION ALL
+SELECT sample_master_id FROM sd_der_no_b_cells UNION ALL
+SELECT sample_master_id FROM sd_der_of_cells UNION ALL
+SELECT sample_master_id FROM sd_der_of_sups UNION ALL
+SELECT sample_master_id FROM sd_der_pbmcs UNION ALL
+SELECT sample_master_id FROM sd_der_pericardial_fl_cells UNION ALL
+SELECT sample_master_id FROM sd_der_pericardial_fl_sups UNION ALL
+SELECT sample_master_id FROM sd_der_plasmas UNION ALL
+SELECT sample_master_id FROM sd_der_pleural_fl_cells UNION ALL
+SELECT sample_master_id FROM sd_der_pleural_fl_sups UNION ALL
+SELECT sample_master_id FROM sd_der_proteins UNION ALL
+SELECT sample_master_id FROM sd_der_purified_rnas UNION ALL
+SELECT sample_master_id FROM sd_der_pw_cells UNION ALL
+SELECT sample_master_id FROM sd_der_pw_sups UNION ALL
+SELECT sample_master_id FROM sd_der_rnas UNION ALL
+SELECT sample_master_id FROM sd_der_serums UNION ALL
+SELECT sample_master_id FROM sd_der_tiss_lysates UNION ALL
+SELECT sample_master_id FROM sd_der_tiss_susps UNION ALL
+SELECT sample_master_id FROM sd_der_urine_cents UNION ALL
+SELECT sample_master_id FROM sd_der_urine_cons UNION ALL
+SELECT sample_master_id FROM sd_spe_ascites UNION ALL
+SELECT sample_master_id FROM sd_spe_bloods UNION ALL
+SELECT sample_master_id FROM sd_spe_bone_marrows UNION ALL
+SELECT sample_master_id FROM sd_spe_csfs UNION ALL
+SELECT sample_master_id FROM sd_spe_cystic_fluids UNION ALL
+SELECT sample_master_id FROM sd_spe_other_fluids UNION ALL
+SELECT sample_master_id FROM sd_spe_pericardial_fluids UNION ALL
+SELECT sample_master_id FROM sd_spe_peritoneal_washes UNION ALL
+SELECT sample_master_id FROM sd_spe_pleural_fluids UNION ALL
+SELECT sample_master_id FROM sd_spe_salivas UNION ALL
+SELECT sample_master_id FROM sd_spe_tissues UNION ALL
+SELECT sample_master_id FROM sd_spe_urines);
+
+SELECT count(*) as aliquot_with_no_details FROM aliquot_masters WHERE id NOT IN (
+SELECT aliquot_master_id FROM ad_bags UNION ALL
+SELECT aliquot_master_id FROM ad_blocks UNION ALL
+SELECT aliquot_master_id FROM ad_cell_cores UNION ALL
+SELECT aliquot_master_id FROM ad_cell_slides UNION ALL
+SELECT aliquot_master_id FROM ad_gel_matrices UNION ALL
+SELECT aliquot_master_id FROM ad_tissue_cores UNION ALL
+SELECT aliquot_master_id FROM ad_tissue_slides UNION ALL
+SELECT aliquot_master_id FROM ad_tubes UNION ALL
+SELECT aliquot_master_id FROM ad_whatman_papers);
+
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 -- PARTICIPANT
