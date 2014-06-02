@@ -6,7 +6,8 @@ class ViewSample extends InventoryManagementAppModel {
 	var $base_model = "SampleMaster";
 	var $base_plugin = 'InventoryManagement';
 	
-	var $actsAs = array('MinMax');
+	var $actsAs = array('MinMax', 
+	                    'OrderByTranslate' => array('sample_type', 'sample_category'));
 	
 	var $belongsTo = array(
 		'SampleControl' => array(
