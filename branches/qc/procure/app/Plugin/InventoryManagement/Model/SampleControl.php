@@ -3,6 +3,10 @@
 class SampleControl extends InventoryManagementAppModel {
 	
 	var $master_form_alias = 'sample_masters';
+	
+	public $actsAs = array(
+	        'OrderByTranslate' => array('sample_type', 'sample_category')
+	);
 
  	/**
 	 * Get permissible values array gathering all existing sample types.
