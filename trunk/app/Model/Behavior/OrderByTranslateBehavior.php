@@ -28,15 +28,23 @@ class OrderByTranslateBehavior extends ModelBehavior {
     
     public function beforeFind(Model $model, $query) {
         $index = 0;
-        $this->log($query['order']);
+        $query['order'] = array_filter($query['order']);
         $c = count($query['order']);
         if($c == 0){
             //do nothing
             return $query;
         }
         assert($c == 1) or die("Only supports a single order by");
-        $value = $query['order'][0];
+        $value = is_array($query['order'][0]) ? $query['order'][0] : $query['order'];
         foreach($value as $key => $direction){
+            if(is_int($key)){
+                if(strpos($direction, " ") !== false){
+                    list($key, $direction) = explode(" ", $direction);
+                }else{
+                    $key = $direction;
+                    $direction = "";
+                }
+            }
             if(in_array($key, $this->modelsFieldsAssoc[$model->name])){
                 $query['joins'][] = array(
                     'table' => 'i18n',
