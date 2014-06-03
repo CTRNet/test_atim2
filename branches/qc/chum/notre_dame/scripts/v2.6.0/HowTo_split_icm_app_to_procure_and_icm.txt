@@ -18,11 +18,15 @@ Duplicate current atimv2icmprod database (v261) to:
 -- ICM ---------------------------------------------------------------------------------
 
 On atimv26icmprod:
--> execute /icm/scripts/v2.6.0//v621_procure_icm_split/custom_icm261_to_icm.sql
+-> execute /icm/scripts/v2.6.0atim	/v621_procure_icm_split/custom_icm261_to_icm.sql
 -> execute /icm/scripts/v2.6.0/atim_v2.6.2_upgrade.sql
 -> execute /icm/scripts/v2.6.0/custom_post_262.sql
 
 -- PROCURE ---------------------------------------------------------------------------------
+
+On atimv26procuretmp:
+-> execute /icm/scripts/v2.6.0/v621_procure_icm_split/custom_icm261_to_procure.sql
+-> execute /procurechum/scripts/v2.6.0/atim_v2.6.2_upgrade.sql
 
 Create database atimv26procure
 -> atim_procure_v2.6.0_full_installation.sql
@@ -31,13 +35,5 @@ Create database atimv26procure
 -> custom_post262.sql
 -> custom_post262_chum.sql
 
-On atimv26procuretmp:
--> execute ./v621_procure_icm_split/custom_icm261_to_procure.sql
--> execute atim_v2.6.2_upgrade.sql
-
-Create the custom version of chum procure with no data
-php to copy data
-
-
-
-
+Export datab from atimv26procuretmp to atimv26procure
+-> execute /procurechum/scripts/v2.6.0/icm262_to_procure262.php
