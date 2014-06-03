@@ -10,8 +10,8 @@
 -- Add correction on getCustomDropdown call defined into structure_value_domains
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders contacts')" WHERE domain_name = 'orders_contact';
-UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders institutions')" WHERE domain_name = 'orders_institution';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders contacts')" WHERE domain_name = 'orders_contact' AND source like '%orders_contact%';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('orders institutions')" WHERE domain_name = 'orders_institution' AND source like '%orders_institution%';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
