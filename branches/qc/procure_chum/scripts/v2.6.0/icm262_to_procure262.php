@@ -8,11 +8,16 @@ set_time_limit('3600');
 
 //-- DB PARAMETERS ---------------------------------------------------------------------------------------------------------------------------
 
+
+global $db_icm_schema;
+global $db_procure_schema;
+
+$is_server = true;
+
 $db_icm_ip			= "127.0.0.1";
 $db_icm_port 		= "";
 $db_icm_user 		= "root";
 $db_icm_pwd			= "";
-global $db_icm_schema;
 $db_icm_schema		= "icmtest";
 $db_icm_charset		= "utf8";
 
@@ -20,9 +25,25 @@ $db_procure_ip			= "127.0.0.1";
 $db_procure_port 		= "";
 $db_procure_user 		= "root";
 $db_procure_pwd			= "";
-global $db_procure_schema;
 $db_procure_schema		= "procuretest";
 $db_procure_charset		= "utf8";
+
+if($is_server) {
+	$db_icm_ip			= "localhost";
+	$db_icm_port 		= "";
+	$db_icm_user 		= "root";
+	$db_icm_pwd			= "am3-y-4606";
+	$db_icm_schema		= "icmtmp";
+	$db_icm_charset		= "utf8";
+	
+	$db_procure_ip			= "localhost";
+	$db_procure_port 		= "";
+	$db_procure_user 		= "root";
+	$db_procure_pwd			= "am3-y-4606";
+	$db_procure_schema		= "procuretmp";
+	$db_procure_charset		= "utf8";
+
+}
 
 //-- DB CONNECTION ---------------------------------------------------------------------------------------------------------------------------
 
@@ -168,6 +189,13 @@ if($res['count']) die('ERR 7387383989309.2');
 
 $query = "UPDATE users SET flag_active = 0 WHERE group_id != (SELECT id FROM groups WHERE name = 'Users Prostate') AND username != 'NicoEn';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+
+foreach(array('aros','acos','aros_acos','system_vars','user_logs','configs') as $tablename) {
+	$query = "TRUNCATE $db_procure_schema.$tablename;";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	$query = "INSERT INTO $db_procure_schema.$tablename (SELECT * FROM $db_icm_schema.$tablename);";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // PARTICIPANTS & MISC-IDENTIFIERS
@@ -394,13 +422,13 @@ echo "<br><br>****************** QUESTIONNAIRES ******************************<b
 echo "** Mirgation from excel file<br>";
 echo "****************************************************************<br><br>";
 
-if(false){
 $query = "SELECT id FROM event_controls WHERE event_type = 'procure questionnaire administration worksheet';";
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $res = mysqli_fetch_assoc($query_res);
 $event_control_id = $res['id'];
 require_once 'Excel/reader.php';
 $file_path = "C:/_Perso/Server/procure_chum/data/Biobanque ProCure 2005-2012--25-02-2014.xls";
+if($is_server) $file_path = "/ATiM/icm/v2/ATiM-Split/Test3/Biobanque ProCure 2005-2012--25-02-2014_v20140102.xls";
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
@@ -518,7 +546,7 @@ if($q_errors['no_labo_unknown']) echo "Error: NoLabos [".implode(', ',$q_errors[
 if($q_errors['more than one']) echo "Error: NoLabos [".implode(', ',$q_errors['more than one'])."] are linked to more than one questionnaire. Only the first one will be created<br><br>";
 if($nl_labos_with_no_questionnaire) echo "Error: NoLabos [".implode(', ',$nl_labos_with_no_questionnaire)."] defined into questionnaire are not linked to questionnaire data : no questionnaire will be created<br><br>";
 if($nl_labos_linked_to_approximative_date_equal_to_cst_date) echo "Error: NoLabos [".implode(', ',$nl_labos_linked_to_approximative_date_equal_to_cst_date)."] defined into questionnaire are not linked to questionnaire date : used consent date as approximative date<br><br>";
-}
+
 echo "done<br>";
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -1232,9 +1260,10 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	$barcode_counter++;
 }
-Vérifier barcode unique
-
-SELECT count(*) as nbr_of_barcode_dup FROM (SELECT barcode, count(*) as dub FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) as res WHERE res.dub > 1;
+$query = "SELECT count(*) as nbr_of_barcode_dup FROM (SELECT barcode, count(*) as dub FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) as res WHERE res.dub > 1;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$res = mysqli_fetch_assoc($query_res);
+if($res['nbr_of_barcode_dup']) echo "Error : ".$res['nbr_of_barcode_dup']." barcode are duplicated!<br><br>";
 
 //Insert one line in rev table
 $query = "UPDATE aliquot_masters SET modified = '$modified', modified_by = '$modified_by' WHERE deleted <> 1";
