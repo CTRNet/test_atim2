@@ -2,8 +2,6 @@
 /**
  * The View Tasks handles creating and updating view files.
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -153,7 +151,7 @@ class ViewTask extends BakeTask {
 					unset($methods[$i]);
 				}
 			}
-			if ($method[0] === '_' || $method == strtolower($this->controllerName . 'Controller')) {
+			if ($method[0] === '_' || $method === strtolower($this->controllerName . 'Controller')) {
 				unset($methods[$i]);
 			}
 		}
