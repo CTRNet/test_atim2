@@ -5,6 +5,32 @@ SELECT 'SCRIPT TO DELETE ALL RECORDS NOT LINKED TO PROCURE' as message;
 
 SET @procure_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'PROCURE');
 
+SELECT 'ICM Database Data beofre DB split' AS '-----------------------------------------------------------------'
+UNION ALL
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) as 'ICM: nbr participants with code-barre or consent PROCURE or aliquot PROCURE'
+FROM participants 
+WHERE deleted <> 1 AND id IN (
+  SELECT DISTINCT participant_id 
+  FROM collections col 
+  INNER JOIN aliquot_masters am ON am.collection_id = col.id AND col.id AND am.deleted <> 1 
+  INNER JOIN study_summaries st ON st.id = am.study_summary_id AND st.title = 'PROCURE'
+  UNION ALL
+  SELECT participant_id FROM consent_masters cm INNER JOIN consent_controls cc ON cc.id = cm.consent_control_id WHERE cc.controls_type = 'procure' AND cm.deleted <> 1
+  UNION ALL
+  SELECT participant_id FROM misc_identifiers mi INNEr JOIN misc_identifier_controls mc ON mc.id = mi.misc_identifier_control_id WHERE mc.misc_identifier_name = 'code-barre' AND mi.deleted <> 1
+);
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) 'ICM: nbr of aliquots', sample_type, aliquot_type, am.deleted 
+FROM aliquot_masters am
+INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+INNER JOIN sample_controls sm ON sm.id = ac.sample_control_id
+INNER JOIN study_summaries st ON st.id = am.study_summary_id
+WHERE st.title = 'PROCURE'
+GROUP BY sample_type, aliquot_type, deleted 
+ORDER BY sample_type, aliquot_type, deleted;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 -- INVENTORY
@@ -248,59 +274,69 @@ SELECT aliquot_master_id FROM ad_whatman_papers);
 --
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 
+ALTER TABLE participants ADD COLUMN tmp_procure_participant char(1) DEFAULT '0';
+UPDATE participants SET tmp_procure_participant = '1' WHERE id IN (SELECT participant_id FROM collections);
+UPDATE participants SET tmp_procure_participant = '1' WHERE id IN (
+  SELECT participant_id FROM consent_masters cm INNER JOIN consent_controls cc ON cc.id = cm.consent_control_id WHERE cc.controls_type = 'procure' AND cm.deleted <> 1
+  UNION ALL
+  SELECT participant_id FROM misc_identifiers mi INNEr JOIN misc_identifier_controls mc ON mc.id = mi.misc_identifier_control_id WHERE mc.misc_identifier_name = 'code-barre' AND mi.deleted <> 1
+);
+  
 -- TREATMENT -----------------------------------------------------------------
 
 SELECT IF(COUNT(*) = 0, 'No treatment errors', 'Please check treatments') AS msg FROM treatment_masters;
 
 -- EVENT ---------------------------------------------------------------------
 
-DELETE FROM qc_nd_ed_all_procure_lifestyles WHERE event_master_id NOT IN (SELECT EventMaster.id FROM event_masters EventMaster INNER JOIN collections Collection ON Collection.participant_id = EventMaster.participant_id);
+DELETE FROM qc_nd_ed_all_procure_lifestyles WHERE event_master_id NOT IN (SELECT EventMaster.id FROM event_masters EventMaster INNER JOIN participants Participant ON Participant.tmp_procure_participant = '1' AND Participant.id = EventMaster.participant_id);
    DELETE FROM qc_nd_ed_all_procure_lifestyles_revs WHERE event_master_id NOT IN (SELECT event_master_id FROM qc_nd_ed_all_procure_lifestyles);
-DELETE FROM event_masters WHERE participant_id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
+DELETE FROM event_masters WHERE participant_id NOT IN (SELECT DISTINCT id FROM participants WHERE tmp_procure_participant = '1');
    DELETE FROM event_masters_revs WHERE id NOT IN (SELECT id FROM event_masters);
 
 -- MISC IDENTFIERS -----------------------------------------------------------
 
-DELETE FROM misc_identifiers WHERE participant_id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
+DELETE FROM misc_identifiers WHERE participant_id NOT IN (SELECT DISTINCT id FROM participants WHERE tmp_procure_participant = '1');
 DELETE FROM misc_identifiers WHERE misc_identifier_control_id IN (1,2,3,4);
    DELETE FROM misc_identifiers_revs WHERE id NOT IN (SELECT id FROM misc_identifiers);
 
 -- CONSENTS ------------------------------------------------------------------
 
-DELETE FROM cd_icm_generics WHERE consent_master_id NOT IN (SELECT ConsentMaster.id FROM consent_masters ConsentMaster INNER JOIN collections Collection ON Collection.participant_id = ConsentMaster.participant_id);
+DELETE FROM cd_icm_generics WHERE consent_master_id NOT IN (SELECT ConsentMaster.id FROM consent_masters ConsentMaster INNER JOIN participants Participant ON Participant.tmp_procure_participant = '1' AND Participant.id = ConsentMaster.participant_id);
 DELETE FROM cd_icm_generics WHERE consent_master_id NOT IN ( SELECT id FROM consent_masters WHERE consent_control_id IN (3,5));
     DELETE FROM cd_icm_generics_revs WHERE consent_master_id NOT IN (SELECT consent_master_id FROM cd_icm_generics);
-DELETE FROM qc_nd_cd_generals WHERE consent_master_id NOT IN (SELECT ConsentMaster.id FROM consent_masters ConsentMaster INNER JOIN collections Collection ON Collection.participant_id = ConsentMaster.participant_id);
+DELETE FROM qc_nd_cd_generals WHERE consent_master_id NOT IN (SELECT ConsentMaster.id FROM consent_masters ConsentMaster INNER JOIN participants Participant ON Participant.tmp_procure_participant = '1' AND Participant.id = ConsentMaster.participant_id);
 DELETE FROM qc_nd_cd_generals WHERE consent_master_id NOT IN ( SELECT id FROM consent_masters WHERE consent_control_id IN (3,5));
    DELETE FROM qc_nd_cd_generals_revs WHERE consent_master_id NOT IN (SELECT consent_master_id FROM qc_nd_cd_generals);
-DELETE FROM consent_masters WHERE participant_id NOT IN (SELECT participant_id FROM collections WHERE participant_id IS NOT NULL) OR consent_control_id NOT IN (3,5);
+DELETE FROM consent_masters WHERE participant_id NOT IN (SELECT DISTINCT id FROM participants WHERE tmp_procure_participant = '1') OR consent_control_id NOT IN (3,5);
    DELETE FROM consent_masters_revs WHERE id NOT IN (SELECT id FROM consent_masters);    
 DELETE FROM consent_controls WHERE id NOT IN (3,5);
 select participant_id AS 'participant linked to prostate consent' FROM consent_masters WHERE consent_control_id = 3 AND deleted <> 1;
 
 -- MESSAGES -----------------------------------------------------------
 
-DELETE FROM participant_messages WHERE participant_id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
+DELETE FROM participant_messages WHERE participant_id NOT IN (SELECT DISTINCT id FROM participants WHERE tmp_procure_participant = '1');
    DELETE FROM participant_messages_revs WHERE id NOT IN (SELECT id FROM participant_messages);
 
 -- CONTACTS -----------------------------------------------------------
 
-DELETE FROM participant_contacts WHERE participant_id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
+DELETE FROM participant_contacts WHERE participant_id NOT IN (SELECT DISTINCT id FROM participants WHERE tmp_procure_participant = '1');
    DELETE FROM participant_contacts_revs WHERE id NOT IN (SELECT id FROM participant_messages);
    
 -- REPRODUCTIVE HISTORY -----------------------------------------------------------
 
-DELETE FROM reproductive_histories WHERE participant_id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
+DELETE FROM reproductive_histories WHERE participant_id NOT IN (SELECT DISTINCT id FROM participants WHERE tmp_procure_participant = '1');
    DELETE FROM reproductive_histories_revs WHERE id NOT IN (SELECT id FROM reproductive_histories);
 
 -- PARTICIPANT  -----------------------------------------------------------
 
 SET @participants_total = (SELECT count(*) FROM participants WHERE deleted != 1);
-SET @participants_deleted = (SELECT count(*) FROM participants WHERE deleted != 1 AND id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL));
+SET @participants_deleted = (SELECT count(*) FROM participants WHERE deleted != 1 AND tmp_procure_participant != '1');
 SELECT CONCAT(@participants_deleted, '/' , @participants_total, ' have been deleted') AS participant_deletion_message;
 
-DELETE FROM participants WHERE id NOT IN (SELECT DISTINCT participant_id FROM collections WHERE participant_id IS NOT NULL);
+DELETE FROM participants WHERE tmp_procure_participant != '1';
    DELETE FROM participants_revs WHERE id NOT IN (SELECT id FROM participants);
+
+ALTER TABLE participants DROP COLUMN tmp_procure_participant;
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 --
@@ -455,4 +491,16 @@ DELETE FROM misc_identifier_controls WHERE id IN (1,2,3,4);
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', "<FONT color='red'>PROCURE - Test</FONT>", "<FONT color='red'>PROCURE - Test</FONT>");
+
+SELECT 'PROCURE Database Data after ICM DB split' AS '-----------------------------------------------------------------'
+UNION ALL
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) as 'PROCURE: nbr participants' FROM participants WHERE deleted <> 1;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) as 'PROCURE: nbr of aliquots', sample_type, aliquot_type, deleted 
+FROM aliquot_masters am
+INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+INNER JOIN sample_controls sm ON sm.id = ac.sample_control_id
+GROUP BY sample_type, aliquot_type, deleted 
+ORDER BY sample_type, aliquot_type, deleted;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';

@@ -5,6 +5,28 @@ SELECT 'SCRIPT TO DELETE ALL PROCURE RECORDS' as message;
 
 SET @procure_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'PROCURE');
 
+SELECT 'ICM Database Data beofre DB split' AS '-----------------------------------------------------------------'
+UNION ALL
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) as 'ICM: nbr participants' FROM participants WHERE deleted <> 1;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) 'ICM: nbr of aliquots linked to PROCURE study', sample_type, aliquot_type, am.deleted 
+FROM aliquot_masters am
+INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+INNER JOIN sample_controls sm ON sm.id = ac.sample_control_id
+WHERE am.study_summary_id = @procure_study_summary_id
+GROUP BY sample_type, aliquot_type, deleted 
+ORDER BY sample_type, aliquot_type, deleted;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) 'ICM: nbr of aliquots not linked to PROCURE study', sample_type, aliquot_type, am.deleted 
+FROM aliquot_masters am
+INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+INNER JOIN sample_controls sm ON sm.id = ac.sample_control_id
+WHERE am.study_summary_id != @procure_study_summary_id OR am.study_summary_id IS NULL
+GROUP BY sample_type, aliquot_type, deleted 
+ORDER BY sample_type, aliquot_type, deleted;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 --
 -- INVENTORY
@@ -357,4 +379,17 @@ SELECT 'object linked to procure study' AS issue, 'aliquot_internal_uses' AS tab
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', "<FONT color='red'>ICM - Test</FONT>", "<FONT color='red'>ICM - Test</FONT>");
+
+SELECT 'New ICM Database Data after ICM DB split' AS '-----------------------------------------------------------------'
+UNION ALL
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) as 'ICM: nbr participants' FROM participants WHERE deleted <> 1;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+SELECT count(*) as 'ICM: nbr of aliquots', sample_type, aliquot_type, deleted 
+FROM aliquot_masters am
+INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+INNER JOIN sample_controls sm ON sm.id = ac.sample_control_id
+GROUP BY sample_type, aliquot_type, deleted 
+ORDER BY sample_type, aliquot_type, deleted;
+SELECT '-----------------------------------------------------------------' AS '-----------------------------------------------------------------';
+
