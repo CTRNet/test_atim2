@@ -2,8 +2,6 @@
 /**
  * DispatcherTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -376,7 +374,7 @@ class SomePostsController extends AppController {
 /**
  * autoRender property
  *
- * @var bool false
+ * @var boolean
  */
 	public $autoRender = false;
 
@@ -506,6 +504,8 @@ class TestCachedPagesController extends Controller {
 
 /**
  * Test cached views with themes.
+ *
+ * @return void
  */
 	public function themed() {
 		$this->cacheAction = 10;
