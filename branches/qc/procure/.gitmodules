@@ -1,3 +1,0 @@
-[submodule "app/webroot/js/form"]
-	path = app/webroot/js/form
-	url = git://github.com/malsup/form.git

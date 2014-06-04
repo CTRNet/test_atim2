@@ -4,8 +4,6 @@
  *
  * Provides management and interface for interacting with collections of behaviors.
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -132,9 +130,6 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener {
 			} else {
 				$this->_loaded[$alias] = new $class();
 				ClassRegistry::addObject($class, $this->_loaded[$alias]);
-				if (!empty($plugin)) {
-					ClassRegistry::addObject($plugin . '.' . $class, $this->_loaded[$alias]);
-				}
 			}
 		} elseif (isset($this->_loaded[$alias]->settings) && isset($this->_loaded[$alias]->settings[$this->modelName])) {
 			if ($config !== null && $config !== false) {
@@ -195,7 +190,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener {
 			parent::unload($name);
 		}
 		foreach ($this->_methods as $m => $callback) {
-			if (is_array($callback) && $callback[0] == $name) {
+			if (is_array($callback) && $callback[0] === $name) {
 				unset($this->_methods[$m]);
 			}
 		}

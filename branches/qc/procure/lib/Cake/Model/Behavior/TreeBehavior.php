@@ -4,8 +4,6 @@
  *
  * Enables a model object to act as a node-based tree.
  *
- * PHP 5
- *
  * CakePHP :  Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -222,7 +220,7 @@ class TreeBehavior extends ModelBehavior {
 					'fields' => array($Model->primaryKey, $parent, $left, $right), 'recursive' => $recursive)
 				);
 
-				if ($values === false) {
+				if (empty($values)) {
 					return false;
 				}
 				list($node) = array_values($values);
@@ -238,7 +236,8 @@ class TreeBehavior extends ModelBehavior {
 
 				if (($node[$left] < $parentNode[$left]) && ($parentNode[$right] < $node[$right])) {
 					return false;
-				} elseif ($node[$Model->primaryKey] == $parentNode[$Model->primaryKey]) {
+				}
+				if ($node[$Model->primaryKey] === $parentNode[$Model->primaryKey]) {
 					return false;
 				}
 			}
@@ -684,13 +683,13 @@ class TreeBehavior extends ModelBehavior {
 
 		$scope = $this->settings[$Model->alias]['scope'];
 		if ($scope && ($scope !== '1 = 1' && $scope !== true)) {
-			$conditions[] = $scope;
+			$params['conditions'][] = $scope;
 		}
 
 		$children = $Model->find('all', $params);
 		$hasChildren = (bool)$children;
 
-		if (!is_null($parentId)) {
+		if ($parentId !== null) {
 			if ($hasChildren) {
 				$Model->updateAll(
 					array($this->settings[$Model->alias]['left'] => $counter),
@@ -721,7 +720,7 @@ class TreeBehavior extends ModelBehavior {
 			$children = $Model->find('all', $params);
 		}
 
-		if (!is_null($parentId) && $hasChildren) {
+		if ($parentId !== null && $hasChildren) {
 			$Model->updateAll(
 				array($this->settings[$Model->alias]['right'] => $counter),
 				array($Model->escapeField() => $parentId)
@@ -961,7 +960,7 @@ class TreeBehavior extends ModelBehavior {
 			}
 			$parentNode = $parentNode[0];
 
-			if (($Model->id == $parentId)) {
+			if (($Model->id === $parentId)) {
 				return false;
 			} elseif (($node[$left] < $parentNode[$left]) && ($parentNode[$right] < $node[$right])) {
 				return false;
