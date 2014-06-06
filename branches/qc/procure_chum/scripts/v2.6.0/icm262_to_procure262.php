@@ -12,7 +12,7 @@ set_time_limit('3600');
 global $db_icm_schema;
 global $db_procure_schema;
 
-$is_server = false;
+$is_server = true;
 
 $db_icm_ip			= "127.0.0.1";
 $db_icm_port 		= "";
@@ -32,14 +32,14 @@ if($is_server) {
 	$db_icm_ip			= "localhost";
 	$db_icm_port 		= "";
 	$db_icm_user 		= "root";
-	$db_icm_pwd			= "am3-y-4606";
+	$db_icm_pwd			= "";
 	$db_icm_schema		= "icmtmp";
 	$db_icm_charset		= "utf8";
 	
 	$db_procure_ip			= "localhost";
 	$db_procure_port 		= "";
 	$db_procure_user 		= "root";
-	$db_procure_pwd			= "am3-y-4606";
+	$db_procure_pwd			= "";
 	$db_procure_schema		= "procuretmp";
 	$db_procure_charset		= "utf8";
 
@@ -451,8 +451,8 @@ $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [
 $res = mysqli_fetch_assoc($query_res);
 $event_control_id = $res['id'];
 require_once 'Excel/reader.php';
-$file_path = "C:/_Perso/Server/procure_chum/data/BiobanqueProCureQuestionnaire_20140605.xls";
-if($is_server) $file_path = "/ATiM/icm/v2/ATiM-Split/Test3/BiobanqueProCureQuestionnaire_20140605.xls";
+$file_path = "C:/_Perso/Server/procure_chum/data/BiobanqueProCureQuestionnaire_v20140606.xls";
+if($is_server) $file_path = "/ATiM/icm/v2/ATiM-Split/BiobanqueProCureQuestionnaire_v20140606.xls";
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
