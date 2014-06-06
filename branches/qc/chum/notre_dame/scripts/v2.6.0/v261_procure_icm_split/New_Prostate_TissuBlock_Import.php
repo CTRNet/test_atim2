@@ -11,9 +11,9 @@
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-$file_name = "Selection blocs paraffine - ProCure_v20140102.xls";
+$file_name = "SelectionBlocsParaffine - ProCure_v20140606.xls";
 //$file_path = "C:/_Perso/Server/icm/data/".$file_name;
-$file_path = "/ATiM/icm/v2/ATiM-Split/Test3/".$file_name;
+$file_path = "/ATiM/icm/v2/ATiM-Split/".$file_name;
 require_once 'Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -34,7 +34,7 @@ $db_charset		= "utf8";
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "am3-y-4606";
+$db_pwd			= "";
 $db_schema		= "icmtmp";
 $db_charset		= "utf8";
 //*/
@@ -128,7 +128,7 @@ $summary_data = array(
 
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 
-// Load data from : Données clinico-pathologiques
+// Load data from : Donnï¿½es clinico-pathologiques
 
 $headers = array();
 $line_counter = 0;
@@ -277,8 +277,8 @@ function loadNewBlocks($new_line_data, $line_counter) {
 			"ICM # bloc OCT (B)-tranche #1 - CHUM" 			=> array('T_vs_N' => 'N', 'block_type' => 'OCT', 'bank' => 'icm'),	
 			"ICM # bloc paraffine (C)- tranche #1 - CHUM" 	=> array('T_vs_N' => 'T', 'block_type' => 'paraffin', 'bank' => 'icm'),	
 			"ICM # bloc paraffine (B)-tranche #1 - CHUM" 	=> array('T_vs_N' => 'N', 'block_type' => 'paraffin', 'bank' => 'icm'),	
-			"ICM - blocs de paraffine réstants (C) - CHUM"	=> array('T_vs_N' => 'T', 'block_type' => 'paraffin', 'bank' => 'icm'),	
-			"ICM - blocs de paraffine réstants (B) - CHUM" => array('T_vs_N' => 'N', 'block_type' => 'paraffin', 'bank' => 'icm'));
+			"ICM - blocs de paraffine rï¿½stants (C) - CHUM"	=> array('T_vs_N' => 'T', 'block_type' => 'paraffin', 'bank' => 'icm'),	
+			"ICM - blocs de paraffine rï¿½stants (B) - CHUM" => array('T_vs_N' => 'N', 'block_type' => 'paraffin', 'bank' => 'icm'));
 		foreach($block_headers as $column_name => $column_blocks_properties) {			
 			$cell_contents = explode(';', str_replace(
 				array(' ', 	'?', 	'()',	'),',	')/',	').',	':',	'((',	'(RP(',	'(LA(',	'(RA(',	'))',	'&',	'V.S.',	'C.D.', 'LA0','RA0','LP0','RP0'), 
@@ -297,7 +297,7 @@ function loadNewBlocks($new_line_data, $line_counter) {
 							$new_blocks_set = str_replace($interval, implode(',',$all_values_of_interval), $new_blocks_set);
 						}
 					}					
-					if(preg_match('/^([AB0-9,]*)(\(([A-Za-zé\+]+)\){0,1}){0,1}$/', $new_blocks_set, $matches)) {					
+					if(preg_match('/^([AB0-9,]*)(\(([A-Za-zï¿½\+]+)\){0,1}){0,1}$/', $new_blocks_set, $matches)) {					
 						$notes = '';
 						$procure_origin_of_slice = isset($matches[3])? $matches[3] : ''; 
 						if($procure_origin_of_slice && !in_array($procure_origin_of_slice, array('RA','RP','LA','LP'))) {
