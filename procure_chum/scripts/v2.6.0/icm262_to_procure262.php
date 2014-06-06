@@ -1088,6 +1088,7 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 	$unformated_notes = $res['unformated_notes'];
 	$procure_card_sealed_date = null;
 	$procure_card_sealed_time = null;
+	$procure_card_sealed_time_accuracy = 'c';
 	$procure_card_completed_at_date = null;
 	$procure_card_completed_at_time = null;
 	if(preg_match('/(complet|fait|effec)/', $notes)) {
@@ -1155,7 +1156,8 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 			$procure_card_sealed_time =$matches[2].':00';
 		} else if(preg_match('/scell.{2,6}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))/', $notes, $matches)) {
 			$procure_card_sealed_date = $matches[9].'-'.$matches[6].'-'.$matches[2];
-echo "TMP MESSAGE: Aliquot (id=$aliquot_master_id) - So seal time - to confirm.<br>";
+			$procure_card_sealed_time_accuracy = 'h';
+			$procure_card_sealed_time = '00:00';			
 		} else {
 			echo "WARNING: Aliquot (id=$aliquot_master_id) - Unable to extract seal date and time from notes (".$unformated_notes."). To do manually after migration.<br>";
 		}
@@ -1191,7 +1193,7 @@ echo "TMP MESSAGE: Aliquot (id=$aliquot_master_id) - So seal time - to confirm.<
 	if($procure_card_sealed_time) {
 		if($procure_card_sealed_date) {
 			$data_to_update[] = "procure_card_sealed_date = '$procure_card_sealed_date $procure_card_sealed_time'";
-			$data_to_update[] = "procure_card_sealed_date_accuracy = '".($procure_card_sealed_time? 'c' : 'h')."'";
+			$data_to_update[] = "procure_card_sealed_date_accuracy = '$procure_card_sealed_time_accuracy'";
 		} else {
 			echo "ERROR: Aliquot (id=$aliquot_master_id) - No storage date, seal date or completion date exists but a sealed time has been defined in notes : ".$unformated_notes.".<br>";
 		}
@@ -1466,7 +1468,7 @@ if($dup_barcodes_counter) {
 		<TH>Sample id</TH>
 		<TH>Collection id</TH>
 		</TR>";
-	$query = "SELECT collection_id, sample_master_id, id, barcode, aliquot_label from aliquot_masters WHERE barcode IN ('".implode("','",$dup_barcodes_counter)."') AND deleted <> 1 ORDER BY barcode, sample_master_id, collection_id;";
+	$query = "SELECT collection_id, sample_master_id, id, barcode, aliquot_label from aliquot_masters WHERE barcode IN ('".implode("','",$dup_barcodes)."') AND deleted <> 1 ORDER BY barcode, sample_master_id, collection_id;";
 	$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	while($res = mysqli_fetch_assoc($query_res)) {
 		echo "<TR>
@@ -1477,7 +1479,7 @@ if($dup_barcodes_counter) {
 		<TD>".$res['collection_id']."</TD>
 		</TR>";
 	}
-	echo "</TABLE><<br>";
+	echo "</TABLE><br>";
 }
 //Insert one line in rev table
 $query = "UPDATE aliquot_masters SET modified = '$modified', modified_by = '$modified_by' WHERE deleted <> 1";
@@ -1545,9 +1547,9 @@ $tmp_arry = array(
 );
 foreach($tmp_arry as $table => $field) {
 	$query = "update $table SET $field = null WHERE $field LIKE '%0000%'";
-	mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	$query = "update ".$table."_revs SET $field = null WHERE $field LIKE '%0000%'";
-	mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
 
 //====================================================================================================================================================
