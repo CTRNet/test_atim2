@@ -12,20 +12,20 @@ set_time_limit('3600');
 global $db_icm_schema;
 global $db_procure_schema;
 
-$is_server = true;
+$is_server = false;
 
 $db_icm_ip			= "127.0.0.1";
 $db_icm_port 		= "";
 $db_icm_user 		= "root";
 $db_icm_pwd			= "";
-$db_icm_schema		= "icmtest";
+$db_icm_schema		= "icm";
 $db_icm_charset		= "utf8";
 
 $db_procure_ip			= "127.0.0.1";
 $db_procure_port 		= "";
 $db_procure_user 		= "root";
 $db_procure_pwd			= "";
-$db_procure_schema		= "procuretest";
+$db_procure_schema		= "procurechum";
 $db_procure_charset		= "utf8";
 
 if($is_server) {
@@ -197,12 +197,14 @@ foreach(array('aros','acos','aros_acos','system_vars','user_logs','configs') as 
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
 
+echo "done<br>";
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 // PARTICIPANTS & MISC-IDENTIFIERS
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 echo "<br><br>****************** PARTICIPANTS ******************************<br>";
-echo "** Following participants fields wont't be migrated : cod_icd10_code(cause décés), language_preferred, sex, last_visit_date, sardo_participant_id, sardo_medical_record_number, last_sardo_import_date, qc_nd_from_center, is_anonymous, anonymous_reason, anonymous_precision<br>";
+echo "** Following participants fields wont't be migrated : cod_icd10_code(cause décés), language_preferred, sex, last_visit_date (does not exist in ICM form), sardo_participant_id, sardo_medical_record_number, last_sardo_import_date, qc_nd_from_center, is_anonymous, anonymous_reason, anonymous_precision<br>";
 $participants_fields = array(
 	'id',
 	'first_name',
@@ -210,6 +212,7 @@ $participants_fields = array(
 	'date_of_birth',
 	'date_of_birth_accuracy',
 	'vital_status',
+	'language_preferred',
 	'notes',
 	'date_of_death',
 	'date_of_death_accuracy',
@@ -223,14 +226,6 @@ echo "** Following field will be migrated : ".implode(', ',$participants_fields)
 echo "** Participant Identifier will be replaced by bare-code<br>";;
 echo "** Import following identifiers: Prostate NoLabo, St luc hospital number, hd hospital number, nd hospital number, ramq, old no labo<br>";
 echo "**************************************************************<br><br>";
-
-$query = "select participant_identifier, date_of_death, approximate_date_of_death FROM participants WHERE approximate_date_of_death IS NOT NULL AND deleted <> 1;";
-$query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
-$participant_identifiers = array();
-While($res = mysqli_fetch_assoc($query_res)) {
-	$participant_identifiers[] = $res['participant_identifier'];
-}
-if($participant_identifiers) echo "Participants (#syst code = ".implode(', ',$participant_identifiers).") have an approximate date of death in ICM version : Dates won't be migrated<br><br>";
 
 //Record data into participants
 $fields = implode(', ', array_merge($participants_fields, array('created','created_by','modified','modified_by','deleted')));
@@ -275,13 +270,26 @@ $query = "UPDATE participants SET participant_identifier = CONCAT('$bank_identif
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = "SELECT part.participant_identifier, part.res FROM (SELECT count(*) AS res, participant_identifier FROM participants WHERE deleted <> 1 GROUP BY participant_identifier) as part WHERE part.res > 1;";
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$dup_counter = 0;
 While($res = mysqli_fetch_assoc($query_res)) {
+	$dup_counter++;
 	$p_ident = $res['participant_identifier'];
 	$p_ident_res = $res['res'];
 	echo "ERROR: $p_ident_res patient have been migrated with participant identifier = $p_ident.<br><br>";
-	$query = "UPDATE participants SET participant_identifier = CONCAT(participant_identifier,'#',id) WHERE participant_identifier = '$p_ident';";
+	$query = "UPDATE participants SET participant_identifier = CONCAT(participant_identifier,'(',$dup_counter,')') WHERE participant_identifier = '$p_ident';";
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
+//approximate_date_of_death if required
+$query = "select id, participant_identifier, approximate_date_of_death, approximate_date_of_death_accuracy FROM participants WHERE approximate_date_of_death IS NOT NULL AND approximate_date_of_death NOT LIKE '' AND (date_of_death IS NULL OR date_of_death LIKE '') AND deleted <> 1;";
+$query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+$participant_identifiers = array();
+While($res = mysqli_fetch_assoc($query_res)) {
+	$participant_identifiers[] = $res['participant_identifier'];
+	$query = "UPDATE participants SET date_of_death = '".$res['approximate_date_of_death']."', date_of_death_accuracy = '".$res['approximate_date_of_death_accuracy']."' WHERE id = ".$res['id'].";";
+	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+}
+if($participant_identifiers) echo "Message : Participants (#syst code = ".implode(', ',$participant_identifiers).") have an approximate date of death in ICM version : Dates won't be migrated<br><br>";
+//ADd new line in rev table
 $fields = implode(', ', array_merge($participants_fields, array('modified_by','modified')));
 $fields_revs = implode(', ', array_merge($participants_fields, array('modified_by','version_created')));
 $query = "INSERT INTO participants_revs ($fields_revs) (SELECT $fields FROM participants);";
@@ -295,6 +303,18 @@ $query = "INSERT INTO misc_identifiers_revs (id,identifier_value,misc_identifier
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = "UPDATE misc_identifier_controls midc SET midc.flag_active = 0 WHERE midc.misc_identifier_name = 'code-barre';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+//Track new code-barre
+$no_labo_to_ps1p = array();
+$query = "
+	SELECT p.participant_identifier as 'ps1p', mi.identifier_value as 'no_labo'
+	FROM participants p 
+	INNER JOIN misc_identifiers mi ON mi.participant_id = p.id AND mi.deleted <> 1
+	INNER JOIN misc_identifier_controls mc ON mc.id = mi.misc_identifier_control_id
+	WHERE mc.misc_identifier_name = 'prostate bank no lab';";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+While($res = mysqli_fetch_assoc($query_res)) {
+	$no_labo_to_ps1p[$res['no_labo']] = $res['ps1p'];
+}
 
 echo "done<br>";
 
@@ -318,8 +338,8 @@ $cst_detail_fields = array(
 	'qc_nd_contact_for_additional_data',
 	'qc_nd_inform_significant_discovery',
 	'qc_nd_inform_discovery_on_other_disease');
-echo "** Following fields will be migrated :  consent_language, consent_signed_date, consent_signed_date_accuracy,notes, ".implode(', ',$cst_detail_fields)."<br>";
-echo "** Following consents fields won't be migrated : consent_version_date, invitation_date, consent_status, status_date, reason_denied, (consent_control_id)<br>";
+echo "** Following fields will be migrated :  qc_nd_consent_version_date, consent_language, consent_signed_date, consent_signed_date_accuracy,notes, ".implode(', ',$cst_detail_fields)."<br>";
+echo "** Following consents fields won't be migrated : invitation_date, consent_status, status_date, reason_denied, (consent_control_id)<br>";
 echo "**********************************************************<br><br>";
 
 $query = "SELECT * FROM (SELECT count(*) as count, participant_id FROM consent_masters WHERE deleted <> 1 GROUP BY participant_id) AS res WHERE res.count > 1;";
@@ -353,11 +373,11 @@ $res = mysqli_fetch_assoc($query_res);
 $consent_control_id = $res['id'];
 
 //Consent Master
-$query = "INSERT INTO $db_procure_schema.consent_masters (id, participant_id, consent_control_id, procure_form_identification, form_version, consent_signed_date, consent_signed_date_accuracy,notes,created,created_by,modified,modified_by,deleted)
-	(SELECT id, participant_id, $consent_control_id, id, consent_language,consent_signed_date, consent_signed_date_accuracy,notes,created,created_by,modified,modified_by,deleted from $db_icm_schema.consent_masters);";
+$query = "INSERT INTO $db_procure_schema.consent_masters (id, participant_id, consent_control_id, qc_nd_consent_version_date, procure_form_identification, form_version, consent_signed_date, consent_signed_date_accuracy,notes,created,created_by,modified,modified_by,deleted)
+	(SELECT id, participant_id, $consent_control_id, consent_version_date, id, consent_language,consent_signed_date, consent_signed_date_accuracy,notes,created,created_by,modified,modified_by,deleted from $db_icm_schema.consent_masters);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$query = "INSERT INTO $db_procure_schema.consent_masters_revs (id, participant_id, consent_control_id, procure_form_identification, form_version, consent_signed_date, consent_signed_date_accuracy,notes,modified_by,version_id,version_created)
-	(SELECT id, participant_id, $consent_control_id, id, consent_language,consent_signed_date, consent_signed_date_accuracy,notes,modified_by,version_id,version_created from $db_icm_schema.consent_masters_revs);";
+$query = "INSERT INTO $db_procure_schema.consent_masters_revs (id, participant_id, consent_control_id, qc_nd_consent_version_date, procure_form_identification, form_version, consent_signed_date, consent_signed_date_accuracy,notes,modified_by,version_id,version_created)
+	(SELECT id, participant_id, $consent_control_id, consent_version_date, id, consent_language,consent_signed_date, consent_signed_date_accuracy,notes,modified_by,version_id,version_created from $db_icm_schema.consent_masters_revs);";
 $queries = array(
 	"UPDATE consent_masters SET form_version = 'english' WHERE form_version = 'en';",
 	"UPDATE consent_masters_revs SET form_version = 'english' WHERE form_version = 'en';",
@@ -393,6 +413,10 @@ while($res = mysqli_fetch_assoc($query_res)) {
 		"UPDATE consent_masters_revs SET procure_form_identification = CONCAT('".$res['participant_identifier']."', ' V0 -CSF', $sct_nbr) WHERE id = ".$res['consent_master_id'].";");
 	foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
+//Custom list
+$procure_control_id = migrateCustomList('qc consent version', 'Consent version date');
+$query = "DELETE FROM structure_permissible_values_customs WHERE control_id = $procure_control_id AND value NOT IN (SELECT DISTINCT qc_nd_consent_version_date FROM consent_masters);";
+mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 //consent control
 $query = "SELECT count(*) as nbr, 'consent_masters' as type FROM consent_masters
 	UNION ALL
@@ -427,8 +451,8 @@ $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [
 $res = mysqli_fetch_assoc($query_res);
 $event_control_id = $res['id'];
 require_once 'Excel/reader.php';
-$file_path = "C:/_Perso/Server/procure_chum/data/Biobanque ProCure 2005-2012--25-02-2014.xls";
-if($is_server) $file_path = "/ATiM/icm/v2/ATiM-Split/Test3/Biobanque ProCure 2005-2012--25-02-2014_v20140102.xls";
+$file_path = "C:/_Perso/Server/procure_chum/data/BiobanqueProCureQuestionnaire_20140605.xls";
+if($is_server) $file_path = "/ATiM/icm/v2/ATiM-Split/Test3/BiobanqueProCureQuestionnaire_20140605.xls";
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
@@ -473,6 +497,24 @@ foreach($XlsReader->sheets[$sheets_nbr['Cas complet']]['cells'] as $line => $new
 				$q_errors['more than one'][] = $q_no_labo;
 			} else {
 				$no_labo_to_db_data[$q_no_labo]['qc_done'] = true;
+				if(!$approximative_date)  {
+					if(isset($no_labo_to_ps1p[$q_no_labo]) && preg_match('/^PS1P([0-9]{4})$/', $no_labo_to_ps1p[$q_no_labo], $matches)) {
+						$ps1p = ltrim($matches[1], "0");
+						if(25 <= $ps1p && $ps1p <= 154) {
+							$approximative_date = '2007-01-01';
+						} else if(156 <= $ps1p && $ps1p <= 273) {
+							$approximative_date = '2008-01-01';
+						} else  if(275 <= $ps1p && $ps1p <= 386) {
+							$approximative_date = '2009-01-01';
+						} else  if(387 <= $ps1p && $ps1p <= 484) {
+							$approximative_date = '2010-01-01';
+						} else  if(484 <= $ps1p && $ps1p <= 594) {
+							$approximative_date = '2011-01-01';
+						} else  if(595 <= $ps1p && $ps1p <= 624) {
+							$approximative_date = '2012-01-01';
+						} 
+					}	
+				}
 				if(!$approximative_date)  {
 					if(empty($no_labo_to_db_data[$q_no_labo]['consent_signed_date'])) {
 						$q_errors['empty date'][] = $q_no_labo;
@@ -1030,6 +1072,134 @@ $query = "INSERT INTO $db_procure_schema.ad_whatman_papers ($fields) (SELECT $fi
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $query = "INSERT INTO $db_procure_schema.ad_whatman_papers_revs ($fields ,version_id,version_created) (SELECT $fields ,version_id,version_created FROM $db_icm_schema.ad_whatman_papers_revs);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$query = "select am.id aliquot_master_id, storage_datetime, storage_datetime_accuracy, REPLACE(REPLACE(REPLACE(REPLACE(lower(am.notes), ' ', ''), 'à', 'a'), 'é', 'e'), 'è', 'e') as notes, notes as unformated_notes
+	FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+	WHERE ac.aliquot_type = 'whatman paper' AND am.notes NOT LIKE '' AND am.notes is not null and am.deleted <> 1 order by notes;";
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+while ($res = mysqli_fetch_assoc($query_res)) {
+	$aliquot_master_id = $res['aliquot_master_id'];
+	$storage_datetime = $res['storage_datetime'];
+	$storage_datetime_accuracy = $res['storage_datetime_accuracy'];
+	$notes = $res['notes'];
+	$unformated_notes = $res['unformated_notes'];
+	$procure_card_sealed_date = null;
+	$procure_card_sealed_time = null;
+	$procure_card_completed_at_date = null;
+	$procure_card_completed_at_time = null;
+	if(preg_match('/(complet|fait|effec)/', $notes)) {
+		if(preg_match('/complet[a-z]{2,4}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))[a-z]{0,2}((([1-9])|([01][0-9])|(2[0-4]))[:h\.]([0-6][0-9]){0,1})/', $notes, $matches)) {
+			//ompletee le 23-07-2012 a 14:(53)
+			$procure_card_completed_at_date = $matches[9].'-'.$matches[6].'-'.$matches[2];
+			$procure_card_completed_at_time = $matches[11].((isset($matches[16]) && strlen($matches[16]))? '' : '00');
+		} else if(preg_match('/complet[a-z]{2,4}((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])([a-z]{2,4}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))){0,1}/', $notes, $matches)) {
+			//completee a 16:10 (le 12-03-2001)
+			if(isset($matches[7]) && strlen($matches[7])) $procure_card_completed_at_date = $matches[15].'-'.$matches[12].'-'.$matches[8];
+			$procure_card_completed_at_time = $matches[1];
+		} else if(preg_match('/complet[a-z]{2,4}(((0[1-9])|([12][0-9])|(3[01]))([a-z\.]{2,10})((19|20)[0-9]{2}))[a-z]{1,2}((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])/', $notes, $matches)) {
+			//completee le 28 octobre 2010 a 15:58
+			$match_arr = array('octobre'=> '10', 'jin'=> '06', 'juin'=> '06', 'oct.'=> '10');
+			if(!in_array($matches[6], array_keys($match_arr))) die('ERR 238 762987 3298 732 '.$matches[6]);
+			$procure_card_completed_at_date = $matches[7].'-'.str_replace(array_keys($match_arr),$match_arr, $matches[6]).'-'.$matches[2];
+			$procure_card_completed_at_time = $matches[9];
+		} else if(preg_match('/effect[a-z]{2,5}((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])([a-z]{2,4}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))){0,1}/', $notes, $matches)) {
+			//effectue a 10h11 (le 12-03-2001)
+			if(isset($matches[7])) $procure_card_completed_at_date = $matches[15].'-'.$matches[12].'-'.$matches[8];
+			$procure_card_completed_at_time = $matches[1];
+		} else if(preg_match('/(fait|effecute)a((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])/', $notes, $matches)) {
+			//fait a 15h52
+			$procure_card_completed_at_time = $matches[2];
+		} else if(preg_match('/complet[a-z]{2,4}(((0[1-9])|([12][0-9])|(3[01]))[a-z\.]{2,10})[a-z]{1,2}((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])/', $notes, $matches)) {
+			//completee le 28 octobre a 15:58
+			$procure_card_completed_at_time = $matches[6];
+			echo "MESSAGE: Aliquot (id=$aliquot_master_id) - Partial completion date (day+month) extracted from notes (".$unformated_notes."). Check it's consistant with storage date ".$storage_datetime."<br>";
+		} else {
+			echo "WARNING: Aliquot (id=$aliquot_master_id) - Unable to extract completion time from (".$unformated_notes."). To do manually after migration.<br>";
+		}
+		if($procure_card_completed_at_time) {
+			$procure_card_completed_at_time = str_replace(array('h', '.'), array(':', ':'), (((strlen($procure_card_completed_at_time) == 4)? '0' : '').$procure_card_completed_at_time));
+		}
+		if($procure_card_completed_at_date) {
+			$tmp = explode('-', $procure_card_completed_at_date);
+			$procure_card_completed_at_date = $tmp[0].'-'.((strlen($tmp[1]) == 1)? '0':'').$tmp[1].'-'.((strlen($tmp[2]) == 1)? '0':'').$tmp[2];
+		}
+	}
+	if(preg_match('/scell|seale/', $notes)) {
+		if(preg_match('/scelle[a-z]{2,4}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))[a-z]{1,2}(((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9]))/', $notes, $matches)) {
+			//scellee le 31-03-2010 a 9:54
+			$procure_card_sealed_date = $matches[9].'-'.$matches[6].'-'.$matches[2];
+			$procure_card_sealed_time =$matches[11];
+		} else if(preg_match('/(scell{0,1}e[a-z]{2,4}|scellea)((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])([a-z]{1,3}((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2})){0,1}/', $notes, $matches)) {
+			//scellee a 18.39h le 12-02-2010
+			//scellea10h52le16-02-2012
+			if(isset($matches[7])) $procure_card_sealed_date = $matches[15].'-'.$matches[12].'-'.$matches[8];
+			$procure_card_sealed_time =$matches[2];
+		} else if(preg_match('/sealedat((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])/', $notes, $matches)) {
+			//sealed at 16:31
+			$procure_card_sealed_time =$matches[1];
+		} else if(preg_match('/scell{0,1}e[a-z:]{2,4}(((0[1-9])|([12][0-9])|(3[01]))([a-z]{2,10})((19|20)[0-9]{2}))[a-z]{1,2}((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])/', $notes, $matches)) {
+			//scellee le 19 mai 2010 a 09:50
+			$procure_card_sealed_time =$matches[9];
+			$match_arr = array('decembre'=> '12', 'janvier'=> '01', 'mai'=> '05');
+			if(!in_array($matches[6], array_keys($match_arr))) die('ERR 238 762987 3298 732 '.$matches[6]);
+			$procure_card_sealed_date = $matches[7].'-'.str_replace(array_keys($match_arr),$match_arr, $matches[6]).'-'.$matches[2];
+		} else if(preg_match('/scell{0,1}e[a-z:]{2,4}(((0[1-9])|([12][0-9])|(3[01]))([a-z]{2,10}))[a-z]{1,2}((([1-9])|([01][0-9])|(2[0-4]))[:h\.][0-6][0-9])/', $notes, $matches)) {
+			//scellee le 19 mai a 09:50
+			echo "MESSAGE: Aliquot (id=$aliquot_master_id) - Partial seal date (day+month) extracted from notes (".$unformated_notes."). Check it's consistant with storage date ".$storage_datetime."<br>";
+			$procure_card_sealed_time =$matches[7];
+		} else if(preg_match('/scell{0,1}e[a-z]{2,4}((([1-9])|([01][0-9])|(2[0-4]))[:h\.])/', $notes, $matches)) {
+			//scellee a 18h
+			$procure_card_sealed_time =$matches[2].':00';
+		} else if(preg_match('/scell.{2,6}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))/', $notes, $matches)) {
+			$procure_card_sealed_date = $matches[9].'-'.$matches[6].'-'.$matches[2];
+		} else {
+			echo "WARNING: Aliquot (id=$aliquot_master_id) - Unable to extract seal date and time from notes (".$unformated_notes."). To do manually after migration.<br>";
+		}
+		if($procure_card_sealed_time) {
+			$procure_card_sealed_time = str_replace(array('h', '.'), array(':', ':'), (((strlen($procure_card_sealed_time) == 4)? '0' : '').$procure_card_sealed_time));
+		}
+		if($procure_card_sealed_date) {
+			$tmp = explode('-', $procure_card_sealed_date);
+			$procure_card_sealed_date = $tmp[0].'-'.((strlen($tmp[1]) == 1)? '0':'').$tmp[1].'-'.((strlen($tmp[2]) == 1)? '0':'').$tmp[2];
+		}
+	}
+	$storage_date = null;
+	if($storage_datetime) {
+		$storage_date = substr($storage_datetime, 0, 10);
+		if($procure_card_sealed_date && $procure_card_completed_at_date && $procure_card_completed_at_date < $procure_card_sealed_date) 
+			echo "ERROR: Aliquot (id=$aliquot_master_id) - seal date $procure_card_sealed_date is after completion date $procure_card_completed_at_date.<br>";
+		if($procure_card_sealed_date && $storage_date && $storage_date < $procure_card_sealed_date)
+			echo "ERROR: Aliquot (id=$aliquot_master_id) - seal date $procure_card_sealed_date is after storage date $storage_date.<br>";
+		if($storage_date && $procure_card_completed_at_date && $storage_date < $procure_card_completed_at_date)
+			echo "ERROR: Aliquot (id=$aliquot_master_id) - Completion date $procure_card_completed_at_date is after storage date $storage_date.<br>";
+		if(!$procure_card_sealed_date) {
+			if($procure_card_completed_at_date) {
+				$use_compeltiond_date_for_sealed_date[] = $aliquot_master_id;
+				$procure_card_sealed_date = $procure_card_completed_at_date;
+			} else if($storage_date) {
+				$procure_card_sealed_date = $storage_date;
+				$use_storage_date_for_sealed_date[] = $aliquot_master_id;
+			} 
+		}
+	}
+	$data_to_update = array();
+	if($procure_card_completed_at_time) $data_to_update[] = "procure_card_completed_at = '$procure_card_completed_at_time'";
+	if($procure_card_sealed_time) {
+		if($procure_card_sealed_date) {
+			$data_to_update[] = "procure_card_sealed_date = '$procure_card_sealed_date $procure_card_sealed_time'";
+			$data_to_update[] = "procure_card_sealed_date_accuracy = '".($procure_card_sealed_time? 'c' : 'h')."'";
+		} else {
+			echo "ERROR: Aliquot (id=$aliquot_master_id) - No storage date, seal date or completion date exists but a sealed time has been defined in notes : ".$unformated_notes.".<br>";
+		}
+	}
+	if($data_to_update) {
+		$query = "UPDATE ad_whatman_papers SET ".implode(',',$data_to_update)." WHERE aliquot_master_id = $aliquot_master_id";
+		mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+		$query = "UPDATE ad_whatman_papers_revs SET ".implode(',',$data_to_update)." WHERE aliquot_master_id = $aliquot_master_id";
+		mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	}
+}
+if($use_compeltiond_date_for_sealed_date) echo "<br>MESSAGE: System used completion date to set the seal date for following aliquots (ids) : ".implode(', ',$use_compeltiond_date_for_sealed_date)." .<br>"; 
+if($use_storage_date_for_sealed_date) echo "<br>MESSAGE: System used storage date to set the seal date for following aliquots (ids) : ".implode(', ',$use_compeltiond_date_for_sealed_date)." .<br>";
 
 echo "<br>- - - - - - - - -  Blood: Tube - - - - - - - - - -<br><br>";
 
@@ -1124,15 +1294,28 @@ $sample_codes = array();
 while ($res = mysqli_fetch_assoc($query_res)) {
 	$sample_codes[] = $res['sample_master_id'];
 }
-$tmp_conditions = '';
+$tmp_exclusion_conditions = '';
 if($sample_codes) {
-	echo "Error: Following tissues with sample codes = [".implode(', ',$sample_codes)."] are linked to more than one pathology report number: to clean up and to migrate manually<br><br>";
-	$tmp_conditions = " AND am.sample_master_id NOT IN (".implode(', ',$sample_codes).")";
+	$query = "
+		SELECT DISTINCT ad.patho_dpt_block_code, am.sample_master_id
+		FROM ad_blocks ad
+		INNER JOIN aliquot_masters am ON am.id = ad.aliquot_master_id
+		WHERE am.deleted <> 1 AND ad.patho_dpt_block_code IS NOT NULL AND ad.patho_dpt_block_code NOT LIKE '' AND sample_master_id IN (".implode(',', $sample_codes).") ORDER BY sample_master_id;";
+	$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	$tmp_patho_nbr_summary = array();
+	while ($res = mysqli_fetch_assoc($query_res)) {
+		$tmp_patho_nbr_summary[$res['sample_master_id']][$res['patho_dpt_block_code']] = $res['patho_dpt_block_code'];
+	}
+	foreach($tmp_patho_nbr_summary as $samp_id => $block_codes) {
+		echo "ERROR: Tissue with sample code= [$samp_id] is linked to more than one pathology report numbers [".implode(', ',$block_codes)."]. To clean up manually after migration.<br>";
+	}
+	echo "<br>";
+	$tmp_exclusion_conditions = " AND am.sample_master_id NOT IN (".implode(', ',$sample_codes).")";
 }
-$query_res = "UPDATE ad_blocks ad, aliquot_masters am, sd_spe_tissues sd
+$query = "UPDATE ad_blocks ad, aliquot_masters am, sd_spe_tissues sd
 	SET sd.procure_report_number = ad.patho_dpt_block_code
 	WHERE am.id = ad.aliquot_master_id AND am.sample_master_id = sd.sample_master_id
-	AND am.deleted <> 1 AND ad.patho_dpt_block_code IS NOT NULL AND ad.patho_dpt_block_code NOT LIKE '' $tmp_conditions";
+	AND am.deleted <> 1 AND ad.patho_dpt_block_code IS NOT NULL AND ad.patho_dpt_block_code NOT LIKE '' $tmp_exclusion_conditions";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
 echo "<br>- - - - - - - - -  DNA: tube - - - - - - - - - -<br><br>";
@@ -1260,11 +1443,15 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	$barcode_counter++;
 }
-$query = "SELECT count(*) as nbr_of_barcode_dup FROM (SELECT barcode, count(*) as dub FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) as res WHERE res.dub > 1;";
+$query = "SELECT res.barcode FROM (SELECT barcode, count(*) as dub FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) as res WHERE res.dub > 1;";
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$res = mysqli_fetch_assoc($query_res);
-if($res['nbr_of_barcode_dup']) echo "Error : ".$res['nbr_of_barcode_dup']." barcode are duplicated!<br><br>";
-
+$dup_barcodes = array();
+$dup_barcodes_counter = 0;
+while($res = mysqli_fetch_assoc($query_res)) {
+	$dup_barcodes[$res['barcode']] = $res['barcode'];
+	$dup_barcodes_counter++;
+}
+if($dup_barcodes_counter) echo "Error : $dup_barcodes_counter barcodes are duplicated : ".implode(', ',$dup_barcodes)."<br><br>";
 //Insert one line in rev table
 $query = "UPDATE aliquot_masters SET modified = '$modified', modified_by = '$modified_by' WHERE deleted <> 1";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -1321,170 +1508,39 @@ $query = "UPDATE versions SET permissions_regenerated = '0';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
 //====================================================================================================================================================
-//TODO To delete
+//Migration Summary
 //====================================================================================================================================================
 
-/*
-$query = "TRUNCATE view_collections;";
-mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$query = 
-	"REPLACE INTO view_collections (
-		SELECT
-		Collection.id AS collection_id,
-		Collection.bank_id AS bank_id,
-		Collection.sop_master_id AS sop_master_id,
-		Collection.participant_id AS participant_id,
-		Collection.diagnosis_master_id AS diagnosis_master_id,
-		Collection.consent_master_id AS consent_master_id,
-		Collection.treatment_master_id AS treatment_master_id,
-		Collection.event_master_id AS event_master_id,
-		Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
-		Collection.procure_visit AS procure_visit,
-		Participant.participant_identifier AS participant_identifier,
-		Collection.acquisition_label AS acquisition_label,
-		Collection.collection_site AS collection_site,
-		Collection.collection_datetime AS collection_datetime,
-		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
-		Collection.collection_property AS collection_property,
-		Collection.collection_notes AS collection_notes,
-		Collection.created AS created,
-		MiscIdentifier.identifier_value AS qc_nd_no_labo
-		FROM collections AS Collection
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-		LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-		WHERE Collection.deleted <> 1);";
-mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+echo "<br><br>****************** ALIQUOTS ******************************<br>";
 
-$query = "TRUNCATE view_samples;";
-mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$query =
-	'REPLACE INTO view_samples (
-		SELECT SampleMaster.id AS sample_master_id,
-		SampleMaster.parent_id AS parent_sample_id,
-		SampleMaster.initial_specimen_sample_id,
-		SampleMaster.collection_id AS collection_id,
-		
-		Collection.bank_id, 
-		Collection.sop_master_id, 
-		Collection.participant_id, 
-		
-		Participant.participant_identifier, 
-		
-		Collection.acquisition_label, 
-		Collection.procure_visit AS procure_visit,
-		
-		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
-		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
-		ParentSampleControl.sample_type AS parent_sample_type,
-		ParentSampleMaster.sample_control_id AS parent_sample_control_id,
-		SampleControl.sample_type,
-		SampleMaster.sample_control_id,
-		SampleMaster.sample_code,
-		SampleControl.sample_category,
-		
-		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
-		 IF(Collection.collection_datetime IS NULL, -1,
-		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
-		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
-		 
-		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
-		 IF(Collection.collection_datetime IS NULL, -1,
-		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
-		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
-		MiscIdentifier.identifier_value AS qc_nd_no_labo  
-		
-		FROM sample_masters AS SampleMaster
-		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
-		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
-		LEFT JOIN specimen_details AS SpecimenDetail ON SpecimenDetail.sample_master_id=SampleMaster.id
-		LEFT JOIN derivative_details AS DerivativeDetail ON DerivativeDetail.sample_master_id=SampleMaster.id
-		LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
-		LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
-		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
-		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-		LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-		WHERE SampleMaster.deleted != 1);';
-mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+echo "<br>- - - - - - - - -  Participants Number - - - - - - - - - -<br><br>";
 
-$query = "TRUNCATE view_aliquots;";
-mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$query =
-	'REPLACE INTO view_aliquots (
-		SELECT 
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.sample_master_id AS sample_master_id,
-			AliquotMaster.collection_id AS collection_id, 
-			Collection.bank_id, 
-			AliquotMaster.storage_master_id AS storage_master_id,
-			Collection.participant_id, 
-			
-			Participant.participant_identifier, 
-			
-			Collection.acquisition_label, 
-			Collection.procure_visit AS procure_visit,
-			
-			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
-			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
-			ParentSampleControl.sample_type AS parent_sample_type,
-			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
-			SampleControl.sample_type,
-			SampleMaster.sample_control_id,
-			
-			AliquotMaster.barcode,
-			AliquotMaster.aliquot_label,
-			AliquotControl.aliquot_type,
-			AliquotMaster.aliquot_control_id,
-			AliquotMaster.in_stock,
-			
-			StorageMaster.code,
-			StorageMaster.selection_label,
-			AliquotMaster.storage_coord_x,
-			AliquotMaster.storage_coord_y,
-			
-			StorageMaster.temperature,
-			StorageMaster.temp_unit,
-			
-			AliquotMaster.created,
-			
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(Collection.collection_datetime IS NULL, -1,
-			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
-			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(DerivativeDetail.creation_datetime IS NULL, -1,
-			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-			 
-			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
-			MiscIdentifier.identifier_value AS qc_nd_no_labo  
-			
-			FROM aliquot_masters AS AliquotMaster
-			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
-			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
-			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
-			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
-			LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
-			LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
-			LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
-			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
-			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
-			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
-			LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = 5 AND MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1
-			WHERE AliquotMaster.deleted != 1);';
-mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-*/
+$query = "SELECT count(*) as 'nbr_participant' FROM participants WHERE deleted <> 1;";
+$query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+$res = mysqli_fetch_assoc($query_res);
+echo "ICM: ".$res['nbr_participant']."<br><br>";
+
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+$res = mysqli_fetch_assoc($query_res);
+echo "PROCURE: ".$res['nbr_participant']."<br><br>";
+
+echo "<br>- - - - - - - - -  ICM ALiquots - - - - - - - - - -<br><br>";
+
+$query = "SELECT count(*) as 'nbr_aliquots', sample_type, aliquot_type, deleted
+	FROM aliquot_masters am
+	INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id
+	INNER JOIN sample_controls sm ON sm.id = ac.sample_control_id
+	GROUP BY sample_type, aliquot_type, deleted
+	ORDER BY sample_type, aliquot_type, deleted;";
+$query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+while($res = mysqli_fetch_assoc($query_res)) {
+	echo "ICM: ".$res['sample_type']." - ".$res['aliquot_type']." (deleted - ".$res['deleted']."): ".$res['nbr_aliquots']."<br><br>";
+}
+
+$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+while($res = mysqli_fetch_assoc($query_res)) {
+	echo "PROCURE: ".$res['sample_type']." - ".$res['aliquot_type']." (deleted - ".$res['deleted']."): ".$res['nbr_aliquots']."<br><br>";
+}
 
 //====================================================================================================================================================
 //====================================================================================================================================================
