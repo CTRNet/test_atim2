@@ -272,12 +272,16 @@ $query = "SELECT part.participant_identifier, part.res FROM (SELECT count(*) AS 
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $dup_counter = 0;
 While($res = mysqli_fetch_assoc($query_res)) {
-	$dup_counter++;
 	$p_ident = $res['participant_identifier'];
 	$p_ident_res = $res['res'];
 	echo "ERROR: $p_ident_res patient have been migrated with participant identifier = $p_ident.<br><br>";
-	$query = "UPDATE participants SET participant_identifier = CONCAT(participant_identifier,'(',$dup_counter,')') WHERE participant_identifier = '$p_ident';";
-	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	$query_2 = "SELECT id FROM participants WHERE deleted <> 1 AND participant_identifier = '$p_ident' ORDER BY id ASC;";
+	$query_res_2 = mysqli_query($db_procure_connection, $query_2) or die("query failed [".$query_2."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	While($res_2 = mysqli_fetch_assoc($query_res_2)) {
+		$dup_counter++;
+		$query = "UPDATE participants SET participant_identifier = CONCAT(participant_identifier,'(',$dup_counter,')') WHERE id = '".$res_2['id']."';";
+		mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	}
 }
 //approximate_date_of_death if required
 $query = "select id, participant_identifier, approximate_date_of_death, approximate_date_of_death_accuracy FROM participants WHERE approximate_date_of_death IS NOT NULL AND approximate_date_of_death NOT LIKE '' AND (date_of_death IS NULL OR date_of_death LIKE '') AND deleted <> 1;";
@@ -1151,6 +1155,7 @@ while ($res = mysqli_fetch_assoc($query_res)) {
 			$procure_card_sealed_time =$matches[2].':00';
 		} else if(preg_match('/scell.{2,6}(((0[1-9])|([12][0-9])|(3[01]))-((0{0,1}[1-9])|(1[0-2]))-((19|20)[0-9]{2}))/', $notes, $matches)) {
 			$procure_card_sealed_date = $matches[9].'-'.$matches[6].'-'.$matches[2];
+echo "TMP MESSAGE: Aliquot (id=$aliquot_master_id) - So seal time - to confirm.<br>";
 		} else {
 			echo "WARNING: Aliquot (id=$aliquot_master_id) - Unable to extract seal date and time from notes (".$unformated_notes."). To do manually after migration.<br>";
 		}
@@ -1451,7 +1456,29 @@ while($res = mysqli_fetch_assoc($query_res)) {
 	$dup_barcodes[$res['barcode']] = $res['barcode'];
 	$dup_barcodes_counter++;
 }
-if($dup_barcodes_counter) echo "Error : $dup_barcodes_counter barcodes are duplicated : ".implode(', ',$dup_barcodes)."<br><br>";
+if($dup_barcodes_counter) {
+	echo "Error : $dup_barcodes_counter barcodes are duplicated : <br>
+		<TABLE BORDER='1'>
+		<TR>
+		<TH>New Barcode</TH>
+		<TH>Old Label</TH>
+		<TH>Aliquot id</TH>
+		<TH>Sample id</TH>
+		<TH>Collection id</TH>
+		</TR>";
+	$query = "SELECT collection_id, sample_master_id, id, barcode, aliquot_label from aliquot_masters WHERE barcode IN ('".implode("','",$dup_barcodes_counter)."') AND deleted <> 1 ORDER BY barcode, sample_master_id, collection_id;";
+	$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	while($res = mysqli_fetch_assoc($query_res)) {
+		echo "<TR>
+		<TD>".$res['barcode']."</TD>
+		<TD>".$res['aliquot_label']."</TD>
+		<TD>".$res['id']."</TD>
+		<TD>".$res['sample_master_id']."</TD>
+		<TD>".$res['collection_id']."</TD>
+		</TR>";
+	}
+	echo "</TABLE><<br>";
+}
 //Insert one line in rev table
 $query = "UPDATE aliquot_masters SET modified = '$modified', modified_by = '$modified_by' WHERE deleted <> 1";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
@@ -1507,22 +1534,38 @@ pr('done');
 $query = "UPDATE versions SET permissions_regenerated = '0';";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 
+
+//====================================================================================================================================================
+//Date Clean Up
+//====================================================================================================================================================
+
+$tmp_arry = array(
+	'procure_cd_sigantures' => 'qc_nd_stop_followup_date',
+	'procure_cd_sigantures' => 'qc_nd_stop_questionnaire_date'
+);
+foreach($tmp_arry as $table => $field) {
+	$query = "update $table SET $field = null WHERE $field LIKE '%0000%'";
+	mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+	$query = "update ".$table."_revs SET $field = null WHERE $field LIKE '%0000%'";
+	mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+}
+
 //====================================================================================================================================================
 //Migration Summary
 //====================================================================================================================================================
 
-echo "<br><br>****************** ALIQUOTS ******************************<br>";
+echo "<br><br>****************** MIGRATION SUMMARY ******************************<br>";
 
 echo "<br>- - - - - - - - -  Participants Number - - - - - - - - - -<br><br>";
 
 $query = "SELECT count(*) as 'nbr_participant' FROM participants WHERE deleted <> 1;";
 $query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
 $res = mysqli_fetch_assoc($query_res);
-echo "ICM: ".$res['nbr_participant']."<br><br>";
+echo "ICM (source): ".$res['nbr_participant']."<br>";
 
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 $res = mysqli_fetch_assoc($query_res);
-echo "PROCURE: ".$res['nbr_participant']."<br><br>";
+echo "PROCURE (new one): ".$res['nbr_participant']."<br><br>";
 
 echo "<br>- - - - - - - - -  ICM ALiquots - - - - - - - - - -<br><br>";
 
@@ -1533,15 +1576,19 @@ $query = "SELECT count(*) as 'nbr_aliquots', sample_type, aliquot_type, deleted
 	GROUP BY sample_type, aliquot_type, deleted
 	ORDER BY sample_type, aliquot_type, deleted;";
 $query_res = mysqli_query($db_icm_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_icm_connection)."]");
+echo "ICM (source): <br>";
 while($res = mysqli_fetch_assoc($query_res)) {
-	echo "ICM: ".$res['sample_type']." - ".$res['aliquot_type']." (deleted - ".$res['deleted']."): ".$res['nbr_aliquots']."<br><br>";
+	echo $res['sample_type']." - ".$res['aliquot_type']." (deleted - ".$res['deleted']."): ".$res['nbr_aliquots']."<br>";
 }
 
 $query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+echo "<br>PROCURE (new one): <br>";
 while($res = mysqli_fetch_assoc($query_res)) {
-	echo "PROCURE: ".$res['sample_type']." - ".$res['aliquot_type']." (deleted - ".$res['deleted']."): ".$res['nbr_aliquots']."<br><br>";
+	echo $res['sample_type']." - ".$res['aliquot_type']." (deleted - ".$res['deleted']."): ".$res['nbr_aliquots']."<br>";
 }
 
+echo "<br>END OF THE PROCESS<br>";
+		
 //====================================================================================================================================================
 //====================================================================================================================================================
 
