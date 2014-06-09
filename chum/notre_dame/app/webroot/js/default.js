@@ -660,7 +660,7 @@ function initActions(){
         var lastTd = $(table).find("tbody tr:last td:nth-child(" + totalColspan + ")").eq(0);
         if(!lastTd.length){
             //no more rows
-            lastTd = $(table).find("thead th:last").eq(0);
+            lastTd = $(table).find("thead tr:last th:nth-child(" + totalColspan + ")").eq(0);
         }
         var firstTh = $(table).find("th.floatingCell:last").parent().find("th:first").eq(0);
         width = lastTd.width() + lastTd.position().left + psSize(lastTd, "right") - firstTh.position().left + psSize(firstTh, "left") + 1;
