@@ -20,7 +20,8 @@ Duplicate current atimv2icmprod database (v261) to:
 On atimv26icmprod:
 -> execute /icm/scripts/v2.6.0atim	/v621_procure_icm_split/custom_icm261_to_icm.sql
 -> execute /icm/scripts/v2.6.0/atim_v2.6.2_upgrade.sql
--> execute /icm/scripts/v2.6.0/custom_post_262.sql
+-> execute /icm/scripts/v2.6.0/atim_v2.6.3_upgrade.sql
+-> execute /icm/scripts/v2.6.0/custom_post_263.sql
 
 -- PROCURE ---------------------------------------------------------------------------------
 
@@ -37,3 +38,7 @@ Create database atimv26procure
 
 Export datab from atimv26procuretmp to atimv26procure
 -> execute /procurechum/scripts/v2.6.0/icm262_to_procure262.php
+
+On atimv26procure:
+-> execute /icm/scripts/v2.6.0/atim_v2.6.3_upgrade.sql
+-> execute /icm/scripts/v2.6.0/custom_post_263.sql
