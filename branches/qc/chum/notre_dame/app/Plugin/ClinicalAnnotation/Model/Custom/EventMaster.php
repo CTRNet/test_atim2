@@ -5,6 +5,11 @@ class EventMasterCustom extends EventMaster {
 	var $name = "EventMaster";
 	
 	function beforeSave($options = array()) {
+		
+		if(isset($this->data['EventMaster']['diagnosis_master_id']) && $this->data['EventMaster']['diagnosis_master_id']) {
+			unset($this->data['EventMaster']['diagnosis_master_id']);
+			AppController::addWarningMsg('no event can be linked to a diagnosis because diagnosis data comes from SARDO');
+		}
 		if(isset($this->data['EventMaster']['event_control_id'])) {
 			$event_control = AppModel::getInstance('ClinicalAnnotation', 'EventControl', true);
 			$event_control_data = $event_control->find('first', array('conditions' => array('id' => $this->data['EventMaster']['event_control_id'])));
