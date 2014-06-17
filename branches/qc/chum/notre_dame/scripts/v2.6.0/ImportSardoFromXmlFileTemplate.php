@@ -68,7 +68,7 @@ function getDateFromXml(&$new_record, $field) {
 	$date_from_file = getValueFromXml($new_record, $field);
 	$date = '';
 	$date_accuracy = '';
-	if(preg_match('/^((19[0-9]{2})|(20[0-9]{2}))9999$/', $date_from_file, $matches)) {
+	if(preg_match('/^((19[0-9]{2})|(20[0-9]{2}))99/', $date_from_file, $matches)) {
 		$date = $matches[1].'-01-01';
 		$date_accuracy = 'm';
 	}  else if(preg_match('/^((19[0-9]{2})|(20[0-9]{2}))((0[1-9])|(1[0-2]))99$/', $date_from_file, $matches)) {
@@ -77,7 +77,7 @@ function getDateFromXml(&$new_record, $field) {
 	} else if(preg_match('/^((19[0-9]{2})|(20[0-9]{2}))((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3[01]))$/', $date_from_file, $matches)) {
 		$date = $matches[1].'-'.$matches[4].'-'.$matches[7];
 		$date_accuracy = 'c';
-	}  else if($date_from_file != '99999999' && !empty($date_from_file)){
+	}  else if($date_from_file != '99999999' && !empty($date_from_file) && !preg_match('/^9999/', $date_from_file)){
 		importDie("ERR_XML00002 : Date '$date_from_file' is not supported for field <$field>!"); 
 	}
 	return array($date, $date_accuracy);
@@ -134,6 +134,43 @@ customQuery("DELETE FROM ".$diagnosis_controls['detail_tablename']."_revs;", __L
 customQuery("UPDATE diagnosis_masters_revs SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
 customQuery("DELETE FROM diagnosis_masters_revs WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
 
+// Participant
+
+if($is_initial_import)  {
+	$query = "UPDATE participants SET 
+		qc_nd_sardo_rec_number = '',
+		qc_nd_sardo_last_import = '',
+		qc_nd_sardo_cause_of_death = '',
+		qc_nd_sardo_diff_first_name = '',
+		qc_nd_sardo_diff_last_name = '',
+		qc_nd_sardo_diff_date_of_birth = '',
+		qc_nd_sardo_diff_sex = '',
+		qc_nd_sardo_diff_ramq = '',
+		qc_nd_sardo_diff_hd_nbr = '',
+		qc_nd_sardo_diff_sl_nbr = '',
+		qc_nd_sardo_diff_nd_nbr = '',
+		qc_nd_sardo_diff_date_of_death = '',
+		qc_nd_sardo_diff_vital_status = '',
+		qc_nd_sardo_diff_reproductive_history = '';";
+	customQuery($query, __LINE__);
+	$query = "UPDATE participants_revs SET
+		qc_nd_sardo_rec_number = '',
+		qc_nd_sardo_last_import = '',
+		qc_nd_sardo_cause_of_death = '',
+		qc_nd_sardo_diff_first_name = '',
+		qc_nd_sardo_diff_last_name = '',
+		qc_nd_sardo_diff_date_of_birth = '',
+		qc_nd_sardo_diff_sex = '',
+		qc_nd_sardo_diff_ramq = '',
+		qc_nd_sardo_diff_hd_nbr = '',
+		qc_nd_sardo_diff_sl_nbr = '',
+		qc_nd_sardo_diff_nd_nbr = '',
+		qc_nd_sardo_diff_date_of_death = '',
+		qc_nd_sardo_diff_vital_status = '',
+		qc_nd_sardo_diff_reproductive_history = '';";
+	customQuery($query, __LINE__);
+}
+
 //==============================================================================================
 //Load structure_permissible_values_custom_controls
 //==============================================================================================
@@ -148,13 +185,15 @@ While($res = mysqli_fetch_assoc($query_res)) {
 function addValuesToCustomList($control_name, $value) {
 	global $structure_permissible_values_custom_controls;
 	if(!strlen($value)) return '';
-	if(!isset($structure_permissible_values_custom_controls[$control_name])) importDie("ERR_CUSTOMLIST00001 : The custom list $control_name does not exist!"); 
+	if(!isset($structure_permissible_values_custom_controls[$control_name])) importDie("ERR_CUSTOMLIST00001 : The custom list $control_name does not exist!");
+	$fr_value = $value;
+	$value = strtr(strtolower($value), '@àáâãäåçèéêëìíîïðòóôõöùúûüýÿ', 'aaaaaaaceeeeiiiioooooouuuuyy');
 	$values_max_length = $structure_permissible_values_custom_controls[$control_name]['values_max_length'];
 	if(strlen($value) > $values_max_length) {
 		$import_summary['Custom List']['WARNING']["Value(s) for '$control_name' custom list is too long (> $values_max_length characters)!"][] = $value;
 		$value = substr($value, 0, $values_max_length);
 	}
-	$structure_permissible_values_custom_controls[$control_name]['new_values'][$value] = $value;
+	$structure_permissible_values_custom_controls[$control_name]['new_values'][$value] = $fr_value;
 	return $value;
 }
 
@@ -163,9 +202,9 @@ function loadCustomLists() {
 	foreach($structure_permissible_values_custom_controls as $new_custom_list) {
 		$control_id = $new_custom_list['id'];
 		customQuery("DELETE FROM structure_permissible_values_customs WHERE control_id = $control_id;", __LINE__);
-		customQuery("DELETE FROM structure_permissible_values_customs_revs WHERE control_id = $control_id;", __LINE__);
-		foreach($new_custom_list['new_values'] as $new_value) {
-			customInsert(array('value' => $new_value, 'control_id' => $control_id, 'use_as_input' => '1'), 'structure_permissible_values_customs', __LINE__);
+		customQuery("DELETE FROM structure_permissible_values_customs_revs WHERE control_id = $control_id;", __LINE__);		
+		foreach($new_custom_list['new_values'] as $new_value => $fr_value) {
+			customInsert(array('value' => $new_value, 'fr' => $fr_value, 'control_id' => $control_id, 'use_as_input' => '1'), 'structure_permissible_values_customs', __LINE__);
 		}
 		customQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = ".sizeof($new_custom_list['new_values']).", values_used_as_input_counter = ".sizeof($new_custom_list['new_values'])." WHERE id = $control_id;", __LINE__);
 	}
@@ -511,42 +550,46 @@ foreach($xml->Traitement as $new_treatment) {
 		$tx_recNbr_to_tx_dates_and_dx_recNbr[$treatment_rec_number]['dxRecNbr'] = $diagnosis_rec_number;
 		$trt_type = getValueFromXml($new_treatment, 'TypeTX');
 		$tx_method = 'sardo treatment - '.strtolower($trt_type);
-		if(!isset($treatment_controls[$tx_method])) importDie("ERR_TX00001 : Treatment [".$tx_method."] unknown!");
-		list($start_date, $start_date_accuracy)  = getDateFromXml($new_treatment, 'DateDebutTraitement');
-		$tx_recNbr_to_tx_dates_and_dx_recNbr[$treatment_rec_number]['dates'] = array($start_date, $start_date_accuracy);
-		if(in_array($trt_type, array('RADIO','CHIR','IMAGE','BIOP','HORM','CHIMIO','PAL','AUTRE','CYTO','PROTOC','BILAN','REVISION','IMMUNO','MEDIC','EXAM','OBS','VISITE','SYMPT','RESUME'))) {
-			list($finish_date, $finish_date_accuracy)  = getDateFromXml($new_treatment, 'DateFinTraitement');
-			$NoPatho = getValueFromXml($new_treatment, 'NoPatho');
-			$results = addValuesToCustomList("SARDO : $trt_type Results", getValueFromXml($new_treatment, 'Resultat_Alpha'));
-			$objectifs = addValuesToCustomList("SARDO : $trt_type Objectifs", getValueFromXml($new_treatment, 'ObjectifTX'));
-			//Build the treatment key
-			$treatment_key = md5($diagnosis_rec_number.$trt_type.$start_date.$finish_date.$NoPatho.$results.$objectifs);
-			if($treatment_key != $previous_treatment_key) {
-				//Record previous treatment then create new treatment		
-				recordPatientTreatment($treatment_data);
-				$treatment_data = array(
-					'TreatmentMaster' => array(
-						'treatment_control_id' => $treatment_controls[$tx_method]['treatment_control_id'],
-						'participant_id' => $dx_recNbr_to_ids[$diagnosis_rec_number]['participant_id'],
-						'diagnosis_master_id' => $dx_recNbr_to_ids[$diagnosis_rec_number]['diagnosis_master_id'],
-						'start_date' => $start_date,
-						'start_date_accuracy' => $start_date_accuracy,
-						'finish_date' => $finish_date,
-						'finish_date_accuracy' => $finish_date_accuracy),
-					'TreatmentDetail' => array(
-						'patho_nbr' => $NoPatho,
-						'results' => $results,
-						'objectifs' => $objectifs),
-					'TreatmentExtends' => array());			
+		if(!isset($treatment_controls[$tx_method])) {
+			//importDie("ERR_TX00001 : Treatment [".$tx_method."] unknown!");
+			$import_summary['Treatment']['ERROR']["SARDO treatment [".$tx_method."] is unknow"][] = "Treatment RecNumber $treatment_rec_number";
+		} else {
+			list($start_date, $start_date_accuracy)  = getDateFromXml($new_treatment, 'DateDebutTraitement');
+			$tx_recNbr_to_tx_dates_and_dx_recNbr[$treatment_rec_number]['dates'] = array($start_date, $start_date_accuracy);
+			if(in_array($trt_type, array('RADIO','CHIR','IMAGE','BIOP','HORM','CHIMIO','PAL','AUTRE','CYTO','PROTOC','BILAN','REVISION','IMMUNO','MEDIC','EXAM','OBS','VISITE','SYMPT','RESUME'))) {
+				list($finish_date, $finish_date_accuracy)  = getDateFromXml($new_treatment, 'DateFinTraitement');
+				$NoPatho = getValueFromXml($new_treatment, 'NoPatho');
+				$results = addValuesToCustomList("SARDO : $trt_type Results", getValueFromXml($new_treatment, 'Resultat_Alpha'));
+				$objectifs = addValuesToCustomList("SARDO : $trt_type Objectifs", getValueFromXml($new_treatment, 'ObjectifTX'));
+				//Build the treatment key
+				$treatment_key = md5($diagnosis_rec_number.$trt_type.$start_date.$finish_date.$NoPatho.$results.$objectifs);
+				if($treatment_key != $previous_treatment_key) {
+					//Record previous treatment then create new treatment		
+					recordPatientTreatment($treatment_data);
+					$treatment_data = array(
+						'TreatmentMaster' => array(
+							'treatment_control_id' => $treatment_controls[$tx_method]['treatment_control_id'],
+							'participant_id' => $dx_recNbr_to_ids[$diagnosis_rec_number]['participant_id'],
+							'diagnosis_master_id' => $dx_recNbr_to_ids[$diagnosis_rec_number]['diagnosis_master_id'],
+							'start_date' => $start_date,
+							'start_date_accuracy' => $start_date_accuracy,
+							'finish_date' => $finish_date,
+							'finish_date_accuracy' => $finish_date_accuracy),
+						'TreatmentDetail' => array(
+							'patho_nbr' => $NoPatho,
+							'results' => $results,
+							'objectifs' => $objectifs),
+						'TreatmentExtends' => array());			
+				}
+				$previous_treatment_key = $treatment_key;
+				$treatment_extend_data = addValuesToCustomList("SARDO : $trt_type Treatments", getValueFromXml($new_treatment, 'Traitement'));
+				if(strlen($treatment_extend_data)) {		
+					$treatment_data['TreatmentExtends'][] = array(
+						'TreatmentExtendMaster' => array('treatment_extend_control_id' => $treatment_controls[$tx_method]['treatment_extend_control_id']),
+						'TreatmentExtendDetail' => array('treatment' => $treatment_extend_data));
+				}
 			}
-			$previous_treatment_key = $treatment_key;
-			$treatment_extend_data = addValuesToCustomList("SARDO : $trt_type Treatments", getValueFromXml($new_treatment, 'Traitement'));
-			if(strlen($treatment_extend_data)) {		
-				$treatment_data['TreatmentExtends'][] = array(
-					'TreatmentExtendMaster' => array('treatment_extend_control_id' => $treatment_controls[$tx_method]['treatment_extend_control_id']),
-					'TreatmentExtendDetail' => array('treatment' => $treatment_extend_data));
-			}
-		}
+		}		
 	}
 }
 recordPatientTreatment($treatment_data);
