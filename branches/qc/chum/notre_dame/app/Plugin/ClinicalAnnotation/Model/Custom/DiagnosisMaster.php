@@ -15,6 +15,9 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return parent::find($type, $query);
 	}
 	
+	function beforeSave($options = array()) {
+		AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	}
 	
 }
 ?>

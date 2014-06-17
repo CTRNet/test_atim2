@@ -441,12 +441,6 @@ UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::g
 
 
 
-
-
-
-
-
-
 INSERT INTO treatment_extend_controls (id, detail_tablename, detail_form_alias, flag_active, `type`, databrowser_label) VALUES
 (null, 'qc_nd_txe_sardos', 'qc_nd_txe_sardos_radio', 1, 'sardo treatment extend - radio', 'sardo treatment extend - radio'),
 (null, 'qc_nd_txe_sardos', 'qc_nd_txe_sardos_chir', 1, 'sardo treatment extend - chir', 'sardo treatment extend - chir'),
@@ -837,8 +831,112 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_visite'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txe_sardos' AND `field`='treatment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_visite_treatments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='treatment' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'),
 ((SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_sympt'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txe_sardos' AND `field`='treatment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_sympt_treatments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='treatment' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'),
 ((SELECT id FROM structures WHERE alias='qc_nd_txe_sardos_resume'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_nd_txe_sardos' AND `field`='treatment' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_resume_treatments')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='treatment' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('sardo treatment extend - radio', 'RADIO', 'RADIO'),
+('sardo treatment extend - chir', 'SURG', 'CHIR'),
+('sardo treatment extend - image', 'IMAGING', 'IMAGE'),
+('sardo treatment extend - biop', 'BIOP', 'BIOP'),
+('sardo treatment extend - horm', 'HORM', 'HORM'),
+('sardo treatment extend - chimio', 'CHEMO', 'CHIMIO'),
+('sardo treatment extend - pal', 'PAL', 'PAL'),
+('sardo treatment extend - autre', 'OTHER', 'AUTRE'),
+('sardo treatment extend - cyto', 'CYTO', 'CYTO'),
+('sardo treatment extend - protoc', 'PROTOC', 'PROTOC'),
+('sardo treatment extend - bilan', 'CHECKUP', 'BILAN'),
+('sardo treatment extend - revision', 'REVISION', 'REVISION'),
+('sardo treatment extend - immuno', 'IMMUNO', 'IMMUNO'),
+('sardo treatment extend - medic', 'MEDIC', 'MEDIC'),
+('sardo treatment extend - exam', 'EXAM', 'EXAM'),
+('sardo treatment extend - obs', 'OBS', 'OBS'),
+('sardo treatment extend - visite', 'VISIT', 'VISITE'),
+('sardo treatment extend - sympt', 'SYMPT', 'SYMPT'),
+('sardo treatment extend - resume', 'SUMMARY', 'RESUME');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('sardo treatment - radio', 'RADIO', 'RADIO'),
+('sardo treatment - chir', 'SURG', 'CHIR'),
+('sardo treatment - image', 'IMAGING', 'IMAGE'),
+('sardo treatment - biop', 'BIOP', 'BIOP'),
+('sardo treatment - horm', 'HORM', 'HORM'),
+('sardo treatment - chimio', 'CHEMO', 'CHIMIO'),
+('sardo treatment - pal', 'PAL', 'PAL'),
+('sardo treatment - autre', 'OTHER', 'AUTRE'),
+('sardo treatment - cyto', 'CYTO', 'CYTO'),
+('sardo treatment - protoc', 'PROTOC', 'PROTOC'),
+('sardo treatment - bilan', 'CHECKUP', 'BILAN'),
+('sardo treatment - revision', 'REVISION', 'REVISION'),
+('sardo treatment - immuno', 'IMMUNO', 'IMMUNO'),
+('sardo treatment - medic', 'MEDIC', 'MEDIC'),
+('sardo treatment - exam', 'EXAM', 'EXAM'),
+('sardo treatment - obs', 'OBS', 'OBS'),
+('sardo treatment - visite', 'VISIT', 'VISITE'),
+('sardo treatment - sympt', 'SYMPT', 'SYMPT'),
+('sardo treatment - resume', 'SUMMARY', 'RESUME');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('objectifs', 'Objectives', 'Objectifs'),
+('patho nbr', 'Patho#', 'Patho#');
+UPDATE menus SET flag_active = 1 WHERE use_link LIKE '/ClinicalAnnotation/Treatment%';
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'qc_nd_txd_sardos_%') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='qc_nd_txd_sardos' AND `field`='patho_nbr');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/ClinicalAnnotation/TreatmentExtendMasters%';
+UPDATE menus SET use_summary = 'ClinicalAnnotation.TreatmentMaster::summary' WHERE use_link LIKE '/ClinicalAnnotation/TreatmentMasters/detail/%';
+UPDATE structure_fields SET  `model`='TreatmentExtendDetail' WHERE model='TreatmentDetail' AND tablename='qc_nd_txe_sardos' AND field='treatment';
 
+ALTER TABLE participants ADD COLUMN qc_nd_last_contact_accuracy CHAR(1) NOT NULL DEFAULT 'c' AFTER qc_nd_last_contact;
+ALTER TABLE participants_revs ADD COLUMN qc_nd_last_contact_accuracy CHAR(1) NOT NULL DEFAULT 'c' AFTER qc_nd_last_contact;
+ALTER TABLE participants 
+  ADD COLUMN  qc_nd_sardo_diff_date_of_death CHAR(1) DEFAULT '',
+  ADD COLUMN  qc_nd_sardo_diff_vital_status CHAR(1) DEFAULT '';
+ALTER TABLE participants_revs
+  ADD COLUMN  qc_nd_sardo_diff_date_of_death CHAR(1) DEFAULT '',
+  ADD COLUMN  qc_nd_sardo_diff_vital_status CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_nd_sardo_diff_date_of_death', 'yes_no',  NULL , '0', '', '', '', 'date of death', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_nd_sardo_diff_vital_status', 'yes_no',  NULL , '0', '', '', '', 'vital status', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_sardo_diff_vital_status'), '4', '17', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_sardo_diff_date_of_death'), '4', '17', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 
+UPDATE structure_fields SET  `language_label`='last modification (excepted SARDO imp)' WHERE model='Participant' AND tablename='participants' AND field='last_modification' AND `type`='datetime' AND structure_value_domain  IS NULL ;
+REPLACE INTO i18n (id,en,fr) VALUES ('last modification (excepted SARDO imp)', 'Last Modification (Excepted SARDO Synch.)', 'Dernière Modification (Excepté SARDO Synch.)');
 
+INSERT INTO i18n (id,en,fr) VALUES ('an infomration has already been recorded for this patient', 'An infomration has already been recorded for this patient', 'Des informations ont déjà été créées pour ce patient');
 
+SELECT participant_id AS 'Participants with more than one repro history' FROM (SELECT count(*) AS record_nbr, participant_id FROM reproductive_histories WHERE deleted <> 1 GROUP BY participant_id) AS res WHERE res.record_nbr > 1;
 
+ALTER TABLE participants 
+  ADD COLUMN  qc_nd_sardo_diff_reproductive_history CHAR(1) DEFAULT '';
+ALTER TABLE participants_revs
+  ADD COLUMN  qc_nd_sardo_diff_reproductive_history CHAR(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'qc_nd_sardo_diff_reproductive_history', 'yes_no',  NULL , '0', '', '', '', 'reporductive history', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_sardo_diff_reproductive_history'), '4', '17', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+INSERT INTO `consent_controls` (`id`, `controls_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'operative consent', 1, '', 'qc_nd_cd_operative_consents', 0, 'general');
+CREATE TABLE IF NOT EXISTS `qc_nd_cd_operative_consents` (
+  `consent_master_id` int(11) NOT NULL,
+  KEY `qc_nd_cd_operative_consents_ibfk_1` (`consent_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_cd_operative_consents_revs` (
+  `consent_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_cd_operative_consents`
+  ADD CONSTRAINT `qc_nd_cd_operative_consents_ibfk_1` FOREIGN KEY (`consent_master_id`) REFERENCES `consent_masters` (`id`);
+INSERT INTO i18n (id,en,fr) VALUES ('operative consent', 'Operative Consent', 'Consentement Opératoire');
+SET @control_id = (SELECT id FROM consent_controls WHERE controls_type = 'operative consent');
+INSERT INTO consent_masters (participant_id,consent_control_id,consent_status,consent_signed_date,consent_signed_date_accuracy,created,modified,created_by,modified_by)
+(SELECT participant_id, @control_id, 'obtained', '1995-01-01', 'y', NOW(), NOW(), 9, 9
+FROM misc_identifiers mi INNER JOIN misc_identifier_controls mic ON mic.id = mi.misc_identifier_control_id WHERE  mi.deleted <> 1 AND mic.misc_identifier_name = 'ovary/gyneco bank no lab' AND mi.identifier_value >= 1 AND mi.identifier_value <= 1094);
+INSERT INTO consent_masters_revs (id,participant_id,consent_control_id,consent_status,consent_signed_date,consent_signed_date_accuracy,modified_by,version_created)
+(SELECT id,participant_id,consent_control_id,consent_status,consent_signed_date,consent_signed_date_accuracy,modified_by,modified FROM consent_masters WHERE consent_control_id = @control_id);
+INSERT INTO qc_nd_cd_operative_consents (consent_master_id) (SELECT id FROM consent_masters WHERE consent_control_id = @control_id);
+INSERT INTO qc_nd_cd_operative_consents_revs (consent_master_id, version_created) (SELECT id, modified FROM consent_masters WHERE consent_control_id = @control_id);
+
+DELETE FROM menus WHERE use_link LIKE '/administrate/qc_nd_sardo/index/';
