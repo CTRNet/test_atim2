@@ -27,7 +27,7 @@ $model->insert_condition_function = 'eventPsaInsertCondition';
 Config::addModel($model, 'event_psa');
 
 function eventPsaPostRead(Model $m){
-	if(empty($m->values['PSA (ng/ml)'])){
+	if(!strlen($m->values['PSA (ng/ml)'])){
 		return false;
 	}
 	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['PSA (ng/ml)'], $matches)) {
