@@ -100,7 +100,7 @@ class ReportsControllerCustom extends ReportsController {
 				$participant_ids = array();
 				foreach($parameters['Participant']['qc_tf_bank_participant_identifier']as $new_participant_id) if(strlen($new_participant_id)) $participant_ids[] = $new_participant_id;
 				if(!empty($participant_ids)) {
-					$conditions[] = 'Participant.qc_tf_bank_participant_identifier IN ('.implode($participant_ids, ',').')' ;
+					$conditions[] = "Participant.qc_tf_bank_participant_identifier IN ('".implode($participant_ids, "','")."')" ;
 					$participant_identifier_criteria_set = true;
 				}
 				
@@ -189,6 +189,7 @@ class ReportsControllerCustom extends ReportsController {
 				
 		}
 		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
+		$participant_ids = empty($participant_ids)? array('-1') : $participant_ids;
 		
 		// *********** Get Fst Bcr ***********		
 		
@@ -320,7 +321,7 @@ class ReportsControllerCustom extends ReportsController {
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date'] = $new_res['DiagnosisMaster']['dx_date'];
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_dx_date_accuracy'] = $new_res['DiagnosisMaster']['dx_date_accuracy'];
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['first_metastasis_type'] = $new_res['DiagnosisDetail']['site'];			
-				} else if(!empty($new_res['DiagnosisDetail']['type'])) {
+				} else if(!empty($new_res['DiagnosisDetail']['site'])) {				
 					$metastasis_results_from_primary_id[$studied_primary_id]['Metastasis']['other_types'][] = __($new_res['DiagnosisDetail']['site']);
 				}
 			}
