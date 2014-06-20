@@ -292,7 +292,7 @@ While($res = mysqli_fetch_assoc($query_res)) {
 	$query = "UPDATE participants SET date_of_death = '".$res['approximate_date_of_death']."', date_of_death_accuracy = '".$res['approximate_date_of_death_accuracy']."' WHERE id = ".$res['id'].";";
 	mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
-if($participant_identifiers) echo "Message : Participants (#syst code = ".implode(', ',$participant_identifiers).") have an approximate date of death in ICM version : Dates won't be migrated<br><br>";
+if($participant_identifiers) echo "Message : Participants (#syst code = ".implode(', ',$participant_identifiers).") have an approximate date of death in ICM version : Dates will  be migrated<br><br>";
 //ADd new line in rev table
 $fields = implode(', ', array_merge($participants_fields, array('modified_by','modified')));
 $fields_revs = implode(', ', array_merge($participants_fields, array('modified_by','version_created')));
