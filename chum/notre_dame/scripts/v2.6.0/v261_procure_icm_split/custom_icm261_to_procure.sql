@@ -281,6 +281,14 @@ UPDATE participants SET tmp_procure_participant = '1' WHERE id IN (
   UNION ALL
   SELECT participant_id FROM misc_identifiers mi INNEr JOIN misc_identifier_controls mc ON mc.id = mi.misc_identifier_control_id WHERE mc.misc_identifier_name = 'code-barre' AND mi.deleted <> 1
 );
+
+
+UPDATE participants SET tmp_procure_participant = '0' WHERE id IN (
+	SELECT participant_id FROM misc_identifiers mi INNEr JOIN misc_identifier_controls mc ON mc.id = mi.misc_identifier_control_id WHERE mc.misc_identifier_name = 'prostate bank no lab' AND mi.deleted <> 1
+	AND mi.identifier_value IN (500425,500587,500604,500684,500696,500849,500864,500893,500983)
+);
+
+SELECT '500425,500587,500604,500684,500696,500849,500864,500893,500983' AS 'Check Following NoLabos have not been migrated to PROCURE and no aliquot exists into PROCURE DB';
   
 -- TREATMENT -----------------------------------------------------------------
 
