@@ -4,10 +4,12 @@
 // Variables
 //==============================================================================================
 
+$is_server = false;
+
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_deno.XML";
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_short_deno_20140610.XML";
+if($is_server) $file_path = "/ch06chuma6134/Export_CRCHUM.XML";
 
-$is_server = false;
 
 //TODO set to false after first import
 $is_initial_import = true;
@@ -51,6 +53,7 @@ if($query_res->num_rows != 1) importDie('ERR : No user SardoMigration!');
 list($import_date, $import_by) = array_values(mysqli_fetch_assoc($query_res));
 
 //TODO manage commit rollback
+//TODO fair un dump base de données avant chaque process
 
 //==============================================================================================
 //XML file
@@ -61,16 +64,144 @@ $xml = new SimpleXMLElement($file_path, Null, True);
 
 global $next_patient_xml_id;
 $next_patient_xml_id = 0;
+
 global $next_diagnosis_xml_id;
 $next_diagnosis_xml_id = 0;
+global $unparsed_diagnosis_xml_data;
+$unparsed_diagnosis_xml_data = null;
+
 global $next_labo_xml_id;
 $next_labo_xml_id = 0;
+global $unparsed_labo_xml_data;
+$unparsed_labo_xml_data = null;
+
 global $next_treatment_xml_id;
 $next_treatment_xml_id = 0;
+global $unparsed_treatment_xml_data;
+$unparsed_treatment_xml_data = null;
+
 global $next_rapport_xml_id;
 $next_rapport_xml_id = 0;
+global $unparsed_rapport_xml_data;
+$unparsed_rapport_xml_data = null;
 
 function getNextPatientDataFromXml(&$xml) {
+	global $next_patient_xml_id;
+	global $next_diagnosis_xml_id;
+	global $next_labo_xml_id;
+	global $next_treatment_xml_id;
+	global $next_rapport_xml_id;
+	
+	global $unparsed_diagnosis_xml_data;
+	global $unparsed_labo_xml_data;
+	global $unparsed_treatment_xml_data;
+	global $unparsed_rapport_xml_data;
+	
+	$patient_xml_data = false;
+		
+	$patient_xml_data = $xml->Patient[$next_patient_xml_id];
+	if($patient_xml_data) {
+		$patient_rec_nbr = getValueFromXml($patient_xml_data, 'RecNumber');
+		$patient_xml_data = array('no_labos' => array(), 'last_visit_date' => array(), 'censure' => false, 'xml' => $patient_xml_data, 'diagnosis' => array());
+		//Diagnosis
+		$diagnosis_xml_data = null;
+		if($unparsed_diagnosis_xml_data) {		
+			$diagnosis_xml_data = $unparsed_diagnosis_xml_data;
+			$unparsed_diagnosis_xml_data = null;
+		} else {
+			$diagnosis_xml_data = $xml->Diagnostic[$next_diagnosis_xml_id];
+			$next_diagnosis_xml_id++;
+		}			
+		while($diagnosis_xml_data) {
+			if($patient_rec_nbr == getValueFromXml($diagnosis_xml_data, 'ParentRecNumber')) {
+				$diagnosis_rec_nbr = getValueFromXml($diagnosis_xml_data, 'RecNumber');
+				$diagnosis_data = array('xml' => $diagnosis_xml_data, 'treatments' => array(), 'labos' => array());
+				//Treatment
+				$treatment_xml_data = null;
+				if($unparsed_treatment_xml_data) {
+					$treatment_xml_data = $unparsed_treatment_xml_data;
+					$unparsed_treatment_xml_data = null;
+				} else {
+					$treatment_xml_data = $xml->Traitement[$next_treatment_xml_id];
+					$next_treatment_xml_id++;
+				}
+				while($treatment_xml_data) {
+					if($diagnosis_rec_nbr == getValueFromXml($treatment_xml_data, 'ParentRecNumber')) {
+						$treatment_rec_nbr = getValueFromXml($treatment_xml_data, 'RecNumber');
+						$treatment_data = array('xml' => $treatment_xml_data, 'reports' => array());
+						//Rapport
+						$rapport_xml_data = null;
+						if($unparsed_rapport_xml_data) {
+							$rapport_xml_data = $unparsed_rapport_xml_data;
+							$unparsed_rapport_xml_data = null;
+						} else {
+							$rapport_xml_data = $xml->Rapport[$next_rapport_xml_id];
+							$next_rapport_xml_id++;
+						}
+						while($rapport_xml_data) {
+							if($treatment_rec_nbr == getValueFromXml($rapport_xml_data, 'ParentRecNumber')) {
+								$treatment_data['reports'][] = array('xml' => $rapport_xml_data);
+								$rapport_xml_data = $xml->Rapport[$next_rapport_xml_id];
+								$next_rapport_xml_id++;
+							} else {
+								$unparsed_rapport_xml_data = $rapport_xml_data;
+								$rapport_xml_data = null;
+							}
+						}
+						//End Rapport
+						$diagnosis_data['treatments'][] = $treatment_data;
+						$treatment_xml_data = $xml->Traitement[$next_treatment_xml_id];
+						$next_treatment_xml_id++;
+					} else {
+						$unparsed_treatment_xml_data = $treatment_xml_data;
+						$treatment_xml_data = null;
+					}
+				}	
+				//End Treatment
+				//Labo
+				$labo_xml_data = null;
+				if($unparsed_labo_xml_data) {
+					$labo_xml_data = $unparsed_labo_xml_data;
+					$unparsed_labo_xml_data = null;
+				} else {
+					$labo_xml_data = $xml->Labo[$next_labo_xml_id];
+					$next_labo_xml_id++;
+				}
+				while($labo_xml_data) {
+					if($diagnosis_rec_nbr == getValueFromXml($labo_xml_data, 'ParentRecNumber')) {
+						$diagnosis_data['labos'][] = array('xml' => $labo_xml_data);
+						$labo_xml_data = $xml->Labo[$next_labo_xml_id];
+						$next_labo_xml_id++;
+					} else {
+						$unparsed_labo_xml_data = $labo_xml_data;
+						$labo_xml_data = null;
+					}
+				}
+				//End Labo
+				$no_labo = getValueFromXml($diagnosis_xml_data, 'NoBANQUE');
+				if(strlen($no_labo)) $patient_xml_data['no_labos'][] = $no_labo;
+				$censure = getValueFromXml($diagnosis_xml_data, 'Censure');
+				if($censure) $patient_xml_data['censure'] = true;
+				list($last_visit_date, $last_visit_date_accuracy) = getDateFromXml($diagnosis_xml_data, 'DateDerniereVisite');
+				$patient_xml_data['last_visit_date'][$last_visit_date] = array('last_visit_date' => $last_visit_date, 'last_visit_date_accuracy' => $last_visit_date_accuracy);
+				$patient_xml_data['diagnosis'][] = $diagnosis_data;				
+				$diagnosis_xml_data = $xml->Diagnostic[$next_diagnosis_xml_id];
+				$next_diagnosis_xml_id++;
+			} else {
+				$unparsed_diagnosis_xml_data = $diagnosis_xml_data;
+				$diagnosis_xml_data = null;
+			}
+		}
+		//END Diagnosis
+	} 
+	$next_patient_xml_id++;
+	
+	return $patient_xml_data;
+}
+
+/*function getNextPatientDataFromXml(&$xml) {
+	die('Deprecated');	//Too time consuming
+	
 	global $next_patient_xml_id;
 	global $next_diagnosis_xml_id;
 	global $next_labo_xml_id;
@@ -116,11 +247,13 @@ function getNextPatientDataFromXml(&$xml) {
 	$next_patient_xml_id++;
 	
 	return $patient_xml_data;
-}
+} */
 
 function getValueFromXml(&$new_record, $field) { 
 	if(!isset($new_record->{$field})) importDie("ERR_XML00003 : XML field [".$field."] does not exists!"); 
-	return (string) $new_record->{$field};
+	$val = (string) $new_record->{$field};
+	$val = preg_replace("/\n$/", '', $val);
+	return $val;
 	//return utf8_decode((string) $new_record->{$field}); 
 }
 
@@ -270,7 +403,8 @@ function addValuesToCustomList($control_name, $value) {
 	if(!strlen($value)) return '';
 	if(!isset($structure_permissible_values_custom_controls[$control_name])) importDie("ERR_CUSTOMLIST00001 : The custom list $control_name does not exist!");
 	$fr_value = $value;
-	$value = strtr(strtolower($value), 'áàâäãåçéèêëíìîïñóòôöõúùûüýÿ', 'aaaaaaceeeeiiiinooooouuuuyy');
+	$arr_matches = array('á'=>'a','à'=>'a','â'=>'a','ä'=>'a','ã'=>'a','å'=>'a','ç'=>'c','é'=>'e','è'=>'e','ê'=>'e','ë'=>'e','í'=>'i','ì'=>'i','î'=>'i','ï'=>'i','ñ'=>'n','ó'=>'o','ò'=>'o','ô'=>'o','ö'=>'o','õ'=>'o','ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u','ý'=>'y','ÿ'=>'y');
+	$value = str_replace(array_keys($arr_matches), $arr_matches, strtolower($value));
 	$values_max_length = $structure_permissible_values_custom_controls[$control_name]['values_max_length'];
 	if(strlen($value) > $values_max_length) {
 		$import_summary['Custom List']['WARNING']["Value(s) for '$control_name' custom list is too long (> $values_max_length characters)!"][] = $value;
@@ -297,7 +431,8 @@ function loadCustomLists() {
 // Manage Data Import
 //==============================================================================================
 
-$updated_participant_ids = array();
+$participant_ids_check = array();
+$updated_participants_counter = 0;
 while($xml_patient_data = getNextPatientDataFromXml($xml)) {
 	if(!empty($xml_patient_data['no_labos'])) {
 		$query = "SELECT DISTINCT mi.participant_id FROM misc_identifier_controls mic INNER JOIN misc_identifiers mi
@@ -305,17 +440,18 @@ while($xml_patient_data = getNextPatientDataFromXml($xml)) {
 				AND mi.identifier_value IN ('".implode("','",$xml_patient_data['no_labos'])."');";
 		$query_res = customQuery($query, __LINE__);
 		if($query_res->num_rows != 1) {
-			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) linked to more than one ATiM patients"][] = "See NoLabos : ".implode(', ',$patient_diagnosis['NoLabos'])." (PatientRecNumber ".$patient_diagnosis['PatientRecNumber'].")";
+			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) linked to more than one ATiM patients"][] = "See NoLabos : ".implode(', ',$patient_diagnosis['NoLabos']);
 		} else {
 			$res = mysqli_fetch_assoc($query_res);
 			$pariticpant_id = $res['participant_id'];	
-			if(isset($updated_participant_ids[$pariticpant_id])) {
+			if(isset($participant_ids_check[$pariticpant_id])) {
 				$import_summary['Diagnosis']['ERROR']["ATiM patient(s) linked to more than one SARDO patients"][] = "See NoLabos: ".implode(', ',$patient_diagnosis['NoLabos']);
 			} else {
-				if(updatePatientData($pariticpant_id, $xml_patient_data['xml'], $xml_patient_data['last_visit_date'], $xml_patient_data['censure'])) {
-					importDiagnosisData($pariticpant_id, $xml_patient_data['diagnosis']);
+				if(updatePatientData($pariticpant_id, $xml_patient_data['xml'], $xml_patient_data['last_visit_date'], $xml_patient_data['censure'], implode("','",$xml_patient_data['no_labos']))) {
+					importDiagnosisData($pariticpant_id, $xml_patient_data['diagnosis'], implode("','",$xml_patient_data['no_labos']));
+					$updated_participants_counter++;
 				}
-				$updated_participant_ids[$pariticpant_id] = '-';
+				$participant_ids_check[$pariticpant_id] = '-';
 			}
 		}
 	}
@@ -328,6 +464,9 @@ loadCustomLists();
 
 //TODO manage commit rollback
 echo "Import Summary : <br>";
+
+$import_summary['Process']['Message']["Updated participants counter"][] = $updated_participants_counter;
+
 pr($import_summary);
 echo "done";
 
@@ -335,14 +474,14 @@ echo "done";
 // *** Patient ***
 //==============================================================================================
 
-function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates, $censure) {
+function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates, $censure, $no_labos) {
 	global $import_summary;
 	global $misc_identifier_controls;
 	global $import_date;
 	global $import_by;
 	
 	$misc_identifier_controls_rev = array_flip($misc_identifier_controls);
-		
+
 	// Get ATiM patient data
 	
 	$query_res = customQuery("SELECT first_name, last_name, date_of_birth, date_of_birth_accuracy, sex, vital_status, date_of_death, date_of_death_accuracy, qc_nd_last_contact, qc_nd_last_contact_accuracy, reproductive_histories.id AS reproductive_history_id, lnmp_date, lnmp_date_accuracy, menopause_status
@@ -355,7 +494,7 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 		'qc_nd_sardo_rec_number' => getValueFromXml($patient_xml_data, 'RecNumber'), 
 		'qc_nd_sardo_last_import' => $import_date,
 		'modified' => $import_date,
-		'modified_by' => $import_by);	
+		'modified_by' => $import_by);
 	
 	$atim_patient_identifiers = array();
 	$query = "SELECT misc_identifier_control_id, identifier_value FROM misc_identifiers WHERE deleted <> 1 AND participant_id = $participant_id AND misc_identifier_control_id IN (".implode(',',array_keys($misc_identifier_controls)).");";
@@ -396,7 +535,7 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 				$atim_patient_identifiers_to_create[] = array('participant_id' => $participant_id, 'misc_identifier_control_id' => $misc_identifier_controls_rev[$misc_identifier_control_name], 'identifier_value' => $hospital_nbr);
 			}
 		} else {
-			$import_summary['Patient']['WARNING']["Wrong SARDO hopsital number format"][] = "See [$hospital_nbr] for patient with RecNumber ".$atim_patient_data_to_update['qc_nd_sardo_rec_number'];
+			$import_summary['Patient']['WARNING']["Wrong SARDO hopsital number format"][] = "See [$hospital_nbr] for patient with NoLabo(s) : $no_labos";
 		}		
 	}
 	
@@ -411,6 +550,8 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 		} else {
 			$is_first_name_validated = true;
 		}
+	} else if(!empty($atim_patient_data['first_name'])) {
+		$atim_patient_data_to_update['qc_nd_sardo_diff_first_name'] = 'y';
 	}
 	
 	//   --> last name
@@ -424,6 +565,8 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 		} else {
 			$is_last_name_validated = true;
 		}
+	} else if(!empty($atim_patient_data['last_name'])) {
+		$atim_patient_data_to_update['qc_nd_sardo_diff_last_name'] = 'y';
 	}
 		
 	if(($is_last_name_validated && $is_first_name_validated) || $is_patient_identifier_validated ) {
@@ -450,6 +593,8 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 			} else if($sardo_sex != $atim_patient_data['sex']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_sex'] = 'y';
 			}
+		} else if(!empty($atim_patient_data['sex'])) {
+			$atim_patient_data_to_update['qc_nd_sardo_diff_sex'] = 'y';
 		}
 		
 		//   --> date of birth
@@ -461,18 +606,22 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 			} else if($sardo_date_of_birth != $atim_patient_data['date_of_birth'] || $sardo_date_of_birth_accuracy != $atim_patient_data['date_of_birth_accuracy']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_birth'] = 'y';
 			}
+		} else if(!empty($atim_patient_data['date_of_birth'])) {
+			$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_birth'] = 'y';
 		}
 		
 		//   --> death	
 		$atim_patient_data_to_update['qc_nd_sardo_cause_of_death'] = addValuesToCustomList("SARDO : Cause of death", getValueFromXml($patient_xml_data, 'CauseDeces'));
 		list($sardo_date_of_death, $sardo_date_of_death_accuracy) = getDateFromXml($patient_xml_data, 'DateDeces');
-		$sardo_vital_status = ($censure || strlen($atim_patient_data_to_update['qc_nd_sardo_cause_of_death']) || $sardo_date_of_death)? '' : 'deceased';
+		$sardo_vital_status = ($censure != '1' && (strlen(str_replace(' ', '', $atim_patient_data_to_update['qc_nd_sardo_cause_of_death'])) == 0) && $sardo_date_of_death == '')? '' : 'deceased';
 		if($sardo_vital_status) {
 			if(empty($atim_patient_data['vital_status'])) {
 				$atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
 			} else if($sardo_vital_status != $atim_patient_data['vital_status']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_vital_status'] = 'y';
 			}
+		} else if(!empty($atim_patient_data['vital_status'])) {
+			$atim_patient_data_to_update['qc_nd_sardo_diff_vital_status'] = 'y';
 		}
 		if($sardo_date_of_death) {
 			if(empty($atim_patient_data['date_of_death'])) {
@@ -481,11 +630,13 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 			} else if($sardo_date_of_death != $atim_patient_data['date_of_death'] || $sardo_date_of_death_accuracy == $atim_patient_data['date_of_death_accuracy']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_death'] = 'y';
 			}
+		} else if(!empty($atim_patient_data['date_of_death'])) {
+			$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_death'] = 'y';
 		}
 		
 		//   --> last Contact
 		if(sizeof($last_visit_dates)) {
-			if(sizeof($last_visit_dates) > 1) $import_summary['Diagnosis']['WARNING']["2 different SARDO last visit dates"][] = "See patient with RecNumber ".$atim_patient_data_to_update['qc_nd_sardo_rec_number'];
+			if(sizeof($last_visit_dates) > 1) $import_summary['Diagnosis']['WARNING']["2 different SARDO last visit dates"][] = "See patient with NoLabo(s) : $no_labos";
 			list($sardo_last_visit_date, $sardo_last_visit_date_accuracy) = array_values(array_shift($last_visit_dates));
 			if(empty($atim_patient_data['qc_nd_last_contact']) || $atim_patient_data['qc_nd_last_contact'] < $sardo_last_visit_date) {
 				$atim_patient_data_to_update['qc_nd_last_contact'] = $sardo_last_visit_date;
@@ -499,7 +650,7 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 			if(!$atim_patient_data['reproductive_history_id']) {
 				//Create a new reproductive history
 				customInsert(array('participant_id' => $participant_id, 'lnmp_date' => $sardo_lnmp.'-01-01', 'lnmp_date_accuracy' => 'm', 'menopause_status' => 'post'), 'reproductive_histories', __LINE__);
-				$atim_patient_data_to_update['qc_nd_sardo_diff_reproductive_history'] = 'n';
+				//$atim_patient_data_to_update['qc_nd_sardo_diff_reproductive_history'] = 'n';
 			} else {
 				$atim_reporductive_history_data_to_update = array();
 				//   -> (menopause_status)
@@ -543,7 +694,7 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 		return true;
 
 	} else {
-		$import_summary['Patient']['WARNING']["Patient selection can not be validated based on identifiers (RAMQ, hospital Nbr) or names"][] = "See patient with RecNumber ".$atim_patient_data_to_update['qc_nd_sardo_rec_number'];
+		$import_summary['Patient']['WARNING']["Patient selection can not be validated based on identifiers (RAMQ, hospital Nbr) or names"][] = "See patient with NoLabo(s) : $no_labos";
 		return false;
 	}
 }
@@ -568,7 +719,20 @@ function finalizePatientUpdate($db_schema) {
 	$query = "SELECT id, qc_nd_sardo_rec_number FROM participants WHERE deleted <> 1 AND (qc_nd_sardo_rec_number IS NOT NULL AND qc_nd_sardo_rec_number NOT LIKE '') AND qc_nd_sardo_last_import != '".substr($import_date, 0, 10)."';";
 	$query_res = customQuery($query, __LINE__);
 	while($res =  mysqli_fetch_assoc($query_res)) {
-		$import_summary['Patient']['WARNING']['SARDO patient (previously synchronized) and not synchronized anymore'][] = "See patient RecNumber ".$res['qc_nd_sardo_rec_number'];
+		$import_summary['Patient']['WARNING']['SARDO patient (previously synchronized) and not synchronized anymore'][] = "See patient RecNumber (of ATiM Profile form) ".$res['qc_nd_sardo_rec_number'];
+	}
+	
+	// Check identifiers
+	$query = "
+		SELECT * FROM (
+			SELECT count(*) as nbr, mic.misc_identifier_name, mi.identifier_value
+			FROM misc_identifiers mi INNER JOIN misc_identifier_controls mic ON mic.id = mi.misc_identifier_control_id
+			WHERE mi.deleted <> 1 AND mic.misc_identifier_name IN ('hotel-dieu id nbr', 'saint-luc id nbr', 'notre-dame id nbr', 'ramq nbr')
+			GROUP BY mic.misc_identifier_name, mi.identifier_value
+		) res WHERE res.nbr > 1;";
+	$query_res = customQuery($query, __LINE__);
+	while($res =  mysqli_fetch_assoc($query_res)) {
+		$import_summary['Patient']['ERROR']['Duplicated RAMQ or Hopsital Number'][] = "See ".$res['misc_identifier_name']." ".$res['identifier_value'];
 	}
 }
 
@@ -576,7 +740,7 @@ function finalizePatientUpdate($db_schema) {
 // *** Diagnosis ***
 //==============================================================================================
 	
-function importDiagnosisData($pariticpant_id, $all_diagnosis_xml_data) {	
+function importDiagnosisData($pariticpant_id, $all_diagnosis_xml_data, $no_labos) {	
 	global $diagnosis_controls;
 	
 	foreach($all_diagnosis_xml_data as $diagnosis_xml_data) {
@@ -621,10 +785,10 @@ function importDiagnosisData($pariticpant_id, $all_diagnosis_xml_data) {
 		customInsert($atim_diagnosis_data_to_create['DiagnosisDetail'], $diagnosis_controls['detail_tablename'], __LINE__, true);
 		
 		//Load Treatment
-		importTreatmentData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $diagnosis_xml_data['treatments']);
+		importTreatmentData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $diagnosis_xml_data['treatments'], $no_labos);
 		
 		//Load Labos
-		importLaboData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $diagnosis_xml_data['labos']);
+		importLaboData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $diagnosis_xml_data['labos'], $no_labos);
 	}
 }
 
@@ -639,7 +803,7 @@ function finalizeDiagnosisCreation() {
 // *** Treatment ***
 //==============================================================================================
 
-function importTreatmentData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $all_treatment_xml_data) {
+function importTreatmentData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $all_treatment_xml_data, $no_labos) {
 	global $treatment_controls;
 	
 	$atim_treatments_data_to_create = array();
@@ -651,7 +815,7 @@ function importTreatmentData($patient_rec_number, $pariticpant_id, $diagnosis_ma
 		$start_date = null;
 		$start_date_accuracy = null;
 		if(!isset($treatment_controls[$tx_method])) {
-			$import_summary['Treatment']['ERROR']["SARDO treatment [".$tx_method."] is unknow"][] = "See patient RecNumber $patient_rec_number";
+			$import_summary['Treatment']['ERROR']["SARDO treatment [".$tx_method."] is unknow"][] = "See patient with NoLabo(s) : $no_labos";
 		} else {
 			//Create treatment data set
 			list($start_date, $start_date_accuracy)  = getDateFromXml($treatment_xml_data, 'DateDebutTraitement');
@@ -772,7 +936,7 @@ function importReportData($patient_rec_number, $pariticpant_id, $diagnosis_maste
 // *** APS & CA-125 (once) ***
 //==============================================================================================
 
-function importLaboData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $all_labos_xml_data) {
+function importLaboData($patient_rec_number, $pariticpant_id, $diagnosis_master_id, $all_labos_xml_data, $no_labos) {
 	global $is_initial_import;
 	global $ca125_psa_event_controls;
 	

@@ -939,6 +939,24 @@ INSERT INTO consent_masters_revs (id,participant_id,consent_control_id,consent_s
 INSERT INTO qc_nd_cd_operative_consents (consent_master_id) (SELECT id FROM consent_masters WHERE consent_control_id = @control_id);
 INSERT INTO qc_nd_cd_operative_consents_revs (consent_master_id, version_created) (SELECT id, modified FROM consent_masters WHERE consent_control_id = @control_id);
 
+UPDATE collections col, participants p, consent_masters cm
+SET col.consent_master_id = cm.id
+WHERE cm.consent_control_id = 11
+AND cm.deleted <> 1
+AND p.id = cm.participant_id
+AND col.participant_id = p.id
+AND col.collection_datetime <= '2001-06-01'
+AND (col.consent_master_id IS NULL OR col.consent_master_id LIKE '')
+AND col.deleted <> 1;
+UPDATE collections_revs col, participants p, consent_masters cm
+SET col.consent_master_id = cm.id
+WHERE cm.consent_control_id = 11
+AND cm.deleted <> 1
+AND p.id = cm.participant_id
+AND col.participant_id = p.id
+AND col.collection_datetime <= '2001-06-01'
+AND (col.consent_master_id IS NULL OR col.consent_master_id LIKE '');
+
 DELETE FROM menus WHERE use_link LIKE '/administrate/qc_nd_sardo/index/';
 
 UPDATE structure_formats SET `display_column`='2', `display_order`='61' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='tumour_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_grade') AND `flag_confidential`='0');
