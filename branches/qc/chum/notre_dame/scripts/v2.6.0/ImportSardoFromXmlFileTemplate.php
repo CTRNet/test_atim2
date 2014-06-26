@@ -4,7 +4,7 @@
 // Variables
 //==============================================================================================
 
-$is_server = false;
+$is_server = true;
 
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_deno.XML";
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_short_deno_20140610.XML";
@@ -32,7 +32,7 @@ $db_charset		= "utf8";
 if($is_server) {
 	$db_ip			= "localhost";
 	$db_user 		= "root";
-	$db_pwd			= "xxx";
+	$db_pwd			= "";
 	$db_schema		= "icmtmp";
 }
 
@@ -182,7 +182,7 @@ function getNextPatientDataFromXml(&$xml) {
 				if(strlen($no_labo)) $patient_xml_data['no_labos'][] = $no_labo;
 				$censure = getValueFromXml($diagnosis_xml_data, 'Censure');
 				if($censure) $patient_xml_data['censure'] = true;
-				list($last_visit_date, $last_visit_date_accuracy) = getDateFromXml($diagnosis_xml_data, 'DateDerniereVisite');
+				list($last_visit_date, $last_visit_date_accuracy) = getDateFromXml($diagnosis_xml_data, 'DateDerniereVisite', 'Diagnosis', implode(',',$patient_xml_data['no_labos']));
 				$patient_xml_data['last_visit_date'][$last_visit_date] = array('last_visit_date' => $last_visit_date, 'last_visit_date_accuracy' => $last_visit_date_accuracy);
 				$patient_xml_data['diagnosis'][] = $diagnosis_data;				
 				$diagnosis_xml_data = $xml->Diagnostic[$next_diagnosis_xml_id];
@@ -257,7 +257,7 @@ function getValueFromXml(&$new_record, $field) {
 	//return utf8_decode((string) $new_record->{$field}); 
 }
 
-function getDateFromXml(&$new_record, $field) {
+function getDateFromXml(&$new_record, $field, $data_type, $no_labos = null) {
 	$date_from_file = getValueFromXml($new_record, $field);
 	$date = '';
 	$date_accuracy = '';
@@ -271,7 +271,7 @@ function getDateFromXml(&$new_record, $field) {
 		$date = $matches[1].'-'.$matches[4].'-'.$matches[7];
 		$date_accuracy = 'c';
 	}  else if($date_from_file != '99999999' && !empty($date_from_file) && !preg_match('/^9999/', $date_from_file)){
-		importDie("ERR_XML00002 : Date '$date_from_file' is not supported for field <$field>!"); 
+		$import_summary[$data_type]['ERROR']["Date Format Error"][] = "Date '$date_from_file' is not supported for field [$field]!".(is_null($no_labos)? '' : "See NoLabos: $no_labos");
 	}
 	return array($date, $date_accuracy);
 }
@@ -440,12 +440,12 @@ while($xml_patient_data = getNextPatientDataFromXml($xml)) {
 				AND mi.identifier_value IN ('".implode("','",$xml_patient_data['no_labos'])."');";
 		$query_res = customQuery($query, __LINE__);
 		if($query_res->num_rows != 1) {
-			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) linked to more than one ATiM patients"][] = "See NoLabos : ".implode(', ',$patient_diagnosis['NoLabos']);
+			$import_summary['Diagnosis']['ERROR']["SARDO patient(s) linked to more than one ATiM patients"][] = "See NoLabos : ".implode(', ',$xml_patient_data['no_labos']);
 		} else {
 			$res = mysqli_fetch_assoc($query_res);
 			$pariticpant_id = $res['participant_id'];	
 			if(isset($participant_ids_check[$pariticpant_id])) {
-				$import_summary['Diagnosis']['ERROR']["ATiM patient(s) linked to more than one SARDO patients"][] = "See NoLabos: ".implode(', ',$patient_diagnosis['NoLabos']);
+				$import_summary['Diagnosis']['ERROR']["ATiM patient(s) linked to more than one SARDO patients"][] = "See NoLabos: ".implode(', ',$xml_patient_data['no_labos']);
 			} else {
 				if(updatePatientData($pariticpant_id, $xml_patient_data['xml'], $xml_patient_data['last_visit_date'], $xml_patient_data['censure'], implode("','",$xml_patient_data['no_labos']))) {
 					importDiagnosisData($pariticpant_id, $xml_patient_data['diagnosis'], implode("','",$xml_patient_data['no_labos']));
@@ -598,7 +598,7 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 		}
 		
 		//   --> date of birth
-		list($sardo_date_of_birth, $sardo_date_of_birth_accuracy) = getDateFromXml($patient_xml_data, 'DateNaissance');
+		list($sardo_date_of_birth, $sardo_date_of_birth_accuracy) = getDateFromXml($patient_xml_data, 'DateNaissance', 'Patient', $no_labos);
 		if($sardo_date_of_birth) {
 			if(empty($atim_patient_data['date_of_birth'])) {
 				$atim_patient_data_to_update['date_of_birth'] = $sardo_date_of_birth;
@@ -612,7 +612,7 @@ function updatePatientData($participant_id, $patient_xml_data, $last_visit_dates
 		
 		//   --> death	
 		$atim_patient_data_to_update['qc_nd_sardo_cause_of_death'] = addValuesToCustomList("SARDO : Cause of death", getValueFromXml($patient_xml_data, 'CauseDeces'));
-		list($sardo_date_of_death, $sardo_date_of_death_accuracy) = getDateFromXml($patient_xml_data, 'DateDeces');
+		list($sardo_date_of_death, $sardo_date_of_death_accuracy) = getDateFromXml($patient_xml_data, 'DateDeces', 'Patient', $no_labos);
 		$sardo_vital_status = ($censure != '1' && (strlen(str_replace(' ', '', $atim_patient_data_to_update['qc_nd_sardo_cause_of_death'])) == 0) && $sardo_date_of_death == '')? '' : 'deceased';
 		if($sardo_vital_status) {
 			if(empty($atim_patient_data['vital_status'])) {
@@ -748,7 +748,7 @@ function importDiagnosisData($pariticpant_id, $all_diagnosis_xml_data, $no_labos
 		
 		//Create diagnosis data set
 		$atim_diagnosis_data_to_create = array('DiagnosisMaster' => array('diagnosis_control_id' => $diagnosis_controls['id'], 'participant_id' => $pariticpant_id, 'qc_nd_sardo_id' => getValueFromXml($diagnosis_xml_data['xml'], 'RecNumber')), 'DiagnosisDetail' => array());
-		list($atim_diagnosis_data_to_create['DiagnosisMaster']['dx_date'], $atim_diagnosis_data_to_create['DiagnosisMaster']['dx_date_accuracy'])  = getDateFromXml($diagnosis_xml_data['xml'], 'DateDiagnostic');
+		list($atim_diagnosis_data_to_create['DiagnosisMaster']['dx_date'], $atim_diagnosis_data_to_create['DiagnosisMaster']['dx_date_accuracy'])  = getDateFromXml($diagnosis_xml_data['xml'], 'DateDiagnostic', 'Diagnosis', $no_labos);
 		$tmp_array= array(
 			'DiagnosisMaster' => array(
 				array('CodeICDOMorpho', 'morphology', 'SARDO : Morpho Codes'),
@@ -818,8 +818,8 @@ function importTreatmentData($patient_rec_number, $pariticpant_id, $diagnosis_ma
 			$import_summary['Treatment']['ERROR']["SARDO treatment [".$tx_method."] is unknow"][] = "See patient with NoLabo(s) : $no_labos";
 		} else {
 			//Create treatment data set
-			list($start_date, $start_date_accuracy)  = getDateFromXml($treatment_xml_data, 'DateDebutTraitement');
-			list($finish_date, $finish_date_accuracy)  = getDateFromXml($treatment_xml_data, 'DateFinTraitement');
+			list($start_date, $start_date_accuracy)  = getDateFromXml($treatment_xml_data, 'DateDebutTraitement', 'Traitement', $no_labos);
+			list($finish_date, $finish_date_accuracy)  = getDateFromXml($treatment_xml_data, 'DateFinTraitement', 'Traitement', $no_labos);
 			$NoPatho = getValueFromXml($treatment_xml_data, 'NoPatho');
 			$results = addValuesToCustomList("SARDO : $trt_type Results", getValueFromXml($treatment_xml_data, 'Resultat_Alpha'));
 			$objectifs = addValuesToCustomList("SARDO : $trt_type Objectifs", getValueFromXml($treatment_xml_data, 'ObjectifTX'));
@@ -954,7 +954,7 @@ function importLaboData($patient_rec_number, $pariticpant_id, $diagnosis_master_
 				'EventDetail' => array(
 					'value' => getValueFromXml($labo_xml_data, 'Resultat')));
 			if($atim_event_data_to_create['EventDetail']['value'] == '-99') $atim_event_data_to_create['EventDetail']['value'] = '';
-			list($atim_event_data_to_create['EventMaster']['event_date'], $atim_event_data_to_create['EventMaster']['event_date_accuracy'])  = getDateFromXml($labo_xml_data, 'Date');
+			list($atim_event_data_to_create['EventMaster']['event_date'], $atim_event_data_to_create['EventMaster']['event_date_accuracy'])  = getDateFromXml($labo_xml_data, 'Date', 'Labo', $no_labos);
 			
 			$event_master_id = customInsert($atim_event_data_to_create['EventMaster'], 'event_masters', __LINE__, false, true);
 			$atim_event_data_to_create['EventDetail']['event_master_id'] = $event_master_id;
