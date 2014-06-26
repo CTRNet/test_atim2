@@ -11,9 +11,9 @@
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-$file_name = "SelectionBlocsParaffine - ProCure_v20140606.xls";
+$file_name = "Selection blocs paraffine - ProCure - 20140620 - final.xls";
 //$file_path = "C:/_Perso/Server/icm/data/".$file_name;
-$file_path = "/ATiM/icm/v2/ATiM-Split/".$file_name;
+$file_path = "/ATiM/icm/v2/ATiM-Test/scripts/v2.6.0/v261_procure_icm_split/".$file_name;
 require_once 'Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -35,7 +35,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "icmtmp";
+$db_schema		= "icmprocuretmp";
 $db_charset		= "utf8";
 //*/
 
