@@ -938,10 +938,9 @@ INSERT INTO consent_masters_revs (id,participant_id,consent_control_id,consent_s
 (SELECT id,participant_id,consent_control_id,consent_status,consent_signed_date,consent_signed_date_accuracy,modified_by,modified FROM consent_masters WHERE consent_control_id = @control_id);
 INSERT INTO qc_nd_cd_operative_consents (consent_master_id) (SELECT id FROM consent_masters WHERE consent_control_id = @control_id);
 INSERT INTO qc_nd_cd_operative_consents_revs (consent_master_id, version_created) (SELECT id, modified FROM consent_masters WHERE consent_control_id = @control_id);
-
 UPDATE collections col, participants p, consent_masters cm
 SET col.consent_master_id = cm.id
-WHERE cm.consent_control_id = 11
+WHERE cm.consent_control_id = @control_id
 AND cm.deleted <> 1
 AND p.id = cm.participant_id
 AND col.participant_id = p.id
@@ -950,7 +949,7 @@ AND (col.consent_master_id IS NULL OR col.consent_master_id LIKE '')
 AND col.deleted <> 1;
 UPDATE collections_revs col, participants p, consent_masters cm
 SET col.consent_master_id = cm.id
-WHERE cm.consent_control_id = 11
+WHERE cm.consent_control_id = @control_id
 AND cm.deleted <> 1
 AND p.id = cm.participant_id
 AND col.participant_id = p.id
@@ -1001,3 +1000,11 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='Participant' AND `tablename`='participants' AND `field`='qc_nd_sardo_diff_nd_nbr' AND `language_label`='notre-dame id nbr' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 UPDATE structure_fields SET field = 'qc_nd_sardo_diff_hospital_nbr', language_label = 'hospital nbr' WHERE field = 'qc_nd_sardo_diff_hd_nbr';
 
+UPDATE structure_formats SET `display_order`='35' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='morphology' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_morpho') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='36' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_morphology_key_words' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='37' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_morphology_desc' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_morpho_description') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='topography' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_topo') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_topography_key_words' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_topography_desc' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_topo_description') AND `flag_confidential`='0');
+
+UPDATE structure_formats SET `display_column`='2', `display_order`='75' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
