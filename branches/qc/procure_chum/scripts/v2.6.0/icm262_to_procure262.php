@@ -33,7 +33,7 @@ if($is_server) {
 	$db_icm_port 		= "";
 	$db_icm_user 		= "root";
 	$db_icm_pwd			= "";
-	$db_icm_schema		= "icmtmp";
+	$db_icm_schema		= "icmprocuretmp";
 	$db_icm_charset		= "utf8";
 	
 	$db_procure_ip			= "localhost";
@@ -52,22 +52,22 @@ $db_icm_connection = @mysqli_connect(
 		$db_icm_ip.(!empty($db_icm_port)? ":".$db_icm_port : ''),
 		$db_icm_user,
 		$db_icm_pwd
-) or die("Could not connect to MySQL");
+) or die("Could not connect to MySQL 1");
 if(!mysqli_set_charset($db_icm_connection, $db_icm_charset)){
-	die("Invalid charset");
+	die("Invalid charset 1");
 }
-@mysqli_select_db($db_icm_connection, $db_icm_schema) or die("db selection failed");
+@mysqli_select_db($db_icm_connection, $db_icm_schema) or die("db selection failed 1");
 
 global $db_procure_connection;
 $db_procure_connection = @mysqli_connect(
 		$db_procure_ip.(!empty($db_procure_port)? ":".$db_procure_port : ''),
 		$db_procure_user,
 		$db_procure_pwd
-) or die("Could not connect to MySQL");
+) or die("Could not connect to MySQL 2");
 if(!mysqli_set_charset($db_procure_connection, $db_procure_charset)){
-	die("Invalid charset");
+	die("Invalid charset 2");
 }
-@mysqli_select_db($db_procure_connection, $db_procure_schema) or die("db selection failed");
+@mysqli_select_db($db_procure_connection, $db_procure_schema) or die("db selection failed 2");
 mysqli_autocommit($db_procure_connection, true);
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -402,20 +402,22 @@ $fields_revs_icm = str_replace('qc_nd_','',$fields_revs);
 $query = "INSERT INTO $db_procure_schema.procure_cd_sigantures_revs ($fields_revs) (SELECT $fields_revs_icm FROM $db_icm_schema.cd_icm_generics_revs);";
 mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 //Update Identification (cst.) for patient having more than 1 cst
-$query = "SELECT cst.participant_id, p.participant_identifier, cst.id AS consent_master_id FROM consent_masters cst INNER JOIN participants p ON p.id = cst.participant_id WHERE participant_id IN (".implode(',',$participant_ids_with_2_csts).") AND cst.deleted <> 1 ORDER BY cst.participant_id, cst.consent_signed_date;";
-$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
-$std_p_id = null;
-$sct_nbr = null;
-while($res = mysqli_fetch_assoc($query_res)) {	
-	if($std_p_id != $res['participant_id']) {
-		$std_p_id = $res['participant_id'];
-		$sct_nbr = 0;
+if(!empty($participant_ids_with_2_csts)) {
+	$query = "SELECT cst.participant_id, p.participant_identifier, cst.id AS consent_master_id FROM consent_masters cst INNER JOIN participants p ON p.id = cst.participant_id WHERE participant_id IN (".implode(',',$participant_ids_with_2_csts).") AND cst.deleted <> 1 ORDER BY cst.participant_id, cst.consent_signed_date;";
+	$query_res = mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
+	$std_p_id = null;
+	$sct_nbr = null;
+	while($res = mysqli_fetch_assoc($query_res)) {	
+		if($std_p_id != $res['participant_id']) {
+			$std_p_id = $res['participant_id'];
+			$sct_nbr = 0;
+		}
+		$sct_nbr++;
+		$queries = array(
+			"UPDATE consent_masters SET procure_form_identification = CONCAT('".$res['participant_identifier']."', ' V0 -CSF', $sct_nbr) WHERE id = ".$res['consent_master_id'].";",
+			"UPDATE consent_masters_revs SET procure_form_identification = CONCAT('".$res['participant_identifier']."', ' V0 -CSF', $sct_nbr) WHERE id = ".$res['consent_master_id'].";");
+		foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 	}
-	$sct_nbr++;
-	$queries = array(
-		"UPDATE consent_masters SET procure_form_identification = CONCAT('".$res['participant_identifier']."', ' V0 -CSF', $sct_nbr) WHERE id = ".$res['consent_master_id'].";",
-		"UPDATE consent_masters_revs SET procure_form_identification = CONCAT('".$res['participant_identifier']."', ' V0 -CSF', $sct_nbr) WHERE id = ".$res['consent_master_id'].";");
-	foreach($queries as $query) mysqli_query($db_procure_connection, $query) or die("query failed [".$query."] (line:".__LINE__.") : " . mysqli_error($db_procure_connection)."]");
 }
 //Custom list
 $procure_control_id = migrateCustomList('qc consent version', 'Consent version date');
@@ -456,7 +458,7 @@ $res = mysqli_fetch_assoc($query_res);
 $event_control_id = $res['id'];
 require_once 'Excel/reader.php';
 $file_path = "C:/_Perso/Server/procure_chum/data/BiobanqueProCureQuestionnaire_v20140606.xls";
-if($is_server) $file_path = "/ATiM/icm/v2/ATiM-Split/BiobanqueProCureQuestionnaire_v20140606.xls";
+if($is_server) $file_path = "/ATiM/procure/ATiM-Test/scripts/v2.6.0/BiobanqueProCureQuestionnaire_v20140620_final.xls";
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
