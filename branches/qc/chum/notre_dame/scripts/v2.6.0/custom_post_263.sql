@@ -6,8 +6,8 @@ UPDATE specimen_details SET type_code = 'Lx' WHERE type_code = 'LA';
 UPDATE specimen_details_revs SET type_code = 'Lx' WHERE type_code = 'LA';
 
 UPDATE lab_type_laterality_match SET selected_type_code = 'AS' WHERE selected_type_code = 'OV';
-UPDATE sample_masters SET qc_nd_sample_label = REPLACE (qc_nd_sample_label, 'OV -', 'AS -') WHERE qc_nd_sample_label LIKE '%OV -%';
-UPDATE sample_masters_revs SET qc_nd_sample_label = REPLACE (qc_nd_sample_label, 'OV -', 'AS -') WHERE qc_nd_sample_label LIKE '%OV -%';
+UPDATE sample_masters SET qc_nd_sample_label = REPLACE (qc_nd_sample_label, ' OV -', ' AS -') WHERE qc_nd_sample_label LIKE '% OV -%';
+UPDATE sample_masters_revs SET qc_nd_sample_label = REPLACE (qc_nd_sample_label, ' OV -', ' AS -') WHERE qc_nd_sample_label LIKE '% OV -%';
 UPDATE specimen_details SET type_code = 'AS' WHERE type_code = 'OV';
 UPDATE specimen_details_revs SET type_code = 'AS' WHERE type_code = 'OV';
 
