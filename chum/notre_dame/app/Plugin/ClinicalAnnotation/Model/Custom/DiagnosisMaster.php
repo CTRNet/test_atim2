@@ -9,8 +9,11 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		if($type == 'all' && isset($query['conditions'])) {
 			foreach($query['conditions'] as $key => $val) {				
 				if(is_string($val) && preg_match('/(qc_nd_sardo_morphology_key_words)|(qc_nd_sardo_topography_key_words)/', $val)) {
-					$val = preg_replace(array('/qc_nd_sardo_morphology_key_words/','/qc_nd_sardo_topography_key_words/'), array('qc_nd_sardo_morphology_desc','qc_nd_sardo_topography_desc'), $val);
 					$val = str_replace(array_keys($arr_sardo_top_morpho_char_matches), $arr_sardo_top_morpho_char_matches, strtolower($val));
+					$val = preg_replace(
+						array('/qc_nd_sardo_morphology_key_words/','/qc_nd_sardo_topography_key_words/','/diagnosismaster/','/diagnosisdetail/'), 
+						array('qc_nd_sardo_morphology_desc','qc_nd_sardo_topography_desc','DiagnosisMaster','DiagnosisDetail'), 
+						$val);
 					$query['conditions'][$key] = $val;
 				} else if(preg_match('/(qc_nd_sardo_morphology_key_words)|(qc_nd_sardo_topography_key_words)/', $key)){
 					$new_key = preg_replace(array('/qc_nd_sardo_morphology_key_words/','/qc_nd_sardo_topography_key_words/'), array('qc_nd_sardo_morphology_desc','qc_nd_sardo_topography_desc'), $key);

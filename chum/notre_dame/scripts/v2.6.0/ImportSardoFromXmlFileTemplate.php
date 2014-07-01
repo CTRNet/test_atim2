@@ -6,7 +6,7 @@
 
 //TODO set to false after first import
 $is_initial_import = true;
-$is_server = true;
+$is_server = false;
 
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_deno_20140626.XML";
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_short.XML";
@@ -30,7 +30,7 @@ $db_charset		= "utf8";
 if($is_server) {
 	$db_ip			= "localhost";
 	$db_user 		= "root";
-	$db_pwd			= "am3-y-4606";
+	$db_pwd			= "";
 	$db_schema		= "icmtmp";
 }
 
@@ -172,7 +172,7 @@ $reader = new XMLReader();
 if(!file_exists($file_path)) importDie("ERR_XML00001 : The file $file_path does not exist!");
 $reader->open($file_path);
 
-$sql_tables_creations = array(
+$sql_sardo_tables_creations = array(
 	"DROP TABLE IF EXISTS sardo_rapport;",
 	"DROP TABLE IF EXISTS sardo_traitement;",
 	"DROP TABLE IF EXISTS sardo_labo;",
@@ -255,12 +255,11 @@ $sql_tables_creations = array(
 		KEY (RecNumber));",
 	"ALTER TABLE sardo_labo
 		ADD CONSTRAINT sardo_labo_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);");
-foreach($sql_tables_creations as $new_query) customQuery($new_query, __LINE__);
+foreach($sql_sardo_tables_creations as $new_query) customQuery($new_query, __LINE__);
 
 $data = null;
 $field = null;
 $data_types = array("Patient","Rapport","Diagnostic","Traitement","Labo");
-//TODO limit labo records
 $element_level = 0;
 while( $reader->read() ) {
 	if ($reader->nodeType == XMLReader::ELEMENT) {
@@ -421,18 +420,31 @@ function manageSardoNewPatient($sardo_patient_data) {
 	return false;
 }
 
+//Finalize import
+
 finalizePatientUpdate($db_schema);
 finalizeDiagnosisCreation();
 loadCustomLists();
-
+foreach($sql_sardo_tables_creations as $new_query) if(preg_match('/^DROP TABLE/', $new_query)) customQuery($new_query, __LINE__);
 
 //TODO manage commit rollback
-echo "Import Summary : <br>";
 
+// Import Summary
 $import_summary['Process']['Message']["Updated participants counter"][] = $updated_participants_counter;
+$import_summary['Process']['Message']["Date"][] = $import_date;
+foreach($import_summary as $data_type => $data_1) {
+	foreach($data_1 as $message_type => $data_2) {
+		foreach($data_2 as $message => $data_3) {
+			foreach($data_3 as $details) {
+				$data = array('data_type' => $data_type, 'message_type' => $message_type, 'message' => $message, 'details' => $details);
+				foreach($data as $key => $value) if(strlen($value)) $data[$key] = "'".str_replace("'", "''", $value)."'";
+				customQuery("INSERT INTO sardo_import_summary (".implode(", ", array_keys($data)).") VALUES (".implode(", ", array_values($data)).")", __LINE__, true);
+			}
+		}
+	}
+}
 
-pr($import_summary);
-echo "done";
+echo "Process Done";
 
 // *** Patient *********************************************************************************
 
@@ -449,6 +461,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			'qc_nd_sardo_last_import' => $import_date,
 			'modified' => $import_date,
 			'modified_by' => $import_by);
+	$atim_patient_data_creation_update_summary = array();
 	
 	// Get ATiM patient data
 	
@@ -486,6 +499,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			}
 		} else {
 			$atim_patient_identifiers_to_create[] = array('participant_id' => $participant_id, 'misc_identifier_control_id' => $misc_identifier_control_names_to_ids['ramq nbr'], 'identifier_value' => $sardo_ramq);
+			$atim_patient_data_creation_update_summary[] = "RAMQ = $sardo_ramq";
 		}	
 	}
 	
@@ -502,6 +516,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 				}
 			} else {
 				$atim_patient_identifiers_to_create[] = array('participant_id' => $participant_id, 'misc_identifier_control_id' => $misc_identifier_control_names_to_ids[$misc_identifier_control_name], 'identifier_value' => $hospital_nbr);
+				$atim_patient_data_creation_update_summary[] = "$misc_identifier_control_name = $hospital_nbr";
 			}
 		} else {
 			$import_summary['Patient']['WARNING']["Wrong SARDO hopsital number format"][] = "See [$hospital_nbr] for patient with NoLabo(s) : $no_labos_string";
@@ -514,6 +529,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	if($sardo_first_name) {
 		if(empty($atim_patient_data['first_name'])) {
 			$atim_patient_data_to_update['first_name'] = $sardo_first_name;
+			$atim_patient_data_creation_update_summary[] = "first_name = $sardo_first_name";
 		} else if(strtolower($sardo_first_name) != strtolower($atim_patient_data['first_name'])) {
 			$atim_patient_data_to_update['qc_nd_sardo_diff_first_name'] = 'y';
 		} else {
@@ -529,6 +545,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 	if($sardo_last_name) {
 		if(empty($atim_patient_data['last_name'])) {
 			$atim_patient_data_to_update['last_name'] = $sardo_last_name;
+			$atim_patient_data_creation_update_summary[] = "last_name = $sardo_last_name";
 		} else if(strtolower($sardo_last_name) != strtolower($atim_patient_data['last_name'])) {
 			$atim_patient_data_to_update['qc_nd_sardo_diff_last_name'] = 'y';
 		} else {
@@ -559,6 +576,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		if($sardo_sex) {
 			if(empty($atim_patient_data['sex'])) {
 				$atim_patient_data_to_update['sex'] = $sardo_sex;
+				$atim_patient_data_creation_update_summary[] = "sex = $sardo_sex";
 			} else if($sardo_sex != $atim_patient_data['sex']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_sex'] = 'y';
 			}
@@ -573,6 +591,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			if(empty($atim_patient_data['date_of_birth'])) {
 				$atim_patient_data_to_update['date_of_birth'] = $sardo_date_of_birth;
 				$atim_patient_data_to_update['date_of_birth_accuracy'] = $sardo_date_of_birth_accuracy;
+				$atim_patient_data_creation_update_summary[] = "date_of_birth = $sardo_date_of_birth";
 			} else if($sardo_date_of_birth != $atim_patient_data['date_of_birth'] || $sardo_date_of_birth_accuracy != $atim_patient_data['date_of_birth_accuracy']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_birth'] = 'y';
 			}
@@ -588,8 +607,14 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		if($sardo_vital_status) {
 			if(empty($atim_patient_data['vital_status']) || ($atim_patient_data['vital_status'] == 'unknown')) {
 				$atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
-			} else if($sardo_vital_status != $atim_patient_data['vital_status']) {
+				$atim_patient_data_creation_update_summary[] = "vital_status = $sardo_vital_status";
+			} else if($atim_patient_data['vital_status'] == 'alive') {
+				$atim_patient_data_to_update['vital_status'] = $sardo_vital_status;
+				$atim_patient_data_creation_update_summary[] = "vital_status = $sardo_vital_status";
+				$import_summary['Patient']['WARNING']["Vital status changed from 'alive' to 'deceased'"][] = "See NoLabo(s) : $no_labos_string";
+			} else  if($sardo_vital_status != $atim_patient_data['vital_status']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_vital_status'] = 'y';
+				//Not sure this case can exist.... :-)
 			}
 		} else if($atim_patient_data['vital_status'] == 'deceased') {
 			$atim_patient_data_to_update['qc_nd_sardo_diff_vital_status'] = 'y';
@@ -598,6 +623,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			if(empty($atim_patient_data['date_of_death'])) {
 				$atim_patient_data_to_update['date_of_death'] = $sardo_date_of_death;
 				$atim_patient_data_to_update['date_of_death_accuracy'] = $sardo_date_of_death_accuracy;
+				$atim_patient_data_creation_update_summary[] = "date_of_death = $sardo_date_of_death";
 			} else if($sardo_date_of_death != $atim_patient_data['date_of_death'] || $sardo_date_of_death_accuracy != $atim_patient_data['date_of_death_accuracy']) {
 				$atim_patient_data_to_update['qc_nd_sardo_diff_date_of_death'] = 'y';
 			}
@@ -610,6 +636,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			if(empty($atim_patient_data['qc_nd_last_contact']) || $atim_patient_data['qc_nd_last_contact'] < $sardo_patient_data['last_visite_date']) {
 				$atim_patient_data_to_update['qc_nd_last_contact'] = $sardo_patient_data['last_visite_date'];
 				$atim_patient_data_to_update['qc_nd_last_contact_accuracy'] = $sardo_patient_data['last_visite_date_accuracy'];
+				$atim_patient_data_creation_update_summary[] = "qc_nd_last_contact = ".$sardo_patient_data['last_visite_date'];
 			}
 		}
 		
@@ -619,6 +646,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 			if(!$atim_patient_data['reproductive_history_id']) {
 				//Create a new reproductive history
 				customInsert(array('participant_id' => $participant_id, 'lnmp_date' => $sardo_lnmp.'-01-01', 'lnmp_date_accuracy' => 'm', 'menopause_status' => 'post'), 'reproductive_histories', __LINE__);
+				$atim_patient_data_creation_update_summary[] = "Created reproductive history";
 			} else {
 				$atim_reporductive_history_data_to_update = array();
 				//   -> (menopause_status)
@@ -645,6 +673,7 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 					}
 					$query .= " WHERE id = ".$atim_patient_data['reproductive_history_id'].";";
 					customQuery($query, __LINE__);
+					$atim_patient_data_creation_update_summary[] = "Updated reproductive history";
 				}
 			}
 		}
@@ -661,6 +690,9 @@ function updatePatientData($participant_id, $sardo_patient_data, $no_labos_strin
 		
 		// Add missing identifiers
 		foreach($atim_patient_identifiers_to_create as $new_ids) customInsert($new_ids, 'misc_identifiers', __LINE__, false, true);
+		
+		// Add patient creation/update summary
+		if($atim_patient_data_creation_update_summary) $import_summary['Patient']['MESSAGE']["Creation/Update summary"][] = "NoLabo(s) : $no_labos_string => ".implode(', ',$atim_patient_data_creation_update_summary);
 		
 		return true;
 
