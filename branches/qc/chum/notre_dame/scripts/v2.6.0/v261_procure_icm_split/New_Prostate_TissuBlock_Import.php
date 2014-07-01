@@ -13,7 +13,7 @@
 
 $file_name = "Selection blocs paraffine - ProCure - 20140620 - final.xls";
 //$file_path = "C:/_Perso/Server/icm/data/".$file_name;
-$file_path = "/ATiM/icm/v2/ATiM-Test/scripts/v2.6.0/v261_procure_icm_split/".$file_name;
+$file_path = "/ATiM/icm/v2/ATiM-Test/data/".$file_name;
 require_once 'Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -35,7 +35,7 @@ $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "icmprocuretmp";
+$db_schema		= "icmtmp";
 $db_charset		= "utf8";
 //*/
 
@@ -277,9 +277,10 @@ function loadNewBlocks($new_line_data, $line_counter) {
 			"ICM # bloc OCT (B)-tranche #1 - CHUM" 			=> array('T_vs_N' => 'N', 'block_type' => 'OCT', 'bank' => 'icm'),	
 			"ICM # bloc paraffine (C)- tranche #1 - CHUM" 	=> array('T_vs_N' => 'T', 'block_type' => 'paraffin', 'bank' => 'icm'),	
 			"ICM # bloc paraffine (B)-tranche #1 - CHUM" 	=> array('T_vs_N' => 'N', 'block_type' => 'paraffin', 'bank' => 'icm'),	
-			"ICM - blocs de paraffine r�stants (C) - CHUM"	=> array('T_vs_N' => 'T', 'block_type' => 'paraffin', 'bank' => 'icm'),	
-			"ICM - blocs de paraffine r�stants (B) - CHUM" => array('T_vs_N' => 'N', 'block_type' => 'paraffin', 'bank' => 'icm'));
-		foreach($block_headers as $column_name => $column_blocks_properties) {			
+			"ICM - blocs de paraffine réstants (C) - CHUM"	=> array('T_vs_N' => 'T', 'block_type' => 'paraffin', 'bank' => 'icm'),	
+			"ICM - blocs de paraffine réstants (B) - CHUM" => array('T_vs_N' => 'N', 'block_type' => 'paraffin', 'bank' => 'icm'));
+		foreach($block_headers as $column_name => $column_blocks_properties) {		
+			if(!array_key_exists($column_name, $new_line_data))	die('ERR2376287632 '.$column_name);
 			$cell_contents = explode(';', str_replace(
 				array(' ', 	'?', 	'()',	'),',	')/',	').',	':',	'((',	'(RP(',	'(LA(',	'(RA(',	'))',	'&',	'V.S.',	'C.D.', 'LA0','RA0','LP0','RP0'), 
 				array('', 	'', 	'',		');',	');',	');',	';',	'(',	'(RP)',	'(LA)',	'(RA)',	')', 	',',	'VS',	'CD', 	'LA)','RA)','LP)','RP)'), 

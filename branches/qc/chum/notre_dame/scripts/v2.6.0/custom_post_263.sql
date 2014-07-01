@@ -1008,3 +1008,102 @@ UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id 
 UPDATE structure_formats SET `display_order`='33' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='qc_nd_sardo_topography_desc' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_sardo_topo_description') AND `flag_confidential`='0');
 
 UPDATE structure_formats SET `display_column`='2', `display_order`='75' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_dx_primary_sardos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='survival_time_months' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+REPLACE INTO i18n (id,en,fr) VALUES ('gyneco - onco','Gyneco - Onco','Gynéco - Onco');
+
+UPDATE consent_controls SET databrowser_label = controls_type;
+
+DROP TABLE fmlh;
+ALTER TABLE cd_icm_generics DROP COLUMN id;
+ALTER TABLE cd_icm_generics DROP COLUMN created;
+ALTER TABLE cd_icm_generics DROP COLUMN created_by;
+ALTER TABLE cd_icm_generics DROP COLUMN modified;
+ALTER TABLE cd_icm_generics DROP COLUMN modified_by;
+ALTER TABLE cd_icm_generics DROP COLUMN deleted;
+ALTER TABLE qc_nd_cd_generals DROP COLUMN id;
+ALTER TABLE qc_nd_cd_generals DROP COLUMN deleted;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles DROP COLUMN id;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles DROP COLUMN created;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles DROP COLUMN created_by;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles DROP COLUMN modified;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles DROP COLUMN modified_by;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles DROP COLUMN deleted;
+ALTER TABLE lab_type_laterality_match MODIFY created datetime DEFAULT NULL;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE sd_der_of_cells MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE sd_der_of_sups MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE sd_spe_other_fluids MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE cd_icm_generics_revs DROP COLUMN id;
+ALTER TABLE cd_icm_generics_revs DROP COLUMN created;
+ALTER TABLE cd_icm_generics_revs DROP COLUMN created_by;
+ALTER TABLE cd_icm_generics_revs DROP COLUMN modified;
+ALTER TABLE cd_icm_generics_revs DROP COLUMN modified_by;
+ALTER TABLE cd_icm_generics_revs DROP COLUMN deleted;
+ALTER TABLE qc_nd_cd_generals_revs DROP COLUMN id;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP COLUMN id;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP COLUMN created;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP COLUMN created_by;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP COLUMN modified;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP COLUMN modified_by;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP COLUMN deleted;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs MODIFY event_master_id int(11) NOT NULL;
+ALTER TABLE sd_der_of_cells_revs MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE sd_der_of_sups_revs MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE sd_spe_other_fluids_revs MODIFY sample_master_id int(11) NOT NULL;
+ALTER TABLE qc_nd_ed_all_procure_lifestyles_revs DROP INDEX event_master_id;
+ALTER TABLE txd_surgeries_revs DROP COLUMN qc_nd_no_patho;
+ALTER TABLE txd_surgeries_revs DROP COLUMN qc_nd_location;
+
+UPDATE datamart_structure_functions SET flag_active = 1 WHERE label = 'participant identifiers report';
+UPDATE datamart_reports SET flag_active = 1,form_alias_for_search  ='miscidentifiers_for_participant_search' WHERE name = 'participant identifiers';
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='BR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='PR_Nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='hospital_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'hotel_dieu_id_nbr', 'input',  NULL , '1', 'size=20', '', '', 'hotel-dieu id nbr', ''), 
+('Datamart', '0', '', 'notre_dame_id_nbr', 'input',  NULL , '1', 'size=20', '', '', 'notre-dame id nbr', ''), 
+('Datamart', '0', '', 'other_center_id_nbr', 'input',  NULL , '1', 'size=20', '', '', 'other center id nbr', ''), 
+('Datamart', '0', '', 'ovary_gyneco_bank_no_lab', 'input',  NULL , '0', 'size=20', '', '', 'ovary/gyneco bank no lab', ''), 
+('Datamart', '0', '', 'participant_patho_identifier', 'input',  NULL , '1', 'size=20', '', '', 'participant patho identifier', ''), 
+('Datamart', '0', '', 'ramq_nbr', 'input',  NULL , '1', 'size=20', '', '', 'ramq nbr', ''), 
+('Datamart', '0', '', 'saint_luc_id_nbr', 'input',  NULL , '1', 'size=20', '', '', 'saint-luc id nbr', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='breast_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '11', '', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=20', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='code_barre' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '33', '', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=20', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='head_and_neck_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '14', '', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=20', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='hotel_dieu_id_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='hotel-dieu id nbr' AND `language_tag`=''), '0', '21', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='kidney_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '13', '', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=20', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='notre_dame_id_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='notre-dame id nbr' AND `language_tag`=''), '0', '21', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='old_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '32', '', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=20', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_center_id_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='other center id nbr' AND `language_tag`=''), '0', '31', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovary_gyneco_bank_no_lab' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='ovary/gyneco bank no lab' AND `language_tag`=''), '0', '10', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='participant_patho_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='participant patho identifier' AND `language_tag`=''), '0', '30', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='prostate_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '12', '', '', '0', '', '0', '', '0', '', '0', '', '1', 'size=20', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ramq_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='ramq nbr' AND `language_tag`=''), '0', '20', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='report_participant_identifiers_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='saint_luc_id_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='saint-luc id nbr' AND `language_tag`=''), '0', '23', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ovary_gyneco_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='breast_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='prostate_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='kidney_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='head_and_neck_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='ramq_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='hotel_dieu_id_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='notre_dame_id_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='saint_luc_id_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='participant_patho_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='other_center_id_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='old_bank_no_lab' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_participant_identifiers_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='code_barre' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM datamart_structure_functions WHERE label IN ('participant identifications list');
+DELETE FROM datamart_reports WHERE function IN ('bankingNd','procureConsentStat','participantIdentificationsList');
+
+CREATE TABLE sardo_import_summary (
+		data_type varchar(20) DEFAULT NULL,
+		message_type varchar(20) DEFAULT NULL,
+		message varchar(255) DEFAULT NULL,
+		details varchar(255) DEFAULT NULL);
+
+REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'Oncology Axis', 'Axe Cancer');
+
+UPDATE versions SET branch_build_number = '5800' WHERE version_number = '2.6.3';
