@@ -1283,6 +1283,19 @@ class Browser extends DatamartAppModel {
 	 * @return Returns an array of a portion of the data. Successive calls move the pointer forward.
 	 */
 	public function getDataChunk($chunk_size){
+
+//TODO Remove temporary fix for issue #2767
+$tmp_order = null;
+if(isset($this->search_parameters['order'])) {
+	if(preg_match('/^([0-9]+\-){0,1}(.+(Detail|Control)\..+)\ (asc|desc)$/', $this->search_parameters['order'], $matches)) {
+		$tmp_order['sort'] = $matches[2];
+		$tmp_order['direction'] = $matches[4];
+		$this->search_parameters['order'] = array();
+	} else if(preg_match('/^([0-9]+\-)(.+)\.(.+)\ (asc|desc)$/', $this->search_parameters['order'], $matches)) {
+		$this->search_parameters['order'] = $matches[2].'Browser.'.$matches[3].' '.$matches[4];
+	}
+}
+
 		$this->fillBuffer($chunk_size);
 		if(empty($this->rows_buffer)){
 			$chunk = array();
@@ -1324,6 +1337,12 @@ class Browser extends DatamartAppModel {
 				++ $count;
 			}
 		}
+
+//TODO Remove temporary fix for issue #2767		
+if($tmp_order) {
+	$chunk = AppModel::sortWithUrl($chunk, $tmp_order);
+}		
+		
 		return $chunk;
 	}
 	
