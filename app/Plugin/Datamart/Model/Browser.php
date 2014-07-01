@@ -1288,7 +1288,6 @@ class Browser extends DatamartAppModel {
 $tmp_order = null;
 if(isset($this->search_parameters['order'])) {
 	if(preg_match('/^([0-9]+\-){0,1}(.+(Detail|Control)\..+)\ (asc|desc)$/', $this->search_parameters['order'], $matches)) {
-		pr($matches);
 		$tmp_order['sort'] = $matches[2];
 		$tmp_order['direction'] = $matches[4];
 		$this->search_parameters['order'] = array();
