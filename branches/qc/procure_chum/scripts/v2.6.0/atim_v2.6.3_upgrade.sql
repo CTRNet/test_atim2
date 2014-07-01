@@ -18,4 +18,4 @@ UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::g
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.3', NOW(),'5???','n/a');
+VALUES('2.6.3', NOW(),'5798','n/a');
