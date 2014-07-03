@@ -104,17 +104,17 @@
 		$tmp_default_aliquot_data = array();
 		if($set_default_value) {
 			$tmp_default_aliquot_data['AliquotMaster.barcode'] = $participant_identifier . ' ' . $visite . ' ' . $label;
-			$tmp_default_aliquot_data['AliquotMaster.in_stock'] = $default_in_stock_value;
-			if($default_volume) $tmp_default_aliquot_data['AliquotMaster.initial_volume'] = $default_volume;
+//			$tmp_default_aliquot_data['AliquotMaster.in_stock'] = $default_in_stock_value;
+//			if($default_volume) $tmp_default_aliquot_data['AliquotMaster.initial_volume'] = $default_volume;
 			if($default_concentration_unit) $tmp_default_aliquot_data['AliquotDetail.concentration_unit'] = $default_concentration_unit;
-			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $default_storage_datetime;
-			$tmp_default_aliquot_data['AliquotMaster.storage_datetime_accuracy'] = $default_storage_datetime_accuracy;
+//			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $default_storage_datetime;
+//			$tmp_default_aliquot_data['AliquotMaster.storage_datetime_accuracy'] = $default_storage_datetime_accuracy;
 			
 			$counter = 0;
 			foreach($new_sample_record['children'] AS &$new_aliquot) {
 				$counter++;
 				$new_aliquot['AliquotMaster']['barcode'] = $tmp_default_aliquot_data['AliquotMaster.barcode'].$counter;				
-				if($counter == '3' && $new_sample_record['parent']['ViewSample']['sample_type'] == 'pbmc') $new_aliquot['AliquotMaster']['initial_volume'] = '0.3';
+//				if($counter == '3' && $new_sample_record['parent']['ViewSample']['sample_type'] == 'pbmc') $new_aliquot['AliquotMaster']['initial_volume'] = '0.3';
 			}
 		}	
 		$default_aliquot_data[$new_sample_record['parent']['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
