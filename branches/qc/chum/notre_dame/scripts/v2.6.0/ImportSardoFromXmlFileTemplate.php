@@ -6,11 +6,13 @@
 
 //TODO set to false after first import
 $is_initial_import = true;
-$is_server = false;
+$is_server = true;
 
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_deno_20140626.XML";
 $file_path = "C:/_Perso/Server/icm/data/Export_CRCHUM_short.XML";
 if($is_server) $file_path = "/ch06chuma6134/Export_CRCHUM.XML";
+if(!file_exists($file_path)) importDie("ERR_XML00001 : The file $file_path does not exist!");
+Sortir avec un message dans atim import....
 
 global $import_summary;
 $import_summary = array();
@@ -169,7 +171,6 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 //==============================================================================================
 
 $reader = new XMLReader();
-if(!file_exists($file_path)) importDie("ERR_XML00001 : The file $file_path does not exist!");
 $reader->open($file_path);
 
 $sql_sardo_tables_creations = array(
