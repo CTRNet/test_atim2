@@ -13,7 +13,7 @@
 
 $file_name = "Selection blocs paraffine - ProCure - 20140620 - final.xls";
 //$file_path = "C:/_Perso/Server/icm/data/".$file_name;
-$file_path = "/ATiM/icm/v2/ATiM-Test/data/".$file_name;
+$file_path = "/ATiM/".$file_name;
 require_once 'Excel/reader.php';
 
 $XlsReader = new Spreadsheet_Excel_Reader();

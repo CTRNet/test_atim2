@@ -1107,3 +1107,25 @@ CREATE TABLE sardo_import_summary (
 REPLACE INTO i18n (id,en,fr) VALUES ('core_installname', 'Oncology Axis', 'Axe Cancer');
 
 UPDATE versions SET branch_build_number = '5800' WHERE version_number = '2.6.3';
+
+-- 2014-01-03 ----------------------------------------------------------------------------------------------------------------------
+
+UPDATE participants SET last_chart_checked_date = null WHERE last_chart_checked_date = '0000-00-00';
+UPDATE participants_revs SET last_chart_checked_date = null WHERE last_chart_checked_date = '0000-00-00';
+
+INSERT INTO `menus` (`id`, `parent_id`, `is_root`, `display_order`, `language_title`, `language_description`, `use_link`, `use_summary`, `flag_active`, `flag_submenu`) VALUES
+('core_CAN_41_sardo', 'core_CAN_41', 0, 7, 'sardo migration summary', '', '/Administrate/SardoMigrations/listAll/', '', 1, 1);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_migrations');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'SardoImportSummary', 'sardo_import_summary', 'data_type', 'input-readonly',  NULL , '0', '', '', '', 'data', ''), 
+('Administrate', 'SardoImportSummary', 'sardo_import_summary', 'message_type', 'input-readonly',  NULL , '0', '', '', '', 'message type', ''), 
+('Administrate', 'SardoImportSummary', 'sardo_import_summary', 'message', 'input-readonly',  NULL , '0', '', '', '', 'message', ''), 
+('Administrate', 'SardoImportSummary', 'sardo_import_summary', 'details', 'input-readonly',  NULL , '0', '', '', '', 'details', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations'), (SELECT id FROM structure_fields WHERE `model`='SardoImportSummary' AND `tablename`='sardo_import_summary' AND `field`='data_type' AND `type`='input-readonly' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='data' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations'), (SELECT id FROM structure_fields WHERE `model`='SardoImportSummary' AND `tablename`='sardo_import_summary' AND `field`='message_type' AND `type`='input-readonly' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='message type' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations'), (SELECT id FROM structure_fields WHERE `model`='SardoImportSummary' AND `tablename`='sardo_import_summary' AND `field`='message' AND `type`='input-readonly' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='message' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations'), (SELECT id FROM structure_fields WHERE `model`='SardoImportSummary' AND `tablename`='sardo_import_summary' AND `field`='details' AND `type`='input-readonly' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '1', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('sardo migration summary','SARDO Migration Summary','Résumé migration SARDO');
+
+UPDATE versions SET branch_build_number = '5806' WHERE version_number = '2.6.3';
