@@ -7,3 +7,4 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en,fr) VALUES ('site build number','Site Version/Build','Site Version/Numéro Version');
 
 UPDATE versions SET branch_build_number = '5805' WHERE version_number = '2.6.3';
+
