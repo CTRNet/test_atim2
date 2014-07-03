@@ -7,7 +7,7 @@ class DatamartAppController extends AppController {
 	 * oversized resut set
 	 * @var int 
 	 */
-	static public $display_limit = 5000;
+	static public $display_limit = 1000;
 	
 	static function printList($options, $label, $webroot){
 		foreach($options as $option){
