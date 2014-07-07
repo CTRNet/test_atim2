@@ -142,6 +142,9 @@ class ReportsControllerCustom extends ReportsController {
 				Participant.vital_status,
 				Participant.date_of_death,
 				Participant.date_of_death_accuracy,
+				Participant.qc_tf_suspected_date_of_death,
+				Participant.qc_tf_suspected_date_of_death_accuracy,
+				
 				Participant.qc_tf_last_contact,
 				Participant.qc_tf_last_contact_accuracy,
 				Participant.qc_tf_death_from_prostate_cancer,
@@ -183,14 +186,22 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$primary_ids = array();
 		$participant_ids = array();
-		foreach($main_results as $new_participant) {
+		foreach($main_results as &$new_participant) {
 			$participant_ids[] = $new_participant['Participant']['participant_id'];
+			$new_participant['Generated']['is_suspected_date_of_death'] = '';
+			if(!empty($new_participant['Participant']['date_of_death'])) {
+				$new_participant['Generated']['is_suspected_date_of_death'] = 'n';
+			} else if(!empty($new_participant['Participant']['qc_tf_suspected_date_of_death'])) {
+				$new_participant['Participant']['date_of_death'] = $new_participant['Participant']['qc_tf_suspected_date_of_death'];
+				$new_participant['Participant']['date_of_death_accuracy'] = $new_participant['Participant']['qc_tf_suspected_date_of_death_accuracy'];
+				$new_participant['Generated']['is_suspected_date_of_death'] = 'y';
+			}
 			if(!empty($new_participant['DiagnosisMaster']['primary_id'])) $primary_ids[] = $new_participant['DiagnosisMaster']['primary_id'];
 				
 		}
 		$primary_ids_condition = empty($primary_ids)? '' : 'DiagnosisMaster.primary_id IN ('.implode($primary_ids, ',').')';
 		$participant_ids = empty($participant_ids)? array('-1') : $participant_ids;
-		
+
 		// *********** Get Fst Bcr ***********		
 		
 		$fst_bcr_results_from_primary_id = array();
@@ -329,13 +340,20 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// *********** Get Trt ***********
 		
+		$StructurePermissibleValuesCustom = AppModel::getInstance("", "StructurePermissibleValuesCustom", true);
+		$tmp = $StructurePermissibleValuesCustom->getCustomDropdown(array('radiotherapy types'));
+		$radiotherapy_types = array_merge($tmp['defined'], $tmp['previously_defined']);
+
 		$treatments_summary_template = array(
 			'Generated' => array(
 				'qc_tf_chemo_flag' => 'n',
 				'qc_tf_radiation_flag' => 'n',
+				'qc_tf_radiation_details' => '',
 				'qc_tf_hormono_flag' => 'n'));
-		$sql = "SELECT distinct TreatmentMaster.participant_id, TreatmentControl.tx_method
-			FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+		$sql = "SELECT distinct TreatmentMaster.participant_id, TreatmentControl.tx_method, RadiationDetails.qc_tf_type
+			FROM treatment_masters TreatmentMaster 
+			INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+			LEFT JOIN txd_radiations RadiationDetails ON RadiationDetails.treatment_master_id =  TreatmentMaster.id
 			WHERE TreatmentMaster.deleted <> 1
 			AND TreatmentControl.tx_method IN ('hormonotherapy', 'radiation', 'chemotherapy')
 			AND TreatmentMaster.participant_id IN (".implode(',',$participant_ids).")";
@@ -350,6 +368,12 @@ class ReportsControllerCustom extends ReportsController {
 					break;
 				case 'radiation':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_flag'] = 'y';
+					if($new_trt['RadiationDetails']['qc_tf_type']) {
+						$radiation_type = isset($radiotherapy_types[$new_trt['RadiationDetails']['qc_tf_type']])? $radiotherapy_types[$new_trt['RadiationDetails']['qc_tf_type']] : $new_trt['RadiationDetails']['qc_tf_type'];
+						if(!preg_match('/$radiation_type/', $treatments_summary[$participant_id]['Generated']['qc_tf_radiation_details'])) {
+							$treatments_summary[$participant_id]['Generated']['qc_tf_radiation_details'] .= (empty($treatments_summary[$participant_id]['Generated']['qc_tf_radiation_details'])? '' : ', '). $radiation_type;
+						}
+					}
 					break;
 				case 'chemotherapy':
 					$treatments_summary[$participant_id]['Generated']['qc_tf_chemo_flag'] = 'y';
@@ -391,26 +415,26 @@ class ReportsControllerCustom extends ReportsController {
 		);				
 		foreach($main_results as &$new_participant) {		
 			if(isset($dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
-				$new_participant = array_merge($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
+				$new_participant = array_merge_recursive($new_participant, $dfs_start_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
-				$new_participant = array_merge($new_participant, $dfs_psa_template);
+				$new_participant = array_merge_recursive($new_participant, $dfs_psa_template);
 			}
 			if(isset($metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
 				$other_types = $metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]['Metastasis']['other_types'];			
 				$metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]['Metastasis']['other_types'] = (empty($other_types) || !is_array($other_types))? '' : implode($other_types, ' | ');
-				$new_participant = array_merge($new_participant, $metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
+				$new_participant = array_merge_recursive($new_participant, $metastasis_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
-				$new_participant = array_merge($new_participant, $metastasis_template);
+				$new_participant = array_merge_recursive($new_participant, $metastasis_template);
 			}
 			if(isset($fst_bcr_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']])) {
-				$new_participant = array_merge($new_participant, $fst_bcr_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
+				$new_participant = array_merge_recursive($new_participant, $fst_bcr_results_from_primary_id[$new_participant['DiagnosisMaster']['primary_id']]);
 			} else {
-				$new_participant = array_merge($new_participant, $fst_bcr_template);
+				$new_participant = array_merge_recursive($new_participant, $fst_bcr_template);
 			}
 			if(isset($treatments_summary[$new_participant['Participant']['participant_id']])) {
-				$new_participant = array_merge($new_participant, $treatments_summary[$new_participant['Participant']['participant_id']]);
+				$new_participant = array_merge_recursive($new_participant, $treatments_summary[$new_participant['Participant']['participant_id']]);
 			} else {
-				$new_participant = array_merge($new_participant, $treatments_summary_template);
+				$new_participant = array_merge_recursive($new_participant, $treatments_summary_template);
 			}
 			
 			if(($_SESSION['Auth']['User']['group_id'] != '1') && ($new_participant['Participant']['qc_tf_bank_id'] != $user_bank_id)) {
@@ -420,7 +444,6 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
-		
 		$array_to_return = array(
 			'header' => array(), 
 			'data' => $main_results, 
