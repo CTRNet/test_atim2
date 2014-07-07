@@ -63,9 +63,9 @@ class DATABASE_CONFIG {
 		'datasource' => 'Database/Mysql',
 		'persistent' => true,
 		'host' => '127.0.0.1',
-		'login' => 'root',
-		'password' => 'root',
-		'database' => 'atim_26x',
+		'login' => 'ctrnadmi_bttb',
+		'password' => '1Qaz1Qaz',
+		'database' => 'ctrnadmi_bttb',
 		'prefix' => '',
 		'encoding' => 'utf8',
 		'port'	=> 3306
