@@ -535,5 +535,104 @@ class ReportsControllerCustom extends ReportsController {
 		return $array_to_return;
 	}
 	
+	function getAllSpecimens($parameters) {
+		$header = null;
+		$conditions = array("SampleMaster.id != SampleMaster.initial_specimen_sample_id");		
+		// Get Parameters
+		if(isset($parameters['SampleMaster']['sample_code']) || isset($parameters['SampleMaster']['qc_nd_sample_label'])) {
+			//From databrowser
+			$selection_labels  = array_filter($parameters['SampleMaster']['sample_code']);
+			if($selection_labels) $conditions['SampleMaster.sample_code'] = $selection_labels;
+			$selection_labels  = array_filter($parameters['SampleMaster']['qc_nd_sample_label']);
+			$selection_labels_statements = array();		
+			foreach($selection_labels as $new_label) $selection_labels_statements[] = "SampleMaster.qc_nd_sample_label LIKE '%".$new_label."%'";
+			if($selection_labels_statements) $conditions[] = '('.implode(' OR ', $selection_labels_statements).')';
+		} else if(isset($parameters['ViewSample']['sample_master_id'])) {
+			//From databrowser
+			$sample_master_ids  = array_filter($parameters['ViewSample']['sample_master_id']);
+			if($sample_master_ids) $conditions['SampleMaster.id'] = $sample_master_ids;
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		// Load Model
+		$view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
+		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+		// Build Res
+		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
+		$tmp_res_count = $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+		if($tmp_res_count > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+		$res = array();
+		$tmp_initial_specimens = array();
+		foreach($studied_samples as $new_studied_sample) {
+			$initial_specimen = isset($tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']])?
+			$tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']]:
+			$view_sample_model->find('first', array('conditions' => array('ViewSample.sample_master_id' => $new_studied_sample['SampleMaster']['initial_specimen_sample_id']), 'fields' => array('ViewSample.*, SpecimenDetail.*'), 'order' => array('ViewSample.sample_code ASC'), 'recursive' => '0'));
+			$tmp_initial_specimens[$new_studied_sample['SampleMaster']['initial_specimen_sample_id']] = $initial_specimen;
+			if($initial_specimen){
+				if(!(array_key_exists('SelectedItemsForCsv', $parameters) && !in_array($initial_specimen['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id']))) $res[] = array_merge($new_studied_sample, $initial_specimen);
+			}
+		}
+		return array(
+				'header' => $header,
+				'data' => $res,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
 	
+	function getAllDerivatives($parameters) {
+		$header = null;
+		$conditions = array();
+		// Get Parameters
+		if(isset($parameters['SampleMaster']['sample_code']) || isset($parameters['SampleMaster']['qc_nd_sample_label'])) {
+			//From databrowser
+			$selection_labels  = array_filter($parameters['SampleMaster']['sample_code']);
+			if($selection_labels) $conditions['SampleMaster.sample_code'] = $selection_labels;
+			$selection_labels  = array_filter($parameters['SampleMaster']['qc_nd_sample_label']);
+			$selection_labels_statements = array();		
+			foreach($selection_labels as $new_label) $selection_labels_statements[] = "SampleMaster.qc_nd_sample_label LIKE '%".$new_label."%'";
+			if($selection_labels_statements) $conditions[] = '('.implode(' OR ', $selection_labels_statements).')';
+		} else if(isset($parameters['ViewSample']['sample_master_id'])) {
+			//From databrowser
+			$sample_master_ids  = array_filter($parameters['ViewSample']['sample_master_id']);
+			if($sample_master_ids) $conditions['SampleMaster.id'] = $sample_master_ids;
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		// Load Model
+		$view_sample_model = AppModel::getInstance("InventoryManagement", "ViewSample", true);
+		$sample_master_model = AppModel::getInstance("InventoryManagement", "SampleMaster", true);
+		// Build Res
+		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
+		$tmp_res_count =  $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+		if($tmp_res_count > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		$studied_samples = $sample_master_model->find('all', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
+		$res = array();
+		foreach($studied_samples as $new_studied_sample) {
+			$all_derivatives_samples = $this->getChildrenSamples($view_sample_model, array($new_studied_sample['SampleMaster']['id']));
+			if($all_derivatives_samples){
+				foreach($all_derivatives_samples as $new_derivative_sample) {
+					if(array_key_exists('SelectedItemsForCsv', $parameters) && !in_array($new_derivative_sample['ViewSample']['sample_master_id'], $parameters['SelectedItemsForCsv']['ViewSample']['sample_master_id'])) continue;
+					$res[] = array_merge($new_studied_sample, $new_derivative_sample);
+				}
+			}
+		}
+		return array(
+				'header' => $header,
+				'data' => $res,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
 }
