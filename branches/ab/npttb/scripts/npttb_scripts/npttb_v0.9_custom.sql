@@ -43,16 +43,40 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('npttb help cell lines', 'Use a portion of your tissue sample(s) for culture and establishment of cell line(s) for research use.', '');
 
 -- Add Assent field
-ALTER TABLE `consent_masters` 
-ADD COLUMN `npttb_assent_status` VARCHAR(45) NULL AFTER `process_status`;
+ALTER TABLE `cd_npttb_consent_brain_bank` 
+ADD COLUMN `npttb_assent_status` VARCHAR(45) NULL AFTER `npttb_use_bone_marrow`;
+ALTER TABLE `cd_npttb_consent_brain_bank_revs` 
+ADD COLUMN `npttb_assent_status` VARCHAR(45) NULL AFTER `npttb_use_bone_marrow`;
 
-ALTER TABLE `consent_masters_revs` 
-ADD COLUMN `npttb_assent_status` VARCHAR(45) NULL AFTER `process_status`;
+ALTER TABLE `cd_npttb_consent_brain_bank` 
+ADD COLUMN `npttb_assent_date` DATE NULL DEFAULT NULL AFTER `cd_npttb_consent_brain_bank`;
+ALTER TABLE `cd_npttb_consent_brain_bank_revs` 
+ADD COLUMN `npttb_assent_date` DATE NULL DEFAULT NULL AFTER `cd_npttb_consent_brain_bank`;
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'npttb_assent_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'npttb assent status', '');
+('ClinicalAnnotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_assent_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'npttb assent status', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='npttb_assent_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb assent status' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_assent_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb assent status' AND `language_tag`=''), '1', '20', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_assent_date', 'date', NULL , '0', '', '', '', 'npttb assent date', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='cd_npttb_consent_brain_bank'), (SELECT id FROM structure_fields WHERE `model`='ConsentDetail' AND `tablename`='cd_npttb_consent_brain_bank' AND `field`='npttb_assent_date' AND `type`='date' AND `structure_value_domain` IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='npttb assent date' AND `language_tag`=''), '1', '21', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
-('npttb assent status', 'Assent Status', '');
+('npttb assent status', 'Assent Status', ''),
+('npttb assent date', 'Date of Assent', '');
+
+-- Move consent signed date
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='consent_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='consent_signed_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Eventum ID: 3073 - Disable storage types
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='TMA-blc 23X15';
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='TMA-blc 29X21';
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='cupboard';
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='room';
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='incubator';
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='fridge';
+UPDATE `storage_controls` SET `flag_active`='0' WHERE `storage_type`='box';
+
+
