@@ -49,7 +49,6 @@ class PagesController extends AppController {
  */
 	public function display() {
 		$path = func_get_args();
-		$this->log($this->request->query, 'debug');
 		$results = $this->Page->getOrRedirect($path);
 		if(isset($this->request->query['err_msg'])){
 			//this message will be displayed in red

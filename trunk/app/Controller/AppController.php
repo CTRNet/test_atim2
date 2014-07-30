@@ -736,10 +736,10 @@ class AppController extends Controller {
 	/**
 	 * Adds the necessary bind on the model to fetch detail level, if there is a unique ctrl id
 	 * @param AppModel &$model
-	 * @param array $criteria Search criterias
+	 * @param array $conditions Search conditions
 	 * @param string &$structure_alias
 	 */
-	static function buildDetailBinding(&$model, array $criteria, &$structure_alias){
+	static function buildDetailBinding(&$model, array $conditions, &$structure_alias){
 		$controller = AppController::getInstance();
 		$master_class_name = isset($model->base_model) ? $model->base_model : $model->name;
 		if(!isset($model->Behaviors->MasterDetail->__settings[$master_class_name])){
@@ -752,15 +752,22 @@ class AppController extends Controller {
 			}
 		}
 		if($model->Behaviors->MasterDetail->__settings[$master_class_name]['is_master_model']){
-			//determine if the results contain only one control id
-			$control_field = $model->Behaviors->MasterDetail->__settings[$master_class_name]['control_foreign'];
-			$ctrl_ids = $model->find('all', array(
-					'fields'		=> array($model->name.'.'.$control_field), 
-					'conditions'	=> $criteria,
-					'group'			=> array($model->name.'.'.$control_field),
-					'limit'			=> 2
-			));
-			if(count($ctrl_ids) == 1){
+		    $ctrl_ids = null;
+		    $single_ctrl_id = $model->getSingleControlIdCondition(array('conditions' => $conditions));
+		    $control_field = $model->Behaviors->MasterDetail->__settings[$master_class_name]['control_foreign'];
+		    if($single_ctrl_id === false){
+		        //determine if the results contain only one control id
+		        $ctrl_ids = $model->find('all', array(
+		                'fields'		=> array($model->name.'.'.$control_field),
+		                'conditions'	=> $conditions,
+		                'group'			=> array($model->name.'.'.$control_field),
+		                'limit'			=> 2
+		        ));
+		        if(count($ctrl_ids) == 1){
+		            $single_ctrl_id = current(current($ctrl_ids[0]));
+		        }
+		    }
+			if($single_ctrl_id !== false){
 				//only one ctrl, attach detail
 				$has_one = array();
 				extract($model->Behaviors->MasterDetail->__settings[$master_class_name]);
@@ -771,11 +778,14 @@ class AppController extends Controller {
 					}
 					return;
 				}
-				$ctrl_data = $ctrl_model->findById(current(current($ctrl_ids[0])));
+				$ctrl_data = $ctrl_model->findById($single_ctrl_id);
 				$ctrl_data = current($ctrl_data);
 				//put a new instance of the detail model in the cache
 				ClassRegistry::removeObject($detail_class);//flush the old detail from cache, we'll need to reinstance it
-				new AppModel(array('table' => $ctrl_data['detail_tablename'], 'name' => $detail_class, 'alias' => $detail_class));
+				assert(strlen($ctrl_data['detail_tablename'])) or die("detail_tablename cannot be empty");
+				new AppModel(array('table' => $ctrl_data['detail_tablename'],
+				                   'name'  => $detail_class,
+				                   'alias' => $detail_class));
 				
 				//has one and win
 				$has_one[$detail_class] = array(
@@ -805,22 +815,20 @@ class AppController extends Controller {
 						'hasOne' => $has_one,
 						'belongsTo' => array(
 							$control_class => array(
-								'className' => $control_class,
-								$control_field
+								'className' => $control_class
 							)
 						)
 					), false
 				);
-
 				isset($model->{$detail_class});//triggers model lazy loading (See cakephp Model class)
 					
 				//updating structure
 				if(($pos = strpos($ctrl_data['form_alias'], ',')) !== false){
 					$structure_alias = $structure_alias.','.substr($ctrl_data['form_alias'], $pos + 1);
 				}
-					
-				ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
-					
+                
+                ClassRegistry::removeObject($detail_class);//flush the new model to make sure the default one is loaded if needed
+                
 			}else if(count($ctrl_ids) > 0){
 				//more than one
 				AppController::addInfoMsg(__("the results contain various data types, so the details are not displayed"));
