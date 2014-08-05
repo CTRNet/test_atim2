@@ -99,3 +99,41 @@ INSERT INTO i18n (id,en,fr) VALUES ('site build number','Site Version/Build','Si
 
 UPDATE versions SET site_branch_build_number = '5806' WHERE version_number = '2.6.3';
 
+-- 2014-08-05 ------------------------------------------------------------------------------------------------------
+
+ALTER TABLE sd_der_urine_cents ADD COLUMN qc_nd_pellet_presence char(1) DEFAULT '';
+ALTER TABLE sd_der_urine_cents_revs ADD COLUMN qc_nd_pellet_presence char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_urine_cents', 'qc_nd_pellet_presence', 'yes_no',  NULL , '0', '', '', '', 'pellet presence', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_sd_urine_cents'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_pellet_presence' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pellet presence' AND `language_tag`=''), '2', '457', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('pellet presence', 'Pellet Presence', 'Présence culot');
+
+UPDATE sd_der_urine_cents SET qc_nd_pellet_presence = 'y' WHERE qc_nd_pellet_absence = 'n';
+UPDATE sd_der_urine_cents_revs SET qc_nd_pellet_presence = 'y' WHERE qc_nd_pellet_absence = 'n';
+UPDATE sd_der_urine_cents SET qc_nd_pellet_presence = 'n' WHERE qc_nd_pellet_absence = 'y';
+UPDATE sd_der_urine_cents_revs SET qc_nd_pellet_presence = 'n' WHERE qc_nd_pellet_absence = 'y';
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_sd_urine_cents') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_pellet_absence' AND `language_label`='pellet absence' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_pellet_absence' AND `language_label`='pellet absence' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_pellet_absence' AND `language_label`='pellet absence' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+ALTER TABLE sd_der_urine_cents DROP COLUMN qc_nd_pellet_absence;
+ALTER TABLE sd_der_urine_cents_revs ADD COLUMN qc_nd_pellet_absence;
+
+REPLACE INTO i18n (id,en,fr) 
+VALUES
+('approximatif pellet volume ml','Approximate volume (ml) of pellet (for 50 mL volume)','Volume (ml) approximatif du culot (pour volume de 50 mL)');
+
+UPDATE versions SET site_branch_build_number = '5843' WHERE version_number = '2.6.3';
+
+
+
+
+
+
+
+
+
+
+
