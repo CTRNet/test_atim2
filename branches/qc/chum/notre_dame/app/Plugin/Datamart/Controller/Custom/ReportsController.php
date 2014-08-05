@@ -8,7 +8,7 @@ class ReportsControllerCustom extends ReportsController {
 		if(isset($parameters['Participant']['id'])) {
 			//From databrowser
 			$participant_ids  = array_filter($parameters['Participant']['id']);
-			if($participant_ids) $conditions['Participant.id'] = $participant_ids;
+			if($participant_ids) $conditions['MiscIdentifier.participant_id'] = $participant_ids;
 		} else {
 			if(isset($parameters['MiscIdentifier']['misc_identifier_control_id'])) {
 				$misc_identifier_control_ids  = array_filter($parameters['MiscIdentifier']['misc_identifier_control_id']);
