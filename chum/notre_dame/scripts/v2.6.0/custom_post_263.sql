@@ -1148,8 +1148,12 @@ UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id
 
 UPDATE versions SET branch_build_number = '5822' WHERE version_number = '2.6.3';
 
+-- 2014-08-05 ----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('shipping cie')" WHERE domain_name = 'qc_nd_shipping_cie';
+UPDATE structure_formats SET `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='shipments') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Shipment' AND `tablename`='shipments' AND `field`='shipping_company' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_shipping_cie') AND `flag_confidential`='0');
+update  structure_permissible_values_customs SET  value = 'Purolator' WHERE value = 'purolater';
+update  structure_permissible_values_customs_revs SET  value = 'Purolator' WHERE value = 'purolater';
+update  shipments SET  shipping_company = 'Purolator' WHERE shipping_company = 'Purolator ';
+update  shipments_revs SET  shipping_company = 'Purolator' WHERE shipping_company = 'Purolator ';
+UPDATE versions SET branch_build_number = '5840' WHERE version_number = '2.6.3';
