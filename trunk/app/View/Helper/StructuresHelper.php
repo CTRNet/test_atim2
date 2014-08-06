@@ -1227,6 +1227,7 @@ class StructuresHelper extends Helper {
 		if(isset($csv::$nodes_info)){
 			//same line mode
 			$this->Csv->current = array();
+			$tmp_CodingIcdCheck = false;	//$options['CodingIcdCheck'] has not been set by previous functions
 			if($options['settings']['csv_header']){
 				//first call, build all structures
 				$options['type'] = 'index';
@@ -1253,6 +1254,13 @@ class StructuresHelper extends Helper {
 									$sub_line[] = __('accuracy');
 									$heading_sub_line[] = $last_heading;
 								}
+								if(!isset($options['CodingIcdCheck'])){
+									foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
+										if(strpos($table_row_part['setting'], $trigger) !== false){
+											$tmp_CodingIcdCheck = true;
+										}
+									}
+								}								
 							}
 						}
 						
@@ -1274,7 +1282,11 @@ class StructuresHelper extends Helper {
 			
 			$lines = array();
 			//data = array(node => pkey => data rows => data line
-					
+
+			if(!isset($options['CodingIcdCheck'])){
+				$options['CodingIcdCheck'] = $tmp_CodingIcdCheck;
+			}
+			
 			foreach($csv::$nodes_info as $node_id => $node_info){
 				//fill the node section of the lines array. the index is the pkey of the line
 				foreach($data[$node_id] as $pkey => $data_row){
@@ -1291,7 +1303,8 @@ class StructuresHelper extends Helper {
 										if(in_array($table_row_part['type'], array('date', 'datetime'))) {
 											$lines[$pkey] = array_merge($lines[$pkey], $this->getDateValuesFormattedForExcel($model_data[$table_row_part['model']], $table_row_part['field'], $table_row_part['type']));
 										} else {
-											$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $model_data[$table_row_part['model']][$table_row_part['field']], null, null));
+											$current_value = self::getCurrentValue($model_data, $table_row_part, "", $options);	
+											$lines[$pkey][] = trim($this->getPrintableField($table_row_part, $options, $current_value, null, null));
 										}	
 									}else{
 										$lines[$pkey][] = '';
@@ -1371,7 +1384,8 @@ class StructuresHelper extends Helper {
 										if(in_array($table_row_part['type'], array('date', 'datetime'))) {
 											$line = array_merge($line, $this->getDateValuesFormattedForExcel($data_unit[$table_row_part['model']], $table_row_part['field'], $table_row_part['type']));
 										} else {	
-											$line[] = trim($this->getPrintableField($table_row_part, $options, $data_unit[$table_row_part['model']][$table_row_part['field']], null, null));
+											$current_value = self::getCurrentValue($data_unit, $table_row_part, "", $options);										
+											$line[] = trim($this->getPrintableField($table_row_part, $options, $current_value, null, null));
 										}
 									}else{
 										$line[] = "";
@@ -1383,7 +1397,7 @@ class StructuresHelper extends Helper {
 						$this->Csv->addRow($line);
 					}
 				}else{
-					// Multi-Lines and Multi Column Report Display: Date format for excel not supported
+					// Multi-Lines and Multi Column Report Display: Date format for excel not supported + no ICD description generated
 					foreach($table_structure as $table_column){
 						foreach($table_column as $fm => $table_row){
 							foreach($table_row as $table_row_part){
@@ -2736,7 +2750,7 @@ class StructuresHelper extends Helper {
 		){
 			//priority 1, data
 			$current_value = $data_unit[$table_row_part['model']][$table_row_part['field'].$suffix];
-		}else if($options['type'] != 'index' && $options['type'] != 'detail'){
+		}else if($options['type'] != 'index' && $options['type'] != 'detail' && $options['type'] != 'csv'){
 			if(isset($options['override'][$table_row_part['model'].".".$table_row_part['field']])){
 				//priority 2, override
 				$current_value = $options['override'][$table_row_part['model'].".".$table_row_part['field'].$suffix];
@@ -2766,7 +2780,7 @@ class StructuresHelper extends Helper {
 			AppController::addWarningMsg(__("no data for [%s.%s]" , $table_row_part['model'], $table_row_part['field']));
 		}
 		
-		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail') && $current_value){
+		if($options['CodingIcdCheck'] && ($options['type'] == 'index' || $options['type'] == 'detail' || $options['type'] == 'csv') && $current_value){
 			foreach(AppModel::getMagicCodingIcdTriggerArray() as $key => $trigger){
 				if(strpos($table_row_part['setting'], $trigger) !== false){
 					eval('$instance = '.$key.'::getSingleton();');
