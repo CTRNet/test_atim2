@@ -174,7 +174,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		    }
 			//this is a master/detail. See if the find is made on a specific control id. If so, join the detail table
 			$control_id = $model->getSingleControlIdCondition($query); 
-			if($control_id !== false){
+			if($control_id !== false && empty($query['joins'])){
 			    $query['joins'][] = $model->getDetailJoin($control_id);
 			}
 		}
