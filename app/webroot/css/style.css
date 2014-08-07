@@ -2106,3 +2106,7 @@ div.descriptive_heading:not(:first-child){
 	z-index: 1;
 	position: relative;
 }
+
+input[type=number]{
+    width: 6em;
+}
