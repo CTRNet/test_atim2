@@ -348,6 +348,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)){
 				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				//save
 				$batch_ids = array();
 				foreach($this->request->data as $created_aliquots){
@@ -372,6 +374,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					require($hook_link); 
 				}
 					
+				AppModel::releaseBatchViewsUpdateLock();
+				
 				if($is_batch_process) {
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_data = array('BatchSet' => array(
@@ -546,6 +550,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			// Save data
 			if($submitted_data_validates) {
+				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$this->AliquotMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
 				$this->AliquotMaster->id = $aliquot_master_id;
 				$this->AliquotMaster->addWritableField('storage_master_id');
@@ -561,6 +568,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}	
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				$this->atimFlash(__('your data has been updated'), '/InventoryManagement/AliquotMasters/detail/' . $collection_id . '/' . $sample_master_id. '/' . $aliquot_master_id);				
 				return;
@@ -794,6 +803,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)){
 
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				//saving
 				$this->AliquotInternalUse->addWritableField(array('aliquot_master_id'));
 				$this->AliquotInternalUse->writable_fields_mode = 'addgrid';
@@ -824,6 +835,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if($hook_link){
 					require($hook_link);
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				if($aliquot_master_id != null){
 					$this->atimFlash(__('your data has been saved'), $url_to_cancel);
@@ -1036,6 +1049,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 	}
 	
 	function addInternalUseToManyAliquots($storage_master_id = null) {
+//TODO: See issue#2702
+$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		$initial_display = false;
 		$aliquot_ids = array();
 		$studied_storage = null;
@@ -1935,6 +1950,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 			// 3- SAVE PROCESS
 			
 			if(empty($errors)) {
+				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$new_aliquot_ids = array(); 
 				foreach($this->request->data as $parent_id => $parent_and_children){
 					
@@ -2012,13 +2030,15 @@ class AliquotMastersController extends InventoryManagementAppController {
 					}
 					
 					// D- Update parent aliquot current volume
-					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, (empty($parent_aliquot_ctrl['AliquotControl']['volume_unit'])? false : true), false);
+					$this->AliquotMaster->updateAliquotUseAndVolume($parent_id, true, true, false);
 				}
 				
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				if(empty($aliquot_id)) {
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
@@ -2335,6 +2355,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 			
 			if(empty($errors)) {
 				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$new_aliquot_ids = array();
 				
 				//C- Save Process
@@ -2390,6 +2412,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 				if( $hook_link ) { 
 					require($hook_link); 
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				//redirect
 				if($aliquot_master_id == null){
@@ -2746,6 +2770,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 
 			if($validates){		
 				if($to_update['AliquotMaster']){
+					
+					AppModel::acquireBatchViewsUpdateLock();
+					
 					$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
 					$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
 										
@@ -2769,6 +2796,8 @@ class AliquotMastersController extends InventoryManagementAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
+					
+					AppModel::releaseBatchViewsUpdateLock();
 					
  					$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 				}else{

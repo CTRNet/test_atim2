@@ -4,8 +4,6 @@
  *
  * Provides enhanced logging, stack traces, and rendering debug views
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -81,8 +79,7 @@ class Debugger {
 			'traceLine' => '{:reference} - {:path}, line {:line}',
 			'trace' => "Trace:\n{:trace}\n",
 			'context' => "Context:\n{:context}\n",
-		),
-		'log' => array(),
+		)
 	);
 
 /**
@@ -539,9 +536,8 @@ class Debugger {
 		$var = $replace + $var;
 
 		$out = "array(";
-		$n = $break = $end = null;
+		$break = $end = null;
 		if (!empty($var)) {
-			$n = "\n";
 			$break = "\n" . str_repeat("\t", $indent);
 			$end = "\n" . str_repeat("\t", $indent - 1);
 		}
@@ -702,7 +698,7 @@ class Debugger {
  * @deprecated Use Debugger::outputAs() and Debugger::addFormat(). Will be removed
  *   in 3.0
  */
-	public function output($format = null, $strings = array()) {
+	public static function output($format = null, $strings = array()) {
 		$self = Debugger::getInstance();
 		$data = null;
 
@@ -805,7 +801,7 @@ class Debugger {
 	}
 
 /**
- * Get the type of the given variable. Will return the classname
+ * Get the type of the given variable. Will return the class name
  * for objects.
  *
  * @param mixed $var The variable to get the type of

@@ -47,7 +47,7 @@ class AliquotMaster extends InventoryManagementAppModel {
 	
 	var $registered_view = array(
 		'InventoryManagement.ViewAliquot' => array('AliquotMaster.id'),
-		'InventoryManagement.ViewAliquotUse' => array('AliquotMasterChild.id')
+		'InventoryManagement.ViewAliquotUse' => array('AliquotMaster.id', 'AliquotMasterChild.id')
 	);
 		
 	function summary($variables=array()) {

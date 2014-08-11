@@ -2102,6 +2102,7 @@ div.descriptive_heading:not(:first-child){
 	margin-top: 20px;
 }
 
-.testScroll{
+.testScroll, .floatingCells{
 	z-index: 1;
+	position: relative;
 }

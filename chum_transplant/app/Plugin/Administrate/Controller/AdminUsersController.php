@@ -44,13 +44,14 @@ class AdminUsersController extends AdministrateAppController {
 				
 				$hashed_pwd = Security::hash($this->request->data['Generated']['field1'], null, true);
 				$password_data = array('User' => array('new_password' => $this->request->data['User']['password'], 'confirm_password' => $this->request->data['Generated']['field1']));
-				$this->User->validatePassword($password_data);
+				$this->User->validatePassword($password_data, $this->request->data['User']['username']);
 				
 				$this->request->data['User']['password'] = Security::hash($this->request->data['User']['password'], null, true);
+				$this->request->data['User']['password_modified'] = null; //To force user to change password at next login
 				$submitted_data_validates = empty($this->User->validationErrors);
 				$this->request->data['User']['group_id'] = $group_id;
 				$this->request->data['User']['flag_active'] = true;
-				$this->User->addWritableField(array('group_id', 'flag_active'));
+				$this->User->addWritableField(array('group_id', 'flag_active','password_modified'));
 				$aro_m = AppModel::getInstance('', 'Aro', true);
 				$aro_m->check_writable_fields = false;
 				

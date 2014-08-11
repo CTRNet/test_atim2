@@ -3,12 +3,13 @@
 class ClinicalAnnotationAppModel extends AppModel {
 	
 	function validateIcd10WhoCode($id){
-		App::uses('CodingIcd.CodingIcd10Who', 'Model');
-		return CodingIcd10Who::validateId($id);
+		$icd10_model = AppModel::getInstance('CodingIcd', 'CodingIcd10Who', true);
+		return $icd10_model::validateId($id);
 	}
 	
 	function validateIcd10CaCode($id){
-		return CodingIcd10Ca::validateId($id);
+		$icd10_model = AppModel::getInstance('CodingIcd', 'CodingIcd10Ca', true);
+		return $icd10_model::validateId($id);
 	}
 	
 	function validateIcdo3TopoCode($id){
@@ -50,6 +51,7 @@ class ClinicalAnnotationAppModel extends AppModel {
 			}
 			$participant_model = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
 			$participant_model->check_writable_fields = false;
+			$participant_model->data = array();			
 			$participant_model->id = $participant_id;
 			$participant_model->save(array('last_modification' => $this->data[$this->name]['modified'], 'last_modification_ds_id' => $datamart_structure['DatamartStructure']['id']));
 			$participant_model->check_writable_fields = true;

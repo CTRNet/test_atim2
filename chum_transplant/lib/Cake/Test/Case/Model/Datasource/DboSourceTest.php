@@ -2,19 +2,18 @@
 /**
  * DboSourceTest file
  *
- * PHP 5
- *
  * CakePHP(tm) Tests <http://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
- *	Licensed under The Open Group Test Suite License
- *	Redistributions of files must retain the above copyright notice.
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @package       Cake.Test.Case.Model.Datasource
  * @since         CakePHP(tm) v 1.2.0.4206
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('Model', 'Model');
@@ -24,8 +23,14 @@ App::uses('DboSource', 'Model/Datasource');
 App::uses('DboTestSource', 'Model/Datasource');
 App::uses('DboSecondTestSource', 'Model/Datasource');
 App::uses('MockDataSource', 'Model/Datasource');
+
 require_once dirname(dirname(__FILE__)) . DS . 'models.php';
 
+/**
+ * Class MockPDO
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
 class MockPDO extends PDO {
 
 	public function __construct() {
@@ -33,9 +38,19 @@ class MockPDO extends PDO {
 
 }
 
+/**
+ * Class MockDataSource
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
 class MockDataSource extends DataSource {
 }
 
+/**
+ * Class DboTestSource
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
 class DboTestSource extends DboSource {
 
 	public $nestedSupport = false;
@@ -62,6 +77,11 @@ class DboTestSource extends DboSource {
 
 }
 
+/**
+ * Class DboSecondTestSource
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
 class DboSecondTestSource extends DboSource {
 
 	public $startQuote = '_';
@@ -96,7 +116,7 @@ class DboSourceTest extends CakeTestCase {
 /**
  * autoFixtures property
  *
- * @var bool false
+ * @var boolean
  */
 	public $autoFixtures = false;
 
@@ -664,6 +684,22 @@ class DboSourceTest extends CakeTestCase {
 	}
 
 /**
+ * Test that flushMethodCache works as expected
+ *
+ * @return void
+ */
+	public function testFlushMethodCache() {
+		$this->testDb->cacheMethods = true;
+		$this->testDb->cacheMethod('name', 'some-key', 'stuff');
+
+		Cache::write('method_cache', DboTestSource::$methodCache, '_cake_core_');
+
+		$this->testDb->flushMethodCache();
+		$result = $this->testDb->cacheMethod('name', 'some-key');
+		$this->assertNull($result);
+	}
+
+/**
  * testLog method
  *
  * @outputBuffering enabled
@@ -926,6 +962,31 @@ class DboSourceTest extends CakeTestCase {
 	}
 
 /**
+ * test that fields() method cache detects schema name changes
+ *
+ * @return void
+ */
+	public function testFieldsCacheKeyWithSchemanameChange() {
+		if ($this->db instanceof Postgres || $this->db instanceof Sqlserver) {
+			$this->markTestSkipped('Cannot run this test with SqlServer or Postgres');
+		}
+		Cache::delete('method_cache', '_cake_core_');
+		DboSource::$methodCache = array();
+		$Article = ClassRegistry::init('Article');
+
+		$ds = $Article->getDataSource();
+		$ds->cacheMethods = true;
+		$first = $ds->fields($Article);
+
+		$Article->schemaName = 'secondSchema';
+		$ds = $Article->getDataSource();
+		$ds->cacheMethods = true;
+		$second = $ds->fields($Article);
+
+		$this->assertEquals(2, count(DboSource::$methodCache['fields']));
+	}
+
+/**
  * Test that group works without a model
  *
  * @return void
@@ -937,6 +998,8 @@ class DboSourceTest extends CakeTestCase {
 
 /**
  * Test getting the last error.
+ *
+ * @return void
  */
 	public function testLastError() {
 		$stmt = $this->getMock('PDOStatement');
@@ -1082,7 +1145,7 @@ class DboSourceTest extends CakeTestCase {
 			),
 			$this->Model
 		);
-		$expected = 'SELECT DISTINCT(AssetsTag.asset_id) FROM assets_tags AS AssetsTag   WHERE Tag.name = foo bar  GROUP BY AssetsTag.asset_id  ';
+		$expected = 'SELECT DISTINCT(AssetsTag.asset_id) FROM assets_tags AS AssetsTag   WHERE Tag.name = foo bar  GROUP BY AssetsTag.asset_id';
 		$this->assertEquals($expected, $subQuery);
 	}
 
