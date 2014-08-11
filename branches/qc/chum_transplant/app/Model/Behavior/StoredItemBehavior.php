@@ -25,10 +25,10 @@ class StoredItemBehavior extends ModelBehavior{
 			//deleted OR new != old
 			$query = 'REPLACE INTO view_storage_masters ('.$view_storage_master_model::$table_query.')';
 			if($this->previous_storage_master_id){
-				$model->tryCatchQuery(str_replace('%%WHERE%%', 'AND StorageMaster.id='.$this->previous_storage_master_id, $query));
+				$model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array($this->previous_storage_master_id), $view_storage_master_model::$table_query);
 			}
 			if($new_storage_id){
-				$model->tryCatchQuery(str_replace('%%WHERE%%', 'AND StorageMaster.id='.$new_storage_id, $query));
+				$model->manageViewUpdate('view_storage_masters', 'StorageMaster.id', array($new_storage_id), $view_storage_master_model::$table_query);
 			}
 		}
 	}

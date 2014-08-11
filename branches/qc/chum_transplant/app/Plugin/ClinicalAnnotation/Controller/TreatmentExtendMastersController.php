@@ -26,7 +26,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		$tx_extend_control_data = $this->TreatmentExtendControl->getOrRedirect($tx_master_data['TreatmentControl']['treatment_extend_control_id']);
 	
 		// Set form alias and menu
-		$this->Structures->set($tx_extend_control_data['TreatmentExtendControl']['detail_form_alias'] );
+		$this->Structures->set($tx_extend_control_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id));
 		
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/detail/%%Participant.id%%/%%TreatmentMaster.id%%'));
@@ -72,7 +72,9 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				require($hook_link); 
 			}			
 			
-			if(empty($errors)) {		
+			if(empty($errors)) {
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				foreach($this->request->data as $new_data) {
 					$this->TreatmentExtendMaster->id = null;
 					$this->TreatmentExtendMaster->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
@@ -83,6 +85,8 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
+				
+				AppModel::releaseBatchViewsUpdateLock();
 				
 				$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$tx_master_id );
 
@@ -109,7 +113,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		if($tx_extend_data['TreatmentMaster']['id'] != $tx_master_id) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		
 		// Set form alias and menu data
-		$this->Structures->set($tx_extend_data['TreatmentExtendControl']['detail_form_alias'] );
+		$this->Structures->set($tx_extend_data['TreatmentExtendControl']['form_alias'] );
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentMaster.id'=>$tx_master_id, 'TreatmentExtendMaster.id'=>$tx_extend_id));
 		
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/detail/%%Participant.id%%/%%TreatmentMaster.id%%'));
@@ -173,7 +177,7 @@ class TreatmentExtendMastersController extends ClinicalAnnotationAppController {
 		if($tx_master_data['TreatmentMaster']['participant_id'] != $participant_id) $this->redirect( '/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true ); 
 		
 		if(is_numeric($tx_master_data['TreatmentMaster']['protocol_master_id'])){
-			$protcola_extend_master_data = $this->ProtocolExtendMaster->getOrRedirect($tx_master_data['TreatmentMaster']['protocol_master_id']);
+			$protcol_data = $this->ProtocolMaster->getOrRedirect($tx_master_data['TreatmentMaster']['protocol_master_id']);
 			$prot_extend_data = $this->ProtocolExtendMaster->find('all', array('conditions'=>array('ProtocolExtendMaster.protocol_master_id' => $tx_master_data['TreatmentMaster']['protocol_master_id'])));
 			$data = array();
 			if(empty($prot_extend_data)){

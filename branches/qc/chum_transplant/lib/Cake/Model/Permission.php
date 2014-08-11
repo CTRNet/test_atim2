@@ -1,7 +1,6 @@
 <?php
 /**
  *
- * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
@@ -83,9 +82,9 @@ class Permission extends AppModel {
 		$aroPath = $this->Aro->node($aro);
 		$acoPath = $this->Aco->node($aco);
 
-		if (!$aroPath || !$acoPath) {
+		if (!$aroPath) {
 			trigger_error(__d('cake_dev',
-					"%s - Failed ARO/ACO node lookup in permissions check. Node references:\nAro: %s\nAco: %s",
+					"%s - Failed ARO node lookup in permissions check. Node references:\nAro: %s\nAco: %s",
 					'DbAcl::check()',
 					print_r($aro, true),
 					print_r($aco, true)),

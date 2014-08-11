@@ -8,7 +8,7 @@
 	
 	//Basic
 	$structure_links['bottom']['edit'] = '/StorageLayout/StorageMasters/edit/' . $atim_menu_variables['StorageMaster.id'];
-	$structure_links['bottom']['add storage event to stored aliquots'] = '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/' . $atim_menu_variables['StorageMaster.id'];
+//TODO: See issue#2702	$structure_links['bottom']['add storage event to stored aliquots'] = '/InventoryManagement/AliquotMasters/addInternalUseToManyAliquots/' . $atim_menu_variables['StorageMaster.id'];
 	if($is_tma) {
 		// No children storage could be added to a TMA block
 		// Add button to create slide
@@ -71,7 +71,7 @@
 			$final_options = array(
 					'links' => $structure_links,
 					'settings' => array('header' => __('slides', null), 'actions' => false),
-					'extras' => array('end' => $this->Structures->ajaxIndex('/StorageLayout/TmaSlides/listAll/' . $atim_menu_variables['StorageMaster.id'].'/')));
+					'extras' => array('end' => $this->Structures->ajaxIndex('StorageLayout/TmaSlides/listAll/' . $atim_menu_variables['StorageMaster.id'].'/')));
 			
 			// CUSTOM CODE
 			$hook_link = $this->Structures->hook();

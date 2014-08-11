@@ -452,13 +452,15 @@ class StructuresHelper extends Helper {
 			');
 		}
 
-        $this->updateUnsanitizeList($options, $atim_structure);
-		$sanitized_data = Sanitize::clean($data);
-		if($options['settings']['no_sanitization']){
-			$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+		if($options['type'] != 'csv') {
+	        $this->updateUnsanitizeList($options, $atim_structure);
+			$sanitized_data = Sanitize::clean($data);
+			if($options['settings']['no_sanitization']){
+				$this->unsanitize($sanitized_data, $data, $options['settings']['no_sanitization']);
+			}
+			$data = $sanitized_data;
+			unset($sanitized_data);
 		}
-		$data = $sanitized_data;
-		unset($sanitized_data);
 		
 		$this->updateDataWithAccuracy($data, $atim_structure);//will not update tree view data
 		
@@ -1236,6 +1238,7 @@ class StructuresHelper extends Helper {
 					$heading_sub_line = array();
 					$sub_line = array();
 					$csv::$structures[$node_id] = $structure = $this->buildStack($csv::$structures[$node_id], $options);
+					$csv::$structures[$node_id] = $this->titleHtmlSpecialCharsDecode($csv::$structures[$node_id], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 					foreach($csv::$structures[$node_id] as $table_column){
 						$last_heading = '';
 						foreach($table_column as $fm => $table_row){
@@ -1314,6 +1317,7 @@ class StructuresHelper extends Helper {
 			//default mode, multi lines
 			$options['type'] = 'index';
 			$table_structure = $this->buildStack($atim_structure, $options);
+			$table_structure = $this->titleHtmlSpecialCharsDecode($table_structure, isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 			$options['type'] = 'csv';//go back to csv
 			
 			if(is_array($table_structure) && count($data)){
@@ -1401,6 +1405,25 @@ class StructuresHelper extends Helper {
 			
 			echo $this->Csv->render($options['settings']['csv_header'], isset(AppController::getInstance()->csv_config) ? AppController::getInstance()->csv_config['define_csv_encoding'] : csv_encoding);
 		}
+	}
+	
+	/**
+	 * Convert all HTML entities to their applicable characters for all headings, labels and tags of the structure
+	 * @param array $table_structure Structure to work on
+	 * @param string $encoding Enconding
+	 * @return array $table_structure Processed structrue
+	 */
+	function titleHtmlSpecialCharsDecode($table_structure, $encoding) {
+		foreach($table_structure as &$table_column){
+			foreach($table_column as &$table_row){
+				foreach($table_row as &$table_row_part){
+					$table_row_part['heading'] = html_entity_decode($table_row_part['heading'], ENT_NOQUOTES, $encoding);
+					$table_row_part['label'] = html_entity_decode($table_row_part['label'], ENT_NOQUOTES, $encoding);
+					$table_row_part['tag'] = html_entity_decode($table_row_part['tag'], ENT_NOQUOTES, $encoding);
+				}
+			}
+		}
+		return $table_structure;
 	}
 	
 	/**
@@ -2100,16 +2123,16 @@ class StructuresHelper extends Helper {
 								$settings['class'] .= " jqueryAutocomplete";
 							}
 							$current["format"] = $this->Form->text($field_name, array_merge(array("type" => $sfs['type']), $settings));
-							if($sfs['type'] == "hidden"){
+							if($sfs['type'] == "hidden"){							
 								if(strlen($current['label'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] label has been removed", $model_dot_field));
 									}
 									$current['label'] = "";
 								}
 								if(strlen($current['heading'])){
 									if(Configure::read('debug') > 0){
-										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
+//										AppController::addWarningMsg(__("the hidden field [%s] heading has been removed", $model_dot_field));
 									}
 									$current['heading'] = "";
 								}
@@ -2175,7 +2198,7 @@ class StructuresHelper extends Helper {
 						if(count($dropdown_result['defined']) == 2 
 							&& isset($sfs['flag_'.$options['type'].'_readonly']) 
 							&& $sfs['flag_'.$options['type'].'_readonly'] 
-							&& $add_blank
+							&& isset($add_blank) && $add_blank
 						){
 							//unset the blank value, the single value for a disabled field should be default
 							unset($dropdown_result['defined'][""]);
