@@ -119,7 +119,7 @@ DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM st
 DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_der_urine_cents' AND `field`='qc_nd_pellet_absence' AND `language_label`='pellet absence' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 ALTER TABLE sd_der_urine_cents DROP COLUMN qc_nd_pellet_absence;
-ALTER TABLE sd_der_urine_cents_revs ADD COLUMN qc_nd_pellet_absence;
+ALTER TABLE sd_der_urine_cents_revs DROP COLUMN qc_nd_pellet_absence;
 
 REPLACE INTO i18n (id,en,fr) 
 VALUES
