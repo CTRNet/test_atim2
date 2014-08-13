@@ -67,6 +67,8 @@ foreach($truncate_queries as $query) mysqli_query($db_connection, $query) or die
 //EXCEL FILE
 //==============================================================================================
 
+pr('Attention prostatectomie doublée: excemple patient ps1p0019');
+
 require_once 'Excel/reader.php';
 $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
@@ -74,33 +76,56 @@ foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $ke
 
 $headers = array();
 $line_counter = 0;
+$participant_ids = array();
 foreach($XlsReader->sheets[$sheets_nbr['Donnees cliniques CHUM']]['cells'] as $line => $new_line) {
 	$line_counter++;
 	if($line_counter == 6) {
 		$headers = $new_line;
 	} else if($line_counter > 6) {
 		$new_line_data = formatNewLineData($headers, $new_line);
-		$code_barre = str_replace('NON', '', $new_line_data['V01::Code du Patient']);
+		$excel_code_barre = str_replace(array('non', 'NON', ' ', "\n"), array('', '', '', ''), $new_line_data['V01::Code du Patient']);
 		$no_labo = $new_line_data['V01::Numéro Atim au CHUM'];
-		if($code_barre.$no_labo) {
-			$patient_identification_msg = "See line $line_counter NoLabo : $no_labo".(empty($code_barre)? '' : " & Code-Barre : $code_barre");
+		if($excel_code_barre.$no_labo) {
+			$patient_identification_msg = "See line $line_counter NoLabo : $no_labo".(empty($excel_code_barre)? '' : " & Code-Barre : $excel_code_barre");
 			$query = "SELECT p.id, p.participant_identifier FROM participants p INNER JOIN misc_identifiers id ON id.participant_id = p.id AND id.deleted <> 1
 				WHERE id.misc_identifier_control_id = 5 AND id.identifier_value = '$no_labo'";	
-			if(true) die('trop de patient exclu a cause du format du code barre a travailler');
-			if($code_barre) $query .=  "AND p.participant_identifier = '$code_barre'";
 			$query_res = customQuery($query, __LINE__);
 			if($query_res->num_rows) {				
 				$res = mysqli_fetch_assoc($query_res);
 				$participant_id = $res['id'];
 				$atim_code_barre = $res['participant_identifier'];
-				loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
+				$formatted_excel_code_barre = str_replace('-', '', $excel_code_barre);
+				if(preg_match('/^(P){0,1}S1[pP][0]*([1-9][0-9]*)$/',$formatted_excel_code_barre, $matches)) {
+					$formatted_excel_code_barre = 'PS1P'.str_pad($matches[2], 4, "0", STR_PAD_LEFT);
+				}
+				if(in_array($participant_id, $participant_ids)) die('ERR 23876 28763287');
+				$participant_ids[] = $participant_id;
+				if(empty($formatted_excel_code_barre)) {
+					$import_summary['WARNING']["Excel code-barre is missing. Match done based on nolabo only."][] = "ATiM code barre = $atim_code_barre. ".$patient_identification_msg;
+					loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
+				} else if($atim_code_barre == $formatted_excel_code_barre) {
+					loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
+				} else {
+					$import_summary['ERROR']["Code-Barre error"][] = "$formatted_excel_code_barre (Excel) != $atim_code_barre (ATiM).".$patient_identification_msg;
+				}
 			} else {
-				$import_summary['ERROR']["Unable to find participant in ATiM"][] = $patient_identification_msg;
+				$import_summary['ERROR']["Unable to find participant in ATiM based on NoLabo (only)"][] = $patient_identification_msg;
 			}
 		}
 	}
-if($line_counter > 1000) break;	
 }
+
+foreach(array('procure_ed_lab_diagnostic_information_worksheets' => 'biopsy_pre_surgery_date') as $tablename => $date_field) {
+	$query = "UPDATE $tablename SET $date_field = NULL WHERE $date_field LIKE '%0000%';";
+	$query_res = customQuery($query, __LINE__);
+	$query = "UPDATE ".$tablename."_revs SET $date_field = NULL WHERE $date_field LIKE '%0000%';";
+	$query_res = customQuery($query, __LINE__);
+}
+
+//=================================================================================================================================
+// Data Management Functions
+//=================================================================================================================================
+
 
 function loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre) {
 	$prostatectomy_date = getProstatectomyDate($participant_id, $new_line_data, $patient_identification_msg);
@@ -188,8 +213,7 @@ function getAtimBiopsies($participant_id, $new_line_data, $patient_identificatio
 	//Compare ATiM list to excel list
 	if(preg_match_all('/[0-9]{2}\-[0-9]{2}\-[0-9]{4}/', $new_line_data['V0::Biopsie antérieure::Si oui; Date'], $excel_biopsies)) {
 		foreach($excel_biopsies[0] as $new_biopsy_excel_date) {
-			if(!in_array($new_biopsy_excel_date, $atim_biopsies_dates)) 
-				$import_summary['ERROR']["Missing Excel Biopsy in ATiM (sardo). To create both in SARDO and ATiM manually"][] = "Biopsy on $new_biopsy_excel_date. ".$patient_identification_msg;
+			if(!in_array($new_biopsy_excel_date, $atim_biopsies_dates)) $import_summary['ERROR']["Missing Excel Biopsy in ATiM (sardo). To validate and create (if required) both in SARDO and ATiM manually"][] = "Biopsy on $new_biopsy_excel_date. ".$patient_identification_msg;
 		}
 	}
 	return $biopsies;
@@ -227,35 +251,36 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 			// Aps pre-prostactectomy defined in ATiM
 			if($all_atim_aps['pre-prostatectomy']['excel_event_date'] == $excel_aps_pre_surgery_date) {
 				if($all_atim_aps['pre-prostatectomy']['total_ngml'] == $excel_aps_pre_surgery_total_ng_ml) {
-					//Exact match nothing to do		
+					//Exact match nothing to do	(ATiM APS preop defined + date & value both defined in atim and excel and equal)	
 					$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 					$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 					$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
 					$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 				} else {
 					if(!strlen($excel_aps_pre_surgery_total_ng_ml)) {
-						//Same date but no value in excel
+						//ATiM APS preop defined + same date but no value in excel
 						$import_summary['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery total defined into excel: Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").";
 						$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 						$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 						$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
 						$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 					} else if((abs($excel_aps_pre_surgery_total_ng_ml-$all_atim_aps['pre-prostatectomy']['total_ngml'])) <= 0.201) {
+						//ATiM APS preop defined + same date & value in excel - value in ATiM < 0.201
 						$import_summary['MESSAGE']["Patient $atim_code_barre"][] = "APS pre-surgery total are different in excel and atim (diff <=0.2): Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").";
 						$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 						$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 						$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
 						$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 					} else {
-						$import_summary['ERROR']['ATiM APS preop value different than excel APS preop value'][] = "ATiM APS = '".$all_atim_aps['pre-prostatectomy']['total_ngml']."' / Excel APS = '$excel_aps_pre_surgery_total_ng_ml'. No pre-preprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
+						$import_summary['ERROR']['ATiM APS pre-prostatectomy value different than excel APS pre-prostatectomy value'][] = "ATiM APS = '".$all_atim_aps['pre-prostatectomy']['total_ngml']."' / Excel APS = '$excel_aps_pre_surgery_total_ng_ml'. No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 					}
 				}
 			} else {
 				// Date different in ATiM and excel
 				if($all_atim_aps['pre-prostatectomy']['total_ngml'] == $excel_aps_pre_surgery_total_ng_ml) { 
-					$import_summary['ERROR']['ATiM APS preop date different than excel APS preop date'][] = "ATiM APS date = '".$all_atim_aps['pre-prostatectomy']['excel_event_date']."' / Excel APS date = '$excel_aps_pre_surgery_date'. No pre-preprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
+					$import_summary['ERROR']['ATiM APS-PreProstatectomy date different than excel APS-PreProstatectomy date but both values are identical'][] = "ATiM APS date = '".$all_atim_aps['pre-prostatectomy']['excel_event_date']."' / Excel APS date = '$excel_aps_pre_surgery_date'. No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 				} else {
-					$import_summary['ERROR']['ATiM APS preop date different than excel APS preop date'][] = "ATiM APS date = '".$all_atim_aps['pre-prostatectomy']['excel_event_date']."' / Excel APS date = '$excel_aps_pre_surgery_date' & ATiM APS = '".$all_atim_aps['pre-prostatectomy']['total_ngml']."' / Excel APS = '$excel_aps_pre_surgery_total_ng_ml'. No pre-preprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
+					$import_summary['ERROR']['ATiM APS-PreProstatectomy date different than excel APS-PreProstatectomy date (and different values)'][] = "ATiM APS date = '".$all_atim_aps['pre-prostatectomy']['excel_event_date']."' / Excel APS date = '$excel_aps_pre_surgery_date' & ATiM APS = '".$all_atim_aps['pre-prostatectomy']['total_ngml']."' / Excel APS = '$excel_aps_pre_surgery_total_ng_ml'. No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 				}
 			}
 		} else {
@@ -263,12 +288,14 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 			$key_of_aps_preop = null;
 			foreach($all_atim_aps as $key => $atim_aps) {
 				if($atim_aps['excel_event_date'] == $excel_aps_pre_surgery_date) $key_of_aps_preop = $key;
+				
 			}	
 			if($key_of_aps_preop) {
 				if($all_atim_aps[$key_of_aps_preop]['total_ngml'] == $excel_aps_pre_surgery_total_ng_ml) { 
 					if($prostatectomy_date) {
 						die('Case to support 872979323. '.$patient_identification_msg);
 					} else {
+						// No prostatectomy defined into ATiM so no APS preop is defined but an aps in atim matches an aps in excel checking both both date and value
 						$import_summary['MESSAGE']["Patient $atim_code_barre"][] = "APS pre-surgery date from excel matched an APS of ATiM but this one was not flagged as 'pre-surgery' because no prostatectomy event has been created into ATiM (based on SARDO Data). Used this date as pre-surgery aps.";
 						$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps[$key_of_aps_preop]['event_date'];
 						$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps[$key_of_aps_preop]['event_date_accuracy'];
@@ -276,28 +303,30 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 						$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 					}
 				} else {
-					die('Case to support 872979327 : no atim aps preop found in atim but atim aps matches excel aps (same date same but diff value). '.$patient_identification_msg);		
+					die('Case to support 872979327 : no atim aps pre-prostatectomy found in atim but atim aps matches excel aps (same date same but diff value). '.$patient_identification_msg);		
 				}
 			} else {
-				die('Case to support 872979328 : no atim aps and excel aps match. '.$patient_identification_msg);		
+				$import_summary['ERROR']['Not enough information to create the APS pre-prostatectomy into ATiM (no sardo prostatectomy data + no match on aps date)'][] = "No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;	
 			}	
 		}		
 	} else if($excel_aps_pre_surgery_total_ng_ml) {
 		//Only excel aps value defined
 		if(array_key_exists('pre-prostatectomy', $all_atim_aps)) {
 			if($all_atim_aps['pre-prostatectomy']['total_ngml'] == $excel_aps_pre_surgery_total_ng_ml) {
+				// ATiM APS preop defined, no aps date in excel but aps value in excel matches ATiM APS preop value
 				$import_summary['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery date in excel. Used APS pre-surgery date defined into ATiM (sardo) (".$all_atim_aps['pre-prostatectomy']['event_date'].").";
 				$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 				$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 				$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
 				$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 			} else {
-				$import_summary['ERROR']['ATiM APS preop value different than excel APS preop value (no excel date too)'][] = "ATiM APS value = '".$all_atim_aps['pre-prostatectomy']['total_ngml']."' / Excel APS value = '$excel_aps_pre_surgery_total_ng_ml'. No pre-preprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
+				$import_summary['ERROR']['ATiM APS pre-prostatectomy value different than excel APS pre-prostatectomy value (no excel date too)'][] = "ATiM APS value = '".$all_atim_aps['pre-prostatectomy']['total_ngml']."' / Excel APS value = '$excel_aps_pre_surgery_total_ng_ml'. No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 			}
 		} else {
-			$import_summary['ERROR']['Not enough information to create the APS preop into ATiM (no sardo prostatectomy data + no match on aps data)'][] = "No pre-preprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
+			$import_summary['ERROR']['Not enough information to create the APS pre-prostatectomy into ATiM (no sardo prostatectomy data + no match on aps data)'][] = "No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 		}
 	} else if(array_key_exists('pre-prostatectomy', $all_atim_aps)) {
+		// ATiM APS preop defined, no APS preop in excel
 		$import_summary['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery defined in excel: Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").";
 		$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 		$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
@@ -324,7 +353,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 		} else {
 			if(array_key_exists('pre-prostatectomy', $all_atim_biopsies)) {
 				if($all_atim_biopsies['pre-prostatectomy']['excel_event_date'] != $new_line_data['V0::Biopsie pré-chirurgie::Date']) {
-					$import_summary['ERROR']['ATiM pre-prostatectomy date different than pre-prostatectomy date'][] = "ATiM date = '".$all_atim_biopsies['pre-prostatectomy']['excel_event_date']."' / Excel date = '".$new_line_data['V0::Biopsie pré-chirurgie::Date']."'. No pre-biopsy date will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
+					$import_summary['ERROR']['ATiM pre-prostatectomy biopsy date different than pre-prostatectomy biopsy date in excel'][] = "ATiM date = '".$all_atim_biopsies['pre-prostatectomy']['excel_event_date']."' / Excel date = '".$new_line_data['V0::Biopsie pré-chirurgie::Date']."'. No pre-biopsy date will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 				} else {
 					$event_detail_data['biopsy_pre_surgery_date'] = $all_atim_biopsies['pre-prostatectomy']['event_date'];
 					$event_detail_data['biopsy_pre_surgery_date_accuracy'] = $all_atim_biopsies['pre-prostatectomy']['event_date_accuracy'];
@@ -332,6 +361,8 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 			} else {
 				if($prostatectomy_date) {
 					die('Case to support 8729739324. '.$patient_identification_msg);
+				} else if(empty($all_atim_biopsies)) {
+					$import_summary['ERROR']["Missing Excel Biopsy in ATiM (sardo). To validate and create (if required) both in SARDO and ATiM manually"][] = "Biopsy on ".$new_line_data['V0::Biopsie pré-chirurgie::Date'].". ".$patient_identification_msg;
 				} else {
 					$match_done = false;
 					foreach($all_atim_biopsies as $new_biopsy) {
@@ -342,6 +373,8 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 						$event_detail_data['biopsy_pre_surgery_date'] = $new_line_data['V0::Biopsie pré-chirurgie::Date'];
 						$event_detail_data['biopsy_pre_surgery_date_accuracy'] = 'c';
 					} else {
+						pr($all_atim_biopsies);
+						pr($new_line_data['V0::Biopsie pré-chirurgie::Date']);
 						die('Case to support 334222324. '.$patient_identification_msg);
 					}
 				}
@@ -394,7 +427,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 			'values' => array('6','7','8','9','10')));
 	foreach($def as $field_def) {
 		$excel_field = $field_def['excel_field_1'];
-		$new_line_data[$excel_field] = str_replace(array('ND', 'N/D', 'pas Bx', 'dossier ? ', 'dossier'), array('', '', '', '', ''), $new_line_data[$excel_field]);
+		$new_line_data[$excel_field] = str_replace(array('ND', 'N/D', 'pas Bx', 'dossier ? ', 'dossier', ',00', '0', 'NA'), array('', '', '', '', '', '', '', ''), $new_line_data[$excel_field]);
 		if(strlen($new_line_data[$excel_field])) {
 			if(in_array($new_line_data[$excel_field], $field_def['values'])) {
 				$event_detail_data[$field_def['atim_field']] = $new_line_data[$excel_field];
@@ -446,14 +479,6 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 
 
 
-
-
-
-
-
-
-
-
 // Import Summary
 //$import_summary['Process']['Message']["Updated participants counter"][] = $updated_participants_counter;
 //$import_summary['Process']['Message']["Date"][] = $import_date;
@@ -473,7 +498,7 @@ pr($import_summary);
 echo "Process Done";
 
 //=================================================================================================================================
-// Functions
+// System Functions
 //=================================================================================================================================
 
 function pr($var) {
@@ -513,7 +538,7 @@ function customInsert($data, $table_name, $line, $is_detail_table = false, $inse
 	
 	$data_to_insert = array();
 	foreach($data as $key => $value) {
-		if(strlen($value)) $data_to_insert[$key] = "'".str_replace("'", "''", $value)."'";
+		if(strlen(str_replace(array(' ', "\n"), array('', ''), $value))) $data_to_insert[$key] = "'".str_replace("'", "''", $value)."'";
 	}
 	// Insert into table
 	$table_system_data = $is_detail_table? array() : array("created" => "'$import_date'", "created_by" => "'$import_by'", "modified" => "'$import_date'", "modified_by" => "'$import_by'");
