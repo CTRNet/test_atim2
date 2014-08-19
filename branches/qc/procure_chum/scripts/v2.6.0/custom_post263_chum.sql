@@ -127,13 +127,26 @@ VALUES
 
 UPDATE versions SET site_branch_build_number = '5843' WHERE version_number = '2.6.3';
 
+-- 2014-08-19 ------------------------------------------------------------------------------------------------------
 
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN qc_nd_surgeon varchar(100) default null;
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN qc_nd_surgeon varchar(100) default null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'procure_ed_lab_pathologies', 'qc_nd_surgeon', 'input',  NULL , '0', 'size=30', '', '', 'surgeon', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='procure_ed_lab_pathologies' AND `field`='qc_nd_surgeon' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='surgeon' AND `language_tag`=''), '1', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
+ALTER TABLE procure_ed_lab_pathologies ADD COLUMN qc_nd_margins_extensive_apex tinyint(1) DEFAULT '0';
+ALTER TABLE procure_ed_lab_pathologies_revs ADD COLUMN qc_nd_margins_extensive_apex tinyint(1) DEFAULT '0';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventMaster', 'procure_ed_lab_pathologies', 'qc_nd_margins_extensive_apex', 'checkbox',  NULL , '0', '', '', '', 'apex', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_pathology'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='procure_ed_lab_pathologies' AND `field`='qc_nd_margins_extensive_apex' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='apex' AND `language_tag`=''), '3', '85', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
 
+UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND tablename='procure_ed_lab_pathologies' AND field='qc_nd_surgeon' AND `type`='input' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND tablename='procure_ed_lab_pathologies' AND field='qc_nd_margins_extensive_apex';
 
+ALTER TABLE procure_txe_medications MODIFY duration VARCHAR(250) DEFAULT NULL;
+ALTER TABLE procure_txe_medications_revs MODIFY duration VARCHAR(250) DEFAULT NULL;
 
-
-
-
-
-
+UPDATE versions SET site_branch_build_number = '5843' WHERE version_number = '2.6.3';
