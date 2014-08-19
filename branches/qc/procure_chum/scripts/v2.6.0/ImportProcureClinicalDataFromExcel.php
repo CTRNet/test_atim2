@@ -33,7 +33,7 @@ if($is_server) {
 	$db_ip			= "localhost";
 	$db_port 		= "";
 	$db_user 		= "root";
-	$db_pwd			= "am3-y-4606";
+	$db_pwd			= "";
 	$db_charset		= "utf8";
 	$db_schema		= "procuretest";
 }

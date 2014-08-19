@@ -149,4 +149,4 @@ UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND
 ALTER TABLE procure_txe_medications MODIFY duration VARCHAR(250) DEFAULT NULL;
 ALTER TABLE procure_txe_medications_revs MODIFY duration VARCHAR(250) DEFAULT NULL;
 
-UPDATE versions SET site_branch_build_number = '5843' WHERE version_number = '2.6.3';
+UPDATE versions SET site_branch_build_number = '5856' WHERE version_number = '2.6.3';
