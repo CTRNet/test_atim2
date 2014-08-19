@@ -9,7 +9,7 @@
 // Variables
 //==============================================================================================
 
-$is_server = true;
+$is_server = false;
 
 $file_path = "C:\_Perso\Server\procure_chum\data\Donnees cliniques CHUM 20140805.3.xls";
 //$file_path = "C:\_Perso\Server\procure_chum\data\celltest.xls";
@@ -19,8 +19,6 @@ global $import_summary;
 $import_summary = array();
 
 global $db_schema;
-
-$is_server = true;
 
 $db_ip			= "127.0.0.1";
 $db_port 		= "";
@@ -47,7 +45,7 @@ $db_connection = @mysqli_connect(
 if(!mysqli_set_charset($db_connection, $db_charset)){
 	die("Invalid charset");
 }
-@mysqli_select_db($db_connection, $db_schema) or die("db selection failed 2");
+@mysqli_select_db($db_connection, $db_schema) or die("db selection failed 2 $db_user $db_schema ");
 
 global $import_date;
 global $import_by;
@@ -95,6 +93,15 @@ $truncate_queries = array(
 	'DELETE FROM event_masters WHERE event_control_id = 53;',
 	'DELETE FROM event_masters_revs WHERE event_control_id = 53;',
 		
+	"UPDATE event_masters SET event_summary = REPLACE(event_summary, 'Attached to the visit V02 by the migration process. ','');",
+	"UPDATE event_masters_revs SET event_summary = REPLACE(event_summary, 'Attached to the visit V02 by the migration process. ','');",
+	"UPDATE treatment_masters SET notes = REPLACE(notes, 'Attached to the visit V02 by the migration process','');",
+	"UPDATE treatment_masters_revs SET notes = REPLACE(notes, 'Attached to the visit V02 by the migration process','');",
+	"UPDATE event_masters SET event_summary = REPLACE(event_summary, 'Attached to the visit V03 by the migration process. ','');",
+	"UPDATE event_masters_revs SET event_summary = REPLACE(event_summary, 'Attached to the visit V03 by the migration process. ','');",
+	"UPDATE treatment_masters SET notes = REPLACE(notes, 'Attached to the visit V03 by the migration process','');",
+	"UPDATE treatment_masters_revs SET notes = REPLACE(notes, 'Attached to the visit V03 by the migration process','');",	
+	
 	'TRUNCATE procure_txe_medications;',
 	'TRUNCATE procure_txe_medications_revs;',
 	'DELETE FROM treatment_extend_masters WHERE treatment_extend_control_id = 3;',
@@ -127,7 +134,9 @@ foreach($XlsReader->sheets[$sheets_nbr['Donnees cliniques CHUM']]['cells'] as $l
 		$headers = $new_line;
 	} else if($line_counter > 6) {
 //TODO remove
-//TODO	} else if(in_array($line_counter,array(10,11,12,581,582))) {
+//TODO remove
+//TODO 	} else if(in_array($line_counter,array(414,345,311,81,47))) {
+//TODO 	} else if(in_array($line_counter,array(311))) {
 		$new_line_data = formatNewLineData($headers, $new_line);
 		$excel_code_barre = str_replace(array('non', 'NON', ' ', "\n"), array('', '', '', ''), $new_line_data['V01::Code du Patient']);
 		$no_labo = $new_line_data['V01::Numéro Atim au CHUM'];
@@ -183,11 +192,11 @@ function loadPatientData($participant_id, $new_line_data, $patient_identificatio
 	$all_atim_aps = getAtimAps($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date);
 	$all_atim_biopsies = getAtimBiopsies($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date);
 		
-	createDiagnosticInformationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps, $all_atim_biopsies, $prostatectomy_date);
-	createPathologyReport($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $prostatectomy_date);
-	createV01MedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
+//TODO	createDiagnosticInformationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps, $all_atim_biopsies, $prostatectomy_date);
+//TODO	createPathologyReport($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $prostatectomy_date);
+//TODO	createV01MedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
 	createFollowupWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps);
-	createVnMedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);	
+//TODO	createVnMedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);	
 }
 
 function getProstatectomyDate($participant_id, $new_line_data, $patient_identification_msg) {
@@ -1074,6 +1083,8 @@ function createFollowupWorksheet($participant_id, $new_line_data, $patient_ident
 		$atim_treatments[$excel_treatment_start_date][$res['treatment_type']][] = $res;
 	}
 	
+	$visit_dates_limits = array('V02' => array('visit_date' => null, 'start' => null, 'finish' => null), 'V03' => array('visit_date' => null, 'start' => null, 'finish' => null));
+	
 	foreach(array('V02', 'V03') as $visit) {
 		$report = "Followup $visit Worksheet";
 		
@@ -1090,6 +1101,7 @@ function createFollowupWorksheet($participant_id, $new_line_data, $patient_ident
 			$event_master_data['event_date'] = $date['date'];
 			$event_master_data['event_date_accuracy'] = $date['accuracy'];
 			$create_followup_worksheet = true;
+			$visit_dates_limits[$visit]['visit_date'] = $date['date'];
 		}
 	
 		$field = "$visit::Récidive biochimique (e 0.2 ng/mL)   (Pas nécessairement deux dosages successifs au CHUM)";
@@ -1346,8 +1358,102 @@ function createFollowupWorksheet($participant_id, $new_line_data, $patient_ident
 				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments_revs SET followup_event_master_id = $event_master_id WHERE treatment_master_id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
 			}
 			foreach($queries_to_link_event_and_treatment as $query)	customQuery($query, __LINE__);
-		}		
+			// Get dates limits
+			$query = "
+				SELECT MIN(event_date) as date, 'min' as date_type FROM event_masters WHERE event_date IS NOT NULL AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
+				UNION ALL
+				SELECT MAX(event_date) as date, 'max' as date_type FROM event_masters WHERE event_date IS NOT NULL AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
+				UNION ALL
+				SELECT MIN(start_date) as date, 'min' as date_type FROM treatment_masters WHERE start_date IS NOT NULL AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
+				UNION ALL
+				SELECT MAX(start_date) as date, 'max' as date_type FROM treatment_masters WHERE start_date IS NOT NULL AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."';";
+			$query_res = customQuery($query, __LINE__);
+			while($res = mysqli_fetch_assoc($query_res)) {
+
+				if($res['date']) {
+					if($res['date_type'] == 'min') {
+						if(!$visit_dates_limits[$visit]['start']) {
+							$visit_dates_limits[$visit]['start'] = $res['date'];
+						} else if($res['date'] < $visit_dates_limits[$visit]['start']) {
+							$visit_dates_limits[$visit]['start'] = $res['date'];
+						}
+					} else {
+						if(!$visit_dates_limits[$visit]['finish']) {
+							$visit_dates_limits[$visit]['finish'] = $res['date'];
+						} else if($res['date'] > $visit_dates_limits[$visit]['finish']) {
+							$visit_dates_limits[$visit]['finish'] = $res['date'];
+						}
+					}
+				}
+			}
+			$visit_dates_limits[$visit]['followup_event_master_id'] = $event_master_id;
+			$visit_dates_limits[$visit]['procure_form_identification'] = $event_master_data['procure_form_identification'];
+		}	
 	} // END V02 then V03
+	
+	// Add event/trt unlinked to V02/v03 based on date
+	pr($visit_dates_limits);
+	$queries_to_link_event_and_treatment = array();
+	foreach(array('V02','V03') as $visit) {
+		if(($visit == 'V02' && $visit_dates_limits[$visit]['followup_event_master_id'] && $visit_dates_limits[$visit]['start'] && ($visit_dates_limits[$visit]['finish'] || $visit_dates_limits[$visit]['visit_date'])) ||
+		($visit == 'V03' && $visit_dates_limits[$visit]['followup_event_master_id'] && ($visit_dates_limits[$visit]['start'] || $visit_dates_limits['V02']['visit_date']) && ($visit_dates_limits[$visit]['finish'] || $visit_dates_limits[$visit]['visit_date']))) {
+			$start_date = null;
+			if($visit == 'V02') {
+				$start_date = $visit_dates_limits[$visit]['start'];
+			} else {
+				if(!$visit_dates_limits[$visit]['start']) {
+					$start_date = $visit_dates_limits['V02']['visit_date'];
+				} else if(!$visit_dates_limits['V02']['visit_date']) {
+					$start_date = $visit_dates_limits[$visit]['start'];
+				} else if($visit_dates_limits['V02']['visit_date'] < $visit_dates_limits[$visit]['start']) {
+					$start_date = $visit_dates_limits['V02']['visit_date'];
+				} else {
+					$start_date = $visit_dates_limits[$visit]['start'];
+				}
+			}
+			$end_date = null;
+			if(!$visit_dates_limits[$visit]['finish']) {
+				$end_date = $visit_dates_limits[$visit]['visit_date'];
+			} else if(!$visit_dates_limits[$visit]['visit_date']) {
+				$end_date = $visit_dates_limits[$visit]['finish'];
+			} else if($visit_dates_limits[$visit]['visit_date'] < $visit_dates_limits[$visit]['finish']) {
+				$end_date = $visit_dates_limits[$visit]['finish'];
+			} else {
+				$end_date = $visit_dates_limits[$visit]['visit_date'];
+			}
+			if(!$start_date || !$end_date) die('ERR 23762876 3322222');		
+			//event
+			$query = "SELECT id FROM event_masters WHERE deleted <> 1 AND event_date IS NOT NULL AND event_date >= '$start_date' AND event_date <= '$end_date' AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = 'n/a';";	
+			$query_res = customQuery($query, __LINE__);
+			$event_master_ids_to_update = array();
+			while($res = mysqli_fetch_assoc($query_res)) {
+				$event_master_ids_to_update[] = $res['id'];
+			}	
+			if($event_master_ids_to_update) {
+				$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET event_summary = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', event_summary), 'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE event_control_id IN (54,55) AND id IN (".implode(',',$event_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET event_summary = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', event_summary), 'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE event_control_id IN (54,55) AND id IN (".implode(',',$event_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+			}
+			//treatment
+			$query = "SELECT id FROM treatment_masters WHERE deleted <> 1 AND start_date IS NOT NULL AND start_date >= '$start_date' AND start_date <= '$end_date' AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = 'n/a';";
+			$query_res = customQuery($query, __LINE__);
+			$treatment_master_ids_to_update = array();
+			while($res = mysqli_fetch_assoc($query_res)) {
+				$treatment_master_ids_to_update[] = $res['id'];
+			}
+			if($treatment_master_ids_to_update) {
+				$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET notes = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', notes),'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$treatment_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters_revs SET notes = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', notes),'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$treatment_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']."  WHERE treatment_master_id IN (".implode(',',$treatment_master_ids_to_update).");";
+				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']."  WHERE treatment_master_id IN (".implode(',',$treatment_master_ids_to_update).");";
+			}
+		}
+	}
+	foreach($queries_to_link_event_and_treatment as $query)	customQuery($query, __LINE__);
+	
 }
 
 //=================================================================================================================================
@@ -1431,7 +1537,7 @@ function formatExcelDateToAtimDate($date, $report, $field, $patient_identificati
 	} else if(preg_match('/^(0[1-9]|10|11|12)-((19|20)[0-9]{2})$/', $date, $match)) {
 		return array('date' => $match[2].'-'.$match[1].'-01', 'accuracy' => 'd');
 	} else if(preg_match('/^((19|20)[0-9]{2})$/', $date, $match)) {
-		return array('date' => $match[1].'-01-01', 'accuracy' => 'dm');
+		return array('date' => $match[1].'-06-01', 'accuracy' => 'm');
 	} else if(strlen($date)) {
 		$import_summary[$report]['ERROR']["Wrong date format"][] = "Date = [$date] for field [$field]. ".$patient_identification_msg;
 	}
