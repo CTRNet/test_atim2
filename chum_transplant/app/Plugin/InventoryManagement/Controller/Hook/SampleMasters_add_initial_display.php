@@ -13,7 +13,6 @@ if($parent_sample_data) {
 } else {
 	$last_created_specimen = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_category' => 'specimen'), 'recursive' => 0, 'order' => array('SampleMaster.created DESC')));
 	if($last_created_specimen) {
-		pr($last_created_specimen['SpecimenDetail']);
 		$this->request->data['SpecimenDetail']['reception_datetime'] = $last_created_specimen['SpecimenDetail']['reception_datetime'];
 		$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $last_created_specimen['SpecimenDetail']['reception_datetime_accuracy'];
 		$this->request->data['SpecimenDetail']['reception_by'] = $last_created_specimen['SpecimenDetail']['reception_by'];
