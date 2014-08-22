@@ -22,6 +22,23 @@ class ParticipantCustom extends Participant {
 					'structure alias' 	=> 'participants,procure_miscidentifiers_for_participant_summary',
 					'data'				=> $result
 			);
+			
+			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
+			$consent_data = $consent_model->find('first', array(
+				'fields' => array(),
+				'conditions' => array('ConsentMaster.participant_id' => $variables['Participant.id']),
+				'order' => array('ConsentMaster.consent_signed_date DESC'),
+				'recursive' => 0)
+			);
+			if($consent_data) {
+				if($consent_data['ConsentDetail']['qc_nd_urine_blood_use_for_followup'] != 'y') {
+					AppController::addWarningMsg(__('participant does not allow followup'));
+				} else if($consent_data['ConsentDetail']['qc_nd_stop_followup'] == 'y') {
+					AppController::addWarningMsg(__('participant stopped the followup'));
+				}
+			} else {
+				AppController::addWarningMsg(__('no consent is linked to the current participant'));
+			}
 		}
 	
 		return $return;
