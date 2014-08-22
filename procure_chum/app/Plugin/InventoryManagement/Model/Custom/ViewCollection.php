@@ -43,9 +43,50 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 				'structure alias' 	=> 'view_collection',
 				'data'				=> $collection_data
 			);
+			
+			$consent_status = $this->getUnconsentedParticipantCollections(array('data' => $collection_data));
+			if(!empty($consent_status)){
+				if(!$collection_data['ViewCollection']['participant_id']){
+					AppController::addWarningMsg(__('no participant is linked to the current participant collection'));
+				}else if($consent_status[$variables['Collection.id']] == null){
+					AppController::addWarningMsg(__('no consent is linked to the current participant collection'));
+				}
+			}
 		}
 		
 		return $return;
 	}
-}
+	
+	function getUnconsentedParticipantCollections(array $collection){
+		$data = null;
+		if(array_key_exists('id', $collection)){
+			$data = $this->find('all', array('conditions' => array('ViewCollection.collection_id' => $collection['id']), 'recursive' => '-1'));
+		}else{
+			$data = array_key_exists('ViewCollection', $collection['data']) ? array($collection['data']) : $collection['data'];
+		}
+	
+		$results = array();
+		$participants_to_fetch = array();
+		foreach($data as $index => &$data_unit){
+			if(empty($data_unit['ViewCollection']['participant_id'])){
+				//removing missing consents (participant)
+				$results[$data_unit['ViewCollection']['collection_id']] = null;
+			}else{
+				$participants_to_fetch[$data_unit['ViewCollection']['participant_id']] = $data_unit['ViewCollection']['collection_id'];
+			}
+		}
+		if(!empty($participants_to_fetch)){
+			//find all collections participants unlinked to a consent
+			$consent_model = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
+			$consent_data = $consent_model->find('all', array(
+					'fields' => array('ConsentMaster.id', 'ConsentMaster.id, ConsentMaster.participant_id'),
+					'conditions' => array('ConsentMaster.participant_id' => array_keys($participants_to_fetch)),
+					'recursive' => -1)
+			);		
+			foreach($consent_data as $consent_data_unit) unset($participants_to_fetch[$consent_data_unit['ConsentMaster']['participant_id']]);
+			foreach($participants_to_fetch as $participant_id => $collection_id) $results[$collection_id] = null;
+		}
+		return $results;
+	}
 
+}

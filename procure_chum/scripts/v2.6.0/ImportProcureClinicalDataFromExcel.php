@@ -11,10 +11,10 @@
 
 $is_server = false;
 
-$file_path = "C:\_Perso\Server\procure_chum\data\Donnees cliniques CHUM 20140805.3.xls";
-//$file_path = "C:\_Perso\Server\procure_chum\data\celltest.xls";
-if($is_server) $file_path = "/ATiM/atim-procure/Test/data/Donnees cliniques CHUM 20140805.3.xls";
-
+$file_name = 'Donnees cliniques CHUM version vers ATIM final formatted_20140822.xls';
+$file_path = 'C:\\_Perso\\Server\\procure_chum\\data\\'.$file_name;
+if($is_server) $file_path = '/ATiM/atim-procure/Test/data/'.$file_name;
+		
 global $import_summary;
 $import_summary = array();
 
@@ -53,6 +53,13 @@ $query_res = customQuery("SELECT NOW() AS import_date, id FROM users WHERE usern
 if($query_res->num_rows != 1) importDie('ERR : No user Migration!');
 list($import_date, $import_by) = array_values(mysqli_fetch_assoc($query_res));
 
+
+echo "<br><br><FONT COLOR=\"blue\" >
+=====================================================================<br>
+PROCURE - Clinical Data : Excel ($file_name) to ATiM<br>
+$import_date<br>
+=====================================================================</FONT><br>";
+
 //==============================================================================================
 //TRUNCATE
 //==============================================================================================
@@ -87,20 +94,13 @@ $truncate_queries = array(
 	"UPDATE treatment_masters_revs SET procure_form_identification = 'n/a' WHERE treatment_control_id = 6;",
 	"UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = null;",
 	"UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = null;",
+	'UPDATE procure_txd_followup_worksheet_treatments SET dosage = null;',
+	'UPDATE procure_txd_followup_worksheet_treatments_revs SET dosage = null;',
 	
 	'TRUNCATE procure_ed_clinical_followup_worksheets;',
 	'TRUNCATE procure_ed_clinical_followup_worksheets_revs;',
 	'DELETE FROM event_masters WHERE event_control_id = 53;',
 	'DELETE FROM event_masters_revs WHERE event_control_id = 53;',
-		
-	"UPDATE event_masters SET event_summary = REPLACE(event_summary, 'Attached to the visit V02 by the migration process. ','');",
-	"UPDATE event_masters_revs SET event_summary = REPLACE(event_summary, 'Attached to the visit V02 by the migration process. ','');",
-	"UPDATE treatment_masters SET notes = REPLACE(notes, 'Attached to the visit V02 by the migration process','');",
-	"UPDATE treatment_masters_revs SET notes = REPLACE(notes, 'Attached to the visit V02 by the migration process','');",
-	"UPDATE event_masters SET event_summary = REPLACE(event_summary, 'Attached to the visit V03 by the migration process. ','');",
-	"UPDATE event_masters_revs SET event_summary = REPLACE(event_summary, 'Attached to the visit V03 by the migration process. ','');",
-	"UPDATE treatment_masters SET notes = REPLACE(notes, 'Attached to the visit V03 by the migration process','');",
-	"UPDATE treatment_masters_revs SET notes = REPLACE(notes, 'Attached to the visit V03 by the migration process','');",	
 	
 	'TRUNCATE procure_txe_medications;',
 	'TRUNCATE procure_txe_medications_revs;',
@@ -111,6 +111,12 @@ $truncate_queries = array(
 	'DELETE FROM treatment_masters WHERE treatment_control_id = 5;',
 	'DELETE FROM treatment_masters_revs WHERE treatment_control_id = 5;'
 );
+for($i=2; $i<10; $i++) {
+	$truncate_queries[] = "UPDATE event_masters SET event_summary = REPLACE(event_summary, 'Attached to the visit V0$i by the migration process. ','');";
+	$truncate_queries[] = "UPDATE event_masters_revs SET event_summary = REPLACE(event_summary, 'Attached to the visit V0$i by the migration process. ','');";
+	$truncate_queries[] = "UPDATE treatment_masters SET notes = REPLACE(notes, 'Attached to the visit V0$i by the migration process','');";
+	$truncate_queries[] = "UPDATE treatment_masters_revs SET notes = REPLACE(notes, 'Attached to the visit V0$i by the migration process','');";
+}
 foreach($truncate_queries as $query) customQuery($query, __LINE__);
 
 //==============================================================================================
@@ -125,55 +131,171 @@ $XlsReader = new Spreadsheet_Excel_Reader();
 $XlsReader->read($file_path);
 foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 
+//TODO set to empty
+$tmp_studied_lines = array();
+
+// MAIN DATA
 $headers = array();
 $line_counter = 0;
 $participant_ids = array();
-foreach($XlsReader->sheets[$sheets_nbr['Donnees cliniques CHUM']]['cells'] as $line => $new_line) {
+$no_labos_to_participants_session_data = array();
+foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Données cliniques CHUM V0 V01')]]['cells'] as $line => $new_line) {
 	$line_counter++;
 	if($line_counter == 6) {
 		$headers = $new_line;
 	} else if($line_counter > 6) {
-//TODO remove
-//TODO remove
-//TODO 	} else if(in_array($line_counter,array(414,345,311,81,47))) {
-//TODO 	} else if(in_array($line_counter,array(311))) {
-		$new_line_data = formatNewLineData($headers, $new_line);
-		$excel_code_barre = str_replace(array('non', 'NON', ' ', "\n"), array('', '', '', ''), $new_line_data['V01::Code du Patient']);
-		$no_labo = $new_line_data['V01::Numéro Atim au CHUM'];
-		if($excel_code_barre.$no_labo) {
-			$patient_identification_msg = "See line $line_counter NoLabo : $no_labo".(empty($excel_code_barre)? '' : " & Code-Barre : $excel_code_barre");
-			$query = "SELECT p.id, p.participant_identifier FROM participants p INNER JOIN misc_identifiers id ON id.participant_id = p.id AND id.deleted <> 1
-				WHERE id.misc_identifier_control_id = 5 AND id.identifier_value = '$no_labo'";	
-			$query_res = customQuery($query, __LINE__);
-			if($query_res->num_rows) {				
-				$res = mysqli_fetch_assoc($query_res);
-				$participant_id = $res['id'];				
-				$atim_code_barre = $res['participant_identifier'];
-				$formatted_excel_code_barre = str_replace('-', '', $excel_code_barre);
-				if(preg_match('/^(P){0,1}S1[pP][0]*([1-9][0-9]*)$/',$formatted_excel_code_barre, $matches)) {
-					$formatted_excel_code_barre = 'PS1P'.str_pad($matches[2], 4, "0", STR_PAD_LEFT);
-				}
-				if(in_array($participant_id, $participant_ids)) die('ERR 23876 28763287');
-				$participant_ids[] = $participant_id;
-				if(empty($formatted_excel_code_barre)) {
-					$import_summary['Participant Detection']['WARNING']["Excel code-barre is missing. Match done based on nolabo only."][] = "ATiM code barre = $atim_code_barre. ".$patient_identification_msg;
-					loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
-				} else if($atim_code_barre == $formatted_excel_code_barre) {
-					loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
+		if(empty($tmp_studied_lines) || in_array($line_counter, $tmp_studied_lines)) {
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$excel_code_barre = str_replace(array('non', 'NON', ' ', "\n"), array('', '', '', ''), $new_line_data['V01::Code du Patient']);
+			$no_labo = $new_line_data['V01::Numéro Atim au CHUM'];
+			if($excel_code_barre.$no_labo) {
+				$patient_identification_msg = "See line $line_counter NoLabo : $no_labo".(empty($excel_code_barre)? '' : " & Code-Barre : $excel_code_barre");
+				$query = "SELECT p.id, p.participant_identifier FROM participants p INNER JOIN misc_identifiers id ON id.participant_id = p.id AND id.deleted <> 1
+					WHERE id.misc_identifier_control_id = 5 AND id.identifier_value = '$no_labo'";	
+				$query_res = customQuery($query, __LINE__);
+				if($query_res->num_rows) {				
+					$res = mysqli_fetch_assoc($query_res);
+					$participant_id = $res['id'];				
+					$atim_code_barre = $res['participant_identifier'];
+					$formatted_excel_code_barre = str_replace('-', '', $excel_code_barre);
+					if(preg_match('/^(P){0,1}S1[pP][0]*([1-9][0-9]*)$/',$formatted_excel_code_barre, $matches)) {
+						$formatted_excel_code_barre = 'PS1P'.str_pad($matches[2], 4, "0", STR_PAD_LEFT);
+					}
+					if(in_array($participant_id, $participant_ids)) die('ERR 23876 28763287');
+					$participant_ids[] = $participant_id;
+					if(in_array($no_labo, $no_labos_to_participants_session_data)) die('ERR 23876 28763288');
+					$no_labos_to_participants_session_data[$no_labo] = array(
+							'participant_id' => $participant_id,
+							'atim_code_barre' => $atim_code_barre,
+							'patient_identification_msg' => $patient_identification_msg,
+							'all_atim_aps' => array(),
+							'visits_limits' => array(),
+							'atim_clinical_events' => null,
+							'atim_treatments' => null
+					);
+					if(empty($formatted_excel_code_barre)) {
+						$import_summary['Participant Detection']['WARNING']["Excel code-barre is missing. Match done based on nolabo only."][] = "ATiM code barre = $atim_code_barre. ".$patient_identification_msg;
+						loadV0V01PatientData($no_labos_to_participants_session_data[$no_labo], $new_line_data);
+					} else if($atim_code_barre == $formatted_excel_code_barre) {
+						loadV0V01PatientData($no_labos_to_participants_session_data[$no_labo], $new_line_data);
+					} else {
+						$import_summary['Participant Detection']['ERROR']["Code-Barre error"][] = "$formatted_excel_code_barre (Excel) != $atim_code_barre (ATiM).".$patient_identification_msg;
+					}
 				} else {
-					$import_summary['Participant Detection']['ERROR']["Code-Barre error"][] = "$formatted_excel_code_barre (Excel) != $atim_code_barre (ATiM).".$patient_identification_msg;
+					$import_summary['Participant Detection']['ERROR']["Unable to find participant in ATiM based on NoLabo (only)"][] = $patient_identification_msg;
 				}
-			} else {
-				$import_summary['Participant Detection']['ERROR']["Unable to find participant in ATiM based on NoLabo (only)"][] = $patient_identification_msg;
 			}
 		}
 	}
 }
 
+// FOLLOW-UP
 
+for($i=2; $i<10; $i++) {
+	$visit = "V0$i";
+	$headers = array();
+	$line_counter = 0;
+	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Données cliniques CHUM '.$visit)]]['cells'] as $line => $new_line) {
+		$line_counter++;
+		if($line_counter == 6) {
+			$headers = $new_line;
+		} else if($line_counter > 6) {
+			if(empty($tmp_studied_lines) || in_array($line_counter, $tmp_studied_lines)) {
+				$new_line_data = formatNewLineData($headers, $new_line);
+				$no_labo = $new_line_data['NoLabo'];
+				if($no_labo) {
+					if(!array_key_exists($no_labo, $no_labos_to_participants_session_data)) die('ERR 238763287632');
+					createFollowupWorksheet($no_labos_to_participants_session_data[$no_labo], $visit, $new_line_data);
+					createVnMedicationWorksheet($no_labos_to_participants_session_data[$no_labo], $visit, $new_line_data);
+				}
+			}
+		}
+	}
+}
 
+// Add ATiM event/trt unlinked to visit based on visit limits
+foreach($no_labos_to_participants_session_data as $participant_session_data) {
+	$queries_to_link_event_and_treatment = array();
+	$visit_dates_limits = $participant_session_data['visits_limits'];
+	foreach(array_keys($visit_dates_limits) as $visit) {
+		if(!preg_match('/^V0([0-9])$/', $visit, $match)) die('ERR2376287632');
+		$previous_visit = 'V0'.((int)$match[1]-1);
+		if($visit_dates_limits[$visit]['followup_event_master_id']) {
+			if(($visit == 'V02' && $visit_dates_limits[$visit]['start'] && ($visit_dates_limits[$visit]['finish'] || $visit_dates_limits[$visit]['visit_date'])) ||
+			($visit != 'V02' && ($visit_dates_limits[$visit]['start'] || $visit_dates_limits[$previous_visit]['visit_date']) && ($visit_dates_limits[$visit]['finish'] || $visit_dates_limits[$visit]['visit_date']))) {
+				$start_date = null;
+				if($visit == 'V02') {
+					$start_date = $visit_dates_limits[$visit]['start'];
+				} else {
+					if(!$visit_dates_limits[$visit]['start']) {
+						$start_date = $visit_dates_limits[$previous_visit]['visit_date'];
+					} else if(!$visit_dates_limits[$previous_visit]['visit_date']) {
+						$start_date = $visit_dates_limits[$visit]['start'];
+					} else if($visit_dates_limits[$previous_visit]['visit_date'] < $visit_dates_limits[$visit]['start']) {
+						$start_date = $visit_dates_limits[$previous_visit]['visit_date'];
+					} else {
+						$start_date = $visit_dates_limits[$visit]['start'];
+					}
+				}
+				$end_date = null;
+				if(!$visit_dates_limits[$visit]['finish']) {
+					$end_date = $visit_dates_limits[$visit]['visit_date'];
+				} else if(!$visit_dates_limits[$visit]['visit_date']) {
+					$end_date = $visit_dates_limits[$visit]['finish'];
+				} else if($visit_dates_limits[$visit]['visit_date'] < $visit_dates_limits[$visit]['finish']) {
+					$end_date = $visit_dates_limits[$visit]['finish'];
+				} else {
+					$end_date = $visit_dates_limits[$visit]['visit_date'];
+				}
+				if(!$start_date || !$end_date) die('ERR 23762876 3322222');
+				//event
+				$query = "SELECT id FROM event_masters WHERE deleted <> 1 AND event_date IS NOT NULL AND event_date >= '$start_date' AND event_date <= '$end_date' AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = 'n/a';";
+				$query_res = customQuery($query, __LINE__);
+				$event_master_ids_to_update = array();
+				while($res = mysqli_fetch_assoc($query_res)) {
+					$event_master_ids_to_update[] = $res['id'];
+				}
+				if($event_master_ids_to_update) {
+					$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET event_summary = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', event_summary), 'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE event_control_id IN (54,55) AND id IN (".implode(',',$event_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET event_summary = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', event_summary), 'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE event_control_id IN (54,55) AND id IN (".implode(',',$event_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
+				}
+				//treatment
+				$query = "SELECT id FROM treatment_masters WHERE deleted <> 1 AND start_date IS NOT NULL AND start_date >= '$start_date' AND start_date <= '$end_date' AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = 'n/a';";
+				$query_res = customQuery($query, __LINE__);
+				$treatment_master_ids_to_update = array();
+				while($res = mysqli_fetch_assoc($query_res)) {
+					$treatment_master_ids_to_update[] = $res['id'];
+				}
+				if($treatment_master_ids_to_update) {
+					$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET notes = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', notes),'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$treatment_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters_revs SET notes = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', notes),'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$treatment_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']."  WHERE treatment_master_id IN (".implode(',',$treatment_master_ids_to_update).");";
+					$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']."  WHERE treatment_master_id IN (".implode(',',$treatment_master_ids_to_update).");";
+				}
+			}
+		}	
+	}
+	foreach($queries_to_link_event_and_treatment as $query)	customQuery($query, __LINE__);
+}
 
-foreach(array('procure_ed_lab_diagnostic_information_worksheets' => 'biopsy_pre_surgery_date') as $tablename => $date_field) {
+$tmp = array('aliquot_internal_uses' => 'use_datetime',
+	'aliquot_masters' => 'storage_datetime',
+	'derivative_details' => 'creation_datetime',
+	'participant_contacts' => 'effective_date',
+	'participant_contacts' => 'expiry_date',
+	'participant_messages' => 'expiry_date',
+	'participants' => 'last_chart_checked_date',
+	'procure_cd_sigantures' => 'qc_nd_stop_followup_date',
+	'procure_cd_sigantures' => 'qc_nd_stop_questionnaire_date',
+	'quality_ctrls' => 'date',
+	'sd_spe_tissues' => 'pathology_reception_datetime',
+	'procure_ed_lab_diagnostic_information_worksheets' => 'biopsy_pre_surgery_date'
+);
+foreach($tmp as $tablename => $date_field) {
 	$query = "UPDATE $tablename SET $date_field = NULL WHERE $date_field LIKE '%0000%';";
 	$query_res = customQuery($query, __LINE__);
 	$query = "UPDATE ".$tablename."_revs SET $date_field = NULL WHERE $date_field LIKE '%0000%';";
@@ -186,28 +308,26 @@ dislayErrorAndMessage($import_summary);
 // Data Management Functions
 //=================================================================================================================================
 
-
-function loadPatientData($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre) {
+function loadV0V01PatientData(&$participant_session_data, $new_line_data) {
+	$participant_id = $participant_session_data['participant_id'];
+	$atim_code_barre = $participant_session_data['atim_code_barre'];
+	$patient_identification_msg = $participant_session_data['patient_identification_msg'];
 	$prostatectomy_date = getProstatectomyDate($participant_id, $new_line_data, $patient_identification_msg);
-	$all_atim_aps = getAtimAps($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date);
-	$all_atim_biopsies = getAtimBiopsies($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date);
-		
-//TODO	createDiagnosticInformationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps, $all_atim_biopsies, $prostatectomy_date);
-//TODO	createPathologyReport($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $prostatectomy_date);
-//TODO	createV01MedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);
-	createFollowupWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps);
-//TODO	createVnMedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre);	
+	createDiagnosticInformationWorksheet($participant_session_data, $new_line_data, $prostatectomy_date);
+	createPathologyReport($participant_session_data, $new_line_data, $prostatectomy_date);
+	createV01MedicationWorksheet($participant_session_data, $new_line_data);
 }
 
 function getProstatectomyDate($participant_id, $new_line_data, $patient_identification_msg) {
 	global $import_summary;
+	$report = 'Prostatectomy Date Selection';
 	$query = "SELECT start_date, start_date_accuracy 
 		FROM treatment_masters tm 
 		INNER JOIN procure_txd_followup_worksheet_treatments td
 		WHERE tm.id = td.treatment_master_id AND tm.deleted <> 1 AND tm.participant_id = $participant_id AND treatment_type = 'other treatment' AND type LIKE '%prostatectomie%' ORDER BY start_date ASC;";
 	$query_res = customQuery($query, __LINE__);
 	if($query_res->num_rows) {
-		if($query_res->num_rows > 1) $import_summary['Prostatectomy Date Selection']['WARNING']["More than one prostatectomy in ATiM"][] = $patient_identification_msg;
+		if($query_res->num_rows > 1) $import_summary[$report]['WARNING']["More than one prostatectomy in ATiM"][] = $patient_identification_msg;
 		$res = mysqli_fetch_assoc($query_res);
 		return array('start_date' => $res['start_date'], 'start_date_accuracy' => $res['start_date_accuracy']);		
 	}
@@ -238,6 +358,7 @@ function getAtimAps($participant_id, $new_line_data, $patient_identification_msg
 
 function getAtimBiopsies($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date) {
 	global $import_summary;
+	$report = 'List ATiM Biopsies';
 	$biopsies = array();
 	$atim_biopsies_dates = array();
 	//procure_ed_clinical_followup_worksheet_clinical_events event_control_id = 55
@@ -261,22 +382,28 @@ function getAtimBiopsies($participant_id, $new_line_data, $patient_identificatio
 	//Compare ATiM list to excel list
 	if(preg_match_all('/[0-9]{2}\-[0-9]{2}\-[0-9]{4}/', $new_line_data['V0::Biopsie antérieure::Si oui; Date'], $excel_biopsies)) {
 		foreach($excel_biopsies[0] as $new_biopsy_excel_date) {
-			if(!in_array($new_biopsy_excel_date, $atim_biopsies_dates)) $import_summary['List ATiM Biopsies']['ERROR']["Missing Excel Biopsy in ATiM (sardo). To validate and create (if required) both in SARDO and ATiM manually"][] = "Biopsy on $new_biopsy_excel_date. ".$patient_identification_msg;
+			if(!in_array($new_biopsy_excel_date, $atim_biopsies_dates)) $import_summary[$report]['ERROR']["Missing Excel Biopsy in ATiM (sardo). To validate and create (if required) both in SARDO and ATiM manually"][] = "Biopsy on $new_biopsy_excel_date. ".$patient_identification_msg;
 		}
 	}
 	return $biopsies;
 }
 
-function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps, $all_atim_biopsies, $prostatectomy_date) {
+function createDiagnosticInformationWorksheet(&$participant_session_data, $new_line_data, $prostatectomy_date) {
 	//event_control_id = 52 - procure_ed_diagnostic_information_worksheet
 	global $import_summary;
 	$report = 'Diagnostic Information Worksheet';
+	
+	$participant_id = $participant_session_data['participant_id'];
+	$atim_code_barre = $participant_session_data['atim_code_barre'];
+	$patient_identification_msg = $participant_session_data['patient_identification_msg'];	
 	
 	$event_master_data = array('procure_form_identification' => "$atim_code_barre V0 -FBP1", 'participant_id' => $participant_id, 'event_control_id' => 52);
 	$event_detail_data = array();
 	
 	//PSA
 	
+	$all_atim_aps = getAtimAps($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date);
+	$participant_session_data['all_atim_aps'] = $all_atim_aps;
 	$excel_aps_pre_surgery_date = str_replace(array('ND','?'), array('',''), $new_line_data['V0::APS pré-chirurgie (ng/mL)::Date']);
 	if(strlen($excel_aps_pre_surgery_date) && !preg_match('/^([0-9]{2}\-){0,2}[0-9]{4}$/', $excel_aps_pre_surgery_date)) {
 		$import_summary[$report]['ERROR']["Excel 'APS pré-chirurgie date' format error (set to null)"][] = "Value = [".$excel_aps_pre_surgery_date."]. ".$patient_identification_msg;
@@ -305,14 +432,14 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 				} else {
 					if(!strlen($excel_aps_pre_surgery_total_ng_ml)) {
 						//ATiM APS preop defined + same date but no value in excel
-						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery total defined into excel: Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").";
+						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery total defined into excel: Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").".$patient_identification_msg;
 						$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 						$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 						$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
 						$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 					} else if((abs($excel_aps_pre_surgery_total_ng_ml-$all_atim_aps['pre-prostatectomy']['total_ngml'])) <= 0.201) {
 						//ATiM APS preop defined + same date & value in excel - value in ATiM < 0.201
-						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "APS pre-surgery total are different in excel and atim (diff <=0.2): Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").";
+						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "APS pre-surgery total are different in excel and atim (diff <=0.2): Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").".$patient_identification_msg;
 						$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 						$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 						$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
@@ -342,7 +469,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 						die('Case to support 872979323. '.$patient_identification_msg);
 					} else {
 						// No prostatectomy defined into ATiM so no APS preop is defined but an aps in atim matches an aps in excel checking both both date and value
-						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "APS pre-surgery date from excel matched an APS of ATiM but this one was not flagged as 'pre-surgery' because no prostatectomy event has been created into ATiM (based on SARDO Data). Used this date as pre-surgery aps.";
+						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "APS pre-surgery date from excel matched an APS of ATiM but this one was not flagged as 'pre-surgery' because no prostatectomy event has been created into ATiM (based on SARDO Data). Used this date as pre-surgery aps.".$patient_identification_msg;
 						$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps[$key_of_aps_preop]['event_date'];
 						$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps[$key_of_aps_preop]['event_date_accuracy'];
 						$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps[$key_of_aps_preop]['total_ngml'];
@@ -360,7 +487,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 		if(array_key_exists('pre-prostatectomy', $all_atim_aps)) {
 			if($all_atim_aps['pre-prostatectomy']['total_ngml'] == $excel_aps_pre_surgery_total_ng_ml) {
 				// ATiM APS preop defined, no aps date in excel but aps value in excel matches ATiM APS preop value
-				$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery date in excel. Used APS pre-surgery date defined into ATiM (sardo) (".$all_atim_aps['pre-prostatectomy']['event_date'].").";
+				$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery date in excel. Used APS pre-surgery date defined into ATiM (sardo) (".$all_atim_aps['pre-prostatectomy']['event_date'].").".$patient_identification_msg;
 				$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 				$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 				$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
@@ -373,7 +500,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 		}
 	} else if(array_key_exists('pre-prostatectomy', $all_atim_aps)) {
 		// ATiM APS preop defined, no APS preop in excel
-		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery defined in excel: Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").";
+		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No APS pre-surgery defined in excel: Used atim (sardo) value (".$all_atim_aps['pre-prostatectomy']['total_ngml'].").".$patient_identification_msg;
 		$event_detail_data['aps_pre_surgery_date'] = $all_atim_aps['pre-prostatectomy']['event_date'];
 		$event_detail_data['aps_pre_surgery_date_accuracy'] = $all_atim_aps['pre-prostatectomy']['event_date_accuracy'];
 		$event_detail_data['aps_pre_surgery_total_ng_ml'] = $all_atim_aps['pre-prostatectomy']['total_ngml'];
@@ -381,7 +508,8 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 	}
 	
 	// Biopsy
-	
+
+	$all_atim_biopsies = getAtimBiopsies($participant_id, $new_line_data, $patient_identification_msg, $prostatectomy_date);
 	if(preg_match_all('/[0-9]{2}\-[0-9]{2}\-[0-9]{4}/', $new_line_data['V0::Biopsie antérieure::Si oui; Date'], $excel_biopsies)) {
 		//Note: biopsies missing in ATiM will be flagged in function getAtimBiopsies().
 		$event_detail_data['biopsies_before'] = 'y';
@@ -389,7 +517,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 		foreach($all_atim_biopsies as $key => $new_atim_biopsy) {
 			if($key != 'pre-prostatectomy' && $new_atim_biopsy['event_date'] < $prostatectomy_date['start_date']) {
 				$event_detail_data['biopsies_before'] = 'y';
-				$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Set flag 'Did the patient have biopsies before' (Diagnostic Information Worksheet) to 'yes' based on ATiM (SARDO) data.";
+				$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Set flag 'Did the patient have biopsies before' (Diagnostic Information Worksheet) to 'yes' based on ATiM (SARDO) data.".$patient_identification_msg;
 			}
 		}
 	}
@@ -415,7 +543,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 						if($new_biopsy['excel_event_date'] == $new_line_data['V0::Biopsie pré-chirurgie::Date']) $match_done = true;
 					}
 					if($match_done) {
-						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Biopsy pre-surgery date from excel matched a biopsy date of ATiM but this one was not flagged as 'pre-surgery' because no prostatectomy event has been created into ATiM (based on SARDO Data). Used this date as pre-surgery biopsy.";
+						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Biopsy pre-surgery date from excel matched a biopsy date of ATiM but this one was not flagged as 'pre-surgery' because no prostatectomy event has been created into ATiM (based on SARDO Data). Used this date as pre-surgery biopsy.".$patient_identification_msg;
 						$event_detail_data['biopsy_pre_surgery_date'] = $new_line_data['V0::Biopsie pré-chirurgie::Date'];
 						$event_detail_data['biopsy_pre_surgery_date_accuracy'] = 'c';
 					} else {
@@ -427,7 +555,7 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 			}
 		}
 	} else if(array_key_exists('pre-prostatectomy', $all_atim_biopsies)) {
-		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No Biopsy pre-surgery defined in excel: Used atim (sardo) value (".$all_atim_biopsies['pre-prostatectomy']['event_date'].").";
+		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No Biopsy pre-surgery defined in excel: Used atim (sardo) value (".$all_atim_biopsies['pre-prostatectomy']['event_date'].").".$patient_identification_msg;
 		$event_detail_data['biopsy_pre_surgery_date'] = $all_atim_biopsies['pre-prostatectomy']['event_date'];
 		$event_detail_data['biopsy_pre_surgery_date_accuracy'] = $all_atim_biopsies['pre-prostatectomy']['event_date_accuracy'];
 	}
@@ -513,16 +641,21 @@ function createDiagnosticInformationWorksheet($participant_id, $new_line_data, $
 		$event_detail_data['event_master_id'] = $event_master_id;
 		customInsert($event_detail_data, 'procure_ed_lab_diagnostic_information_worksheets', __LINE__, true, true);		
 	} else {
-		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No Diagnostic Information Worksheet created.";
+		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No Diagnostic Information Worksheet created.".$patient_identification_msg;
 	}
 }
 
-function createPathologyReport($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $prostatectomy_date) {
+function createPathologyReport(&$participant_session_data, $new_line_data, $prostatectomy_date) {
 	//procure_ed_lab_pathologies event_conrol_id = 51
 	global $import_summary;
 	$report = 'Pathology Report';
 		
+	$participant_id = $participant_session_data['participant_id'];
+	$atim_code_barre = $participant_session_data['atim_code_barre'];
+	$patient_identification_msg = $participant_session_data['patient_identification_msg'];
+	
 	if($new_line_data['V01::Chirurgie::Date de la chirurgie']) {
+		$new_line_data['V01::Chirurgie::Date de la chirurgie'] = str_replace(array(' ', '/'), array('','-'), $new_line_data['V01::Chirurgie::Date de la chirurgie']);
 		if($prostatectomy_date) {
 			$atim_prostatectomy_date = formatAtimDateToExcelDate($prostatectomy_date['start_date'], $prostatectomy_date['start_date_accuracy']);
 			if($atim_prostatectomy_date != $new_line_data['V01::Chirurgie::Date de la chirurgie']) {
@@ -645,6 +778,10 @@ function createPathologyReport($participant_id, $new_line_data, $patient_identif
 	$tmp_res = 0;
 	foreach($tmp as $excel_field => $tmp_val) {
 		$val = str_replace(array(',','ND', 'NA'), array('','',''), $new_line_data[$excel_field]);
+		/*if(preg_match('/^1[\ ]{0,1}\(/', $val)) {
+			$import_summary[$report]['WARNING']["Excel '$excel_field' format like '1 (...' then (!={0,1} / set to 1)"][] = "Value = [".$val."]. ".$patient_identification_msg;
+			$val = '1';
+		}*/
 		if(strlen($val)) {
 			if($val == '1') {
 				$tmp_res += $tmp_val;
@@ -707,6 +844,10 @@ function createPathologyReport($participant_id, $new_line_data, $patient_identif
 	$excel_field = 'V01::Chirurgie::Marges chirurgicales::Présent';
 	$val = str_replace(array('non-identifié', 'non identifié', 'nd', 'n/d', 'na', ' '), array('non', 'non', '', '', '', ''), strtolower($new_line_data[$excel_field]));
 	if(strlen($val)) {
+		if(preg_match('/^oui[\ ]{0,1}\(/', $val)) {
+			$import_summary[$report]['WARNING']["$excel_field format like 'Oui (...' then !={oui,non} / set to oui)"][] = "Value = [".$new_line_data[$excel_field]."]. ".$patient_identification_msg;
+			$val = 'oui';
+		}		
 		switch($val) {
 			case 'oui':
 				if($not_be_assessed) die('ERR 23 8728768732 6');
@@ -722,6 +863,10 @@ function createPathologyReport($participant_id, $new_line_data, $patient_identif
 	}
 	$excel_field_focale = 'V01::Chirurgie::Marges chirurgicales::Positives (cancer envahissant)::( Unifocal) Focale (encre d 3mm/une seule lame)';
 	$val_focale = str_replace(array('ND', 'N/D', 'NA', 'N/A'), array('', '', '', '', ''), $new_line_data[$excel_field_focale]);
+	if(preg_match('/^1[\ ]{0,1}\(/', $val_focale)) {
+		$import_summary[$report]['WARNING']["$excel_field_focale format like '1...' then !={0,1} / set to 1)"][] = "Value = [".$new_line_data[$excel_field_focale]."]. ".$patient_identification_msg;
+		$val_focale = '1';
+	}
 	if(strlen($val_focale) && !in_array($val_focale, array('1','0'))) {
 		$import_summary[$report]['ERROR']["$excel_field_focale format error (!={0,1} / not imported)"][] = "Value = [".$new_line_data[$excel_field_focale]."]. ".$patient_identification_msg;
 		$val_focale = '';
@@ -781,9 +926,15 @@ function createPathologyReport($participant_id, $new_line_data, $patient_identif
 	}
 	$excel_field = 'V01::Chirurgie::Extension extraprostatique::Présente::Focale (surface < 40x un champ/une seule lame)';
 	$val_focal = str_replace(array('ND', 'N/D', 'NA', '0', 'N/A', ' '), array('', '', '', '', '', ''), $new_line_data[$excel_field]);
+	if(preg_match('/^1[\ ]{0,1}\(/', $val_focal)) {
+		$import_summary[$report]['WARNING']["Excel '$excel_field' like '1 (...' then != than {0,1} / set to 1)"][] = "Value = [".$val_focal."]. ".$patient_identification_msg;
+		$val_focal = '1';
+	}	
 	if(strlen($val_focal) && $val_focal != '1') {
-		$import_summary[$report]['ERROR']["Excel '$excel_field' format error (!={0,1} / set to null)"][] = "Value = [".$val_focal."]. ".$patient_identification_msg;
-		$val_focal = '';
+		if($val_focal != '1') {
+			$import_summary[$report]['ERROR']["Excel '$excel_field' format error (!={0,1} / set to null)"][] = "Value = [".$val_focal."]. ".$patient_identification_msg;
+			$val_focal = '';
+		}
 	}
 	$excel_field = 'V01::Chirurgie::Extension extraprostatique::Présente::Établie';
 	$val_established = str_replace(array('ND', 'N/D', 'NA', '0', 'N/A'), array('', '', '', '', ''), $new_line_data[$excel_field]);
@@ -831,8 +982,14 @@ function createPathologyReport($participant_id, $new_line_data, $patient_identif
 	$excel_field = 'V01::Chirurgie::Invasion des Vésicules Séminales::Présente::Unilatérale';
 	$val = str_replace(array('nd', 'n/d', 'na', 'n/a'), array('', '', '', ''), strtolower($new_line_data[$excel_field]));
 	if(strlen($val)) {
+		if(preg_match('/^1[\ ]{1}/', $val)) {
+			$import_summary[$report]['ERROR']["Excel '$excel_field' format like '1...' then !={0,1} / set to 1)"][] = "Value = [".$val."]. ".$patient_identification_msg;
+			$val = '1';
+		}
 		if($val == '1') {
 			$unilateral = true;
+		} else if(preg_match('/^1/', $val)) {	
+			
 		} else if($val != '0') {
 			$import_summary[$report]['ERROR']["Excel '$excel_field' format error (!={0,1} / set to null)"][] = "Value = [".$val."]. ".$patient_identification_msg;
 		}
@@ -951,7 +1108,7 @@ function createPathologyReport($participant_id, $new_line_data, $patient_identif
 		$event_detail_data['event_master_id'] = $event_master_id;
 		customInsert($event_detail_data, 'procure_ed_lab_pathologies', __LINE__, true, true);
 	} else {
-		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No Pathology Report created.";
+		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "No Pathology Report created.".$patient_identification_msg;
 	}
 }
 
@@ -966,13 +1123,17 @@ function getATiMDrugs() {
 	return 	$drugs;
 }
 
-function createV01MedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre) {
+function createV01MedicationWorksheet($participant_session_data, $new_line_data) {
 	// treatment_control_id = 5 - procure_txd_medications
 	// treatment_extend_control_id = 3 - procure_txe_medications
 	global $import_summary;
 	global $atim_drugs;
-	
 	$report = 'Medication';
+	
+	$participant_id = $participant_session_data['participant_id'];
+	$atim_code_barre = $participant_session_data['atim_code_barre'];
+	$patient_identification_msg = $participant_session_data['patient_identification_msg'];
+	
 	$drugs_to_create = array();
 	$treatment_notes = array();
 	
@@ -982,18 +1143,28 @@ function createV01MedicationWorksheet($participant_id, $new_line_data, $patient_
 	foreach($tmp as $excel_field => $associated_atim_drugs) {
 		$new_line_data[$excel_field] = preg_replace('/(\ )+/', ' ', str_replace(array("\n"), array(' '), $new_line_data[$excel_field]));
 		$excel_drug = strtolower($new_line_data[$excel_field]);
-		if(strlen($excel_drug) && !in_array(strtolower($excel_drug), array('nd','non', '0'))) {
-			$match_done = false;
-			foreach($associated_atim_drugs as $drug) {
-				if(preg_match("/$drug/", $excel_drug)) {
-					if(!isset($atim_drugs['all'][$drug])) die('ERR 23876287 632 '.$drug);
-					$drugs_to_create[] = array('duration' => $new_line_data[$excel_field], 'drug_id' => $atim_drugs['all'][$drug]['id']);
-					$match_done = true;
-				}			
-			}
-			if(!$match_done) {
-				$treatment_notes[] = $new_line_data[$excel_field];
-				$import_summary[$report]['ERROR']["Unable to find [".implode(' or ', $associated_atim_drugs)."] in '$excel_field'. Drug added to notes."][] = "Val = [".$new_line_data[$excel_field]."]. ".$patient_identification_msg;
+		if(strlen($excel_drug)) {
+			if(in_array($excel_drug, array('Non','non'))) {
+				$drug_type = explode('::', $excel_field);
+				$id = sizeof($drug_type)-1;
+				$drug_type = $drug_type[$id];
+				$treatment_notes[] = "$drug_type : Non";
+			} else if (!in_array(strtolower($excel_drug), array('nd','0'))){
+				$match_done = false;
+				foreach($associated_atim_drugs as $drug) {
+					if(preg_match("/$drug/", $excel_drug)) {
+						if(!isset($atim_drugs['all'][$drug])) die('ERR 23876287 632 '.$drug);
+						$drugs_to_create[] = array('duration' => $new_line_data[$excel_field], 'drug_id' => $atim_drugs['all'][$drug]['id']);
+						$match_done = true;
+					}			
+				}
+				if(!$match_done) {
+					$drug_type = explode('::', $excel_field);
+					$id = sizeof($drug_type)-1;
+					$drug_type = $drug_type[$id];
+					$treatment_notes[] = "$drug_type : ".$new_line_data[$excel_field];
+					$import_summary[$report]['ERROR']["Unable to find [".implode(' or ', $associated_atim_drugs)."] in '$drug_type'. Drug added to notes."][] = "Val = [".$new_line_data[$excel_field]."]. ".$patient_identification_msg;
+				}
 			}
 		}		
 	}
@@ -1004,8 +1175,11 @@ function createV01MedicationWorksheet($participant_id, $new_line_data, $patient_
 	foreach($tmp as $excel_field) {
 		$new_line_data[$excel_field] = preg_replace('/(\ )+/', ' ', $new_line_data[$excel_field]);
 		$excel_drug = strtolower($new_line_data[$excel_field]);
-		if(strlen($excel_drug) && !in_array(strtolower($excel_drug), array('nd','non', '0'))) {
-			$treatment_notes[] = $new_line_data[$excel_field];
+		if(strlen($excel_drug) && !in_array(strtolower($excel_drug), array('nd','0'))) {
+			$drug_type = explode('::', $excel_field);
+			$id = sizeof($drug_type)-1;
+			$drug_type = $drug_type[$id];
+			$treatment_notes[] = "$drug_type : ".$new_line_data[$excel_field];
 		}
 	}
 	
@@ -1027,143 +1201,158 @@ function createV01MedicationWorksheet($participant_id, $new_line_data, $patient_
 	}
 }
 
-function createVnMedicationWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre) {
+function createVnMedicationWorksheet($participant_session_data, $visit, $new_line_data) {
 	// treatment_control_id = 5 - procure_txd_medications
 	// treatment_extend_control_id = 3 - procure_txe_medications
 	global $import_summary;
 	global $atim_drugs;
-
 	$report = 'Medication';
+	
+	$participant_id = $participant_session_data['participant_id'];
+	$atim_code_barre = $participant_session_data['atim_code_barre'];
+	$patient_identification_msg = $participant_session_data['patient_identification_msg'];
+	
 	$treatment_notes = array();
-	foreach(array('V02','V03') as $visit) {
-		$tmp = array("$visit::Médication ( mise à jour si changements p/r à la V01 ) Prescrits par le medecin",
-			"$visit::Medecine en vente libre dans les pharmacies");
-		foreach($tmp as $excel_field) {
-			$new_line_data[$excel_field] = preg_replace('/(\ )+/', ' ', $new_line_data[$excel_field]);
-			$excel_drug = strtolower($new_line_data[$excel_field]);
-			if(strlen($excel_drug) && !in_array(strtolower($excel_drug), array('nd','non', '0'))) {
-				$treatment_notes[] = $new_line_data[$excel_field];
-			}
+	foreach(array("Médication ( mise à jour si changements p/r à la V01 ) Prescrits par le medecin", "Medecine en vente libre dans les pharmacies") as $excel_field) {
+		$new_line_data[$excel_field] = preg_replace('/(\ )+/', ' ', $new_line_data[$excel_field]);
+		$excel_drug = strtolower($new_line_data[$excel_field]);
+		if(strlen($excel_drug) && !in_array(strtolower($excel_drug), array('nd','0'))) {
+			$treatment_notes[] = "$excel_field : ".$new_line_data[$excel_field];
 		}
-		
-		if($treatment_notes) {
-			// Treatment
-			$treatment_master_data = array('procure_form_identification' => "$atim_code_barre $visit -MED1", 'participant_id' => $participant_id, 'treatment_control_id' => 5);
-			$treatment_master_data['notes'] = implode("\n",$treatment_notes);	
-			$treatment_detail_data = array();
-			$treatment_master_id = customInsert($treatment_master_data, 'treatment_masters', __LINE__, false, true);
-			$treatment_detail_data['treatment_master_id'] = $treatment_master_id;
-			customInsert($treatment_detail_data, 'procure_txd_medications', __LINE__, true, true);		
-		}
+	}
+	
+	if($treatment_notes) {
+		// Treatment
+		$treatment_master_data = array('procure_form_identification' => "$atim_code_barre $visit -MED1", 'participant_id' => $participant_id, 'treatment_control_id' => 5);
+		$treatment_master_data['notes'] = implode("\n",$treatment_notes);	
+		$treatment_detail_data = array();
+		$treatment_master_id = customInsert($treatment_master_data, 'treatment_masters', __LINE__, false, true);
+		$treatment_detail_data['treatment_master_id'] = $treatment_master_id;
+		customInsert($treatment_detail_data, 'procure_txd_medications', __LINE__, true, true);		
 	}
 }
 
-function createFollowupWorksheet($participant_id, $new_line_data, $patient_identification_msg, $atim_code_barre, $all_atim_aps) {
+function createFollowupWorksheet(&$participant_session_data, $visit, $new_line_data) {
 	//event_control_id = 53 - procure_ed_clinical_followup_worksheets
 	global $import_summary;
 	global $import_date;
+	$report = "Followup $visit Worksheet";
+		
+	$participant_id = $participant_session_data['participant_id'];
+	$atim_code_barre = $participant_session_data['atim_code_barre'];
+	$patient_identification_msg = $participant_session_data['patient_identification_msg'];
+	$all_atim_aps = $participant_session_data['all_atim_aps'];
 	
 	// Get clinical event then treatments
-	$atim_clinical_events = array();
-	$query = "SELECT em.id AS event_master_id, em.event_date, em.event_date_accuracy, ed.type, em.event_summary
-		FROM event_masters em INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events ed ON ed.event_master_id = em.id
-		WHERE em.deleted <> 1 AND em.event_control_id = 55 AND em.participant_id = '$participant_id' ORDER BY em.event_date DESC";
-	$query_res = customQuery($query, __LINE__);
-	while($res = mysqli_fetch_assoc($query_res)) {
-		$excel_event_date = formatAtimDateToExcelDate($res['event_date'], $res['event_date_accuracy']);
-		$atim_clinical_events[$excel_event_date][$res['type']][] = $res;
+	if(is_null($participant_session_data['atim_clinical_events'])) {
+		$atim_clinical_events = array();
+		$query = "SELECT em.id AS event_master_id, em.event_date, em.event_date_accuracy, ed.type, em.event_summary
+			FROM event_masters em INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events ed ON ed.event_master_id = em.id
+			WHERE em.deleted <> 1 AND em.event_control_id = 55 AND em.participant_id = '$participant_id' ORDER BY em.event_date DESC";
+		$query_res = customQuery($query, __LINE__);
+		while($res = mysqli_fetch_assoc($query_res)) {
+			$excel_event_date = formatAtimDateToExcelDate($res['event_date'], $res['event_date_accuracy']);
+			$atim_clinical_events[$excel_event_date][$res['type']][] = $res;
+		}
+		$participant_session_data['atim_clinical_events'] = $atim_clinical_events;
 	}
-	$atim_treatments = array();
-	$query = "SELECT tm.id AS treatment_master_id, tm.start_date, tm.start_date_accuracy, tm.finish_date, tm.finish_date_accuracy, td.treatment_type, td.type
-		FROM treatment_masters tm INNER JOIN procure_txd_followup_worksheet_treatments td ON td.treatment_master_id = tm.id
-		WHERE tm.deleted <> 1 AND tm.treatment_control_id = 6 AND tm.participant_id = '$participant_id' ORDER BY tm.start_date DESC";
-	$query_res = customQuery($query, __LINE__);
-	while($res = mysqli_fetch_assoc($query_res)) {
-		$excel_treatment_start_date = formatAtimDateToExcelDate($res['start_date'], $res['start_date_accuracy']);
-		$atim_treatments[$excel_treatment_start_date][$res['treatment_type']][] = $res;
+	$atim_clinical_events = $participant_session_data['atim_clinical_events'];
+	if(is_null($participant_session_data['atim_treatments'])) {
+		$atim_treatments = array();
+		$query = "SELECT tm.id AS treatment_master_id, tm.start_date, tm.start_date_accuracy, tm.finish_date, tm.finish_date_accuracy, td.treatment_type, td.type
+			FROM treatment_masters tm INNER JOIN procure_txd_followup_worksheet_treatments td ON td.treatment_master_id = tm.id
+			WHERE tm.deleted <> 1 AND tm.treatment_control_id = 6 AND tm.participant_id = '$participant_id' ORDER BY tm.start_date DESC";
+		$query_res = customQuery($query, __LINE__);
+		while($res = mysqli_fetch_assoc($query_res)) {
+			$excel_treatment_start_date = formatAtimDateToExcelDate($res['start_date'], $res['start_date_accuracy']);
+			$atim_treatments[$excel_treatment_start_date][$res['treatment_type']][] = $res;
+		}
+		$participant_session_data['atim_treatments'] = $atim_treatments;
 	}
+	$atim_treatments = $participant_session_data['atim_treatments'];
+	$visit_dates_limits = array('visit_date' => null, 'start' => null, 'finish' => null, 'followup_event_master_id' => null, 'procure_form_identification' => null);
 	
-	$visit_dates_limits = array('V02' => array('visit_date' => null, 'start' => null, 'finish' => null), 'V03' => array('visit_date' => null, 'start' => null, 'finish' => null));
+	// Main Followup Worksheet
 	
-	foreach(array('V02', 'V03') as $visit) {
-		$report = "Followup $visit Worksheet";
-		
-		// Main Followup Worksheet
-		
-		$create_followup_worksheet = false;
-		$event_notes = array();
-		$event_master_data = array('procure_form_identification' => "$atim_code_barre $visit -FSP1", 'participant_id' => $participant_id, 'event_control_id' => 53);
-		$event_detail_data = array();
-		
-		$field = "$visit::Date de la visite";
-		if($new_line_data[$field]) {
-			$date = formatExcelDateToAtimDate($new_line_data[$field], $report, $field, $patient_identification_msg);
-			$event_master_data['event_date'] = $date['date'];
-			$event_master_data['event_date_accuracy'] = $date['accuracy'];
-			$create_followup_worksheet = true;
-			$visit_dates_limits[$visit]['visit_date'] = $date['date'];
-		}
+	$create_followup_worksheet = false;
+	$event_notes = array();
+	$event_master_data = array('procure_form_identification' => "$atim_code_barre $visit -FSP1", 'participant_id' => $participant_id, 'event_control_id' => 53);
+	$event_detail_data = array();
 	
-		$field = "$visit::Récidive biochimique (e 0.2 ng/mL)   (Pas nécessairement deux dosages successifs au CHUM)";
-		if(strlen($new_line_data[$field])) {
-			if($new_line_data[$field] == '1') {
-				$event_detail_data['biochemical_recurrence'] = 'y';
-				$create_followup_worksheet = true;
-			} else {
-				$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive biochimique' value (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;	
-			}
-		}
-		if(in_array($visit, array('V02'))) {
-			$field = "$visit::Récidive clinique::Non";
-			if(strlen($new_line_data[$field])) {
-				if($new_line_data[$field] == '1') {
-					$event_detail_data['clinical_recurrence'] = 'n';
-					$create_followup_worksheet = true;
-				} else {
-					$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive clinique' value (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;
-				}
-			}
-			
-			$field = "$visit::Récidive clinique::Oui::locale (ganglions dans la région chirurgicale ou pelvienne)";
-			if(strlen($new_line_data[$field])) {
-				if($new_line_data[$field] == 'oui') {
-					$event_detail_data['clinical_recurrence'] = 'y';
-					$create_followup_worksheet = true;
-				} else if($new_line_data[$field] === '26-08-2009') {
-					$event_detail_data['clinical_recurrence'] = 'y';
-					$event_notes[] = 'Clinical Recurrence: 26-08-2009';
-					$create_followup_worksheet = true;
-				} else {
-					$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive clinique' value (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;
-				}
-			}
-			
-			$field = "$visit::Récidive clinique::Oui::à distance (ganglions non pelviens ou métastases à d'autres organes: foie poumons, os, autres)";
-			if(strlen($new_line_data[$field])) {
-				if($new_line_data[$field] == 'os') {
-					$event_detail_data['clinical_recurrence'] = 'y';
-					$event_detail_data['clinical_recurrence_site'] = 'bones';
-					$create_followup_worksheet = true;
-				} else if($new_line_data[$field] === '06-11-2009 Épiploon') {
-					$event_detail_data['clinical_recurrence'] = 'y';
-					$event_detail_data['clinical_recurrence_site'] = 'others';
-					$event_notes[] = 'Clinical Recurrence: '.$new_line_data[$field];
-					$create_followup_worksheet = true;
-				} else {
-					$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive clinique à distance' value (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;
-				}
-			}
-		}
-		
-		// APS 
+	$field = "Date de la visite";
+	if($new_line_data[$field]) {
+		$date = formatExcelDateToAtimDate($new_line_data[$field], $report, $field, $patient_identification_msg);
+		$event_master_data['event_date'] = $date['date'];
+		$event_master_data['event_date_accuracy'] = $date['accuracy'];
+		$create_followup_worksheet = true;
+		$visit_dates_limits['visit_date'] = $date['date'];
+	}
 
-		$excel_visit_aps = array();
-		$atim_aps_event_master_ids_to_link_to_visit = array();
-		for($id=1; $id<7; $id++) {
-			$date = str_replace(' ', '', $new_line_data["$visit::Date".$id]);
-			$aps = str_replace(array(',',' '),array('.',''),$new_line_data["$visit::APS".$id]);
-			if(strlen($date.$aps) && $aps != 'ND') {
-				if(!strlen($date)) die('ERRR 2376 8726387 32');
+	$field = "Récidive biochimique (e 0.2 ng/mL)   (Pas nécessairement deux dosages successifs au CHUM)";
+	if(strlen($new_line_data[$field])) {
+		if($new_line_data[$field] == '1') {
+			$event_detail_data['biochemical_recurrence'] = 'y';
+			$create_followup_worksheet = true;
+		} else {
+			$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive biochimique' value !={1} (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;	
+		}
+	}
+	$field = "Récidive clinique::Non";
+	$clinical_recurrence_set_to_no = false;
+	if(strlen($new_line_data[$field])) {
+		if($new_line_data[$field] == '1') {
+			$event_detail_data['clinical_recurrence'] = 'n';
+			$clinical_recurrence_set_to_no = true;
+			$create_followup_worksheet = true;
+		} else {
+			$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive clinique Non' value !={1} (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;
+		}
+	}
+	
+	$field = "Récidive clinique::Oui::locale (ganglions dans la région chirurgicale ou pelvienne)";
+	if(strlen($new_line_data[$field])) {
+		if($new_line_data[$field] == 'oui') {
+			$event_detail_data['clinical_recurrence'] = 'y';
+			$create_followup_worksheet = true;
+		} else if($new_line_data[$field] === '26-08-2009') {
+			$event_detail_data['clinical_recurrence'] = 'y';
+			$event_notes[] = 'Clinical Recurrence: 26-08-2009';
+			$create_followup_worksheet = true;
+		} else {
+			$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive clinique Oui Locale' value !={oui} (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;
+		}
+	}
+	
+	$field = "Récidive clinique::Oui::à distance (ganglions non pelviens ou métastases à d'autres organes: foie poumons, os, autres)";
+	if(strlen($new_line_data[$field])) {
+		if($new_line_data[$field] == 'os') {
+			$event_detail_data['clinical_recurrence'] = 'y';
+			$event_detail_data['clinical_recurrence_site'] = 'bones';
+			$create_followup_worksheet = true;
+		} else if($new_line_data[$field] === '06-11-2009 Épiploon') {
+			$event_detail_data['clinical_recurrence'] = 'y';
+			$event_detail_data['clinical_recurrence_site'] = 'others';
+			$event_notes[] = 'Clinical Recurrence: '.$new_line_data[$field];
+			$create_followup_worksheet = true;
+		} else {
+			$import_summary[$report]['ERROR']["Unsupported '$visit - Récidive clinique à distance' value (set to null)"][] = "Val = [".$new_line_data[$field]."]. ".$patient_identification_msg;
+		}
+	}
+	if($clinical_recurrence_set_to_no && $event_detail_data['clinical_recurrence'] == 'y') {
+		$import_summary[$report]['ERROR']["Clinical Recurrence defined both negatif and positif (site defined)"][] = $patient_identification_msg;
+	}
+	
+	// APS 
+
+	$excel_visit_aps = array();
+	$atim_aps_event_master_ids_to_link_to_visit = array();
+	for($id=1; $id<7; $id++) {
+		$date = str_replace(' ', '', $new_line_data["Date".$id]);
+		$aps = str_replace(array(',',' '),array('.',''),$new_line_data["APS".$id]);
+		if(strlen($date.$aps) && $aps != 'ND') {
+			if(!strlen($date)) {
+				$import_summary[$report]['ERROR']["Excel 'APS' date unknown (won't be imported)"][] = "Value = [$aps]. ".$patient_identification_msg;
+			} else {
 				if(preg_match('/^([0-9]+)(\.([0-9]+)){0,1}$/', $aps, $match)) {
 					$excel_visit_aps[$date] = array('val' => $aps, 'note' => array());
 				} else {
@@ -1172,288 +1361,238 @@ function createFollowupWorksheet($participant_id, $new_line_data, $patient_ident
 				}
 			}
 		}
-		foreach($all_atim_aps as $new_atim_aps) {
-			if(isset($excel_visit_aps[$new_atim_aps['excel_event_date']])) {
-				if($excel_visit_aps[$new_atim_aps['excel_event_date']]['val'] != '-1' && $excel_visit_aps[$new_atim_aps['excel_event_date']]['val'] != $new_atim_aps['total_ngml']) {
-					if((abs($excel_visit_aps[$new_atim_aps['excel_event_date']]['val']  - $new_atim_aps['total_ngml'])) <= 0.201) {
-						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "APS total are different in excel and atim (diff <=0.2) on ".$new_atim_aps['excel_event_date']." : Won't change atim (sardo) value (ATiM ".$new_atim_aps['total_ngml']." / Excel : ".$excel_visit_aps[$new_atim_aps['excel_event_date']]['val'].").";
-					} else {
-						$import_summary[$report]['ERROR']['ATiM APS value different in excel and ATiM'][] = "ATiM APS = '".$new_atim_aps['total_ngml']."' / Excel APS = '".$excel_visit_aps[$new_atim_aps['excel_event_date']]['val'] ." on ".$new_atim_aps['excel_event_date'].". ATiM APS will be linked to follow-up worksheet but values have to be verified. ". $patient_identification_msg;
-					}
+	}
+	foreach($all_atim_aps as $new_atim_aps) {
+		if(isset($excel_visit_aps[$new_atim_aps['excel_event_date']])) {
+			if($excel_visit_aps[$new_atim_aps['excel_event_date']]['val'] != '-1' && $excel_visit_aps[$new_atim_aps['excel_event_date']]['val'] != $new_atim_aps['total_ngml']) {
+				if((abs($excel_visit_aps[$new_atim_aps['excel_event_date']]['val']  - $new_atim_aps['total_ngml'])) <= 0.201) {
+					$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "APS total are different in excel and atim (diff <=0.2) on ".$new_atim_aps['excel_event_date']." : Won't change atim (sardo) value (ATiM ".$new_atim_aps['total_ngml']." / Excel : ".$excel_visit_aps[$new_atim_aps['excel_event_date']]['val'].").".$patient_identification_msg;
+				} else {
+					$import_summary[$report]['ERROR']['ATiM APS value different in excel and ATiM'][] = "ATiM APS = '".$new_atim_aps['total_ngml']."' / Excel APS = '".$excel_visit_aps[$new_atim_aps['excel_event_date']]['val'] ." on ".$new_atim_aps['excel_event_date'].". ATiM APS will be linked to follow-up worksheet but values have to be verified. ". $patient_identification_msg;
 				}
-				$atim_aps_event_master_ids_to_link_to_visit[] = $new_atim_aps['event_master_id'];
-				unset($excel_visit_aps[$new_atim_aps['excel_event_date']]);
-			} 		
+			}
+			$atim_aps_event_master_ids_to_link_to_visit[] = $new_atim_aps['event_master_id'];
+			unset($excel_visit_aps[$new_atim_aps['excel_event_date']]);
+		} 		
+	}
+	if($excel_visit_aps) {
+		foreach($excel_visit_aps as $date => $new_aps_to_create) {
+			$new_aps_to_create['note'][] = "Created from excel file on ".substr($import_date, 0, strpos($import_date, ' '));
+			$aps_event_master_data = array('participant_id' => $participant_id, 'event_control_id' => 54, 'event_summary' => implode("\n", $new_aps_to_create['note']));			
+			$ar_date = formatExcelDateToAtimDate($date, $report, 'APS', $patient_identification_msg);
+			if($ar_date) {
+				$aps_event_master_data['event_date'] = $ar_date['date'];
+				$aps_event_master_data['event_date_accuracy'] = $ar_date['accuracy'];
+			}
+			$aps_event_master_id = customInsert($aps_event_master_data, 'event_masters', __LINE__, false, true);
+			$aps_event_detail_data = array('event_master_id' => $aps_event_master_id, 'total_ngml' => $new_aps_to_create['val']);	
+			customInsert($aps_event_detail_data, 'procure_ed_clinical_followup_worksheet_aps', __LINE__, true, true);
+			$atim_aps_event_master_ids_to_link_to_visit[] = $aps_event_master_id;
+			$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Created missing APS (date = '$date', total = ".$new_aps_to_create['val'].") in ATiM.".$patient_identification_msg;
+			$import_summary[$report]['WARNING']["Missing PSA created into ATiM (to crate in SARDO)"][] = "Created missing APS (date = '$date', total = ".$new_aps_to_create['val'].") in ATiM. ".$patient_identification_msg;
 		}
-		if($excel_visit_aps) {
-			foreach($excel_visit_aps as $date => $new_aps_to_create) {
-				$new_aps_to_create['note'][] = "Created from excel file on ".substr($import_date, 0, strpos($import_date, ' '));
-				$aps_event_master_data = array('participant_id' => $participant_id, 'event_control_id' => 54, 'event_summary' => implode("\n", $new_aps_to_create['note']));			
-				$ar_date = formatExcelDateToAtimDate($date, $report, '$visit::APS', $patient_identification_msg);
-				if($ar_date) {
-					$aps_event_master_data['event_date'] = $ar_date['date'];
-					$aps_event_master_data['event_date_accuracy'] = $ar_date['accuracy'];
+	}
+
+	// Clinical Event
+
+	//Specific Clinical Exam
+	$atim_clinical_event_master_ids_to_link_to_visit = array();
+	$tmp_def = array(
+		'Scintigraphie osseuse' => 'bone scintigraphy',
+		'CT-Scan' => 'CT-scan',
+		'TEP-Scan' => 'PET-scan',
+		'IRM' => 'IRM'
+	);
+	foreach($tmp_def as $excel_field => $atim_event_type) {
+		$date_field = "Examens::$excel_field::Date";
+		$date = str_replace(' ', '', $new_line_data[$date_field]);
+		$res = $new_line_data["Examens::$excel_field::Interprétation"];
+		if(strlen($date) && !in_array($date, array('ND'))) {
+			if(!preg_match('/([0-9]{2}\-){0,2}[0-9]{4}/', $date)) {
+				$import_summary[$report]['ERROR']["Clinical Event Date unknown (field ".$date_field.")"][] = "Val = [$date]. This event won't be studied. $patient_identification_msg";
+			} else {
+				if(isset($atim_clinical_events[$date][$atim_event_type])) {
+					if(sizeof($atim_clinical_events[$date][$atim_event_type]) != 1) {
+						$import_summary[$report]['WARNING']["More than one $atim_event_type exists into ATiM for the same date"][] = "Date = [$date]. Both will be linked to follow-up worksheet. $patient_identification_msg";
+					} 
+					foreach($atim_clinical_events[$date][$atim_event_type] as $clinical_event) $atim_clinical_event_master_ids_to_link_to_visit[] = $clinical_event['event_master_id'];
+				} else if(isset($atim_clinical_events[$date])) {
+					$other_atim_events_same_date = array();
+					foreach($atim_clinical_events[$date] as $other_atim_event_type => $other_atim_events) {
+						foreach($other_atim_events as $other_atim_event) {
+							$other_atim_events_same_date[] = "Event=[$other_atim_event_type-".$other_atim_event['type']."] - Res=[".$other_atim_event['event_summary']."]";
+						}
+					}
+					$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM but other ATiM events exists for the same date"][] = "Excel {Date=[$date] - Event=[$excel_field] - Res=[$res]}. ATiM {".implode(' && ', $other_atim_events_same_date)."}. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
+				} else {
+					$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM"][] = "Date=[$date] - Event=[$excel_field] - Res=[$res]. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
 				}
-				$aps_event_master_id = customInsert($aps_event_master_data, 'event_masters', __LINE__, false, true);
-				$aps_event_detail_data = array('event_master_id' => $aps_event_master_id, 'total_ngml' => $new_aps_to_create['val']);	
-				customInsert($aps_event_detail_data, 'procure_ed_clinical_followup_worksheet_aps', __LINE__, true, true);
-				$atim_aps_event_master_ids_to_link_to_visit[] = $aps_event_master_id;
-				$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Created missing APS (date = '$date', total = ".$new_aps_to_create['val'].") in ATiM.";
-				$import_summary[$report]['WARNING']["Missing PSA created into ATiM (to crate in SARDO)"][] = "Created missing APS (date = '$date', total = ".$new_aps_to_create['val'].") in ATiM. ".$patient_identification_msg;
 			}
 		}
-	
-		// Clinical Event
-
-		//Specific Clinical Exam
-		$atim_clinical_event_master_ids_to_link_to_visit = array();
-		$tmp_def = array(
-			'Scintigraphie osseuse' => 'bone scintigraphy',
-			'CT-Scan' => 'CT-scan',
-			'TEP-Scan' => 'PET-scan',
-			'IRM' => 'IRM'
-		);
-		foreach($tmp_def as $excel_field => $atim_event_type) {
-			$date_field = "$visit::Examens::$excel_field::Date";
-			$date = str_replace(' ', '', $new_line_data[$date_field]);
-			$res = $new_line_data["$visit::Examens::$excel_field::Interprétation"];
-			if(strlen($date) && !in_array($date, array('ND'))) {
-				if(!preg_match('/([0-9]{2}\-){0,2}[0-9]{4}/', $date)) {
-					$import_summary[$report]['ERROR']["Clinical Event Date unknown (field ".$date_field.")"][] = "Val = [$date]. This event won't be studied. $patient_identification_msg";
-				} else {
-					if(isset($atim_clinical_events[$date][$atim_event_type])) {
-						if(sizeof($atim_clinical_events[$date][$atim_event_type]) != 1) {
-							$import_summary[$report]['WARNING']["More than one $atim_event_type exists into ATiM for the same date"][] = "Date = [$date]. Both will be linked to follow-up worksheet. $patient_identification_msg";
-						} 
-						foreach($atim_clinical_events[$date][$atim_event_type] as $clinical_event) $atim_clinical_event_master_ids_to_link_to_visit[] = $clinical_event['event_master_id'];
-					} else if(isset($atim_clinical_events[$date])) {
+	}
+	//Other Clinical Exam
+	for($id=1;$id<4;$id++) {
+		$excel_clinical_event_type = str_replace(array('É', 'é'), array('e','e'),strtolower($new_line_data["Examens::Examen additonnel::Préciser l'examen$id"]));	
+		$date_field = "Examens::Examen additonnel::Date$id";
+		$excel_clinical_event_date = str_replace(' ', '', $new_line_data[$date_field]);
+		$excel_clinical_event_res = (isset($new_line_data["Examens::Examen additonnel::Interprétation$id"])? $new_line_data["Examens::Examen additonnel::Interprétation$id"] : '');
+		if(strlen($excel_clinical_event_date) && !in_array($excel_clinical_event_date, array('ND'))) {
+			if(!preg_match('/([0-9]{2}\-){0,2}[0-9]{4}/', $excel_clinical_event_date)) {
+				$import_summary[$report]['ERROR']["Clinical Event Date unknown (field ".$date_field.")"][] = "Val = [$excel_clinical_event_date]. This event won't be studied. $patient_identification_msg";
+			} else {
+				if(isset($atim_clinical_events[$excel_clinical_event_date])) {
+					$event_match_done = false;
+					foreach($atim_clinical_events[$excel_clinical_event_date] as $atim_clinical_events_same_date) {
+						foreach($atim_clinical_events_same_date as $atim_clinical_event_same_date) {
+							if(preg_match("/^$excel_clinical_event_type/", $atim_clinical_event_same_date['event_summary'])) {
+								$event_match_done = true;
+								$atim_clinical_event_master_ids_to_link_to_visit[] = $atim_clinical_event_same_date['event_master_id'];
+							}								
+						}
+					}
+					if(!$event_match_done) {
 						$other_atim_events_same_date = array();
-						foreach($atim_clinical_events[$date] as $other_atim_event_type => $other_atim_events) {
+						foreach($atim_clinical_events[$excel_clinical_event_date] as $other_atim_event_type => $other_atim_events) {
 							foreach($other_atim_events as $other_atim_event) {
 								$other_atim_events_same_date[] = "Event=[$other_atim_event_type-".$other_atim_event['type']."] - Res=[".$other_atim_event['event_summary']."]";
 							}
 						}
-						$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM but other ATiM events exists for the same date"][] = "Excel {Date=[$date] - Event=[$excel_field] - Res=[$res]}. ATiM {".implode(' && ', $other_atim_events_same_date)."}. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
-					} else {
-						$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM"][] = "Date=[$date] - Event=[$excel_field] - Res=[$res]. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
+						$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM but other ATiM events exists for the same date"][] = "Excel {Date=[$excel_clinical_event_date] - Event=[$excel_clinical_event_type] - Res=[$excel_clinical_event_res]}. ATiM {".implode(' && ', $other_atim_events_same_date)."}. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
 					}
-				}
-			}
-		}
-		//Other Clinical Exam
-		for($id=1;$id<(($visit=='V02')? 4 : 2);$id++) {
-			$excel_clinical_event_type = str_replace(array('É', 'é'), array('e','e'),strtolower($new_line_data["$visit::Examens::Examen additonnel::Préciser l'examen$id"]));	
-			$date_field = "$visit::Examens::Examen additonnel::Date$id";
-			$excel_clinical_event_date = str_replace(' ', '', $new_line_data[$date_field]);
-			$excel_clinical_event_res = (isset($new_line_data["$visit::Examens::Examen additonnel::Interprétation$id"])? $new_line_data["$visit::Examens::Examen additonnel::Interprétation$id"] : '');
-			if(strlen($excel_clinical_event_date) && !in_array($excel_clinical_event_date, array('ND'))) {
-				if(!preg_match('/([0-9]{2}\-){0,2}[0-9]{4}/', $excel_clinical_event_date)) {
-					$import_summary[$report]['ERROR']["Clinical Event Date unknown (field ".$date_field.")"][] = "Val = [$excel_clinical_event_date]. This event won't be studied. $patient_identification_msg";
 				} else {
-					if(isset($atim_clinical_events[$excel_clinical_event_date])) {
-						$event_match_done = false;
-						foreach($atim_clinical_events[$excel_clinical_event_date] as $atim_clinical_events_same_date) {
-							foreach($atim_clinical_events_same_date as $atim_clinical_event_same_date) {
-								if(preg_match("/^$excel_clinical_event_type/", $atim_clinical_event_same_date['event_summary'])) {
-									$event_match_done = true;
-									$atim_clinical_event_master_ids_to_link_to_visit[] = $atim_clinical_event_same_date['event_master_id'];
-								}								
-							}
-						}
-						if(!$event_match_done) {
-							$other_atim_events_same_date = array();
-							foreach($atim_clinical_events[$excel_clinical_event_date] as $other_atim_event_type => $other_atim_events) {
-								foreach($other_atim_events as $other_atim_event) {
-									$other_atim_events_same_date[] = "Event=[$other_atim_event_type-".$other_atim_event['type']."] - Res=[".$other_atim_event['event_summary']."]";
-								}
-							}
-							$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM but other ATiM events exists for the same date"][] = "Excel {Date=[$excel_clinical_event_date] - Event=[$excel_clinical_event_type] - Res=[$excel_clinical_event_res]}. ATiM {".implode(' && ', $other_atim_events_same_date)."}. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
-						}
-					} else {
-						$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM"][] = "Date=[$excel_clinical_event_date] - Event=[$excel_clinical_event_type] - Res=[$excel_clinical_event_res]. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";			
-					}
+					$import_summary[$report]['ERROR']["Unable to find Excel Clinical Event into ATiM"][] = "Date=[$excel_clinical_event_date] - Event=[$excel_clinical_event_type] - Res=[$excel_clinical_event_res]. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";			
 				}
-			}
-		}
-	
-		// Treatment
-		
-
-		$atim_treatment_master_ids_to_link_to_visit = array();
-		if($visit=='V02') {
-			$tmp_fields_def = array(
-				"V02::Traitement::Radiothérapie seule::Date début" => array('atim_treatment_type' => 'radiotherapy', 'other_excel_field' => ""),
-				"V02::Traitement::Radiothérapie + Hormonothérapie::Date début (radio)" => array('atim_treatment_type' => 'radiotherapy', 'other_excel_field' => ""),
-				"V02::Traitement::Radiothérapie + Hormonothérapie::Date début (hormono) MÉDICAMENT # 1" => array('atim_treatment_type' => 'hormonotherapy', 'other_excel_field' => "V02::Traitement::Radiothérapie + Hormonothérapie::Médicament # 1 et dose"),
-				"V02::Traitement::Radiothérapie + Hormonothérapie::Date début (hormono) MÉDICAMENT # 2" => array('atim_treatment_type' => 'hormonotherapy', 'other_excel_field' => "V02::Traitement::Radiothérapie + Hormonothérapie::Médicament # 2 et dose"),
-				"V02::Traitement::Hormonothérapie seule::Date début" => array('atim_treatment_type' => 'hormonotherapy', 'other_excel_field' => "V02::Traitement::Hormonothérapie seule::Médicament et dose"),
-				"V02::Traitement::Radiothérapie antalgique::Date début" => array('atim_treatment_type' => 'antalgic radiotherapy', 'other_excel_field' => ""),
-				"V02::Traitement::Hormonothérapie (2e ligne)::Date début" => array('atim_treatment_type' => 'hormonotherapy', 'other_excel_field' => "V02::Traitement::Hormonothérapie (2e ligne)::Médicament et dose"),
-				"V02::Traitement::Chimiothérapie::Date début" => array('atim_treatment_type' => 'radiotherapy', 'other_excel_field' => "V02::Traitement::Chimiothérapie::Médicament et dose"),
-				"V02::Traitement::Chimiothérapie (2e ligne)::Date début" => array('atim_treatment_type' => 'chemotherapy', 'other_excel_field' => "V02::Traitement::Chimiothérapie (2e ligne)::Posologie"),
-				"V02::Traitement::Autre traitement::Date début" => array('atim_treatment_type' => 'other treatment', 'other_excel_field' => "V02::Traitement::Autre traitement::Préciser le traitement"),
-				"V02::Traitement::Traitement expérimental::Date début" => array('atim_treatment_type' => 'experimental treatment', 'other_excel_field' => "V02::Traitement::Traitement expérimental::Type de traitement"));
-			foreach($tmp_fields_def as $date_field => $new_excel_field_def) {
-				$excel_treatment_date = str_replace(' ', '', $new_line_data[$date_field]);
-				$excel_treatment_precision = empty($new_excel_field_def["other_excel_field"])? '' : $new_line_data[$new_excel_field_def["other_excel_field"]];
-				if(strlen($excel_treatment_date) && !in_array($excel_treatment_date, array('ND'))) {
-					if(!preg_match('/([0-9]{2}\-){0,2}[0-9]{4}/', $excel_treatment_date)) {
-						$import_summary[$report]['ERROR']["Treatment Date unknown (field ".$date_field.")"][] = "Val = [$excel_treatment_date]. This event won't be studied. $patient_identification_msg";
-					} else {					
-						$atim_treatment_type = $new_excel_field_def["atim_treatment_type"];
-						$excel_treatment_type = explode('::', $date_field);
-						$excel_treatment_type = $excel_treatment_type[2];
-						if(isset($atim_treatments[$excel_treatment_date][$atim_treatment_type])) {
-							if(sizeof($atim_treatments[$excel_treatment_date][$atim_treatment_type]) != 1) {
-								$import_summary[$report]['WARNING']["More than one $atim_treatment_type exists into ATiM for the same date"][] = "Date = [$excel_treatment_date]. Both will be linked to follow-up worksheet. $patient_identification_msg";
-							}
-							foreach($atim_treatments[$excel_treatment_date][$atim_treatment_type] as $treatment) $atim_treatment_master_ids_to_link_to_visit[] = $treatment['treatment_master_id'];
-						} else if(isset($atim_treatments[$excel_treatment_date])) {
-							$other_atim_treatments_same_date = array();
-							foreach($atim_treatments[$excel_treatment_date] as $other_atim_treatment_type => $other_atim_treatments) {
-								foreach($other_atim_treatments as $other_atim_treatment) {
-									$other_atim_treatments_same_date[] = "Treatment=[".$other_atim_treatment['treatment_type']."-".$other_atim_treatment['type']."]";
-								}
-							}
-							$import_summary[$report]['ERROR']["Unable to find Excel Treatment into ATiM but other ATiM treatment exist for the same date"][] = "Excel {Date=[$excel_treatment_date] - Treatment=[$excel_treatment_type]}. ATiM {".implode(' && ', $other_atim_treatments_same_date)."}. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
-						} else {
-							$import_summary[$report]['ERROR']["Unable to find Excel Treatment into ATiM"][] = "Date=[$excel_treatment_date] - Treatment=[$excel_treatment_type]. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
-						}
-
-					}
-				}
-			}	
-		}
-		
-		// Create Main Followup Worksheet
-		
-		if($event_notes) {
-			$event_master_data['event_summary'] = implode("\n", $event_notes);
-			$create_followup_worksheet = true;
-		}
-		if($atim_aps_event_master_ids_to_link_to_visit) $create_followup_worksheet = true;
-		if($atim_clinical_event_master_ids_to_link_to_visit) $create_followup_worksheet = true;
-		if($atim_treatment_master_ids_to_link_to_visit) $create_followup_worksheet = true;
-		if($create_followup_worksheet) {
-			$event_master_id = customInsert($event_master_data, 'event_masters', __LINE__, false, true);
-			$event_detail_data['event_master_id'] = $event_master_id;
-			customInsert($event_detail_data, 'procure_ed_clinical_followup_worksheets', __LINE__, true, true);
-			$queries_to_link_event_and_treatment = array();
-			if($atim_aps_event_master_ids_to_link_to_visit) {
-				$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 54 AND id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 54 AND id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps_revs SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";				
-			}
-			if($atim_clinical_event_master_ids_to_link_to_visit) {
-				$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 55 AND id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 55 AND id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events_revs SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
-			}
-			if($atim_treatment_master_ids_to_link_to_visit) {
-				$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = $event_master_id WHERE treatment_master_id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments_revs SET followup_event_master_id = $event_master_id WHERE treatment_master_id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
-			}
-			foreach($queries_to_link_event_and_treatment as $query)	customQuery($query, __LINE__);
-			// Get dates limits
-			$query = "
-				SELECT MIN(event_date) as date, 'min' as date_type FROM event_masters WHERE event_date IS NOT NULL AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
-				UNION ALL
-				SELECT MAX(event_date) as date, 'max' as date_type FROM event_masters WHERE event_date IS NOT NULL AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
-				UNION ALL
-				SELECT MIN(start_date) as date, 'min' as date_type FROM treatment_masters WHERE start_date IS NOT NULL AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
-				UNION ALL
-				SELECT MAX(start_date) as date, 'max' as date_type FROM treatment_masters WHERE start_date IS NOT NULL AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."';";
-			$query_res = customQuery($query, __LINE__);
-			while($res = mysqli_fetch_assoc($query_res)) {
-
-				if($res['date']) {
-					if($res['date_type'] == 'min') {
-						if(!$visit_dates_limits[$visit]['start']) {
-							$visit_dates_limits[$visit]['start'] = $res['date'];
-						} else if($res['date'] < $visit_dates_limits[$visit]['start']) {
-							$visit_dates_limits[$visit]['start'] = $res['date'];
-						}
-					} else {
-						if(!$visit_dates_limits[$visit]['finish']) {
-							$visit_dates_limits[$visit]['finish'] = $res['date'];
-						} else if($res['date'] > $visit_dates_limits[$visit]['finish']) {
-							$visit_dates_limits[$visit]['finish'] = $res['date'];
-						}
-					}
-				}
-			}
-			$visit_dates_limits[$visit]['followup_event_master_id'] = $event_master_id;
-			$visit_dates_limits[$visit]['procure_form_identification'] = $event_master_data['procure_form_identification'];
-		}	
-	} // END V02 then V03
-	
-	// Add event/trt unlinked to V02/v03 based on date
-	pr($visit_dates_limits);
-	$queries_to_link_event_and_treatment = array();
-	foreach(array('V02','V03') as $visit) {
-		if(($visit == 'V02' && $visit_dates_limits[$visit]['followup_event_master_id'] && $visit_dates_limits[$visit]['start'] && ($visit_dates_limits[$visit]['finish'] || $visit_dates_limits[$visit]['visit_date'])) ||
-		($visit == 'V03' && $visit_dates_limits[$visit]['followup_event_master_id'] && ($visit_dates_limits[$visit]['start'] || $visit_dates_limits['V02']['visit_date']) && ($visit_dates_limits[$visit]['finish'] || $visit_dates_limits[$visit]['visit_date']))) {
-			$start_date = null;
-			if($visit == 'V02') {
-				$start_date = $visit_dates_limits[$visit]['start'];
-			} else {
-				if(!$visit_dates_limits[$visit]['start']) {
-					$start_date = $visit_dates_limits['V02']['visit_date'];
-				} else if(!$visit_dates_limits['V02']['visit_date']) {
-					$start_date = $visit_dates_limits[$visit]['start'];
-				} else if($visit_dates_limits['V02']['visit_date'] < $visit_dates_limits[$visit]['start']) {
-					$start_date = $visit_dates_limits['V02']['visit_date'];
-				} else {
-					$start_date = $visit_dates_limits[$visit]['start'];
-				}
-			}
-			$end_date = null;
-			if(!$visit_dates_limits[$visit]['finish']) {
-				$end_date = $visit_dates_limits[$visit]['visit_date'];
-			} else if(!$visit_dates_limits[$visit]['visit_date']) {
-				$end_date = $visit_dates_limits[$visit]['finish'];
-			} else if($visit_dates_limits[$visit]['visit_date'] < $visit_dates_limits[$visit]['finish']) {
-				$end_date = $visit_dates_limits[$visit]['finish'];
-			} else {
-				$end_date = $visit_dates_limits[$visit]['visit_date'];
-			}
-			if(!$start_date || !$end_date) die('ERR 23762876 3322222');		
-			//event
-			$query = "SELECT id FROM event_masters WHERE deleted <> 1 AND event_date IS NOT NULL AND event_date >= '$start_date' AND event_date <= '$end_date' AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = 'n/a';";	
-			$query_res = customQuery($query, __LINE__);
-			$event_master_ids_to_update = array();
-			while($res = mysqli_fetch_assoc($query_res)) {
-				$event_master_ids_to_update[] = $res['id'];
-			}	
-			if($event_master_ids_to_update) {
-				$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET event_summary = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', event_summary), 'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE event_control_id IN (54,55) AND id IN (".implode(',',$event_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET event_summary = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', event_summary), 'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE event_control_id IN (54,55) AND id IN (".implode(',',$event_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']." WHERE event_master_id IN (".implode(',',$event_master_ids_to_update).");";
-			}
-			//treatment
-			$query = "SELECT id FROM treatment_masters WHERE deleted <> 1 AND start_date IS NOT NULL AND start_date >= '$start_date' AND start_date <= '$end_date' AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = 'n/a';";
-			$query_res = customQuery($query, __LINE__);
-			$treatment_master_ids_to_update = array();
-			while($res = mysqli_fetch_assoc($query_res)) {
-				$treatment_master_ids_to_update[] = $res['id'];
-			}
-			if($treatment_master_ids_to_update) {
-				$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET notes = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', notes),'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$treatment_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters_revs SET notes = IFNULL(CONCAT('Attached to the visit $visit by the migration process. ', notes),'Attached to the visit $visit by the migration process'), procure_form_identification = '".$visit_dates_limits[$visit]['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$treatment_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']."  WHERE treatment_master_id IN (".implode(',',$treatment_master_ids_to_update).");";
-				$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments_revs SET followup_event_master_id = ".$visit_dates_limits[$visit]['followup_event_master_id']."  WHERE treatment_master_id IN (".implode(',',$treatment_master_ids_to_update).");";
 			}
 		}
 	}
-	foreach($queries_to_link_event_and_treatment as $query)	customQuery($query, __LINE__);
+
+	// Treatment
 	
+	$atim_treatment_master_ids_to_link_to_visit = array();
+	$tmp_fields_def = array(
+		"Traitement::Radiothérapie seule::Date début" => array('atim_treatment_type' => 'radiotherapy', 'dosage_field' => "Traitement::Radiothérapie seule::Dose (Gray)"),
+		"Traitement::Radiothérapie + Hormonothérapie::Date début (radio)" => array('atim_treatment_type' => 'radiotherapy', 'dosage_field' => "Traitement::Radiothérapie + Hormonothérapie::Dose (Gray)"),
+		"Traitement::Radiothérapie + Hormonothérapie::Date début (hormono) MÉDICAMENT # 1" => array('atim_treatment_type' => 'hormonotherapy', 'dosage_field' => "Traitement::Radiothérapie + Hormonothérapie::Médicament # 1 et dose"),
+		"Traitement::Radiothérapie + Hormonothérapie::Date début (hormono) MÉDICAMENT # 2" => array('atim_treatment_type' => 'hormonotherapy', 'dosage_field' => "Traitement::Radiothérapie + Hormonothérapie::Médicament # 2 et dose"),
+		"Traitement::Hormonothérapie seule::Date début" => array('atim_treatment_type' => 'hormonotherapy', 'dosage_field' => "Traitement::Hormonothérapie seule::Médicament et dose"),
+		"Traitement::Radiothérapie antalgique::Date début" => array('atim_treatment_type' => 'antalgic radiotherapy', 'dosage_field' => "Traitement::Radiothérapie antalgique::Dose (Gray)"),
+		"Traitement::Hormonothérapie (2e ligne)::Date début" => array('atim_treatment_type' => 'hormonotherapy', 'dosage_field' => "Traitement::Hormonothérapie (2e ligne)::Médicament et dose"),
+		"Traitement::Chimiothérapie::Date début" => array('atim_treatment_type' => 'radiotherapy', 'dosage_field' => "Traitement::Chimiothérapie::Médicament et dose"),
+		"Traitement::Chimiothérapie (2e ligne)::Date début" => array('atim_treatment_type' => 'chemotherapy', 'dosage_field' => "Traitement::Chimiothérapie (2e ligne)::Posologie"),
+		"Traitement::Autre traitement::Date début" => array('atim_treatment_type' => 'other treatment', 'dosage_field' => "Traitement::Autre traitement::Posologie (Dose)"),
+		"Traitement::Traitement expérimental::Date début" => array('atim_treatment_type' => 'experimental treatment', 'dosage_field' => "Traitement::Traitement expérimental::Posologie (dose)"));
+	foreach($tmp_fields_def as $date_field => $new_excel_field_def) {
+		$excel_treatment_date = str_replace(' ', '', $new_line_data[$date_field]);
+		$excel_treatment_dosage = empty($new_excel_field_def["dosage_field"])? '' : $new_line_data[$new_excel_field_def["dosage_field"]];
+		if(strlen($excel_treatment_date) && !in_array($excel_treatment_date, array('ND'))) {
+			if(!preg_match('/([0-9]{2}\-){0,2}[0-9]{4}/', $excel_treatment_date)) {
+				$import_summary[$report]['ERROR']["Treatment Date unknown (field ".$date_field.")"][] = "Val = [$excel_treatment_date]. This event won't be studied. $patient_identification_msg";
+			} else {					
+				$atim_treatment_type = $new_excel_field_def["atim_treatment_type"];
+				$excel_treatment_type = explode('::', $date_field);
+				$excel_treatment_type = $excel_treatment_type[2];
+				if(isset($atim_treatments[$excel_treatment_date][$atim_treatment_type])) {
+					if(sizeof($atim_treatments[$excel_treatment_date][$atim_treatment_type]) != 1) {
+						$import_summary[$report]['WARNING']["More than one $atim_treatment_type exists into ATiM for the same date"][] = "Date = [$excel_treatment_date]. Both will be linked to follow-up worksheet. $patient_identification_msg";
+					}
+					$tmp_treatment_master_ids = array();
+					foreach($atim_treatments[$excel_treatment_date][$atim_treatment_type] as $treatment){
+						$atim_treatment_master_ids_to_link_to_visit[] = $treatment['treatment_master_id'];
+						$tmp_treatment_master_ids[] = $treatment['treatment_master_id'];
+					}
+					if(strlen($excel_treatment_dosage) && !in_array($excel_treatment_dosage, array('ND'))) {
+						$excel_treatment_dosage = str_replace("'", "''", $excel_treatment_dosage);
+						$query = "UPDATE procure_txd_followup_worksheet_treatments SET dosage = IFNULL(CONCAT('$excel_treatment_dosage. ', dosage), '$excel_treatment_dosage') WHERE treatment_master_id IN (".implode(',',$tmp_treatment_master_ids).");";
+						customQuery($query, __LINE__);
+						customQuery(str_replace('procure_txd_followup_worksheet_treatments', 'procure_txd_followup_worksheet_treatments_revs', $query), __LINE__);
+						$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Added dosage ($excel_treatment_dosage) to $atim_treatment_type administarted on date $excel_treatment_date. ".$patient_identification_msg;
+					}
+				} else if(isset($atim_treatments[$excel_treatment_date])) {
+					$other_atim_treatments_same_date = array();
+					foreach($atim_treatments[$excel_treatment_date] as $other_atim_treatment_type => $other_atim_treatments) {
+						foreach($other_atim_treatments as $other_atim_treatment) {
+							$other_atim_treatments_same_date[] = "Treatment=[".$other_atim_treatment['treatment_type']."-".$other_atim_treatment['type']."]";
+						}
+					}
+					$import_summary[$report]['ERROR']["Unable to find Excel Treatment into ATiM but other ATiM treatment exist for the same date"][] = "Excel {Date=[$excel_treatment_date] - Treatment=[$excel_treatment_type".(empty($excel_treatment_dosage)? '' : " - $excel_treatment_dosage")."]}. ATiM {".implode(' && ', $other_atim_treatments_same_date)."}. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
+				} else {
+					$import_summary[$report]['ERROR']["Unable to find Excel Treatment into ATiM"][] = "Date=[$excel_treatment_date] - Treatment=[$excel_treatment_type".(empty($excel_treatment_dosage)? '' : " - $excel_treatment_dosage")."]. Check this one has to be created both in ATiM and SARDO. $patient_identification_msg";
+				}
+			}
+		} else if(strlen($excel_treatment_dosage) && !in_array($excel_treatment_dosage, array('ND'))) {
+			$excel_treatment_type = explode('::', $date_field);
+			$excel_treatment_type = $excel_treatment_type[2];
+			$import_summary[$report]['ERROR']["Treatment dose with no treatment date"][] = "Dose = [$excel_treatment_dosage] for treatment=[$excel_treatment_type]}. This treatment won't be studied. $patient_identification_msg";
+		}
+	}	
+
+	// Create Main Followup Worksheet
+	
+	if($event_notes) {
+		$event_master_data['event_summary'] = implode("\n", $event_notes);
+		$create_followup_worksheet = true;
+	}
+	if($atim_aps_event_master_ids_to_link_to_visit) $create_followup_worksheet = true;
+	if($atim_clinical_event_master_ids_to_link_to_visit) $create_followup_worksheet = true;
+	if($atim_treatment_master_ids_to_link_to_visit) $create_followup_worksheet = true;
+	if($create_followup_worksheet) {
+		$event_master_id = customInsert($event_master_data, 'event_masters', __LINE__, false, true);
+		$event_detail_data['event_master_id'] = $event_master_id;
+		customInsert($event_detail_data, 'procure_ed_clinical_followup_worksheets', __LINE__, true, true);
+		$queries_to_link_event_and_treatment = array();
+		if($atim_aps_event_master_ids_to_link_to_visit) {
+			$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 54 AND id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 54 AND id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_aps_revs SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_aps_event_master_ids_to_link_to_visit).");";				
+		}
+		if($atim_clinical_event_master_ids_to_link_to_visit) {
+			$queries_to_link_event_and_treatment[] = "UPDATE event_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 55 AND id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE event_masters_revs SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE event_control_id = 55 AND id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE procure_ed_clinical_followup_worksheet_clinical_events_revs SET followup_event_master_id = $event_master_id WHERE event_master_id IN (".implode(',',$atim_clinical_event_master_ids_to_link_to_visit).");";
+		}
+		if($atim_treatment_master_ids_to_link_to_visit) {
+			$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE treatment_masters SET procure_form_identification = '".$event_master_data['procure_form_identification']."' WHERE treatment_control_id = 6 AND id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = $event_master_id WHERE treatment_master_id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
+			$queries_to_link_event_and_treatment[] = "UPDATE procure_txd_followup_worksheet_treatments_revs SET followup_event_master_id = $event_master_id WHERE treatment_master_id IN (".implode(',',$atim_treatment_master_ids_to_link_to_visit).");";
+		}
+		foreach($queries_to_link_event_and_treatment as $query)	customQuery($query, __LINE__);
+		// Get dates limits
+		$query = "
+			SELECT MIN(event_date) as date, 'min' as date_type FROM event_masters WHERE event_date IS NOT NULL AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
+			UNION ALL
+			SELECT MAX(event_date) as date, 'max' as date_type FROM event_masters WHERE event_date IS NOT NULL AND event_control_id IN (55,54) AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
+			UNION ALL
+			SELECT MIN(start_date) as date, 'min' as date_type FROM treatment_masters WHERE start_date IS NOT NULL AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."'
+			UNION ALL
+			SELECT MAX(start_date) as date, 'max' as date_type FROM treatment_masters WHERE start_date IS NOT NULL AND treatment_control_id = 6 AND participant_id = $participant_id AND procure_form_identification = '".$event_master_data['procure_form_identification']."';";
+		$query_res = customQuery($query, __LINE__);
+		while($res = mysqli_fetch_assoc($query_res)) {
+
+			if($res['date']) {
+				if($res['date_type'] == 'min') {
+					if(!$visit_dates_limits['start']) {
+						$visit_dates_limits['start'] = $res['date'];
+					} else if($res['date'] < $visit_dates_limits['start']) {
+						$visit_dates_limits['start'] = $res['date'];
+					}
+				} else {
+					if(!$visit_dates_limits['finish']) {
+						$visit_dates_limits['finish'] = $res['date'];
+					} else if($res['date'] > $visit_dates_limits['finish']) {
+						$visit_dates_limits['finish'] = $res['date'];
+					}
+				}
+			}
+		}
+		$visit_dates_limits['followup_event_master_id'] = $event_master_id;
+		$visit_dates_limits['procure_form_identification'] = $event_master_data['procure_form_identification'];
+	}	
+	
+	//Record visit infos
+	$participant_session_data['visits_limits'][$visit] = $visit_dates_limits;	
 }
 
 //=================================================================================================================================
@@ -1545,6 +1684,8 @@ function formatExcelDateToAtimDate($date, $report, $field, $patient_identificati
 }
 
 function dislayErrorAndMessage($import_summary) {
+	$import_summary_per_participant = array();
+	$err_counter = 0;
 	foreach($import_summary as $worksheet => $data1) {
 		echo "<br><br><FONT COLOR=\"blue\" >
 			=====================================================================<br>
@@ -1552,6 +1693,7 @@ function dislayErrorAndMessage($import_summary) {
 			=====================================================================</FONT><br>";
 		foreach($data1 as $message_type => $data2) {
 			$color = 'black';
+			$diff_than_message = true;
 			switch($message_type) {
 				case 'ERROR':
 					$color = 'red';
@@ -1561,16 +1703,42 @@ function dislayErrorAndMessage($import_summary) {
 					break;
 				case 'MESSAGE':
 					$color = 'green';
+					$diff_than_message = false;
 					break;
+				default:
+					echo '<br><br><br>UNSUPORTED message_type : '.$message_type.'<br><br><br>';
 			}
 			foreach($data2 as $error => $details) {
-				echo "<br><br><FONT COLOR=\"$color\" ><b>$error</b></FONT><br>";
+				$err_counter++;
+				$error = str_replace("\n", ' ', utf8_decode("[ER#$err_counter] $error"));
+				if($diff_than_message) echo "<br><br><FONT COLOR=\"$color\" ><b>$error</b></FONT><br>";
 				foreach($details as $detail) {
-					echo ' - '.utf8_decode($detail)."<br>";	
+					$detail = str_replace("\n", ' ', $detail);
+					if($diff_than_message) echo ' - '.utf8_decode($detail)."<br>";	
+					//Set $import_summary_per_participant
+					if(preg_match('/^(.*)(See\ line\ [0-9]+\ NoLabo\ :\ .*)$/', $detail, $match)) {
+						$patient_identification_msg = $match[2];
+						$msg = str_replace($patient_identification_msg, '', $detail);
+						$import_summary_per_participant[$patient_identification_msg][] = ($diff_than_message? "<FONT COLOR=\"$color\" ><b>$error</b></FONT> ": '')."$msg [<i>$worksheet</i>]";
+					} else {
+						pr($import_summary);
+						pr("WARNING 23876 287632 8 : $error - $detail");
+						die();
+					}
 				}
 			}
 		}
 	}
+	echo "<br><br><FONT COLOR=\"blue\" >
+	=====================================================================<br>
+	INFORMATION SORTED PER PARTICIPANT<br>
+	=====================================================================</FONT><br>";
+	foreach($import_summary_per_participant as $patient_identification_msg => $messages) {
+		echo "<br><br><b>$patient_identification_msg</b><br>";
+		foreach($messages as $msg) {
+			echo ' - '.utf8_decode($msg)."<br>";
+		}
+	}	
 }
 
 

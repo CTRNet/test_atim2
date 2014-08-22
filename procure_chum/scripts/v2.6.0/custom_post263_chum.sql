@@ -149,4 +149,13 @@ UPDATE structure_fields SET  `model`='EventDetail' WHERE model='EventMaster' AND
 ALTER TABLE procure_txe_medications MODIFY duration VARCHAR(250) DEFAULT NULL;
 ALTER TABLE procure_txe_medications_revs MODIFY duration VARCHAR(250) DEFAULT NULL;
 
+-- 2014-08-20 --------------------------------------------------------------------------------------------------------
+
+DELETE FROM i18n WHERE id IN ('participant does not allow followup', 'participant stopped the followup','no consent is linked to the current participant');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('participant does not allow followup', 'Participant does not allow follow-up', 'Le participant ne permet pas un suivi'),
+('participant stopped the followup', 'Participant stopped the followup', 'Le participant a arrêté le suivi'),
+('no consent is linked to the current participant','No consent is linked to the current participant', 'Aucun consentement n''est lié au participant');
+
 UPDATE versions SET site_branch_build_number = '5856' WHERE version_number = '2.6.3';
