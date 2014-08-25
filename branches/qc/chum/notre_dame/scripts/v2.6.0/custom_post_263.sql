@@ -1157,3 +1157,39 @@ update  structure_permissible_values_customs_revs SET  value = 'Purolator' WHERE
 update  shipments SET  shipping_company = 'Purolator' WHERE shipping_company = 'Purolator ';
 update  shipments_revs SET  shipping_company = 'Purolator' WHERE shipping_company = 'Purolator ';
 UPDATE versions SET branch_build_number = '5840' WHERE version_number = '2.6.3';
+
+-- 2014-08-25 ----------------------------------------------------------------------------------------------------------------------
+
+UPDATE structures SET alias = 'qc_nd_sardo_migrations_messages' WHERE alias = 'qc_nd_sardo_migrations';
+
+INSERT INTO structures(`alias`) VALUES ('qc_nd_sardo_migrations_summary');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Administrate', 'Generated', '', 'qc_nd_last_sardo_updated', 'datetime',  NULL , '0', '', '', '', 'last update', ''), 
+('Administrate', 'Generated', '', 'qc_nd_sardo_update_completed', 'yes_no',  NULL , '0', '', '', '', 'completed', ''), 
+('Administrate', 'Generated', '', 'qc_nd_sardo_updated_participants_nbr', 'input',  NULL , '0', 'size=5', '', '', 'number of updated participants', ''), 
+('Administrate', 'Generated', '', 'qc_nd_sardo_update_error', 'textarea',  NULL , '0', '', '', '', 'error', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_last_sardo_updated' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last update' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_completed' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='completed' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_updated_participants_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='number of updated participants' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_sardo_migrations_summary'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='qc_nd_sardo_update_error' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='error' AND `language_tag`=''), '1', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+UPDATE structure_fields SET field = 'qc_nd_last_sardo_update' WHERE field = 'qc_nd_last_sardo_updated';
+
+INSERT IGNORE INTO i18n(id,en,fr) 
+VALUES 
+('last update','Last Update', 'Dernière mis à jour'),
+('number of updated participants', 'Number of Updated Participants', 'Nombre de participants mis à jour'), 
+('error', 'Error', 'Erreur'),
+('main messages', 'Main Messages', 'Principaux messages'),
+('profile and reproductive history update', 'Profile and reproductive history update', 'Mise à jour des profils et des données gynécologiques');
+REPLACE INTO i18n(id,en,fr) 
+VALUES 
+('error', 'Error', 'Erreur');
+
+UPDATE versions SET branch_build_number = '5863' WHERE version_number = '2.6.3';
+
+
+
+
+
+
