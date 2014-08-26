@@ -88,5 +88,5 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 		}
 		return $results;
 	}
-
 }
+

@@ -61,5 +61,160 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => null);
 	}
 	
+	function procureParticipantReport($parameters) {
+		$header = null;
+		$conditions = array('TRUE');
+		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
+			//From databrowser
+			$participant_ids  = array_filter($parameters['Participant']['id']);
+			if($participant_ids) $conditions[] = "Participant.id IN ('".implode("','",$participant_ids)."')";
+		} else if(isset($parameters['Participant']['participant_identifier_start'])) {
+			$participant_identifier_start = (!empty($parameters['Participant']['participant_identifier_start']))? $parameters['Participant']['participant_identifier_start']: null;
+			$participant_identifier_end = (!empty($parameters['Participant']['participant_identifier_end']))? $parameters['Participant']['participant_identifier_end']: null;
+			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
+			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
+			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+			
+		//Get Controls Data
+		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
+		$event_controls = array();
+		foreach($participant_model->query($query) as $res) $event_controls[$res['event_controls']['event_type']] = array('id' => $res['event_controls']['id'], 'detail_tablename' => $res['event_controls']['detail_tablename']);
+		$query = "SELECT id,tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+		$tx_controls = array();
+		foreach($participant_model->query($query) as $res) {
+			$tx_controls[$res['treatment_controls']['tx_method']] = array('id' => $res['treatment_controls']['id'], 'detail_tablename' => $res['treatment_controls']['detail_tablename']);
+		}
+		$diagnosis_event_control_id = $event_controls['procure diagnostic information worksheet']['id'];
+		$diagnosis_event_detail_tablename = $event_controls['procure diagnostic information worksheet']['detail_tablename'];
+		$pathology_event_control_id = $event_controls['procure pathology report']['id'];
+		$pathology_event_detail_tablename = $event_controls['procure pathology report']['detail_tablename'];
+		
+		//Get participants data
+		$query = "SELECT 
+			Participant.id,
+			Participant.participant_identifier, 
+			Participant.vital_status,
+			Participant.date_of_death,
+			Participant.date_of_death_accuracy,
+			Participant.procure_cause_of_death,
+			PathologyEventMaster.event_date, 
+			PathologyEventMaster.event_date_accuracy, 
+			PathologyEventDetail.path_number, 
+			DiagnosisEventDetail.biopsy_pre_surgery_date, 
+			DiagnosisEventDetail.biopsy_pre_surgery_date_accuracy,
+			DiagnosisEventDetail.aps_pre_surgery_total_ng_ml,
+			DiagnosisEventDetail.aps_pre_surgery_free_ng_ml,
+			DiagnosisEventDetail.aps_pre_surgery_date,
+			DiagnosisEventDetail.aps_pre_surgery_date_accuracy
+			FROM participants Participant
+			LEFT JOIN event_masters DiagnosisEventMaster ON DiagnosisEventMaster.participant_id = Participant.id AND DiagnosisEventMaster.event_control_id = $diagnosis_event_control_id AND DiagnosisEventMaster.deleted <> 1
+			LEFT JOIN $diagnosis_event_detail_tablename DiagnosisEventDetail ON DiagnosisEventDetail.event_master_id = DiagnosisEventMaster.id
+			LEFT JOIN event_masters PathologyEventMaster ON PathologyEventMaster.participant_id = Participant.id AND PathologyEventMaster.event_control_id = $pathology_event_control_id AND PathologyEventMaster.deleted <> 1
+			LEFT JOIN $pathology_event_detail_tablename PathologyEventDetail ON PathologyEventDetail.event_master_id = PathologyEventMaster.id
+			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
+		$data = array();
+		foreach($participant_model->query($query) as $res) {
+			$participant_id = $res['Participant']['id'];
+			if(isset($data[$participant_id])) AppController::addWarningMsg('at least one participant is linked to more than one diagnosis or pathology worksheet');
+			$data[$participant_id]['Participant'] = $res['Participant'];
+			$data[$participant_id]['EventMaster'] = $res['PathologyEventMaster'];
+			$data[$participant_id]['EventDetail'] = array_merge($res['PathologyEventDetail'], $res['DiagnosisEventDetail']);	
+			$data[$participant_id]['0'] = array(
+				'procure_post_op_hormono' => '',
+				'procure_post_op_chemo' => '',
+				'procure_post_op_radio' => '',
+				'procure_pre_op_hormono' => '',
+				'procure_pre_op_chemo' => '',
+				'procure_pre_op_radio' => '',
+				'procure_inaccurate_date_use' => '',
+				'procure_pre_op_psa_date' => ''
+			);
+			$data[$participant_id]['EventDetail']['total_ngml'] = '';
+		}
+		if(sizeof($data) > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		
+		$participant_ids = array_keys($data);
+		$inaccurate_date = false;
+		
+		//Analyze participants treatments
+		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
+		$all_participants_treatment = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_ids, 'TreatmentMaster.treatment_control_id' => $treatment_control_id,'TreatmentMaster.start_date IS NOT NULL')));
+		foreach($all_participants_treatment as $new_treatment) {
+			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
+			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
+			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
+			if($pathology_report_date) {
+				$administrated_treatment_types = array();
+				if(preg_match('/chemotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'chemo';
+				if(preg_match('/hormonotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'hormono';
+				if(preg_match('/radiotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'radio';
+				if($administrated_treatment_types) {
+					if($pathology_report_date_accuracy != 'c' || $new_treatment['TreatmentMaster']['start_date_accuracy'] != 'c') {
+						$inaccurate_date = true;
+						$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
+					}
+					if($new_treatment['TreatmentMaster']['start_date'] < $pathology_report_date) {
+						foreach($administrated_treatment_types as $tx_type) $data[$participant_id][0]['procure_pre_op_'.$tx_type] = 'y';
+					} else if($new_treatment['TreatmentMaster']['start_date'] > $pathology_report_date) {
+						foreach($administrated_treatment_types as $tx_type) $data[$participant_id][0]['procure_post_op_'.$tx_type] = 'y';
+					}
+				}
+			}
+		}
+		
+		//Analyze participants psa
+		$event_model = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+		$event_control_id = $event_controls['procure follow-up worksheet - aps']['id'];
+		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL')));
+		foreach($all_participants_psa as $new_psa) {
+			$participant_id = $new_psa['EventMaster']['participant_id'];
+			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
+			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
+			if($pathology_report_date) {
+				if($pathology_report_date_accuracy != 'c' || $new_psa['EventMaster']['event_date_accuracy'] != 'c') {
+					$inaccurate_date = true;
+					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
+				}
+				if($new_psa['EventMaster']['event_date'] < $pathology_report_date) {
+					$lengh = strlen($new_psa['EventMaster']['event_date']);
+					switch($new_psa['EventMaster']['event_date_accuracy']) {
+						case 'c':
+							break;
+						case 'd':
+							$lengh = strrpos($new_psa['EventMaster']['event_date'], '-');
+							break;
+						case 'm':
+						case 'y':
+							$lengh = strpos($new_psa['EventMaster']['event_date'], '-');
+							break;
+					}
+					$new_psa['EventMaster']['event_date'] = substr($new_psa['EventMaster']['event_date'], 0, $lengh);
+					$data[$participant_id]['0']['procure_pre_op_psa_date'] = $new_psa['EventMaster']['event_date'];
+					$data[$participant_id]['EventDetail']['total_ngml'] = $new_psa['EventDetail']['total_ngml'];
+				}
+			}
+		}
+		
+		if($inaccurate_date) AppController::addWarningMsg('at least one participant summary is based on inaccurate date');
+		
+		return array(
+				'header' => $header,
+				'data' => $data,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
 	
 }
