@@ -9,11 +9,11 @@
 // Variables
 //==============================================================================================
 
-$is_server = false;
+$is_server = true;
 
 $file_name = 'Donnees cliniques CHUM version vers ATIM final formatted_20140822.xls';
 $file_path = 'C:\\_Perso\\Server\\procure_chum\\data\\'.$file_name;
-if($is_server) $file_path = '/ATiM/atim-procure/Test/data/'.$file_name;
+if($is_server) $file_path = '/ATiM/atim-procure/MigrationProcureExcel/'.$file_name;
 		
 global $import_summary;
 $import_summary = array();
@@ -33,7 +33,7 @@ if($is_server) {
 	$db_user 		= "root";
 	$db_pwd			= "";
 	$db_charset		= "utf8";
-	$db_schema		= "procuretest";
+	$db_schema		= "atimprocureprod";
 }
 
 global $db_connection;
@@ -96,7 +96,12 @@ $truncate_queries = array(
 	"UPDATE procure_txd_followup_worksheet_treatments SET followup_event_master_id = null;",
 	'UPDATE procure_txd_followup_worksheet_treatments SET dosage = null;',
 	'UPDATE procure_txd_followup_worksheet_treatments_revs SET dosage = null;',
-	
+
+	"DELETE FROM procure_txd_followup_worksheet_treatments WHERE treatment_type IN ('curietherapy', 'aborted prostatectomy');",
+	"DELETE FROM procure_txd_followup_worksheet_treatments_revs WHERE treatment_type IN ('curietherapy', 'aborted prostatectomy');",
+	"DELETE FROM treatment_masters WHERE id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_treatments) AND treatment_control_id = 6;",
+	"DELETE FROM treatment_masters_revs WHERE id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_treatments) AND treatment_control_id = 6;",
+		
 	'TRUNCATE procure_ed_clinical_followup_worksheets;',
 	'TRUNCATE procure_ed_clinical_followup_worksheets_revs;',
 	'DELETE FROM event_masters WHERE event_control_id = 53;',
@@ -309,6 +314,8 @@ dislayErrorAndMessage($import_summary);
 //=================================================================================================================================
 
 function loadV0V01PatientData(&$participant_session_data, $new_line_data) {
+	global $import_summary;
+	$report = 'Other Treatment';
 	$participant_id = $participant_session_data['participant_id'];
 	$atim_code_barre = $participant_session_data['atim_code_barre'];
 	$patient_identification_msg = $participant_session_data['patient_identification_msg'];
@@ -316,6 +323,27 @@ function loadV0V01PatientData(&$participant_session_data, $new_line_data) {
 	createDiagnosticInformationWorksheet($participant_session_data, $new_line_data, $prostatectomy_date);
 	createPathologyReport($participant_session_data, $new_line_data, $prostatectomy_date);
 	createV01MedicationWorksheet($participant_session_data, $new_line_data);
+	$new_treatment_type = '';
+	//Add aborted prostatectomy
+	if($new_line_data["Questions pour la réunion annuelle 2014 ProCure Banque du CHUM::Métastases à l'opération"] == '1') {
+		$treatment_master_data = array('procure_form_identification' => "n/a", 'participant_id' => $participant_id, 'treatment_control_id' => 6);
+		$treatment_detail_data = array();
+		$treatment_master_id = customInsert($treatment_master_data, 'treatment_masters', __LINE__, false, true);
+		$treatment_detail_data['treatment_master_id'] = $treatment_master_id;
+		$treatment_detail_data['treatment_type'] = 'aborted prostatectomy';
+		customInsert($treatment_detail_data, 'procure_txd_followup_worksheet_treatments', __LINE__, true, true);
+		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Created 'aborted prostatectomy'.".$patient_identification_msg;
+	}
+	//Add curitherapy
+	if($new_line_data['Questions pour la réunion annuelle 2014 ProCure Banque du CHUM::Curithérapie'] == '1') {
+		$treatment_master_data = array('procure_form_identification' => "n/a", 'participant_id' => $participant_id, 'treatment_control_id' => 6);
+		$treatment_detail_data = array();
+		$treatment_master_id = customInsert($treatment_master_data, 'treatment_masters', __LINE__, false, true);
+		$treatment_detail_data['treatment_master_id'] = $treatment_master_id;
+		$treatment_detail_data['treatment_type'] = 'curietherapy';
+		customInsert($treatment_detail_data, 'procure_txd_followup_worksheet_treatments', __LINE__, true, true);
+		$import_summary[$report]['MESSAGE']["Patient $atim_code_barre"][] = "Created 'curietherapy'.".$patient_identification_msg;
+	}
 }
 
 function getProstatectomyDate($participant_id, $new_line_data, $patient_identification_msg) {
@@ -324,7 +352,7 @@ function getProstatectomyDate($participant_id, $new_line_data, $patient_identifi
 	$query = "SELECT start_date, start_date_accuracy 
 		FROM treatment_masters tm 
 		INNER JOIN procure_txd_followup_worksheet_treatments td
-		WHERE tm.id = td.treatment_master_id AND tm.deleted <> 1 AND tm.participant_id = $participant_id AND treatment_type = 'other treatment' AND type LIKE '%prostatectomie%' ORDER BY start_date ASC;";
+		WHERE tm.id = td.treatment_master_id AND tm.deleted <> 1 AND tm.participant_id = $participant_id AND treatment_type = 'prostatectomy' AND type LIKE '%prostatectomie%' ORDER BY start_date ASC;";
 	$query_res = customQuery($query, __LINE__);
 	if($query_res->num_rows) {
 		if($query_res->num_rows > 1) $import_summary[$report]['WARNING']["More than one prostatectomy in ATiM"][] = $patient_identification_msg;
@@ -476,7 +504,7 @@ function createDiagnosticInformationWorksheet(&$participant_session_data, $new_l
 						$event_detail_data['aps_pre_surgery_free_ng_ml'] = $excel_aps_pre_surgery_free_ng_ml;
 					}
 				} else {
-					die('Case to support 872979327 : no atim aps pre-prostatectomy found in atim but atim aps matches excel aps (same date same but diff value). '.$patient_identification_msg);		
+					$import_summary[$report]['ERROR']['No ATiM APS-PreProstatectomy is defined but an ATiM APS date matches the excel APS-PreProstatectomy date (but values are different)'][] = "No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;
 				}
 			} else {
 				$import_summary[$report]['ERROR']['Not enough information to create the APS pre-prostatectomy into ATiM (no sardo prostatectomy data + no match on aps date)'][] = "No APS-PrePreprostatecotmy data will be added to 'Diagnostic Information Worksheet'. ". $patient_identification_msg;	
@@ -547,9 +575,7 @@ function createDiagnosticInformationWorksheet(&$participant_session_data, $new_l
 						$event_detail_data['biopsy_pre_surgery_date'] = $new_line_data['V0::Biopsie pré-chirurgie::Date'];
 						$event_detail_data['biopsy_pre_surgery_date_accuracy'] = 'c';
 					} else {
-						pr($all_atim_biopsies);
-						pr($new_line_data['V0::Biopsie pré-chirurgie::Date']);
-						die('Case to support 334222324. '.$patient_identification_msg);
+						$import_summary[$report]['ERROR']["Unable to match the Excel Biopsy with an ATiM Biopsy (sardo) based on date. To validate and create (if required) both in SARDO and ATiM manually. Biopsy pre-surgery date won't be set"][] = "Biopsy on ".$new_line_data['V0::Biopsie pré-chirurgie::Date'].". ".$patient_identification_msg;
 					}
 				}
 			}
