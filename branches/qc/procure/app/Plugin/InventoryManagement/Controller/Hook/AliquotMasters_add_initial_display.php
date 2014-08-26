@@ -15,7 +15,7 @@
 		$default_concentration_unit = '';
 			
 		$default_storage_datetime = ($sample_data['SampleControl']['sample_category'] == 'specimen')?  $sample_data['SpecimenDetail']['reception_datetime'] : $sample_data['DerivativeDetail']['creation_datetime'];
-		$default_storage_datetime_accuracy = 'h';
+		if($default_storage_datetime) $default_storage_datetime = substr($default_storage_datetime, 0, strpos($default_storage_datetime, ' '));
 		
 		switch($new_sample_record['parent']['ViewSample']['sample_type'].'-'.$aliquot_control['AliquotControl']['aliquot_type']) {
 			
@@ -108,7 +108,6 @@
 			if($default_volume) $tmp_default_aliquot_data['AliquotMaster.initial_volume'] = $default_volume;
 			if($default_concentration_unit) $tmp_default_aliquot_data['AliquotDetail.concentration_unit'] = $default_concentration_unit;
 			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $default_storage_datetime;
-			$tmp_default_aliquot_data['AliquotMaster.storage_datetime_accuracy'] = $default_storage_datetime_accuracy;
 			
 			$counter = 0;
 			foreach($new_sample_record['children'] AS &$new_aliquot) {

@@ -2,6 +2,23 @@
 
 class TreatmentMastersControllerCustom extends TreatmentMastersController {
 
+	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date ASC, TreatmentMaster.procure_form_identification ASC'));
+	
+	function listall($participant_id, $treatment_control_id = null){
+		$participant_data = $this->Participant->getOrRedirect($participant_id);
+		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
+		if(!$treatment_control_id) {
+			$this->set('all_treatment_controls',  $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => 1))));
+			$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
+			$this->request->data = array();
+		} else {
+			$treatment_control = $this->TreatmentControl->find('first', array('conditions' => array('TreatmentControl.flag_active' => 1, 'TreatmentControl.id' => $treatment_control_id)));
+			$this->Structures->set(($treatment_control['TreatmentControl']['tx_method'] == 'procure medication worksheet')? '': $treatment_control['TreatmentControl']['form_alias']);
+			$this->request->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentMaster.treatment_control_id' => $treatment_control_id));	
+		}
+	}	
+	
+	
 	function addInBatch( $participant_id, $tx_control_id, $already_displayed = false) {
 		
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall/')){

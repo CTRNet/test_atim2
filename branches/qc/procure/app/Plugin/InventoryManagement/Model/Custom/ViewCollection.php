@@ -86,4 +86,5 @@ Collection.procure_visit AS procure_visit,
 		}
 		return $results;
 	}
+}
 
