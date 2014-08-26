@@ -485,14 +485,16 @@ class ReportsController extends DatamartAppController {
 			'description' => 'n/a');
 		
 		$bank_ids = array();
-		foreach($parameters[0]['bank_id'] as $bank_id) if(!empty($bank_id)) $bank_ids[] = $bank_id;
-		if(!empty($bank_ids)) {
-			$Bank = AppModel::getInstance("Administrate", "Bank", true);
-			$bank_list = $Bank->find('all', array('conditions' => array('id' => $bank_ids)));
-			$bank_names = array();
-			foreach($bank_list as $new_bank) $bank_names[] = $new_bank['Bank']['name'];
-			$header['description'] = __('bank'). ': '.implode(',',$bank_names);
-		}	
+		if(isset($parameters[0]['bank_id'])) {
+			foreach($parameters[0]['bank_id'] as $bank_id) if(!empty($bank_id)) $bank_ids[] = $bank_id;
+			if(!empty($bank_ids)) {
+				$Bank = AppModel::getInstance("Administrate", "Bank", true);
+				$bank_list = $Bank->find('all', array('conditions' => array('id' => $bank_ids)));
+				$bank_names = array();
+				foreach($bank_list as $new_bank) $bank_names[] = $new_bank['Bank']['name'];
+				$header['description'] = __('bank'). ': '.implode(',',$bank_names);
+			}	
+		}
 
 		// 2- Search data
 		
@@ -730,13 +732,15 @@ class ReportsController extends DatamartAppController {
 				'description' => 'n/a');
 	
 		$bank_ids = array();
-		foreach($parameters[0]['bank_id'] as $bank_id) if(!empty($bank_id)) $bank_ids[] = $bank_id;
-		if(!empty($bank_ids)) {
-			$Bank = AppModel::getInstance("Administrate", "Bank", true);
-			$bank_list = $Bank->find('all', array('conditions' => array('id' => $bank_ids)));
-			$bank_names = array();
-			foreach($bank_list as $new_bank) $bank_names[] = $new_bank['Bank']['name'];
-			$header['title'] .= ' ('.__('bank'). ': '.implode(',', $bank_names).')';
+		if(isset($parameters[0]['bank_id'])) {
+			foreach($parameters[0]['bank_id'] as $bank_id) if(!empty($bank_id)) $bank_ids[] = $bank_id;
+			if(!empty($bank_ids)) {
+				$Bank = AppModel::getInstance("Administrate", "Bank", true);
+				$bank_list = $Bank->find('all', array('conditions' => array('id' => $bank_ids)));
+				$bank_names = array();
+				foreach($bank_list as $new_bank) $bank_names[] = $new_bank['Bank']['name'];
+				$header['title'] .= ' ('.__('bank'). ': '.implode(',', $bank_names).')';
+			}
 		}
 		
 		// 2- Search data
