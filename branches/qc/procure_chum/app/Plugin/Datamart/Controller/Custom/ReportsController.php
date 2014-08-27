@@ -43,12 +43,8 @@ class ReportsControllerCustom extends ReportsController {
 								'first_name' => $new_ident['Participant']['first_name'],
 								'last_name' => $new_ident['Participant']['last_name']),
 						'0' => array(
-								'prostate_bank_no_lab' => null,
-								'ramq_nbr' => null,
-								'hotel_dieu_id_nbr' => null,
-								'notre_dame_id_nbr' => null,
-								'saint_luc_id_nbr' => null,
-								'participant_patho_identifier' => null)
+								'RAMQ' => null,
+								'hospital_number' => null)
 				);
 			}
 			$data[$participant_id]['0'][str_replace(array(' ', '-'), array('_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
@@ -151,7 +147,17 @@ class ReportsControllerCustom extends ReportsController {
 		//Analyze participants treatments
 		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
-		$all_participants_treatment = $treatment_model->find('all', array('conditions' => array('TreatmentMaster.participant_id' => $participant_ids, 'TreatmentMaster.treatment_control_id' => $treatment_control_id,'TreatmentMaster.start_date IS NOT NULL')));
+		$conditions = array(
+				'TreatmentMaster.participant_id' => $participant_ids,
+				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
+				'TreatmentMaster.start_date IS NOT NULL',
+				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'"));
+		$tx_join = array(
+				'table' => 'procure_txd_followup_worksheet_treatments',
+				'alias' => 'TreatmentDetail',
+				'type' => 'INNER',
+				'conditions' => array('TreatmentDetail.treatment_master_id = TreatmentMaster.id'));
+		$all_participants_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
 			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
