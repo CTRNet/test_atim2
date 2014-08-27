@@ -112,4 +112,4 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('at least one APS or treatment or clinical event is linked to that followup form', 'At least one PSA, treatment or clinical event is defined for htis followup form', 'Au moins un APS, traitement ou événement clinique est défini pour ce formulaire de suivi'),
 ('procure follow-up worksheet - aps', 'F1 - Follow-up Worksheet :: PSA', 'F1 - Fiche de suivi du patient :: APS');
 
-UPDATE versions SET branch_build_number = '5865' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '5868' WHERE version_number = '2.6.3';
