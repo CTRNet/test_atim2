@@ -256,7 +256,7 @@ class ReportsControllerCustom extends ReportsController {
 			}
 		}
 		
-		if($inaccurate_date) AppController::addWarningMsg('at least one participant summary is based on inaccurate date');
+		if($inaccurate_date) AppController::addWarningMsg(__('at least one participant summary is based on inaccurate date'));
 		
 		return array(
 				'header' => $header,
