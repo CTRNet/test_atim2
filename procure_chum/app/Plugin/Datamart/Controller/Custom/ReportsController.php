@@ -229,8 +229,8 @@ class ReportsControllerCustom extends ReportsController {
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
-			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
-			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
+			$pathology_report_date = $data[$participant_id]['TreatmentMaster']['start_date'];
+			$pathology_report_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
 			if($pathology_report_date) {
 				if($pathology_report_date_accuracy != 'c' || $new_psa['EventMaster']['event_date_accuracy'] != 'c') {
 					$inaccurate_date = true;
