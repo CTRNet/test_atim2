@@ -1,35 +1,20 @@
 <?php
-//C:\_Perso\System\wamp\bin\php\php5.3.13\php ImportSardoDataFromXmlFile.php
-//TODO fair un dump base de données avant chaque process dans le crontab
-//TODO le cron tab doit ecrire le resultat dans un fichier de res php Im.... > res.txt
-//TODO importer les psa inexistants dans ATiM
-//TODO importer les ca125 inexistants dans ATiM
 
 global $import_summary;
 $import_summary = array();
-
-$is_server = false;
-//TODO remove $is_server?
 
 //==============================================================================================
 // Database Connection
 //==============================================================================================
 
-global $db_connection;
-
-$db_ip			= "127.0.0.1";
+$db_ip			= "localhost";
+$db_port 		= "";
 $db_user 		= "root";
 $db_pwd			= "";
-$db_schema		= "icm";
+$db_schema		= "atimoncologyaxisprod";
 $db_charset		= "utf8";
 
-if($is_server) {
-	$db_ip			= "localhost";
-	$db_user 		= "root";
-	$db_pwd			= "";
-	$db_schema		= "icmtmp";
-}
-
+global $db_connection;
 $db_connection = @mysqli_connect(
 	$db_ip.(!empty($db_port)? ":".$db_port : ''),
 	$db_user,
@@ -51,8 +36,8 @@ list($import_date, $import_by) = array_values(mysqli_fetch_assoc($query_res));
 // Load XML file data in DB sardo_* tables
 //==============================================================================================
 
-$file_name = "Export_CRCHUM_deno_short.XML";
-$file_path = str_replace('file_name', $file_name, (($is_server)? "/ch06chuma6134/file_name" : "C:/_Perso/Server/_scripts/file_name"));
+$file_name = "Export_CRCHUM.XML";
+$file_path = str_replace('file_name', $file_name, "/ch06chuma6134/file_name");
 if(!file_exists($file_path)) importDie("XML File : The file $file_path does not exist!");
 
 $reader = new XMLReader();
@@ -1001,7 +986,7 @@ function importReportData($pariticpant_id, $patient_rec_number, $diagnosis_rec_n
 	}
 }
 
-// *** APS & CA-125 (once) *********************************************************************
+// *** APS & CA-125 *********************************************************************
 
 function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbrs_to_ids, $no_labos_string) {
 	global $import_summary;
