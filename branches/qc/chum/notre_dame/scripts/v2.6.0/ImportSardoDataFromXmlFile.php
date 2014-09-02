@@ -62,6 +62,7 @@ $sql_sardo_tables_creations = array(
 	"DROP TABLE IF EXISTS sardo_rapport;",
 	"DROP TABLE IF EXISTS sardo_traitement;",
 	"DROP TABLE IF EXISTS sardo_labo;",
+	"DROP TABLE IF EXISTS sardo_progression;",
 	"DROP TABLE IF EXISTS sardo_diagnostic;",
 	"DROP TABLE IF EXISTS sardo_patient;",
 	"CREATE TABLE sardo_patient (
@@ -107,7 +108,20 @@ $sql_sardo_tables_creations = array(
 		KEY (RecNumber),
 		KEY(NoBANQUE));",
 	"ALTER TABLE sardo_diagnostic
-		ADD CONSTRAINT sardo_diagnostic_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_patient(RecNumber);",
+		ADD CONSTRAINT sardo_diagnostic_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_patient(RecNumber);",	
+	"CREATE TABLE sardo_progression (
+		RecNumber varchar(20),
+		ParentRecNumber varchar(20),
+		DateProgression date DEFAULT NULL,
+		DateProgression_accuracy char(1) NOT NULL DEFAULT '',
+		Code varchar(50) DEFAULT NULL,
+		Detail varchar(250) DEFAULT NULL,
+		NbLesions int(4) DEFAULT NULL,
+		Certitude varchar(50) DEFAULT NULL,
+		Type varchar(50) DEFAULT NULL,
+		KEY (RecNumber));",
+	"ALTER TABLE sardo_progression
+		ADD CONSTRAINT sardo_progression_ibfk_1 FOREIGN KEY (ParentRecNumber) REFERENCES sardo_diagnostic(RecNumber);",
 	"CREATE TABLE sardo_traitement (
 		RecNumber varchar(20),
 		ParentRecNumber varchar(20),
@@ -145,7 +159,7 @@ foreach($sql_sardo_tables_creations as $new_query) customQuery($new_query, __LIN
 
 $data = null;
 $field = null;
-$data_types = array("Patient","Rapport","Diagnostic","Traitement","Labo");
+$data_types = array("Patient","Rapport","Diagnostic","Progression","Traitement","Labo");
 $element_level = 0;
 while( $reader->read() ) {
 	if ($reader->nodeType == XMLReader::ELEMENT) {
@@ -251,15 +265,17 @@ while($res =  mysqli_fetch_assoc($query_res)) {
 // Diagnosis
 
 global $diagnosis_controls;
-$query_res = customQuery("SELECT id, detail_tablename FROM diagnosis_controls WHERE category = 'primary' AND controls_type = 'sardo' AND flag_active = 1;", __LINE__);
-if($query_res->num_rows != 1) importDie('SARDO primary diagnosis control unknown! ERR#_DX00002');
-$diagnosis_controls = mysqli_fetch_assoc($query_res);
-customQuery("DELETE FROM ".$diagnosis_controls['detail_tablename'].";", __LINE__);
-customQuery("UPDATE diagnosis_masters SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
-customQuery("DELETE FROM diagnosis_masters WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
-customQuery("DELETE FROM ".$diagnosis_controls['detail_tablename']."_revs;", __LINE__);
-customQuery("UPDATE diagnosis_masters_revs SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
-customQuery("DELETE FROM diagnosis_masters_revs WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
+$query_res = customQuery("SELECT id, detail_tablename, category FROM diagnosis_controls WHERE category IN ('primary','progression') AND controls_type = 'sardo' AND flag_active = 1;", __LINE__);
+if($query_res->num_rows != 2) importDie('SARDO primary/progression diagnosis control unknown! ERR#_DX00002');
+while($res = mysqli_fetch_assoc($query_res)) $diagnosis_controls[$res['category']] = $res;
+foreach(array('progression','primary') as $category) {
+	customQuery("DELETE FROM ".$diagnosis_controls[$category]['detail_tablename'].";", __LINE__);
+	customQuery("UPDATE diagnosis_masters SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
+	customQuery("DELETE FROM diagnosis_masters WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
+	customQuery("DELETE FROM ".$diagnosis_controls[$category]['detail_tablename']."_revs;", __LINE__);
+	customQuery("UPDATE diagnosis_masters_revs SET parent_id = null, primary_id = null WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
+	customQuery("DELETE FROM diagnosis_masters_revs WHERE diagnosis_control_id = ".$diagnosis_controls[$category]['id'].";", __LINE__);
+}
 
 // Participant
 //qc_nd_sardo_rec_number won't be erased at this level: Will be used as a flag to tracks any patient matching SARDO patient in the ast but matching no sardo patient anymore
@@ -753,7 +769,7 @@ function importDiagnosisData($pariticpant_id, $patient_rec_number, $no_labos_str
 		//Create diagnosis data set
 		$atim_diagnosis_data_to_create = array(
 			'DiagnosisMaster' => array(
-				'diagnosis_control_id' => $diagnosis_controls['id'], 
+				'diagnosis_control_id' => $diagnosis_controls['primary']['id'], 
 				'participant_id' => $pariticpant_id, 
 				'dx_date' => $sardo_diagnosis_data['DateDiagnostic'],
 				'dx_date_accuracy' => $sardo_diagnosis_data['DateDiagnostic_accuracy'],
@@ -792,10 +808,13 @@ function importDiagnosisData($pariticpant_id, $patient_rec_number, $no_labos_str
 		//Record diagnosis
 		$diagnosis_master_id = customInsert($atim_diagnosis_data_to_create['DiagnosisMaster'], 'diagnosis_masters', __LINE__);
 		$atim_diagnosis_data_to_create['DiagnosisDetail']['diagnosis_master_id'] = $diagnosis_master_id;
-		customInsert($atim_diagnosis_data_to_create['DiagnosisDetail'], $diagnosis_controls['detail_tablename'], __LINE__, true);
+		customInsert($atim_diagnosis_data_to_create['DiagnosisDetail'], $diagnosis_controls['primary']['detail_tablename'], __LINE__, true);
 		
 		$diagnosis_rec_nbrs_to_ids[$sardo_diagnosis_data['RecNumber']] = $diagnosis_master_id;
 	}
+	
+	//Load Progression
+	importProgressionData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbrs_to_ids, $no_labos_string);
 	
 	//Load Treatment
 	importTreatmentData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbrs_to_ids, $no_labos_string);
@@ -809,9 +828,39 @@ function importDiagnosisData($pariticpant_id, $patient_rec_number, $no_labos_str
 
 function finalizeDiagnosisCreation() {
 	global $diagnosis_controls;
-	
-	customQuery("UPDATE diagnosis_masters SET primary_id = id WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
-	customQuery("UPDATE diagnosis_masters_revs SET primary_id = id WHERE diagnosis_control_id = ".$diagnosis_controls['id'].";", __LINE__);
+	customQuery("UPDATE diagnosis_masters SET primary_id = id WHERE diagnosis_control_id = ".$diagnosis_controls['primary']['id'].";", __LINE__);
+	customQuery("UPDATE diagnosis_masters_revs SET primary_id = id WHERE diagnosis_control_id = ".$diagnosis_controls['primary']['id'].";", __LINE__);
+}
+
+// *** Progression *******************************************************************************
+
+function importProgressionData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbrs_to_ids, $no_labos_string) {
+	global $diagnosis_controls;
+	global $import_summary;
+
+	if($diagnosis_rec_nbrs_to_ids) {
+		$query_res = customQuery("SELECT * FROM sardo_progression WHERE ParentRecNumber IN ('".implode("','", array_keys($diagnosis_rec_nbrs_to_ids))."');", __LINE__);
+		while($sardo_progressions_data = mysqli_fetch_assoc($query_res)) {
+			$atim_diagnosis_data_to_create = array(
+				'DiagnosisMaster' => array(
+					'diagnosis_control_id' => $diagnosis_controls['progression']['id'],
+					'participant_id' => $pariticpant_id,
+					'primary_id' => $diagnosis_rec_nbrs_to_ids[$sardo_progressions_data['ParentRecNumber']],
+					'parent_id' => $diagnosis_rec_nbrs_to_ids[$sardo_progressions_data['ParentRecNumber']],
+					'dx_date' => $sardo_progressions_data['DateProgression'],
+					'dx_date_accuracy' => $sardo_progressions_data['DateProgression_accuracy']),
+				'DiagnosisDetail' => array(
+					'code' => $sardo_progressions_data['Code'],
+					'detail' => addValuesToCustomList("SARDO : Progression Details", $sardo_progressions_data['Detail']),
+					'nbr_lesions' => str_replace('-99', '', $sardo_progressions_data['NbLesions']),
+					'type' => addValuesToCustomList("SARDO : Progression Types", $sardo_progressions_data['Type']),
+					'certitude' => $sardo_progressions_data['Certitude']));
+			//Record diagnosis
+			$diagnosis_master_id = customInsert($atim_diagnosis_data_to_create['DiagnosisMaster'], 'diagnosis_masters', __LINE__);
+			$atim_diagnosis_data_to_create['DiagnosisDetail']['diagnosis_master_id'] = $diagnosis_master_id;
+			customInsert($atim_diagnosis_data_to_create['DiagnosisDetail'], $diagnosis_controls['progression']['detail_tablename'], __LINE__, true);
+		}
+	}
 }
 
 // *** Treatment *******************************************************************************
