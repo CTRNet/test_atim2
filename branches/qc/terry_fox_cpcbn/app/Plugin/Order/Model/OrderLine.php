@@ -12,6 +12,10 @@ class OrderLine extends OrderAppModel {
 			'className'    => 'Order.Order',            
 			'foreignKey'    => 'order_id'));
 	
+	var $registered_view = array(
+			'InventoryManagement.ViewAliquotUse' => array('OrderLine.id')
+	);
+	
 	function summary( $variables=array() ) {
 		
 		$return = false;

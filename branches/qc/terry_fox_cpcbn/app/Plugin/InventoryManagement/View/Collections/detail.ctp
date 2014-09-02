@@ -9,7 +9,7 @@
 	ksort($add_links);
 	
 	$settings = array();
-	if($is_ajax) $settings['header'] = __('collection');
+	if($is_ajax && !$hide_header) $settings['header'] = __('collection');
 	
 	$bottom_links = array(
 		'edit'						=> '/InventoryManagement/Collections/edit/' . $atim_menu_variables['Collection.id'],

@@ -24,7 +24,7 @@ class EventMaster extends ClinicalAnnotationAppModel {
 			$result = $this->find('first', array('conditions'=>array('EventMaster.id'=>$variables['EventMaster.id'])));
 				
 			$return = array(
-				'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE).' - '.__($result['EventControl']['disease_site'], TRUE) ),
+				'menu'			=>	array( NULL, __($result['EventControl']['event_type'], TRUE).(empty($result['EventControl']['disease_site'])? '' : ' - '.__($result['EventControl']['disease_site'], TRUE)) ),
 				'title'			=>	array( NULL, __('annotation', TRUE) ),
 				'data'				=> $result,
 				'structure alias'	=> 'eventmasters'

@@ -21,7 +21,7 @@ class MenusComponent extends Component {
 		
 		// if ALIAS not provided, try to guess what menu item CONTROLLER is looking for, defaulting to DETAIL/PROFILE if possible
 		if ( !$alias ) {
-			$alias					= '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/'.$this->controller->params['action'];
+			$alias = '/'.( $this->controller->params['plugin'] ? $this->controller->params['plugin'].'/' : '' ).$this->controller->params['controller'].'/'.$this->controller->params['action'];
 			
 			$alias_with_params = $alias;
 			foreach ( $this->controller->request->params as $param ) {
@@ -83,7 +83,7 @@ class MenusComponent extends Component {
 				if (!$result) {
 					
 					$alias_count = 0;
-					while ( !$result && $alias_count<count($alias_calculated) ) {
+					while(!$result && $alias_count < count($alias_calculated) ){
 						$result = $this->menu_model->find(
 									'all', 
 									array(
@@ -125,7 +125,10 @@ class MenusComponent extends Component {
 						$menu[] = $current_level;
 						
 						$source_result = $this->menu_model->find('first', array('conditions' => array('Menu.id' => $parent_id)));
-						
+
+						if(!$source_result){
+							break;
+						}
 						$source_id = $source_result['Menu']['id'];
 						$parent_id = $source_result['Menu']['parent_id'];
 						

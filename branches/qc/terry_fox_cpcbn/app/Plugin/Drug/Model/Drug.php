@@ -51,20 +51,30 @@ class Drug extends DrugAppModel {
 	 * @since 2007-10-16
 	 */
 	function allowDeletion($drug_id){
-		AppModel::getInstance('ClinicalAnnotation', 'TreatmentExtend');
-		$treatment_extend_model = new TreatmentExtend(false, 'txe_chemos');
-		$returned_nbr = $treatment_extend_model->find('count', array('conditions' => array('TreatmentExtend.drug_id' => $drug_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
+		$TreatmentExtendMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentExtendMaster", true);
+		$joins= array(array(
+			'table' => 'txe_chemos',
+			'alias' => 'TreatmentExtendDetail',
+			'type' => 'INNER',
+			'conditions' => array('TreatmentExtendDetail.treatment_extend_master_id = TreatmentExtendMaster.id'))
+		);
+		$returned_nbr = $TreatmentExtendMaster->find('count', array('conditions' => array('TreatmentExtendDetail.drug_id' => $drug_id), 'joins' => $joins, 'recursive' => '1'));
+		if($returned_nbr > 0) {
 			return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one participant chemotherapy'); 
 		}
 		
-		AppModel::getInstance('Protocol', 'ProtocolExtend');
-		$protocol_extend_model = new ProtocolExtend(false, 'pe_chemos');
-		$returned_nbr = $protocol_extend_model->find('count', array('conditions' => array('ProtocolExtend.drug_id' => $drug_id), 'recursive' => '-1'));
-		if($returned_nbr > 0) { 
-			return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one chemotherapy protocol'); 
+		$ProtocolExtendMaster = AppModel::getInstance("Protocol", "ProtocolExtendMaster", true);
+		$joins= array(array(
+				'table' => 'pe_chemos',
+				'alias' => 'ProtocolExtendDetail',
+				'type' => 'INNER',
+				'conditions' => array('ProtocolExtendDetail.protocol_extend_master_id = ProtocolExtendMaster.id'))
+		);
+		$returned_nbr = $ProtocolExtendMaster->find('count', array('conditions' => array('ProtocolExtendDetail.drug_id' => $drug_id), 'joins' => $joins, 'recursive' => '1'));
+		if($returned_nbr > 0) {
+			return array('allow_deletion' => false, 'msg' => 'drug is defined as a component of at least one protocol');
 		}
-
+		
 		return array('allow_deletion' => true, 'msg' => '');
 	}	
 	
