@@ -1,12 +1,13 @@
 <?php
 /**
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP Project
  * @package       Cake.Test.Case.Controller
  * @since         CakePHP(tm) v 1.2.0.5436
@@ -47,7 +48,6 @@ class ControllerTestAppController extends Controller {
  */
 	public $components = array('Cookie');
 }
-
 
 /**
  * ControllerPost class
@@ -97,14 +97,14 @@ class ControllerPost extends CakeTestModel {
 /**
  * find method
  *
- * @param mixed $type
+ * @param string $type
  * @param array $options
  * @return void
  */
 	public function find($type = 'first', $options = array()) {
-		if ($type == 'popular') {
+		if ($type === 'popular') {
 			$conditions = array($this->name . '.' . $this->primaryKey . ' > ' => '1');
-			$options = Set::merge($options, compact('conditions'));
+			$options = Hash::merge($options, compact('conditions'));
 			return parent::find('all', $options);
 		}
 		return parent::find($type, $options);
@@ -289,6 +289,7 @@ class TestController extends ControllerTestAppController {
 		return 'I am from the controller.';
 	}
 
+	//@codingStandardsIgnoreStart
 	protected function protected_m() {
 	}
 
@@ -297,6 +298,7 @@ class TestController extends ControllerTestAppController {
 
 	public function _hidden() {
 	}
+	//@codingStandardsIgnoreEnd
 
 	public function admin_add() {
 	}
@@ -357,6 +359,13 @@ class TestComponent extends Object {
 
 class Test2Component extends TestComponent {
 
+	public $model;
+
+	public function __construct(ComponentCollection $collection, $settings) {
+		$this->controller = $collection->getController();
+		$this->model = $this->controller->modelClass;
+	}
+
 	public function beforeRender(Controller $controller) {
 		return false;
 	}
@@ -385,7 +394,7 @@ class AnotherTestController extends ControllerTestAppController {
 
 /**
  * merge parent
- * 
+ *
  * @var string
  */
 	protected $_mergeParent = 'ControllerTestAppController';
@@ -403,7 +412,10 @@ class ControllerTest extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array('core.post', 'core.comment', 'core.name');
+	public $fixtures = array(
+		'core.post',
+		'core.comment'
+	);
 
 /**
  * reset environment.
@@ -423,9 +435,8 @@ class ControllerTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() {
-		CakePlugin::unload();
-		App::build();
 		parent::tearDown();
+		CakePlugin::unload();
 	}
 
 /**
@@ -442,11 +453,24 @@ class ControllerTest extends CakeTestCase {
 
 		$result = $Controller->loadModel('ControllerPost');
 		$this->assertTrue($result);
-		$this->assertTrue(is_a($Controller->ControllerPost, 'ControllerPost'));
-		$this->assertTrue(in_array('ControllerPost', $Controller->uses));
+		$this->assertInstanceOf('ControllerPost', $Controller->ControllerPost);
+		$this->assertContains('ControllerPost', $Controller->uses);
+	}
 
-		ClassRegistry::flush();
-		unset($Controller);
+/**
+ * Test loadModel() when uses = true.
+ *
+ * @return void
+ */
+	public function testLoadModelUsesTrue() {
+		$request = new CakeRequest('controller_posts/index');
+		$response = $this->getMock('CakeResponse');
+		$Controller = new Controller($request, $response);
+		$Controller->uses = true;
+
+		$Controller->loadModel('ControllerPost');
+		$this->assertInstanceOf('ControllerPost', $Controller->ControllerPost);
+		$this->assertContains('ControllerPost', $Controller->uses);
 	}
 
 /**
@@ -490,8 +514,8 @@ class ControllerTest extends CakeTestCase {
 		$Controller = new Controller($request);
 		$Controller->uses = array('ControllerPost', 'ControllerComment');
 		$Controller->constructClasses();
-		$this->assertTrue(is_a($Controller->ControllerPost, 'ControllerPost'));
-		$this->assertTrue(is_a($Controller->ControllerComment, 'ControllerComment'));
+		$this->assertInstanceOf('ControllerPost', $Controller->ControllerPost);
+		$this->assertInstanceOf('ControllerComment', $Controller->ControllerComment);
 
 		$this->assertEquals('Comment', $Controller->ControllerComment->name);
 
@@ -505,7 +529,23 @@ class ControllerTest extends CakeTestCase {
 		$Controller->constructClasses();
 
 		$this->assertTrue(isset($Controller->TestPluginPost));
-		$this->assertTrue(is_a($Controller->TestPluginPost, 'TestPluginPost'));
+		$this->assertInstanceOf('TestPluginPost', $Controller->TestPluginPost);
+	}
+
+/**
+ * testConstructClassesWithComponents method
+ *
+ * @return void
+ */
+	public function testConstructClassesWithComponents() {
+		$Controller = new TestPluginController(new CakeRequest(), new CakeResponse());
+		$Controller->uses = array('NameTest');
+		$Controller->components[] = 'Test2';
+
+		$Controller->constructClasses();
+		$this->assertEquals('NameTest', $Controller->Test2->model);
+		$this->assertEquals('Name', $Controller->NameTest->name);
+		$this->assertEquals('Name', $Controller->NameTest->alias);
 	}
 
 /**
@@ -539,8 +579,8 @@ class ControllerTest extends CakeTestCase {
 		$Controller->flash('this should work', '/flash');
 		$result = $Controller->response->body();
 
-		$expected = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-		<html xmlns="http://www.w3.org/1999/xhtml">
+		$expected = '<!DOCTYPE html>
+		<html>
 		<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>this should work</title>
@@ -727,7 +767,8 @@ class ControllerTest extends CakeTestCase {
 			array(303, "See Other"),
 			array(304, "Not Modified"),
 			array(305, "Use Proxy"),
-			array(307, "Temporary Redirect")
+			array(307, "Temporary Redirect"),
+			array(403, "Forbidden"),
 		);
 	}
 
@@ -870,6 +911,33 @@ class ControllerTest extends CakeTestCase {
 	}
 
 /**
+ * Test that beforeRedirect works with returning an array from the controller method.
+ *
+ * @return void
+ */
+	public function testRedirectBeforeRedirectInControllerWithArray() {
+		$Controller = $this->getMock('Controller', array('_stop', 'beforeRedirect'));
+		$Controller->response = $this->getMock('CakeResponse', array('header'));
+		$Controller->Components = $this->getMock('ComponentCollection', array('trigger'));
+
+		$Controller->expects($this->once())
+			->method('beforeRedirect')
+			->with('http://cakephp.org', null, true)
+			->will($this->returnValue(array(
+				'url' => 'http://example.org',
+				'status' => 302,
+				'exit' => true
+			)));
+
+		$Controller->response->expects($this->at(0))
+			->method('header')
+			->with('Location', 'http://example.org');
+
+		$Controller->expects($this->once())->method('_stop');
+		$Controller->redirect('http://cakephp.org');
+	}
+
+/**
  * testMergeVars method
  *
  * @return void
@@ -898,7 +966,7 @@ class ControllerTest extends CakeTestCase {
 
 		$this->assertEquals(0, count(array_diff_key($TestController->helpers, array_flip($helpers))));
 		$this->assertEquals(0, count(array_diff($TestController->uses, $uses)));
-		$this->assertEquals(count(array_diff_assoc(Set::normalize($TestController->components), Set::normalize($components))), 0);
+		$this->assertEquals(count(array_diff_assoc(Hash::normalize($TestController->components), Hash::normalize($components))), 0);
 
 		$expected = array('ControllerComment', 'ControllerAlias', 'ControllerPost');
 		$this->assertEquals($expected, $TestController->uses, '$uses was merged incorrectly, ControllerTestAppController models should be last.');
@@ -1043,6 +1111,7 @@ class ControllerTest extends CakeTestCase {
  * @return void
  */
 	public function testValidateErrorsOnArbitraryModels() {
+		Configure::write('Config.language', 'eng');
 		$TestController = new TestController();
 
 		$Post = new ControllerPost();
@@ -1222,7 +1291,7 @@ class ControllerTest extends CakeTestCase {
  * @return void
  */
 	public function testPropertyBackwardsCompatibility() {
-		$request = new CakeRequest('posts/index', null);
+		$request = new CakeRequest('posts/index', false);
 		$request->addParams(array('controller' => 'posts', 'action' => 'index'));
 		$request->data = array('Post' => array('id' => 1));
 		$request->here = '/posts/index';
@@ -1275,17 +1344,17 @@ class ControllerTest extends CakeTestCase {
 		$expected = array('page' => 1, 'limit' => 20, 'maxLimit' => 100, 'paramType' => 'named');
 		$this->assertEquals($expected, $Controller->paginate);
 
-		$results = Set::extract($Controller->paginate('ControllerPost'), '{n}.ControllerPost.id');
+		$results = Hash::extract($Controller->paginate('ControllerPost'), '{n}.ControllerPost.id');
 		$this->assertEquals(array(1, 2, 3), $results);
 
 		$Controller->passedArgs = array();
-		$Controller->paginate = array('limit' => '-1');
-		$this->assertEquals(array('limit' => '-1'), $Controller->paginate);
+		$Controller->paginate = array('limit' => '1');
+		$this->assertEquals(array('limit' => '1'), $Controller->paginate);
 		$Controller->paginate('ControllerPost');
 		$this->assertSame($Controller->params['paging']['ControllerPost']['page'], 1);
 		$this->assertSame($Controller->params['paging']['ControllerPost']['pageCount'], 3);
-		$this->assertSame($Controller->params['paging']['ControllerPost']['prevPage'], false);
-		$this->assertSame($Controller->params['paging']['ControllerPost']['nextPage'], true);
+		$this->assertFalse($Controller->params['paging']['ControllerPost']['prevPage']);
+		$this->assertTrue($Controller->params['paging']['ControllerPost']['nextPage']);
 	}
 
 /**
