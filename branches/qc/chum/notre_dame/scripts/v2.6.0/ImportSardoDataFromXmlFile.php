@@ -1016,6 +1016,7 @@ function importLaboData($pariticpant_id, $patient_rec_number, $diagnosis_rec_nbr
 					$import_summary['Labo']['WARNING']["At least one SARDO $atim_test date is not defined. $atim_test has not been studied"][] = "$atim_test = ".$sardo_labo_data['Resultat'].".See NoLabo(s) : $no_labos_string";
 				} else {
 					if($sardo_labo_data['Resultat'] == '-99') $sardo_labo_data['Resultat'] = '';
+					if($atim_test == 'ca125') $sardo_labo_data['Resultat'] = round($sardo_labo_data['Resultat']);
 					if(!isset($atim_labos_data[$atim_test][$sardo_formated_date])) {
 						$atim_event_data_to_create= array(
 							'EventMaster' => array(
