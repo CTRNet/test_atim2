@@ -5,7 +5,9 @@ class ViewAliquot extends InventoryManagementAppModel {
 	var $base_model = "AliquotMaster";
 	var $base_plugin = 'InventoryManagement';
 	
-	var $actsAs = array('MinMax');
+	var $actsAs = array(
+		'MinMax',
+		'OrderByTranslate' => array('initial_specimen_sample_type', 'parent_sample_type', 'sample_type', 'aliquot_type'));
 	
 	var $belongsTo = array(
 		'AliquotControl' => array(

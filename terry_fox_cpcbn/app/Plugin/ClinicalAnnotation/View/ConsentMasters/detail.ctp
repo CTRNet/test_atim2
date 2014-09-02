@@ -8,7 +8,8 @@
 		)
 	);
 	
-	$structure_settings = array('header' => __($consent_type, null), 'actions' => $is_ajax);
+	$structure_settings = array('actions' => $is_ajax);
+	if(!$is_ajax) $structure_settings['header'] = __($consent_type, null);
 			
 	// Set form structure and option 
 	$final_atim_structure = $atim_structure; 

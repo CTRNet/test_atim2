@@ -75,18 +75,29 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			$cancel_button = '/InventoryManagement/QualityCtrls/listAll/'.$menu_data['collection_id'].'/'.$sample_master_id;
 			
 		}else if(array_key_exists('ViewAliquot', $this->request->data)){
-				$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
-					'conditions'	=> array('AliquotMaster.id' => $this->request->data['ViewAliquot']['aliquot_master_id']),
-					'fields'		=> array('AliquotMaster.sample_master_id'),
-					'recursive'		=> -1)
-				);
-				$menu_data = array();
-				foreach($aliquot_sample_ids as $aliquot_sample_id){
-					$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
-				}
+			if(isset($this->request->data['node']) && $this->request->data[ 'ViewAliquot' ][ 'aliquot_master_id' ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ 'ViewAliquot' ][ 'aliquot_master_id' ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
+			$aliquot_sample_ids = $this->AliquotMaster->find('all', array(
+				'conditions'	=> array('AliquotMaster.id' => $this->request->data['ViewAliquot']['aliquot_master_id']),
+				'fields'		=> array('AliquotMaster.sample_master_id'),
+				'recursive'		=> -1)
+			);
+			$menu_data = array();
+			foreach($aliquot_sample_ids as $aliquot_sample_id){
+				$menu_data[] = $aliquot_sample_id['AliquotMaster']['sample_master_id'];
+			}
+			
 		}else if(array_key_exists('ViewSample', $this->request->data)){
+			if(isset($this->request->data['node']) && $this->request->data[ 'ViewSample' ][ 'sample_master_id' ] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data[ 'ViewSample' ][ 'sample_master_id' ] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
 			$menu_data = $this->request->data['ViewSample']['sample_master_id']; 
-		
+			
 		}else if(!empty($this->request->data)){
 			//submitted data
 			$tmp_data = current($this->request->data);
@@ -213,7 +224,8 @@ class QualityCtrlsController extends InventoryManagementAppController {
 							foreach($msgs as $msg) $errors[$field][$msg][] = $record_counter;
 						}
 					}
-					
+					$aliquot_data = $this->AliquotMaster->data;
+
 					$aliquot_data['AliquotMaster']['storage_coord_x'] = $data_unit['AliquotMaster']['storage_coord_x'];
 					$aliquot_data['AliquotMaster']['storage_coord_y'] = $data_unit['AliquotMaster']['storage_coord_y'];
 					
@@ -266,6 +278,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			
 			//save
 			if(empty($errors) && !empty($qc_data_to_save)){
+				
+				AppModel::acquireBatchViewsUpdateLock();
+				
 				$this->QualityCtrl->addWritableField(array('sample_master_id', 'aliquot_master_id'));
 				$this->QualityCtrl->writable_fields_mode = 'addgrid';
 				$this->QualityCtrl->saveAll($qc_data_to_save, array('validate' => false));
@@ -304,7 +319,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 					require($hook_link); 
 				}
 				
-				$this->atimFlash( 'your data has been saved', $target);
+				AppModel::releaseBatchViewsUpdateLock();
+				
+				$this->atimFlash(__('your data has been saved'), $target);
 				return;
 			
 			}else{
@@ -331,7 +348,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 		}
 	}
 	
-	function detail($collection_id, $sample_master_id, $quality_ctrl_id) {
+	function detail($collection_id, $sample_master_id, $quality_ctrl_id, $is_from_tree_view = false) {
 		if((!$collection_id) || (!$sample_master_id) || (!$quality_ctrl_id)) { 
 			$this->redirect('/Pages/err_plugin_funct_param_missing?method='.__METHOD__.',line='.__LINE__, null, true); 
 		}
@@ -373,7 +390,9 @@ class QualityCtrlsController extends InventoryManagementAppController {
 			'SampleMaster.id' => $quality_ctrl_data['QualityCtrl']['sample_master_id'],
 			'SampleMaster.initial_specimen_sample_id' => $quality_ctrl_data['SampleMaster']['initial_specimen_sample_id'],
 			'QualityCtrl.id' => $quality_ctrl_id) );
-					
+
+		$this->set('is_from_tree_view',$is_from_tree_view);
+		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { 
 			require($hook_link); 
@@ -471,7 +490,7 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if( $hook_link ) {
 					require($hook_link);
 				}
-				$this->atimFlash( 'your data has been saved', '/InventoryManagement/QualityCtrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
+				$this->atimFlash(__('your data has been saved'), '/InventoryManagement/QualityCtrls/detail/'.$collection_id.'/'.$sample_master_id.'/'.$quality_ctrl_id.'/' );
 			}
 		}
 		
@@ -503,15 +522,15 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				if($qc_data['QualityCtrl']['aliquot_master_id'] != null){
 					$this->AliquotMaster->updateAliquotUseAndVolume($qc_data['QualityCtrl']['aliquot_master_id'], true, true, false);
 				}
-				$this->atimFlash( 'your data has been deleted', 
+				$this->atimFlash(__('your data has been deleted'), 
 						'/InventoryManagement/QualityCtrls/listAll/'
 						.$qc_data['SampleMaster']['collection_id'].'/'
 						.$qc_data['QualityCtrl']['sample_master_id'].'/');
 			} else {
-				$this->flash('error deleting data - contact administrator', '/InventoryManagement/QualityCtrls/listAll/' . $collection_id . '/' . $sample_master_id);
+				$this->flash(__('error deleting data - contact administrator'), '/InventoryManagement/QualityCtrls/listAll/' . $collection_id . '/' . $sample_master_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], '/InventoryManagement/QualityCtrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
+			$this->flash(__($arr_allow_deletion['msg']), '/InventoryManagement/QualityCtrls/detail/' . $collection_id . '/' . $sample_master_id . '/' . $quality_ctrl_id);
 		}
 	}
 }

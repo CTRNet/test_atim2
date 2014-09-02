@@ -64,10 +64,11 @@ class DATABASE_CONFIG {
 		'persistent' => true,
 		'host' => '127.0.0.1',
 		'login' => 'root',
-		'password' => '',
-		'database' => 'tfricpcbn',
+		'password' => 'root',
+		'database' => 'atim_26x',
 		'prefix' => '',
-		'encoding' => 'utf8'
+		'encoding' => 'utf8',
+		'port'	=> 3306
 	);
 
 }

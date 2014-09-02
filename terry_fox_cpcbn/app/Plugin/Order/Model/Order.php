@@ -10,6 +10,10 @@ class Order extends OrderAppModel {
 			'className'   => 'Order.Shipment',
 			 'foreignKey'  => 'order_id')); 
 	
+	var $registered_view = array(
+		'InventoryManagement.ViewAliquotUse' => array('Order.id')
+	);
+	
 	function summary( $variables=array() ) {
 		$return = false;
 		

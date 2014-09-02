@@ -11,7 +11,7 @@
 	);
 	
 	$settings = array(
-			'header' => array('title' => __('temporary browsing'), 'description' => __('unsaved browsing trees that are automatically deleted when there are more than %d', BrowserController::$tmp_browsing_limit)),
+			'header' => array('title' => __('temporary browsing'), 'description' => __('unsaved browsing trees that are automatically deleted when there are more than %d', $tmp_browsing_limit)),
 			'form_bottom' => false,
 			'actions'	=> false,
 			'pagination' => false

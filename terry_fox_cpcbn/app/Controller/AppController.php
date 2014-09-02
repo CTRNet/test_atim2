@@ -1,7 +1,35 @@
 <?php
-App::uses('Controller', 'Controller');//required for console
+/**
+ * Application level Controller
+ *
+ * This file is application-wide controller file. You can put all
+ * application-wide controller-related methods here.
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       app.Controller
+ * @since         CakePHP(tm) v 0.2.9
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
+App::uses('Controller', 'Controller');
+
+/**
+ * Application Controller
+ *
+ * Add your application-wide methods in the class below, your controllers
+ * will inherit them.
+ *
+ * @package		app.Controller
+ * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
+ */
 class AppController extends Controller {
-	
 	private static $missing_translations = array();
 	private static $me = NULL;
 	private static $acl = null;
@@ -29,9 +57,9 @@ class AppController extends Controller {
 		if($this->Session->read('permission_timestamp') < $this->SystemVar->getVar('permission_timestamp')){
 			$this->resetPermissions();
 		}
-		
 		if(Configure::read('Config.language') != $this->Session->read('Config.language')){
 			//set language
+			//echo(Configure::read('Config.language'));
 			$this->Session->write('Config.language', Configure::read('Config.language'));
 		}
 		
@@ -99,7 +127,7 @@ class AppController extends Controller {
 			$data = $this->viewVars[$this->passedArgs['batchsetVar']];
 			if(empty($data)){
 				unset($this->passedArgs['batchsetVar']);
-				$this->flash('there is no data to add to a temporary batchset', 'javascript:history.back()');
+				$this->flash(__('there is no data to add to a temporary batchset'), 'javascript:history.back()');
 				return false;
 			}
 			if(isset($this->passedArgs['batchsetCtrl'])){
@@ -144,7 +172,7 @@ class AppController extends Controller {
 		if(Configure::read('debug') > 0){
 			$this->flash($message, $url);
 		}else{
-			$_SESSION['ctrapp_core']['confirm_msg'] = __($message);
+			$_SESSION['ctrapp_core']['confirm_msg'] = $message;
 			$this->redirect($url);
 		}
 	}
@@ -205,33 +233,11 @@ class AppController extends Controller {
 		$logged_in_user		= CakeSession::read('Auth.User.id');
 		$logged_in_group	= CakeSession::read('Auth.User.group_id');
 	
-		// get CONFIG for logged in user
-		if ( $logged_in_user ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-					"user_id" => $logged_in_user
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for GROUP level
-		if ( $logged_in_group && (!count($config_results) || !$config_results) ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-					"Config.group_id" => $logged_in_group,
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-		// if not logged in user, or user has no CONFIG, get CONFIG for APP level
-		if ( !count($config_results) || !$config_results ) {
-			$config_results = $config_data_model->find('first', array('conditions'=> array(
-			array("OR" => array("bank_id" => 0, "bank_id IS NULL")),
-			array("OR" => array("group_id" => 0, "group_id IS NULL")),
-			array("OR" => array("user_id" => 0, "user_id IS NULL"))
-			)));
-		}
-	
+        $config_results = $config_data_model->getConfig(CakeSession::read('Auth.User.group_id'),
+                                                        CakeSession::read('Auth.User.id'));
 		// parse result, set configs/defines
 		if ( $config_results ) {
+			
 			Configure::write('Config.language', $config_results['Config']['config_language']);
 			foreach ( $config_results['Config'] as $config_key => $config_data ) {
 				if ( strpos($config_key,'_')!==false ) {
@@ -649,6 +655,28 @@ class AppController extends Controller {
 	}
 	
 	/**
+	 * Handles automatic pagination of model records Adding 
+	 * the necessary bind on the model to fetch detail level, if there is a unique ctrl id
+	 * @param Model|string $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
+	 * @param string|array $scope Conditions to use while paginating
+	 * @param array $whitelist List of allowed options for paging
+	 * @return array Model query results
+	 */
+	public function paginate($object = null, $scope = array(), $whitelist = array()) {
+		//TODO Temporary fix linked to issue #3040: TreatmentMaster & EventMaster listall: var $paginate data won't be used 
+		if(!is_null($object) && !isset($this->passedArgs['sort']) && isset($this->paginate[$object->name]['order'])) $object->order = $this->paginate[$object->name]['order'];
+		
+		$model_name = isset($object->base_model) ? $object->base_model : $object->name;		
+		if(isset($object->Behaviors->MasterDetail->__settings[$model_name])){
+			extract($object->Behaviors->MasterDetail->__settings[$model_name]);
+			if($is_master_model && isset($scope[$model_name.'.'.$control_foreign]) && preg_match('/^[0-9]+$/', $scope[$model_name.'.'.$control_foreign])) {
+				self::buildDetailBinding($object, array($model_name.'.'.$control_foreign => $scope[$model_name.'.'.$control_foreign]), $empty_structure_alias);
+			}
+		}
+		return parent::paginate($object, $scope, $whitelist);
+	}
+		
+	/**
 	 * Finds and paginate search results. Stores search in cache.
 	 * Handles detail level when there is a unique ctrl_id.
 	 * Defines/updates the result structure.
@@ -884,22 +912,27 @@ class AppController extends Controller {
 	 * -i18n version field
 	 * -language files
 	 * -cache
+	 * -Delete all browserIndex > Limit
 	 * -databrowser lft rght
 	 */
 	function newVersionSetup(){
 		//new version installed!
-		//regen permissions
+		
+		// *** 1 *** regen permissions
+		
 		$this->PermissionManager->buildAcl();
 		AppController::addWarningMsg(__('permissions have been regenerated'));
 			
-		//update the i18n string for version
+		// *** 2 *** update the i18n string for version
+		
 		$i18n_model = new Model(array('table' => 'i18n', 'name' => 0));
 		$version_number = $this->Version->data['Version']['version_number'];
 		$i18n_model->save(array('id' => 'core_app_version', 'en' => $version_number, 'fr' => $version_number));
 		
-		//rebuild language files
+		// *** 3 ***rebuild language files
+		
 		$filee = fopen("../../app/Locale/eng/LC_MESSAGES/default.po", "w+t") or die("Failed to open english file");
-		$filef = fopen("../../app/Locale/fre/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
+		$filef = fopen("../../app/Locale/fra/LC_MESSAGES/default.po", "w+t") or die("Failed to open french file");
 		$i18n = $i18n_model->find('all');
 		foreach ( $i18n as &$i18n_line){
 			//Takes information returned by query and creates variable for each field
@@ -926,22 +959,52 @@ class AppController extends Controller {
 			fwrite($filee, $english);
 			fwrite($filef, $french);
 		}
+		fclose($filee);
+		fclose($filef);
+		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
-		//rebuilts lft rght in datamart_browsing_result if needed. Since v2.5.0.
+		// *** 4 *** rebuilts lft rght in datamart_browsing_result if needed + delete all temporary browsing index if > $tmp_browsing_limit. Since v2.5.0.
+		
+		$browsing_index_model = AppModel::getInstance('Datamart', 'BrowsingIndex', true);
 		$browsing_result_model = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+		$root_node_ids_to_keep = array();
+		$user_root_node_counter = 0;
+		$last_user_id = null;
+		$force_rebuild_left_rght = false;
+		$tmp_browsing = $browsing_index_model->find('all', array('conditions' => array('BrowsingIndex.temporary' => true), 'order' => array('BrowsingResult.user_id, BrowsingResult.created DESC')));
+		foreach($tmp_browsing as $new_browsing_index) {
+			if($last_user_id != $new_browsing_index['BrowsingResult']['user_id'] || $user_root_node_counter <  $browsing_index_model->tmp_browsing_limit) {
+				if($last_user_id != $new_browsing_index['BrowsingResult']['user_id']) $user_root_node_counter = 0;
+				$last_user_id = $new_browsing_index['BrowsingResult']['user_id'];
+				$user_root_node_counter++;
+				$root_node_ids_to_keep[$new_browsing_index['BrowsingIndex']['root_node_id']] = $new_browsing_index['BrowsingIndex']['root_node_id'];
+			} else {
+				//Some browsing index will be deleted
+				$force_rebuild_left_rght = true;
+			}
+		}
+		$result_ids_to_keep = $root_node_ids_to_keep;
+		$new_parent_ids = $root_node_ids_to_keep;
+		$loop_counter = 0;
+		while(!empty($new_parent_ids)) {
+			//Just in case
+			$loop_counter++;
+			if($loop_counter > 100) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			$new_parent_ids = $browsing_result_model->find('list', array('conditions' => array("BrowsingResult.parent_id" => $new_parent_ids), 'fields' => array('BrowsingResult.id')));
+			$result_ids_to_keep = array_merge($result_ids_to_keep, $new_parent_ids);
+		}
+		if(!empty($result_ids_to_keep)) {
+			$browsing_index_model->deleteAll("BrowsingIndex.root_node_id NOT IN (".implode(',',$root_node_ids_to_keep).")");
+			$browsing_result_model->deleteAll("BrowsingResult.id NOT IN (".implode(',',$result_ids_to_keep).")");
+		}
 		$result = $browsing_result_model->find('first', array('conditions' => array('NOT' => array('BrowsingResult.parent_id' => NULL), 'BrowsingResult.lft' => NULL)));
-		if($result){
+		if($result || $force_rebuild_left_rght){
 			self::addWarningMsg(__('rebuilt lft rght for datamart_browsing_results'));
 			$browsing_result_model->recover('parent');
 		}
-			
-		///Close file
-		fclose($filee);
-		fclose($filef);
-			
-		AppController::addWarningMsg(__('language files have been rebuilt'));
 		
-		//rebuild views
+		// *** 5 *** rebuild views
+		
 		$view_models = array(
 				AppModel::getInstance('InventoryManagement', 'ViewCollection'),
 				AppModel::getInstance('InventoryManagement', 'ViewSample'),
@@ -976,17 +1039,179 @@ class AppController extends Controller {
 		}
 		
 		AppController::addWarningMsg(__('views have been rebuilt'));
-			
-		//clear cache
+
+		// *** 6 *** Use Counter and Current Volume clean up
+		
+		$ViewAliquot_model = AppModel::getInstance("InventoryManagement", "ViewAliquot", false);	//To fix bug on table created on the fly (http://stackoverflow.com/questions/8167038/cakephp-pagination-using-temporary-table)
+		$tmp_aliquot_model_cacheSources = $ViewAliquot_model->cacheSources;
+		$ViewAliquot_model->cacheSources = false;
+		$ViewAliquot_model->schema();
+		$AliquotMaster_model = AppModel::getInstance("InventoryManagement", "AliquotMaster", true);
+		$AliquotMaster_model->check_writable_fields = false;
+		AppModel::acquireBatchViewsUpdateLock();
+		//-A-Use counter
+		$use_counters_updated = array();
+		//Search all aliquots linked to at least one use and having use_counter = 0
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, us.use_counter 
+				FROM aliquot_masters am 
+				INNER JOIN (SELECT count(*) AS use_counter, aliquot_master_id FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON am.id = us.aliquot_master_id
+				WHERE am.deleted <> 1 AND (am.use_counter IS NULL OR am.use_counter = 0)";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'use_counter' => $new_aliquot['us']['use_counter'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}	
+		//Search all unused aliquots having use_counter != 0
+		$tmp_sql = "SELECT id AS aliquot_master_id, barcode, aliquot_label FROM aliquot_masters WHERE deleted <> 1 AND use_counter IS NOT NULL AND use_counter != 0 AND id NOT IN (SELECT DISTINCT aliquot_master_id FROM view_aliquot_uses);";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['aliquot_masters']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['aliquot_masters']['aliquot_master_id'], 'use_counter' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$use_counters_updated[$new_aliquot['aliquot_masters']['aliquot_master_id']] = $new_aliquot['aliquot_masters']['barcode'];
+		}
+		//Search all aliquots having use_counter != real use counter (from view_aliquot_uses)
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label,us.use_counter FROM aliquot_masters am INNER JOIN (SELECT aliquot_master_id, count(*) AS use_counter FROM view_aliquot_uses GROUP BY aliquot_master_id) us ON us.aliquot_master_id = am.id WHERE am.deleted <> 1 AND us.use_counter != am.use_counter;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'use_counter' => $new_aliquot['us']['use_counter'])), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$use_counters_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}
+		if($use_counters_updated) AppController::addWarningMsg(__('aliquot use counter has been corrected for following aliquots : ').(implode(', ', $use_counters_updated)));
+		//-B-Current Volume
+		$current_volumes_updated = array();
+		//Search all aliquots having current_volume > 0 but a sum of used_volume (from view_aliquot_uses) > initial_volume
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume < us.sum_used_volumes AND am.current_volume != 0;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'current_volume' => '0')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}
+		//Search all aliquots having current_volume != initial volume - used_volume (from view_aliquot_uses) > initial_volume
+		$tmp_sql = "SELECT am.id AS aliquot_master_id, am.barcode, am.aliquot_label, am.initial_volume, am.current_volume, us.sum_used_volumes FROM aliquot_masters am INNER JOIN aliquot_controls ac ON ac.id = am.aliquot_control_id INNER JOIN (SELECT aliquot_master_id, SUM(used_volume) AS sum_used_volumes FROM view_aliquot_uses WHERE used_volume IS NOT NULL GROUP BY aliquot_master_id) AS us ON us.aliquot_master_id = am.id WHERE am.deleted != 1 AND ac.volume_unit IS NOT NULL AND am.initial_volume >= us.sum_used_volumes AND am.current_volume != (am.initial_volume - us.sum_used_volumes);";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		foreach($aliquots_to_clean_up as $new_aliquot) {
+			$AliquotMaster_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+			$AliquotMaster_model->id = $new_aliquot['am']['aliquot_master_id'];
+			if(!$AliquotMaster_model->save(array('AliquotMaster' => array('id' => $new_aliquot['am']['aliquot_master_id'], 'current_volume' => ($new_aliquot['am']['initial_volume'] - $new_aliquot['us']['sum_used_volumes']))), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+			$current_volumes_updated[$new_aliquot['am']['aliquot_master_id']] = $new_aliquot['am']['barcode'];
+		}	
+		if($current_volumes_updated) AppController::addWarningMsg(__('aliquot current volume has been corrected for following aliquots : ').(implode(', ', $current_volumes_updated)));
+		//-C-Used Volume
+		$used_volume_updated = array();
+		//Search all aliquot internal use having used volume not null but no volume unit 
+		$tmp_sql = "SELECT AliquotInternalUse.id AS aliquot_internal_use_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			AliquotInternalUse.used_volume AS used_volume,
+			AliquotControl.volume_unit
+			FROM aliquot_internal_uses AS AliquotInternalUse
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE AliquotInternalUse.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND AliquotInternalUse.used_volume IS NOT NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		if($aliquots_to_clean_up) {
+			$AliquotInternalUse_model = AppModel::getInstance("InventoryManagement", "AliquotInternalUse", true);
+			$AliquotInternalUse_model->check_writable_fields = false;
+			foreach($aliquots_to_clean_up as $new_aliquot) {			
+				$AliquotInternalUse_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$AliquotInternalUse_model->id = $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'];
+				if(!$AliquotInternalUse_model->save(array('AliquotInternalUse' => array('id' => $new_aliquot['AliquotInternalUse']['aliquot_internal_use_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+			}
+		}
+		//Search all aliquot used as source aliquot, used volume not null but no volume unit 
+		$tmp_sql = "SELECT SourceAliquot.id AS source_aliquot_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			SourceAliquot.used_volume AS used_volume,
+			AliquotControl.volume_unit AS aliquot_volume_unit
+			FROM source_aliquots AS SourceAliquot
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE SourceAliquot.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND SourceAliquot.used_volume IS NOT NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		if($aliquots_to_clean_up) {
+			$SourceAliquot_model = AppModel::getInstance("InventoryManagement", "SourceAliquot", true);
+			$SourceAliquot_model->check_writable_fields = false;
+			foreach($aliquots_to_clean_up as $new_aliquot) {
+				$SourceAliquot_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$SourceAliquot_model->id = $new_aliquot['SourceAliquot']['source_aliquot_id'];
+				if(!$SourceAliquot_model->save(array('SourceAliquot' => array('id' => $new_aliquot['SourceAliquot']['source_aliquot_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+			}
+		}		
+		//Search all aliquot used as parent aliquot, used volume not null but no volume unit 
+		$tmp_sql = "SELECT Realiquoting.id AS realiquoting_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			Realiquoting.parent_used_volume AS used_volume,
+			AliquotControl.volume_unit AS aliquot_volume_unit
+			FROM realiquotings AS Realiquoting
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE Realiquoting.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND Realiquoting.parent_used_volume IS NOT NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		if($aliquots_to_clean_up) {
+			$Realiquoting_model = AppModel::getInstance("InventoryManagement", "Realiquoting", true);
+			$Realiquoting_model->check_writable_fields = false;
+			foreach($aliquots_to_clean_up as $new_aliquot) {
+				$Realiquoting_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$Realiquoting_model->id = $new_aliquot['Realiquoting']['realiquoting_id'];			
+				if(!$Realiquoting_model->save(array('Realiquoting' => array('id' => $new_aliquot['Realiquoting']['realiquoting_id'], 'parent_used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+			}
+		}		
+		//Search all aliquot used for quality conbtrol, used volume not null but no volume unit 
+		$tmp_sql = "SELECT QualityCtrl.id AS quality_control_id,
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.barcode AS barcode,
+			QualityCtrl.used_volume AS used_volume,
+			AliquotControl.volume_unit AS aliquot_volume_unit
+			FROM quality_ctrls AS QualityCtrl
+			JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
+			JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			WHERE QualityCtrl.deleted <> 1 AND AliquotControl.volume_unit IS NULL AND QualityCtrl.used_volume IS NOT NULL;";
+		$aliquots_to_clean_up = $AliquotMaster_model->query($tmp_sql);
+		if($aliquots_to_clean_up) {
+			$QualityCtrl_model = AppModel::getInstance("InventoryManagement", "QualityCtrl", true);
+			$QualityCtrl_model->check_writable_fields = false;
+			foreach($aliquots_to_clean_up as $new_aliquot) {
+				$QualityCtrl_model->data = array(); // *** To guaranty no merge will be done with previous AliquotMaster data ***
+				$QualityCtrl_model->id = $new_aliquot['QualityCtrl']['quality_control_id'];
+				if(!$QualityCtrl_model->save(array('QualityCtrl' => array('id' => $new_aliquot['QualityCtrl']['quality_control_id'], 'used_volume' => '')), false)) $this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true);
+				$used_volume_updated[$new_aliquot['AliquotMaster']['aliquot_master_id']] = $new_aliquot['AliquotMaster']['barcode'];
+			}
+		}		
+		if($used_volume_updated) {	
+			$ViewAliquotUse_model = AppModel::getInstance('InventoryManagement', 'ViewAliquotUse');
+			foreach(explode("UNION ALL", $ViewAliquotUse_model::$table_query) as $query) {
+				$ViewAliquotUse_model->query('REPLACE INTO '.$ViewAliquotUse_model->table. '('.str_replace('%%WHERE%%', 'AND AliquotMaster.id IN ('.implode(',',array_keys($used_volume_updated)).')', $query).')');
+			}
+			AppController::addWarningMsg(__('aliquot used volume has been removed for following aliquots : ').(implode(', ', $used_volume_updated)));
+		}	
+		$ViewAliquot_model->cacheSources = $tmp_aliquot_model_cacheSources;
+		$ViewAliquot_model->schema();
+
+		// *** 7 *** clear cache
+
 		Cache::clear(false);
 		Cache::clear(false, 'structures');
 		Cache::clear(false, 'menus');
 		Cache::clear(false, 'browser');
+		Cache::clear(false, 'models');
 		Cache::clear(false, '_cake_core_');
 		Cache::clear(false, '_cake_model_');
 		AppController::addWarningMsg(__('cache has been cleared'));
 			
-		// Clean up parent to sample control + aliquot control
+		// *** 8 *** Clean up parent to sample control + aliquot control
+		
 		$studied_sample_control_id = array();
 		$active_sample_control_ids = array();
 		$this->ParentToDerivativeSampleControl = AppModel::getInstance("InventoryManagement", "ParentToDerivativeSampleControl", true);
@@ -1006,6 +1231,41 @@ class AppController extends Controller {
 		}
 		$this->Version->query('UPDATE parent_to_derivative_sample_controls SET flag_active = false WHERE parent_sample_control_id IS NOT NULL AND parent_sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
 		$this->Version->query('UPDATE aliquot_controls SET flag_active = false WHERE sample_control_id NOT IN ('.implode(',',$active_sample_control_ids).')');
+		
+		// *** 9 *** Clean up structure_permissible_values_custom_controls counters values
+		
+		$StructurePermissibleValuesCustomControl = AppModel::getInstance('', 'StructurePermissibleValuesCustomControl');
+		$has_many_details = array(
+				'hasMany' => array(
+						'StructurePermissibleValuesCustom' => array(
+								'className' => 'StructurePermissibleValuesCustom',
+								'foreignKey' => 'control_id')));
+		$StructurePermissibleValuesCustomControl->bindModel($has_many_details);
+		$all_cusom_lists_controls = $StructurePermissibleValuesCustomControl->find('all');
+		foreach($all_cusom_lists_controls as $new_custom_list) {
+			$values_used_as_input_counter = 0;
+			$values_counter = 0;
+			foreach($new_custom_list['StructurePermissibleValuesCustom'] as $new_custom_value) {
+				if(!$new_custom_value['deleted']) {
+					$values_counter++;
+					if($new_custom_value['use_as_input']) $values_used_as_input_counter++;
+				}
+			}
+			$StructurePermissibleValuesCustomControl->tryCatchQuery("UPDATE structure_permissible_values_custom_controls SET values_counter = $values_counter, values_used_as_input_counter = $values_used_as_input_counter WHERE id = ".$new_custom_list['StructurePermissibleValuesCustomControl']['id']);
+		}
+		
+		// *** 10 *** rebuilts lft rght in storage_masters
+		
+		$storage_master_model = AppModel::getInstance('StorageLayout', 'StorageMaster', true);
+		$result = $storage_master_model->find('first', array('conditions' => array('NOT' => array('StorageMaster.parent_id' => NULL), 'StorageMaster.lft' => NULL)));
+		if($result){
+			self::addWarningMsg(__('rebuilt lft rght for storage_masters'));
+			$storage_master_model->recover('parent');
+		}
+		
+		// *** 11 *** Disable unused treatment_extend_controls
+
+		$this->Version->query("UPDATE treatment_extend_controls SET flag_active = 0 WHERE id NOT IN (select distinct treatment_extend_control_id from treatment_controls WHERE flag_active = 1 AND treatment_extend_control_id IS NOT NULL)");
 		
 		//update the permissions_regenerated flag and redirect
 		$this->Version->data = array('Version' => array('permissions_regenerated' => 1));

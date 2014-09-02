@@ -21,13 +21,19 @@ class BrowsingControl extends DatamartAppModel {
 	function completeData(array &$data){
 		$datamart_structure_model = AppModel::getInstance('Datamart', 'DatamartStructure', true);
 		$datamart_structures = $datamart_structure_model->find('all', array('conditions' => array('DatamartStructure.id' => array($data['BrowsingControl']['id1'], $data['BrowsingControl']['id2']))));
-		assert(count($datamart_structures) == 2);
-		if($data['BrowsingControl']['id1'] == $datamart_structures[0]['DatamartStructure']['id']){
-			$data['DatamartStructure1'] = $datamart_structures[0]['DatamartStructure'];
-			$data['DatamartStructure2'] = $datamart_structures[1]['DatamartStructure'];
+		if($data['BrowsingControl']['id1'] == $data['BrowsingControl']['id2']){
+		    assert(count($datamart_structures) == 1);
+		    $data['DatamartStructure1'] = $datamart_structures[0]['DatamartStructure'];
+		    $data['DatamartStructure2'] = $datamart_structures[0]['DatamartStructure'];
 		}else{
-			$data['DatamartStructure1'] = $datamart_structures[1]['DatamartStructure'];
-			$data['DatamartStructure2'] = $datamart_structures[0]['DatamartStructure'];
+    		assert(count($datamart_structures) == 2);
+    		if($data['BrowsingControl']['id1'] == $datamart_structures[0]['DatamartStructure']['id']){
+    			$data['DatamartStructure1'] = $datamart_structures[0]['DatamartStructure'];
+    			$data['DatamartStructure2'] = $datamart_structures[1]['DatamartStructure'];
+    		}else{
+    			$data['DatamartStructure1'] = $datamart_structures[1]['DatamartStructure'];
+    			$data['DatamartStructure2'] = $datamart_structures[0]['DatamartStructure'];
+    		}
 		}
 	}
 	
@@ -64,6 +70,9 @@ class BrowsingControl extends DatamartAppModel {
 		}else{
 			//1 to n
 			$data = $this->find('first', array('conditions' => array('BrowsingControl.id2' => $browsing_structure_id_a, 'BrowsingControl.id1' => $browsing_structure_id_b)));
+			if(empty($data)){
+			    AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
 			assert($data);
 			$this->completeData($data);
 			$model_n = AppModel::getInstance($data['DatamartStructure1']['plugin'], $b == $data['DatamartStructure1']['control_master_model'] ? $b : $data['DatamartStructure1']['model']);
