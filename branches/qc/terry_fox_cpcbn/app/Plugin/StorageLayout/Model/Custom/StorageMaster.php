@@ -1,0 +1,112 @@
+<?php
+class StorageMasterCustom extends StorageMaster{
+	var $useTable = 'storage_masters';
+	var $name = 'StorageMaster';
+	
+	function summary($variables = array()) {
+		$return = false;
+	
+		if (isset($variables['StorageMaster.id'])) {
+			$result = $this->find('first', array('conditions' => array('StorageMaster.id' => $variables['StorageMaster.id'])));
+			$title = __($result['StorageControl']['storage_type']). ' : ' . $result['StorageMaster']['short_label'];
+						
+			if($_SESSION['Auth']['User']['group_id'] == '1') {
+				$title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
+			} else {
+				$GroupModel = AppModel::getInstance("", "Group", true);
+				$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+				$user_bank_id = $group_data['Group']['bank_id'];
+				if($result['StorageMaster']['qc_tf_bank_id'] == $user_bank_id) {
+					$title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
+				}				
+			}
+			
+			if($result['StorageControl']['is_tma_block'] && AppController::getInstance()->Session->read('flag_show_confidential')) {
+				$title = 'TMA ' . $result['StorageMaster']['qc_tf_tma_name'];
+			}
+			
+			
+			
+			$return = array(
+				'menu' => array(null, ($title . ' [' . $result['StorageMaster']['code'].']')),
+				'title' => array(null, ($title . ' [' . $result['StorageMaster']['code'].']')),
+				'data'				=> $result,
+				'structure alias'	=> 'storagemasters'
+			);
+		}
+	
+		return $return;
+	}
+	
+	function getLabel(array $children_array, $type_key, $label_key) {
+		if(($type_key == 'AliquotMaster')) {
+			if(($_SESSION['Auth']['User']['group_id'] == '1')) {
+				return $children_array['AliquotMaster']['aliquot_label'].' ['.$children_array['AliquotMaster']['barcode'].']';
+			} else {
+				$SampleModel = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
+				$sample_data = $SampleModel->find('first', array('conditions' => array('SampleMaster.id' => $children_array['AliquotMaster']['sample_master_id']), 'recursive' => '0'));
+				$custom_label = (isset($sample_data['SampleDetail']['qc_tf_collected_specimen_nature'])? ' '.__($sample_data['SampleDetail']['qc_tf_collected_specimen_nature']) : '').' ['.$children_array['AliquotMaster']['barcode'].']';	
+				if($sample_data['ViewSample']['qc_tf_bank_participant_identifier'] != CONFIDENTIAL_MARKER) $custom_label = $sample_data['ViewSample']['qc_tf_bank_participant_identifier'].' '.$custom_label;
+				return $custom_label;
+			}
+		}
+		
+		return $children_array[$type_key][$label_key];
+	}
+	
+	function beforeFind($queryData){
+		if(($_SESSION['Auth']['User']['group_id'] != '1')
+		&& is_array($queryData['conditions'])
+		&& (AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_label_site", $queryData['conditions'])
+		|| AppModel::isFieldUsedAsCondition("StorageMaster.qc_tf_tma_name", $queryData['conditions']))) {
+			AppController::addWarningMsg(__('your search will be limited to your bank'));
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			$queryData['conditions'][] = array("StorageMaster.qc_tf_bank_id" => $user_bank_id);
+		}
+		return $queryData;
+	}
+	
+	function afterFind($results, $primary = false){
+		$results = parent::afterFind($results);
+		if($_SESSION['Auth']['User']['group_id'] != '1') {
+			$GroupModel = AppModel::getInstance("", "Group", true);
+			$group_data = $GroupModel->findById($_SESSION['Auth']['User']['group_id']);
+			$user_bank_id = $group_data['Group']['bank_id'];
+			if(isset($results[0]['StorageMaster']['qc_tf_bank_id']) || isset($results[0]['StorageMaster']['qc_tf_tma_label_site']) || isset($results[0]['StorageMaster']['qc_tf_tma_name'])) {
+				foreach($results as &$result){
+					if((!isset($result['StorageMaster']['qc_tf_bank_id'])) || $result['StorageMaster']['qc_tf_bank_id'] != $user_bank_id) {
+						$result['StorageMaster']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+						$result['StorageMaster']['qc_tf_tma_label_site'] = CONFIDENTIAL_MARKER;
+						$result['StorageMaster']['qc_tf_tma_name'] = CONFIDENTIAL_MARKER;
+					}
+				}
+			} else if(isset($results['StorageMaster'])){
+				pr('TODO afterFind storage');
+				pr($results);
+				exit;
+			}
+		}
+	
+		return $results;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
