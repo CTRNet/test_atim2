@@ -15,21 +15,20 @@ class ViewCollectionCustom extends ViewCollection {
 		Collection.treatment_master_id AS treatment_master_id,
 		Collection.event_master_id AS event_master_id,
 		Participant.participant_identifier AS participant_identifier,
-Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifier,
-Participant.qc_tf_bank_id AS bank_id, 
- 		
 		Collection.acquisition_label AS acquisition_label,
 		Collection.collection_site AS collection_site,
-Collection.qc_tf_collection_type AS qc_tf_collection_type, 
 		Collection.collection_datetime AS collection_datetime,
 		Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
 		Collection.collection_property AS collection_property,
 		Collection.collection_notes AS collection_notes,
-		Collection.created AS created
+		Collection.created AS created,
+Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifier,
+Participant.qc_tf_bank_id AS bank_id, 
+Collection.qc_tf_collection_type AS qc_tf_collection_type
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-	
+		
 	function summary($variables=array()) {
 		$return = false;
 		
