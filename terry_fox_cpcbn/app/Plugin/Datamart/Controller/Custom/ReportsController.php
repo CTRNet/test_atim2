@@ -134,7 +134,7 @@ class ReportsControllerCustom extends ReportsController {
 		
 		$sql = 
 			"SELECT DISTINCT
-				Participant.id AS participant_id,
+				Participant.id,
 				Participant.qc_tf_bank_id,
 				Participant.participant_identifier,
 				Participant.qc_tf_bank_participant_identifier,
@@ -187,7 +187,7 @@ class ReportsControllerCustom extends ReportsController {
 		$primary_ids = array();
 		$participant_ids = array();
 		foreach($main_results as &$new_participant) {
-			$participant_ids[] = $new_participant['Participant']['participant_id'];
+			$participant_ids[] = $new_participant['Participant']['id'];
 			$new_participant['Generated']['is_suspected_date_of_death'] = '';
 			if(!empty($new_participant['Participant']['date_of_death'])) {
 				$new_participant['Generated']['is_suspected_date_of_death'] = 'n';
@@ -431,8 +431,8 @@ class ReportsControllerCustom extends ReportsController {
 			} else {
 				$new_participant = array_merge_recursive($new_participant, $fst_bcr_template);
 			}
-			if(isset($treatments_summary[$new_participant['Participant']['participant_id']])) {
-				$new_participant = array_merge_recursive($new_participant, $treatments_summary[$new_participant['Participant']['participant_id']]);
+			if(isset($treatments_summary[$new_participant['Participant']['id']])) {
+				$new_participant = array_merge_recursive($new_participant, $treatments_summary[$new_participant['Participant']['id']]);
 			} else {
 				$new_participant = array_merge_recursive($new_participant, $treatments_summary_template);
 			}

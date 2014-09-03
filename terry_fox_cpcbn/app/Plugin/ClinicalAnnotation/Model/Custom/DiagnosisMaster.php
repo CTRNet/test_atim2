@@ -66,8 +66,8 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				'conditions'=> array('DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id')));
 			$bcr = $this->find('first', array('conditions'=>$conditions, 'joins' => $joins));
 			
-			$bcr_date = $bcr['DiagnosisMaster']['dx_date'];
-			$bcr_accuracy = $bcr['DiagnosisMaster']['dx_date_accuracy'];	
+			$bcr_date = empty($bcr)? '' : $bcr['DiagnosisMaster']['dx_date'];
+			$bcr_accuracy = empty($bcr)? '' : $bcr['DiagnosisMaster']['dx_date_accuracy'];	
 			
 			// Get 1st DFS
 			
@@ -78,8 +78,8 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 				'TreatmentMaster.qc_tf_disease_free_survival_start_events'=> '1');
 			$dfs = $treatment_master_model->find('first', array('conditions' => $conditions));
 			
-			$dfs_date = $dfs['TreatmentMaster']['start_date'];
-			$dfs_accuracy = $dfs['TreatmentMaster']['start_date_accuracy'];		
+			$dfs_date = empty($dfs)? '' : $dfs['TreatmentMaster']['start_date'];
+			$dfs_accuracy = empty($dfs)? '' : $dfs['TreatmentMaster']['start_date_accuracy'];		
 					
 			// Get survival end date
 			

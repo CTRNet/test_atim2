@@ -6,21 +6,21 @@ class ViewSampleCustom extends ViewSample {
 	
 	static $table_query = '
 		SELECT SampleMaster.id AS sample_master_id,
-		SampleMaster.parent_id AS parent_sample_id,
+		SampleMaster.parent_id AS parent_id,
 		SampleMaster.initial_specimen_sample_id,
 		SampleMaster.collection_id AS collection_id,
-		
---		Collection.bank_id, 
+	
+--		Collection.bank_id,
 Participant.qc_tf_bank_participant_identifier AS qc_tf_bank_participant_identifier,
 Participant.qc_tf_bank_id AS bank_id, 
-		Collection.sop_master_id, 
-		Collection.participant_id, 
-		
-		Participant.participant_identifier, 
-		
-		Collection.acquisition_label, 
 Collection.qc_tf_collection_type AS qc_tf_collection_type, 
-		
+		Collection.sop_master_id,
+		Collection.participant_id,
+	
+		Participant.participant_identifier,
+	
+		Collection.acquisition_label,
+	
 		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 		ParentSampleControl.sample_type AS parent_sample_type,
@@ -29,19 +29,19 @@ Collection.qc_tf_collection_type AS qc_tf_collection_type,
 		SampleMaster.sample_control_id,
 		SampleMaster.sample_code,
 		SampleControl.sample_category,
-		
+	
 		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
-		 
+		
 		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
 		 IF(Collection.collection_datetime IS NULL, -1,
 		 IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg 
-		
+		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg
+	
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
 		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1

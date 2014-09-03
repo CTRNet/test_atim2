@@ -31,9 +31,9 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	function atimDelete( $tx_master_id ) {
 		$deleted_tx_data = $this->find('first',array('conditions'=>array('TreatmentMaster.id'=>$tx_master_id)));
 		$result = parent::atimDelete($tx_master_id);
-		if($result && array_key_exists('qc_tf_disease_free_survival_start_events', $this->data['TreatmentMaster']) && $this->data['TreatmentMaster']['qc_tf_disease_free_survival_start_events'] && $this->data['TreatmentMaster']['diagnosis_master_id']) {
+		if($result && array_key_exists('qc_tf_disease_free_survival_start_events', $deleted_tx_data['TreatmentMaster']) && $deleted_tx_data['TreatmentMaster']['qc_tf_disease_free_survival_start_events'] && $deleted_tx_data['TreatmentMaster']['diagnosis_master_id']) {
 			$diagnosis_model = AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster', true);
-			$diagnosis_model->calculateSurvivalAndBcr($this->data['TreatmentMaster']['diagnosis_master_id']);
+			$diagnosis_model->calculateSurvivalAndBcr($deleted_tx_data['TreatmentMaster']['diagnosis_master_id']);
 		}
 		return $result;
 	}
