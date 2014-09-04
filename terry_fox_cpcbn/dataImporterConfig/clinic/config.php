@@ -31,7 +31,7 @@ class Config{
 //	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/mcgill first50l_rev20130910.xls';
 //	static $use_windows_xls_offset = true;
 	
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/HDQ132pts.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/test.xls';
 	static $use_windows_xls_offset = true;	
 	
 //	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/10Sep2013/bristow_rev20130910.xls';
@@ -99,6 +99,9 @@ class Config{
 	static $create_participant_ids = array();
 	
 	static $collection_sites = array();
+	
+	static $metastatsis_controls = array();
+	
 }
 
 //add you start queries here
@@ -130,16 +133,11 @@ Config::$config_files[] = $relative_path.'collections.php';
 function addonFunctionStart(){
 	
 //TODO	
-Modify data import script based on changes done on 20140321
-1- qc_tf_dxd_metastasis.type chanegd to qc_tf_dxd_metastasis.site
-2- update treatment_controls SET disease_site = '', databrowser_label = tx_method WHERE disease_site = 'general';
-3- update event_controls SET disease_site = '', databrowser_label = event_type WHERE flag_active = 1;
-4- UPDATE diagnosis_controls SET controls_type = 'other' WHERE controls_type  = 'undetailed' AND flag_active =1;
-
+pr("
 Plus:
 - Check PSA = 0 are now imported.
 - Add code to block any diagnosis secondary duplication (some secondary are created twic)
-
+");
 	
 	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
@@ -161,10 +159,10 @@ Plus:
 		Config::$existing_patient_unique_keys[] = $row['qc_tf_bank_id'].'-'.$row['qc_tf_bank_participant_identifier'];
 	}	
 	
-	$query = "SELECT id, disease_site, event_group, event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
+	$query = "SELECT id, event_group, event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
 	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		Config::$event_controls[$row['event_group']][$row['event_type']][$row['disease_site']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
+		Config::$event_controls[$row['event_group']][$row['event_type']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
 	}		
 	
 	$query = "SELECT id, category, controls_type, detail_tablename FROM diagnosis_controls WHERE flag_active = 1;";
@@ -173,10 +171,15 @@ Plus:
 		Config::$dx_controls[$row['category']][$row['controls_type']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
 	}	
 	
-	$query = "SELECT id, tx_method, disease_site, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+	$query = "SELECT id, tx_method, disease_site, detail_tablename, treatment_extend_control_id FROM treatment_controls WHERE flag_active = 1;";
 	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
-		Config::$tx_controls[$row['tx_method']][$row['disease_site']] = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename']);
+		$ctrl_data = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename'], 'treatment_extend_control_id' => $row['treatment_extend_control_id']);
+		if($row['disease_site']) {
+			Config::$tx_controls[$row['tx_method']][$row['disease_site']] = $ctrl_data;
+		} else {
+			Config::$tx_controls[$row['tx_method']] = $ctrl_data;
+		}
 	}	
 	
 	$query = "SELECT id, generic_name FROM drugs WHERE type = 'chemotherapy';";
@@ -263,7 +266,7 @@ function addonFunctionEnd(){
 		"UPDATE event_masters ev, diagnosis_masters rec
 		SET ev.diagnosis_master_id = rec.id
 		WHERE rec.diagnosis_control_id = ".Config::$dx_controls['recurrence']['biochemical recurrence']['id']."
-		AND ev.event_control_id = ".Config::$event_controls['lab']['psa']['general']['id']."
+		AND ev.event_control_id = ".Config::$event_controls['lab']['psa']['id']."
 		AND ev.diagnosis_master_id = rec.parent_id
 		AND ev.event_date = rec.dx_date
 		AND rec.dx_date IS NOT NULL
@@ -299,10 +302,10 @@ function addonFunctionEnd(){
 	$tx_methode_sorted_for_dfs = array(
 		'1' => 'surgery-RP',
 		'2' => 'surgery-TURP',
-		'3' => 'hormonotherapy-general',
-		'4' => 'radiation-general',
-		'5' => 'chemotherapy-general',
-		'6' => 'biopsy-general');
+		'3' => 'hormonotherapy',
+		'4' => 'radiation',
+		'5' => 'chemotherapy',
+		'6' => 'biopsy');
 	
 	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
 		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id
@@ -334,7 +337,7 @@ function addonFunctionEnd(){
 				$qc_tf_bank_participant_identifier = null;
 			}
 			
-			$tx_method = $row['tx_method'].'-'.$row['disease_site'];	
+			$tx_method = $row['tx_method'].(empty($row['disease_site'])? '' : '-'.$row['disease_site']);	
 			if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
 			if(!isset($first_tx_list_per_method[$tx_method])) $first_tx_list_per_method[$tx_method] = $row['id'];
 			if($row['start_date_accuracy'] != 'c') $accuracy_warning = true;
@@ -492,7 +495,9 @@ function addonFunctionEnd(){
 
 	// MESSAGES
 	global $insert;
-//TODO	$insert = false;	
+	//$insert = false;
+	//TODO insert
+		
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
 		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
 		=====================================================================".Config::$line_break_tag."".Config::$line_break_tag."
@@ -525,7 +530,6 @@ function addonFunctionEnd(){
 		}
 	}
 	
-//	echo Config::$line_break_tag."Don't forget to rebuild view : \app>..\lib\Cake\Console\cake view".Config::$line_break_tag;
 }
 
 //=========================================================================================================
@@ -536,3 +540,25 @@ function pr($arr) {
 	echo "<pre>";
 	print_r($arr);
 }
+
+function customInsert($data, $table_name, $function, $line, $is_detail_table = false) {
+	$data_to_insert = array();
+	foreach($data as $key => $value) {
+		if(strlen($value)) $data_to_insert[$key] = "'".str_replace("'", "''", $value)."'";
+	}
+	// Insert into table
+	$table_system_data = $is_detail_table? array() : array("created" => "NOW()", "created_by" => Config::$db_created_id, "modified" => "NOW()", "modified_by" => Config::$db_created_id);
+	$insert_arr = array_merge($data_to_insert, $table_system_data);
+	$query = "INSERT INTO $table_name (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).");";
+	mysqli_query(Config::$db_connection, $query) or die("Query error [$query] ".__FUNCTION__." ".__LINE__);
+	$record_id = mysqli_insert_id(Config::$db_connection);
+	// Insert into revs table
+	if(Config::$insert_revs) {
+		$revs_table_system_data = $is_detail_table? array('version_created' => "NOW()") : array('id' => "$record_id", 'version_created' => "NOW()", "modified_by" => Config::$db_created_id);
+		$insert_arr = array_merge($data_to_insert, $revs_table_system_data);
+		$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($insert_arr)).") VALUES (".implode(", ", array_values($insert_arr)).");";
+		mysqli_query(Config::$db_connection, $query) or die("Query error [$query] ".__FUNCTION__." ".__LINE__);
+	}
+	return $record_id;
+}
+

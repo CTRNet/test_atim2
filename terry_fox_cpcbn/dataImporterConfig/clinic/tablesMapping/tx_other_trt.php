@@ -37,6 +37,8 @@ function txOtherTrttherapyPostRead(Model $m){
 	}
 	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: other trt']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	
+	$m->values['note'] = utf8_encode($m->values['note']);
+	
 	excelDateFix($m);
 
 	return true;
@@ -60,13 +62,10 @@ function txOtherTrtPostWrite(Model $m){
 				break;
 			}
 			$drug_id = getDrugId($m->values[$key], (($m->values['Other treatments'] == 'bone specific')? 'bone' : 'HR'));
-				
-			$query = "INSERT INTO txe_chemos (drug_id, treatment_master_id, created, created_by, modified, modified_by) VALUES ($drug_id, ".$m->last_id.", NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.");";
-			if(Config::$print_queries) echo $query.Config::$line_break_tag;
-			mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
-			$id = mysqli_insert_id(Config::$db_connection);
-			$query = "INSERT INTO txe_chemos_revs (id, drug_id, treatment_master_id, version_created, modified_by) VALUES ($id, $drug_id, ".$m->last_id.", NOW(), ".Config::$db_created_id.")";
-			if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+			$data = array('treatment_master_id' => $m->last_id, 'treatment_extend_control_id' => Config::$tx_controls['other treatment'][(($m->values['Other treatments'] == 'bone specific')? 'bone specific' : 'HR specific')]['treatment_extend_control_id']);
+			$treatment_extend_master_id = customInsert($data, 'treatment_extend_masters', __FUNCTION__, __LINE__, false);
+			$data = array('treatment_extend_master_id' => $treatment_extend_master_id, 'drug_id' => $drug_id);
+			customInsert($data, 'txe_chemos', __FUNCTION__, __LINE__, true);
 		}
 	}
 }

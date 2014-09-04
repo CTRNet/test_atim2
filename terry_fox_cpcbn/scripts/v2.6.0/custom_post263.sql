@@ -4,14 +4,14 @@ UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FRO
 UPDATE datamart_reports SET flag_active = 0 WHERE name = 'participant identifiers';
 UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');
 
-DROP TABLE txe_radiations; DROP TABLE txe_radiations_revs;
+-- DROP TABLE txe_radiations; DROP TABLE txe_radiations_revs;
 UPDATE treatment_controls SET applied_protocol_control_id = null, flag_use_for_ccl = 0 WHERE flag_active = 1;
 
 UPDATE treatment_extend_controls SET type = 'chemotherpay drugs', databrowser_label = 'chemotherpay drugs' WHERE detail_form_alias = 'qc_tf_txe_chemo_drugs';
 UPDATE treatment_extend_controls SET type = 'hormonotherpay drugs', databrowser_label = 'hormonotherpay drugs' WHERE detail_form_alias = 'qc_tf_txe_horm_drugs';
 UPDATE treatment_extend_controls SET type = 'bone treatment drugs', databrowser_label = 'bone treatment drugs' WHERE detail_form_alias = 'qc_tf_txe_bone_drugs';
 UPDATE treatment_extend_controls SET type = 'HR treatment drugs', databrowser_label = 'HR treatment drugs' WHERE detail_form_alias = 'qc_tf_txe_HR_drugs';
-INSERT INTO i18n (id,en) 
+INSERT IGNORE INTO i18n (id,en) 
 VALUES 
 ('chemotherpay drugs','Chemotherpay Drugs'),
 ('hormonotherpay drugs','Hormonotherpay Drugs'),
@@ -62,15 +62,50 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE datamart_reports SET flag_active = 0 WHERE name IN ('initial specimens display','all derivatives display','list all children storages','list all related diagnosis');
 UPDATE datamart_reports SET associated_datamart_structure_id = (select id from datamart_structures where model = 'Participant') WHERE name like '%CPCBN Summary';
 
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_cpcbn', 'total_number_taken_biopsy', 'integer',  NULL , '0', '', '', '', 'total number taken', ''), 
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_cpcbn', 'total_positive_biopsy', 'integer',  NULL , '0', '', '', '', 'total positive', ''), 
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_dxd_cpcbn', 'greatest_percent_of_cancer ', 'integer',  NULL , '0', '', '', '', 'greatest percent of cancer ', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='total_number_taken_biopsy' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total number taken' AND `language_tag`=''), '1', '10', 'biopsy', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='total_positive_biopsy' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='total positive' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='greatest_percent_of_cancer ' AND `type`='integer' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='greatest percent of cancer ' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='gleason_score_biopsy' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_values') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='15', `language_heading`='RP' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='gleason_score_rp' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_values') AND `flag_confidential`='0');
+INSERT INTO i18n (id,en)
+VALUES
+('total number taken', 'Total Number Taken'),
+('total positive', 'Total Positive'),
+('greatest percent of cancer', 'Greatest Percent of Cancer');
+REPLACE INTO i18n (id,en)
+VALUES
+('RP', 'RP');
+UPDATE structure_fields SET language_label = 'greatest percent of cancer' WHERE language_label = 'greatest percent of cancer ';
+ALTER TABLE qc_tf_dxd_cpcbn
+  ADD COLUMN total_number_taken_biopsy int(6) default null,
+  ADD COLUMN total_positive_biopsy int(6) default null,
+  ADD COLUMN greatest_percent_of_cancer int(6) default null;
+ALTER TABLE qc_tf_dxd_cpcbn_revs
+  ADD COLUMN total_number_taken_biopsy int(6) default null,
+  ADD COLUMN total_positive_biopsy int(6) default null,
+  ADD COLUMN greatest_percent_of_cancer int(6) default null;
+UPDATE structure_fields SET field = 'greatest_percent_of_cancer' WHERE field = 'greatest_percent_of_cancer '; 
 
+INSERT INTO `structure_value_domains` (`id`, `domain_name`, `override`, `category`, `source`) VALUES (NULL, 'qc_tf_biopsy_type', 'open', '', "StructurePermissibleValuesCustom::getCustomDropdown('Biopsy Types')");
+INSERT INTO structure_permissible_values_custom_controls (name,category,flag_active,values_max_length)
+VALUES ('Biopsy Types', 'clinical - treatment', '1', '50');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
+VALUES 
+('Dx Bx','','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'Biopsy Types'), 1),
+('Bx prior to Tx','','', 2, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'Biopsy Types'), 1),
+('TRUS','','', 7, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'Biopsy Types'), 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'qc_tf_txd_biopsies', 'type', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_biopsy_type') , '0', '', '', '', 'type', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_txd_biopsies'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_txd_biopsies' AND `field`='type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_biopsy_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='type' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_txd_biopsies') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_tf_txd_biopsies' AND `field`='samples_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE qc_tf_txd_biopsies ADD COLUMN type varchar(50) default null;
+ALTER TABLE qc_tf_txd_biopsies_revs ADD COLUMN type varchar(50) default null;
+UPDATE structure_fields SET  `model`='TreatmentDetail',  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_biopsy_type')  WHERE model='DiagnosisDetail' AND tablename='qc_tf_txd_biopsies' AND field='type' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_biopsy_type');
 
-
-
-
-
-
-
-
-
-
-
+UPDATE versions SET branch_build_number = '58 WHERE version_number = '2.6.3';

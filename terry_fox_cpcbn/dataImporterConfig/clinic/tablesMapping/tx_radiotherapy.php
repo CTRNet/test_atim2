@@ -50,6 +50,9 @@ function txRadiotherapyPostRead(Model $m){
 		$m->values['radiotherapy dose cGy'] = '';
 	}	
 	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: radiotherapy']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
+	
+	$m->values['note'] = utf8_encode($m->values['note']);
+	
 	excelDateFix($m);
 	
 	return true;
@@ -57,6 +60,6 @@ function txRadiotherapyPostRead(Model $m){
 
 function txRadiotherapyInsertCondition(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	$m->values['treatment_control_id'] = Config::$tx_controls['radiation']['general']['id'];
+	$m->values['treatment_control_id'] = Config::$tx_controls['radiation']['id'];
 	return true;
 }

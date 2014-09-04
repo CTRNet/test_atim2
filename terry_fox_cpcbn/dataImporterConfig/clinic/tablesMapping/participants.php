@@ -51,6 +51,8 @@ function postParticipantRead(Model $m){
 		$patient_unique_key = $m->values['qc_tf_bank_id'].'-'.$m->values['Patient # in biobank'];
 		if(in_array($patient_unique_key, Config::$existing_patient_unique_keys)) {
 			Config::$summary_msg['patient']['@@ERROR@@']['Duplicated participant'][] = "Participant [".$m->values['Patient # in biobank']."] of bank [".$m->values['Bank']."] already exists [line: ".$m->line."].";
+			pr("ERROR Duplicated participant: Participant [".$m->values['Patient # in biobank']."] of bank [".$m->values['Bank']."] already exists [line: ".$m->line."].");
+			pr("This error can generate a 'Data was not all fetched' error");
 			return false;
 		}
 	} else {
