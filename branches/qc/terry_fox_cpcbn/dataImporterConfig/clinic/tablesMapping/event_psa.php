@@ -36,6 +36,8 @@ function eventPsaPostRead(Model $m){
 	}
 	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: PSA']['@@WARNING@@']['date missing'][] = "PSA date is missing. See line ".$m->line.".";
 	
+	$m->values['note'] = utf8_encode($m->values['note']);
+	
 	excelDateFix($m);
 	
 	return true;
@@ -43,6 +45,6 @@ function eventPsaPostRead(Model $m){
 
 function eventPsaInsertCondition(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	$m->values['event_control_id'] = Config::$event_controls['lab']['psa']['general']['id'];
+	$m->values['event_control_id'] = Config::$event_controls['lab']['psa']['id'];
 	return true;
 }

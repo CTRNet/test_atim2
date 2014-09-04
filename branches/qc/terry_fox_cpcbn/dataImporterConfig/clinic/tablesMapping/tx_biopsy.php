@@ -27,7 +27,7 @@ function txBiopsyPostRead(Model $m){
 		case 'RP':
 			return false;
 		case 'biopsy':
-			$m->values['treatment_control_id'] = Config::$tx_controls['biopsy']['general']['id'];
+			$m->values['treatment_control_id'] = Config::$tx_controls['biopsy']['id'];
 			break;
 		default:
 			printf("WARNING: Invalid Surgery/Biopsy Type of surgery value [%s] for dx at line [%d]".Config::$line_break_tag, $m->values['Surgery/Biopsy Type of surgery'], $m->line);
