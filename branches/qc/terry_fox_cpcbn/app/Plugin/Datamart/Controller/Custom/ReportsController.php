@@ -158,10 +158,12 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.gleason_score_biopsy,
 				DiagnosisDetail.ptnm,
 				DiagnosisDetail.gleason_score_rp,
-				DiagnosisDetail.presence_of_lymph_node_invasion,
-				DiagnosisDetail.presence_of_capsular_penetration,
-				DiagnosisDetail.presence_of_seminal_vesicle_invasion,
-				DiagnosisDetail.margin,
+			
+				TreatmentDetail.qc_tf_lymph_node_invasion ,
+				TreatmentDetail.qc_tf_capsular_penetration,
+				TreatmentDetail.qc_tf_seminal_vesicle_invasion,
+				TreatmentDetail.qc_tf_margin,
+				
 				DiagnosisDetail.hormonorefractory_status,
 				DiagnosisDetail.survival_in_months,
 				DiagnosisDetail.bcr_in_months".
@@ -176,7 +178,10 @@ class ReportsControllerCustom extends ReportsController {
 							
 			LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
 			LEFT JOIN qc_tf_dxd_cpcbn AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
-
+			
+			LEFT JOIN treatment_masters AS TreatmentMaster ON Participant.id = TreatmentMaster.participant_id AND TreatmentMaster.treatment_control_id = 6 AND TreatmentMaster.deleted <> 1
+			LEFT JOIN txd_surgeries AS TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+			
 			WHERE Participant.deleted <> 1 AND ($conditions_str)
 			
 			ORDER BY Participant.qc_tf_bank_id ASC, Participant.qc_tf_bank_participant_identifier ASC, StorageMaster.selection_label ASC, AliquotMaster.storage_coord_x ASC, AliquotMaster.storage_coord_y ASC;";
