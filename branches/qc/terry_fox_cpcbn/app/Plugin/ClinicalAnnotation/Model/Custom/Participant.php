@@ -23,7 +23,48 @@ class ParticipantCustom extends Participant {
 				'title'				=>	array( NULL, $label),
 				'structure alias' 	=> 'participants',
 				'data'				=> $result
-			);	
+			);
+			
+			$diagnosis_model = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
+			$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+			$all_participant_dx = $diagnosis_model->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $variables['Participant.id']), 'recursive' => '0'));
+			foreach($all_participant_dx as $new_dx) {
+				if($new_dx['DiagnosisControl']['category'] == 'primary' && $new_dx['DiagnosisControl']['controls_type'] == 'prostate') {
+					$all_linked_diagmosises_ids = $diagnosis_model->getAllTumorDiagnosesIds($new_dx['DiagnosisMaster']['id']);
+					//Biops Gleason Score Check
+					$gleason_score_biopsy = $new_dx['DiagnosisDetail']['gleason_score_biopsy'];
+					$conditions = array(
+						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
+						'TreatmentDetail.type' => 'Dx Bx',
+						"TreatmentDetail.gleason_score != '$gleason_score_biopsy'"
+					);
+					$joins = array(array(
+						'table' => 'qc_tf_txd_biopsies',
+						'alias'	=> 'TreatmentDetail',
+						'type'	=> 'INNER',
+						'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id')));
+					$count = $treatment_model->find('count', array('conditions'=>$conditions, 'joins' => $joins));
+					if($count) {
+						AppController::addWarningMsg(__('biopsy and diagnosis gleason score discordance'));
+					}
+					//RP Gleason Score Check
+					$gleason_score_rp = $new_dx['DiagnosisDetail']['gleason_score_rp'];
+					$conditions = array(
+						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
+						'TreatmentMaster.treatment_control_id' => '6',	//RP
+						"TreatmentDetail.qc_tf_gleason_score != '$gleason_score_biopsy'"
+					);
+					$joins = array(array(
+						'table' => 'txd_surgeries',
+						'alias'	=> 'TreatmentDetail',
+						'type'	=> 'INNER',
+						'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id')));
+					$count = $treatment_model->find('count', array('conditions'=>$conditions, 'joins' => $joins));
+					if($count) {
+						AppController::addWarningMsg(__('surgery and diagnosis gleason score discordance'));
+					}
+				}	
+			}
 		}
 		
 		return $return;

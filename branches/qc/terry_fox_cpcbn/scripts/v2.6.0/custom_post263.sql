@@ -161,7 +161,7 @@ VALUES
 ('capsular penetration','Capsular Penetration'),
 ('seminal vesicle invasion','Seminal Vesicle Invasion');
 
--- UPDATE current biopsy: set glason score = Dx gleason score --
+-- UPDATE current biopsy: set glason score = Dx gleason score
 
 SELECT participant_id AS 'Patient# with more than 1 Bx to clean up (Should be 1Bx per patient + add Dx gleason to Bx gleason + add Bx type = Dx Bx)' from (
 	SELECT count(*) AS "Bx_nbr", participant_id
@@ -326,6 +326,10 @@ td.qc_tf_margin = dd.margin
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @diagnosis_control_id AND dm.id = dd.diagnosis_master_id
 AND tm.deleted <> 1 AND tm.treatment_control_id = @treatment_control_id AND tm.id = td.treatment_master_id
 AND tm.participant_id = dm.participant_id;
+
+//TODO
+Verifier avant que on ne va pas supprimer des données qui n'ont pas été copié dans un Bx
+
 ALTER TABLE qc_tf_dxd_cpcbn DROP COLUMN presence_of_lymph_node_invasion, DROP COLUMN presence_of_capsular_penetration, DROP COLUMN presence_of_seminal_vesicle_invasion, DROP COLUMN margin;
 ALTER TABLE qc_tf_dxd_cpcbn_revs DROP COLUMN presence_of_lymph_node_invasion, DROP COLUMN presence_of_capsular_penetration, DROP COLUMN presence_of_seminal_vesicle_invasion, DROP COLUMN margin;
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='presence_of_lymph_node_invasion' AND `language_label`='presence lymph node invasion' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
@@ -374,16 +378,17 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='margin' AND `language_label`='margin' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
 INSERT INTO i18n (id,en) VALUES ('a RP can not be created twice for the same participant','A RP can not be created twice for the same participant');
+INSERT INTO i18n (id,en) VALUES ("a biopsy has already been defined as the 'Dx Bx' for this cancer","A biopsy has already been defined as the 'Dx Bx' for this cancer");
+INSERT INTO i18n (id,en) 
+VALUES 
+('surgery and diagnosis gleason score discordance','A discordance exists between surgery and diagnosis gleason scores'),
+('biopsy and diagnosis gleason score discordance','A discordance exists between biopsy and diagnosis gleason scores');
 
 
 
-
-
-
-
-
-
-
+//TODO
+Que faut il faire si Dx.gleason RP pas vide mais patient n'a pas de RP. Faut il créé une RP. Avant tout SQL pour vérifier.
+Que faut il faire si Dx.gleason Bx pas vide mais patient n'a pas de Bx. Faut il créé une Bx. Avant tout SQL pour vérifier.
 
 
 
