@@ -30,29 +30,42 @@ class ParticipantCustom extends Participant {
 			$all_participant_dx = $diagnosis_model->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $variables['Participant.id']), 'recursive' => '0'));
 			foreach($all_participant_dx as $new_dx) {
 				if($new_dx['DiagnosisControl']['category'] == 'primary' && $new_dx['DiagnosisControl']['controls_type'] == 'prostate') {
+					$is_biopsy_dx_method = in_array($new_dx['DiagnosisDetail']['tool'], array('biopsy', 'TRUS'))? true : false;
 					$all_linked_diagmosises_ids = $diagnosis_model->getAllTumorDiagnosesIds($new_dx['DiagnosisMaster']['id']);
-					//Biops Gleason Score Check
-					$gleason_score_biopsy = $new_dx['DiagnosisDetail']['gleason_score_biopsy'];
+					//Get Biopsy 'dx Bx'
 					$conditions = array(
 						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
 						'TreatmentDetail.type' => 'Dx Bx',
-						"TreatmentDetail.gleason_score != '$gleason_score_biopsy'"
 					);
 					$joins = array(array(
 						'table' => 'qc_tf_txd_biopsies',
 						'alias'	=> 'TreatmentDetail',
 						'type'	=> 'INNER',
 						'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id')));
-					$count = $treatment_model->find('count', array('conditions'=>$conditions, 'joins' => $joins));
-					if($count) {
-						AppController::addWarningMsg(__('biopsy and diagnosis gleason score discordance'));
+					$biopsy_at_dx = $treatment_model->find('first', array('conditions'=>$conditions, 'joins' => $joins));
+					//checks
+					if(empty($biopsy_at_dx) && $is_biopsy_dx_method) {
+						AppController::addWarningMsg(__('the biopsy used for the diagnosis is missing into the system'));
+					} else if(!empty($biopsy_at_dx) && !$is_biopsy_dx_method) {
+						AppController::addWarningMsg(__('a biopsy is defined as diagnosis method but the method of the diagnosis is set to something else'));
+					} else if($biopsy_at_dx && $is_biopsy_dx_method) {
+						if($biopsy_at_dx['TreatmentMaster']['start_date'] != $new_dx['DiagnosisMaster']['dx_date'] || $biopsy_at_dx['TreatmentMaster']['start_date_accuracy'] != $new_dx['DiagnosisMaster']['dx_date_accuracy']) {
+							AppController::addWarningMsg(__('date of the biopsy at diagnosis and diagnosis date discordance'));
+						}
+						if($new_dx['DiagnosisDetail']['gleason_score_biopsy'] != $biopsy_at_dx['TreatmentDetail']['gleason_score']) {
+							AppController::addWarningMsg(__('biopsy and diagnosis gleason score discordance'));
+						}
+					} else {
+						if($new_dx['DiagnosisDetail']['gleason_score_biopsy']) {
+							AppController::addWarningMsg(__("the 'Gleason Score Biopsy' of the diagnosis is set but no biopsy at diagnosis is set into the system"));
+						}
 					}
 					//RP Gleason Score Check
 					$gleason_score_rp = $new_dx['DiagnosisDetail']['gleason_score_rp'];
 					$conditions = array(
 						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
 						'TreatmentMaster.treatment_control_id' => '6',	//RP
-						"TreatmentDetail.qc_tf_gleason_score != '$gleason_score_biopsy'"
+						"TreatmentDetail.qc_tf_gleason_score != '$gleason_score_rp'"
 					);
 					$joins = array(array(
 						'table' => 'txd_surgeries',
