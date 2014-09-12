@@ -614,20 +614,8 @@ VALUES
 ('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else', 'A biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else'),
 ('date of the biopsy or turp at diagnosis and diagnosis date discordance', 'Date of the biopsy or turp at diagnosis and diagnosis date discordance');
 
-
-
-
-
-
-
-
-TODO
-- Dans le databrowser changer Treatment par Treatment & Biopsy
-- change report file
-
 -- ******* report FIELDS.... *******
 
-TODO
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_lymph_node_invasion' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node invasion' AND `language_tag`=''), '0', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_capsular_penetration' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='capsular penetration' AND `language_tag`=''), '0', '26', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
@@ -658,6 +646,9 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 
 
 
+TODO
+- Dans le databrowser changer Treatment par Treatment & Biopsy
+- change report file
 
 
 
