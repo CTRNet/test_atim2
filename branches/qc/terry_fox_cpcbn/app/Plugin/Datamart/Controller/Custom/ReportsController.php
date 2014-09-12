@@ -155,7 +155,7 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.tool,
 				DiagnosisMaster.age_at_dx,
 				DiagnosisDetail.active_surveillance,
-				DiagnosisDetail.gleason_score_biopsy,
+				DiagnosisDetail.gleason_score_biopsy_turp,
 				DiagnosisDetail.ptnm,
 				DiagnosisDetail.gleason_score_rp,
 			
