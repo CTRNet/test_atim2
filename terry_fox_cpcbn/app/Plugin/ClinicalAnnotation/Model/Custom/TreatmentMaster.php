@@ -33,26 +33,26 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		}
 		
 		//check Dx Bx can only be created once per dx
-		if(isset($this->data['TreatmentDetail']) && array_key_exists('type', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['type'] == 'Dx Bx' && $this->data['TreatmentMaster']['diagnosis_master_id']) {
-			if(!$treatment_control) $treatment_control = $this->getTreatmentControlData();
-			if($treatment_control['TreatmentControl']['tx_method'] == 'biopsy') {
+		if(isset($this->data['TreatmentDetail']) && array_key_exists('type', $this->data['TreatmentDetail']) && in_array($this->data['TreatmentDetail']['type'], array('Bx Dx', 'TURP Dx')) && $this->data['TreatmentMaster']['diagnosis_master_id']) {
+			if(!$treatment_control) $treatment_control = $this->getTreatmentControlData();		
+			if($treatment_control['TreatmentControl']['tx_method'] == 'biopsy and turp') {
 				// Get all diagnoses linked to the same primary
 				$diagnosis_model = AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster', true);
 				if(!$all_linked_diagmosises_ids) $all_linked_diagmosises_ids = $diagnosis_model->getAllTumorDiagnosesIds($this->data['TreatmentMaster']['diagnosis_master_id']);
 				// Search existing 	biopsies linked to this cancer and already flagged as Dx Bx				
 				$conditions = array(
 					'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
-					'TreatmentDetail.type' => 'Dx Bx'
-				);
-				if($this->id) $conditions[] = 'TreatmentMaster.id != '.$this->id;
+					'TreatmentDetail.type' => array('TURP Dx' , 'Bx Dx')
+				);			
+				if($this->id) $conditions['NOT'] = array('TreatmentMaster.id' => $this->id);			
 				$joins = array(array(
-					'table' => 'qc_tf_txd_biopsies',
+					'table' => 'qc_tf_txd_biopsies_and_turps',
 					'alias'	=> 'TreatmentDetail',
 					'type'	=> 'INNER',
 					'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id')));
 				$count = $this->find('count', array('conditions'=>$conditions, 'joins' => $joins));
 				if($count) {
-					$this->validationErrors['type'][] = "a biopsy has already been defined as the 'Dx Bx' for this cancer";
+					$this->validationErrors['type'][] = "a biopsy or a turp has already been defined as the diagnosis method for this cancer";
 					$result = false;
 				}
 			}
@@ -83,6 +83,62 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		}
 		return $result;
 	}
+		
+	function afterSave($created, $options = Array()){
+		parent::afterSave($created, $options);
+		
+		if($this->name == 'TreatmentMaster'){
+			$tx = $this->find('first', array('conditions' => array('TreatmentMaster.id' => $this->id, 'deleted' => array('0', '1')), 'recursive' => '0'));
+			if($tx['TreatmentControl']['tx_method'] == 'biopsy and turp' || ($tx['TreatmentControl']['disease_site'] == 'RP')) {
+				$participant_id = $tx['TreatmentMaster']['participant_id'];
+				$diagnosis_model = AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster', true);
+				$prostate_dxs = $diagnosis_model->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisControl.category' => 'primary', 'DiagnosisControl.controls_type' => 'prostate')));
+				foreach($prostate_dxs as $participant_prostate_dx) {
+					$diagnosis_detail_data_tu_update = array();
+					$all_linked_diagmosises_ids = $diagnosis_model->getAllTumorDiagnosesIds($participant_prostate_dx['DiagnosisMaster']['id']);
+					//Biopsy/TURP gleason
+					$dx_gleason_score_biopsy_turp = $participant_prostate_dx['DiagnosisDetail']['gleason_score_biopsy_turp'];
+					$tx_gleason_score_biopsy_turp = '';
+					$conditions = array(
+						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
+						'TreatmentDetail.type' => array('TURP Dx' , 'Bx Dx'),
+						'TreatmentControl.tx_method' => array('biopsy and turp')
+					);
+					$joins = array(array(
+						'table' => 'qc_tf_txd_biopsies_and_turps',
+						'alias'	=> 'TreatmentDetail',
+						'type'	=> 'INNER',
+						'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id')));
+					$turp_biopsy_dx = $this->find('first', array('conditions'=>$conditions, 'joins' => $joins));				
+					if($turp_biopsy_dx) $tx_gleason_score_biopsy_turp = $turp_biopsy_dx['TreatmentDetail']['gleason_score'];
+					if($dx_gleason_score_biopsy_turp != $tx_gleason_score_biopsy_turp) $diagnosis_detail_data_tu_update['gleason_score_biopsy_turp'] = $tx_gleason_score_biopsy_turp;
+					//RP gleason
+					$dx_gleason_score_rp = $participant_prostate_dx['DiagnosisDetail']['gleason_score_rp'];
+					$tx_gleason_score_rp = '';
+					$conditions = array(
+						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
+						'TreatmentControl.disease_site' => array('RP')
+					);
+					$joins = array(array(
+						'table' => 'txd_surgeries',
+						'alias'	=> 'TreatmentDetail',
+						'type'	=> 'INNER',
+						'conditions' => array('TreatmentMaster.id = TreatmentDetail.treatment_master_id')));
+					$rp = $this->find('first', array('conditions'=>$conditions, 'joins' => $joins));
+					if($rp) $tx_gleason_score_rp = $rp['TreatmentDetail']['qc_tf_gleason_score'];
+					if($dx_gleason_score_rp != $tx_gleason_score_rp) $diagnosis_detail_data_tu_update['gleason_score_rp'] = $tx_gleason_score_rp;
+					//Dx Update
+					if($diagnosis_detail_data_tu_update) {
+						$diagnosis_data = array('DiagnosisMaster' => array(), 'DiagnosisDetail' => $diagnosis_detail_data_tu_update);				
+						$diagnosis_model->id = $participant_prostate_dx['DiagnosisMaster']['id'];
+						$diagnosis_model->data = null;
+						$diagnosis_model->addWritableField(array('gleason_score_rp', ''));
+						$diagnosis_model->save($diagnosis_data, false);
+					}
+				}
+			}
+		}
+	}	
 }
 
 ?>
