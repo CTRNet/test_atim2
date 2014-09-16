@@ -29,12 +29,12 @@ class ParticipantCustom extends Participant {
 			$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 			$all_participant_dx = $diagnosis_model->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $variables['Participant.id'], 'DiagnosisControl.category' => 'primary', 'DiagnosisControl.controls_type' => 'prostate'), 'recursive' => '0'));
 			foreach($all_participant_dx as $new_dx) {
-				$is_biopsy_turp_dx_method = in_array($new_dx['DiagnosisDetail']['tool'], array('biopsy', 'TURP'))? true : false;
+				$is_biopsy_turp_dx_method = in_array($new_dx['DiagnosisDetail']['tool'], array('biopsy', 'TURP', 'TRUS-guided biopsy'))? true : false;
 				$all_linked_diagmosises_ids = $diagnosis_model->getAllTumorDiagnosesIds($new_dx['DiagnosisMaster']['id']);
 				//Get Biopsy 'dx Bx'
 				$conditions = array(
 					'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
-					'TreatmentDetail.type' => array('TURP Dx', 'Bx Dx'),
+					'TreatmentDetail.type' => $treatment_model->dx_biopsy_and_turp_types,
 				);
 				$joins = array(array(
 					'table' => 'qc_tf_txd_biopsies_and_turps',
@@ -49,7 +49,12 @@ class ParticipantCustom extends Participant {
 					AppController::addWarningMsg(__('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else'));
 				} else if($biopsy_turp_at_dx && $is_biopsy_turp_dx_method) {
 					if($biopsy_turp_at_dx['TreatmentMaster']['start_date'] != $new_dx['DiagnosisMaster']['dx_date'] || $biopsy_turp_at_dx['TreatmentMaster']['start_date_accuracy'] != $new_dx['DiagnosisMaster']['dx_date_accuracy']) {
-						AppController::addWarningMsg(__('date of the biopsy or turp at diagnosis and diagnosis date discordance'));
+						AppController::addWarningMsg(__('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis'));
+					}
+					if(!((preg_match('/biopsy/', $new_dx['DiagnosisDetail']['tool']) && preg_match('/Bx Dx/', $biopsy_turp_at_dx['TreatmentDetail']['type']))
+					|| preg_match('/TURP/', $new_dx['DiagnosisDetail']['tool']) && preg_match('/TURP Dx/', $biopsy_turp_at_dx['TreatmentDetail']['type']))) {
+						AppController::addWarningMsg(__('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis'));
+							AppController::addWarningMsg(__('the method of the diagnosis is different than the type set for the biopsy or a turp record'));
 					}
 				}
 			}

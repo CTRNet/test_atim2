@@ -80,7 +80,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 
 -- Changed Biopsy to Biopsy & Turp 
 
-SELECT 'Info#1: Merged TURP and Biopsy together' AS 'Script Action Detail';
+SELECT "Info#1: Merged TURP and Biopsy together to create 'Biopsy & TURP' event" AS 'Script Action Detail';
 
 RENAME TABLE qc_tf_txd_biopsies TO qc_tf_txd_biopsies_and_turps;
 RENAME TABLE qc_tf_txd_biopsies_revs TO qc_tf_txd_biopsies_and_turps_revs;
@@ -251,8 +251,14 @@ VALUES
 ('lymph node invasion','Lymph Node Invasion'),
 ('capsular penetration','Capsular Penetration'),
 ('seminal vesicle invasion','Seminal Vesicle Invasion');
-UPDATE structure_formats SET `display_column`='1', `display_order`='80' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_rps') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_gleason_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_grades') AND `flag_confidential`='0');
+ALTER TABLE txd_surgeries ADD COLUMN qc_tf_gleason_grade VARCHAR(10) DEFAULT NULL;
+ALTER TABLE txd_surgeries_revs ADD COLUMN qc_tf_gleason_grade VARCHAR(10) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_surgeries', 'qc_tf_gleason_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_grades') , '0', '', '', '', 'gleason grade', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_rps'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_gleason_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_grades')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason grade' AND `language_tag`=''), '1', '80', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 UPDATE structure_formats SET `display_column`='1', `display_order`='81' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_rps') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_gleason_score' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_values') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_rps') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_gleason_grade' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_grades') AND `flag_confidential`='0');
 
 -- Diagnosis fields
 
@@ -295,6 +301,10 @@ ALTER TABLE qc_tf_dxd_cpcbn CHANGE gleason_score_biopsy gleason_score_biopsy_tur
 ALTER TABLE qc_tf_dxd_cpcbn_revs CHANGE gleason_score_biopsy gleason_score_biopsy_turp varchar(10) NOT NULL DEFAULT '';
 UPDATE structure_fields SET field = 'gleason_score_biopsy_turp', language_label = 'gleason score biopsy and turp' WHERE tablename = 'qc_tf_dxd_cpcbn' AND field = 'gleason_score_biopsy';
 INSERT INTO i18n (id,en) VALUES ('gleason score biopsy and turp', 'Gleason Score Biopsy / TURP');
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
+VALUES 
+('prior to Tx','Prior to Tx','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'active surveillances'), 1)
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Data Clean Up
@@ -517,6 +527,14 @@ WHERE dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.deleted <>
 AND dm.id NOT IN (
 	SELECT diagnosis_master_id FROM treatment_masters tm INNER JOIN qc_tf_txd_biopsies_and_turps td ON td.treatment_master_id = tm.id WHERE tm.treatment_control_id = @biopsy_and_turp_treatment_control_id AND deleted <> 1 AND td.type LIKE '% Dx'
 );
+SELECT dm.participant_id AS "Info#15(ter): Patient# with a Dx 'Gleason Score Biopsy / TURP', linked to a 'TURP Dx' or a 'Bx Dx' but having 2 different gleason score (Should be empty)", dd.gleason_score_biopsy_turp AS 'Dx Gelason Score', dd.tool AS 'Dx Method'
+FROM qc_tf_dxd_cpcbn dd
+INNER JOIN diagnosis_masters dm ON dm.id = dd.diagnosis_master_id
+INNER JOIN treatment_masters tm ON dm.id = tm.diagnosis_master_id
+INNER JOIN qc_tf_txd_biopsies_and_turps td ON td.treatment_master_id = tm.id
+WHERE dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.deleted <> 1 
+AND tm.treatment_control_id = @biopsy_and_turp_treatment_control_id AND tm.deleted <> 1 AND td.type LIKE '% Dx'
+AND dd.gleason_score_biopsy_turp != td.gleason_score;
 
 -- *******  Work on RP ******* 
 
@@ -607,12 +625,13 @@ ALTER TABLE qc_tf_dxd_cpcbn_revs DROP COLUMN presence_of_lymph_node_invasion, DR
 INSERT IGNORE INTO i18n (id,en)
 VALUES
 ('a RP can not be created twice for the same participant','A RP can not be created twice for the same participant'),
-('a biopsy or a turp has already been defined as the diagnosis method for this cancer', 'A biopsy or a turp has already been defined as the diagnosis method for this cancer');
+('a biopsy or a turp has already been defined as the diagnosis method for this cancer', 'A biopsy or a TURP has already been defined as the diagnosis method for this cancer');
 INSERT INTO i18n (id,en)
 VALUES
-('the biopsy or the turp used for the diagnosis is missing into the system','The biopsy or the turp used for the diagnosis is missing into the system'),
-('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else', 'A biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else'),
-('date of the biopsy or turp at diagnosis and diagnosis date discordance', 'Date of the biopsy or turp at diagnosis and diagnosis date discordance');
+('the biopsy or the turp used for the diagnosis is missing into the system','The biopsy or the TURP used for the diagnosis is missing into the system'),
+('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else', 'A biopsy or a TURP is defined as diagnosis method but the method of the diagnosis is set to something else'),
+('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis', 'The date of the biopsy or the TURP used for diagnosis is different than the date of diagnosis'),
+('the method of the diagnosis is different than the type set for the biopsy or a turp record','The method of the diagnosis is different than the type set for the biopsy or a TURP record');
 
 -- ******* report FIELDS.... *******
 
@@ -649,9 +668,6 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 TODO
 - Dans le databrowser changer Treatment par Treatment & Biopsy
 - change report file
-
-
-
 
 
 

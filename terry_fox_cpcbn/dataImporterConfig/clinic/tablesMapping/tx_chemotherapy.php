@@ -29,14 +29,14 @@ $model->insert_condition_function = 'txChemotherapyInsertCondition';
 Config::addModel($model, 'tx_chemotherapy');
 
 function txChemotherapyPostRead(Model $m){
-	if(in_array($m->values['chemiotherapy'], array('no', 'unknown', ''))){
+	if(in_array($m->values['chemotherapy'], array('no', 'unknown', ''))){
 		$drug_defined = false;
 		for($i = 1; $i < 5; $i ++) if(strlen($m->values['treatment Precision drug '.$i])) $drug_defined = true;
 		if($drug_defined && in_array($m->values['hormonotherapy'], array('no', 'unknown', '')) && in_array($m->values['Other treatments'], array('no', 'unknown', ''))) Config::$summary_msg['event: trt & horm & HR & bone']['@@WARNING@@']['Drug defined without chemo'][] = "No chemo will be imported but drugs are defined. See line ".$m->line.".";
 		return false;
 	}
-	if($m->values['chemiotherapy'] != 'yes'){
-		echo 'WARNING: Unknwon value ['.$m->values['chemiotherapy'].'] for chemiotherapy in event at line ['.$m->line."]".Config::$line_break_tag;
+	if($m->values['chemotherapy'] != 'yes'){
+		echo 'WARNING: Unknwon value ['.$m->values['chemotherapy'].'] for chemotherapy in event at line ['.$m->line."]".Config::$line_break_tag;
 	}
 	if(empty($m->values['Dates of event Date of event (beginning)'])) Config::$summary_msg['event: chemotherapy']['@@ERROR@@']['date missing'][] = "Date is missing. See line ".$m->line.".";
 	

@@ -1,5 +1,5 @@
 <?php
-#drop database atim_tf_prostate; create database atim_tf_prostate; use atim_tf_prostate;
+
 class Config{
 	const	INPUT_TYPE_CSV = 1;
 	const	INPUT_TYPE_XLS = 2;
@@ -24,20 +24,12 @@ class Config{
 	//static $use_windows_xls_offset = true;
 	
 	//if reading excel file
-
-//	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/10Sep2013/2nd 50 mcgill_rev20130910.xls';
-//	static $use_windows_xls_offset = true;
-
-//	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/mcgill first50l_rev20130910.xls';
-//	static $use_windows_xls_offset = true;
 	
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/test.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/active_surveillance_version.xls';
+	static $active_surveillance_project = true;
+	//static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/new_classical_version.xls';
+	//static $active_surveillance_project = false;
 	static $use_windows_xls_offset = true;	
-	
-//	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/10Sep2013/bristow_rev20130910.xls';
-//	static $use_windows_xls_offset = false;	
-	
-	
 	
 	static $xls_header_rows = 2;
 
@@ -74,15 +66,8 @@ class Config{
 		Config::$models[$ref_name] = $m;
 	}
 
-//*	static $eoc_file_event_types	= array('ca125', 'ct scan', 'biopsy', 'surgery(other)', 'surgery(ovarectomy)', 'chemotherapy', 'radiotherapy');
-//*	static $opc_file_event_types	= array('biopsy', 'surgery', 'chemotherapy', 'radiology', 'radiotherapy', 'hormonal therapy');
 	static $storage_master_id = null;
 	static $sample_aliquot_controls = array();
-//*	static $banks = array();
-//*	static $drugs	= array();
-//*	static $tissue_source = array();
-	
-//*		static $identifiers = array();
 
 	// Custom variables
 	
@@ -96,7 +81,7 @@ class Config{
 	
 	static $existing_patient_unique_keys = array();
 	
-	static $create_participant_ids = array();
+	static $created_participant_ids = array();
 	
 	static $collection_sites = array();
 	
@@ -107,7 +92,6 @@ class Config{
 //add you start queries here
 Config::$addon_queries_start[] = "DROP TABLE IF EXISTS start_time";
 Config::$addon_queries_start[] = "CREATE TABLE start_time (SELECT NOW() AS start_time)";
-
 
 //add the parent models here
 Config::$parent_models[] = "participants";
@@ -132,19 +116,13 @@ Config::$config_files[] = $relative_path.'collections.php';
 
 function addonFunctionStart(){
 	
-//TODO	
-pr("
-Plus:
-- Check PSA = 0 are now imported.
-- Add code to block any diagnosis secondary duplication (some secondary are created twic)
-");
-	
 	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
 	"=====================================================================".Config::$line_break_tag."
 	DATA EXPORT PROCESS : CPCBN TFRI".Config::$line_break_tag."
-	source_file = $file_name".Config::$line_break_tag."
-	".Config::$line_break_tag."=====================================================================
+	Excel = $file_name".Config::$line_break_tag.
+	(Config::$active_surveillance_project? 'Normal Project' : 'Active Surveillance Project').Config::$line_break_tag.
+	"=====================================================================
 	</FONT>".Config::$line_break_tag."";	
 
 	$query = "SELECT id, name FROM banks";
@@ -188,7 +166,7 @@ Plus:
 		Config::$drugs[strtolower($row['generic_name'])] = $row['id'];
 	}
 		
-	Config::$create_participant_ids = array();
+	Config::$created_participant_ids = array();
 	
 	$query = "SELECT `value`, `en`, `fr` FROM structure_permissible_values_customs WHERE control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'specimen collection sites');";
 	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
@@ -213,10 +191,12 @@ Plus:
 }
 
 function addonFunctionEnd(){
+	$str_created_participant_ids = implode(',', Config::$created_participant_ids);
 	
 	// ** Clean-up PARTICIPANTS ** 
+	
 	$queries = array(
-		"UPDATE participants SET last_modification = NOW() WHERE id IN (".implode(',', Config::$create_participant_ids).");",
+		"UPDATE participants SET last_modification = NOW() WHERE id IN ($str_created_participant_ids);",
 		"UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
 		"UPDATE participants SET date_of_death = NULL WHERE date_of_death LIKE '0000-00-00';",
 		"UPDATE participants SET qc_tf_suspected_date_of_death = NULL WHERE qc_tf_suspected_date_of_death LIKE '0000-00-00';",
@@ -232,6 +212,7 @@ function addonFunctionEnd(){
 	}
 	
 	//  ** Clean-up DIAGNOSIS_MASTERS ** 
+	
 	$queries = array(
 		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL AND parent_id IS NULL;",
 		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
@@ -239,15 +220,15 @@ function addonFunctionEnd(){
 		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';",
 		"UPDATE diagnosis_masters SET age_at_dx = NULL WHERE age_at_dx LIKE '0';",
 		"UPDATE qc_tf_dxd_cpcbn dd, diagnosis_masters dm SET dd.hormonorefractory_status = 'not HR' 
-		WHERE dm.participant_id IN (".implode(',', Config::$create_participant_ids).") AND dm.id = dd.diagnosis_master_id AND (dd.hormonorefractory_status IS NULL OR dd.hormonorefractory_status = '');");
+		WHERE dm.participant_id IN ($str_created_participant_ids) AND dm.id = dd.diagnosis_master_id AND (dd.hormonorefractory_status IS NULL OR dd.hormonorefractory_status = '');");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
 		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace(array('diagnosis_masters','qc_tf_dxd_cpcbn'),array('diagnosis_masters_revs','qc_tf_dxd_cpcbn_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
-	
 	//  ** Clean-up TREAMTENT_MASTERS ** 
+	
 	$queries = array(
 		"UPDATE treatment_masters SET start_date = NULL WHERE start_date LIKE '0000-00-00';",
 		"UPDATE treatment_masters SET start_date_accuracy = 'c' WHERE start_date IS NOT NULL AND start_date_accuracy LIKE '';",
@@ -260,6 +241,7 @@ function addonFunctionEnd(){
 	}	
 	
 	//  ** Clean-up EVENT_MASTERS ** 
+	
 	$queries = array(
 		"UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';",
 		"UPDATE event_masters SET event_date_accuracy = 'c' WHERE event_date IS NOT NULL AND event_date_accuracy LIKE '';",
@@ -270,7 +252,7 @@ function addonFunctionEnd(){
 		AND ev.diagnosis_master_id = rec.parent_id
 		AND ev.event_date = rec.dx_date
 		AND rec.dx_date IS NOT NULL
-		AND rec.participant_id IN (".implode(',', Config::$create_participant_ids).");");
+		AND rec.participant_id IN ($str_created_participant_ids);");
 	foreach($queries as $query)	{
 		mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		if(Config::$print_queries) echo $query.Config::$line_break_tag;
@@ -278,6 +260,7 @@ function addonFunctionEnd(){
 	}
 	
 	//  ** Clean-up COLLECTIONS **
+	
 	$queries = array(
 		"UPDATE collections SET collection_datetime = NULL WHERE collection_datetime LIKE '0000-00-00';",
 		"UPDATE collections SET collection_datetime_accuracy = 'c' WHERE collection_datetime IS NOT NULL AND collection_datetime_accuracy LIKE '';");
@@ -287,10 +270,138 @@ function addonFunctionEnd(){
 		if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace(array('collections'),array('collections_revs'),$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	}
 	
+	//  ** Biopsy checks and clean up & Biopsy/TURP Gleason Score **
+	
+	$biopsy_and_turp_control_id = Config::$tx_controls['biopsy and turp']['id'];
+	$prostate_primary_control_id = Config::$dx_controls['primary']['prostate']['id'];
+	
+	$query = "SELECT p.qc_tf_bank_participant_identifier, dm.id as diagnosis_master_id, dm.dx_date, dm.dx_date_accuracy, dd.tool
+		FROM participants p
+		INNER JOIN diagnosis_masters dm ON dm.participant_id = p.id
+		INNER JOIN qc_tf_dxd_cpcbn dd ON dd.diagnosis_master_id = dm.id
+		WHERE p.deleted <> 1 AND p.id IN ($str_created_participant_ids)
+		AND dm.deleted <> 1 AND dm.diagnosis_control_id = $prostate_primary_control_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	while($prostate_dx_row = $results->fetch_assoc()) {
+		$qc_tf_bank_participant_identifier = $prostate_dx_row['qc_tf_bank_participant_identifier'];
+		$diagnosis_master_id = $prostate_dx_row['diagnosis_master_id'];
+		$query = "SELECT tm.id, tm.start_date, tm.start_date_accuracy, td.type
+			FROM treatment_masters tm, qc_tf_txd_biopsies_and_turps td
+			WHERE tm.deleted <> 1 AND tm.treatment_control_id = $biopsy_and_turp_control_id AND tm.id = td.treatment_master_id AND tm.diagnosis_master_id = $diagnosis_master_id";
+		$biop_turp_results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+		$bx_turp_dx_data = array();
+		$bx_turp_sorted_by_date = array();
+		while($biop_turp_row = $biop_turp_results->fetch_assoc()) {
+			if(in_array($biop_turp_row['type'], array("Bx Dx", "Bx Dx TRUS-Guided", "TURP Dx"))) {
+				if(!empty($bx_turp_dx_data)) Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["1 Participant is linked to more than one Biopsy or TURP defined as Dx"][] = "See patient # $qc_tf_bank_participant_identifier.";
+				$bx_turp_dx_data = $biop_turp_row;		
+			}
+			$event_date_key = $biop_turp_row['start_date'].$biop_turp_row['start_date_accuracy'];
+			if(isset($bx_turp_sorted_by_date[$event_date_key])) die('ERR 2387628763287632');	// We assume one per date
+			$bx_turp_sorted_by_date[$event_date_key] = $biop_turp_row;
+		}
+		if(in_array($prostate_dx_row['tool'], array("biopsy", "TRUS-guided biopsy", "TURP"))) {
+			//Dx method = biopsy or turp
+			if($bx_turp_dx_data) {
+				//A biopsy or turp was defined as Dx in file: check data integrity
+				if($bx_turp_dx_data['start_date'] != $prostate_dx_row['dx_date'] || $bx_turp_dx_data['start_date_accuracy'] != $prostate_dx_row['dx_date_accuracy']) 
+					Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A biopsy or TURP was defined as 'Dx' but the date of this event does not match the diagnosis date"][] = "See patient # $qc_tf_bank_participant_identifier: ".$bx_turp_dx_data['start_date']." (".$bx_turp_dx_data['start_date_accuracy'].") != ".$prostate_dx_row['dx_date']." (".$prostate_dx_row['dx_date_accuracy'].").";
+				if((preg_match('/biopsy/', $prostate_dx_row['tool']) && preg_match('/TURP/', $bx_turp_dx_data['type'])) || ($prostate_dx_row['tool'] == 'TURP' && !preg_match('/TURP/', $bx_turp_dx_data['type'])))
+					Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A biopsy or TURP was defined as 'Dx' but the type of this event does not match the diagnosis method"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_dx_data['type']."].";
+				if(($prostate_dx_row['tool'] == 'biopsy' && $bx_turp_dx_data['type'] == 'Bx Dx TRUS-Guided') || ($prostate_dx_row['tool'] == 'TRUS-guided biopsy' && $bx_turp_dx_data['type'] == 'Bx Dx'))
+					Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A biopsy or TURP was defined as 'Dx' but the type of this event does not exactly match the diagnosis method"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_dx_data['type']."].";
+			} else {
+				//No biopsy or turp was defined as Dx in file: Try to set it
+				if($prostate_dx_row['dx_date']) {
+					$dx_date_key = $prostate_dx_row['dx_date'].$prostate_dx_row['dx_date_accuracy'];
+					if(isset($bx_turp_sorted_by_date[$dx_date_key])) {
+						//Found a biopsy or TURP matching Dx date with Dx method = biopsy or turp
+						if(in_array($bx_turp_sorted_by_date[$dx_date_key]['type'], array("Bx","TURP","Bx TRUS-Guided"))) {
+							if((preg_match('/biopsy/', $prostate_dx_row['tool']) && preg_match('/TURP/', $bx_turp_sorted_by_date[$dx_date_key]['type'])) || ($prostate_dx_row['tool'] == 'TURP' && !preg_match('/TURP/', $bx_turp_sorted_by_date[$dx_date_key]['type']))) {
+								Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (a date matches but the type and the dx method are different): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_sorted_by_date[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
+							} else {
+								Config::$summary_msg['diagnosis: biopsy']['@@MESSAGE@@']["A biopsy or TURP event will be defined as Dx event based on date and dx method: The Dx Gleason Score Biopsy / TURP will be completed"][] = "See patient # $qc_tf_bank_participant_identifier event [".$bx_turp_sorted_by_date[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
+								if(($prostate_dx_row['tool'] == 'biopsy' && $bx_turp_sorted_by_date[$dx_date_key]['type'] == 'Bx TRUS-Guided') || ($prostate_dx_row['tool'] == 'TRUS-guided biopsy' && $bx_turp_sorted_by_date[$dx_date_key]['type'] == 'Bx'))
+									Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A biopsy or TURP was defined as 'Dx' by the migration process but the type of this event does not exactly match the diagnosis method"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_sorted_by_date[$dx_date_key]['type']."].";
+								$new_type = '';
+								switch($bx_turp_sorted_by_date[$dx_date_key]['type']) {
+									case 'Bx':
+										$new_type = 'Bx D';
+										break;
+									case 'Bx TRUS-Guided':
+										$new_type = 'Bx Dx TRUS-Guided';
+										break;
+									case 'TURP':
+										$new_type = 'TURP Dx';
+										break;							
+								}
+								if(empty($new_type)) die('ERR72638726873268726876');
+								$query = "UPDATE qc_tf_txd_biopsies_and_turps SET type = '$new_type' WHERE treatment_master_id = ".$bx_turp_sorted_by_date[$dx_date_key]['id'];
+								mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+								if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_txd_biopsies_and_turps', 'qc_tf_txd_biopsies_and_turps_revs', $query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+							}
+						} else {
+							Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (a date matches but the type of the biopsy or TURP event can not be defined as Dx): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier: Dx method = [".$prostate_dx_row['tool']."] and event type =  [".$bx_turp_sorted_by_date[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
+						}
+					} else {
+						Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (No biopsy or TURP date matches the diagnosis date): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier.";
+					}					
+				} else {
+					//Dx Date not set, the match won't be possible
+					Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (The diagnosis date is not set): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier.";
+				}
+			}			
+		} else {
+			//Dx method != biopsy or turp
+			if($bx_turp_dx_data) {
+				Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A biopsy or TURP event was defined as 'Dx' but the method of diagnosis was set to something else (The Dx Gleason Score Biopsy / TURP will be completed anywaybased on this event)"][] = "See patient # $qc_tf_bank_participant_identifier: Method [".$prostate_dx_row['tool']."] does not match [".$bx_turp_dx_data['type']."].";
+			} else {
+				Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (No biopsy or TURP event was defined as 'Dx' and the method of diagnosis was different than TURP or biopsy): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier. Dx method = [".$prostate_dx_row['tool']."].";
+			}
+		}
+	}	
+	
+	// Update gleason score
+	$query = "UPDATE diagnosis_masters dm, qc_tf_dxd_cpcbn dd, treatment_masters tm, qc_tf_txd_biopsies_and_turps td
+		SET dd.gleason_score_biopsy_turp = td.gleason_score
+		WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = $prostate_primary_control_id AND dm.id = dd.diagnosis_master_id
+		AND tm.deleted <> 1 AND tm.treatment_control_id = $biopsy_and_turp_control_id AND tm.id = td.treatment_master_id
+		AND tm.participant_id = dm.participant_id
+		AND td.type IN ('Bx Dx', 'TURP Dx','Bx Dx TRUS-Guided')
+		AND tm.participant_id IN ($str_created_participant_ids);";
+	mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_cpcbn', 'qc_tf_dxd_cpcbn_revs', $query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	
+	//  ** RP Check & RP Gleason Score **
+ 	
+	$query = "SELECT p.qc_tf_bank_participant_identifier
+		FROM participants p
+		INNER JOIN (
+			SELECT participant_id, count(*) AS res_nbr
+			FROM treatment_masters tm, txd_surgeries td
+			WHERE tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['surgery']['RP']['id']." AND tm.id = td.treatment_master_id
+			AND tm.participant_id IN ($str_created_participant_ids)
+		) AS res ON res.participant_id = p.id WHERE res.res_nbr > 1;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	while($row = $results->fetch_assoc()) {
+		$qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];
+		Config::$summary_msg['diagnosis: RP']['@@ERROR@@']["Participant is linked to more than one RP"][] = "See patient # $qc_tf_bank_participant_identifier.";
+	}
+	
+	//Update gleason score
+	$query = "UPDATE diagnosis_masters dm, qc_tf_dxd_cpcbn dd, treatment_masters tm, txd_surgeries td
+		SET dd.gleason_score_rp = td.qc_tf_gleason_score
+		WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = ".Config::$dx_controls['primary']['prostate']['id']." AND dm.id = dd.diagnosis_master_id
+		AND tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['surgery']['RP']['id']." AND tm.id = td.treatment_master_id
+		AND tm.participant_id = dm.participant_id
+		AND tm.participant_id IN ($str_created_participant_ids);";
+	mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_cpcbn', 'qc_tf_dxd_cpcbn_revs', $query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	
 	// ** SURVIVAL & BCR **
 	
 	// Set all treatments defined as DFS Start
-	$query = "SELECT participant_id FROM treatment_masters WHERE (start_date IS NULL OR start_date LIKE '') AND participant_id IN (".implode(',', Config::$create_participant_ids).");";
+	$query = "SELECT participant_id FROM treatment_masters WHERE (start_date IS NULL OR start_date LIKE '') AND participant_id IN ($str_created_participant_ids);";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	$participant_ids_to_remove = array();
 	while($row = $results->fetch_assoc()){
@@ -301,16 +412,19 @@ function addonFunctionEnd(){
 		
 	$tx_methode_sorted_for_dfs = array(
 		'1' => 'surgery-RP',
-		'2' => 'surgery-TURP',
-		'3' => 'hormonotherapy',
-		'4' => 'radiation',
-		'5' => 'chemotherapy',
-		'6' => 'biopsy');
-	
+		'2' => 'hormonotherapy',
+		'3' => 'radiation',
+		'4' => 'chemotherapy');
+	$tc_conditions = array();
+	foreach($tx_methode_sorted_for_dfs as $tmp_ct) {
+		$tmp_ct = explode('-', $tmp_ct);
+		$tc_conditions[] = "tc.tx_method = '".$tmp_ct[0]."'".(isset($tmp_ct[1])? " AND tc.disease_site = '".$tmp_ct[1]."'" : '');
+	}
+	$tc_conditions = '('.implode(') OR (',$tc_conditions).')';
 	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
 		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id
-		WHERE tm.participant_id IN (".implode(',', Config::$create_participant_ids).") 
-		AND tc.detail_form_alias != 'qc_tf_txd_others'
+		WHERE tm.participant_id IN ($str_created_participant_ids) 
+		AND $tc_conditions
 		ORDER BY tm.participant_id, tm.start_date ASC";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 
@@ -338,7 +452,11 @@ function addonFunctionEnd(){
 			}
 			
 			$tx_method = $row['tx_method'].(empty($row['disease_site'])? '' : '-'.$row['disease_site']);	
-			if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
+			if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) {
+				pr($tx_method);
+				pr($tx_methode_sorted_for_dfs);
+				die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
+			}
 			if(!isset($first_tx_list_per_method[$tx_method])) $first_tx_list_per_method[$tx_method] = $row['id'];
 			if($row['start_date_accuracy'] != 'c') $accuracy_warning = true;
 			$qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];
@@ -360,7 +478,7 @@ function addonFunctionEnd(){
 	}
 	
 	// Set first BCR
-	$query = "SELECT dm.participant_id FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_recurrence_bio rec ON dm.id = rec.diagnosis_master_id WHERE (dm.dx_date IS NULL OR dm.dx_date LIKE '') AND dm.participant_id IN (".implode(',', Config::$create_participant_ids).");";
+	$query = "SELECT dm.participant_id FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_recurrence_bio rec ON dm.id = rec.diagnosis_master_id WHERE (dm.dx_date IS NULL OR dm.dx_date LIKE '') AND dm.participant_id IN ($str_created_participant_ids);";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	$participant_ids_to_remove = array();
 	while($row = $results->fetch_assoc()){
@@ -371,7 +489,7 @@ function addonFunctionEnd(){
 	
 	$query = "SELECT dm.id, dm.participant_id, part.qc_tf_bank_participant_identifier, dm.dx_date, dm.dx_date_accuracy
 		FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_recurrence_bio rec ON dm.id = rec.diagnosis_master_id AND dm.deleted != 1 INNER JOIN participants part ON part.id = dm.participant_id
-		WHERE dm.participant_id IN (".implode(',', Config::$create_participant_ids).") AND dm.dx_date IS NOT NULL
+		WHERE dm.participant_id IN ($str_created_participant_ids) AND dm.dx_date IS NOT NULL
 		ORDER BY dm.participant_id, dm.dx_date ASC";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	
@@ -415,9 +533,9 @@ function addonFunctionEnd(){
 		LEFT JOIN (
 			SELECT dmr.primary_id, dmr.dx_date bcr_date, dmr.dx_date_accuracy bcr_date_accuracy
 			FROM diagnosis_masters dmr INNER JOIN qc_tf_dxd_recurrence_bio rec ON dmr.id = rec.diagnosis_master_id AND dmr.deleted != 1
-			WHERE rec.first_biochemical_recurrence = 1 AND dmr.participant_id IN (".implode(',', Config::$create_participant_ids).")
+			WHERE rec.first_biochemical_recurrence = 1 AND dmr.participant_id IN ($str_created_participant_ids)
 		) bcr ON bcr.primary_id = dm.id
-		WHERE part.id IN (".implode(',', Config::$create_participant_ids).")
+		WHERE part.id IN ($str_created_participant_ids)
 		ORDER BY dm.participant_id";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	
@@ -495,7 +613,7 @@ function addonFunctionEnd(){
 
 	// MESSAGES
 	global $insert;
-	//$insert = false;
+	$insert = false;
 	//TODO insert
 		
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {

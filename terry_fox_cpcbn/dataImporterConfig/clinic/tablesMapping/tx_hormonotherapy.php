@@ -56,7 +56,7 @@ function txHormonoPostWrite(Model $m){
 			die('FATAL ERROR: Missing key ['.$key."] FROM event".Config::$line_break_tag);
 		}
 		if(!in_array($m->values[$key], array('', 'no', 'unknown'))){
-			if(!in_array($m->values['chemiotherapy'], array('no', 'unknown', ''))){
+			if(!in_array($m->values['chemotherapy'], array('no', 'unknown', ''))){
 				Config::$summary_msg['event: chimio & horm & HR & bone']['@@WARNING@@']['Drug & more than one trt'][] = "Drugs are defined and both chemo and radio are defined. Drugs will be assigned to chemo. See line ".$m->line.".";
 				break;
 			}

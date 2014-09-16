@@ -4,6 +4,8 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	var $useTable = 'treatment_masters';
 	var $name = 'TreatmentMaster';
 	
+	var $dx_biopsy_and_turp_types = array('TURP Dx', 'Bx Dx', 'Bx Dx TRUS-Guided');
+	
 	function validates($options = array()){
 		$result = parent::validates($options);
 		$treatment_control = null;
@@ -33,7 +35,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		}
 		
 		//check Dx Bx can only be created once per dx
-		if(isset($this->data['TreatmentDetail']) && array_key_exists('type', $this->data['TreatmentDetail']) && in_array($this->data['TreatmentDetail']['type'], array('Bx Dx', 'TURP Dx')) && $this->data['TreatmentMaster']['diagnosis_master_id']) {
+		if(isset($this->data['TreatmentDetail']) && array_key_exists('type', $this->data['TreatmentDetail']) && in_array($this->data['TreatmentDetail']['type'], $this->dx_biopsy_and_turp_types) && $this->data['TreatmentMaster']['diagnosis_master_id']) {
 			if(!$treatment_control) $treatment_control = $this->getTreatmentControlData();		
 			if($treatment_control['TreatmentControl']['tx_method'] == 'biopsy and turp') {
 				// Get all diagnoses linked to the same primary
@@ -42,7 +44,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 				// Search existing 	biopsies linked to this cancer and already flagged as Dx Bx				
 				$conditions = array(
 					'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
-					'TreatmentDetail.type' => array('TURP Dx' , 'Bx Dx')
+					'TreatmentDetail.type' => $this->dx_biopsy_and_turp_types
 				);			
 				if($this->id) $conditions['NOT'] = array('TreatmentMaster.id' => $this->id);			
 				$joins = array(array(
@@ -101,7 +103,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 					$tx_gleason_score_biopsy_turp = '';
 					$conditions = array(
 						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
-						'TreatmentDetail.type' => array('TURP Dx' , 'Bx Dx'),
+						'TreatmentDetail.type' => $this->dx_biopsy_and_turp_types,
 						'TreatmentControl.tx_method' => array('biopsy and turp')
 					);
 					$joins = array(array(
