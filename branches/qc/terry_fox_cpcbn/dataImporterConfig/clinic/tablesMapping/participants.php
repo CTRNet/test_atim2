@@ -30,12 +30,12 @@ $fields = array(
 
 $model = new Model(0, $pkey, $child, true, NULL, NULL, 'participants', $fields);
 $model->custom_data = array(
-		"date_fields" => array(
-				$fields["date_of_birth"]					=> current(array_keys($fields["date_of_birth_accuracy"])),
-				$fields["date_of_death"]					=> current(array_keys($fields["date_of_death_accuracy"])),
-				$fields["qc_tf_suspected_date_of_death"]	=> current(array_keys($fields["qc_tf_suspected_date_of_death_accuracy"])),
-				$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_accuracy"]))
-		)
+	"date_fields" => array(
+		$fields["date_of_birth"]					=> current(array_keys($fields["date_of_birth_accuracy"])),
+		$fields["date_of_death"]					=> current(array_keys($fields["date_of_death_accuracy"])),
+		$fields["qc_tf_suspected_date_of_death"]	=> current(array_keys($fields["qc_tf_suspected_date_of_death_accuracy"])),
+		$fields["qc_tf_last_contact"]				=> current(array_keys($fields["qc_tf_last_contact_accuracy"]))
+	)
 );
 
 $model->post_read_function = 'postParticipantRead';
@@ -57,6 +57,8 @@ function postParticipantRead(Model $m){
 		}
 	} else {
 		Config::$summary_msg['patient']['@@ERROR@@']['Bank unknown'][] = "Bank [".$m->values['Bank']."] is unknown [line: ".$m->line."].";
+		pr("ERROR Bank [".$m->values['Bank']."] is unknown [line: ".$m->line."].");
+		pr("This error can generate a 'Data was not all fetched' error");
 		return false;
 	}
 	
@@ -64,7 +66,7 @@ function postParticipantRead(Model $m){
 }
 
 function postParticipantWrite(Model $m){
-	Config::$create_participant_ids[] = $m->last_id;
+	Config::$created_participant_ids[] = $m->last_id;
 	
 	$query = "UPDATE participants SET participant_identifier=id WHERE id=".$m->last_id.";";
 	mysqli_query(Config::$db_connection, $query) or die("postParticipantWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));

@@ -1,65 +1,50 @@
 <?php
 $pkey = "Patient # in biobank";
 $child = array(
-	'dx_metastasis',
- 	'tx_surgery',
+ 	'dx_metastasis',
+	'tx_surgery',
 	'tx_biopsy',
-	'dx_recurrence',
- 	'tx_radiotherapy',
- 	'tx_hormonotherapy',
- 	'tx_chemotherapy',
-	'tx_other_trt',
- 	'event_psa',
-	'collection'
+ 	'dx_recurrence',
+  	'tx_radiotherapy',
+  	'tx_hormonotherapy',
+  	'tx_chemotherapy',
+ 	'tx_other_trt',
+  	'event_psa',
+ 	'collection'
 );
+
 $fields = array(
 	'participant_id' 		=> $pkey,
 	'dx_date' 				=> 'Date of diagnostics Date',
 	'dx_date_accuracy'		=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	'diagnosis_control_id'	=> '#diagnosis_control_id', //CPCBN dx
-//	'age_at_dx' 			=> 'Age at Time of Diagnosis (yr)'
 	'age_at_dx' 			=> '#age_at_dx'	
 );
-
 $detail_fields = array(
 	'tool'									=> array('Date of diagnostics  diagnostic tool' => new ValueDomain("qc_tf_dx_tool", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)), 
-	'gleason_score_biopsy' 					=> array('Gleason score at biopsy' => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'ptnm' 									=> array('pTNM' => new ValueDomain('qc_tf_ptnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'ctnm' 									=> array('cTNM' => new ValueDomain('qc_tf_ctnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'gleason_score_rp' 						=> array('Gleason sum RP' => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'presence_of_lymph_node_invasion' 		=> array('Presence of lymph node invasion' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
-	'presence_of_capsular_penetration' 		=> array('Presence of capsular penetration' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
-	'presence_of_seminal_vesicle_invasion'	=> array('Presence of seminal vesicle invasion' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
-	'margin' 								=> array('Margin' => array('yes' => 'y', 'Yes' => 'y', 'no' => 'n', 'No' => 'n', 'unknown' => '', 'Unknown' => '', '' => '')),
+	'ptnm' 									=> array((Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') => new ValueDomain('qc_tf_ptnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'ctnm' 									=> array((Config::$active_surveillance_project? 'cTNM' : 'cTNM RT') => new ValueDomain('qc_tf_ctnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'hormonorefractory_status' 				=> array('hormonorefractory status status' => new ValueDomain('qc_tf_hormonorefractory_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'active_surveillance' 					=> array('Active Surveillance' => new ValueDomain('qc_tf_active_surveillance', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
+//Note: gleason_score_biopsy set in addonFunctionEnd()
+//Note: gleason_score_rp set in addonFunctionEnd()
 );
+$prostate_dx_fields_to_check = array(
+	'dx_date' => 'Date of diagnostics Date',
+	'dx_date_accuracy' => 'Date of diagnostics Accuracy',
+	'tool' => 'Date of diagnostics  diagnostic tool',
+	'ptnm' => (Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP'),
+	'ctnm' => (Config::$active_surveillance_project? 'cTNM' : 'cTNM RT'),
+	'hormonorefractory_status' => 'hormonorefractory status status',
+	'active_surveillance' => 'Active Surveillance');
 
 $model = new MasterDetailModel(1, $pkey, $child, false, 'participant_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_cpcbn', 'diagnosis_master_id', $detail_fields);
 $model->custom_data = array(
-	"date_fields" => array(
-		$fields["dx_date"]	=> key($fields["dx_date_accuracy"])
-	), 
+	"date_fields" => array($fields["dx_date"]	=> key($fields["dx_date_accuracy"])), 
 	'last_pkey' => null,
 	'previous_data' => null,
 	'previous_line' => null,
-	'prostate_dx_fields' => array(
-		'dx_date' => 'Date of diagnostics Date',
-		'dx_date_accuracy' => 'Date of diagnostics Accuracy',
-//		'age_at_dx' => 'Age at Time of Diagnosis (yr)',
-
-		'tool' => 'Date of diagnostics  diagnostic tool',
-		'gleason_score_biopsy' => 'Gleason score at biopsy',
-		'ptnm' => 'pTNM',
-		'ctnm' => 'cTNM',
-		'gleason_score_rp' => 'Gleason sum RP',
-		'presence_of_lymph_node_invasion' => 'Presence of lymph node invasion',
-		'presence_of_capsular_penetration' => 'Presence of capsular penetration',
-		'presence_of_seminal_vesicle_invasion' => 'Presence of seminal vesicle invasion',
-		'margin' => 'Margin',
-		'active_surveillance' => 'Active Surveillance',
-		'hormonorefractory_status' => 'hormonorefractory status status')
-);
+	'prostate_dx_fields_to_check' => $prostate_dx_fields_to_check);
 
 $model->post_read_function = 'postDxRead';
 $model->insert_condition_function = 'preDxWrite';
@@ -76,39 +61,32 @@ function postDxRead(Model $m){
 	}
 	$m->custom_data['previous_line'] = $m->line;
 	
-//	if($m->values['hormonorefractory status status'] != 'HR') $m->values['hormonorefractory status status'] = 'not HR';
+	checkTypeOfBiopsySurgeryValue($m->values, $m->line);
 	
-	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
 	excelDateFix($m);
 	
-// 	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['Age at Time of Diagnosis (yr)'], $matches)) {
-// 		Config::$summary_msg['diagnosis: primary']['@@WARNING@@']['Age at Time of Diagnosis: wrong format'][] = "Decimal expected. See value [".$m->values['Age at Time of Diagnosis (yr)']."] at line ".$m->line.".";
-// 		$m->values['Age at Time of Diagnosis (yr)'] = '';
-// 	} else if(isset($matches[2])) {
-// 		Config::$summary_msg['diagnosis: primary']['@@MESSAGE@@']['Age at Time of Diagnosis: decimal'][] = "See value [".$m->values['Age at Time of Diagnosis (yr)']."] changed to [".$matches[1]."] at line ".$m->line.".";
-// 		$m->values['Age at Time of Diagnosis (yr)'] = $matches[1];
-// 	}
-	$m->values['pTNM'] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values['pTNM']);
-	$m->values['cTNM'] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values['cTNM']);
-	$m->values['Gleason score at biopsy'] =str_replace(array('.00'), array(''),$m->values['Gleason score at biopsy']);
-	$m->values['Gleason sum RP'] =str_replace(array('.00'), array(''),$m->values['Gleason sum RP']);
-		
+	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
+	$m->values[(Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') ] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values[(Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') ]);
+	$m->values[(Config::$active_surveillance_project? 'cTNM' : 'cTNM RT')] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values[(Config::$active_surveillance_project? 'cTNM' : 'cTNM RT')]);	
 	$m->values['Active Surveillance'] =str_replace(array('no','unknown'), array('',''),$m->values['Active Surveillance']);
+	//Tool: "biopsy","TRUS-guided biopsy","TURP","PSA+DRE","RP","unknown"
+	if(strtoupper($m->values['Date of diagnostics  diagnostic tool']) == 'TRUS') {
+		$m->values['Date of diagnostics  diagnostic tool'] = 'TRUS-guided biopsy';
+	}
 	
 	if($m->values['Patient # in biobank'] == $m->custom_data['last_pkey']){
-		//only one primary dx per participant
-		//Config::$summary_msg['diagnosis: primary']['@@MESSAGE@@']['More than one line per participant'][] = "Primary dx already created for patient [".$m->values['Patient # in biobank']."] but a new dx line is being defined. Please validate data! [see line ".$m->line."].";
-		manageManyRows($m);
+		//Only one primary dx to create per participant 
+		manageDxValuesOnManyRows($m);
 		return false;
 	} else {
 		$m->custom_data['dx_data_already_recorded'] = array();
-		foreach($m->custom_data['prostate_dx_fields'] as $field) {
+		foreach($m->custom_data['prostate_dx_fields_to_check'] as $field) {
 			if(strlen($m->values[$field])) $m->custom_data['dx_data_already_recorded'][$field] = $m->values[$field];
 		} 
 	}
 	
 	$m->custom_data['last_pkey'] = $m->values['Patient # in biobank'];
-		
+	
 	return true;
 }
 
@@ -121,12 +99,13 @@ function postDxWrite(Model $m){
 	return true;
 }
 
-function manageManyRows(Model $m){
+function manageDxValuesOnManyRows(Model $m){
+	//Create Dx value empty in previous row or display discordance
 	$db_participant_id = $m->parent_model->last_id;
 	
 	$value_to_add = array('diagnsosis_masters' => array(), 'qc_tf_dxd_cpcbn' => array());
 	$value_already_set_and_diff = array();
-	foreach($m->custom_data['prostate_dx_fields'] as $db_field => $new_field) {
+	foreach($m->custom_data['prostate_dx_fields_to_check'] as $db_field => $new_field) {
 		if(strlen($m->values[$new_field])) {
 			if(array_key_exists($new_field, $m->custom_data['dx_data_already_recorded'])) {
 				if($m->values[$new_field] != $m->custom_data['dx_data_already_recorded'][$new_field]) {
@@ -139,10 +118,10 @@ function manageManyRows(Model $m){
 				
 				switch($new_field) {				
 					case 'Date of diagnostics  diagnostic tool':
-					case 'Gleason score at biopsy':
-					case 'pTNM':
 					case 'cTNM':
-					case 'Gleason sum RP':
+					case 'cTNM RT':
+					case 'pTNM RP':
+					case 'RP pTNM':
 					case 'hormonorefractory status status':
 						$value_domain = current($m->detail_fields[$db_field]);
 						$m->values[$new_field] = $value_domain->isValidValue($m->values[$new_field]);
@@ -152,27 +131,12 @@ function manageManyRows(Model $m){
 							$value_to_add['qc_tf_dxd_cpcbn'][] = $db_field.'="'.$m->values[$new_field].'"';
 						}
 						break;
-						
-					case 'Presence of lymph node invasion':
-					case 'Presence of capsular penetration':
-					case 'Presence of seminal vesicle invasion':
-					case 'Margin':				
-						$convert_ynu = current($m->detail_fields[$db_field]);
-						if(array_key_exists($m->values[$new_field], $convert_ynu)){
-							$value_to_add['qc_tf_dxd_cpcbn'][] = $db_field.'="'.$convert_ynu[$m->values[$new_field]].'"';
-						}else{
-							printf("WARNING: Invalid %s value [%s] for dx at line [%d]".Config::$line_break_tag, $new_field, $m->values[$new_field], $m->line);
-						}
-						break;
-						
 					case 'Date of diagnostics Date':
 					case 'Date of diagnostics Accuracy':
-//					case 'Age at Time of Diagnosis (yr)':
 						$value_to_add['diagnosis_masters'][] = $db_field.'="'.$m->values[$new_field].'"';	
 						break;
-						
 					default:
-						$value_to_add['qc_tf_dxd_cpcbn'][] = $db_field.'="'.$m->values[$new_field].'"';	
+						die('ERR 2 2876832768762 '.$new_field);	
 				}
 			}
 		}
@@ -235,4 +199,62 @@ function getTimeStamp($date_string){
 	list($hour, $minute, $second) = explode(':',$time);
 
 	return mktime($hour, $minute, $second, $month, $day, $year);
+}
+
+function checkTypeOfBiopsySurgeryValue($values, $lines) {
+	//Check Biopsy&TURP/Surgery Type and also fields are correctly completed
+	$RP_fields = Config::$active_surveillance_project?
+		array('RP Gleason Grade RP (X+Y)',
+			'RP Gleason Score RP',
+			'RP Presence of lymph node invasion',
+			'RP Presence of capsular penetration',
+			'RP Presence of seminal vesicle invasion',
+			'RP Margin') :	
+		array('Gleason RP (X+Y)',
+			'Gleason sum RP',
+			'Presence of lymph node invasion',
+			'Presence of capsular penetration',
+			'Presence of seminal vesicle invasion',
+			'Margin');
+	$Bx_TURP_fields = Config::$active_surveillance_project?
+		array('Biopsy information Total number taken',
+			'Biopsy information Gleason Grade (X+Y)',
+			'Biopsy information Gleason Score',
+			'Biopsy information Total positive',
+			'Biopsy information Greatest Percent of cancer'):
+		array('Gleason Grade at biopsy (X+Y)',
+			'Gleason score at biopsy',
+			'number of biospies (optional)');
+	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Specification' : 'Surgery/Biopsy Type of surgery');
+	$date_field = (Config::$active_surveillance_project? 'Biopsy/Surgery' : 'Surgery/Biopsy').' Date of surgery/biopsy';
+	switch($values[$type_field]) {
+		case 'Bx sent to CHUM':
+		case 'Bx prior to Tx':
+		case 'Dx Bx':
+		case 'TRUS':
+		case 'trus':
+		case 'TURP':
+		case 'biopsy':
+			$error = false;
+			foreach($RP_fields as $new_field) if(strlen($values[$new_field])) $error = true;
+			if($error) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['RP data set for Surgery/Biopsy Specification different than RP'][] = "See line $lines.";
+			break;
+		case 'RP':
+			$error = false;
+			foreach($Bx_TURP_fields as $new_field) if(strlen($values[$new_field])) $error = true;
+			if($error) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['Biopsy data set for Surgery/Biopsy Specification different than Biopsy or turp'][] = "See line $lines.";
+			break;
+		case '':
+			$error = false;
+			foreach($Bx_TURP_fields as $new_field) if(strlen($values[$new_field])) $error = true;
+			if($error) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['Biopsy data set for undefined Surgery/Biopsy Specification'][] = "See line $lines.";
+			$error = false;
+			foreach($RP_fields as $new_field) if(strlen($values[$new_field])) $error = true;
+			if($error) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['RP data set for undefined Surgery/Biopsy Specification'][] = "See line $lines.";
+			break;			
+		default:
+			die("ERROR: Invalid $type_field value [".$values[$type_field]."] for dx at line [$lines]".Config::$line_break_tag);
+	}
+	if(!empty($m->values[$type_field]) && empty($m->values[$date_field])) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['Date missing'][] = "Date is missing. See line $lines.";
+	if(empty($m->values[$type_field]) && !empty($m->values[$date_field])) Config::$summary_msg['diagnosis: biopsy/surgery']['@@ERROR@@']['Unknown Type of Surgery'][] = "See line $lines.";
 }

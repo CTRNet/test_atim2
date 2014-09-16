@@ -9,7 +9,7 @@ $fields = array(
 	'dx_date_accuracy'		=> array('Development of metastasis Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 );
 $detail_fields = array(
-	'site'	=> array('Development of metastasis Type of metastasis' => new ValueDomain('qc_tf_metastasis_type', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
+	'site'	=> array((Config::$active_surveillance_project? 'Development of metastasis Site' : 'Development of metastasis Type of metastasis') => new ValueDomain('qc_tf_metastasis_type', ValueDomain::DONT_ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE))
 );
 
 $model = new MasterDetailModel(1, $pkey, $child, false, 'parent_id', $pkey, 'diagnosis_masters', $fields, 'qc_tf_dxd_metastasis', 'diagnosis_master_id', $detail_fields);
