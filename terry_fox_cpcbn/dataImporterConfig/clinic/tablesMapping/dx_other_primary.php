@@ -3,8 +3,8 @@ $pkey = "Patient # in biobank";
 $child = array();
 $fields = array(
 	'participant_id' 		=> $pkey,
-	'dx_date' 				=> 'Date of diagnostics Date',
-	'dx_date_accuracy'		=> array('Date of diagnostics Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
+	'dx_date' 				=> 'Date of diagnosis Date',
+	'dx_date_accuracy'		=> array('Date of diagnosis Accuracy' => array("c" => "c", "y" => "m", "m" => "d", "" => "")),
 	'diagnosis_control_id'	=> '#diagnosis_control_id', 
 //	'age_at_dx' 			=> 'Age at Time of Diagnosis (yr)'
 	'age_at_dx' 			=> '#age_at_dx'	
@@ -60,7 +60,7 @@ function postOtherDxRead(Model $m){
 }
 
 function preOtherDxWrite(Model $m){
-	$m->values['age_at_dx'] = getAgeAtDx($m->parent_model->values['Date of Birth Date'], $m->parent_model->values['Date of Birth Accuracy'], $m->values['Date of diagnostics Date'], $m->values['Date of diagnostics Accuracy'], 'other cancer', $m->line);
+	$m->values['age_at_dx'] = getAgeAtDx($m->parent_model->values['Date of Birth Date'], $m->parent_model->values['Date of Birth Accuracy'], $m->values['Date of diagnosis Date'], $m->values['Date of diagnosis Accuracy'], 'other cancer', $m->line);
 	return true;
 }
 

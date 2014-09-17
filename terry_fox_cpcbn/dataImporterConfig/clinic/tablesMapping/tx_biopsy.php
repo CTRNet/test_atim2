@@ -30,7 +30,7 @@ Config::addModel($model, 'tx_biopsy');
 function txBiopsyPostRead(Model $m){
 	
 	//Set Types "Bx","Bx CHUM","Bx Dx","Bx Dx TRUS-Guided","Bx TRUS-Guided","Bx prior to Tx","TURP","TURP Dx"
-	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Specification' : 'Surgery/Biopsy Type of surgery');
+	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Bx Specification' : 'Surgery/Biopsy Type of surgery');
 	switch($m->values[$type_field]) {
 		case 'Bx sent to CHUM':
 			$m->values['type'] = "CHUM Bx";

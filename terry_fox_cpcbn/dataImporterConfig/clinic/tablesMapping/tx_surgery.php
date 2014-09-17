@@ -9,7 +9,7 @@ $fields = array(
 	'start_date_accuracy'	=> array((Config::$active_surveillance_project? 'Biopsy/Surgery Accuracy' : 'Surgery/Biopsy Accuracy') => array("c" => "c", "y" => "m", "m" => "d", "" => "", " " => "")),
 );
 $detail_fields = array(	
-	'qc_tf_gleason_score'				=> array((Config::$active_surveillance_project? 'RP Gleason Score RP' : 'Gleason sum RP') => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'qc_tf_gleason_score'				=> array((Config::$active_surveillance_project? 'RP Gleason sum RP' : 'Gleason sum RP') => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'qc_tf_gleason_grade'				=> array((Config::$active_surveillance_project? 'RP Gleason Grade RP (X+Y)' : 'Gleason RP (X+Y)') => new ValueDomain('qc_tf_gleason_grades', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'qc_tf_lymph_node_invasion'			=> ((Config::$active_surveillance_project? 'RP ': '').'Presence of lymph node invasion'),
 	'qc_tf_capsular_penetration'		=> ((Config::$active_surveillance_project? 'RP ': '').'Presence of capsular penetration'),
@@ -25,7 +25,7 @@ $model->insert_condition_function = 'txSurgeryInsertCondition';
 Config::addModel($model, 'tx_surgery');
 
 function txSurgeryPostRead(Model $m){
-	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Specification' : 'Surgery/Biopsy Type of surgery');
+	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Bx Specification' : 'Surgery/Biopsy Type of surgery');
 	switch($m->values[$type_field]) {
 		case 'RP':
 			$m->values['treatment_control_id'] = Config::$tx_controls['RP']['id'];
@@ -37,7 +37,7 @@ function txSurgeryPostRead(Model $m){
 
 	excelDateFix($m);
 	
-	foreach(array('RP Gleason Score RP', 'Gleason sum RP') as $xls_field) {
+	foreach(array('RP Gleason sum RP', 'Gleason sum RP') as $xls_field) {
 		if(array_key_exists($xls_field, $m->values)) {
 			$m->values[$xls_field] =str_replace(array('.00', ' '), array('', ''),$m->values[$xls_field]);
 			if(strlen($m->values[$xls_field]) && !preg_match('/^[0-9]+$/', $m->values[$xls_field])) {

@@ -355,7 +355,7 @@ AND dm.dx_date = tm.start_date AND dm.dx_date_accuracy = tm.start_date_accuracy;
 
 -- Create missing 'Biopsy & TURP' with type 'TURP Dx'
 
-SELECT dm.participant_id AS "Info#8: Patient# with Dx Method = 'TURP' matching no 'Biopsy and TURP' record with type 'TURP' based on date (Will create a new 'Biopsy and TURP' record with type 'TURP DX' and will copy the Dx gleason and the date)", dm.dx_date AS 'Diagnosis Date'
+SELECT count(*) AS "Info#8: Nbr of patients with Dx Method = 'TURP' matching no 'Biopsy and TURP' record with type 'TURP' based on date (Will create a new 'Biopsy and TURP' record with type 'TURP DX' and will copy the Dx gleason and the date)"
 FROM qc_tf_dxd_cpcbn dd, diagnosis_masters dm
 WHERE dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.deleted <> 1 AND dm.id = dd.diagnosis_master_id AND dd.tool = 'TURP'
 AND dm.id NOT IN (
@@ -453,7 +453,7 @@ UPDATE treatment_masters_revs SET notes = '' WHERE notes = '-9999';
 
 -- Change type of 'Biopsy & TURP' record from 'Bx' to 'Bx Dx' + copy the gleanson score
 
-SELECT dm.participant_id AS "Info#11: Patient# with Dx Method different than 'biopsy' or 'TURP' matching a 'Biopsy and TURP' record with type 'Bx' based on date (Will change type of 'Biopsy and TURP' from 'Bx' to type 'Bx Dx' and copy the Dx gleason)", dm.dx_date AS 'Diagnosis Date'
+SELECT count(*) AS "Info#11: Nbr of Patients with Dx Method different than 'biopsy' or 'TURP' matching a 'Biopsy and TURP' record with type 'Bx' based on date (Will change type of 'Biopsy and TURP' from 'Bx' to type 'Bx Dx' and copy the Dx gleason)"
 FROM qc_tf_txd_biopsies_and_turps td, treatment_masters tm, qc_tf_dxd_cpcbn dd, diagnosis_masters dm
 WHERE dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.deleted <> 1 AND dm.id = dd.diagnosis_master_id AND dd.tool NOT IN ('biopsy', 'TURP')
 AND dm.id = tm.diagnosis_master_id AND tm.deleted <> 1 AND tm.id = td.treatment_master_id AND td.type = 'Bx'
@@ -566,13 +566,13 @@ INNER JOIN qc_tf_dxd_cpcbn dd ON dd.diagnosis_master_id = dm.id
 WHERE p.deleted <> 1 AND p.id NOT IN (
 	SELECT participant_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1
 ) AND dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id;
-SELECT participant_id AS "Info#20: Patient# with a diagnosis gleason score at RP but unlinked to RP (For migration process we assumed result is empty)"
+SELECT COUNT(*) AS "Info#20: Nbr of patients with a diagnosis gleason score at RP but unlinked to RP (For migration process we assumed result is empty)"
 FROM diagnosis_masters dm, qc_tf_dxd_cpcbn dd
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dd.diagnosis_master_id = dm.id AND dd.gleason_score_rp IS NOT NULL AND dd.gleason_score_rp NOT LIKE ''
 AND id NOT IN (
 	SELECT diagnosis_master_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1
 );
-SELECT participant_id AS "Info#21: Patient# with a diagnosis method equal RP but unlinked to an RP (For migration process we assumed result is empty)"
+SELECT COUNT(*) AS "Info#21: Nbr of patients with a diagnosis method equal RP but unlinked to an RP (For migration process we assumed result is empty)"
 FROM diagnosis_masters dm, qc_tf_dxd_cpcbn dd
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dd.diagnosis_master_id = dm.id AND dd.tool = 'RP'
 AND id NOT IN (
@@ -599,7 +599,7 @@ AND tm.diagnosis_master_id = dm.id;
 
 -- Move Dx Spread fields To RP
 
-SELECT dm.participant_id AS "Info#23: Patient# with no RP but Diagnosis 'Spread' fields (lymph node invasion, etc) not empty (For migration process we assumed result is empty)"
+SELECT count(*) AS "Info#23: Nbr of patients with no RP but Diagnosis 'Spread' fields (lymph node invasion, etc) not empty (For migration process we assumed result is empty)"
 FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_cpcbn dd ON dd.diagnosis_master_id = dm.id
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.id NOT IN (
 	SELECT diagnosis_master_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1
@@ -707,4 +707,11 @@ UPDATE datamart_structures set display_name = 'treatment and biopsy' WHERE model
 UPDATE menus SET language_title = 'treatment and biopsy' WHERE id = 'clin_CAN_75';
 UPDATE i18n SET id = 'treatment and biopsy' WHERE id = 'treatment & biopsy';
 
-UPDATE versions SET branch_build_number = '58?? WHERE version_number = '2.6.3';
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('QualityCtrl')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('QualityCtrl'));
+UPDATE menus SET flag_active = 0 WHERE use_link LIKE '/InventoryManagement/QualityCtrls%';
+
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
+VALUES 
+('brachy','Brachy','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'radiotherapy types'), 1);
+	
+UPDATE versions SET branch_build_number = '5894' WHERE version_number = '2.6.3';

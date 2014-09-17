@@ -25,10 +25,10 @@ class Config{
 	
 	//if reading excel file
 	
-	//static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/active_surveillance_version.xls';
-	//static $active_surveillance_project = true;
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/new_classical_version.xls';
-	static $active_surveillance_project = false;
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/CPCBN Database Manitoba.xls';
+	static $active_surveillance_project = true;
+	//static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/new_classical_version.xls';
+	//static $active_surveillance_project = false;
 	static $use_windows_xls_offset = true;	
 	
 	static $xls_header_rows = 2;
@@ -316,7 +316,7 @@ function addonFunctionEnd(){
 							$new_type = '';
 							switch($participant_biopsies_and_turps[$dx_date_key]['type']) {
 								case 'Bx':
-									$new_type = 'Bx D';
+									$new_type = 'Bx Dx';
 									break;
 								case 'Bx TRUS-Guided':
 									$new_type = 'Bx Dx TRUS-Guided';
@@ -373,6 +373,7 @@ function addonFunctionEnd(){
 			FROM treatment_masters tm, txd_surgeries td
 			WHERE tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['RP']['id']." AND tm.id = td.treatment_master_id
 			AND tm.participant_id IN ($str_created_participant_ids)
+			GROUP BY participant_id
 		) AS res ON res.participant_id = p.id WHERE res.res_nbr > 1;";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 	while($row = $results->fetch_assoc()) {
@@ -602,7 +603,7 @@ function addonFunctionEnd(){
 
 	// MESSAGES
 	global $insert;
-	$insert = false;
+	//$insert = false;
 	//TODO insert
 		
 	foreach(Config::$summary_msg as $data_type => $msg_arr) {
