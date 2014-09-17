@@ -91,7 +91,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		
 		if($this->name == 'TreatmentMaster'){
 			$tx = $this->find('first', array('conditions' => array('TreatmentMaster.id' => $this->id, 'deleted' => array('0', '1')), 'recursive' => '0'));
-			if($tx['TreatmentControl']['tx_method'] == 'biopsy and turp' || ($tx['TreatmentControl']['disease_site'] == 'RP')) {
+			if($tx['TreatmentControl']['tx_method'] == 'biopsy and turp' || $tx['TreatmentControl']['tx_method'] == 'RP') {
 				$participant_id = $tx['TreatmentMaster']['participant_id'];
 				$diagnosis_model = AppModel::getInstance('ClinicalAnnotation', 'DiagnosisMaster', true);
 				$prostate_dxs = $diagnosis_model->find('all', array('conditions' => array('DiagnosisMaster.participant_id' => $participant_id, 'DiagnosisControl.category' => 'primary', 'DiagnosisControl.controls_type' => 'prostate')));
@@ -114,12 +114,17 @@ class TreatmentMasterCustom extends TreatmentMaster {
 					$turp_biopsy_dx = $this->find('first', array('conditions'=>$conditions, 'joins' => $joins));				
 					if($turp_biopsy_dx) $tx_gleason_score_biopsy_turp = $turp_biopsy_dx['TreatmentDetail']['gleason_score'];
 					if($dx_gleason_score_biopsy_turp != $tx_gleason_score_biopsy_turp) $diagnosis_detail_data_tu_update['gleason_score_biopsy_turp'] = $tx_gleason_score_biopsy_turp;
+					//Biopsy/TURP ctnm
+					$dx_ctnm_biopsy_turp = $participant_prostate_dx['DiagnosisDetail']['ctnm'];
+					$tx_ctnm_biopsy_turp = '';
+					if($turp_biopsy_dx) $tx_ctnm_biopsy_turp = $turp_biopsy_dx['TreatmentDetail']['ctnm'];
+					if($dx_ctnm_biopsy_turp != $tx_ctnm_biopsy_turp) $diagnosis_detail_data_tu_update['ctnm'] = $tx_ctnm_biopsy_turp;
 					//RP gleason
 					$dx_gleason_score_rp = $participant_prostate_dx['DiagnosisDetail']['gleason_score_rp'];
 					$tx_gleason_score_rp = '';
 					$conditions = array(
 						'TreatmentMaster.diagnosis_master_id'=> $all_linked_diagmosises_ids,
-						'TreatmentControl.disease_site' => array('RP')
+						'TreatmentControl.tx_method' => array('RP')
 					);
 					$joins = array(array(
 						'table' => 'txd_surgeries',

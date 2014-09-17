@@ -25,10 +25,10 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/active_surveillance_version.xls';
-	static $active_surveillance_project = true;
-	//static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/new_classical_version.xls';
-	//static $active_surveillance_project = false;
+	//static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/active_surveillance_version.xls';
+	//static $active_surveillance_project = true;
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/new_classical_version.xls';
+	static $active_surveillance_project = false;
 	static $use_windows_xls_offset = true;	
 	
 	static $xls_header_rows = 2;
@@ -153,11 +153,7 @@ function addonFunctionStart(){
 	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		$ctrl_data = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename'], 'treatment_extend_control_id' => $row['treatment_extend_control_id']);
-		if($row['disease_site']) {
-			Config::$tx_controls[$row['tx_method']][$row['disease_site']] = $ctrl_data;
-		} else {
-			Config::$tx_controls[$row['tx_method']] = $ctrl_data;
-		}
+		Config::$tx_controls[$row['tx_method']] = $ctrl_data;
 	}	
 	
 	$query = "SELECT id, generic_name FROM drugs WHERE type = 'chemotherapy';";
@@ -290,80 +286,76 @@ function addonFunctionEnd(){
 			WHERE tm.deleted <> 1 AND tm.treatment_control_id = $biopsy_and_turp_control_id AND tm.id = td.treatment_master_id AND tm.diagnosis_master_id = $diagnosis_master_id";
 		$biop_turp_results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 		$bx_turp_dx_data = array();
-		$bx_turp_sorted_by_date = array();
+		$participant_biopsies_and_turps = array();
 		while($biop_turp_row = $biop_turp_results->fetch_assoc()) {
 			if(in_array($biop_turp_row['type'], array("Bx Dx", "Bx Dx TRUS-Guided", "TURP Dx"))) {
-				if(!empty($bx_turp_dx_data)) Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["1 Participant is linked to more than one Biopsy or TURP defined as Dx"][] = "See patient # $qc_tf_bank_participant_identifier.";
+				if(!empty($bx_turp_dx_data)) Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["Participant is linked to more than one Biopsy/TURP defined as Dx"][] = "See patient # $qc_tf_bank_participant_identifier.";
 				$bx_turp_dx_data = $biop_turp_row;		
 			}
 			$event_date_key = $biop_turp_row['start_date'].$biop_turp_row['start_date_accuracy'];
-			if(isset($bx_turp_sorted_by_date[$event_date_key])) die('ERR 2387628763287632');	// We assume one per date
-			$bx_turp_sorted_by_date[$event_date_key] = $biop_turp_row;
+			if(isset($participant_biopsies_and_turps[$event_date_key])) die('ERR 2387628763287632');	// We assume one per date
+			$participant_biopsies_and_turps[$event_date_key] = $biop_turp_row;
 		}
 		if(in_array($prostate_dx_row['tool'], array("biopsy", "TRUS-guided biopsy", "TURP"))) {
-			//Dx method = biopsy or turp
+			//Dx method = Biopsy/TURP
 			if($bx_turp_dx_data) {
-				//A biopsy or turp was defined as Dx in file: check data integrity
+				//A Biopsy/TURP was defined as Dx in file: check data integrity
 				if($bx_turp_dx_data['start_date'] != $prostate_dx_row['dx_date'] || $bx_turp_dx_data['start_date_accuracy'] != $prostate_dx_row['dx_date_accuracy']) 
-					Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A biopsy or TURP was defined as 'Dx' but the date of this event does not match the diagnosis date"][] = "See patient # $qc_tf_bank_participant_identifier: ".$bx_turp_dx_data['start_date']." (".$bx_turp_dx_data['start_date_accuracy'].") != ".$prostate_dx_row['dx_date']." (".$prostate_dx_row['dx_date_accuracy'].").";
-				if((preg_match('/biopsy/', $prostate_dx_row['tool']) && preg_match('/TURP/', $bx_turp_dx_data['type'])) || ($prostate_dx_row['tool'] == 'TURP' && !preg_match('/TURP/', $bx_turp_dx_data['type'])))
-					Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A biopsy or TURP was defined as 'Dx' but the type of this event does not match the diagnosis method"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_dx_data['type']."].";
-				if(($prostate_dx_row['tool'] == 'biopsy' && $bx_turp_dx_data['type'] == 'Bx Dx TRUS-Guided') || ($prostate_dx_row['tool'] == 'TRUS-guided biopsy' && $bx_turp_dx_data['type'] == 'Bx Dx'))
-					Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A biopsy or TURP was defined as 'Dx' but the type of this event does not exactly match the diagnosis method"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_dx_data['type']."].";
+					Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A Biopsy/TURP event was defined as 'Dx' in file  but the date of this event does not match the diagnosis date (Note the diagnosis 'Gleason Score Biopsy/TURP' will be copied anyway from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier : Event date ".$bx_turp_dx_data['start_date']." (".$bx_turp_dx_data['start_date_accuracy'].") != diagnosis date ".$prostate_dx_row['dx_date']." (".$prostate_dx_row['dx_date_accuracy'].").";
+				if(($prostate_dx_row['tool'] ==  'biopsy'  && $bx_turp_dx_data['type'] != 'Bx Dx') || ($prostate_dx_row['tool'] ==  'TURP'  && $bx_turp_dx_data['type'] != 'TURP Dx') || ($prostate_dx_row['tool'] ==  'TRUS-guided biopsy'  && $bx_turp_dx_data['type'] != 'Bx Dx TRUS-Guided'))
+					Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A Biopsy/TURP event was defined as 'Dx' in file but the type of this event does not match the diagnosis method (Note the diagnosis 'Gleason Score Biopsy/TURP' will be copied anyway from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier : Diagnosis method [".$prostate_dx_row['tool']."] != event type [".$bx_turp_dx_data['type']."].";
 			} else {
-				//No biopsy or turp was defined as Dx in file: Try to set it
+				//No Biopsy/TURP was defined as Dx in file: Try to set it
 				if($prostate_dx_row['dx_date']) {
 					$dx_date_key = $prostate_dx_row['dx_date'].$prostate_dx_row['dx_date_accuracy'];
-					if(isset($bx_turp_sorted_by_date[$dx_date_key])) {
-						//Found a biopsy or TURP matching Dx date with Dx method = biopsy or turp
-						if(in_array($bx_turp_sorted_by_date[$dx_date_key]['type'], array("Bx","TURP","Bx TRUS-Guided"))) {
-							if((preg_match('/biopsy/', $prostate_dx_row['tool']) && preg_match('/TURP/', $bx_turp_sorted_by_date[$dx_date_key]['type'])) || ($prostate_dx_row['tool'] == 'TURP' && !preg_match('/TURP/', $bx_turp_sorted_by_date[$dx_date_key]['type']))) {
-								Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (a date matches but the type and the dx method are different): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_sorted_by_date[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
-							} else {
-								Config::$summary_msg['diagnosis: biopsy']['@@MESSAGE@@']["A biopsy or TURP event will be defined as Dx event based on date and dx method: The Dx Gleason Score Biopsy / TURP will be completed"][] = "See patient # $qc_tf_bank_participant_identifier event [".$bx_turp_sorted_by_date[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
-								if(($prostate_dx_row['tool'] == 'biopsy' && $bx_turp_sorted_by_date[$dx_date_key]['type'] == 'Bx TRUS-Guided') || ($prostate_dx_row['tool'] == 'TRUS-guided biopsy' && $bx_turp_sorted_by_date[$dx_date_key]['type'] == 'Bx'))
-									Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A biopsy or TURP was defined as 'Dx' by the migration process but the type of this event does not exactly match the diagnosis method"][] = "See patient # $qc_tf_bank_participant_identifier: [".$prostate_dx_row['tool']."] != [".$bx_turp_sorted_by_date[$dx_date_key]['type']."].";
-								$new_type = '';
-								switch($bx_turp_sorted_by_date[$dx_date_key]['type']) {
-									case 'Bx':
-										$new_type = 'Bx D';
-										break;
-									case 'Bx TRUS-Guided':
-										$new_type = 'Bx Dx TRUS-Guided';
-										break;
-									case 'TURP':
-										$new_type = 'TURP Dx';
-										break;							
-								}
-								if(empty($new_type)) die('ERR72638726873268726876');
-								$query = "UPDATE qc_tf_txd_biopsies_and_turps SET type = '$new_type' WHERE treatment_master_id = ".$bx_turp_sorted_by_date[$dx_date_key]['id'];
-								mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-								if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_txd_biopsies_and_turps', 'qc_tf_txd_biopsies_and_turps_revs', $query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+					if(isset($participant_biopsies_and_turps[$dx_date_key])) {
+						//Found a Biopsy/TURP matching Dx date with Dx method = Biopsy/TURP
+						if(in_array($participant_biopsies_and_turps[$dx_date_key]['type'], array("Bx","TURP","Bx TRUS-Guided"))) {
+							//Got one Biopsy that could be flagged as 'Dx'
+							Config::$summary_msg['diagnosis: biopsy']['@@MESSAGE@@']["A Biopsy/TURP event was not defined as 'Dx' in file but the process can defined one based on datesand didagnosis method (So the diagnosis 'Gleason Score Biopsy/TURP' will be copied from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier : Diagnosis method [".$prostate_dx_row['tool']."] and event type [".$participant_biopsies_and_turps[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
+							$new_type = '';
+							switch($participant_biopsies_and_turps[$dx_date_key]['type']) {
+								case 'Bx':
+									$new_type = 'Bx D';
+									break;
+								case 'Bx TRUS-Guided':
+									$new_type = 'Bx Dx TRUS-Guided';
+									break;
+								case 'TURP':
+									$new_type = 'TURP Dx';
+									break;							
+							}
+							if(empty($new_type)) die('ERR72638726873268726876');
+							$query = "UPDATE qc_tf_txd_biopsies_and_turps SET type = '$new_type' WHERE treatment_master_id = ".$participant_biopsies_and_turps[$dx_date_key]['id'];
+							mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+							if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_txd_biopsies_and_turps', 'qc_tf_txd_biopsies_and_turps_revs', $query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+							if(($prostate_dx_row['tool'] ==  'biopsy'  && $new_type != 'Bx Dx') || ($prostate_dx_row['tool'] ==  'TURP'  && $new_type != 'TURP Dx') ||	($prostate_dx_row['tool'] ==  'TRUS-guided biopsy'  && $new_type != 'Bx Dx TRUS-Guided')) {
+								Config::$summary_msg['diagnosis: biopsy']['@@ERROR@@']["A Biopsy/TURP event has been defined as 'Dx' by the process but the type of this event does not match the diagnosis method (Note the diagnosis 'Gleason Score Biopsy/TURP' will be copied anyway from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier : Diagnosis method [".$prostate_dx_row['tool']."] != event type [$new_type] on ".$prostate_dx_row['dx_date'].".";
 							}
 						} else {
-							Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (a date matches but the type of the biopsy or TURP event can not be defined as Dx): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier: Dx method = [".$prostate_dx_row['tool']."] and event type =  [".$bx_turp_sorted_by_date[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
+							Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No Biopsy/TURP event was defined as 'Dx' in file and can be linked to a diagnosis based on date and dx method (The diagnosis date matches an event date but the type of the Biopsy/TURP event can not be defined as 'Dx':  The diagnosis 'Gleason Score Biopsy/TURP' won't be copied from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier : Diagnosis method = [".$prostate_dx_row['tool']."] and event type =  [".$participant_biopsies_and_turps[$dx_date_key]['type']."] on ".$prostate_dx_row['dx_date'].".";
 						}
 					} else {
-						Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (No biopsy or TURP date matches the diagnosis date): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier.";
-					}					
+						Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No Biopsy/TURP event was defined as 'Dx' in file and can be defined as 'Dx' by the process based on diagnosis date and method (No Biopsy/TURP date matches the diagnosis date: The diagnosis 'Gleason Score Biopsy/TURP' won't be copied from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier with diagnosis date on ".$prostate_dx_row['dx_date'].".";
+					}
 				} else {
 					//Dx Date not set, the match won't be possible
-					Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (The diagnosis date is not set): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier.";
+					Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No Biopsy/TURP event was defined as 'Dx' in file and can be defined as 'Dx' by the process based on diagnosis date (date is missing) and method (The diagnosis 'Gleason Score Biopsy/TURP' won't be copied from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier.";
 				}
-			}			
+			}		
 		} else {
-			//Dx method != biopsy or turp
+			//Dx method != Biopsy/TURP
 			if($bx_turp_dx_data) {
-				Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A biopsy or TURP event was defined as 'Dx' but the method of diagnosis was set to something else (The Dx Gleason Score Biopsy / TURP will be completed anywaybased on this event)"][] = "See patient # $qc_tf_bank_participant_identifier: Method [".$prostate_dx_row['tool']."] does not match [".$bx_turp_dx_data['type']."].";
+				Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["A Biopsy/TURP event was defined as 'Dx' but the method of diagnosis was set to something else (Note the diagnosis 'Gleason Score Biopsy/TURP' will be copied anyway from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier : Method [".$prostate_dx_row['tool']."] does not match event type [".$bx_turp_dx_data['type']."].";
 			} else {
-				Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No biopsy or TURP can be linked to a diagnosis based on date and dx method (No biopsy or TURP event was defined as 'Dx' and the method of diagnosis was different than TURP or biopsy): The Dx Gleason Score Biopsy / TURP won't be completed"][] = "See patient # $qc_tf_bank_participant_identifier. Dx method = [".$prostate_dx_row['tool']."].";
+				Config::$summary_msg['diagnosis: biopsy']['@@WARNING@@']["No Biopsy/TURP event can be defined as 'Dx' based on event date and diagnosis method (No Biopsy/TURP event was defined as 'Dx' in the file and the method of diagnosis was different than TURP or biopsy: The diagnosis 'Gleason Score Biopsy/TURP' won't be copied from the Biopsy/TURP event)"][] = "See patient # $qc_tf_bank_participant_identifier. Dx method = [".$prostate_dx_row['tool']."] on ".$prostate_dx_row['dx_date'].".";
 			}
 		}
 	}	
 	
-	// Update gleason score
+	// Update gleason score & ctnm
 	$query = "UPDATE diagnosis_masters dm, qc_tf_dxd_cpcbn dd, treatment_masters tm, qc_tf_txd_biopsies_and_turps td
-		SET dd.gleason_score_biopsy_turp = td.gleason_score
+		SET dd.gleason_score_biopsy_turp = td.gleason_score, dd.ctnm = td.ctnm
 		WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = $prostate_primary_control_id AND dm.id = dd.diagnosis_master_id
 		AND tm.deleted <> 1 AND tm.treatment_control_id = $biopsy_and_turp_control_id AND tm.id = td.treatment_master_id
 		AND tm.participant_id = dm.participant_id
@@ -379,7 +371,7 @@ function addonFunctionEnd(){
 		INNER JOIN (
 			SELECT participant_id, count(*) AS res_nbr
 			FROM treatment_masters tm, txd_surgeries td
-			WHERE tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['surgery']['RP']['id']." AND tm.id = td.treatment_master_id
+			WHERE tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['RP']['id']." AND tm.id = td.treatment_master_id
 			AND tm.participant_id IN ($str_created_participant_ids)
 		) AS res ON res.participant_id = p.id WHERE res.res_nbr > 1;";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
@@ -392,7 +384,7 @@ function addonFunctionEnd(){
 	$query = "UPDATE diagnosis_masters dm, qc_tf_dxd_cpcbn dd, treatment_masters tm, txd_surgeries td
 		SET dd.gleason_score_rp = td.qc_tf_gleason_score
 		WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = ".Config::$dx_controls['primary']['prostate']['id']." AND dm.id = dd.diagnosis_master_id
-		AND tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['surgery']['RP']['id']." AND tm.id = td.treatment_master_id
+		AND tm.deleted <> 1 AND tm.treatment_control_id = ".Config::$tx_controls['RP']['id']." AND tm.id = td.treatment_master_id
 		AND tm.participant_id = dm.participant_id
 		AND tm.participant_id IN ($str_created_participant_ids);";
 	mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
@@ -411,15 +403,12 @@ function addonFunctionEnd(){
 	if(!empty($participant_ids_to_remove)) Config::$summary_msg['SURVIVAL & BCR']['@@ERROR@@']['free survival start event defintion'][] = "Following patient won't be studied because treatment start date is missing. See patient ids ".implode(',', $participant_ids_to_remove).".";
 		
 	$tx_methode_sorted_for_dfs = array(
-		'1' => 'surgery-RP',
+		'1' => 'RP',
 		'2' => 'hormonotherapy',
 		'3' => 'radiation',
 		'4' => 'chemotherapy');
 	$tc_conditions = array();
-	foreach($tx_methode_sorted_for_dfs as $tmp_ct) {
-		$tmp_ct = explode('-', $tmp_ct);
-		$tc_conditions[] = "tc.tx_method = '".$tmp_ct[0]."'".(isset($tmp_ct[1])? " AND tc.disease_site = '".$tmp_ct[1]."'" : '');
-	}
+	foreach($tx_methode_sorted_for_dfs as $tmp_ct) $tc_conditions[] = "tc.tx_method = '$tmp_ct'";
 	$tc_conditions = '('.implode(') OR (',$tc_conditions).')';
 	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
 		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id

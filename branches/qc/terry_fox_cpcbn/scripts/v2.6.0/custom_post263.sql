@@ -215,6 +215,13 @@ UPDATE structure_fields SET field = 'total_number_taken' WHERE field = 'samples_
 ALTER TABLE qc_tf_txd_biopsies_and_turps CHANGE samples_number total_number_taken int(4);  
 ALTER TABLE qc_tf_txd_biopsies_and_turps_revs CHANGE samples_number total_number_taken int(4);  
 
+ALTER TABLE `qc_tf_txd_biopsies_and_turps` ADD COLUMN `ctnm` varchar(10) NOT NULL DEFAULT '';
+ALTER TABLE `qc_tf_txd_biopsies_and_turps_revs` ADD COLUMN `ctnm` varchar(10) NOT NULL DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'qc_tf_txd_biopsies_and_turps', 'ctnm', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ctnm') , '0', '', '', '', 'ctnm', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_txd_biopsies_and_turps'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='qc_tf_txd_biopsies_and_turps' AND `field`='ctnm' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ctnm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ctnm' AND `language_tag`=''), '1', '79', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
 -- RP new fields
 
 UPDATE treatment_controls SET detail_form_alias = 'qc_tf_txd_surgeries,qc_tf_rps' WHERE tx_method = 'surgery' AND disease_site = 'RP';
@@ -304,7 +311,9 @@ INSERT INTO i18n (id,en) VALUES ('gleason score biopsy and turp', 'Gleason Score
 
 INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `display_order`, `control_id`, `use_as_input`) 
 VALUES 
-('prior to Tx','Prior to Tx','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'active surveillances'), 1)
+('prior to Tx','Prior to Tx','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'active surveillances'), 1);
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_dxd_cpcbn') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='ctnm' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ctnm') AND `flag_confidential`='0');
 
 -- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Data Clean Up
@@ -536,6 +545,11 @@ WHERE dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.deleted <>
 AND tm.treatment_control_id = @biopsy_and_turp_treatment_control_id AND tm.deleted <> 1 AND td.type LIKE '% Dx'
 AND dd.gleason_score_biopsy_turp != td.gleason_score;
 
+SELECT COUNT(*) AS 'Info#17: Nbr of diagnosis with a cTNM completed (Should be equal to 0)' 
+FROM qc_tf_dxd_cpcbn dd, diagnosis_masters dm
+WHERE dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.deleted <> 1 AND dm.id = dd.diagnosis_master_id
+AND dd.ctnm IS NOT NULL AND dd.ctnm NOT LIKE '';
+
 -- *******  Work on RP ******* 
 
 SET @prostate_diagnosis_control_id = (SELECT id FROM diagnosis_controls WHERE category = 'primary' AND controls_type = 'prostate');
@@ -543,22 +557,22 @@ SET @RP_treatment_control_id = (SELECT id FROM treatment_controls WHERE tx_metho
 
 -- RP check
 
-SELECT participant_id AS 'Info#17: Patient# with more than 1 RP to clean up (should be one after migration process)' from (
+SELECT participant_id AS 'Info#18: Patient# with more than 1 RP to clean up (should be one after migration process)' from (
 	SELECT count(*) AS "RP_nbr", participant_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1 GROUP BY participant_id
 ) res WHERE res.RP_nbr > 1;
-SELECT COUNT(*) As 'Info#18: Nbr of patients with no RP'
+SELECT COUNT(*) As 'Info#19: Nbr of patients with no RP'
 FROM participants p INNER JOIN diagnosis_masters dm ON dm.participant_id = p.id
 INNER JOIN qc_tf_dxd_cpcbn dd ON dd.diagnosis_master_id = dm.id
 WHERE p.deleted <> 1 AND p.id NOT IN (
 	SELECT participant_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1
 ) AND dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id;
-SELECT participant_id AS "Info#19: Patient# with a diagnosis gleason score at RP but unlinked to RP (For migration process we assumed result is empty)"
+SELECT participant_id AS "Info#20: Patient# with a diagnosis gleason score at RP but unlinked to RP (For migration process we assumed result is empty)"
 FROM diagnosis_masters dm, qc_tf_dxd_cpcbn dd
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dd.diagnosis_master_id = dm.id AND dd.gleason_score_rp IS NOT NULL AND dd.gleason_score_rp NOT LIKE ''
 AND id NOT IN (
 	SELECT diagnosis_master_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1
 );
-SELECT participant_id AS "Info#20: Patient# with a diagnosis method equal RP but unlinked to an RP (For migration process we assumed result is empty)"
+SELECT participant_id AS "Info#21: Patient# with a diagnosis method equal RP but unlinked to an RP (For migration process we assumed result is empty)"
 FROM diagnosis_masters dm, qc_tf_dxd_cpcbn dd
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dd.diagnosis_master_id = dm.id AND dd.tool = 'RP'
 AND id NOT IN (
@@ -567,7 +581,7 @@ AND id NOT IN (
 
 -- Copy RP gleason score
 
-SELECT COUNT(*) As "Info#21: Nbr of patients we copied the diagnosis gleason RP value to the RP record" 
+SELECT COUNT(*) As "Info#22: Nbr of patients we copied the diagnosis gleason RP value to the RP record" 
 FROM diagnosis_masters dm, qc_tf_dxd_cpcbn dd, treatment_masters tm, txd_surgeries td
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.id = dd.diagnosis_master_id
 AND tm.deleted <> 1 AND tm.treatment_control_id = @RP_treatment_control_id AND tm.id = td.treatment_master_id
@@ -585,7 +599,7 @@ AND tm.diagnosis_master_id = dm.id;
 
 -- Move Dx Spread fields To RP
 
-SELECT dm.participant_id AS "Info#22: Patient# with no RP but Diagnosis 'Spread' fields (lymph node invasion, etc) not empty (For migration process we assumed result is empty)"
+SELECT dm.participant_id AS "Info#23: Patient# with no RP but Diagnosis 'Spread' fields (lymph node invasion, etc) not empty (For migration process we assumed result is empty)"
 FROM diagnosis_masters dm INNER JOIN qc_tf_dxd_cpcbn dd ON dd.diagnosis_master_id = dm.id
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.id NOT IN (
 	SELECT diagnosis_master_id FROM treatment_masters tm WHERE tm.treatment_control_id = @RP_treatment_control_id AND deleted <> 1
@@ -594,7 +608,7 @@ AND (dd.presence_of_lymph_node_invasion NOT LIKE '' AND dd.presence_of_lymph_nod
 AND (dd.presence_of_capsular_penetration NOT LIKE '' AND dd.presence_of_capsular_penetration IS NOT NULL)
 AND (dd.presence_of_seminal_vesicle_invasion NOT LIKE '' AND dd.presence_of_seminal_vesicle_invasion IS NOT NULL)
 AND (dd.margin  NOT LIKE '' AND dd.margin  IS NOT NULL);
-SELECT COUNT(*) As "Info#23: Nbr of patients we copied the diagnosis 'Spread' fields to RP record" 
+SELECT COUNT(*) As "Info#24: Nbr of patients we copied the diagnosis 'Spread' fields to RP record" 
 FROM diagnosis_masters dm, qc_tf_dxd_cpcbn dd, treatment_masters tm, txd_surgeries td
 WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_id AND dm.id = dd.diagnosis_master_id
 AND tm.deleted <> 1 AND tm.treatment_control_id = @RP_treatment_control_id AND tm.id = td.treatment_master_id
@@ -616,7 +630,7 @@ WHERE dm.deleted <> 1 AND dm.diagnosis_control_id = @prostate_diagnosis_control_
 AND tm.deleted <> 1 AND tm.treatment_control_id = @RP_treatment_control_id AND tm.id = td.treatment_master_id
 AND tm.diagnosis_master_id = dm.id;
 
-SELECT "Info#24: Removed Diagnosis 'Spread' field (capsular penetration, lymph node invasion, etc)" AS process_message;
+SELECT "Info#25: Removed Diagnosis 'Spread' field (capsular penetration, lymph node invasion, etc)" AS process_message;
 ALTER TABLE qc_tf_dxd_cpcbn DROP COLUMN presence_of_lymph_node_invasion, DROP COLUMN presence_of_capsular_penetration, DROP COLUMN presence_of_seminal_vesicle_invasion, DROP COLUMN margin;
 ALTER TABLE qc_tf_dxd_cpcbn_revs DROP COLUMN presence_of_lymph_node_invasion, DROP COLUMN presence_of_capsular_penetration, DROP COLUMN presence_of_seminal_vesicle_invasion, DROP COLUMN margin;
 
@@ -628,12 +642,14 @@ VALUES
 ('a biopsy or a turp has already been defined as the diagnosis method for this cancer', 'A biopsy or a TURP has already been defined as the diagnosis method for this cancer');
 INSERT INTO i18n (id,en)
 VALUES
-('the biopsy or the turp used for the diagnosis is missing into the system','The biopsy or the TURP used for the diagnosis is missing into the system'),
-('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else', 'A biopsy or a TURP is defined as diagnosis method but the method of the diagnosis is set to something else'),
-('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis', 'The date of the biopsy or the TURP used for diagnosis is different than the date of diagnosis'),
-('the method of the diagnosis is different than the type set for the biopsy or a turp record','The method of the diagnosis is different than the type set for the biopsy or a TURP record');
+('the biopsy or the turp used for the diagnosis is missing into the system','The Biopsy/Turp record used for the diagnosis is missing into the system'),
+('a biopsy or a turp is defined as diagnosis method but the method of the diagnosis is set to something else', 'A Biopsy/Turp record is defined as diagnosis method but the method of the diagnosis is set to something else'),
+('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis', 'The date of the Biopsy/Turp record used for diagnosis is different than the date of diagnosis'),
+('the method of the diagnosis (biopsy, TRUS-guided biopsy or TURP) is different than the type set for the biopsy or a turp record','The method of the diagnosis (biopsy, TRUS-guided biopsy or TURP) is different than the type set for the Biopsy/Turp record used for diagnosis');
 
--- ******* report FIELDS.... *******
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Report Fields
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='qc_tf_lymph_node_invasion' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph node invasion' AND `language_tag`=''), '0', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
@@ -662,21 +678,33 @@ DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='Clinica
 `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='presence_of_seminal_vesicle_invasion' AND `language_label`='presence seminal invasion' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0') OR (
 `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='margin' AND `language_label`='margin' AND `language_tag`='' AND `type`='yes_no' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
 
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Last Changes
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+UPDATE treatment_controls SET tx_method = 'RP', disease_site = '' WHERE disease_site = 'RP';
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_search`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters_for_dx_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list') AND `flag_confidential`='0');
+UPDATE treatment_controls SET tx_method = CONCAT(tx_method, ' ', disease_site), disease_site = '' WHERE tx_method = 'other treatment' AND flag_active = 1;
+UPDATE treatment_controls SET databrowser_label = tx_method WHERE flag_active = 1;
+INSERT INTO i18n (id,en) VALUES ('other treatment bone specific', 'Other Treatment Bone Specific'), ('other treatment HR specific', 'Other Treatment HR Specific');
 
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='gleason_score_biopsy_turp' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_values')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason score biopsy and turp' AND `language_tag`=''), '0', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='ctnm' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_ctnm')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ctnm' AND `language_tag`=''), '0', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_results') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='qc_tf_dxd_cpcbn' AND `field`='gleason_score_biopsy_turp' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_tf_gleason_values') AND `flag_confidential`='0');
+INSERT INTO structures(`alias`) VALUES ('qc_tf_cpcbn_summary_positions');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_positions'), (SELECT id FROM structure_fields WHERE `model`='StorageMaster' AND `tablename`='storage_masters' AND `field`='selection_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='stor_selection_label_defintion' AND `language_label`='storage' AND `language_tag`=''), '0', '899', 'tma', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_positions'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_x' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '900', '', '0', '1', 'position', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_tf_cpcbn_summary_positions'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='storage_coord_y' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=4' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '901', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+DELETE FROM structure_formats WHERE structure_id = (SELECT id FROM structures WHERE alias='qc_tf_full_cpcbn_summary_results');
+DELETE FROM structures WHERE alias='qc_tf_full_cpcbn_summary_results';
+UPDATE datamart_reports SET form_alias_for_results = 'qc_tf_cpcbn_summary_results,qc_tf_cpcbn_summary_positions' WHERE form_alias_for_results = 'qc_tf_full_cpcbn_summary_results';
 
-TODO
-- Dans le databrowser changer Treatment par Treatment & Biopsy
-- change report file
+UPDATE datamart_structures set display_name = 'treatment and biopsy' WHERE model = 'TreatmentMaster';
+UPDATE menus SET language_title = 'treatment and biopsy' WHERE id = 'clin_CAN_75';
+UPDATE i18n SET id = 'treatment and biopsy' WHERE id = 'treatment & biopsy';
 
-
-
-
-
-
-
-
-UPDATE versions SET branch_build_number = '58??' WHERE version_number = '2.6.3';
-
-
-
+UPDATE versions SET branch_build_number = '58?? WHERE version_number = '2.6.3';
