@@ -46,7 +46,7 @@ function txOtherTrttherapyPostRead(Model $m){
 
 function txOtherTrttherapyInsertCondition(Model $m){
 	$m->values['participant_id'] = $m->parent_model->parent_model->last_id;
-	$m->values['treatment_control_id'] = Config::$tx_controls['other treatment'][(($m->values['Other treatments'] == 'bone specific')? 'bone specific' : 'HR specific')]['id'];
+	$m->values['treatment_control_id'] = Config::$tx_controls['other treatment '.(($m->values['Other treatments'] == 'bone specific')? 'bone specific' : 'HR specific')]['id'];
 	return true;
 }
 
@@ -62,7 +62,7 @@ function txOtherTrtPostWrite(Model $m){
 				break;
 			}
 			$drug_id = getDrugId($m->values[$key], (($m->values['Other treatments'] == 'bone specific')? 'bone' : 'HR'));
-			$data = array('treatment_master_id' => $m->last_id, 'treatment_extend_control_id' => Config::$tx_controls['other treatment'][(($m->values['Other treatments'] == 'bone specific')? 'bone specific' : 'HR specific')]['treatment_extend_control_id']);
+			$data = array('treatment_master_id' => $m->last_id, 'treatment_extend_control_id' => Config::$tx_controls['other treatment '.(($m->values['Other treatments'] == 'bone specific')? 'bone specific' : 'HR specific')]['treatment_extend_control_id']);
 			$treatment_extend_master_id = customInsert($data, 'treatment_extend_masters', __FUNCTION__, __LINE__, false);
 			$data = array('treatment_extend_master_id' => $treatment_extend_master_id, 'drug_id' => $drug_id);
 			customInsert($data, 'txe_chemos', __FUNCTION__, __LINE__, true);

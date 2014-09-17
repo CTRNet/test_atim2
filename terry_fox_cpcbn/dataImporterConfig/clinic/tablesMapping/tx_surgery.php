@@ -28,7 +28,7 @@ function txSurgeryPostRead(Model $m){
 	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Specification' : 'Surgery/Biopsy Type of surgery');
 	switch($m->values[$type_field]) {
 		case 'RP':
-			$m->values['treatment_control_id'] = Config::$tx_controls['surgery']['RP']['id'];
+			$m->values['treatment_control_id'] = Config::$tx_controls['RP']['id'];
 			break;
 		default:
 			return false;

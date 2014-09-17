@@ -12,7 +12,8 @@ $detail_fields = array(
 	'type' 				=>  '#type',
 	'total_number_taken'	=> 	Config::$active_surveillance_project? 'Biopsy information Total number taken' : 'number of biospies (optional)',
 	'gleason_score'		=> 	array((Config::$active_surveillance_project? 'Biopsy information Gleason Score' : 'Gleason score at biopsy') => new ValueDomain('qc_tf_gleason_values', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'gleason_grade'		=> array((Config::$active_surveillance_project? 'Biopsy information Gleason Grade (X+Y)' : 'Gleason Grade at biopsy (X+Y)') => new ValueDomain('qc_tf_gleason_grades', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))	
+	'gleason_grade'		=> array((Config::$active_surveillance_project? 'Biopsy information Gleason Grade (X+Y)' : 'Gleason Grade at biopsy (X+Y)') => new ValueDomain('qc_tf_gleason_grades', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
+	'ctnm' 				=> array((Config::$active_surveillance_project? 'cTNM' : 'cTNM RT') => new ValueDomain('qc_tf_ctnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
 );		
 if(Config::$active_surveillance_project) {
 	$detail_fields['total_positive'] = 'Biopsy information Total positive';
@@ -49,13 +50,14 @@ function txBiopsyPostRead(Model $m){
 		case 'Bx prior to Tx':
 			$m->values['type'] = "Bx prior to Tx";
 			break;
-			break;
 		default;
 			return false;
 //Note: The other type check and data integrity will be done in checkTypeOfBiopsySurgeryValue()
 	}
 	
 	$m->values['treatment_control_id'] = Config::$tx_controls['biopsy and turp']['id'];
+	
+	$m->values[(Config::$active_surveillance_project? 'cTNM' : 'cTNM RT')] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values[(Config::$active_surveillance_project? 'cTNM' : 'cTNM RT')]);
 	
 	foreach(array('Biopsy information Greatest Percent of cancer','Biopsy information Total number taken','number of biospies (optional)','Biopsy information Total positive') as $xls_field) {
 		if(array_key_exists($xls_field, $m->values)) {

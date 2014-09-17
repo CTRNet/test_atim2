@@ -23,7 +23,6 @@ $fields = array(
 $detail_fields = array(
 	'tool'									=> array('Date of diagnostics  diagnostic tool' => new ValueDomain("qc_tf_dx_tool", ValueDomain::ALLOW_BLANK, ValueDomain::CASE_INSENSITIVE)), 
 	'ptnm' 									=> array((Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') => new ValueDomain('qc_tf_ptnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
-	'ctnm' 									=> array((Config::$active_surveillance_project? 'cTNM' : 'cTNM RT') => new ValueDomain('qc_tf_ctnm', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'hormonorefractory_status' 				=> array('hormonorefractory status status' => new ValueDomain('qc_tf_hormonorefractory_status', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE)),
 	'active_surveillance' 					=> array('Active Surveillance' => new ValueDomain('qc_tf_active_surveillance', ValueDomain::ALLOW_BLANK, ValueDomain::CASE_SENSITIVE))
 //Note: gleason_score_biopsy set in addonFunctionEnd()
@@ -34,7 +33,6 @@ $prostate_dx_fields_to_check = array(
 	'dx_date_accuracy' => 'Date of diagnostics Accuracy',
 	'tool' => 'Date of diagnostics  diagnostic tool',
 	'ptnm' => (Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP'),
-	'ctnm' => (Config::$active_surveillance_project? 'cTNM' : 'cTNM RT'),
 	'hormonorefractory_status' => 'hormonorefractory status status',
 	'active_surveillance' => 'Active Surveillance');
 
@@ -67,7 +65,6 @@ function postDxRead(Model $m){
 	
 	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
 	$m->values[(Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') ] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values[(Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') ]);
-	$m->values[(Config::$active_surveillance_project? 'cTNM' : 'cTNM RT')] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values[(Config::$active_surveillance_project? 'cTNM' : 'cTNM RT')]);	
 	$m->values['Active Surveillance'] =str_replace(array('no','unknown'), array('',''),$m->values['Active Surveillance']);
 	//Tool: "biopsy","TRUS-guided biopsy","TURP","PSA+DRE","RP","unknown"
 	if(strtoupper($m->values['Date of diagnostics  diagnostic tool']) == 'TRUS') {
@@ -118,8 +115,6 @@ function manageDxValuesOnManyRows(Model $m){
 				
 				switch($new_field) {				
 					case 'Date of diagnostics  diagnostic tool':
-					case 'cTNM':
-					case 'cTNM RT':
 					case 'pTNM RP':
 					case 'RP pTNM':
 					case 'hormonorefractory status status':
@@ -221,10 +216,12 @@ function checkTypeOfBiopsySurgeryValue($values, $lines) {
 			'Biopsy information Gleason Grade (X+Y)',
 			'Biopsy information Gleason Score',
 			'Biopsy information Total positive',
-			'Biopsy information Greatest Percent of cancer'):
+			'Biopsy information Greatest Percent of cancer',
+			'cTNM'):
 		array('Gleason Grade at biopsy (X+Y)',
 			'Gleason score at biopsy',
-			'number of biospies (optional)');
+			'number of biospies (optional)',
+			'cTNM RT');
 	$type_field = (Config::$active_surveillance_project? 'Biopsy/Surgery Specification' : 'Surgery/Biopsy Type of surgery');
 	$date_field = (Config::$active_surveillance_project? 'Biopsy/Surgery' : 'Surgery/Biopsy').' Date of surgery/biopsy';
 	switch($values[$type_field]) {

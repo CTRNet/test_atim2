@@ -51,10 +51,10 @@ class ParticipantCustom extends Participant {
 					if($biopsy_turp_at_dx['TreatmentMaster']['start_date'] != $new_dx['DiagnosisMaster']['dx_date'] || $biopsy_turp_at_dx['TreatmentMaster']['start_date_accuracy'] != $new_dx['DiagnosisMaster']['dx_date_accuracy']) {
 						AppController::addWarningMsg(__('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis'));
 					}
-					if(!((preg_match('/biopsy/', $new_dx['DiagnosisDetail']['tool']) && preg_match('/Bx Dx/', $biopsy_turp_at_dx['TreatmentDetail']['type']))
-					|| preg_match('/TURP/', $new_dx['DiagnosisDetail']['tool']) && preg_match('/TURP Dx/', $biopsy_turp_at_dx['TreatmentDetail']['type']))) {
-						AppController::addWarningMsg(__('the date of the biopsy or turp used for diagnosis is different than the date of diagnosis'));
-							AppController::addWarningMsg(__('the method of the diagnosis is different than the type set for the biopsy or a turp record'));
+					if(($new_dx['DiagnosisDetail']['tool'] ==  'biopsy'  && $biopsy_turp_at_dx['TreatmentDetail']['type'] != 'Bx Dx') ||
+					($new_dx['DiagnosisDetail']['tool'] ==  'TURP'  && $biopsy_turp_at_dx['TreatmentDetail']['type'] != 'TURP Dx') ||
+					($new_dx['DiagnosisDetail']['tool'] ==  'TRUS-guided biopsy'  && $biopsy_turp_at_dx['TreatmentDetail']['type'] != 'Bx Dx TRUS-Guided')) {
+							AppController::addWarningMsg(__('the method of the diagnosis (biopsy, TRUS-guided biopsy or TURP) is different than the type set for the biopsy or a turp record'));
 					}
 				}
 			}
