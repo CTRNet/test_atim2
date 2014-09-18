@@ -14,7 +14,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		//check qc_tf_disease_free_survival_start_events can be set to 1
 		if(array_key_exists('qc_tf_disease_free_survival_start_events', $this->data['TreatmentMaster']) && $this->data['TreatmentMaster']['qc_tf_disease_free_survival_start_events']) {
 			$treatment_control = $this->getTreatmentControlData();
-			if(!in_array($treatment_control['TreatmentControl']['tx_method'], array('hormonotherapy', 'surgery', 'radiation', 'chemotherapy'))) {
+			if(!in_array($treatment_control['TreatmentControl']['tx_method'], array('hormonotherapy', 'RP', 'radiation', 'chemotherapy'))) {
 				$this->validationErrors['qc_tf_disease_free_survival_start_events'][] = "this treatment can not be defined as the 'disease free survival start event'";
 				$result = false;
 			} else if($this->data['TreatmentMaster']['diagnosis_master_id']) {

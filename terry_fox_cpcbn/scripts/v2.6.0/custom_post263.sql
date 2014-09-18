@@ -714,4 +714,4 @@ INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `displa
 VALUES 
 ('brachy','Brachy','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'radiotherapy types'), 1);
 	
-UPDATE versions SET branch_build_number = '5894' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '5895' WHERE version_number = '2.6.3';
