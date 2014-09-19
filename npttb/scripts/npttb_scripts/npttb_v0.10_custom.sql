@@ -31,11 +31,6 @@ UPDATE structure_formats SET `flag_detail`='0' WHERE structure_id=(SELECT id FRO
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_detail`='0' 
 WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_tube_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
--- Eventum ID: #2616 - Sample code format
-UPDATE structure_formats SET `flag_add`='1', `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
--- Add validation [SM]-[SampleType]-[PK]
-
 -- Eventum ID: #3096 - RNA/DNA Concentration
 
 -- Add new field
