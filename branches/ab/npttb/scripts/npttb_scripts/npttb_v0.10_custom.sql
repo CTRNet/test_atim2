@@ -118,7 +118,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
  ('optic pathway', 'Optic pathway', ''),
  ('pituitary', 'Pituitary', ''), 
  ('auditory pathway', 'Auditory pathway', ''),
- ('npttb cns location' 'CNS Location');
+ ('npttb cns location', 'CNS Location', '');
  
 ALTER TABLE `sd_spe_tissues` 
 ADD COLUMN `npttb_cns_location` VARCHAR(75) NULL DEFAULT NULL AFTER `npttb_tissue_type`;
