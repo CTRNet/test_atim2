@@ -46,7 +46,7 @@
 			
 		), 'extras'	=> array('start' => '<input type="radio" name="data[EventMaster][diagnosis_master_id]" value="" '.($radio_checked ? 'checked="checked"' : '').'/>'.__('n/a', null)),
 		'links'	=> array(
-			'top' => '/ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id']. '/'.$atim_menu_variables['EventControl.id'].'/',
+			'top' => '/ClinicalAnnotation/EventMasters/add/'.$atim_menu_variables['Participant.id'].'/'.$atim_menu_variables['EventControl.id'].'/',
 			'bottom' => array('cancel'=>'/ClinicalAnnotation/EventMasters/listall/'.$atim_menu_variables['EventControl.event_group'].'/'.$atim_menu_variables['Participant.id']),
 			'tree'	=> array(
 				'DiagnosisMaster' => array(

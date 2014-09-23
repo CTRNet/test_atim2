@@ -6,24 +6,6 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	
 	var $ovcareIsTreatmentDeletion = false;
 	
-	function summary( $variables=array() ) {
-		$return = false;
-	
-		if ( isset($variables['TreatmentMaster.id']) ) {
-				
-			$result = $this->find('first', array('conditions'=>array('TreatmentMaster.id'=>$variables['TreatmentMaster.id'])));
-				
-			$return = array(
-					'menu'    			=> array( NULL, __($result['TreatmentControl']['tx_method'], TRUE) ),
-					'title'	 			=> array( NULL, __($result['TreatmentControl']['tx_method'], TRUE)),
-					'data'				=> $result,
-					'structure alias'	=> 'treatmentmasters'
-			);
-		}
-	
-		return $return;
-	}
-	
 	function atimDelete($model_id, $cascade = true){	
 		$tx_to_delete = $this->find('first', array('conditions' => array('TreatmentMaster.id' => $model_id), 'recursive' => '0'));
 		if(parent::atimDelete($model_id, $cascade)){		

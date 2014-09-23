@@ -17,7 +17,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		return false;
 	}
 	
-	function updateCalculatedFields($participant_id) {
+	function updateCalculatedFields($participant_id) {		
 		// MANAGE OVARY DIAGNOSIS CALCULATED FIELDS
 		$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
