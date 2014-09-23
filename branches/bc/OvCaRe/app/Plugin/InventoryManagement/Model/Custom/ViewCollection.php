@@ -26,7 +26,7 @@ Collection.collection_voa_nbr
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
-	
+		
 	function summary($variables=array()) {
 		$return = false;
 		
