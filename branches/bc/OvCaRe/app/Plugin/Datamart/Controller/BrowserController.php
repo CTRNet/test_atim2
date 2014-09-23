@@ -1,17 +1,15 @@
 <?php
 class BrowserController extends DatamartAppController {
 	
-	static $tmp_browsing_limit = 5;
-	
 	var $uses = array(
-		'Datamart.Adhoc',
 		'Datamart.Browser',
 		'Datamart.DatamartStructure',
 		'Datamart.BrowsingResult',
 		'Datamart.BrowsingControl',
 		'Datamart.BrowsingIndex',
 		'Datamart.BatchSet',
-		'Datamart.SavedBrowsingIndex'
+		'Datamart.SavedBrowsingIndex',
+		'ExternalLink'
 	);
 		
 	function index(){
@@ -20,13 +18,17 @@ class BrowserController extends DatamartAppController {
 			'conditions' => array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => true),
 			'order'	=> array('BrowsingResult.created DESC'))
 		);
-		
-		while(count($tmp_browsing) > self::$tmp_browsing_limit){
+			
+		while(count($tmp_browsing) > $this->BrowsingIndex->tmp_browsing_limit){
 			$unit = array_pop($tmp_browsing);
-			$this->BrowsingIndex->atimDelete($unit['BrowsingIndex']['id']);
+			$this->BrowsingIndex->check_writable_fields = false;
+			$this->BrowsingResult->check_writable_fields = false;
+			$this->BrowsingIndex->delete($unit['BrowsingIndex']['id']);
+			$this->BrowsingResult->delete($unit['BrowsingResult']['id'], true);
 		}
 		
 		$this->set('tmp_browsing', $tmp_browsing);
+		$this->set('tmp_browsing_limit', $this->BrowsingIndex->tmp_browsing_limit);
 		
 		$this->request->data = $this->paginate($this->BrowsingIndex, 
 			array("BrowsingResult.user_id" => $this->Session->read('Auth.User.id'), 'BrowsingIndex.temporary' => false));
@@ -44,8 +46,9 @@ class BrowserController extends DatamartAppController {
 			$this->BrowsingIndex->id = $index_id;
 			unset($this->request->data['BrowsingIndex']['created']);
 			$this->request->data['BrowsingIndex']['temporary'] = false;
+			$this->BrowsingIndex->addWritableField(array('temporary'));
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	
@@ -55,10 +58,23 @@ class BrowserController extends DatamartAppController {
 		if(!empty($this->request->data)){
 			$this->BrowsingIndex->atimDelete($index_id);
 			$this->BrowsingResult->atimDelete($this->request->data['BrowsingIndex']['root_node_id']);
-			$this->atimFlash( 'your data has been deleted', '/Datamart/Browser/index/');
+			$this->atimFlash(__('your data has been deleted'), '/Datamart/Browser/index/');
 		} else {
-			$this->flash( 'error deleting data - contact administrator', '/Datamart/Browser/index/');
+			$this->flash(__('error deleting data - contact administrator'), '/Datamart/Browser/index/');
 		}
+	}
+	
+	private function getIdsAndParentChild($control_id){
+		$sub_structure_id = null;
+		$parent_child = null;
+		if(strpos($control_id, Browser::$sub_model_separator_str) !== false){
+			list($control_id , $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
+		}
+		if(in_array(substr($control_id, -1), array('c', 'p'))){
+			$parent_child = substr($control_id, -1);
+			$control_id = substr($control_id, 0, -1);
+		}
+		return array($control_id, $sub_structure_id, $parent_child);
 	}
 	
 		
@@ -76,9 +92,12 @@ class BrowserController extends DatamartAppController {
 		$browsing = null;
 		$check_list = false;
 		$last_control_id = 0;
-		$this->set('control_id', $control_id);
+		$parent_child = false;
+		$this->set('control_id', (int)$control_id); //cast as it might end with c(child) or p(parent)
 		$this->set('merge_to', $merge_to);
 		$this->Browser;//lazy laod
+		$help_url = $this->ExternalLink->find('first', array('conditions' => array('name' => 'databrowser_help')));
+		$this->set("help_url", $help_url['ExternalLink']['link']);
 		
 		//data handling will redirect to a straight page
 		if($this->request->data){
@@ -97,10 +116,7 @@ class BrowserController extends DatamartAppController {
 			}else{
 				$check_list = true;
 			}
-			$sub_structure_id = null;//control id for master/detail
-			if(strpos($control_id, Browser::$sub_model_separator_str) !== false){
-				list($control_id , $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
-			}
+			list($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
 			//direct access array (if the user goes from 1 to 4 by going throuhg 2 and 3, the direct access are 2 and 3
 			$direct_id_arr = explode(Browser::$model_separator_str, $control_id);
 			
@@ -122,14 +138,14 @@ class BrowserController extends DatamartAppController {
 				){
 					$sub_struct_ctrl_id = $sub_structure_id;
 				}
-			
+				
 				$params = array(
 						'struct_ctrl_id'		=> $control_id,
 						'sub_struct_ctrl_id'	=> $sub_struct_ctrl_id,
 						'node_id'				=> $node_id,
-						'last'					=> $last_control_id == $control_id
+						'last'					=> $last_control_id == $control_id,
+						'parent_child'			=> $parent_child
 				);
-			
 				if(!$created_node = $this->Browser->createNode($params)){
 					//something went wrong. A flash screen has been called.
 					return;
@@ -150,18 +166,16 @@ class BrowserController extends DatamartAppController {
 			}
 			
 			if($sub_structure_id){
-				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.Browser::$sub_model_separator_str.$sub_structure_id);
+				$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.$parent_child.Browser::$sub_model_separator_str.$sub_structure_id);
 			}
-			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id);
+			$this->redirect('/Datamart/Browser/browse/'.$node_id.'/'.$last_control_id.$parent_child);
 			
 			
 		}else{
 			if($node_id == 0){
 				if($control_id){
 					//search screen
-					if(strpos($control_id, Browser::$sub_model_separator_str)){
-						list($control_id, $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
-					}
+					list($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
 					$browsing = $this->DatamartStructure->findById($control_id);
 					$last_control_id = $control_id;
 				}else{
@@ -174,11 +188,9 @@ class BrowserController extends DatamartAppController {
 			}else{
 				if($control_id){
 					//search screen
-					if(strpos($control_id, Browser::$sub_model_separator_str)){
-						list($control_id, $sub_structure_id) = explode(Browser::$sub_model_separator_str, $control_id);
-					}
+					list($control_id, $sub_structure_id, $parent_child) = $this->getIdsAndParentChild($control_id);
 					$browsing = $this->DatamartStructure->findById($control_id);
-					$last_control_id = $control_id;
+					$last_control_id = $control_id.$parent_child;
 				}else{
 					//direct node access
 					$this->set('node_id', $node_id);
@@ -194,7 +206,13 @@ class BrowserController extends DatamartAppController {
 		//handle display data
 		$render = 'browse_checklist';
 		if($check_list){
-			$this->Browser->initDataLoad($browsing, $merge_to, explode(",", $browsing['BrowsingResult']['id_csv']));
+		    $order = null;
+		    if(isset($this->passedArgs["sort"])){
+		        $order = $this->passedArgs["sort"]." ".$this->passedArgs["direction"];
+		    }
+			$this->Browser->initDataLoad(
+                $browsing, $merge_to,
+			    explode(",", $browsing['BrowsingResult']['id_csv']), $order);
 			
 			if(!$this->Browser->valid_permission){
 				$this->flash(__("You are not authorized to access that location."), 'javascript:history.back()');
@@ -250,10 +268,6 @@ class BrowserController extends DatamartAppController {
 				$this->set("result_structure", $this->Browser->result_structure);
 				$this->request->data = $this->Browser->getDataChunk(self::$display_limit);
 				$this->set("header", array('title' => __('result'), 'description' => $this->Browser->checklist_header));
-				if(is_array($this->request->data)){
-					//sort this->data on URL
-					$this->request->data = AppModel::sortWithUrl($this->request->data, $this->passedArgs);
-				}
 			}else{
 				//overflow
 				$this->request->data = 'all';
@@ -283,7 +297,6 @@ class BrowserController extends DatamartAppController {
 						}
 				}
 				$this->set('atim_structure', $structure);
-				
 				$last_control_id .= "-".$sub_structure_id;
 				$this->set("header", array("title" => __("search"), "description" => __($browsing['DatamartStructure']['display_name'])." > ".Browser::getTranslatedDatabrowserLabel($alternate_info['databrowser_label'])));
 			}else{
@@ -307,26 +320,30 @@ class BrowserController extends DatamartAppController {
 					if($this->BrowsingControl->find1ToN($current_structure_id, $parent_node['BrowsingResult']['browsing_structures_id'])){
 						//valid parent
 						$browsing_result = $this->BrowsingResult->findById($parent_node['BrowsingResult']['id']);
-						$counters_structure_fields[] = array(
-							'model'	=> '0',
-							'field'	=> 'counter_'.$parent_node['BrowsingResult']['id'],
-							'type'	=> 'integer_positive',
-							'flag_search'	=> 1,
-							'flag_search_readonly'	=> 0,
-							'display_column'	=> 1,
-							'display_order'	=> 1,
-							'language_label'	=> $browsing_result['DatamartStructure']['display_name'],
-							'language_heading'	=> '',
-							'tablename'	=> '',
-							'language_tag'	=> '',
-							'language_help' => '',
-							'setting' => '',
-							'default' => '',
-							'flag_confidential' => '',
-							'flag_float' => '',
-							'margin' => '',
-							'StructureValidation' => array()
-						);
+						if(false){
+						    //Disabled: Adds a counter field to search forms when going from 
+						    // 1 to N. Unclear if useful.
+    						$counters_structure_fields[] = array(
+    							'model'	=> '0',
+    							'field'	=> 'counter_'.$parent_node['BrowsingResult']['id'],
+    							'type'	=> 'integer_positive',
+    							'flag_search'	=> 1,
+    							'flag_search_readonly'	=> 0,
+    							'display_column'	=> 1,
+    							'display_order'	=> 1,
+    							'language_label'	=> $browsing_result['DatamartStructure']['display_name'],
+    							'language_heading'	=> '',
+    							'tablename'	=> '',
+    							'language_tag'	=> '',
+    							'language_help' => '',
+    							'setting' => '',
+    							'default' => '',
+    							'flag_confidential' => '',
+    							'flag_float' => '',
+    							'margin' => '',
+    							'StructureValidation' => array()
+    						);
+						}
 						$current_structure_id = $parent_node['BrowsingResult']['browsing_structures_id'];
 					}else{
 						break;
@@ -474,7 +491,7 @@ class BrowserController extends DatamartAppController {
 	 * $this->request->data[$model][id]
 	 * @param String $model
 	 */
-	function batchToDatabrowser($model){
+	function batchToDatabrowser($model, $source = 'batchset'){
 		$dm_structure = $this->DatamartStructure->find('first', array(
 			'conditions' => array('OR' => array('DatamartStructure.model' => $model, 'DatamartStructure.control_master_model' => $model)),
 			'recursive' => -1)
@@ -490,7 +507,7 @@ class BrowserController extends DatamartAppController {
 		}else if(array_key_exists($dm_structure['DatamartStructure']['control_master_model'], $this->request->data)){
 			$model = AppModel::getInstance($dm_structure['DatamartStructure']['plugin'], $dm_structure['DatamartStructure']['control_master_model'], true);
 		}else{
-			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
+			$this->redirect( '/Pages/err_internal?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}
 		$ids = $this->request->data[$model->name][$model->primaryKey];
 		$ids = array_filter($ids);
@@ -508,7 +525,7 @@ class BrowserController extends DatamartAppController {
 			"browsing_structures_sub_id"	=> 0,
 			"id_csv"						=> implode(",", $ids),
 			'raw'							=> 1,
-			"browsing_type"					=> 'search'
+			"browsing_type"					=> 'initiated from '.$source
 		));
 		
 		$tmp = $this->BrowsingResult->find('first', array('conditions' => Set::flatten($save)));
@@ -531,13 +548,13 @@ class BrowserController extends DatamartAppController {
 		$this->BrowsingResult;//lazy load
 		$this->request->data = $this->BrowsingIndex->find('first', array('conditions' => array('BrowsingIndex.id' => $index_id, "BrowsingResult.user_id" => $this->Session->read('Auth.User.id'))));
 		if(empty($this->request->data)){
-			$this->redirect( '/Pages/err_internal?p[]=invalid+data', NULL, TRUE );
+			$this->redirect( '/Pages/err_internal?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}else{
 			$this->request->data['BrowsingIndex']['temporary'] = false;
 			$this->BrowsingIndex->pkey_safeguard = false;
 			$this->BrowsingIndex->check_writable_fields = false;
 			$this->BrowsingIndex->save($this->request->data);
-			$this->atimFlash('your data has been updated', "/Datamart/Browser/index");
+			$this->atimFlash(__('your data has been updated'), "/Datamart/Browser/index");
 		}
 	}
 	
@@ -653,7 +670,8 @@ class BrowserController extends DatamartAppController {
 					'last'					=> false,
 					'search_conditions'		=> $search_params['search_conditions'],
 					'exact_search'			=> $search_params['exact_search'],
-					'adv_search_conditions'	=> isset($search_params['adv_search_conditions']) ? $search_params['adv_search_conditions'] : array() 
+					'adv_search_conditions'	=> isset($search_params['adv_search_conditions']) ? $search_params['adv_search_conditions'] : array(),
+			        'parent_child'          => $step['parent_children']
 			);
 			if(!$created_node = $this->Browser->createNode($params)){
 				//something went wrong. A flash screen has been called.

@@ -25,20 +25,7 @@
 				'description' => __("more information about the types of samples and aliquots are available %s here", $help_url)
 			);
 		}
-		$structure_links = array(
-			'index' => array(
-				'detail' => '/InventoryManagement/Collections/detail/%%ViewCollection.collection_id%%',
-				'copy for new collection' => array('link' => '/InventoryManagement/Collections/add/0/%%ViewCollection.collection_id%%', 'icon' => 'copy')
-			), 'bottom' => array(
-				'add collection' => '/InventoryManagement/Collections/add'
-			)
-		);
-		$final_options = array(
-			'type' => 'index', 
-			'data' => $this->request->data, 
-			'links' => $structure_links, 
-			'settings' => $settings
-		);
+		include('search_links_n_options.php');
 	}
 	
 	$final_atim_structure = $atim_structure;

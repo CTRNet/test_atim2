@@ -162,7 +162,7 @@ class OrderItemsController extends OrderAppController {
 						require($hook_link);
 					}
 					// Redirect
-					$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
+					$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
 				}
 			}
 		}
@@ -216,6 +216,11 @@ class OrderItemsController extends OrderAppController {
 					$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_redirect, 5);
 					return;
 				}
+				if($studied_aliquot_master_ids == 'all' && isset($this->request->data['node'])) {
+					$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+					$studied_aliquot_master_ids = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+				}
 				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
 					//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
 					$this->flash(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
@@ -226,7 +231,7 @@ class OrderItemsController extends OrderAppController {
 				
 				//Check all aliquots have been defined once
 				if(sizeof(array_flip($studied_aliquot_master_ids)) != sizeof($studied_aliquot_master_ids)) {
-					$this->flash('an aliquot can only be added once to an order', $url_to_redirect);
+					$this->flash(__('an aliquot can only be added once to an order'), $url_to_redirect);
 					return;
 				}
 
@@ -261,7 +266,7 @@ class OrderItemsController extends OrderAppController {
 			
 			if(!$submitted_aliquots_validates) {	
 				// Error has been detected: Redirect
-				$this->flash($error_message, $url_to_redirect);
+				$this->flash(__($error_message), $url_to_redirect);
 				return;
 				
 			} else {
@@ -288,7 +293,7 @@ class OrderItemsController extends OrderAppController {
 		// Build data for order line selection
 		$order_line_data_tmp = $this->OrderLine->find('all', array('conditions' => array('NOT' => array('Order.processing_status' => array('completed'))), 'order' => 'Order.order_number ASC, OrderLine.date_required ASC'));
 		if(!$order_line_data_tmp) {
-			$this->flash('no order line to complete is actually defined', $url_to_redirect);
+			$this->flash(__('no order line to complete is actually defined'), $url_to_redirect);
 			return;
 		}
 				
@@ -339,15 +344,16 @@ class OrderItemsController extends OrderAppController {
 			$order_id = $selected_order_line_data['OrderLine']['order_id'];		
 			
 			// Launch validation on order item data
-			$this->OrderItem->set($this->request->data);
+			$this->OrderItem->set($this->request->data);		
 			$submitted_data_validates = ($this->OrderItem->validates()) ? $submitted_data_validates : false;			
-						
+			$this->request->data = $this->OrderItem->data;		
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
 			}			
 			
 			if($submitted_data_validates){
+				AppModel::acquireBatchViewsUpdateLock();
 				$this->OrderItem->addWritableField(array('order_line_id', 'status', 'aliquot_master_id'));
 				foreach($aliquot_ids_to_add as $added_aliquot_master_id) {
 					// Add order item
@@ -357,7 +363,7 @@ class OrderItemsController extends OrderAppController {
 					$new_order_item_data['OrderItem'] = array_merge($new_order_item_data['OrderItem'], $this->request->data['OrderItem']);
 					$this->OrderItem->addWritableField(array('status', 'aliquot_master_id'));
 					$this->OrderItem->id = null;
-					if(!$this->OrderItem->save($new_order_item_data)) { 
+					if(!$this->OrderItem->save($new_order_item_data, false)) { 
 						$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true ); 
 					}
 					
@@ -387,8 +393,10 @@ class OrderItemsController extends OrderAppController {
 					require($hook_link);
 				}
 				
+				AppModel::releaseBatchViewsUpdateLock();
+				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
+				$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$this->request->data['OrderItem']['order_line_id'].'/');
 			}
 		}
 	}
@@ -406,7 +414,7 @@ class OrderItemsController extends OrderAppController {
 		$criteria = array('OrderItem.order_line_id' => $order_line_id, 'OrderItem.status' => 'pending');
 		$items_data = $this->OrderItem->find('all', array('conditions' => $criteria, 'order' => 'AliquotMaster.barcode ASC', 'recursive' => '0'));
 
-		if(empty($items_data)) { $this->flash('no unshipped item exists into this order line', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); }
+		if(empty($items_data)) { $this->flash(__('no unshipped item exists into this order line'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/'); }
 
 		// Set array to get id from barcode
 		$order_item_id_by_barcode = array();
@@ -486,7 +494,7 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been saved', '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
+				$this->atimFlash(__('your data has been saved'), '/Order/OrderLines/detail/'.$order_id.'/'.$order_line_id.'/');
 			}
 		}
 	}
@@ -550,12 +558,12 @@ class OrderItemsController extends OrderAppController {
 				}
 				
 				// Redirect
-				$this->atimFlash('your data has been deleted - update the aliquot in stock data', '/Order/Orders/detail/'.$order_id);
+				$this->atimFlash(__('your data has been deleted - update the aliquot in stock data'), '/Order/Orders/detail/'.$order_id);
 			} else {
-				$this->flash('error deleting data - contact administrator', '/Order/Orders/detail/'.$order_id);
+				$this->flash(__('error deleting data - contact administrator'), '/Order/Orders/detail/'.$order_id);
 			}
 		} else {
-			$this->flash($arr_allow_deletion['msg'], 'javascript:history.go(-1)');
+			$this->flash(__($arr_allow_deletion['msg']), 'javascript:history.go(-1)');
 		}
 	}
 }

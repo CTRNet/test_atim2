@@ -42,7 +42,7 @@ class TemplateController extends AppController {
 			
 			if ( $submitted_data_validates && $this->Template->save($this->request->data)){
 				$template_id = $this->Template->getLastInsertId();
-				$this->atimFlash( 'your data has been saved','/Tools/Template/edit/'.$template_id );
+				$this->atimFlash(__('your data has been saved'),'/Tools/Template/edit/'.$template_id );
 			}
 		}
 	}	
@@ -63,7 +63,7 @@ class TemplateController extends AppController {
 		//validate access
 		$tmp_template = $this->Template->getTemplates('template edition', $template_id);
 		if(empty($tmp_template)) {
-			$this->flash('you do not own that template', '/Tools/Template/index/');
+			$this->flash(__('you do not own that template'), '/Tools/Template/index/');
 			return;
 		}
 		
@@ -145,7 +145,7 @@ class TemplateController extends AppController {
 					$this->TemplateNode->delete($node_to_delete);
 				}
 	
-				$this->atimFlash('your data has been saved', '/Tools/Template/edit/'.$template_id);
+				$this->atimFlash(__('your data has been saved'), '/Tools/Template/edit/'.$template_id);
 				return;
 			}
 		}
@@ -177,7 +177,7 @@ class TemplateController extends AppController {
 		$template_data = $this->Template->getTemplates('template edition', $template_id);
 		if(empty($template_data)) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		if(!$template_data['Template']['allow_properties_edition']) {
-			$this->flash('you do not own that template', '/Tools/Template/index/');
+			$this->flash(__('you do not own that template'), '/Tools/Template/index/');
 			return;
 		}
 		
@@ -206,7 +206,7 @@ class TemplateController extends AppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash( 'your data has been updated','/Tools/Template/edit/'.$template_id );
+					$this->atimFlash(__('your data has been updated'),'/Tools/Template/edit/'.$template_id );
 				}
 			}
 		}
@@ -216,7 +216,7 @@ class TemplateController extends AppController {
 		$template_data = $this->Template->getTemplates('template edition', $template_id);
 		if(empty($template_data)) $this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
 		if(!$template_data['Template']['allow_properties_edition']) {
-			$this->flash('you do not own that template', '/Tools/Template/index/');
+			$this->flash(__('you do not own that template'), '/Tools/Template/index/');
 			return;
 		}
 		
@@ -230,6 +230,6 @@ class TemplateController extends AppController {
 		}
 		$this->Template->delete($template_id);
 		
-		$this->flash('your data has been deleted', '/Tools/Template/index/');
+		$this->flash(__('your data has been deleted'), '/Tools/Template/index/');
 	}
 }

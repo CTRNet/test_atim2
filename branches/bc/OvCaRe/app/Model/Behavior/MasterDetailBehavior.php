@@ -30,6 +30,7 @@ class MasterDetailBehavior extends ModelBehavior {
 			
 			$is_master_model	= $master_class == $model_to_use->alias ? true : false;
 			$is_control_model	= $control_class == $model_to_use->alias ? true : false;
+			$is_view			= strpos($model->alias, 'View') !== false;
 			
 			$default = array(
 				'master_class' 		=>	$master_class, 
@@ -43,7 +44,8 @@ class MasterDetailBehavior extends ModelBehavior {
 				'form_alias'			=> $form_alias,
 				
 				'is_master_model'		=> $is_master_model,
-				'is_control_model'	=> $is_control_model
+				'is_control_model'	=> $is_control_model,
+				'is_view'			=> $is_view
 			); 
 			if($is_control_model){
 				//for control models, add a virtual field with the full form alias
@@ -56,8 +58,9 @@ class MasterDetailBehavior extends ModelBehavior {
 		} else {
 			
 			$default = array(
-				'is_master_model'		=> false,
-				'is_control_model'	=> false
+				'is_master_model'	=> false,
+				'is_control_model'	=> false,
+				'is_view'			=> strpos($model->alias, 'View') !== false
 			);
 			
 		}
@@ -68,7 +71,7 @@ class MasterDetailBehavior extends ModelBehavior {
 		$this->__settings[$model->alias] = am($this->__settings[$model->alias], is_array($config) ? $config : array());
 	}
 	
-	public function afterFind(Model $model, $results, $primary) {
+	public function afterFind(Model $model, $results, $primary = false) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
 		if($is_master_model){
@@ -132,17 +135,17 @@ class MasterDetailBehavior extends ModelBehavior {
 				}
 				$detail_control = AppModel::getInstance($plugin, $detail_control_name, true);
 				$detail_info = $detail_control->find('first', array('conditions' => array($detail_control->name.".id" => $query['conditions'][$model->name.".".strtolower($base_name)."_control_id"])));
-				$model = new $model->name($model->id, $model->table, null, $base_name, $detail_info[$base_name."Control"]['detail_tablename'], $model);
+				$model = new $model->name($model->id, $model->table, null, $base_name, ((isset($detail_info[$base_name."Control"]) && isset($detail_info[$base_name."Control"]['detail_tablename']))? $detail_info[$base_name."Control"]['detail_tablename'] : null), $model);
 			}
 		}
 		
 		return true;
 	}
 	
-	public function afterSave(Model $model, $created) {
+	public function afterSave(Model $model, $created, $options = Array()) {
 		// make all SETTINGS into individual VARIABLES, with the KEYS as names
 		extract($this->__settings[$model->alias]);
-		if ( $is_master_model || $is_control_model ) {
+		if ( !$is_view && ($is_master_model || $is_control_model )) {
 			// get DETAIL table name and create DETAIL model object
 			$associated = $model->find('first', array('conditions' => array($master_class.'.id' => $model->id, $master_class.'.deleted' => array('0', '1')), 'recursive' => 0));
 			assert($associated) or die('MasterDetailBehavior afterSave failed to fetch control details');
@@ -175,6 +178,8 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 			 
 			return $result;
+			
+		}else{
 			
 		}
 	}
@@ -235,9 +240,5 @@ class MasterDetailBehavior extends ModelBehavior {
 			}
 		}
 		return $results;
-	}
-	
-	public function fmlh(&$Model) {
-		echo "MD\n";
 	}
 }
