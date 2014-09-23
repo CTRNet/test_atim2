@@ -34,6 +34,11 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		
 		if(empty($search_id)){
 			//index
+			$this->request->data = $this->Participant->find('all', array(
+				'conditions' => array('Participant.created_by' => $this->Session->read('Auth.User.id')),
+				'order' => array('Participant.created DESC'),
+				'limit' => 5)
+			);
 			$this->render('index');
 		}
 	}
@@ -111,7 +116,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 						require($hook_link); 
 					}
 					
-					$this->atimFlash('your data has been saved', '/ClinicalAnnotation/Participants/profile/'.$this->Participant->getLastInsertID());
+					$this->atimFlash(__('your data has been saved'), '/ClinicalAnnotation/Participants/profile/'.$this->Participant->getLastInsertID());
 				}
 			}
 		}
@@ -149,7 +154,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash('your data has been updated', '/ClinicalAnnotation/Participants/profile/'.$participant_id );		
+					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/Participants/profile/'.$participant_id );		
 				}
 			}
 		}
@@ -168,12 +173,12 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 		
 		if ($arr_allow_deletion['allow_deletion']) {
 			if ( $this->Participant->atimDelete( $participant_id ) ) {
-				$this->atimFlash('your data has been deleted', '/ClinicalAnnotation/Participants/search/');
+				$this->atimFlash(__('your data has been deleted'), '/ClinicalAnnotation/Participants/search/');
 			} else {
-				$this->flash( 'error deleting data - contact administrator', '/ClinicalAnnotation/Participants/search/');
+				$this->flash(__('error deleting data - contact administrator'), '/ClinicalAnnotation/Participants/search/');
 			}
 		} else {
-			$this->flash( $arr_allow_deletion['msg'], '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
+			$this->flash(__($arr_allow_deletion['msg']), '/ClinicalAnnotation/Participants/profile/'.$participant_id.'/');
 		}
 	}
 
@@ -190,7 +195,8 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			'd'	=> 3,
 			'h'	=> 4,
 			'i'	=> 5,
-			'c'	=> 6
+			'c'	=> 6,
+			'' => 7
 		);
 		
 		$add_to_tmp_array = function(array $in) use($a_s, &$tmp_array){
@@ -314,14 +320,26 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 	}
 	
 	function batchEdit(){
+//TODO not supported anymore
+$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
 		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/Participants/search'));
 		if(empty($this->request->data)){
 			$this->redirect('/Pages/err_plugin_no_data?method='.__METHOD__.',line='.__LINE__, null, true);
-		}
-		if(isset($this->request->data['Participant']['id']) && is_array($this->request->data['Participant']['id'])){
+		}	
+		if(isset($this->request->data['Participant']['id']) && (is_array($this->request->data['Participant']['id']) || $this->request->data['Participant']['id'] == 'all')){
 			//display
+			if(isset($this->request->data['node']) && $this->request->data['Participant']['id'] == 'all') {
+				$this->BrowsingResult = AppModel::getInstance('Datamart', 'BrowsingResult', true);
+				$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $this->request->data['node']['id'])));
+				$this->request->data['Participant']['id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
+			}
 			$ids = array_filter($this->request->data['Participant']['id']);
 			$this->request->data[0]['ids'] = implode(",", $ids);
+			
+			$hook_link = $this->hook('initial_display');
+			if( $hook_link ) {
+				require($hook_link);
+			}
 			
 		}else if(isset($this->request->data[0]['ids']) && strlen($this->request->data[0]['ids'])){
 			//save
@@ -330,15 +348,36 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 			//fake participant to validate
 			AppController::removeEmptyValues($this->request->data['Participant']);
 			$this->Participant->set($this->request->data);
-			if($this->Participant->validates()){
-				$ids = explode(",", $this->request->data[0]['ids']);
+			$submitted_data_validates = $this->Participant->validates();
+			$this->request->data = $this->Participant->data	;	
+				
+			$hook_link = $this->hook('presave_process');
+			if( $hook_link ) {
+				require($hook_link);
+			}
+			
+			if($submitted_data_validates){
+				$ids = explode(",", $this->request->data[0]['ids']);			
 				foreach($ids as $id){
 					$this->Participant->id = $id;
 					$this->Participant->save($this->request->data['Participant'], array('validate' => false, 'fieldList' => array_keys($this->request->data['Participant'])));
 				}
 				
-				$_SESSION['ctrapp_core']['search'][$search_id]['criteria'] = array("Participant.id" => $ids);
-				$this->atimFlash('your data has been updated', '/ClinicalAnnotation/Participants/search/');
+				$datamart_structure = AppModel::getInstance("Datamart", "DatamartStructure", true);
+				$batch_set_model = AppModel::getInstance('Datamart', 'BatchSet', true);
+				$batch_set_data = array('BatchSet' => array(
+						'datamart_structure_id' => $datamart_structure->getIdByModelName('Participant'),
+						'flag_tmp' => true
+				));
+				$batch_set_model->check_writable_fields = false;
+				$batch_set_model->saveWithIds($batch_set_data, $ids);
+				
+				$hook_link = $this->hook('postsave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
+				$this->atimFlash(__('your data has been saved'), '/Datamart/BatchSets/listall/'.$batch_set_model->getLastInsertId());
 			}
 			
 		}else{

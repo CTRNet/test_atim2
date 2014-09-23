@@ -1,4 +1,20 @@
-<?php 
+<?php
+/**
+ *
+ *
+ * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @package       app.View.Layouts
+ * @since         CakePHP(tm) v 0.10.0.1076
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ */
 $use_buffer = false;
 if(!headers_sent()){
 	if(Configure::read('use_compression')){
@@ -9,11 +25,9 @@ if(!headers_sent()){
 	AppController::atimSetCookie(isset($skip_expiration_cookie) && $skip_expiration_cookie);
 }
 ?>
-
-<!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
-
 	<?php
 		$header = $this->Shell->header(array(
 			'atim_menu_for_header' => $atim_menu_for_header,

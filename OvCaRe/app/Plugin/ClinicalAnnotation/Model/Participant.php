@@ -101,7 +101,7 @@ class Participant extends ClinicalAnnotationAppModel {
 		}			
 
 		$participant_contact_model = AppModel::getInstance("ClinicalAnnotation", "ParticipantContact", true);
-		$nbr_contacts = $participant_contact_model->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id)));
+		$nbr_contacts = $participant_contact_model->find('count', array('conditions'=>array('ParticipantContact.participant_id'=>$participant_id, array('OR' => array('ParticipantContact.confidential != 1','ParticipantContact.confidential = 1')))));
 		if ($nbr_contacts > 0) {
 			$arr_allow_deletion['allow_deletion'] = false;
 			$arr_allow_deletion['msg'] = 'error_fk_participant_linked_contacts';
@@ -132,8 +132,9 @@ class Participant extends ClinicalAnnotationAppModel {
 	}
 	
 	function beforeSave($options = array()){
+		if($this->whitelist && !in_array('last_modification', $this->whitelist)) $this->whitelist = array_merge($this->whitelist, array('last_modification','last_modification_ds_id'));
 		$this->addWritableField(array('last_modification', 'last_modification_ds_id'));
-		$ret_val = parent::beforeSave();	
+		$ret_val = parent::beforeSave($options);
 		$this->data['Participant']['last_modification'] = $this->data['Participant']['modified']; 
 		$this->data['Participant']['last_modification_ds_id'] = 4;//participant
 		return $ret_val; 
