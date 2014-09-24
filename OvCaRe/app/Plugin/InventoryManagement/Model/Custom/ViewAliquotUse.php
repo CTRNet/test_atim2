@@ -160,40 +160,6 @@ CONCAT(AliquotMasterChild.aliquot_label,' (',AliquotMasterChild.barcode,')') AS 
 		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
 		WHERE AliquotReviewMaster.deleted <> 1 %%WHERE%%";
 	
-	function getUseDefinitions() {
-		$result = array(
-				'aliquot shipment'	=> __('aliquot shipment'),
-				'quality control'	=> __('quality control'),
-				'internal use'	=> __('internal use'),
-				'realiquoted to'	=> __('realiquoted to'),
-				'specimen review'	=> __('specimen review'),
-				'ovcare test'	=> __('ovcare test'));
-	
-		// Add custom uses
-		$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
-		$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-		$use_and_event_types = $StructurePermissibleValuesCustom->find('all', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'aliquot use and event types')));
-		foreach($use_and_event_types as $new_type) $result[$new_type['StructurePermissibleValuesCustom']['value']] = strlen($new_type['StructurePermissibleValuesCustom'][$lang])? $new_type['StructurePermissibleValuesCustom'][$lang] : $new_type['StructurePermissibleValuesCustom']['value'];
-	
-		// Develop sample derivative creation
-		$this->SampleControl = AppModel::getInstance("InventoryManagement", "SampleControl", true);
-		$sample_controls = $this->SampleControl->getSampleTypePermissibleValuesFromId();
-		foreach($sample_controls as $sampl_control_id => $sample_type) {
-			$result['sample derivative creation#'.$sampl_control_id] = __('sample derivative creation#').$sample_type;
-		}
-	
-		natcasesort($result);
-	
-		return $result;
-	}
-	
-	//must respect concat(id, #) order
-	private $models = array('SourceAliquot', 'Realiquoting', 'QualityCtrl', 'OrderItem', 'AliquotReviewMaster', 'AliquotInternalUse', 'OvcareTest');
-	
-	
-	
-	
-	
 }
 
 ?>
