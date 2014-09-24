@@ -57,7 +57,6 @@ UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::g
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Biopsy Type\')" WHERE source LIKE "StructurePermissibleValuesCustom::getCustomDropdown%Biopsy Type%";
 UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Types\')" WHERE source LIKE "StructurePermissibleValuesCustom::getCustomDropdown%Tissue Types%";
 DELETE FROM structure_value_domains WHERE source LIKE '%Sample Test %';
-DELETE FROM structure_permissible_values_custom_controls WHERE source LIKE '%Sample Test %';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Sample Test Status');
 DELETE FROM structure_permissible_values_customs WHERE control_id =  @control_id;
 DELETE FROM structure_permissible_values_custom_controls WHERE name = 'Sample Test Status';
