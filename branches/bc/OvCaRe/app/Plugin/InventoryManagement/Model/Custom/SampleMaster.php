@@ -23,8 +23,8 @@ class SampleMasterCustom extends SampleMaster {
 					if($tissue_source) {
 						$lang = Configure::read('Config.language') == "eng" ? "en" : "fr";
 						$StructurePermissibleValuesCustom = AppModel::getInstance('', 'StructurePermissibleValuesCustom', true);
-						$tissue_source = $StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'ovcare tissue sources', 'StructurePermissibleValuesCustom.value' => $tissue_source)));
-						$tissue_source = strlen($tissue_source['StructurePermissibleValuesCustom'][$lang])? $tissue_source['StructurePermissibleValuesCustom'][$lang] : $tissue_source['StructurePermissibleValuesCustom']['value'];
+						$validated_tissue_source = $StructurePermissibleValuesCustom->find('first', array('conditions' => array('StructurePermissibleValuesCustomControl.name' => 'tissue sources', 'StructurePermissibleValuesCustom.value' => $tissue_source)));
+						if($validated_tissue_source) $tissue_source = strlen($validated_tissue_source['StructurePermissibleValuesCustom'][$lang])? $validated_tissue_source['StructurePermissibleValuesCustom'][$lang] : $validated_tissue_source['StructurePermissibleValuesCustom']['value'];
 					}
 					$additional_info = ' '.$tissue_source;
 					break;
