@@ -715,3 +715,27 @@ VALUES
 ('brachy','Brachy','', 1, (SELECT id FROM structure_permissible_values_custom_controls WHERE name LIKE 'radiotherapy types'), 1);
 	
 UPDATE versions SET branch_build_number = '5895' WHERE version_number = '2.6.3';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2014-10-03
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`) VALUES
+(null, 'HIFU', '', 1, 'qc_tf_txd_others', '', 0, NULL, NULL, 'HIFU', 0, NULL),
+(null, 'cryotherapy', '', 1, 'qc_tf_txd_others', '', 0, NULL, NULL, 'cryotherapy', 0, NULL);
+INSERT INTO i18n (id,en) VALUES ('cryotherapy', 'Cryotherapy'),('HIFU','HIFU');
+CREATE TABLE IF NOT EXISTS `qc_tf_txd_others` (
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `treatment_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `qc_tf_txd_others_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+ALTER TABLE `qc_tf_txd_others`
+  ADD CONSTRAINT `qc_tf_txd_others_ibfk_2` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+UPDATE versions SET branch_build_number = '5905' WHERE version_number = '2.6.3';
+  
