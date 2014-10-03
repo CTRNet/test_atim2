@@ -1,5 +1,48 @@
 <?php
 
+function loadDbProtcolsAndDrugs(){
+	//drugs
+	$query = "SELECT id, generic_name FROM drugs WHERE deleted <> 1";
+	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+	while($row = $res->fetch_assoc()) Config::$drugs[$row['generic_name']] = $row['id'];
+	//$protocols
+	$query = "SELECT pm.id AS protocol_master_id, pm.code AS protocol_name, d.generic_name, ped.drug_id
+		FROM protocol_masters pm 
+		INNER JOIN protocol_extend_masters pem ON pem.protocol_master_id = pm.id 
+		INNER JOIN pe_chemos ped ON ped.protocol_extend_master_id = pem.id
+		INNER JOIN drugs d ON d.id = ped.drug_id
+		WHERE pem.deleted <> 1 AND pm.deleted <> 1";
+	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+	while($row = $res->fetch_assoc()) {
+		if(!isset(Config::$protocols[$row['protocol_name']])) {
+			Config::$protocols[$row['protocol_name']]['id'] = $row['protocol_master_id'];
+			Config::$protocols[$row['protocol_name']]['drug_ids'] = array();
+		}
+		Config::$protocols[$row['protocol_name']]['drug_ids'][] = $row['drug_id'];
+	}
+	foreach(Config::$new_protocols_and_drugs as $new_protocol_name => $drugs) {
+		if(!isset(Config::$protocols[$new_protocol_name])) {
+			$protocol_master_id = customInsertRecord(array('code' => $new_protocol_name, 'protocol_control_id' => '1'), 'protocol_masters');
+			customInsertRecord(array('protocol_master_id' => $protocol_master_id), 'pd_chemos', true);
+			Config::$protocols[$new_protocol_name] = array('id' => $protocol_master_id, 'drug_ids' => array());
+			foreach($drugs as $generic_name) {			
+				$drug_id = null;
+				if(!isset(Config::$drugs[$generic_name])) {
+					$drug_id = customInsertRecord(array('generic_name' => $generic_name), 'drugs');
+					Config::$drugs[$generic_name] = $drug_id;
+				} else {
+					$drug_id = Config::$drugs[$generic_name];
+				}
+				$protocol_extend_master_id = customInsertRecord(array('protocol_master_id' => $protocol_master_id, 'protocol_extend_control_id' => '1'), 'protocol_extend_masters');
+				customInsertRecord(array('protocol_extend_master_id' => $protocol_extend_master_id, 'drug_id' => $drug_id), 'pe_chemos', true);
+				Config::$protocols[$new_protocol_name]['drug_ids'][] = $drug_id;
+			}
+		} else {
+			die("ERR New Protocol '$new_protocol_name' already exists");
+		}
+	}
+}
+
 function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 	$worksheet_name = 'Sardo Tx';
 	if(!isset($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]])) die('ERR 838838382');
@@ -7,8 +50,14 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 	$summary_msg_title_participant = 'Participant - Worksheet '.$worksheet_name;
 	$excel_line_counter = 0;
 	$headers = array();
-	$treatment_master_id = 0;
-	$treatment_extend_master_id = 0;
+	$query = "SELECT MAX(id) as id FROM treatment_masters;";
+	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+	$row = $res->fetch_assoc();
+	$treatment_master_id = ($row['id'] + 1);
+	$query = "SELECT MAX(id) as id FROM treatment_extend_masters;";
+	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+	$row = $res->fetch_assoc();
+	$treatment_extend_master_id = ($row['id'] + 1);
 	$query = "select max(id) as max_id FROM event_masters;";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
@@ -384,11 +433,9 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 								$protocol_master_id = null;
 								if($new_line_data['Traitement']) {
 									if(!isset(Config::$protocols[$new_line_data['Traitement']])) {
-										$protocol_master_id = customInsertRecord(array('code' => $new_line_data['Traitement'], 'protocol_control_id' => '1'), 'protocol_masters');
-										customInsertRecord(array('protocol_master_id' => $protocol_master_id), 'pd_chemos', true);
-										Config::$protocols[$new_line_data['Traitement']] = $protocol_master_id;
+										die('ERR 236326236632632632 Missging protocol '.$new_line_data['Traitement'].' in db or in $new_protocols_and_drugs');
 									} else {
-										$protocol_master_id = Config::$protocols[$new_line_data['Traitement']];
+										$protocol_master_id = Config::$protocols[$new_line_data['Traitement']]['id'];
 									}
 								}
 								if(!$protocol_master_id) die('ERR 32762837632876 line : '.$excel_line_counter);
@@ -406,21 +453,9 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 										'txd_chemos'	=> array(
 											'treatment_master_id' => $treatment_master_id),
 										'treatment_extends' => array());
-									if(!array_key_exists($new_line_data['Traitement'], Config::$protocol_drugs)) die('ERR 237687 6328763287 632 '.$new_line_data['Traitement']);
-									foreach(Config::$protocol_drugs[$new_line_data['Traitement']] as $drug_name => $drug_id) {
+									foreach(Config::$protocols[$new_line_data['Traitement']]['drug_ids'] as $drug_id) {
 										$txe_tablename = 'txe_chemos';
 										$treatment_extend_control_id = 1;
-										if(!$drug_id) {
-											if(!isset(Config::$drugs[$drug_name])) {
-												$drug_id = customInsertRecord(array('generic_name' => $drug_name), 'drugs');
-												Config::$drugs[$drug_name] = $drug_id;
-											} else {
-												$drug_id = Config::$drugs[$drug_name];
-											}
-											Config::$protocol_drugs[$new_line_data['Traitement']][$drug_name] = $drug_id;
-											$protocol_extend_master_id = customInsertRecord(array('protocol_master_id' => $protocol_master_id, 'protocol_extend_control_id' => '1'), 'protocol_extend_masters');
-											customInsertRecord(array('protocol_extend_master_id' => $protocol_extend_master_id, 'drug_id' => $drug_id), 'pe_chemos', true);	
-										}
 										if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$drug_id])) {
 											$treatment_extend_master_id ++;
 											Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Treatment'][$trt_key]['treatment_extends'][$drug_id] =
@@ -451,7 +486,7 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 								//IMAGE
 								$imaging_type = $new_line_data['Traitement'];
 								if(strlen($imaging_type) > 100) die('ERR 2376 876287683276 332 '.$imaging_type);
-								Config::$imaging_types[strtolower($procedure)] = $procedure;
+								Config::$imaging_types[strtolower($imaging_type)] = $imaging_type;
 								$event_master_id++;
 								Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']][$icd10_code.$morphology]['Event'][] = array(
 									'event_masters' => array(
@@ -463,7 +498,7 @@ function loadTreatments(&$tmp_xls_reader, $sheets_keys) {
 										'participant_id' => $participant_id) ,
 									'qc_lady_imagings'	=> array(
 										'event_master_id' => $event_master_id,
-										'type' => $imaging_type));	
+										'type' => strtolower($imaging_type)));	
 								break;
 							
 							default:

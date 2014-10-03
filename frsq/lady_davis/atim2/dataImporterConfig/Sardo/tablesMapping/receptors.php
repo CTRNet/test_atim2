@@ -76,7 +76,7 @@ function loadReceptors(&$tmp_xls_reader, $sheets_keys) {
 					if(Config::$participants[$jgh_nbr]['rec_worksheet_patient_data']['phone_number'] != $new_line_data['Téléphone 1']) Config::$summary_msg[$summary_msg_title_participant]['@@ERROR@@']['Patient Worksheet Data not Consistent : Field Téléphone'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 				}
 				//New Receptor data set
-				if(!in_array($new_line_data['Type traitement'], array('CHIR','BIOP'))) die('ERR 2736 87268 72632');
+				if(!in_array($new_line_data['Type traitement'], array('CHIR','BIOP'))) die('ERR 2736 87268 72632 line '.$excel_line_counter);
 				if(!isset(Config::$participants[$jgh_nbr]['diagnoses_data'][$new_line_data['Date du diagnostic']])) die('ERR 2744333332');
 				$rec_data = $new_line_data;
 				unset($rec_data['No de dossier']);

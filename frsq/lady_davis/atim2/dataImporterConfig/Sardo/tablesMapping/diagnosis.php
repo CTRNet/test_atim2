@@ -38,13 +38,18 @@ function loadDxCodes(&$tmp_xls_reader, $sheets_keys) {
 function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 	Config::$participants = array();
 	
+	$participants_validated = true;
+	
 	$worksheet_name = 'Sardo Dx';
 	if(!isset($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]])) die('ERR 838838383');
 	$summary_msg_title = 'Diagnosis - Worksheet '.$worksheet_name;
 	$summary_msg_title_participant = 'Participant - Worksheet '.$worksheet_name;
 	$headers = array();
 	$excel_line_counter = 0;
-	$diagnosis_master_id = 0;
+	$query = "SELECT MAX(id) as id FROM diagnosis_masters;";
+	$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
+	$row = $res->fetch_assoc();
+	$diagnosis_master_id = ($row['id'] + 1);
 	foreach($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]]['cells'] as $new_line) {
 		$excel_line_counter++;
 		if($excel_line_counter == 1) {
@@ -54,17 +59,30 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 			$jgh_nbr = $new_line_data['No de dossier'];
 			if(!isset(Config::$participants[$jgh_nbr])) {
 				//Get participant data
-				$query = "SELECT p.id AS participant_id, i.identifier_value, p.first_name, p.last_name, p.vital_status, p.date_of_birth, p.date_of_birth_accuracy, p.date_of_death, p.date_of_death_accuracy
+				$query = "SELECT p.id AS participant_id, 
+					i.identifier_value, 
+					p.first_name, 
+					p.last_name, 
+					p.vital_status, 
+					p.date_of_birth, 
+					p.date_of_birth_accuracy, 
+					p.date_of_death, 
+					p.date_of_death_accuracy,
+					p.qc_lady_sardo_data_migration_date
 					FROM misc_identifiers i
 					INNER JOIN participants p ON p.id = i.participant_id
-					WHERE i.deleted != 1 AND i.misc_identifier_control_id = 6 AND i.identifier_value = '$jgh_nbr'";
+					WHERE i.deleted != 1 
+					AND i.misc_identifier_control_id = 6 
+					AND i.identifier_value = '$jgh_nbr'";
 				$res = mysqli_query(Config::$db_connection, $query) or die("SQL_ERROR: ".__FUNCTION__." line:".__LINE__." [".$query."]");
 				if($res->num_rows > 1) {
 					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Same JGH# For Different Participant'][] = "See JGH# $jgh_nbr line $excel_line_counter";
 					Config::$participants[$jgh_nbr] = array('participant_id' => null);
+					$participants_validated = false;
 				} else if(!$res->num_rows){
 					Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['Missing Participant'][] = "See JGH# $jgh_nbr line $excel_line_counter : Patient does not exist into ATIM";
 					Config::$participants[$jgh_nbr] = array('participant_id' => null);
+					$participants_validated = false;
 				} else {
 					$row = $res->fetch_assoc();
 					Config::$participants[$jgh_nbr] = array(
@@ -85,6 +103,11 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 						'rec_worksheet_patient_data' =>array(),
 						'diagnoses_data' => array());
 //						'participant_db_data_to_update' => array());
+					if(!empty($row['qc_lady_sardo_data_migration_date'])) {
+						Config::$summary_msg[$summary_msg_title]['@@ERROR@@']['SARDO Data Already Migrated'][] = "See JGH# $jgh_nbr line $excel_line_counter.";
+						$participants_validated = false;
+					}
+					if($row['last_name'] != $new_line_data['Nom']) Config::$summary_msg[$summary_msg_title_participant]['@@WARNING@@']['Patient Worksheet Name != Db Name : To validate'][] = "See JGH# $jgh_nbr line $excel_line_counter : ".$row['last_name']." != ".$new_line_data['Nom'];
 				}
 			} else {
 				if(Config::$participants[$jgh_nbr]['dx_worksheet_patient_data']['last_name'] != $new_line_data['Nom']) Config::$summary_msg[$summary_msg_title_participant]['@@ERROR@@']['Patient Worksheet Data not Consistent : Field Nom'][] = "See JGH# $jgh_nbr line $excel_line_counter";
@@ -168,6 +191,8 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 						break;
 					case 'N/S':
 					case '':
+					case 'Organe non pair':
+					case 'Inconnue':
 						break;
 					default:
 						die('ERR 3283 8628763 8726 832 : '.$new_line_data['Latéralité'].' line : '.$excel_line_counter);
@@ -205,5 +230,7 @@ function loadDiagnosis(&$tmp_xls_reader, $sheets_keys) {
 			}
 		}
 	} 
+	
+	return $participants_validated;
 }
 

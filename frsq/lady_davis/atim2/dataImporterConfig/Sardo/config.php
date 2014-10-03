@@ -27,7 +27,7 @@ class Config{
 	//if reading excel file
 	
 //	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/COEUR-OTB-#1_20131129.xls";
- 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/AllSardoData_20140513.xls";
+ 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/AllSardoData_20141001.xls";
 // 	static $xls_file_path = "C:/_Perso/Server/jgh_breast/data/SardoDxTxReceptors.xls";
  	
  	
@@ -70,69 +70,22 @@ class Config{
 	static $participants = array();	
 	static $topos = array();
 	static $morphos = array();
+	//structure_permissible_values_customs
 	static $surgical_procedures = array();
 	static $biopsy_procedures = array();
 	static $radiation_procedures = array();
+	static $imaging_types = array();
+	//drug and protocol
 	static $drugs = array();
 	static $protocols = array();
-	static $imaging_types = array();
-	static $protocol_drugs = array(
-		'Protocole FEC' => array(),
-		'Protocole AC' => array(),
+	static $new_protocols_and_drugs = array();
+	static $new_protocols_and_drugs2 = array('Protocole Pemetrexed + Carboplatine' => array('Pemetrexed', 'Carboplatine'), 
+		'Protocole AC' => array(), 
 		'Protocole TC' => array(),
-		'Etude BETH BRAS 1B' => array(),
-		'Protocole Taxol/Herceptin' => array('Taxol' => null, 'Herceptin' => null),
-		'Etude NSABP B-36 BRAS AC' => array(),
-		'Protocole Taxol qSEM' => array('Taxol' => null),
-		'Protocole CMF' => array(),
-		'Protocole Taxol/Carboplatin' => array('Taxol' => null, 'Carboplatine' => null),
-		'Etude NSABP B-40 BRAS 2B' => array(),
-		'Etude NSABP B-38 BRAS AC-P' => array(),
-		'Etude MA-17-R' => array(),
-		'Etude McG 0713' => array(),
-		'Protocole Carboplatin/Gemcitabine' => array('Carboplatine' => null, 'Gemcitabine' => null),
-		'Protocole Herceptin + Vinorelbine' => array('Herceptin' => null, 'Vinorelbine' => null),
-		'Protocole FEC + Docetaxel' => array('FEC' => null, 'Docetaxel' => null),
-		'Etude BORDEN-001' => array(),
-		'Etude NSABP B-42' => array(),
-		'Protocole GemCap' => array(),
-		'Protocole TAC' => array(),
-		'Etude NSABP B-41 BRAS 1' => array(),
-		'Etude NSABP B-40 BRAS 1B' => array(),
-		'Etude NSABP B-36 BRAS FEC' => array(),
-		'Protocole TCH' => array(),
-		'Protocole AC Taxol' => array('Taxol' => null),
-		'Etude NSABP B-38 BRAS AC-PG' => array(),
-		'Etude NSABP B-41 BRAS 2' => array(),
-		'Protocole CMF po' => array(),
-		'Protocole Taxol q3SEM' => array('Taxol' => null),
-		'Etude AT' => array(),
-		'Etude NSABP B-40 BRAS 2A' => array(),
-		'Etude NSABP FB-6' => array(),
-		'Protocole TCH (Cyclophosphamide)' => array('Cyclophosphamide' => null),
-		'Protocole Taxol/Cisplatin' => array('Taxol' => null, 'Cisplatine' => null),
-		'Etude Trastuzumab + Paclitaxel + Carboplatine' => array('Trastuzumab' => null, 'Paclitaxel' => null, 'Carboplatine' => null),
-		'Protocole CCH' => array(),
-		'Protocole Taxotère' => array('Taxotère' => null),
-		'Protocole AC-TH' => array(),
-		'Protocole MF' => array(),
-		'Protocole Herceptin q3SEM' => array('Herceptin' => null),
-		'Protocole Caelyx + Herceptin' => array('Caelyx' => null, 'Herceptin' => null),
-		'Etude A4021004 BRAS A' => array(),
-		'Protocole Cisplatin-Gemcitabine' => array('Cisplatine' => null, 'Gemcitabine' => null),
-		'Protocole FAC' => array(),
-		'Etude NSABP B-38 BRAS TAC' => array(),
-		'Protocole CHB Zoladex + Tamoxifene' => array('Zoladex' => null, 'Tamoxifene' => null),
-		'Protocole Herceptin qSEM' => array('Herceptin' => null),
-		'Protocole Gemcitabine/Docetaxel' => array('Gemcitabine' => null, 'Docetaxel' => null),
-		'Protocole HX' => array(),
-		'Protocole Carboplatin-Taxotère' => array('Carboplatine' => null, 'Taxotère' => null),
-		'Protocole 5-FU' => array('5-FU' => null),
-		'Etude NSABP B-47 BRAS 1A' => array(),
-		'Protocole Cisplatin + Taxotère' => array('Cisplatine' => null, 'Taxotère' => null),
-		'Etude NSABP B-40 BRAS 1A' => array(),
-		'Etude NSABP B-40 BRAS 3B' => array(),
-		'Etude NSABP B-47 BRAS 1B' => array());
+		'Etude NSABP B-47 BRAS 2A' => array(),
+		'Protocole Taxotère + Herceptin' => array('Taxotère','Herceptin')
+	);
+	//TODO compelte fi required as follow: 'Protocole Taxol/Herceptin' => array('Taxol', 'Herceptin')
 }
 
 //add your end queries here
@@ -146,7 +99,7 @@ class Config{
 //Config::$parent_models[] = "participants";
 
 //add your configs
-$relative_path = '../jgh_breast/dataImporterConfig/Sardo/tablesMapping/';
+$relative_path = 'C:/_Perso/Server/jgh_breast/dataImporterConfig/Sardo/tablesMapping/';
 Config::$config_files[] = $relative_path.'diagnosis.php';
 Config::$config_files[] = $relative_path.'treatments.php';
 Config::$config_files[] = $relative_path.'receptors.php';
@@ -188,7 +141,12 @@ function addonFunctionStart(){
 	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_keys[$tmp['name']] = $key;
 	
 	loadDxCodes($tmp_xls_reader, $sheets_keys);
-	loadDiagnosis($tmp_xls_reader, $sheets_keys);
+	if(!loadDiagnosis($tmp_xls_reader, $sheets_keys)) {
+		echo "<br><FONT COLOR=\"red\" >Process Aborted</FONT><br>";
+		displayMessage();
+		die();		
+	}
+	loadDbProtcolsAndDrugs();
 	loadReceptors($tmp_xls_reader, $sheets_keys);
 	loadTreatments($tmp_xls_reader, $sheets_keys);
 	loadFamHisto($tmp_xls_reader, $sheets_keys);
@@ -231,26 +189,56 @@ function addonFunctionEnd(){
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
 	$control_id = $row['id'];
+	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$existing_values = array();
+	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$surgical_procedures as $value => $fr) {
-		customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		if(!in_array($value, $existing_values)) {
+			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		}
 	}
-	
 	//Record Biopsy Procedure
 	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Biopsy Procedure'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
 	$control_id = $row['id'];
+	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$existing_values = array();
+	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$biopsy_procedures as $value => $fr) {
-		customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		if(!in_array($value, $existing_values)) {
+			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		}
 	}
-	
 	//Record Radiation Procedure
 	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiation Procedure'";
 	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	$row = $results->fetch_assoc();
 	$control_id = $row['id'];
+	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$existing_values = array();
+	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
 	foreach(Config::$radiation_procedures as $value => $fr) {
+		if(!in_array($value, $existing_values)) {
 		customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		}
+	}
+	//Record Imaging Types
+	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Imaging Types'";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$row = $results->fetch_assoc();
+	$control_id = $row['id'];
+	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $control_id";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$existing_values = array();
+	while($row = $results->fetch_assoc()) $existing_values[] = $row['value'];
+	foreach(Config::$imaging_types as $value => $fr) {
+		if(!in_array($value, $existing_values)) {
+			customInsertRecord(array('value' => $value, 'fr' => $fr, 'use_as_input' => '1', 'control_id' => $control_id), 'structure_permissible_values_customs');
+		}
 	}
 	
 	//Record data
@@ -439,30 +427,20 @@ function addonFunctionEnd(){
 		}
 	}
 	
+	// Get Patients With More than one GPA
+	$query = "SELECT p.participant_identifier 
+		FROM (SELECT participant_id, count(*) AS tx FROM reproductive_histories WHERE DELETED <> 1 GROUP BY participant_id) as res 
+		INNER JOIN participants p ON p.id = res.participant_id
+		WHERE res.tx > 1;";
+	$results2 = mysqli_query(Config::$db_connection, $query2) or die(__FUNCTION__." [$query2] ".__LINE__);
+	$participant_identifiers = array();
+	while($row2 = $results2->fetch_assoc()) $participant_identifiers[] = $row2['participant_identifier'];
+	if($participant_identifiers) Config::$summary_msg['Family History - Worksheet FamHistory']['@@WARNING@@']['More than one Reproductive History'][] = "See Participant# ".implode(', ', $participant_identifiers);
+	
 // 	$query = "UPDATE versions SET permissions_regenerated = 0";
 // 	mysqli_query(Config::$db_connection, $query) or die("update participants in addonFunctionEnd failed");
 	
-	// Summary Message Display
-	
-	global $insert;
-	foreach(Config::$summary_msg as $data_type => $msg_arr) {
-		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
-		=====================================================================".Config::$line_break_tag."".Config::$line_break_tag."
-		PROCESS SUMMARY: $data_type
-		".Config::$line_break_tag."".Config::$line_break_tag."=====================================================================
-		</FONT>".Config::$line_break_tag."";
-			
-		foreach($msg_arr AS $msg_type => $msg_sub_arr) {
-		if(!in_array($msg_type, array('@@ERROR@@','@@WARNING@@','@@MESSAGE@@'))) die('ERR 89939393 '.$msg_type);
-			//TODO (if error)			$insert = false;
-			$color = str_replace(array('@@ERROR@@','@@WARNING@@','@@MESSAGE@@'),array('red','orange','green'),$msg_type);
-			echo "".Config::$line_break_tag."<FONT COLOR=\"$color\" ><b> ** $msg_type summary ** </b> </FONT>".Config::$line_break_tag."";
-			foreach($msg_sub_arr as $type => $msgs) {
-				echo "".Config::$line_break_tag." --> <FONT COLOR=\"$color\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
-				foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
-			}
-		}
-	}
+	displayMessage();
 }
 	
 function pr($arr) {
@@ -510,4 +488,28 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 	}
 
 	return $record_id;
+}
+
+
+
+// Summary Message Display
+function displayMessage() {
+	global $insert;
+	foreach(Config::$summary_msg as $data_type => $msg_arr) {
+		echo "".Config::$line_break_tag."".Config::$line_break_tag."<FONT COLOR=\"blue\" >
+			=====================================================================".Config::$line_break_tag."".Config::$line_break_tag."
+			PROCESS SUMMARY: $data_type
+			".Config::$line_break_tag."".Config::$line_break_tag."=====================================================================
+			</FONT>".Config::$line_break_tag."";
+			
+		foreach($msg_arr AS $msg_type => $msg_sub_arr) {
+			if(!in_array($msg_type, array('@@ERROR@@','@@WARNING@@','@@MESSAGE@@'))) die('ERR 89939393 '.$msg_type);
+			$color = str_replace(array('@@ERROR@@','@@WARNING@@','@@MESSAGE@@'),array('red','orange','green'),$msg_type);
+			echo "".Config::$line_break_tag."<FONT COLOR=\"$color\" ><b> ** $msg_type summary ** </b> </FONT>".Config::$line_break_tag."";
+			foreach($msg_sub_arr as $type => $msgs) {
+				echo "".Config::$line_break_tag." --> <FONT COLOR=\"$color\" >". utf8_decode($type) . "</FONT>".Config::$line_break_tag."";
+				foreach($msgs as $msg) echo "$msg".Config::$line_break_tag."";
+			}
+		}
+	}
 }
