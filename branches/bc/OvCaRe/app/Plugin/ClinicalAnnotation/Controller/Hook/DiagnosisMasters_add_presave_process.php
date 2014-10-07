@@ -4,14 +4,16 @@
 		$this->DiagnosisMaster->addWritableField(array('ovcare_tumor_site'));
 		$this->request->data['DiagnosisMaster']['ovcare_tumor_site'] = 'unknown';	
 	} else if(isset($this->request->data['DiagnosisMaster']['ovcare_tumor_site'])) {
-		$tmp_ovcare_tumor_site = $this->request->data['DiagnosisMaster']['ovcare_tumor_site'];
-		switch($dx_ctrl['DiagnosisControl']['controls_type']){
-			case 'ovary':
-				$this->request->data['DiagnosisMaster']['ovcare_tumor_site'] = 'female genital-ovary';
-				break;
-		}
-		if($tmp_ovcare_tumor_site != $this->request->data['DiagnosisMaster']['ovcare_tumor_site']) {
-			AppController::addWarningMsg(__('updated automatically tumor site to appropriated value'));
+		if($dx_ctrl['DiagnosisControl']['controls_type'] == 'ovary or endometrium') {
+			if(!in_array($this->request->data['DiagnosisMaster']['ovcare_tumor_site'], array('female genital-ovary','female genital-endometrium'))) {
+				$submitted_data_validates = false;
+				$this->DiagnosisMaster->validationErrors[][] = __('wrong selected tumor site');
+			}			
+		} else {
+			if(in_array($this->request->data['DiagnosisMaster']['ovcare_tumor_site'], array('female genital-ovary','female genital-endometrium'))) {
+				$submitted_data_validates = false;
+				$this->DiagnosisMaster->validationErrors[][] = __('wrong selected tumor site');
+			}
 		}
 	}
 	
