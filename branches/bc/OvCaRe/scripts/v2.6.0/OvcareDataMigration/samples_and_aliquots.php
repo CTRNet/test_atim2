@@ -1,7 +1,469 @@
 <?php
 
-function loadSamplesAndAliquots() {
-	$tissue_matches = array(
+function loadSamplesAndAliquots(&$xls_sheets, $sheets_keys, $voas_to_collection_ids, $atim_controls) {
+
+	$tissue_matches = getTissueMatches();
+	$aliquot_label_to_storage_data = loadStorageData($xls_sheets, $sheets_keys, $atim_controls);
+	
+	//===============================================================================================================
+	// PARSE WORKSHEET : SpecimenQualityControl
+	//===============================================================================================================
+/*	
+	$studied_voa_nbr = null;
+	$specimen_review = array();
+	$specimen_review_from_aliquot_label = array();
+	$worksheet_name = 'SpecimenQualityControl';
+	foreach($xls_sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			if($new_line_data['VOA Number']) $studied_voa_nbr = $new_line_data['VOA Number'];
+			if(!$studied_voa_nbr) die('ERR 37372882372332');
+			// Specimen Review
+			$patho_reviewer = $new_line_data['Specimen Quality Control::Pathology Reviewer'];
+			$reviewed_pathology = $new_line_data['Specimen Quality Control::Reviewed Pathology'];
+			$patho_key_2 = (empty($reviewed_pathology)? '?' : $reviewed_pathology).' '.$patho_reviewer;
+			if(strlen($patho_reviewer)) {
+				if(!isset($specimen_review[$studied_voa_nbr][$patho_key_2] )) {
+					$specimen_review[$studied_voa_nbr][$patho_key_2] = array(
+						'SpecimenReviewMaster' => array(
+							'review_code' => $patho_key_2,
+							'specimen_review_control_id' => Config::$reviews_controls['specimen_review_control_id']),
+						'SpecimenReviewDetail' => array(
+							'pathology_reviewer' => $patho_reviewer),
+						'specimen_review_detail_tablename' => Config::$reviews_controls['specimen_review_detail_tablename'],
+						'AliquotReviews' => array()
+					);
+				} 
+				// Aliquot Review
+				$aliquot_label = $new_line_data['Specimen Quality Control::Sample Identifier'];
+				if(isset($specimen_review[$studied_voa_nbr][$patho_key_2]['AliquotReviews'][$aliquot_label])) die('ERR 8837228282');
+				if(!in_array($new_line_data['Specimen Quality Control::Reviewed Grade'], array('Ungraded','Not Assessed',''))) die('ERR 38837833');
+				$cellularity_subjective = $new_line_data['Specimen Quality Control::Cellularity Subjective'];
+				$cellularity_subjective_notes = '';
+				if($cellularity_subjective) {
+					if(!preg_match('/^%{0,1}([0-9]{1,2})%{0,1}([\ -]{1,3}(.+)){0,1}$/', $new_line_data['Specimen Quality Control::Cellularity Subjective'], $matches)) die('ERR 773737373 '.$new_line_data['Specimen Quality Control::Cellularity Subjective']);
+					$cellularity_subjective = $matches[1];
+					if(isset($matches[3])) $cellularity_subjective_notes = $matches[3];
+				}
+				$specimen_review[$studied_voa_nbr][$patho_key_2]['AliquotReviews'][$aliquot_label] = array(
+					'AliquotReviewMaster' => array('aliquot_review_control_id' => Config::$reviews_controls['aliquot_review_control_id']),
+					'AliquotReviewDetail' => array(
+						'cellularity_assessor' => $new_line_data['Specimen Quality Control::Cellularity Assessor'],
+						'cellularity_subjective_prct' => $cellularity_subjective,
+						'reviewed_pathology' => $reviewed_pathology,
+						'notes' => $cellularity_subjective_notes),
+					'aliquot_review_detail_tablename' => Config::$reviews_controls['aliquot_review_detail_tablename']	
+				);
+				$specimen_review_from_aliquot_label[$aliquot_label] = array('key1' => $studied_voa_nbr, 'key2' => $patho_key_2);
+		 	} else if(strlen($new_line_data['Specimen Quality Control::Cellularity Assessor'].$new_line_data['Specimen Quality Control::Cellularity Subjective'].$new_line_data['Specimen Quality Control::Reviewed Grade'].$new_line_data['Specimen Quality Control::Reviewed Pathology'].$new_line_data['Specimen Quality Control::Sample Identifier'])) {
+		 			die('ERR 3872372837283');
+	 		}
+		}
+	}
+	
+	//===============================================================================================================
+	// PARSE WORKSHEET : SpecimenRelease
+	//===============================================================================================================
+	
+	$studied_voa_nbr = null;
+	$released_aliquots = array();
+	$worksheet_name = 'SpecimenRelease';
+	foreach($xls_sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);		
+			if($new_line_data['VOA Number']) $studied_voa_nbr = $new_line_data['VOA Number'];
+			if(!$studied_voa_nbr) die('ERR 37372882372332');
+			$aliquot_label = $new_line_data['Specimen Release::Sample Indentifier'];
+			if($aliquot_label) {
+				if(!isset($released_aliquots[$studied_voa_nbr][$aliquot_label])) {
+					$date_field = 'Specimen Release::Date';
+					$release_data = getDateAndAccuracy($new_line_data[$date_field], 'InventoryManagement Release', $date_field, $excel_line_counter);
+					$release_data['requestor'] = $new_line_data['Specimen Release::Requestor'];
+					foreach(array('Specimen Release::Section Thickness','Specimen Release::Number of Sections','Specimen Release::Volume') as $field) if(!preg_match('/^[0-9]*$/', $new_line_data[$field]))die('ERR 838298934743 '.$field.' '.v);
+					$release_data['ovcare_tissue_section_thickness'] = $new_line_data['Specimen Release::Section Thickness'];
+					$release_data['ovcare_tissue_section_numbers'] = $new_line_data['Specimen Release::Number of Sections'];
+					$release_data['used_volume'] = $new_line_data['Specimen Release::Volume'];
+					$released_aliquots[$studied_voa_nbr][$aliquot_label] = $release_data;
+				} else {
+					die('ERR838372837283 '.$excel_line_counter);
+					Config::$summary_msg['InventoryManagement Release']['@@ERROR@@']["Aliquot released twice"][] = "Aliquot $aliquot_label has been releazed twice [Worksheet $worksheet_name / line: $excel_line_counter]";
+				}
+			} else if(strlen($new_line_data['Specimen Release::Date'].$new_line_data['Specimen Release::Requestor'].$new_line_data['Specimen Release::Volume'].$new_line_data['Specimen Release::Section Thickness'].$new_line_data['Specimen Release::Number of Sections'])) {
+				die('ERR 388738384 '.$excel_line_counter);
+			}
+		}
+	}
+*/	
+	
+	//===============================================================================================================
+	// PARSE WORKSHEET : SpecimenAccural
+	//===============================================================================================================		
+				
+	$comments_used_to_define_released_aliquots = array();
+	$comments_used_to_define_not_banked_aliquots = array();
+
+	$previous_voa_nbr = null;
+	$collection_data = array();
+	$tmp_sample_code = 0;
+	$aliquot_master_id = 0;
+	$worksheet_name = 'Specimen Accural';
+	foreach($xls_sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			//Get File Data to migrate
+			$studied_voa_nbr = $new_line_data['VOA Number'];
+			if(!$studied_voa_nbr) die('ERR 37372882372332.2');
+			if(is_null($previous_voa_nbr) || $studied_voa_nbr != $previous_voa_nbr) {
+				//New Voa
+				if(!is_null($previous_voa_nbr)) recordCollection($collection_data, $previous_voa_nbr);
+				$collection_data = array('samples' => array(), 'notes' => array());
+				$previous_voa_nbr = $studied_voa_nbr;
+			}
+			$file_specimen_type = $new_line_data['Specimen Type'];
+			$file_aliquot_label = $new_line_data['Sample Identifier'];
+			$file_anatomic_location = str_replace(array("\n", 'N/A', '?'), array('','',''), $new_line_data['Anatomic Location']);
+			$file_ischemia_time = str_replace('?', '', $new_line_data['Ischaemia Time']);
+			$file_comments = $new_line_data['Comments'];
+			$file_aliquot_released = $new_line_data['Released'];
+			if(!$file_specimen_type) {
+				//No specimen type => Nothing will be imported excepted notes added to collection notes
+				if($file_comments) $collection_data['notes'][] = $file_comments;
+				if($file_aliquot_label) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["No Specimen Type but a Sample Identifier exists: No aliquot created"][] = "See aliquot '".$new_line_data['Sample Identifier']."'. [Worksheet $worksheet_name / line: $excel_line_counter]";
+				if($file_anatomic_location) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["No Specimen Type but a Sample Anatomic Location: No aliquot created"][] = "$file_anatomic_location... [Worksheet $worksheet_name / line: $excel_line_counter]";
+			} else {
+				//Create new aliquot
+				if(!$file_aliquot_label) $file_aliquot_label = $studied_voa_nbr.' #?#';
+				$aliquot_master_id++;
+				$in_stock = 'yes - available';
+				$realeased = false;
+				
+				
+				
+				
+				
+				
+				
+				//Define aliquot released or not
+				$relase_precision = null;
+				if($file_aliquot_released == 'Yes') {
+					$realeased = true;
+					$in_stock = 'no';
+				} else if(preg_match('/(([Tt]o|[Ff]or).{1,10}([Gg]ilks|[Nn]elson|[Pp]ress|[Cc]lara|[Ss]teve))|(^[Ff]or\ )|(^[Gg]iven)/', $file_comments, $matches)) {
+					$realeased = true;
+					$in_stock = 'no';
+					$relase_precision = $matches['3'];
+					$comments_used_to_define_released_aliquots[$file_comments][] = $excel_line_counter;
+				} else if(preg_match('/(([Nn]ot\ +in\ +bank)|([Mm][Ii]ssing)|([Nn]ot banked)|(^[Nn]ot frozen)|(^[Nn]o frozen vials)|(^lost vial))/', $file_comments)) {
+					$in_stock = 'no';
+					$comments_used_to_define_not_banked_aliquots[$file_comments][] = $excel_line_counter;
+				}
+				//Manage QC & Internal Uses
+				$aliquot_internal_uses = array();
+				if(isset($released_aliquots[$studied_voa_nbr]) && isset($released_aliquots[$studied_voa_nbr][$file_aliquot_label])) {
+					$aliquot_internal_uses['aliquot_master_id'] = $aliquot_master_id;
+					$aliquot_internal_uses['use_code'] = 'To '.($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['requestor']? $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['requestor'] : '?');
+					$aliquot_internal_uses['type'] = 'release';
+					$aliquot_internal_uses['use_datetime'] = '';
+					$aliquot_internal_uses['use_datetime_accuracy'] = '';
+					if(isset($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'])) {
+						$aliquot_internal_uses['use_datetime'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'];
+						$aliquot_internal_uses['use_datetime_accuracy'] = ($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'] == 'c')? 'h' : $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'];				
+					}
+					$aliquot_internal_uses['ovcare_tissue_section_thickness'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['ovcare_tissue_section_thickness'];
+					$aliquot_internal_uses['ovcare_tissue_section_numbers'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['ovcare_tissue_section_numbers'];	
+					$aliquot_internal_uses['used_volume'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['used_volume'];
+					unset($released_aliquots[$studied_voa_nbr][$file_aliquot_label]);
+					if(empty($released_aliquots[$studied_voa_nbr])) unset($released_aliquots[$studied_voa_nbr]);
+				} else if($realeased) {
+					$aliquot_internal_uses['aliquot_master_id'] = $aliquot_master_id;
+					$aliquot_internal_uses['use_code'] = 'To '.($relase_precision? $relase_precision : '?');
+					$aliquot_internal_uses['type'] = 'release';
+					$aliquot_internal_uses['use_details'] = $file_comments;	
+					$aliquot_internal_uses['used_volume'] = null;
+				}
+				// Gett additional info
+				if(!preg_match('/^[0-9]*$/', $file_ischemia_time))die('ERR 38833728 79823 ');
+				//Add samples
+				switch($file_specimen_type) {
+					case 'FFPE - Tumour':
+					case 'FFPE - Normal':
+					case 'MolFix':
+					case 'MolFix - Tumour':
+					case 'MolFix - Normal':
+					case 'Frozen - Tumour':
+					case 'Frozen - Normal':
+						$tissue_source = 'other';
+						$tissue_laterality = '';
+						if(!isset($tissue_matches[strtolower($file_anatomic_location)])) {
+							if($file_anatomic_location) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["Tissue Anatomic Location Unsupported"][] = "Tissue anatomic location [$file_anatomic_location] is not supported. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						} else {
+							$tissue_source = $tissue_matches[strtolower($file_anatomic_location)]['source'];
+							$tissue_laterality = $tissue_matches[strtolower($file_anatomic_location)]['laterality'];
+						}
+						$tissue_nature = preg_match('/Tumour/', $file_specimen_type)? 'tumour' : (preg_match('/Normal/', $file_specimen_type)? 'normal': '');
+						if($tissue_nature != 'tumour' &&  preg_match('/[Tt]umo[u]{0,1]r/',$file_anatomic_location )) {
+							Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["Tissue Nature Mismatch"][] = "Tissue nature is defined as $tissue_nature in tissue specimen type but as tumour in anatomic location. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						}
+						$ovcare_tissue_source_precision = '';
+						$aliquot_notes = $file_comments? array($file_comments) : array();
+						$sample_notes = '';
+						if($file_anatomic_location) {
+							if(preg_match('/(.+)\ ([#]{0,1}[0-9])$/', $file_anatomic_location, $matches)) {
+								$ovcare_tissue_source_precision = $matches[1];
+								$sample_notes = $file_anatomic_location;
+							} else {
+								$ovcare_tissue_source_precision = $file_anatomic_location;
+							}
+						}
+						$tmp_specimen_key = md5($tissue_source.$file_anatomic_location.$tissue_laterality.$tissue_nature.$file_ischemia_time);
+						if(!isset($collection_data['samples'][$tmp_specimen_key])) {
+							//Create sample
+							$tmp_sample_code++;
+							$collection_data['samples'][$tmp_specimen_key] = array(
+								'SampleMaster' => array(									
+									'sample_code' => 'tmp'.$tmp_sample_code,
+									'sample_control_id' => Config::$sample_aliquot_controls['tissue']['sample_control_id'],
+									'initial_specimen_sample_type' => 'tissue',
+									'notes' => $sample_notes),
+								'SpecimenDetail' => array(),
+								'SampleDetail' => array(
+									'tissue_source' => $tissue_source,
+									'ovcare_tissue_source_precision' => $ovcare_tissue_source_precision,
+									'tissue_laterality' => $tissue_laterality,
+									'ovcare_tissue_type' => $tissue_nature,
+									'ovcare_ischemia_time_mn' => $file_ischemia_time),
+								'detail_tablename' => Config::$sample_aliquot_controls['tissue']['detail_tablename'],
+								'Aliquots' => array(),
+								'Derivatives' => array(),
+								'SpecimenReviews' => array()
+							);
+						}	
+						//Create aliquot
+						$aliquot_type = 'tube';
+						$aliquot_details = array();
+						if(!preg_match('/^Frozen/', $file_specimen_type)) {
+							$aliquot_type = 'block';
+							$aliquot_details['block_type'] = 'paraffin';
+						}
+						if($aliquot_internal_uses && $aliquot_internal_uses['used_volume']) {
+							Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Tissue Volume Released'][] = "A released volume is associated to a tissue. See aliquot $file_aliquot_label. [Worksheet $worksheet_name / line: $excel_line_counter]";
+							unset($aliquot_internal_uses['used_volume']);
+						}
+						$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id] = array(
+							'AliquotMaster' => array(
+								'id' => $aliquot_master_id,
+								'barcode' => $aliquot_master_id,
+								'aliquot_label' => $file_aliquot_label,
+								'aliquot_control_id' => Config::$sample_aliquot_controls['tissue']['aliquots'][$aliquot_type]['aliquot_control_id'],
+								'in_stock' => $in_stock,							
+								'use_counter' => (empty($aliquot_internal_uses)? '0' : 1),
+								'notes' => implode(' || ', $aliquot_notes)),
+							'AliquotDetail' => array_merge(array('aliquot_master_id' => $aliquot_master_id), $aliquot_details),
+							'detail_tablename' => Config::$sample_aliquot_controls['tissue']['aliquots'][$aliquot_type]['detail_tablename'],					
+							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
+						//Add specimen Review
+						if(isset($specimen_review_from_aliquot_label[$file_aliquot_label])) {
+							$specimen_review_key2 = $specimen_review_from_aliquot_label[$file_aliquot_label]['key2'];
+							if($studied_voa_nbr != $specimen_review_from_aliquot_label[$file_aliquot_label]['key1']) die('ERR88339ddsdds938 '.$excel_line_counter);
+							if(!isset($specimen_review[$studied_voa_nbr][$specimen_review_key2]['AliquotReviews'][$file_aliquot_label])) die('ERR88339ddsdds938 '.$excel_line_counter);
+							if(!isset($collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2])) $collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2] = $specimen_review[$studied_voa_nbr][$specimen_review_key2];
+							$collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2]['AliquotReviews'][$file_aliquot_label]['AliquotReviewMaster']['aliquot_master_id'] = $aliquot_master_id;
+							$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id]['AliquotMaster']['use_counter']++;
+							unset($specimen_review_from_aliquot_label[$file_aliquot_label]);
+						}					
+						break;
+
+					case 'Cell Block':
+					case 'Cryostasis':
+						Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["Specimen Type not supported: No aliquot created"][] = "Specimen Type $file_specimen_type is not supported. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						break;
+	
+					case 'Ascites':
+						if($file_anatomic_location && $file_anatomic_location != 'Ascites') Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Specimen Type & Anatomic Location Mismatch"][] = "Specimen Type [$file_specimen_type] and anatomic location [$file_anatomic_location] does not match. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Ascite won't be migrated"][] = "Specimen Type [$file_specimen_type] should be all released. Not be imported. See Note '$file_comments'. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						break;
+							
+					
+						// Select structure_alias, model, field from view_structure_formats_simplified where structure_alias IN ('aliquot_masters','ad_spec_tubes', 'ovcare_tissue_tube_storage_method') AND flag_detail = '1';
+					
+					case 'Frozen - Buffy Coat':
+					case 'Frozen - Serum':
+					case 'Frozen - Plasma':
+						if($file_anatomic_location && $file_anatomic_location != 'Blood') Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Specimen Type & Anatomic Location Mismatch"][] = "Specimen Type [$file_specimen_type] and anatomic location [$file_anatomic_location] does not match. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						$aliquot_notes = $file_comments? array($file_comments) : array();
+						$tmp_specimen_key = md5(($file_specimen_type == 'Frozen - Serum'? 'blood1' : 'blood2').$file_ischemia_time);
+						if(!isset($collection_data['samples'][$tmp_specimen_key])) {
+							//Create sample
+							$tmp_sample_code++;
+							$collection_data['samples'][$tmp_specimen_key] = array(
+								'SampleMaster' => array(
+									'sample_code' => 'tmp'.$tmp_sample_code,
+									'sample_control_id' => Config::$sample_aliquot_controls['blood']['sample_control_id'],
+									'initial_specimen_sample_type' => 'blood'),
+								'SpecimenDetail' => array(),
+								'SampleDetail' => array(
+									'ovcare_ischemia_time_mn' => $file_ischemia_time),
+								'detail_tablename' => Config::$sample_aliquot_controls['blood']['detail_tablename'],
+								'Aliquots' => array(),
+								'Derivatives' => array()
+							);
+						}
+						$derivative_type = str_replace(array('Frozen - Serum', 'Frozen - Buffy Coat','Frozen - Plasma'), array('serum', 'blood cell', 'plasma'), $file_specimen_type);
+						if(!isset($collection_data['samples'][$tmp_specimen_key]['Derivatives'][$derivative_type] )) {
+							$tmp_sample_code++;
+							$collection_data['samples'][$tmp_specimen_key]['Derivatives'][$derivative_type] = array(
+								'SampleMaster' => array(
+									'sample_code' => 'tmp'.$tmp_sample_code,
+									'sample_control_id' => Config::$sample_aliquot_controls[$derivative_type]['sample_control_id'],
+									'initial_specimen_sample_type' => 'blood',
+									'parent_sample_type' => 'blood'),
+								'DerivativeDetail' => array(),
+								'SampleDetail' => array(),
+								'detail_tablename' => Config::$sample_aliquot_controls[$derivative_type]['detail_tablename'],
+								'Aliquots' => array()
+							);
+						}
+						//Create aliquot			
+						$aliquot_type = 'tube';					
+						$collection_data['samples'][$tmp_specimen_key]['Derivatives'][$derivative_type]['Aliquots'][$aliquot_master_id] = array(
+							'AliquotMaster' => array(
+								'id' => $aliquot_master_id,
+								'barcode' => $aliquot_master_id,
+								'aliquot_label' => $file_aliquot_label,
+								'aliquot_control_id' => Config::$sample_aliquot_controls[$derivative_type]['aliquots']['tube']['aliquot_control_id'],
+								'in_stock' => $in_stock,
+								'use_counter' => (empty($aliquot_internal_uses)? '0' : 1),
+								'notes' => implode(' || ', $aliquot_notes)),
+							'AliquotDetail' => array('aliquot_master_id' => $aliquot_master_id),
+							'detail_tablename' => Config::$sample_aliquot_controls[$derivative_type]['aliquots']['tube']['detail_tablename'],
+							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
+						break;
+						
+					case 'Frozen - Saliva':
+						if($file_anatomic_location && $file_anatomic_location != 'Saliva') Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Specimen Type & Anatomic Location Mismatch"][] = "Specimen Type [$file_specimen_type] and anatomic location [$file_anatomic_location] does not match. [Worksheet $worksheet_name / line: $excel_line_counter]";
+						$aliquot_notes = $file_comments? array($file_comments) : array();
+						$tmp_specimen_key = md5('Saliva'.$file_ischemia_time);
+						if(!isset($collection_data['samples'][$tmp_specimen_key])) {
+							//Create sample
+							$tmp_sample_code++;
+							$collection_data['samples'][$tmp_specimen_key] = array(
+								'SampleMaster' => array(
+									'sample_code' => 'tmp'.$tmp_sample_code,
+									'sample_control_id' => Config::$sample_aliquot_controls['saliva']['sample_control_id'],
+									'initial_specimen_sample_type' => 'saliva'),
+								'SpecimenDetail' => array(),
+								'SampleDetail' => array(
+									'ovcare_ischemia_time_mn' => $file_ischemia_time),
+								'detail_tablename' => Config::$sample_aliquot_controls['saliva']['detail_tablename'],
+								'Aliquots' => array(),
+								'Derivatives' => array());
+						}
+						//Create aliquot
+						$aliquot_type = 'tube';
+						$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id] = array(
+							'AliquotMaster' => array(
+								'id' => $aliquot_master_id,
+								'barcode' => $aliquot_master_id,
+								'aliquot_label' => $file_aliquot_label,
+								'aliquot_control_id' => Config::$sample_aliquot_controls['saliva']['aliquots']['tube']['aliquot_control_id'],
+								'in_stock' => $in_stock,
+								'use_counter' => (empty($aliquot_internal_uses)? '0' : 1),
+								'notes' => implode(' || ', $aliquot_notes)),
+							'AliquotDetail' => array('aliquot_master_id' => $aliquot_master_id),
+							'detail_tablename' => Config::$sample_aliquot_controls['saliva']['aliquots']['tube']['detail_tablename'],
+							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
+						break;
+	
+				default:
+						die('ERR 34837227368268232 '.$file_specimen_type);				
+				}
+			}
+		} // End New Sample Data Line
+	}
+	
+	// add migration summaries / results
+	foreach($specimen_review_from_aliquot_label as $aliquot_label => $data) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Specimen Quality Control Un-migrated'][] = 'see Sample Indentifier'.$aliquot_label;
+	foreach($released_aliquots as $voa_nbr => $data1) {
+		foreach($data1 as $aliquot_label => $data2) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Specimen Release Un-migrated'][] = 'see Sample Indentifier'.$aliquot_label;
+	}
+	foreach($comments_used_to_define_released_aliquots as $comment => $lines)
+		Config::$summary_msg['InventoryManagement Specimen']['@@MESSAGE@@']['Specimen defined as realeased based on comment'][] = "... associated comment '$comment'. See lines ".implode(', ', $lines);
+	foreach($comments_used_to_define_not_banked_aliquots as $comment => $lines)
+		Config::$summary_msg['InventoryManagement Specimen']['@@MESSAGE@@']['Specimen defined as not banked based on comment'][] = "... associated comment '$comment'. See lines ".implode(', ', $lines);
+	
+	return;
+}	
+	
+function recordSamplesAndAliquots($collection_data, $voa) {
+	pr('Record Collection');
+	pr($collection_data);
+	exit;
+	if(!isset(Config::$voas_to_ids[$voa])) die('ERR 4747387432');
+	$collection_id = Config::$voas_to_ids[$voa]['collection_id'];
+
+	//Add collection notes
+	if(empty($collection_data['samples'])) {
+		Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Empty collection (no collection & no sample created)'][] = "Existing collection notes will be moved to participant notes. See VOA# ".$voa;
+		if($collection_data['notes']) {
+			$participant_id = Config::$voas_to_ids[$voa]['participant_id'];
+			if(!isset(Config::$participants_notes_from_ids[$participant_id])) Config::$participants_notes_from_ids[$participant_id] = array();
+			Config::$participants_notes_from_ids[$participant_id][] = "Empty collection note for VOA# $voa : ".implode(' || ', $collection_data['notes']);
+		}
+		return;
+	}
+	if($collection_data['notes']) {
+		$query = "UPDATE collections SET collection_notes = '".str_replace("'", "''", implode(' || ', $collection_data['notes']))."' WHERE id = $collection_id;";
+		mysqli_query(Config::$db_connection, $query) or die("record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+		mysqli_query(Config::$db_connection, str_replace('collections','collections_revs',$query)) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
+	}
+	
+	//Add samples
+	foreach($collection_data['samples'] as $new_specimen_and_derivatives) {	
+		//New specimen		
+		$specimen_sample_master_id = customInsertRecord(array_merge($new_specimen_and_derivatives['SampleMaster'], array('collection_id' => $collection_id)), 'sample_masters');
+		customInsertRecord(array_merge($new_specimen_and_derivatives['SampleDetail'], array('sample_master_id' => $specimen_sample_master_id)), $new_specimen_and_derivatives['detail_tablename'], true);
+		customInsertRecord(array_merge($new_specimen_and_derivatives['SpecimenDetail'], array('sample_master_id' => $specimen_sample_master_id)), 'specimen_details', true);
+		recordAliquots($new_specimen_and_derivatives['Aliquots'], $collection_id, $specimen_sample_master_id);
+		//Specimen Review
+		if(isset($new_specimen_and_derivatives['SpecimenReviews'])) {		
+			foreach($new_specimen_and_derivatives['SpecimenReviews'] as $specimen_review) {
+				$specimen_review_master_id = customInsertRecord(array_merge($specimen_review['SpecimenReviewMaster'], array('collection_id' => $collection_id, 'sample_master_id' => $specimen_sample_master_id)), 'specimen_review_masters');
+				customInsertRecord(array_merge($specimen_review['SpecimenReviewDetail'], array('specimen_review_master_id' => $specimen_review_master_id)), $specimen_review['specimen_review_detail_tablename'], true);
+				foreach($specimen_review['AliquotReviews'] as $aliquot_review) {
+					$aliquot_review_master_id = customInsertRecord(array_merge($aliquot_review['AliquotReviewMaster'], array('specimen_review_master_id' => $specimen_review_master_id)), 'aliquot_review_masters');
+					customInsertRecord(array_merge($aliquot_review['AliquotReviewDetail'], array('aliquot_review_master_id' => $aliquot_review_master_id)), $aliquot_review['aliquot_review_detail_tablename'], true);
+				}
+			}
+		}
+		//Derivatives
+		foreach($new_specimen_and_derivatives['Derivatives'] as $new_derivative) {
+			$derivative_sample_master_id = customInsertRecord(array_merge($new_derivative['SampleMaster'], array('collection_id' => $collection_id, 'parent_id' => $specimen_sample_master_id, 'initial_specimen_sample_id' => $specimen_sample_master_id)), 'sample_masters');
+			customInsertRecord(array_merge($new_derivative['SampleDetail'], array('sample_master_id' => $derivative_sample_master_id)), $new_derivative['detail_tablename'], true);
+			customInsertRecord(array_merge($new_derivative['DerivativeDetail'], array('sample_master_id' => $derivative_sample_master_id)), 'derivative_details', true);
+			recordAliquots($new_derivative['Aliquots'], $collection_id, $derivative_sample_master_id);
+		}
+	}
+}
+
+function recordAliquots($aliquots, $collection_id, $sample_master_id) {
+	foreach($aliquots as $new_aliquot) {
+		$aliquot_master_id = $new_aliquot['AliquotMaster']['id'];
+		$aliquot_master_id = customInsertRecord(array_merge($new_aliquot['AliquotMaster'], array('collection_id' => $collection_id, 'sample_master_id' => $sample_master_id)), 'aliquot_masters', false);
+		customInsertRecord(array_merge($new_aliquot['AliquotDetail'], array('aliquot_master_id' => $aliquot_master_id)), $new_aliquot['detail_tablename'], true);
+		if(!empty($new_aliquot['InternalUses'])) {
+			customInsertRecord($new_aliquot['InternalUses'], 'aliquot_internal_uses');
+		}
+	}
+}
+
+function getTissueMatches() {
+			$tissue_matches = array(
 		'Abdominal mass' => array('source' => 'abdominal mass', 'laterality' => ''),
 		'Abdominal Wall' => array('source' => 'abdominal wall', 'laterality' => ''),
 		'Abdominal wall tumour' => array('source' => 'abdominal wall', 'laterality' => ''),
@@ -208,458 +670,140 @@ function loadSamplesAndAliquots() {
 	$tissue_matches = array();
 	foreach($tmp_tissue_matches as $key => $data) $tissue_matches[strtolower($key)] = $data;
 	unset($tmp_tissue_matches);
-	
-	$tmp_xls_reader = new Spreadsheet_Excel_Reader();
-	$tmp_xls_reader->read( Config::$xls_file_path);
-	$sheets_keys = array();
-	foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_keys[$tmp['name']] = $key;
-	
-	//===============================================================================================================
-	// PARSE WORKSHEET : SpecimenQualityControl
-	//===============================================================================================================
-	
-	$studied_voa_nbr = null;
-	$specimen_review = array();
-	$specimen_review_from_aliquot_label = array();
-	$worksheet_name = 'SpecimenQualityControl';
-	foreach($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
-		if($excel_line_counter == 1) {
-			$headers = $new_line;
-		} else {
-			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
-			if($new_line_data['VOA Number']) $studied_voa_nbr = $new_line_data['VOA Number'];
-			if(!$studied_voa_nbr) die('ERR 37372882372332');
-			// Specimen Review
-			$patho_reviewer = $new_line_data['Specimen Quality Control::Pathology Reviewer'];
-			$reviewed_pathology = $new_line_data['Specimen Quality Control::Reviewed Pathology'];
-			$patho_key_2 = (empty($reviewed_pathology)? '?' : $reviewed_pathology).' '.$patho_reviewer;
-			if(strlen($patho_reviewer)) {
-				if(!isset($specimen_review[$studied_voa_nbr][$patho_key_2] )) {
-					$specimen_review[$studied_voa_nbr][$patho_key_2] = array(
-						'SpecimenReviewMaster' => array(
-							'review_code' => $patho_key_2,
-							'specimen_review_control_id' => Config::$reviews_controls['specimen_review_control_id']),
-						'SpecimenReviewDetail' => array(
-							'pathology_reviewer' => $patho_reviewer),
-						'specimen_review_detail_tablename' => Config::$reviews_controls['specimen_review_detail_tablename'],
-						'AliquotReviews' => array()
-					);
-				} 
-				// Aliquot Review
-				$aliquot_label = $new_line_data['Specimen Quality Control::Sample Identifier'];
-				if(isset($specimen_review[$studied_voa_nbr][$patho_key_2]['AliquotReviews'][$aliquot_label])) die('ERR 8837228282');
-				if(!in_array($new_line_data['Specimen Quality Control::Reviewed Grade'], array('Ungraded','Not Assessed',''))) die('ERR 38837833');
-				$cellularity_subjective = $new_line_data['Specimen Quality Control::Cellularity Subjective'];
-				$cellularity_subjective_notes = '';
-				if($cellularity_subjective) {
-					if(!preg_match('/^%{0,1}([0-9]{1,2})%{0,1}([\ -]{1,3}(.+)){0,1}$/', $new_line_data['Specimen Quality Control::Cellularity Subjective'], $matches)) die('ERR 773737373 '.$new_line_data['Specimen Quality Control::Cellularity Subjective']);
-					$cellularity_subjective = $matches[1];
-					if(isset($matches[3])) $cellularity_subjective_notes = $matches[3];
-				}
-				$specimen_review[$studied_voa_nbr][$patho_key_2]['AliquotReviews'][$aliquot_label] = array(
-					'AliquotReviewMaster' => array('aliquot_review_control_id' => Config::$reviews_controls['aliquot_review_control_id']),
-					'AliquotReviewDetail' => array(
-						'cellularity_assessor' => $new_line_data['Specimen Quality Control::Cellularity Assessor'],
-						'cellularity_subjective_prct' => $cellularity_subjective,
-						'reviewed_pathology' => $reviewed_pathology,
-						'notes' => $cellularity_subjective_notes),
-					'aliquot_review_detail_tablename' => Config::$reviews_controls['aliquot_review_detail_tablename']	
-				);
-				$specimen_review_from_aliquot_label[$aliquot_label] = array('key1' => $studied_voa_nbr, 'key2' => $patho_key_2);
-		 	} else if(strlen($new_line_data['Specimen Quality Control::Cellularity Assessor'].$new_line_data['Specimen Quality Control::Cellularity Subjective'].$new_line_data['Specimen Quality Control::Reviewed Grade'].$new_line_data['Specimen Quality Control::Reviewed Pathology'].$new_line_data['Specimen Quality Control::Sample Identifier'])) {
-		 			die('ERR 3872372837283');
-	 		}
-		}
-	}
-	
-	//===============================================================================================================
-	// PARSE WORKSHEET : SpecimenRelease
-	//===============================================================================================================
-	
-	$studied_voa_nbr = null;
-	$released_aliquots = array();
-	$worksheet_name = 'SpecimenRelease';
-	foreach($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
-		if($excel_line_counter == 1) {
-			$headers = $new_line;
-		} else {
-			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);		
-			if($new_line_data['VOA Number']) $studied_voa_nbr = $new_line_data['VOA Number'];
-			if(!$studied_voa_nbr) die('ERR 37372882372332');
-			$aliquot_label = $new_line_data['Specimen Release::Sample Indentifier'];
-			if($aliquot_label) {
-				if(!isset($released_aliquots[$studied_voa_nbr][$aliquot_label])) {
-					$date_field = 'Specimen Release::Date';
-					$release_data = getDateAndAccuracy($new_line_data[$date_field], 'InventoryManagement Release', $date_field, $excel_line_counter);
-					$release_data['requestor'] = $new_line_data['Specimen Release::Requestor'];
-					foreach(array('Specimen Release::Section Thickness','Specimen Release::Number of Sections','Specimen Release::Volume') as $field) if(!preg_match('/^[0-9]*$/', $new_line_data[$field]))die('ERR 838298934743 '.$field.' '.v);
-					$release_data['ovcare_tissue_section_thickness'] = $new_line_data['Specimen Release::Section Thickness'];
-					$release_data['ovcare_tissue_section_numbers'] = $new_line_data['Specimen Release::Number of Sections'];
-					$release_data['used_volume'] = $new_line_data['Specimen Release::Volume'];
-					$released_aliquots[$studied_voa_nbr][$aliquot_label] = $release_data;
-				} else {
-					die('ERR838372837283 '.$excel_line_counter);
-					Config::$summary_msg['InventoryManagement Release']['@@ERROR@@']["Aliquot released twice"][] = "Aliquot $aliquot_label has been releazed twice [Worksheet $worksheet_name / line: $excel_line_counter]";
-				}
-			} else if(strlen($new_line_data['Specimen Release::Date'].$new_line_data['Specimen Release::Requestor'].$new_line_data['Specimen Release::Volume'].$new_line_data['Specimen Release::Section Thickness'].$new_line_data['Specimen Release::Number of Sections'])) {
-				die('ERR 388738384 '.$excel_line_counter);
-			}
-		}
-	}
-	
-	//===============================================================================================================
-	// PARSE WORKSHEET : SpecimenAccural
-	//===============================================================================================================		
-				
-	$comments_used_to_define_released_aliquots = array();
-	$comments_used_to_define_not_banked_aliquots = array();
-
-	$studied_voa_nbr = null;
-	$collection_data = array();
-	$tmp_sample_code = 0;
-	$aliquot_master_id = 0;
-	$worksheet_name = 'SpecimenAccural';
-	foreach($tmp_xls_reader->sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
-		if($excel_line_counter == 1) {
-			$headers = $new_line;
-		} else {
-			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
-			if($new_line_data['VOA Number']) {
-				if(!is_null($studied_voa_nbr)) recordCollection($collection_data, $studied_voa_nbr);
-				$collection_data = array('samples' => array(), 'notes' => array());
-				$studied_voa_nbr = $new_line_data['VOA Number'];
-			} else if(!$studied_voa_nbr) die('ERR 37372882372332.2');
-
-			//Get Data
-			$file_anatomic_location = str_replace(array("\n", 'N/A', '?'), array('','',''), $new_line_data['Specimen Accrual::Anatomic Location']);
-			$file_comments = $new_line_data['Specimen Accrual::Comments'];
-			//'Specimen Accrual::Ischaemia Time'
-			//'Specimen Accrual::Released'
-			$file_aliquot_label = $new_line_data['Specimen Accrual::Sample Identifier'];
-			if(!$file_aliquot_label) $file_aliquot_label = $studied_voa_nbr.' #?#';
-			$file_specimen_type = $new_line_data['Specimen Accrual::Specimen Type'];
-			if($file_specimen_type) {
-				//SPECIMEN TYPE => Imported: Sample and aliquot created
-				$aliquot_master_id++;
-				$in_stock = 'yes - available';
-				$realeased = false;
-				//Define aliquot released or not
-				$relase_precision = null;
-				if($new_line_data['Specimen Accrual::Released'] == 'Yes') {
-					$realeased = true;
-					$in_stock = 'no';
-				} else if(preg_match('/(([Tt]o|[Ff]or).{1,10}([Gg]ilks|[Nn]elson|[Pp]ress|[Cc]lara|[Ss]teve))|(^[Ff]or\ )|(^[Gg]iven)/', $file_comments, $matches)) {
-					$realeased = true;
-					$in_stock = 'no';
-					$relase_precision = $matches['3'];
-					$comments_used_to_define_released_aliquots[$file_comments][] = $excel_line_counter;
-				} else if(preg_match('/(([Nn]ot\ +in\ +bank)|([Mm][Ii]ssing)|([Nn]ot banked)|(^[Nn]ot frozen)|(^[Nn]o frozen vials)|(^lost vial))/', $file_comments)) {
-					$in_stock = 'no';
-					$comments_used_to_define_not_banked_aliquots[$file_comments][] = $excel_line_counter;
-				}
-				//Manage QC & Internal Uses
-				$aliquot_internal_uses = array();
-				if(isset($released_aliquots[$studied_voa_nbr]) && isset($released_aliquots[$studied_voa_nbr][$file_aliquot_label])) {
-					$aliquot_internal_uses['aliquot_master_id'] = $aliquot_master_id;
-					$aliquot_internal_uses['use_code'] = 'To '.($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['requestor']? $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['requestor'] : '?');
-					$aliquot_internal_uses['type'] = 'release';
-					$aliquot_internal_uses['use_datetime'] = '';
-					$aliquot_internal_uses['use_datetime_accuracy'] = '';
-					if(isset($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'])) {
-						$aliquot_internal_uses['use_datetime'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['date'];
-						$aliquot_internal_uses['use_datetime_accuracy'] = ($released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'] == 'c')? 'h' : $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['accuracy'];				
-					}
-					$aliquot_internal_uses['ovcare_tissue_section_thickness'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['ovcare_tissue_section_thickness'];
-					$aliquot_internal_uses['ovcare_tissue_section_numbers'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['ovcare_tissue_section_numbers'];	
-					$aliquot_internal_uses['used_volume'] = $released_aliquots[$studied_voa_nbr][$file_aliquot_label]['used_volume'];
-					unset($released_aliquots[$studied_voa_nbr][$file_aliquot_label]);
-					if(empty($released_aliquots[$studied_voa_nbr])) unset($released_aliquots[$studied_voa_nbr]);
-				} else if($realeased) {
-					$aliquot_internal_uses['aliquot_master_id'] = $aliquot_master_id;
-					$aliquot_internal_uses['use_code'] = 'To '.($relase_precision? $relase_precision : '?');
-					$aliquot_internal_uses['type'] = 'release';
-					$aliquot_internal_uses['use_details'] = $file_comments;	
-					$aliquot_internal_uses['used_volume'] = null;
-				}
-				// Gett additional info
-				$file_ischemia_time = str_replace('?', '', $new_line_data['Specimen Accrual::Ischaemia Time']);
-				if(!preg_match('/^[0-9]*$/', $file_ischemia_time))die('ERR 38833728 79823 ');
-				//Add samples
-				switch($file_specimen_type) {
-					case 'FFPE - Tumour':
-					case 'FFPE - Normal':
-					case 'MolFix':
-					case 'MolFix - Tumour':
-					case 'MolFix - Normal':
-					case 'Frozen - Tumour':
-					case 'Frozen - Normal':
-						$tissue_source = 'other';
-						$tissue_laterality = '';
-						if(!isset($tissue_matches[strtolower($file_anatomic_location)])) {
-							if($file_anatomic_location) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["Tissue Anatomic Location Unsupported"][] = "Tissue anatomic location [$file_anatomic_location] is not supported. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						} else {
-							$tissue_source = $tissue_matches[strtolower($file_anatomic_location)]['source'];
-							$tissue_laterality = $tissue_matches[strtolower($file_anatomic_location)]['laterality'];
-						}
-						$tissue_nature = preg_match('/Tumour/', $file_specimen_type)? 'tumour' : (preg_match('/Normal/', $file_specimen_type)? 'normal': '');
-						if($tissue_nature != 'tumour' &&  preg_match('/[Tt]umo[u]{0,1]r/',$file_anatomic_location )) {
-							Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["Tissue Nature Mismatch"][] = "Tissue nature is defined as $tissue_nature in tissue specimen type but as tumour in anatomic location. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						}
-						$ovcare_tissue_source_precision = '';
-						$aliquot_notes = $file_comments? array($file_comments) : array();
-						$sample_notes = '';
-						if($file_anatomic_location) {
-							if(preg_match('/(.+)\ ([#]{0,1}[0-9])$/', $file_anatomic_location, $matches)) {
-								$ovcare_tissue_source_precision = $matches[1];
-								$sample_notes = $file_anatomic_location;
-							} else {
-								$ovcare_tissue_source_precision = $file_anatomic_location;
-							}
-						}
-						$tmp_specimen_key = md5($tissue_source.$file_anatomic_location.$tissue_laterality.$tissue_nature.$file_ischemia_time);
-						if(!isset($collection_data['samples'][$tmp_specimen_key])) {
-							//Create sample
-							$tmp_sample_code++;
-							$collection_data['samples'][$tmp_specimen_key] = array(
-								'SampleMaster' => array(									
-									'sample_code' => 'tmp'.$tmp_sample_code,
-									'sample_control_id' => Config::$sample_aliquot_controls['tissue']['sample_control_id'],
-									'initial_specimen_sample_type' => 'tissue',
-									'notes' => $sample_notes),
-								'SpecimenDetail' => array(),
-								'SampleDetail' => array(
-									'tissue_source' => $tissue_source,
-									'ovcare_tissue_source_precision' => $ovcare_tissue_source_precision,
-									'tissue_laterality' => $tissue_laterality,
-									'ovcare_tissue_type' => $tissue_nature,
-									'ovcare_ischemia_time_mn' => $file_ischemia_time),
-								'detail_tablename' => Config::$sample_aliquot_controls['tissue']['detail_tablename'],
-								'Aliquots' => array(),
-								'Derivatives' => array(),
-								'SpecimenReviews' => array()
-							);
-						}	
-						//Create aliquot
-						$aliquot_type = 'tube';
-						$aliquot_details = array();
-						if(!preg_match('/^Frozen/', $file_specimen_type)) {
-							$aliquot_type = 'block';
-							$aliquot_details['block_type'] = 'paraffin';
-						}
-						if($aliquot_internal_uses && $aliquot_internal_uses['used_volume']) {
-							Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Tissue Volume Released'][] = "A released volume is associated to a tissue. See aliquot $file_aliquot_label. [Worksheet $worksheet_name / line: $excel_line_counter]";
-							unset($aliquot_internal_uses['used_volume']);
-						}
-						$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id] = array(
-							'AliquotMaster' => array(
-								'id' => $aliquot_master_id,
-								'barcode' => $aliquot_master_id,
-								'aliquot_label' => $file_aliquot_label,
-								'aliquot_control_id' => Config::$sample_aliquot_controls['tissue']['aliquots'][$aliquot_type]['aliquot_control_id'],
-								'in_stock' => $in_stock,							
-								'use_counter' => (empty($aliquot_internal_uses)? '0' : 1),
-								'notes' => implode(' || ', $aliquot_notes)),
-							'AliquotDetail' => array_merge(array('aliquot_master_id' => $aliquot_master_id), $aliquot_details),
-							'detail_tablename' => Config::$sample_aliquot_controls['tissue']['aliquots'][$aliquot_type]['detail_tablename'],					
-							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
-						//Add specimen Review
-						if(isset($specimen_review_from_aliquot_label[$file_aliquot_label])) {
-							$specimen_review_key2 = $specimen_review_from_aliquot_label[$file_aliquot_label]['key2'];
-							if($studied_voa_nbr != $specimen_review_from_aliquot_label[$file_aliquot_label]['key1']) die('ERR88339ddsdds938 '.$excel_line_counter);
-							if(!isset($specimen_review[$studied_voa_nbr][$specimen_review_key2]['AliquotReviews'][$file_aliquot_label])) die('ERR88339ddsdds938 '.$excel_line_counter);
-							if(!isset($collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2])) $collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2] = $specimen_review[$studied_voa_nbr][$specimen_review_key2];
-							$collection_data['samples'][$tmp_specimen_key]['SpecimenReviews'][$specimen_review_key2]['AliquotReviews'][$file_aliquot_label]['AliquotReviewMaster']['aliquot_master_id'] = $aliquot_master_id;
-							$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id]['AliquotMaster']['use_counter']++;
-							unset($specimen_review_from_aliquot_label[$file_aliquot_label]);
-						}					
-						break;
-
-					case 'Cell Block':
-					case 'Cryostasis':
-						Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["Specimen Type not supported: No aliquot created"][] = "Specimen Type $file_specimen_type is not supported. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						break;
-	
-					case 'Ascites':
-						if($file_anatomic_location && $file_anatomic_location != 'Ascites') Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Specimen Type & Anatomic Location Mismatch"][] = "Specimen Type [$file_specimen_type] and anatomic location [$file_anatomic_location] does not match. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Ascite won't be migrated"][] = "Specimen Type [$file_specimen_type] should be all released. Not be imported. See Note '$file_comments'. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						break;
-							
-					
-						// Select structure_alias, model, field from view_structure_formats_simplified where structure_alias IN ('aliquot_masters','ad_spec_tubes', 'ovcare_tissue_tube_storage_method') AND flag_detail = '1';
-					
-					case 'Frozen - Buffy Coat':
-					case 'Frozen - Serum':
-					case 'Frozen - Plasma':
-						if($file_anatomic_location && $file_anatomic_location != 'Blood') Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Specimen Type & Anatomic Location Mismatch"][] = "Specimen Type [$file_specimen_type] and anatomic location [$file_anatomic_location] does not match. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						$aliquot_notes = $file_comments? array($file_comments) : array();
-						$tmp_specimen_key = md5(($file_specimen_type == 'Frozen - Serum'? 'blood1' : 'blood2').$file_ischemia_time);
-						if(!isset($collection_data['samples'][$tmp_specimen_key])) {
-							//Create sample
-							$tmp_sample_code++;
-							$collection_data['samples'][$tmp_specimen_key] = array(
-								'SampleMaster' => array(
-									'sample_code' => 'tmp'.$tmp_sample_code,
-									'sample_control_id' => Config::$sample_aliquot_controls['blood']['sample_control_id'],
-									'initial_specimen_sample_type' => 'blood'),
-								'SpecimenDetail' => array(),
-								'SampleDetail' => array(
-									'ovcare_ischemia_time_mn' => $file_ischemia_time),
-								'detail_tablename' => Config::$sample_aliquot_controls['blood']['detail_tablename'],
-								'Aliquots' => array(),
-								'Derivatives' => array()
-							);
-						}
-						$derivative_type = str_replace(array('Frozen - Serum', 'Frozen - Buffy Coat','Frozen - Plasma'), array('serum', 'blood cell', 'plasma'), $file_specimen_type);
-						if(!isset($collection_data['samples'][$tmp_specimen_key]['Derivatives'][$derivative_type] )) {
-							$tmp_sample_code++;
-							$collection_data['samples'][$tmp_specimen_key]['Derivatives'][$derivative_type] = array(
-								'SampleMaster' => array(
-									'sample_code' => 'tmp'.$tmp_sample_code,
-									'sample_control_id' => Config::$sample_aliquot_controls[$derivative_type]['sample_control_id'],
-									'initial_specimen_sample_type' => 'blood',
-									'parent_sample_type' => 'blood'),
-								'DerivativeDetail' => array(),
-								'SampleDetail' => array(),
-								'detail_tablename' => Config::$sample_aliquot_controls[$derivative_type]['detail_tablename'],
-								'Aliquots' => array()
-							);
-						}
-						//Create aliquot			
-						$aliquot_type = 'tube';					
-						$collection_data['samples'][$tmp_specimen_key]['Derivatives'][$derivative_type]['Aliquots'][$aliquot_master_id] = array(
-							'AliquotMaster' => array(
-								'id' => $aliquot_master_id,
-								'barcode' => $aliquot_master_id,
-								'aliquot_label' => $file_aliquot_label,
-								'aliquot_control_id' => Config::$sample_aliquot_controls[$derivative_type]['aliquots']['tube']['aliquot_control_id'],
-								'in_stock' => $in_stock,
-								'use_counter' => (empty($aliquot_internal_uses)? '0' : 1),
-								'notes' => implode(' || ', $aliquot_notes)),
-							'AliquotDetail' => array('aliquot_master_id' => $aliquot_master_id),
-							'detail_tablename' => Config::$sample_aliquot_controls[$derivative_type]['aliquots']['tube']['detail_tablename'],
-							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
-						break;
-						
-					case 'Frozen - Saliva':
-						if($file_anatomic_location && $file_anatomic_location != 'Saliva') Config::$summary_msg['InventoryManagement Specimen']['@@ERROR@@']["Specimen Type & Anatomic Location Mismatch"][] = "Specimen Type [$file_specimen_type] and anatomic location [$file_anatomic_location] does not match. [Worksheet $worksheet_name / line: $excel_line_counter]";
-						$aliquot_notes = $file_comments? array($file_comments) : array();
-						$tmp_specimen_key = md5('Saliva'.$file_ischemia_time);
-						if(!isset($collection_data['samples'][$tmp_specimen_key])) {
-							//Create sample
-							$tmp_sample_code++;
-							$collection_data['samples'][$tmp_specimen_key] = array(
-								'SampleMaster' => array(
-									'sample_code' => 'tmp'.$tmp_sample_code,
-									'sample_control_id' => Config::$sample_aliquot_controls['saliva']['sample_control_id'],
-									'initial_specimen_sample_type' => 'saliva'),
-								'SpecimenDetail' => array(),
-								'SampleDetail' => array(
-									'ovcare_ischemia_time_mn' => $file_ischemia_time),
-								'detail_tablename' => Config::$sample_aliquot_controls['saliva']['detail_tablename'],
-								'Aliquots' => array(),
-								'Derivatives' => array());
-						}
-						//Create aliquot
-						$aliquot_type = 'tube';
-						$collection_data['samples'][$tmp_specimen_key]['Aliquots'][$aliquot_master_id] = array(
-							'AliquotMaster' => array(
-								'id' => $aliquot_master_id,
-								'barcode' => $aliquot_master_id,
-								'aliquot_label' => $file_aliquot_label,
-								'aliquot_control_id' => Config::$sample_aliquot_controls['saliva']['aliquots']['tube']['aliquot_control_id'],
-								'in_stock' => $in_stock,
-								'use_counter' => (empty($aliquot_internal_uses)? '0' : 1),
-								'notes' => implode(' || ', $aliquot_notes)),
-							'AliquotDetail' => array('aliquot_master_id' => $aliquot_master_id),
-							'detail_tablename' => Config::$sample_aliquot_controls['saliva']['aliquots']['tube']['detail_tablename'],
-							'InternalUses' => $aliquot_internal_uses); //aliquot_internal_uses
-						break;
-	
-				default:
-						die('ERR 34837227368268232 '.$file_specimen_type);				
-				}
-			} else {		
-				//NO SPECIMEN TYPE => Not imported
-				if($file_comments) $collection_data['notes'][] = $file_comments;
-				if($new_line_data['Specimen Accrual::Sample Identifier']) {
-					Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["No Specimen Type but a Sample Identifier exists: No aliquot created"][] = "See aliquot '".$new_line_data['Specimen Accrual::Sample Identifier']."'. [Worksheet $worksheet_name / line: $excel_line_counter]";
-				}
-				if($file_anatomic_location) {
-					Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']["No Specimen Type but a Sample Anatomic Location: No aliquot created"][] = "$file_anatomic_location... [Worksheet $worksheet_name / line: $excel_line_counter]";
-				}
-			}
-		}
-	}
-	
-	// add migration summaries / results
-	foreach($specimen_review_from_aliquot_label as $aliquot_label => $data) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Specimen Quality Control Un-migrated'][] = 'see Sample Indentifier'.$aliquot_label;
-	foreach($released_aliquots as $voa_nbr => $data1) {
-		foreach($data1 as $aliquot_label => $data2) Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Specimen Release Un-migrated'][] = 'see Sample Indentifier'.$aliquot_label;
-	}
-	foreach($comments_used_to_define_released_aliquots as $comment => $lines)
-		Config::$summary_msg['InventoryManagement Specimen']['@@MESSAGE@@']['Specimen defined as realeased based on comment'][] = "... associated comment '$comment'. See lines ".implode(', ', $lines);
-	foreach($comments_used_to_define_not_banked_aliquots as $comment => $lines)
-		Config::$summary_msg['InventoryManagement Specimen']['@@MESSAGE@@']['Specimen defined as not banked based on comment'][] = "... associated comment '$comment'. See lines ".implode(', ', $lines);
-	
-	return;
-}	
-	
-function recordCollection($collection_data, $voa) {
-	if(!isset(Config::$voas_to_ids[$voa])) die('ERR 4747387432');
-	$collection_id = Config::$voas_to_ids[$voa]['collection_id'];
-
-	//Add collection notes
-	if(empty($collection_data['samples'])) {
-		Config::$summary_msg['InventoryManagement Specimen']['@@WARNING@@']['Empty collection (no collection & no sample created)'][] = "Existing collection notes will be moved to participant notes. See VOA# ".$voa;
-		if($collection_data['notes']) {
-			$participant_id = Config::$voas_to_ids[$voa]['participant_id'];
-			if(!isset(Config::$participants_notes_from_ids[$participant_id])) Config::$participants_notes_from_ids[$participant_id] = array();
-			Config::$participants_notes_from_ids[$participant_id][] = "Empty collection note for VOA# $voa : ".implode(' || ', $collection_data['notes']);
-		}
-		return;
-	}
-	if($collection_data['notes']) {
-		$query = "UPDATE collections SET collection_notes = '".str_replace("'", "''", implode(' || ', $collection_data['notes']))."' WHERE id = $collection_id;";
-		mysqli_query(Config::$db_connection, $query) or die("record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-		mysqli_query(Config::$db_connection, str_replace('collections','collections_revs',$query)) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
-	}
-	
-	//Add samples
-	foreach($collection_data['samples'] as $new_specimen_and_derivatives) {	
-		//New specimen		
-		$specimen_sample_master_id = customInsertRecord(array_merge($new_specimen_and_derivatives['SampleMaster'], array('collection_id' => $collection_id)), 'sample_masters');
-		customInsertRecord(array_merge($new_specimen_and_derivatives['SampleDetail'], array('sample_master_id' => $specimen_sample_master_id)), $new_specimen_and_derivatives['detail_tablename'], true);
-		customInsertRecord(array_merge($new_specimen_and_derivatives['SpecimenDetail'], array('sample_master_id' => $specimen_sample_master_id)), 'specimen_details', true);
-		recordAliquots($new_specimen_and_derivatives['Aliquots'], $collection_id, $specimen_sample_master_id);
-		//Specimen Review
-		if(isset($new_specimen_and_derivatives['SpecimenReviews'])) {		
-			foreach($new_specimen_and_derivatives['SpecimenReviews'] as $specimen_review) {
-				$specimen_review_master_id = customInsertRecord(array_merge($specimen_review['SpecimenReviewMaster'], array('collection_id' => $collection_id, 'sample_master_id' => $specimen_sample_master_id)), 'specimen_review_masters');
-				customInsertRecord(array_merge($specimen_review['SpecimenReviewDetail'], array('specimen_review_master_id' => $specimen_review_master_id)), $specimen_review['specimen_review_detail_tablename'], true);
-				foreach($specimen_review['AliquotReviews'] as $aliquot_review) {
-					$aliquot_review_master_id = customInsertRecord(array_merge($aliquot_review['AliquotReviewMaster'], array('specimen_review_master_id' => $specimen_review_master_id)), 'aliquot_review_masters');
-					customInsertRecord(array_merge($aliquot_review['AliquotReviewDetail'], array('aliquot_review_master_id' => $aliquot_review_master_id)), $aliquot_review['aliquot_review_detail_tablename'], true);
-				}
-			}
-		}
-		//Derivatives
-		foreach($new_specimen_and_derivatives['Derivatives'] as $new_derivative) {
-			$derivative_sample_master_id = customInsertRecord(array_merge($new_derivative['SampleMaster'], array('collection_id' => $collection_id, 'parent_id' => $specimen_sample_master_id, 'initial_specimen_sample_id' => $specimen_sample_master_id)), 'sample_masters');
-			customInsertRecord(array_merge($new_derivative['SampleDetail'], array('sample_master_id' => $derivative_sample_master_id)), $new_derivative['detail_tablename'], true);
-			customInsertRecord(array_merge($new_derivative['DerivativeDetail'], array('sample_master_id' => $derivative_sample_master_id)), 'derivative_details', true);
-			recordAliquots($new_derivative['Aliquots'], $collection_id, $derivative_sample_master_id);
-		}
-	}
+	return $tissue_matches;
 }
 
-function recordAliquots($aliquots, $collection_id, $sample_master_id) {
-	foreach($aliquots as $new_aliquot) {
-		$aliquot_master_id = $new_aliquot['AliquotMaster']['id'];
-		$aliquot_master_id = customInsertRecord(array_merge($new_aliquot['AliquotMaster'], array('collection_id' => $collection_id, 'sample_master_id' => $sample_master_id)), 'aliquot_masters', false);
-		customInsertRecord(array_merge($new_aliquot['AliquotDetail'], array('aliquot_master_id' => $aliquot_master_id)), $new_aliquot['detail_tablename'], true);
-		if(!empty($new_aliquot['InternalUses'])) {
-			customInsertRecord($new_aliquot['InternalUses'], 'aliquot_internal_uses');
+function loadStorageData(&$xls_sheets, $sheets_keys, $atim_controls) {
+	global $summary_msg;
+	
+	$summary_msg['Storage Creation']['@@WARNING@@']['Box Layout not imported'][] = "Freezer Box Map(Saliva)";
+
+	$aliquot_label_to_storage_data = array();
+	$created_storages = array();
+	foreach(array('Freezer Box Map (Buffy coat)') as $worksheet_name) {
+		$first_box_row_excel_line_counter = 0;
+		$positions = array();
+		$box_data = array('worksheet' => $worksheet_name, 'freezer' => '', 'shelf' => '', 'rack' => '', 'box' => '', 'aliquot_positions' => array());
+		foreach($xls_sheets[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {		
+			if(!$first_box_row_excel_line_counter) {
+				//Looking for new box labels
+				$imploded_new_line = implode(' ', $new_line);
+				if(preg_match('/Freezer\ #([0-9]+)/', $imploded_new_line, $matches)) $box_data['freezer'] = $matches[1];				
+				if(preg_match('/Shelf[:\ #]{1,3}([0-9]+)/', $imploded_new_line, $matches)) $box_data['shelf'] = $matches[1];
+				if(preg_match('/Rack[:\ #]{1,3}([0-9]+)/', $imploded_new_line, $matches)) $box_data['rack'] = $matches[1];
+				if(preg_match('/Freezer Box Name:\ (.+)$/', $imploded_new_line, $matches)) $box_data['box'] = str_replace(array('Gyne Tumour Bank, '), array(''), $matches[1]);
+				if($imploded_new_line == '1 2 3 4 5 6 7 8 9' && implode('', array_keys($new_line)) == '2345678910') {
+					$first_box_row_excel_line_counter = $excel_line_counter;
+				}
+			} 
+			if($first_box_row_excel_line_counter) {
+				//Parsing box layout
+				$diff = $excel_line_counter - $first_box_row_excel_line_counter;	
+				if(in_array($diff, array(0,2,4,6,8,10,12,14,16,18))) {
+					//Positions
+					$positions = $new_line;
+				} else {
+					//$aliquots
+					foreach($positions as $excel_column => $storage_coordinate_x) {
+						if(isset($new_line[$excel_column]) && strlen($new_line[$excel_column])) {
+							$box_data['aliquot_positions'][$storage_coordinate_x] = str_replace("\n", ' ', $new_line[$excel_column]);
+						}
+					}
+				}
+				if($diff > 16) {
+					//End Of The Box
+					recordNewBox($aliquot_label_to_storage_data, $created_storages, $box_data, $atim_controls);
+					//Reset data
+					$first_box_row_excel_line_counter = 0;
+					$positions = array();
+					$box_data = array('worksheet' => $worksheet_name, 'freezer' => '', 'shelf' => '', 'rack' => '', 'box' => '', 'aliquot_positions' => array());
+				}
+			}
 		}
+		if($box_data['aliquot_positions']) {
+			recordNewBox($aliquot_label_to_storage_data, $created_storages, $box_data, $atim_controls);
+		}
+	}
+	pr('stroage done');
+	pr($created_storages);
+	pr($aliquot_label_to_storage_data);
+	exit;
+	return $aliquot_label_to_storage_data;
+}
+Treatier le cas de ligne vide au dessus comme Freezer Box Name: Gyne Tumour Bank, Buffy Coat Samples  Box 2
+function recordNewBox(&$aliquot_label_to_storage_data, &$created_storages, $box_data, $atim_controls){
+	global $summary_msg;
+	
+	if(!strlen($box_data['freezer'])) {
+		pr($box_data);
+		die('ERR 327328 72876328ee2');
+	}
+	if(!strlen($box_data['box'])) die('ERR 327328 7287eeeeeqqw2');
+	if(strlen($box_data['rack']) && !strlen($box_data['shelf'])) die('ERR 327328 72876328762');
+	//Manage 
+	$parent_storage_master_id = null;
+	$parent_selection_label = '';
+	foreach(array('freezer', 'shelf', 'rack', 'box') as $storage_type) {
+		if(strlen($box_data[$storage_type])) {
+			$storage_key = "$storage_type#".$box_data[$storage_type];
+			$parent_selection_label = $box_data[$storage_type];
+			if(isset($created_storages[$storage_key])) {
+				if($storage_type == 'box') die('ERR 287 287328 7832 72');
+				$parent_storage_master_id = $created_storages[$storage_key];
+			} else {
+//TODO confirm rack16
+				$storage_controls_data = $atim_controls['storage_control_ids'][str_replace(array('rack', 'box'), array('rack16','box81'), $storage_type)];
+				$storage_master_data = array(
+					"code" => (1+sizeof($created_storages)),
+					"short_label" => $box_data[$storage_type],
+					"selection_label" => $parent_selection_label,
+					"storage_control_id" => $storage_controls_data[0],
+					"parent_id" => $parent_storage_master_id);
+				$parent_storage_master_id = customInsertRecord($storage_master_data, 'storage_masters', false);
+				customInsertRecord(array('storage_master_id' => $parent_storage_master_id), $storage_controls_data[1], true);
+				$created_storages[$storage_key] = $parent_storage_master_id;
+			}
+		}
+	}
+	if(!$parent_storage_master_id) die('ERR 7326 76 73262');
+	foreach($box_data['aliquot_positions'] as $storage_coord_x => $aliquot_data) {
+		if(!preg_match('/^([1-9])|([1-7][0-9])|(8[01])$/', $storage_coord_x)) die('ERRR 327 6237 67632 '.$storage_coord_x);
+		$aliquot_label_and_time = explode(' ', trim(str_replace('  ', ' ', $aliquot_data)));
+		if(sizeof($aliquot_label_and_time) != 2) {
+			pr($aliquot_label_and_time);
+			pr('ERR 2832 728723');
+			continue;
+			die('ERR 2832 728723 '.$aliquot_data);
+		}
+		$aliquot_label = $aliquot_label_and_time[0];
+		$storage_datetime = strtoupper($aliquot_label_and_time[1]);
+		$storage_datetime_accuracy = 'h';
+		if(preg_match('/^((0{0,1}[1-9])|([12][0-9])|(3[01]))([A-Z]{3,4})(((19)|(20)){0,1}[0-9][0-9])$/', $storage_datetime, $matches)) {
+			$month_matches = array(
+				'JAN' => '01',
+				'FEB' => '02',
+				'MAR' => '03',
+				'APR' => '04',
+				'MAY' => '05',
+				'JUN' => '06',
+				'JULY' => '07',
+				'JUL' => '07',
+				'AUG' => '08',
+				'SEPT' => '09',
+				'SEP' => '09',
+				'OCT' => '10',
+				'NOV' => '11',
+				'DEC' => '12');
+			if(!in_array($matches[5], array_keys($month_matches))) die('ERR 238732 8 732 '.$matches[5]);
+			$storage_datetime = ((strlen($matches[6]) == 2)? '20'.$matches[6] : $matches[6]).'-'.str_replace(array_keys($month_matches), array_values($month_matches), $matches[5]).'-'.((strlen($matches[1]) == 1)? '0'.$matches[1] : $matches[1]);
+		} else {
+			$summary_msg['Storage Creation']['@@WARNING@@']['Aliquot Storage Date format error'][] = "See date ($storage_datetime) for aliquot $aliquot_label in box ".$box_data['box']." of worksheet ".$box_data['worksheet'].". No date will be imported.";
+pr("See date ($storage_datetime) for aliquot $aliquot_label in box ".$box_data['box']." of worksheet ".$box_data['worksheet'].". No date will be imported.");		
+			$storage_datetime = '';
+			$storage_datetime_accuracy = '';
+		}
+		if(isset($aliquot_label_to_storage_data[$aliquot_label])) die('ERR 2387 32872 ');
+		$aliquot_label_to_storage_data[$aliquot_label] = array('storage_master_id' => $parent_storage_master_id, 'storage_coord_x' => $storage_coord_x, 'storage_datetime' => $storage_datetime, 'storage_datetime_accuracy' => $storage_datetime_accuracy);
 	}
 }
 
