@@ -15,7 +15,9 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 				$new_clinical_outcome_data = array();
 				//Residual Disease
 				$new_clinical_outcome_data['ovcare_residual_disease'] = '';
-				switch(strtolower($new_line_data['Clinical Outcome::Residual Disease'])) {
+				switch(trim(strtolower($new_line_data['Clinical Outcome::Residual Disease']))) {
+					case '':
+						break;
 					case 'suboptimal':
 						$new_clinical_outcome_data['ovcare_residual_disease'] = 'suboptimal';
 						break;
@@ -28,6 +30,7 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 					case '1-2cm':
 						$new_clinical_outcome_data['ovcare_residual_disease'] = '1-2cm';
 						break;
+					case 'millary':
 					case 'miliary':
 						$new_clinical_outcome_data['ovcare_residual_disease'] = 'miliary';
 						break;
@@ -56,7 +59,7 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 				//Status at Last Follow Up
 				$new_clinical_outcome_data['last_followup_vital_status'] = '';
 				$vital_status_at_followup = str_replace(array("\n", ' '), array('',''), strtolower($new_line_data['Clinical Outcome::Status at Last Follow Up']));
-				if($vital_status_at_followup && !in_array($vital_status_at_followup, array('dead/disease','alive/well','dead/other','alive/disease','alive/unknown','dead/unknown','lost to follow-up'))) {
+				if($vital_status_at_followup && !in_array($vital_status_at_followup, array('dead', 'dead/disease','alive','alive/well','dead/other','alive/disease','alive/unknown','dead/unknown','lost to follow-up'))) {
 					$summary_msg[$worksheetname]['@@WARNING@@']["Unknown vital status"][] = "Vital status [$vital_status_at_followup] is not supported. Value won't be imported. See Patient [Patient ID $voa_patient_id / VOA#(s) $voa_nbr]. [Worksheet Clinical Outcome / line: $excel_line_counter]";
 					$vital_status_at_followup = '';
 				} else if($vital_status_at_followup) {
@@ -67,18 +70,14 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 					} else {
 						$summary_msg[$worksheetname]['@@WARNING@@']["Un-migrated vital status"][] = "Vital status [$vital_status_at_followup] won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $voa_nbr]. [Worksheet Clinical Outcome / line: $excel_line_counter]";	
 					}
-					if(isset($new_clinical_outcome_data['last_followup_vital_status']) && strlen($new_clinical_outcome_data['last_followup_vital_status']) && empty($new_clinical_outcome_data['last_followup_date'])) {
-						$new_clinical_outcome_data['last_followup_vital_status'] = '';
-						$summary_msg[$worksheetname]['@@ERROR@@']["Vital Status with no date"][] = "Vital status [$vital_status_at_followup] is set but no date is defined. Value won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $voa_nbr]. [Worksheet Clinical Outcome / line: $excel_line_counter]";
-					}
 				}
 				// Figo
 				$new_clinical_outcome_data['figo'] = '';
 				$file_figo = strtolower($new_line_data['Clinical Outcome::FIGO Stage']);
 				if(strlen($file_figo)) {
 					if(preg_match('/unknown/', $file_figo)) $file_figo = 'unknown';
-					$file_figo = str_replace(array('1','2','3','4','i'), array('I','II','III','IV','I'), $file_figo);
-					if(in_array($file_figo, array("I","Ia","Ib","Ic","II","IIa","IIb","IIc","III","IIIa","IIIb","IIIc","IV","unknown"))) {
+					$file_figo = str_replace(array('1','2','3','4','i'), array('I','II','III','IV','I'), trim($file_figo));
+					if(in_array($file_figo, array('I','Ia','Ib','Ic','II','IIa','IIb','IIc','III','IIIa','IIIb','IIIc','IV','unknown'))) {
 						$new_clinical_outcome_data['figo'] = $file_figo;
 					} else {
 						$summary_msg[$worksheetname]['@@WARNING@@']['Unknown Figo values'][] = "Figo [".$new_line_data['Clinical Outcome::FIGO Stage']."] is not supported. See Patient ID $voa_patient_id VOA#s $voa_nbr. [Worksheet Clinical Outcome /line: $excel_line_counter]";
@@ -124,7 +123,7 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 						$start_date = $date_tmp['date'];
 						$start_date_accuracy = $date_tmp['accuracy'];
 					} else {
-						$summary_msg[$worksheetname]['@@WARNING@@']['No chemotherapy start date'][] = "No chemotherapy start date has been defined. See Patient ID $voa_patient_id VOA#s $voa_nbr. [Worksheet Clinical Outcome /line: $excel_line_counter]";
+						$summary_msg[$worksheetname]['@@WARNING@@']['No chemotherapy start date'][] = "Chemotherapy will be created with no date. See Patient ID $voa_patient_id VOA#s $voa_nbr. [Worksheet Clinical Outcome /line: $excel_line_counter]";
 					}
 					$date_tmp = getDateAndAccuracy($worksheetname, $new_line_data, $worksheetname, 'Clinical Outcome::Chemo End', $excel_line_counter);		
 					$end_date = '';
@@ -140,7 +139,10 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 						'end_date' => $end_date, 
 						'end_date_accuracy' => $end_date_accuracy, 
 						'drugs' => array());
-					foreach(explode("\n",$new_line_data['Clinical Outcome::Chemo Drugs']) as $new_drug) $new_clinical_outcome_data['chemos'][$chemo_key]['drugs'][$new_drug] = $new_drug;
+					foreach(explode("\n",$new_line_data['Clinical Outcome::Chemo Drugs']) as $new_drug) {
+						$new_drug = trim($new_drug);
+						if(strlen($new_drug)) $new_clinical_outcome_data['chemos'][$chemo_key]['drugs'][$new_drug] = $new_drug;
+					}
 				}
 				//Data record
 				$data_set = false;
@@ -156,10 +158,12 @@ function loadClinicalOutcomeData(&$wroksheetcells, $worksheetname, $voa_to_patie
 						$clinical_outcome_data[$voa_nbr] = $new_clinical_outcome_data;
 					} else {			
 						foreach(array('ovcare_residual_disease','last_followup_date','last_followup_date_accuracy','last_followup_vital_status','figo','disease_censor','vital_status') as $field) {
-							if(!empty($new_clinical_outcome_data[$field]) && empty($clinical_outcome_data[$voa_nbr][$field])) {
-								$clinical_outcome_data[$voa_nbr][$field] = $new_clinical_outcome_data[$field];
-							} else if($clinical_outcome_data[$voa_nbr][$field] != $new_clinical_outcome_data[$field]) {
-								$summary_msg[$worksheetname]['@@ERROR@@']["2 different values for field '$field'"][] = "Value [".$clinical_outcome_data[$voa_nbr][$field]."] != [".$new_clinical_outcome_data[$field]."]. See Patient ID $voa_patient_id VOA#s $voa_nbr. [Worksheet Clinical Outcome /line: $excel_line_counter]";
+							if(strlen($new_clinical_outcome_data[$field])) {
+								if(!strlen($clinical_outcome_data[$voa_nbr][$field])) {
+									$clinical_outcome_data[$voa_nbr][$field] = $new_clinical_outcome_data[$field];
+								} else if($clinical_outcome_data[$voa_nbr][$field] != $new_clinical_outcome_data[$field]) {
+									$summary_msg[$worksheetname]['@@ERROR@@']["2 different values for field '$field'"][] = "Value [".$clinical_outcome_data[$voa_nbr][$field]."] != [".$new_clinical_outcome_data[$field]."]. See Patient ID $voa_patient_id VOA#s $voa_nbr. [Worksheet Clinical Outcome /line: $excel_line_counter]";
+								}
 							}
 						}					
 						foreach($new_clinical_outcome_data['chemos'] as $chemo_key => $chemo_data) {

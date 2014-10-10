@@ -48,7 +48,7 @@ function checkVoaNbrAndPatientId(&$wroksheetcells) {
 	if(array_diff($all_dup_voas_alone, $all_voas_linked_to_another_dup_voa)) {
 		//Dup Voas not correctly linked to a Voa
 		$dup_voas_in_error = array_diff($all_dup_voas_alone, $all_voas_linked_to_another_dup_voa);
-		$summary_msg['Voa Groups Definition']['@@ERROR@@']['Duplicated V0a'][] = "The following Voa numbers defined as 'Duplicated Voa' seam to be not correctly linked to another Voa in the file : ".implode(',', $dup_voas_in_error).". Please review file and data into ATiM.";
+		$summary_msg['Voa Groups Definition']['@@ERROR@@']['Duplicated V0a'][] = "The following 'Duplicated Voa' seam to be not correctly linked to another Voa in the file : ".implode(',', $dup_voas_in_error).". Please review file and data into ATiM.";
 	}
 	// Build group
 	$next_migration_group_number = 1;
@@ -174,7 +174,8 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 							'date_of_birth' => $date_of_birth_tmp['date'],
 							'date_of_birth_accuracy' => $date_of_birth_tmp['accuracy'],
 							'ovcare_last_followup_date' => null,
-							'ovcare_last_followup_date_accuracy' => null),
+							'ovcare_last_followup_date_accuracy' => null,
+							'last_modification' => null),
 						'MiscIdentifier' => array(),
 						'Consent' => array(),
 						'Diagnosis' => array(),
@@ -227,6 +228,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 						}
 					}
 				}
+				updateLastModificationDate($patient_ids_to_clinical_data[$voa_patient_id]['Participant'], $summary_message_title, $new_line_data, $worksheetname, 'Modification Date', $excel_line_counter);
 				$voas_to_collection_data[$voa_nbr]['participant_id'] = $patient_ids_to_clinical_data[$voa_patient_id]['Participant']['id'];
 				$atim_participant_id = $patient_ids_to_clinical_data[$voa_patient_id]['Participant']['id'];
 				
@@ -250,7 +252,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 
 				$summary_message_title = $worksheetname.' : Consent';
 				
-				if($new_line_data['Date of Consent']) {
+				if($new_line_data['Date of Consent'].$new_line_data['Consent Status'].$new_line_data['Date Consent Withdrawn']) {
 					$date_consent_tmp = getDateAndAccuracy($summary_message_title, $new_line_data, $worksheetname, 'Date of Consent', $excel_line_counter);
 					updateOvcareLastFollowUpDate($patient_ids_to_clinical_data[$voa_patient_id]['Participant'], $date_consent_tmp);
 					$date_withdrawn_tmp = getDateAndAccuracy($summary_message_title, $new_line_data, $worksheetname, 'Date Consent Withdrawn', $excel_line_counter);
@@ -298,95 +300,132 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 						if($previous_consent_data['ConsentMaster']['ovcare_withdrawn_date'].$previous_consent_data['ConsentMaster']['ovcare_withdrawn_date_accuracy'] != $date_withdrawn_tmp['date'].$date_withdrawn_tmp['accuracy']) $summary_msg[$summary_message_title]['@@WARNING@@']["Same consent date & Different withdrawn dates"][] = "Consent of Patient ID [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] and defined as signed on ".$date_consent_tmp['date']." is parsed twice with 2 different withdrawn dates ".$date_withdrawn_tmp['date']." & ".$previous_consent_data['ConsentMaster']['ovcare_withdrawn_date'].". [Worksheet $worksheetname / line: $excel_line_counter]";
 					}
 					$voas_to_collection_data[$voa_nbr]['consent_master_id'] = $patient_ids_to_clinical_data[$voa_patient_id]['Consent'][$date_consent_tmp['date']]['ConsentMaster']['id'];
-				} else {
-					if($new_line_data['Consent Status']&& $new_line_data['Consent Status'] != 'Not Consented') $summary_msg[$summary_message_title][(($new_line_data['Consent Status'] == 'Incomplete')? '@@MESSAGE@@' : '@@WARNING@@')]["No consent date & status"][] = "No consent has been created (no consent date) but a status ".$new_line_data['Consent Status']." has been defined. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
-					if($new_line_data['Date Consent Withdrawn']) $summary_msg[$summary_message_title]['@@WARNING@@']["No consent date & withdrawn date"][] = "No consent has been created  (no consent date) but a withdrawn date ".$date_withdrawn_tmp['date']." has been defined. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
 				}
 				
 				// ** 3 ** LOAD DIAGNOSIS
 
 				$summary_message_title = $worksheetname.' : Diagnosis';
+				$atim_diagnosis_master_id = null;
 				
 //TODO  Confirm with YING: The all diagnosis design into ATiM
-				//check Dx data have been completed				
-				$new_dx = false;
-				foreach(array('Clinical Diagnosis', 'Clinical History', 'Ovarian Histology', 'Uterine Histology', 'Path Review Type') as $dx_field) {
-					$tmp_empty_strg_test = str_replace(array("\n", 'none given', 'none provided',  'not given', 'not provided', 'not specified', 'unknown', 'n/a'), array("", '', '',  '', '', '', '', ''), strtolower($new_line_data[$dx_field]));
-					if(strlen($tmp_empty_strg_test)) $new_dx = true;
+				//check Dx fields have been completed				
+				$new_line_data['Site of Origin'] = str_replace("\n", " ", $new_line_data['Site of Origin']);
+				$new_line_data['figo'] = isset($clinical_outcome_data[$voa_nbr])? $clinical_outcome_data[$voa_nbr]['figo'] : '';
+				$new_line_data['disease_censor'] = isset($clinical_outcome_data[$voa_nbr])? $clinical_outcome_data[$voa_nbr]['disease_censor'] : '';
+				$new_dx = false;			
+				$dx_values_strg = '';
+				$all_excel_dx_fields = array('Clinical Diagnosis', 'Clinical History', 'Ovarian Histology', 'Uterine Histology', 'Path Review Type', 'Site of Origin', 'figo', 'disease_censor');
+				foreach($all_excel_dx_fields as $dx_field) {
+					if($dx_field != 'Site of Origin') {
+						if(strlen(str_replace(array("\n", 'none given', 'none provided',  'not given', 'not provided', 'not specified', 'unknown', 'n/a', 'no or report available', ' '), array("", '', '',  '', '', '', '', '', '', ''), strtolower($new_line_data[$dx_field])))) $new_dx = true;
+					} else {
+						if(strlen($new_line_data[$dx_field])) $new_dx = true;
+					}
+					if(strlen($new_line_data[$dx_field])) {
+						$dx_values_strg .= (!empty($dx_values_strg)? ' || ': '')."<b>$dx_field</b> = <i>".str_replace("\n", ' ', $new_line_data[$dx_field])."</i>";
+					}
 				}
-				if($new_dx || strlen($new_line_data['Site of Origin'])) {
-					$dx_key = '';
-					foreach(array('Clinical Diagnosis', 'Clinical History', 'Ovarian Histology', 'Uterine Histology', 'Path Review Type', 'Site of Origin') as $dx_field) $dx_key .= $new_line_data[$dx_field];
-					$dx_key = md5($dx_key);
+				if($new_dx) {
+					$dx_key = md5($dx_values_strg);
 					if(!isset($patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key])) {
 						$diagnosis_control_id = null;
 						$detail_tablename = null;
+						$ovcare_tumor_site = null;
 						$dx_nature = '';
-						$notes = '';
-						$diagnosis_details = array();
-						$ovcare_tumor_site = str_replace("\n", " ", $new_line_data['Site of Origin']);				
-						switch($ovcare_tumor_site) {
+						$notes = array();
+						//1-Define type of Diagnosis
+						switch($new_line_data['Site of Origin']) {
+							// "Primary - Ovarian & Endometrium Diagnosis"
 							case 'Ovarian Endometrium':
 //TODO Confirm with YING: Should we create 2 diagnosis into ATiM or add a flag?							
-								$summary_msg[$summary_message_title]['@@WARNING@@']["Ovarian & Endometrium Diagnosis"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] diagnosis is defined both as Ovarian & Endometrium. Will be just defined as Ovarian. [Worksheet $worksheetname / line: $excel_line_counter]";
-								$notes = 'Both Ovarian & Endometrium.';
+								$summary_msg[$summary_message_title]['@@WARNING@@']["Ovarian & Endometrium Diagnosis"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] diagnosis is defined both as Ovarian & Endometrium. Will be just defined tumor site as Ovarian and add information in notes. [Worksheet $worksheetname / line: $excel_line_counter]";
+								$notes[] = 'Tumor site was defined both as Ovarian & Endometrium.';
 							case 'Ovarian':
 								$ovcare_tumor_site = 'female genital-ovary';
-								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'];
-								break;
-							case '':
-//TODO Confirm with YING: All empty will be flagged as ovary							
-								$ovcare_tumor_site = 'female genital-ovary';
-								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'];
-								break;
-							case 'Ovarian':
-								$ovcare_tumor_site = 'female genital-ovary';
-								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'];
-								break;
 							case 'Endometrium':
-								$ovcare_tumor_site = 'female genital-endometrium';
-								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'];
+								if(!$ovcare_tumor_site) $ovcare_tumor_site = 'female genital-endometrium';
+								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'];
 								break;
+							 // "Primary - other"
 							case 'Benign':
 								$dx_nature = 'benign';
-							case 'Unknown':
-//TODO Replaced by 'Other' in excel file case 'Other…':
 							case 'Other':
-								$ovcare_tumor_site = 'other-primary unknown';
+								$ovcare_tumor_site = 'unknown';
 								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['other'];
-								break;		
-							case 'Metastasis':
-//TODO Confirm with YING: Metastasis means metastase to ovary						
-								$ovcare_tumor_site = 'female genital-ovary';
+								break;
+							// "Primary - primary diagnosis unknown"
+							case 'Unknown':
+								$ovcare_tumor_site = 'unknown';
+								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['primary diagnosis unknown'];
+								break;
+							// "Primary - Ovarian & Endometrium Diagnosis"
+							case '':
+								if(strlen($new_line_data['figo'])) {
+									$ovcare_tumor_site = 'female genital-ovary';
+									list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'];
+									$summary_msg[$summary_message_title]['@@WARNING@@']["Empty Tumor Site + FIGO"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] diagnosis tumor site is not defined but a FIGO value has been set. Will define diagnosis as 'ovary or endometrium tumor', the tumor site as Ovarian and a the collection will be linked to this diagnosis. Should be confirmed. [Worksheet $worksheetname / line: $excel_line_counter]";
+									$notes[] = 'Tumor site has been defined as Ovarian or Endometrium by the migration process: To confirm.';
+								} else {
+									$ovcare_tumor_site = 'unknown';
+									list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['primary diagnosis unknown'];
+								}
+								break;
+							// "Secondary - all"
+							case 'Metastasis':					
+								$ovcare_tumor_site = 'unknown';
 								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['secondary']['all'];
 								break;
 							default:
-								die("ERR 23876287 62876 2876 3232 : line: $excel_line_counter /". $ovcare_tumor_site);						
+								die("ERR 23876287 62876 2876 3232 (Don't forget to replace Other... by Other in excel): line: $excel_line_counter /". $new_line_data['Site of Origin']);				
 						}
-						if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'][0]) {
-							$diagnosis_details['ovarian_histology'] = getCustomListValue($new_line_data['Ovarian Histology'], 'Ovarian Histology');
-							$diagnosis_details['uterine_histology'] = getCustomListValue($new_line_data['Uterine Histology'], 'Uterine Histology');
-						} else {
-							if(strlen(str_replace("N/A", "", $new_line_data['Ovarian Histology']).str_replace("N/A", "", $new_line_data['Uterine Histology']))) {
-								$summary_msg[$summary_message_title]['@@ERROR@@']["Histology values set for Dx different than ovary/endometriuem primary"][] = "Ovarian Histology or Uterine Histology linked to Voa $voa_nbr won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
+						//2-Check and record values
+						$diagnosis_details = array();
+						// 'Ovarian Histology' & 'Uterine Histology'
+						if(strlen(str_replace("N/A", "", $new_line_data['Ovarian Histology']).str_replace("N/A", "", $new_line_data['Uterine Histology']))) {
+							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'][0]) {
+								$diagnosis_details['ovarian_histology'] = getCustomListValue($new_line_data['Ovarian Histology'], 'Ovarian Histology');
+								$diagnosis_details['uterine_histology'] = getCustomListValue($new_line_data['Uterine Histology'], 'Uterine Histology');
+								if(preg_match('/high.grade/', strtolower($new_line_data['Ovarian Histology']))) {
+									$diagnosis_details['2_3_grading_system'] = 'high grade';
+								} else if(preg_match('/low.grade/', strtolower($new_line_data['Ovarian Histology']))) {
+									$diagnosis_details['2_3_grading_system'] = 'low grade';
+								}
+							} else {
+									$summary_msg[$summary_message_title]['@@ERROR@@']["Histology values set for Dx different than 'primary - ovary or endometrium tumor'"][] = "Ovarian Histology or Uterine Histology linked to Voa $voa_nbr won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
 							}
 						}
-						//Figo
-						if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['figo'])) {
-							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'][0]) {
+						// 'Clinical History'
+							// -> all
+						// 'Clinical Diagnosis'
+						if(strlen($new_line_data['Clinical Diagnosis'])) {
+							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['primary diagnosis unknown'][0]) {
+								$summary_msg[$summary_message_title]['@@ERROR@@']["Clinical Diagnosis set for an unknown Dx"][] = "Clinical Diagnosis linked to Voa $voa_nbr won't be migrated to diagnosis field: Value will be moved to notes. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
+								$notes[] = $new_line_data['Clinical Diagnosis'];
+								$new_line_data['Clinical Diagnosis'] = '';
+							}
+						}
+						// 'Path Review Type'	
+						if(strlen($new_line_data['Path Review Type'])) {
+							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['primary diagnosis unknown'][0]) {
+								$summary_msg[$summary_message_title]['@@ERROR@@']["Path Review Type set for an unknown Dx"][] = "Path Review Type linked to Voa $voa_nbr won't be migrated to review type field. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
+							}
+						}
+						// 'figo'
+						if(strlen($new_line_data['figo'])) {
+							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'][0]) {
 								$diagnosis_details['figo'] = $clinical_outcome_data[$voa_nbr]['figo'];
 							} else {
-								$summary_msg[$summary_message_title]['@@ERROR@@']["Figo value set for Dx different than ovary/endometriuem primary"][] = "Figo linked to Voa $voa_nbr won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";		
+								$summary_msg[$summary_message_title]['@@ERROR@@']["Figo value set for Dx different than ovary/endometriuem primary"][] = "Figo linked to Voa $voa_nbr won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
 							}
 						}
-						//Censor					
-						if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['disease_censor'])) {
-							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'][0]) {
-								$diagnosis_details['censor'] = $clinical_outcome_data[$voa_nbr]['disease_censor'];	
+						// 'disease_censor'
+						if(strlen($new_line_data['disease_censor'])) {
+							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'][0]) {
+								$diagnosis_details['censor'] = $clinical_outcome_data[$voa_nbr]['disease_censor'];
 							} else if($clinical_outcome_data[$voa_nbr]['disease_censor'] == 'y') {
 								$summary_msg[$summary_message_title]['@@ERROR@@']["Disease Censor value set for Dx different than ovary/endometriuem primary"][] = "Disease Censor linked to Voa $voa_nbr won't be migrated. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
 							}
-						}	
+						}
 						//Record Data
 						$patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key] = array(
 							'DiagnosisMaster' => array(
@@ -397,41 +436,24 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 								'ovcare_tumor_site' => $ovcare_tumor_site,
 								'ovcare_clinical_diagnosis' => str_replace("'", "''", $new_line_data['Clinical Diagnosis']),
 								'ovcare_clinical_history' => str_replace("'", "''", $new_line_data['Clinical History']),
+//TODO validate path review type in dx									
 								'ovcare_path_review_type' => getCustomListValue($new_line_data['Path Review Type'], 'Path Review Type'),
-								'notes' => $notes),
+								'notes' => implode("\n\n", $notes)),
 							'DiagnosisDetail' => array_merge($diagnosis_details, array('diagnosis_master_id' => $last_diagnosis_master_id)),
 							'detail_tablename' => $detail_tablename);
 					} else {
 						//Dx already created
 						$summary_msg[$summary_message_title]['@@MESSAGE@@']["Same diagnosis detected"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to many VOA#s with the same diagnosis. Only one diagnosis will be created. [Worksheet $worksheetname / line: $excel_line_counter]";
-						$dx_data = $patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key];
-						if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['figo'])) {
-							if(!isset($dx_data['DiagnosisDetail']['figo'])) {
-								$patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key]['DiagnosisDetail']['figo'] = $clinical_outcome_data[$voa_nbr]['figo'];
-							} else if($dx_data['DiagnosisDetail']['figo'] != $dx_data['DiagnosisDetail']['figo']) {
-								$summary_msg[$summary_message_title]['@@ERROR@@']["Same Diagnosis & Different FIGO"][] = "System defined diagnosis as same but FIGO(s) are different (".$dx_data['DiagnosisDetail']['figo']." != ".$clinical_outcome_data[$voa_nbr]['figo']."). See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
-							}
-						}
-						if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['disease_censor'])) {
-							if(!isset($dx_data['DiagnosisDetail']['censor'])) {
-								$patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key]['DiagnosisDetail']['censor'] = $clinical_outcome_data[$voa_nbr]['disease_censor'];
-								if($clinical_outcome_data[$voa_nbr]['disease_censor'] == 'y') $patient_ids_to_clinical_data[$voa_patient_id]['vital_status_summary']['Diagnosis'][$dx_key] = 'deceased';
-							} else if($dx_data['DiagnosisDetail']['censor'] != $clinical_outcome_data[$voa_nbr]['disease_censor']) {
-								$summary_msg[$summary_message_title]['@@ERROR@@']["Same Diagnosis & Different censor"][] = "System defined diagnosis as same but censor(s) are different (".$dx_data['DiagnosisDetail']['censor']." != ".$clinical_outcome_data[$voa_nbr]['disease_censor']."). See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
-							}
+						if(!in_array($new_line_data['Site of Origin'], array('Ovarian Endometrium','Ovarian','Endometrium','Benign','Other','','unknown','Metastasis'))) {
+							die("ERR 23876287 62876 2876 3232(2) (Don't forget to replace Other... by Other in excel): line: $excel_line_counter /". $new_line_data['Site of Origin']);
 						}
 					}
-					$voas_to_collection_data[$voa_nbr]['diagnosis_master_id'] = $patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key]['DiagnosisMaster']['id'];	
-				} else {
-					//No new diagnosis
-					if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['figo'])) {
-						$summary_msg[$summary_message_title]['@@WARNING@@']["No Diagnosis & FIGO"][] = "No diagnosis has been defined but a FIGO disease value ".$clinical_outcome_data[$voa_nbr]['figo']." exists. Data won't be migrated. See Patient ID $voa_patient_id & VOA#s $patient_voa_nbrs_for_msg. [Worksheet $worksheetname (plus ClinicalOutcome) /line: $excel_line_counter]";
-					}
-					if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['disease_censor'])) {
-						$summary_msg[$summary_message_title]['@@WARNING@@']["No Diagnosis & Disease Censor"][] = "No diagnosis has been defined but a Disease Censor disease value ".$clinical_outcome_data[$voa_nbr]['disease_censor']." exists. Data won't be migrated. See Patient ID $voa_patient_id & VOA#s $patient_voa_nbrs_for_msg. [Worksheet $worksheetname (plus ClinicalOutcome) /line: $excel_line_counter]";
+					//Set diagnosis master id
+					$atim_diagnosis_master_id = $patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key]['DiagnosisMaster']['id'];	
+					if($new_line_data['Site of Origin'] != '' || $patient_ids_to_clinical_data[$voa_patient_id]['Diagnosis'][$dx_key]['DiagnosisMaster']['diagnosis_control_id'] == $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'][0]) {
+						$voas_to_collection_data[$voa_nbr]['diagnosis_master_id'] = $atim_diagnosis_master_id;
 					}
 				}
-				$atim_diagnosis_master_id = $voas_to_collection_data[$voa_nbr]['diagnosis_master_id'];
 				
 				// ** 4 ** VOA 125
 				
@@ -647,28 +669,39 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 								
 				// ** 8 ** FOLLOW UP
 		
+				$summary_message_title = $worksheetname.' : Follow-Up';
+				
 				if(isset($clinical_outcome_data[$voa_nbr])) {
 //TODO: Faut il lier FOLLOW UP a un dx					
 					if(strlen($clinical_outcome_data[$voa_nbr]['last_followup_date'].$clinical_outcome_data[$voa_nbr]['last_followup_date_accuracy'].$clinical_outcome_data[$voa_nbr]['last_followup_vital_status'])) {
-						updateOvcareLastFollowUpDate($patient_ids_to_clinical_data[$voa_patient_id]['Participant'], array('date' => $clinical_outcome_data[$voa_nbr]['last_followup_date'], 'accuracy' => $clinical_outcome_data[$voa_nbr]['last_followup_date_accuracy']));
-						$ev_data = array(
-							'EventMaster' => array(
-								'id' => null,
-								'participant_id' => $atim_participant_id,
-								'diagnosis_master_id' => null,
-								'event_control_id' => $atim_controls['event_controls']['follow up']['event_control_id'],
-								'event_date' => $clinical_outcome_data[$voa_nbr]['last_followup_date'],
-								'event_date_accuracy' => $clinical_outcome_data[$voa_nbr]['last_followup_date_accuracy']),
-							'EventDetail' => array('vital_status' => $clinical_outcome_data[$voa_nbr]['last_followup_vital_status']),
-							'detail_tablename' => $atim_controls['event_controls']['follow up']['detail_tablename']);
-						$patient_ids_to_clinical_data[$voa_patient_id]['Event'][] = $ev_data;
+						if(empty($clinical_outcome_data[$voa_nbr]['last_followup_date'])) {
+							$summary_msg[$summary_message_title]['@@WARNING@@']["Vital Status with no date"][] = "Vital status [".$clinical_outcome_data[$voa_nbr]['last_followup_vital_status']."] is set but no date is defined. No Follow-up will be created but the vital status will be used for participant vital status. See Patient [Patient ID $voa_patient_id / VOA#(s) $voa_nbr]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
+						} else {
+							updateOvcareLastFollowUpDate($patient_ids_to_clinical_data[$voa_patient_id]['Participant'], array('date' => $clinical_outcome_data[$voa_nbr]['last_followup_date'], 'accuracy' => $clinical_outcome_data[$voa_nbr]['last_followup_date_accuracy']));
+							$ev_data = array(
+								'EventMaster' => array(
+									'id' => null,
+									'participant_id' => $atim_participant_id,
+									'diagnosis_master_id' => null,
+									'event_control_id' => $atim_controls['event_controls']['follow up']['event_control_id'],
+									'event_date' => $clinical_outcome_data[$voa_nbr]['last_followup_date'],
+									'event_date_accuracy' => $clinical_outcome_data[$voa_nbr]['last_followup_date_accuracy']),
+								'EventDetail' => array('vital_status' => $clinical_outcome_data[$voa_nbr]['last_followup_vital_status']),
+								'detail_tablename' => $atim_controls['event_controls']['follow up']['detail_tablename']);
+							$patient_ids_to_clinical_data[$voa_patient_id]['Event'][] = $ev_data;
+						}
 						if(strlen($clinical_outcome_data[$voa_nbr]['last_followup_vital_status'])) {
 							if(isset($patient_ids_to_clinical_data[$voa_patient_id]['vital_status_summary']['Followup'][$clinical_outcome_data[$voa_nbr]['last_followup_date']])) {
-								die('ERR238732687 326');
+								if($clinical_outcome_data[$voa_nbr]['last_followup_vital_status'] != $patient_ids_to_clinical_data[$voa_patient_id]['vital_status_summary']['Followup'][$clinical_outcome_data[$voa_nbr]['last_followup_date']]) {
+									die('ERR238732687 326');
+								}
 							} else {
 								$patient_ids_to_clinical_data[$voa_patient_id]['vital_status_summary']['Followup'][$clinical_outcome_data[$voa_nbr]['last_followup_date']] = $clinical_outcome_data[$voa_nbr]['last_followup_vital_status'];
 							}
 						}
+						
+						
+						
 					}
 				}
 				
@@ -784,22 +817,18 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 		
 		foreach($clinical_annotation_data['Diagnosis'] as $diagnosis_key => $diagnosis_data) {
 			if(in_array($diagnosis_data['DiagnosisMaster']['diagnosis_control_id'], $secondary_diagnosis_control_ids)) {
-				//*** Create a Primary ***
-				list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['other'];
+				//*** Create a Primary Unknown ***
+				list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['primary diagnosis unknown'];
 				// Master
 				$primary_diagnosis_master_data = array(
 						'id' => (++$last_diagnosis_master_id),
 						'primary_id' => $last_diagnosis_master_id,
 						'participant_id' => $atim_participant_id,
 						'diagnosis_control_id' => $diagnosis_control_id,
-						'ovcare_tumor_site' => 'other-primary unknown',
-						'ovcare_clinical_diagnosis' => $diagnosis_data['DiagnosisMaster']['ovcare_clinical_diagnosis'],
-						'ovcare_clinical_history' => $diagnosis_data['DiagnosisMaster']['ovcare_clinical_history'],
-						'ovcare_path_review_type' => $diagnosis_data['DiagnosisMaster']['ovcare_path_review_type']
+						'ovcare_tumor_site' => 'unknown',
+						'ovcare_clinical_history' => $diagnosis_data['DiagnosisMaster']['ovcare_clinical_history']
 				);
-				unset($diagnosis_data['DiagnosisMaster']['ovcare_clinical_diagnosis']);
 				unset($diagnosis_data['DiagnosisMaster']['ovcare_clinical_history']);
-				unset($diagnosis_data['DiagnosisMaster']['ovcare_path_review_type']);
 				$primary_diagnosis_master_id = customInsertRecord($primary_diagnosis_master_data, 'diagnosis_masters', false);
 				// Detail
 				customInsertRecord(array('diagnosis_master_id' => $primary_diagnosis_master_id), $detail_tablename, true);
@@ -855,7 +884,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 		FROM participants Participant
 		INNER JOIN diagnosis_masters DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id 
 		INNER JOIN treatment_masters TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id
-		WHERE DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium'][0].
+		WHERE DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'][0].
 		" AND TreatmentMaster.treatment_control_id = ".$atim_controls['treatment_controls']['procedure - surgery']['treatment_control_id'].
 		" ORDER BY Participant.id ASC, TreatmentMaster.start_date ASC;";
 	$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." [$query] ".__LINE__);
@@ -943,6 +972,39 @@ function updateOvcareLastFollowUpDate(&$participant_data, $new_date_res) {
 			}
 		}
 	}
+}
+
+function updateLastModificationDate(&$participant_data, $summary_message_title, $new_line_data, $worksheetname, $field, $excel_line_counter) {
+	if(preg_match('/^([0-9]+)\.([0-9]+)$/', $new_line_data[$field], $matches)) {	
+		$formatted_date = getDateAndAccuracy($summary_message_title, array($field => $matches[1]), $worksheetname, $field, $excel_line_counter);
+		if($formatted_date) {
+			$formatted_date = $formatted_date['date'];			
+			$time = '0.'.$matches[2];	
+			$hour = floor(24*$time);
+			$mn = round((24*$time - $hour)*60);
+			if($mn == '60') {
+				$mn = '00';
+				$hour += 1;
+			}
+			if($hour > 23) die('ERR time >= 24 79904044--4-44');
+			$time=$hour.':'.$mn;
+			$date_time = $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time);
+			if(is_null($participant_data['last_modification'])) {
+				$participant_data['last_modification'] = $date_time;
+			} else {
+				$new = str_replace(array('-',' ', ':'), array('','',''), $date_time);
+				$previous = str_replace(array('-',' ', ':'), array('','',''), $participant_data['last_modification']);
+				if($new > $previous) {
+					$participant_data['last_modification'] = $date_time;
+				}
+			}
+		} else {
+			return null; 
+		}
+	} else if(strlen($new_line_data[$field])) {
+		die('ERR 287 62872 63');
+	}
+	return null;
 }
 
 function getChemoDrugId($drug_name) {

@@ -1,16 +1,19 @@
 <?php
+//TODO On Excel File: Remove Other... tumor site and replace by other
+//TODO On Excel File: Format Date (not datetime)
+//TODO Replace Figo IV by 4
 
 require_once 'subject_demographics.php';
 require_once 'clinical_outcome.php';
 require_once 'collections.php';
-//require_once 'samples_and_aliquots.php';
+require_once 'samples_and_aliquots.php';
 
 set_time_limit('3600');
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-$file_name = "dev_short.xls";
-//$file_name = "dev_copy.xls";
+//$file_name = "dev_short.xls";
+$file_name = "dev_copy.xls";
 $file_path = "C:/_Perso/Server/ovcare/data/".$file_name;
 require_once 'Excel/reader.php';
 
@@ -70,10 +73,6 @@ $participants_notes_from_ids = array();
 global $drug_ids;
 $drug_ids = array();
 
-//TODO peut être géré par des stricg replace
-//global $histologies_to_create;
-//$histologies_to_create = array('ovary' => array(), 'uterine' => array());
-
 //===========================================================================================================================================================
 //===========================================================================================================================================================
 
@@ -83,27 +82,36 @@ DATA EXPORT PROCESS : OVCARE<br>
 source_file = $file_name<br>
 <br>=====================================================================</FONT><br><br>";
 
-truncateATiMPatientsData();
-
 // **** START ********************************************************
 
-//Get system data
-
+truncateATiMInventory();
+//TODO truncateATiMPatientsClinicalData();
 $atim_controls = loadATiMControlData();
 
 // **** EXCEL DATA EXTRACTION ****************************************
 
 //Load clinical data
 
-$voa_to_patient_id = checkVoaNbrAndPatientId($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells']);
-$clinical_outcome_data = loadClinicalOutcomeData($tmp_xls_reader->sheets[$sheets_keys['Clinical Outcome']]['cells'], 'Clinical Outcome', $voa_to_patient_id);
-$voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells'], 'Subject Demographics', $voa_to_patient_id, $clinical_outcome_data, $atim_controls);
+//TODO $voa_to_patient_id = checkVoaNbrAndPatientId($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells']);
+//TODO $clinical_outcome_data = loadClinicalOutcomeData($tmp_xls_reader->sheets[$sheets_keys['Clinical Outcome']]['cells'], 'Clinical Outcome', $voa_to_patient_id);
+//TODO $voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells'], 'Subject Demographics', $voa_to_patient_id, $clinical_outcome_data, $atim_controls);
 
 //Load Inventory
 
-$voas_to_collection_ids = recordCollection($voas_to_collection_data);
+//TODO $voas_to_collection_ids = recordCollection($voas_to_collection_data);
+
+//TODO remove following section
+$voas_to_collection_ids = array();
+$query = "select id, collection_voa_nbr FROM collections WHERE deleted <> 1;";
+$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+while($row = $results->fetch_assoc()){
+	$voas_to_collection_ids[$row['collection_voa_nbr']] = $row['id'];
+}
+$clinical_outcome_data = loadSamplesAndAliquots($tmp_xls_reader->sheets, $sheets_keys, $voas_to_collection_ids, $atim_controls);
+
 
 //TODO load sample
+//TODO load box
 
 // **** END **********************************************************
 
@@ -170,18 +178,17 @@ $queries = array(
 			mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
 		}
 	}
-	
-	// PROFILE CLEAN UP
-	
-	$query = "UPDATE participants SET last_modification = created WHERE last_modification LIKE '0000-00-00%'";
-	mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-	if(Config::$insert_revs){
-		$query = "UPDATE participants_revs rev, participants part SET rev.last_modification = part.last_modification WHERE rev.last_modification LIKE '0000-00-00%' AND rev.id = part.id";
-		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-	}	
+
 
 
 */
+
+
+//TODO suprimer surgery si pas de toissue dans collection?
+
+$query = "UPDATE participants SET last_modification = null WHERE last_modification LIKE '0000-00-00%'";
+mysqli_query($db_connection, $query) or die("Error [$query] ");
+mysqli_query($db_connection, str_replace('participants', 'participants_revs', $query)) or die("Error [$query] ");
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -193,7 +200,25 @@ dislayErrorAndMessage();
 // START functions
 //===========================================================================================================================================================
 
-function truncateATiMPatientsData() {
+
+function truncateATiMInventory() {
+	global $db_connection;
+	$queries = array(
+		'TRUNCATE std_freezers;',
+		'TRUNCATE std_shelfs;',
+		'TRUNCATE std_racks;',
+		'TRUNCATE std_boxs;',
+		'DELETE FROM storage_masters;',
+
+		'TRUNCATE std_freezers_revs;',
+		'TRUNCATE std_shelfs_revs;',
+		'TRUNCATE std_racks_revs;',
+		'TRUNCATE std_boxs_revs;',
+		'DELETE FROM storage_masters_revs;');
+	foreach($queries as $query)	mysqli_query($db_connection, $query) or die("[$query]".__FUNCTION__." ".__LINE__);
+}
+
+function truncateATiMPatientsClinicalData() {
 	global $db_connection;
 	$queries = array(
 		'DELETE FROM collections;',
@@ -345,6 +370,12 @@ function loadATiMControlData(){
 		'aliquot_review_control_id' => $row['aliquot_review_control_id'],
 		'aliquot_review_detail_tablename' => $row['aliquot_review_detail_tablename']
 	);
+	//storage
+	$query = "SELECT id, storage_type, detail_tablename FROM storage_controls WHERE flag_active = 1;";
+	$results = mysqli_query($db_connection, $query) or die("Dx Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	while($row = $results->fetch_assoc()) {
+		$controls['storage_control_ids'][$row['storage_type']] = array($row['id'], $row['detail_tablename']);
+	}
 	return $controls;
 }
 
@@ -427,57 +458,6 @@ function getDateAndAccuracy($data_type, $data, $worksheet, $field, $line) {
 		$summary_msg[$data_type]['@@ERROR@@']['Date Format Error'][] = "Format of date '$date' is not supported! [worksheet $worksheet - field '$field' - line: $line]";
 		return null;
 	}	
-}
-
-function getDateTimeAndAccuracy($data_type, $data, $worksheet, $date_field, $time_field, $line) {
-	global $summary_msg;
-	if(!array_key_exists($date_field, $data)) {
-		pr("getDateAndAccuracy: Missing field [$date_field]");
-		pr($data);
-		die('ERR36100834');
-	}
-	if(!array_key_exists($time_field, $data)) {
-		pr("getDateAndAccuracy: Missing field [$time_field]");
-		pr($data);
-		die('ERR36100835');
-	}
-	$date = $data[$date_field];
-	$time = str_replace('N/A','',$data[$time_field]);
-	$formatted_date = "''";
-	$formatted_date_accuracy = "''";
-	$tmp_date = getDateAndAccuracy($date, $data_type, $date_field, $line);
-	if($tmp_date) {
-		$formatted_date = $tmp_date['date'];
-		$formatted_date_accuracy = $tmp_date['accuracy'];
-	} else {
-		if(!empty($time)) Config::$summary_msg[$data_type]['@@ERROR@@']['DateTime: Only time is set'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [worksheet $worksheet - fields '$date_field' & '$time_field' - line: $line]";
-		return null;
-	}
-	
-	if(empty($time)) {
-		return array('datetime' => $formatted_date.' 00:00', 'accuracy' => str_replace('c', 'h', $formatted_date_accuracy));
-	} else {
-		if($formatted_date_accuracy != 'c') {
-			Config::$summary_msg[$data_type]['@@ERROR@@']['Time set for an unaccuracy date'][] = "Format of datetime '$date $time' is not supported. No datetime will be set! [worksheet $worksheet - fields '$date_field' & '$time_field' - line: $line]";
-			return null;
-		} else if(preg_match('/^(0{0,1}[0-9]|1[0-9]|2[0-3]):([0-5][0-9])$/',$time, $matches)) {
-			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
-		} else if(preg_match('/^0\.[0-9]+$/', $time)) {			
-			$hour = floor(24*$time);
-			$mn = round((24*$time - $hour)*60);
-			if($mn == '60') {
-				$mn = '00';
-				$hour += 1;
-			}
-			if($hour > 23) die('ERR time >= 24 79904044--4-44');	
-			$time=$hour.':'.$mn;		
-			return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
-		} else {		
-			//Config::$summary_msg[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [fields '$date_field' & '$time_field' - line: $line]";
-			die("ERR time format should be h:mm see value $time for field $time_field' line '$line' [worksheet $worksheet] - Be sure cell format = personalisé hh:mm");
-			//return null;
-		}
-	}
 }
 
 function customArrayCombineAndUtf8Encode($headers, $data) {
