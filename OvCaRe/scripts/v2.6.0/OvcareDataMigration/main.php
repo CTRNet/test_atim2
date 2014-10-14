@@ -3,6 +3,10 @@
 //TODO On Excel File: Format Date (not datetime)
 //TODO Replace Figo IV by 4
 
+
+
+//TODO le sample VOA1749e est pas en banque et lié a path review. Que faire?
+
 require_once 'subject_demographics.php';
 require_once 'clinical_outcome.php';
 require_once 'collections.php';
@@ -67,9 +71,6 @@ $summary_msg = array();
 global $voas_to_ids;
 $voas_to_ids = array();
 
-global $participants_notes_from_ids;
-$participants_notes_from_ids = array();
-
 global $drug_ids;
 $drug_ids = array();
 
@@ -85,106 +86,81 @@ source_file = $file_name<br>
 // **** START ********************************************************
 
 truncateATiMInventory();
-//TODO truncateATiMPatientsClinicalData();
+truncateATiMPatientsClinicalData();
 $atim_controls = loadATiMControlData();
 
 // **** EXCEL DATA EXTRACTION ****************************************
 
 //Load clinical data
 
-//TODO $voa_to_patient_id = checkVoaNbrAndPatientId($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells']);
-//TODO $clinical_outcome_data = loadClinicalOutcomeData($tmp_xls_reader->sheets[$sheets_keys['Clinical Outcome']]['cells'], 'Clinical Outcome', $voa_to_patient_id);
-//TODO $voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells'], 'Subject Demographics', $voa_to_patient_id, $clinical_outcome_data, $atim_controls);
+$voa_to_patient_id = checkVoaNbrAndPatientId($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells']);
+$clinical_outcome_data = loadClinicalOutcomeData($tmp_xls_reader->sheets[$sheets_keys['Clinical Outcome']]['cells'], 'Clinical Outcome', $voa_to_patient_id);
+$voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells'], 'Subject Demographics', $voa_to_patient_id, $clinical_outcome_data, $atim_controls);
 
 //Load Inventory
 
-//TODO $voas_to_collection_ids = recordCollection($voas_to_collection_data);
-
-//TODO remove following section
-$voas_to_collection_ids = array();
-$query = "select id, collection_voa_nbr FROM collections WHERE deleted <> 1;";
-$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." ".__LINE__);
-while($row = $results->fetch_assoc()){
-	$voas_to_collection_ids[$row['collection_voa_nbr']] = $row['id'];
-}
+$voas_to_collection_ids = recordCollection($voas_to_collection_data);
 $clinical_outcome_data = loadSamplesAndAliquots($tmp_xls_reader->sheets, $sheets_keys, $voas_to_collection_ids, $atim_controls);
-
-
-//TODO load sample
-//TODO load box
 
 // **** END **********************************************************
 
 // Migration Done
 
-
-
-
-
-/*
-
-
-
 // COLLECTIONS COMPLETION
 
-//empty collection deletion
 $queries = array();
-$queries[] = "UPDATE collections SET treatment_master_id = NULL WHERE id NOT IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".Config::$sample_aliquot_controls['tissue']['sample_control_id'].")";
-$queries[] = "DELETE FROM txd_surgeries WHERE path_num IS NULL AND ovcare_residual_disease IS NULL AND ovcare_neoadjuvant_chemotherapy LIKE '' AND ovcare_adjuvant_radiation LIKE '' AND treatment_master_id NOT IN (SELECT treatment_master_id FROM collections WHERE treatment_master_id IS NOT NULL)";
-$queries[] = "DELETE FROM treatment_masters WHERE treatment_control_id = ".Config::$treatment_controls['procedure - surgery']['treatment_control_id']."  AND id NOT IN (SELECT treatment_master_id FROM txd_surgeries)";
+$queries[] = "UPDATE collections SET treatment_master_id = NULL WHERE id NOT IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".$atim_controls['sample_aliquot_controls']['tissue']['sample_control_id'].")";
+$queries[] = "UPDATE collections_revs SET treatment_master_id = NULL WHERE id NOT IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".$atim_controls['sample_aliquot_controls']['tissue']['sample_control_id'].")";
+//$queries[] = "DELETE FROM txd_surgeries WHERE path_num IS NULL AND ovcare_residual_disease IS NULL AND ovcare_neoadjuvant_chemotherapy LIKE '' AND ovcare_adjuvant_radiation LIKE '' AND treatment_master_id NOT IN (SELECT treatment_master_id FROM collections WHERE treatment_master_id IS NOT NULL)";
+//$queries[] = "DELETE FROM treatment_masters WHERE treatment_control_id = ".Config::$treatment_controls['procedure - surgery']['treatment_control_id']."  AND id NOT IN (SELECT treatment_master_id FROM txd_surgeries)";
 $queries[] = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
+$queries[] = "UPDATE sample_masters_revs SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
 $queries[] = "UPDATE sample_masters SET sample_code = id";
-foreach($queries as $query) {
-	mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-	$query = str_replace(
-			array("UPDATE collections", "DELETE FROM txd_surgeries", "DELETE FROM treatment_masters"),
-			array("UPDATE collections_revs", "DELETE FROM txd_surgeries_revs", "DELETE FROM treatment_masters_revs"),
-			$query);
-	if(Config::$insert_revs) mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
+$queries[] = "UPDATE sample_masters_revs SET sample_code = id";
+foreach($queries as $query)  mysqli_query($db_connection, $query) or die("Error [$query] ");
+//empty collections
+$query = "SELECT participant_id, collection_notes, collection_voa_nbr FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);";
+$results = mysqli_query($db_connection, $query) or die("Dx Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+while($row = $results->fetch_assoc()) {
+	$participant_id = $row['participant_id'];
+	$collection_notes = $row['collection_notes'];
+	$collection_voa_nbr = $row['collection_voa_nbr'];
+	if($collection_notes) $participants_notes_from_ids[$participant_id][] = "Empty collection note for VOA# $collection_voa_nbr : $collection_notes";
+	$voa_identifiers = array(
+		'misc_identifier_control_id' => $atim_controls['misc_identifier_controls']['unassigned VOA#']['id'],
+		'participant_id' => $participant_id,
+		'flag_unique' => $atim_controls['misc_identifier_controls']['unassigned VOA#']['flag_unique'],
+		'identifier_value' => $collection_voa_nbr);
+	customInsertRecord($voa_identifiers, 'misc_identifiers');		
 }
-foreach(Config::$participants_notes_from_ids as $participant_id => $notes) {
-	$query = "UPDATE participants set notes = '".str_replace("'", "''", implode(' || ', $notes))."' WHERE id = $participant_id;";
-	mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-	if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('participants', 'participants_revs', $query)) or die("Error [$query] ");
+foreach($participants_notes_from_ids as $participant_id => $notes) {
+	$query = "UPDATE participants set notes = '".str_replace("'", "''", implode(' & ', $notes))."' WHERE id = $participant_id;";
+	mysqli_query($db_connection, $query) or die("Error [$query] ");
+	mysqli_query($db_connection, str_replace('participants', 'participants_revs', $query)) or die("Error [$query] ");
 }
-$queries = array(
-		"INSERT INTO misc_identifiers (misc_identifier_control_id, participant_id, flag_unique, identifier_value) (SELECT ".Config::$misc_identifier_controls['unassigned VOA#']['id'].", participant_id, ".Config::$misc_identifier_controls['unassigned VOA#']['flag_unique'].", collection_voa_nbr FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters));",
-		"INSERT INTO misc_identifiers_revs (id, misc_identifier_control_id, participant_id, flag_unique, identifier_value) (SELECT id, misc_identifier_control_id, participant_id, flag_unique, identifier_value FROM misc_identifiers WHERE misc_identifier_control_id = ".Config::$misc_identifier_controls['unassigned VOA#']['id'].");",
-		"DELETE FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);",
-		
+$query = "DELETE FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);";
+mysqli_query($db_connection, $query) or die("Error [$query] ");
+mysqli_query($db_connection, str_replace('collections', 'collections_revs', $query)) or die("Error [$query] ");
 	
-		
-"DELETE FROM collections_revs WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);");
-	foreach($queries as $query) mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-	
-	// Empty date clean up 
-	
-	$date_times_to_check = array(
-		'consent_masters.consent_signed_date',
-		'event_masters.event_date',
-		'treatment_masters.start_date',
-		'treatment_masters.finish_date',
-		'collections.collection_datetime',
-		'specimen_details.reception_datetime',
-		'derivative_details.creation_datetime',
-		'aliquot_masters.storage_datetime'			
-	);
-	foreach($date_times_to_check as $table_field) {
-		$names = explode(".", $table_field);
-		$query = "UPDATE ".$names[0]." SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-		mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-		if(Config::$insert_revs){
-			$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-			mysqli_query(Config::$db_connection, $query) or die("Error [$query] ");
-		}
-	}
+// Empty date clean up 
 
-
-
-*/
-
-
-//TODO suprimer surgery si pas de toissue dans collection?
+$date_times_to_check = array(
+	'consent_masters.consent_signed_date',
+	'event_masters.event_date',
+	'treatment_masters.start_date',
+	'treatment_masters.finish_date',
+	'collections.collection_datetime',
+	'specimen_details.reception_datetime',
+	'derivative_details.creation_datetime',
+	'aliquot_masters.storage_datetime'			
+);
+foreach($date_times_to_check as $table_field) {
+	$names = explode(".", $table_field);
+	$query = "UPDATE ".$names[0]." SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+	mysqli_query($db_connection, $query) or die("Error [$query] ");
+	$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
+	mysqli_query($db_connection, $query) or die("Error [$query] ");
+}
 
 $query = "UPDATE participants SET last_modification = null WHERE last_modification LIKE '0000-00-00%'";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -196,24 +172,88 @@ mysqli_query($db_connection, $query) or die("Error [$query] ");
 mysqli_commit($db_connection);
 dislayErrorAndMessage();
 
+
+echo "<br><FONT COLOR=\"green\" >
+=====================================================================<br>
+Migration Done<br>
+<br>=====================================================================</FONT><br><br>";
+
 //===========================================================================================================================================================
 // START functions
 //===========================================================================================================================================================
 
-
 function truncateATiMInventory() {
 	global $db_connection;
 	$queries = array(
+		'TRUNCATE ovcare_ar_tissue_blocks;',
+		'DELETE FROM aliquot_review_masters;',
+		'TRUNCATE ovcare_spr_tissue_reviews;',
+		'DELETE FROM specimen_review_masters;',
+			
+		'TRUNCATE ovcare_ar_tissue_blocks_revs;',
+		'DELETE FROM aliquot_review_masters_revs;',
+		'TRUNCATE ovcare_spr_tissue_reviews_revs;',
+		'DELETE FROM specimen_review_masters_revs;',			
+			
+		'TRUNCATE aliquot_internal_uses;',
+		'TRUNCATE aliquot_internal_uses_revs;',
+			
+		'TRUNCATE ad_tubes;',
+		'TRUNCATE ad_blocks;',
+		'TRUNCATE ad_tissue_slides;',
+		'TRUNCATE ad_cell_slides;',
+		'DELETE FROM aliquot_masters;',
+		
+		'TRUNCATE sd_spe_ascites;',
+		'TRUNCATE sd_der_ascite_cells;',
+		'TRUNCATE sd_der_ascite_sups;',
+		'TRUNCATE sd_der_blood_cells;',
+		'TRUNCATE sd_spe_bloods;',
+		'TRUNCATE sd_der_serums;',
+		'TRUNCATE sd_der_plasmas;',
+		'TRUNCATE sd_der_rnas;',
+		'TRUNCATE sd_der_dnas;',
+		'TRUNCATE sd_der_amp_rnas;',
+		'TRUNCATE sd_der_cdnas;',
+		'TRUNCATE sd_der_cell_cultures;',
+		'TRUNCATE sd_spe_salivas;',
+		'TRUNCATE sd_spe_tissues;',
+		'TRUNCATE specimen_details;',
+		'TRUNCATE derivative_details;',
+		'UPDATE sample_masters SET parent_id = NULL, initial_specimen_sample_id = null;',
+		'DELETE FROM sample_masters;',
+		
+		'TRUNCATE sd_spe_ascites_revs;',
+		'TRUNCATE sd_der_ascite_cells_revs;',
+		'TRUNCATE sd_der_ascite_sups_revs;',
+		'TRUNCATE sd_der_blood_cells_revs;',
+		'TRUNCATE sd_spe_bloods_revs;',
+		'TRUNCATE sd_der_serums_revs;',
+		'TRUNCATE sd_der_plasmas_revs;',
+		'TRUNCATE sd_der_rnas_revs;',
+		'TRUNCATE sd_der_dnas_revs;',
+		'TRUNCATE sd_der_amp_rnas_revs;',
+		'TRUNCATE sd_der_cdnas_revs;',
+		'TRUNCATE sd_der_cell_cultures_revs;',
+		'TRUNCATE sd_spe_salivas_revs;',
+		'TRUNCATE sd_spe_tissues_revs;',
+		'TRUNCATE specimen_details_revs;',
+		'TRUNCATE derivative_details_revs;',
+		'UPDATE sample_masters_revs SET parent_id = NULL, initial_specimen_sample_id = null;',
+		'DELETE FROM sample_masters_revs;',		
+		
 		'TRUNCATE std_freezers;',
 		'TRUNCATE std_shelfs;',
 		'TRUNCATE std_racks;',
 		'TRUNCATE std_boxs;',
+		'UPDATE storage_masters SET parent_id = NULL;',
 		'DELETE FROM storage_masters;',
-
+		
 		'TRUNCATE std_freezers_revs;',
 		'TRUNCATE std_shelfs_revs;',
 		'TRUNCATE std_racks_revs;',
 		'TRUNCATE std_boxs_revs;',
+		'UPDATE storage_masters SET parent_id = NULL;',
 		'DELETE FROM storage_masters_revs;');
 	foreach($queries as $query)	mysqli_query($db_connection, $query) or die("[$query]".__FUNCTION__." ".__LINE__);
 }
@@ -382,8 +422,6 @@ function loadATiMControlData(){
 //===========================================================================================================================================================
 // End functions
 //===========================================================================================================================================================
-
-//TODO Participant.last_modification
 
 //===========================================================================================================================================================
 // Other functions
