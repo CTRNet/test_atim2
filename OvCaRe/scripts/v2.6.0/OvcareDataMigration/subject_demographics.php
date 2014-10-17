@@ -499,8 +499,7 @@ function loadAndRecordClinicalData(&$xls_sheets, $sheets_keys, $voa_to_patient_i
 				}
 				
 				// ** 4 ** VOA 125
-				
-//TODO: Faut il lier CA125 a un dx				
+							
 				if(preg_match('/CA125\ {0,1}=\ {0,1}([0-9]{1,7})/', $new_line_data['Clinical History'], $matches)) {
 					$ev_data = array(
 						'EventMaster' => array(
@@ -732,7 +731,6 @@ function loadAndRecordClinicalData(&$xls_sheets, $sheets_keys, $voa_to_patient_i
 				$summary_message_title = $worksheetname.' : Follow-Up';
 				
 				if(isset($clinical_outcome_data[$voa_nbr])) {
-//TODO: Faut il lier FOLLOW UP a un dx					
 					if(strlen($clinical_outcome_data[$voa_nbr]['last_followup_date'].$clinical_outcome_data[$voa_nbr]['last_followup_date_accuracy'].$clinical_outcome_data[$voa_nbr]['last_followup_vital_status'])) {
 						if(empty($clinical_outcome_data[$voa_nbr]['last_followup_date'])) {
 							$summary_msg[$summary_message_title]['@@WARNING@@']["Vital Status with no date"][] = "Vital status [".$clinical_outcome_data[$voa_nbr]['last_followup_vital_status']."] is set but no date is defined. No Follow-up will be created but the vital status will be used for participant vital status. See Patient [Patient ID $voa_patient_id / VOA#(s) $voa_nbr]. [Worksheet $worksheetname (plus ClinicalOutcome) / line: $excel_line_counter]";
@@ -1023,7 +1021,6 @@ function loadATiMStudies() {
 
 function loadSurgeriesProcedures(&$wroksheetcells, $worksheetname) {
 	global $summary_msg;
-//TODO confirm with ying	
 	$values_to_skip = array(
 		'Steeves',
 		'Dombroski',
