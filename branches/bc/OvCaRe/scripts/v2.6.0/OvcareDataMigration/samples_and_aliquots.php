@@ -556,7 +556,6 @@ function recordAliquots($aliquots, $collection_id, $sample_master_id, &$aliquot_
 }
 
 function getTissueMatches() {
-//TODO review per ying	
 	$tissue_matches = array(
 		'Abdominal mass' => array('source' => 'abdominal mass', 'laterality' => ''),
 		'Abdominal Wall' => array('source' => 'abdominal wall', 'laterality' => ''),
@@ -760,7 +759,6 @@ function getTissueMatches() {
 		'Uterus/Endometrium' => array('source' => 'mix', 'laterality' => ''),
 		'Vaginal' => array('source' => 'vagina', 'laterality' => ''),
 		'Vulva' => array('source' => 'vulva', 'laterality' => ''),
-			
 		'Abdominal tumour' => array('source' => 'abdominal wall', 'laterality' => ''),
 		'Abdominal tumour' => array('source' => 'abdominal wall', 'laterality' => ''),
 		'Bladder Adhesion/Tumour' => array('source' => 'bladder', 'laterality' => ''),

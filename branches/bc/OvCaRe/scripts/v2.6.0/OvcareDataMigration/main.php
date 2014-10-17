@@ -10,7 +10,6 @@ set_time_limit('3600');
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
 $file_name = "FormatedFull_Data_Transfer_16Oct14_1433.xls";
-$file_path = "C:/_Perso/Server/ovcare/data".'/'.$file_name;
 $file_path = "C:\_Perso\Server\ovcare\data\MigrationDataOct15".'\\'.$file_name;
 require_once 'Excel/reader.php';
 
@@ -93,12 +92,6 @@ $voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets, $s
 //Load Inventory
 
 $voas_to_collection_ids = recordCollection($voas_to_collection_data);
-//TODO remove
-//TODO remove$query = "SELECT id, collection_voa_nbr FROM collections;";
-//TODO remove$voas_to_collection_ids = array();
-//TODO remove$results = mysqli_query($db_connection, $query) or die("Dx Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-//TODO removewhile($row = $results->fetch_assoc()) $voas_to_collection_ids[$row['collection_voa_nbr']] = $row['id'];
-
 loadSamplesAndAliquots($tmp_xls_reader->sheets, $sheets_keys, $voas_to_collection_ids, $atim_controls);
 
 // **** END **********************************************************
@@ -142,6 +135,15 @@ $query = "DELETE FROM collections WHERE id NOT IN (SELECT distinct collection_id
 mysqli_query($db_connection, $query) or die("Error [$query] ");
 mysqli_query($db_connection, str_replace('collections', 'collections_revs', $query)) or die("Error [$query] ");
 	
+//Follow-up clean up
+
+$queries = array();
+$queries[] = "UPDATE ed_all_clinical_followups SET vital_status = 'alive/unknown' WHERE vital_status = 'alive';";
+$queries[] = "UPDATE ed_all_clinical_followups SET vital_status = 'dead/unknown' WHERE vital_status = 'deceased';";
+$queries[] = "UPDATE ed_all_clinical_followups_revs SET vital_status = 'alive/unknown' WHERE vital_status = 'alive';";
+$queries[] = "UPDATE ed_all_clinical_followups_revs SET vital_status = 'dead/unknown' WHERE vital_status = 'deceased';";
+foreach($queries as $query)  mysqli_query($db_connection, $query) or die("Error [$query] ");
+
 // Empty date clean up 
 
 $date_times_to_check = array(
@@ -437,7 +439,7 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 	global $modified_by;
 	global $modified;
 	
-	$tmp_set_id_for_check = array_key_exists('id', $data_arr)? $data_arr['id'] : null;	//TODO Not really usefull
+	$tmp_set_id_for_check = array_key_exists('id', $data_arr)? $data_arr['id'] : null;
 	
 	$created = $is_detail_table? array() : array(
 		"created"		=> "'$modified'", 

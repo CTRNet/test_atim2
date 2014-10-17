@@ -295,6 +295,7 @@ UPDATE treatment_controls SET tx_method = 'procedure - surgery and biopsy' WHERE
 UPDATE treatment_controls SET flag_active = 0 WHERE tx_method = 'procedure - biopsy';
 UPDATE treatment_extend_controls SET flag_active = 0 WHERE databrowser_label like '%biopsy%';
 UPDATE treatment_controls SET databrowser_label = tx_method;
+INSERT INTO i18n (id,en) VALUES ('procedure - surgery and biopsy','Procedure - Surgery and Biopsy');
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("female genital-ovary and endometrium", "female genital-ovary and endometrium");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_tumor_site"), (SELECT id FROM structure_permissible_values WHERE value="female genital-ovary and endometrium" AND language_alias="female genital-ovary and endometrium"), "", "1");
@@ -318,6 +319,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ALTER TABLE sd_spe_ascites ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
 ALTER TABLE sd_spe_ascites_revs ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
   
-UPDATE versions SET branch_build_number = '59xx' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '5922' WHERE version_number = '2.6.3';
 
 
