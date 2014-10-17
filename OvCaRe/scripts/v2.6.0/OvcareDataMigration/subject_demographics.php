@@ -1,13 +1,13 @@
 <?php
 
-function checkVoaNbrAndPatientId(&$wroksheetcells) {
+function checkVoaNbrAndPatientId(&$patientidcorrectionswroksheetcells, &$subjectdemowroksheetcells) {
 	global $summary_msg;
 	$max_file_patient_id = 0;
 	$voas_matches = array();
 	$voa_to_patient_id = array();
 	$all_voas_linked_to_another_dup_voa = array();
 	$all_dup_voas_alone = array();
-	foreach($wroksheetcells as $excel_line_counter => $new_line) {
+	foreach($subjectdemowroksheetcells as $excel_line_counter => $new_line) {
 		if($excel_line_counter == 1) {
 			$headers = $new_line;
 		} else {
@@ -48,7 +48,7 @@ function checkVoaNbrAndPatientId(&$wroksheetcells) {
 	if(array_diff($all_dup_voas_alone, $all_voas_linked_to_another_dup_voa)) {
 		//Dup Voas not correctly linked to a Voa
 		$dup_voas_in_error = array_diff($all_dup_voas_alone, $all_voas_linked_to_another_dup_voa);
-		$summary_msg['Voa Groups Definition']['@@ERROR@@']['Duplicated V0a'][] = "The following 'Duplicated Voa' seam to be not correctly linked to another Voa in the file : ".implode(',', $dup_voas_in_error).". Please review file and data into ATiM.";
+		$summary_msg['Voas Groups Definition']['@@ERROR@@']['Duplicated V0a'][] = "The following 'Duplicated Voa' seam to be not correctly linked to another Voa in the file : ".implode(',', $dup_voas_in_error).". Please review file and data into ATiM.";
 	}
 	// Build group
 	$next_migration_group_number = 1;
@@ -89,12 +89,11 @@ function checkVoaNbrAndPatientId(&$wroksheetcells) {
 		if(sizeof($new_group['patient_ids']) == 0) {
 			$max_file_patient_id++;
 			$patient_id = $max_file_patient_id;
-//TODO: Do they want we display this message?
 			//$summary_msg['Voas Groups Definition']['@@MESSAGE@@']['New Patient ID'][] = "The system created the following Patient Id $patient_id  for following Voas group {".implode(',',$new_group['voas'])."}.";
 		} else if(sizeof($new_group['patient_ids']) == 1) {
 			$patient_id = array_shift($new_group['patient_ids']);
 			if(isset($patient_id_to_migration_group_number[$patient_id])) {
-				$summary_msg['Voas Groups Definition']['@@ERROR@@']['Duplicated Patient ID'][] = "The 2 distinct Voas groups are linked to the same Patient ID $patient_id : 1-{".$patient_id_to_migration_group_number[$patient_id]."} and 2-{".implode(',',$new_group['voas'])."}. The system will merge them.";
+				$summary_msg['Voas Groups Definition']['@@ERROR@@']['Duplicated Patient ID'][] = "The 2 distinct Voas groups are linked to the same Patient ID $patient_id : 1-{".$patient_id_to_migration_group_number[$patient_id]."} and 2-{".implode(',',$new_group['voas'])."}. The system will merge them if nothing is specified in 'Patient Id To Voa Corrections' worksheet.";
 				$patient_id_to_migration_group_number[$patient_id] .= '//'.implode(',',$new_group['voas']);
 			} else {
 				$patient_id_to_migration_group_number[$patient_id] = implode(',',$new_group['voas']);
@@ -107,15 +106,52 @@ function checkVoaNbrAndPatientId(&$wroksheetcells) {
 			$voa_to_patient_id[$voa] = $patient_id;
 		}
 	}
+	//Add correction to group
+	$studied_patient_id = null;
+	$updated_patient_voa_groups = array();
+	foreach($patientidcorrectionswroksheetcells as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			if($new_line[1] != 'Patient ID' && $new_line[2] != 'VOA') die('ERR 38832823832');
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			if(isset($new_line[2]) && $new_line[2]) {
+				if(preg_match('/^[0-9]+$/', $new_line[1])) {
+					$studied_patient_id = $voa_to_patient_id[$new_line[2]];	//Not necessary patient id set in the file so take the first voa to check all are in the same group
+					$linked_voas = array();
+					for ($i = 2; $i <= sizeof($new_line); $i++) {
+						$voas = $new_line[$i];
+						if($voa_to_patient_id[$voas] != $studied_patient_id) {
+							pr("voa $voas = patient id $studied_patient_id");
+							die('ERR 32732832832832');
+						}
+						$linked_voas[$studied_patient_id][] = $voas;
+					}
+				} else {
+					if($new_line[1] != 'NA') die('ERR37237288328');
+					if(!$studied_patient_id) die('ERR372372883233');
+					$max_file_patient_id++;
+					$new_patient_id = $max_file_patient_id;
+					for ($i = 2; $i <= sizeof($new_line); $i++) {
+						$voas = $new_line[$i];
+						if($voa_to_patient_id[$voas] != $studied_patient_id) die('ERR 32732832832832');
+						$linked_voas[$new_patient_id][] = $voas;
+						$voa_to_patient_id[$voas] = $new_patient_id;
+					}
+					$summary_msg['Voas Groups Definition']['@@WARNING@@']["Patient VOAs Correction (based on 'Patient Id To Voa Corrections' worksheet"][] = "VOAs of patient $studied_patient_id have been split in two groups : $studied_patient_id-{".implode(',',$linked_voas[$studied_patient_id])."} and $new_patient_id-{".implode(',',$linked_voas[$new_patient_id])."}.";
+					$studied_patient_id = null;
+				}
+			}	
+		}
+	}
 	return $voa_to_patient_id;
 }
 
-function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_patient_id, &$clinical_outcome_data, $atim_controls) {
+function loadAndRecordClinicalData(&$xls_sheets, $sheets_keys, $voa_to_patient_id, &$clinical_outcome_data, $atim_controls) {
 	global $db_connection;
 	global $summary_msg;
-	global $histology_values;
+	global $custom_list_values;
 	
-	$histology_values = array();
+	$custom_list_values = array();
 	
 	$patient_ids_to_clinical_data = array();
 	$voas_to_collection_data = array();
@@ -125,16 +161,21 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 	$last_diagnosis_master_id = 0;
 	$last_treatment_master_id = 0;
 	
+	//TODO: Won't be displayed except if required. More to help on participant mismatch detection
+	$tmp_patient_profile_data_mismatches_for_display = array();
+	
 	//===============================================================================================================
 	// Load clinical Data And Sort Them Per Patient
 	//===============================================================================================================
 	
 	$atim_studies = loadATiMStudies();
+	$voas_to_procedures_performed = loadSurgeriesProcedures($xls_sheets[$sheets_keys['Procedure Performed']]['cells'], 'Procedure Performed');
 	$patient_identifiers_check = array(
 		'medical record number' => array('field' => 'Medical Record Number', 'patient_ids' => array()),
 		'personal health number' => array('field' => 'Personal Health Number', 'patient_ids' => array()),
 		'bcca number' => array('field' => 'BCCA Number', 'patient_ids' => array()));
-	foreach($wroksheetcells as $excel_line_counter => $new_line) {
+	$worksheetname = 'Subject Demographics';
+	foreach($xls_sheets[$sheets_keys[$worksheetname]]['cells'] as $excel_line_counter => $new_line) {
 		if($excel_line_counter == 1) {
 			$headers = $new_line;
 		} else {
@@ -144,7 +185,6 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 				//Get Patient id and VOA#
 				if(!array_key_exists($voa_nbr, $voa_to_patient_id)) die("ERR 8839398299292 VOA# = $voa_nbr, line = $excel_line_counter");
 				$voa_patient_id = $voa_to_patient_id[$voa_nbr];
-				if($new_line_data['Patient ID'] && $new_line_data['Patient ID'] != $voa_patient_id) die("ERR 8763773728903 VOA# = $voa_nbr, line = $excel_line_counter (".$new_line_data['Patient ID']." != $voa_patient_id)");
 				
 				if(array_key_exists($voa_nbr, $voas_to_collection_data)) die('ERR 993824652823 '.$voa_nbr);
 				$voas_to_collection_data[$voa_nbr] = array(
@@ -162,6 +202,8 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 				$summary_message_title = $worksheetname.' : Profile';
 				
 				//Record Profile
+				$new_line_data['Patient First Name'] = trim($new_line_data['Patient First Name']);
+				$new_line_data['Patient Surname'] = trim($new_line_data['Patient Surname']);
 				if(!isset($patient_ids_to_clinical_data[$voa_patient_id])) {
 					//New Patient	
 					$date_of_birth_tmp = getDateAndAccuracy($summary_message_title, $new_line_data, $worksheetname, 'Date of Birth', $excel_line_counter);
@@ -199,14 +241,16 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 						if(!strlen($patient_ids_to_clinical_data[$voa_patient_id]['Participant']['first_name'])) {
 							$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['first_name'] = $new_line_data['Patient First Name'];
 						} else if($patient_ids_to_clinical_data[$voa_patient_id]['Participant']['first_name'] != $new_line_data['Patient First Name']) {
-							$summary_msg[$summary_message_title]['@@ERROR@@']["2 values for field 'Patient First Name'"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values ".$new_line_data['Patient First Name']." & ".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['first_name']." [Worksheet $worksheetname / line: $excel_line_counter]";
+							$summary_msg[$summary_message_title]['@@ERROR@@']["2 values for field 'Patient First Name'"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values <b>".$new_line_data['Patient First Name']."</b> & <b>[".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['first_name']."</b> [Worksheet $worksheetname / line: $excel_line_counter]";
+							$tmp_patient_profile_data_mismatches_for_display[$voa_patient_id][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values <b>".$new_line_data['Patient First Name']."</b> & <b>[".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['first_name']."</b> [Worksheet $worksheetname / line: $excel_line_counter]";
 						}
 					}
 					if(strlen($new_line_data['Patient Surname'])) {
 						if(!strlen($patient_ids_to_clinical_data[$voa_patient_id]['Participant']['last_name'])) {
 							$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['last_name'] = $new_line_data['Patient Surname'];
 						} else if($patient_ids_to_clinical_data[$voa_patient_id]['Participant']['last_name'] != $new_line_data['Patient Surname']) {
-							$summary_msg[$summary_message_title]['@@ERROR@@']["2 values for field 'Patient Surname'"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values ".$new_line_data['Patient Surname']." & ".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['last_name']." [Worksheet $worksheetname / line: $excel_line_counter]";
+							$summary_msg[$summary_message_title]['@@ERROR@@']["2 values for field 'Patient Surname'"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values <b>".$new_line_data['Patient Surname']."</b> & <b>".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['last_name']."</b> [Worksheet $worksheetname / line: $excel_line_counter]";
+							$tmp_patient_profile_data_mismatches_for_display[$voa_patient_id][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values <b>".$new_line_data['Patient Surname']."</b> & <b>".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['last_name']."</b> [Worksheet $worksheetname / line: $excel_line_counter]";
 						}
 					}
 					if(strlen($new_line_data['Date of Birth'])) {
@@ -216,7 +260,8 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 							$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth'] = $date_of_birth_tmp['date'];
 							$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth_accuracy'] = $date_of_birth_tmp['accuracy'];
 						} else if($date_of_birth_tmp['date'].$date_of_birth_tmp['accuracy'] != $patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth'].$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth_accuracy']) {
-							$summary_msg[$summary_message_title]['@@ERROR@@']["2 values for field 'Date of Birth'"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values ".$date_of_birth_tmp['date']." & ".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth']." [Worksheet $worksheetname / line: $excel_line_counter]";
+							$summary_msg[$summary_message_title]['@@ERROR@@']["2 values for field 'Date of Birth'"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values <b>".$date_of_birth_tmp['date']."</b> & <b>".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth']."</b> [Worksheet $worksheetname / line: $excel_line_counter]";
+							$tmp_patient_profile_data_mismatches_for_display[$voa_patient_id][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different values <b>".$date_of_birth_tmp['date']."</b> & <b>".$patient_ids_to_clinical_data[$voa_patient_id]['Participant']['date_of_birth']."</b> [Worksheet $worksheetname / line: $excel_line_counter]";
 						}
 					}
 					if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['vital_status'])) {
@@ -237,8 +282,10 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 					$identifier_value = $new_line_data[$identifier_data['field']];
 					if(!empty($identifier_value)) {
 						if(!empty($patient_ids_to_clinical_data[$voa_patient_id]['MiscIdentifier'][$misc_identifier_name])) {
-							if($patient_ids_to_clinical_data[$voa_patient_id]['MiscIdentifier'][$misc_identifier_name] != $identifier_value)
-								$summary_msg[$summary_message_title]['@@ERROR@@']["2 ".$misc_identifier_name."s for a same patient"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different $misc_identifier_name identifier : ".$patient_ids_to_clinical_data[$voa_patient_id]['MiscIdentifier'][$misc_identifier_name]." & ".$identifier_value.". Second one won't be created. [Worksheet $worksheetname / line: $excel_line_counter]";
+							if($patient_ids_to_clinical_data[$voa_patient_id]['MiscIdentifier'][$misc_identifier_name] != $identifier_value) {
+								$summary_msg[$summary_message_title]['@@ERROR@@']["2 ".$misc_identifier_name."s for a same patient"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different $misc_identifier_name identifier : <b>".$patient_ids_to_clinical_data[$voa_patient_id]['MiscIdentifier'][$misc_identifier_name]."</b> & <b>".$identifier_value."</b>. Second one won't be created. [Worksheet $worksheetname / line: $excel_line_counter]";
+								$tmp_patient_profile_data_mismatches_for_display[$voa_patient_id][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] is linked to 2 different $misc_identifier_name identifier : <b>".$patient_ids_to_clinical_data[$voa_patient_id]['MiscIdentifier'][$misc_identifier_name]."</b> & <b>".$identifier_value."</b>. Second one won't be created. [Worksheet $worksheetname / line: $excel_line_counter]";
+							}
 						} else if (isset($identifier_data['patient_ids'][$identifier_value])) {
 							$summary_msg[$summary_message_title]['@@ERROR@@']["1 ".$misc_identifier_name." assigned to many patients"][] = "$misc_identifier_name value $identifier_value is assigned to many patients [Patient IDs ".implode(', ',$identifier_data['patient_ids'][$identifier_value])."]. Only one patient willbe assigned to this one. See worksheet $worksheetname.";
 						} else {
@@ -307,7 +354,6 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 				$summary_message_title = $worksheetname.' : Diagnosis';
 				$atim_diagnosis_master_id = null;
 				
-//TODO  Confirm with YING: The all diagnosis design into ATiM
 				//check Dx fields have been completed				
 				$new_line_data['Site of Origin'] = str_replace("\n", " ", $new_line_data['Site of Origin']);
 				$new_line_data['figo'] = isset($clinical_outcome_data[$voa_nbr])? $clinical_outcome_data[$voa_nbr]['figo'] : '';
@@ -337,11 +383,9 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 						switch($new_line_data['Site of Origin']) {
 							// "Primary - Ovarian & Endometrium Diagnosis"
 							case 'Ovarian Endometrium':
-//TODO Confirm with YING: Should we create 2 diagnosis into ATiM or add a flag?							
-								$summary_msg[$summary_message_title]['@@WARNING@@']["Ovarian & Endometrium Diagnosis"][] = "Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg] diagnosis is defined both as Ovarian & Endometrium. Will be just defined tumor site as Ovarian and add information in notes. [Worksheet $worksheetname / line: $excel_line_counter]";
-								$notes[] = 'Tumor site was defined both as Ovarian & Endometrium.';
+								$ovcare_tumor_site = 'female genital-ovary and endometrium';
 							case 'Ovarian':
-								$ovcare_tumor_site = 'female genital-ovary';
+								if(!$ovcare_tumor_site) $ovcare_tumor_site = 'female genital-ovary';
 							case 'Endometrium':
 								if(!$ovcare_tumor_site) $ovcare_tumor_site = 'female genital-endometrium';
 								list($diagnosis_control_id, $detail_tablename) = $atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'];
@@ -399,7 +443,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 						// 'Clinical Diagnosis'
 						if(strlen($new_line_data['Clinical Diagnosis'])) {
 							if($diagnosis_control_id == $atim_controls['diagnosis_control_ids']['primary']['primary diagnosis unknown'][0]) {
-								$summary_msg[$summary_message_title]['@@ERROR@@']["Clinical Diagnosis set for an unknown Dx"][] = "Clinical Diagnosis linked to Voa $voa_nbr won't be migrated to diagnosis field: Value will be moved to notes. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
+								$summary_msg[$summary_message_title]['@@ERROR@@']["Clinical Diagnosis set for an unknown Dx"][] = "Dx for Voa $voa_nbr has been defined as 'unknown' by migration script but the 'Clinical Diagnosis' field is not empty. The 'Clinical Diagnosis' value will be moved to notes. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
 								$notes[] = $new_line_data['Clinical Diagnosis'];
 								$new_line_data['Clinical Diagnosis'] = '';
 							}
@@ -435,8 +479,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 								'dx_nature' => $dx_nature,	//Will be only displayed for tumor different than Ovary and Endo.
 								'ovcare_tumor_site' => $ovcare_tumor_site,
 								'ovcare_clinical_diagnosis' => str_replace("'", "''", $new_line_data['Clinical Diagnosis']),
-								'ovcare_clinical_history' => str_replace("'", "''", $new_line_data['Clinical History']),
-//TODO validate path review type in dx									
+								'ovcare_clinical_history' => str_replace("'", "''", $new_line_data['Clinical History']),								
 								'ovcare_path_review_type' => getCustomListValue($new_line_data['Path Review Type'], 'Path Review Type'),
 								'notes' => implode("\n\n", $notes)),
 							'DiagnosisDetail' => array_merge($diagnosis_details, array('diagnosis_master_id' => $last_diagnosis_master_id)),
@@ -579,7 +622,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 					if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['ovcare_residual_disease'])) {
 						$tx_detail['ovcare_residual_disease'] = $clinical_outcome_data[$voa_nbr]['ovcare_residual_disease'];				
 					}
-					//Recod Surgery					
+					//Recod Surgery	
 					if(empty($procedure_date)) {
 						$next_id = sizeof($patient_ids_to_clinical_data[$voa_patient_id]['Treatment']) + 1;
 						$patient_ids_to_clinical_data[$voa_patient_id]['Treatment'][$next_id] = array(
@@ -587,11 +630,11 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 								'id' => (++$last_treatment_master_id),
 								'participant_id' => $atim_participant_id,
 								'diagnosis_master_id' => $atim_diagnosis_master_id,
-								'treatment_control_id' => $atim_controls['treatment_controls']['procedure - surgery']['treatment_control_id'],
+								'treatment_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['treatment_control_id'],
 								'start_date' => $procedure_date,
 								'start_date_accuracy' => $procedure_date_accuracy),
 							'TreatmentDetail' => array_merge($tx_detail, array('treatment_master_id' => $last_treatment_master_id)),
-							'detail_tablename' => $atim_controls['treatment_controls']['procedure - surgery']['detail_tablename']);
+							'detail_tablename' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']);
 						$treatment_master_id = $patient_ids_to_clinical_data[$voa_patient_id]['Treatment'][$next_id]['TreatmentMaster']['id'];
 						$summary_msg[$summary_message_title]['@@WARNING@@']["No Surgery Date"][] = "No surgery date (Procedure date) has been defined. Sugery will be created with no treatment date. See Patient [Patient ID $voa_patient_id / VOA#(s) $patient_voa_nbrs_for_msg]. [Worksheet $worksheetname / line: $excel_line_counter]";
 					} else if(!isset($patient_ids_to_clinical_data[$voa_patient_id]['Treatment'][$procedure_date])) {
@@ -600,11 +643,11 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 								'id' => (++$last_treatment_master_id),
 								'participant_id' => $atim_participant_id,
 								'diagnosis_master_id' => $atim_diagnosis_master_id,
-								'treatment_control_id' => $atim_controls['treatment_controls']['procedure - surgery']['treatment_control_id'],
+								'treatment_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['treatment_control_id'],
 								'start_date' => $procedure_date,
 								'start_date_accuracy' => $procedure_date_accuracy),
 							'TreatmentDetail' => array_merge($tx_detail, array('treatment_master_id' => $last_treatment_master_id)),
-							'detail_tablename' => $atim_controls['treatment_controls']['procedure - surgery']['detail_tablename']);
+							'detail_tablename' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']);
 						$treatment_master_id = $patient_ids_to_clinical_data[$voa_patient_id]['Treatment'][$procedure_date]['TreatmentMaster']['id'];
 					} else {
 						//Compare Master Data
@@ -660,13 +703,30 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 					$voas_to_collection_data[$voa_nbr]['treatment_master_id'] = $treatment_master_id;
 					$voas_to_collection_data[$voa_nbr]['collection_datetime'] = $procedure_date;
 					$voas_to_collection_data[$voa_nbr]['collection_datetime_accuracy'] = $procedure_date_accuracy;
+					//Procedure Performed
+					if(isset($voas_to_procedures_performed[$voa_nbr])) {
+						foreach($voas_to_procedures_performed[$voa_nbr] as $new_procedure) {
+							$patient_ids_to_clinical_data[$voa_patient_id]['TreatmentExtend'][$new_procedure.'-'.$treatment_master_id] = array(
+								'TreatmentExtendMaster' => array(
+									'id' => null,
+									'treatment_master_id' => $treatment_master_id,
+									'treatment_extend_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_treatment_control_id']),
+								'TreatmentExtendDetail' => array(
+									'surgical_procedure' => $new_procedure),
+								'detail_tablename' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_detail_tablename']);
+						}
+					}
 				} else {
 					//No surgery linked to this VOa
 					if(isset($clinical_outcome_data[$voa_nbr]) && strlen($clinical_outcome_data[$voa_nbr]['ovcare_residual_disease'])) {
 						$summary_msg[$summary_message_title]['@@WARNING@@']["No Treatment & Residual Disease"][] = "No surgery has been defined in Profile but a residual disease value ".$clinical_outcome_data[$voa_nbr]['ovcare_residual_disease']." exists. Data won't be migrated. See Patient ID $voa_patient_id & VOA#s $patient_voa_nbrs_for_msg. [Worksheet $worksheetname (plus ClinicalOutcome) /line: $excel_line_counter]";
 					}
+					if(isset($voas_to_procedures_performed[$voa_nbr])){
+						$summary_msg[$summary_message_title]['@@WARNING@@']["No Treatment & Procedure Performed"][] = "No surgery has been defined in Profile but procedures performed have been set (".implode(', ', $voas_to_procedures_performed[$voa_nbr])."). Data won't be migrated. See Patient ID $voa_patient_id & VOA#s $patient_voa_nbrs_for_msg. [Worksheet $worksheetname (plus ClinicalOutcome) /line: $excel_line_counter]";
+					}
 				}
-								
+				unset($voas_to_procedures_performed[$voa_nbr]);
+							
 				// ** 8 ** FOLLOW UP
 		
 				$summary_message_title = $worksheetname.' : Follow-Up';
@@ -699,9 +759,6 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 								$patient_ids_to_clinical_data[$voa_patient_id]['vital_status_summary']['Followup'][$clinical_outcome_data[$voa_nbr]['last_followup_date']] = $clinical_outcome_data[$voa_nbr]['last_followup_vital_status'];
 							}
 						}
-						
-						
-						
 					}
 				}
 				
@@ -746,6 +803,13 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 	}	
 	unset($patient_identifiers_check);
 	if(!empty($clinical_outcome_data)) die('ERR 237687 68732');
+	if(!empty($voas_to_procedures_performed)) die('ERR327 237287 2');
+	
+	if(false) {
+		//TODO set to true to display
+		pr($tmp_patient_profile_data_mismatches_for_display);
+		exit;
+	}
 	
 	//===============================================================================================================
 	// RECORD CLINICAL ANNOTATION DATA
@@ -870,7 +934,6 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 	//===============================================================================================================
 	// UPDATE Last Follow-Up Date & Initial Surgery Date & Survival Time in Months 
 	// Note: No recurrence is migrated so initial_recurrence_date... won't be set
-	// TODO: To confirm
 	//===============================================================================================================
 	
 	$query = "SELECT Participant.participant_identifier,
@@ -885,7 +948,7 @@ function loadAndRecordClinicalData(&$wroksheetcells, $worksheetname, $voa_to_pat
 		INNER JOIN diagnosis_masters DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id 
 		INNER JOIN treatment_masters TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id
 		WHERE DiagnosisMaster.diagnosis_control_id = ".$atim_controls['diagnosis_control_ids']['primary']['ovary or endometrium tumor'][0].
-		" AND TreatmentMaster.treatment_control_id = ".$atim_controls['treatment_controls']['procedure - surgery']['treatment_control_id'].
+		" AND TreatmentMaster.treatment_control_id = ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['treatment_control_id'].
 		" ORDER BY Participant.id ASC, TreatmentMaster.start_date ASC;";
 	$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." [$query] ".__LINE__);
 	$participant_data_to_update = array();
@@ -958,6 +1021,63 @@ function loadATiMStudies() {
 	return $atim_studies;
 }
 
+function loadSurgeriesProcedures(&$wroksheetcells, $worksheetname) {
+	global $summary_msg;
+//TODO confirm with ying	
+	$values_to_skip = array(
+		'Steeves',
+		'Dombroski',
+		'Friesen',
+		'Kaplan',
+		'Lucas',
+		'Mizuguchi',
+		'Davy',
+		'Kashmir',
+		'Harris',
+		'Middleton',
+		'Stewart',
+		'Ma',
+		'Stoneberg',
+		'Stantcheva',
+		'Jersey',		
+		'Aubichon',
+		'Balbir',
+		'Carlson',
+		'Chen',
+		'Christodoudilis',
+		'Holman',
+		'Iaonnou',
+		'Mabee',
+		'Sullivan',
+		'Tang',
+		'Taylor',
+		'Torgerson',
+		'Zaozirny');
+	$headers = array();
+	$voas_to_procedures_performed = array();
+	foreach($wroksheetcells as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			$voa_nbr = $new_line_data['VOA Number'];
+			$procedures_performed = $new_line_data['Procedure Performed'];
+			if(strlen($voa_nbr) && strlen($procedures_performed)) {
+				$procedures_performed = explode("\n", $procedures_performed);
+				foreach($procedures_performed as $new_procedure) {
+					$new_procedure = trim($new_procedure);
+					if(!in_array($new_procedure, $values_to_skip)) {
+						$voas_to_procedures_performed[$voa_nbr][] = getCustomListValue($new_procedure, 'Surgery Type');
+					} else {
+						$summary_msg[$worksheetname]['@@WARNING@@']["Not a procedure performed"][] = "Value $new_procedure is not considered as a Procedure Performed. Value won't be migrated. See VOA#(s) $voa_nbr [Worksheet $worksheetname / line: $excel_line_counter]";	
+					}
+				}
+			}
+		}
+	}
+	return $voas_to_procedures_performed;
+}
+
 function updateOvcareLastFollowUpDate(&$participant_data, $new_date_res) {
 	if(!empty($new_date_res['date'])) {
 		if(!$participant_data['ovcare_last_followup_date']) {
@@ -1022,23 +1142,23 @@ function getChemoDrugId($drug_name) {
 
 function getCustomListValue($value, $control_name) {
 	global $db_connection;
-	global $histology_values;
+	global $custom_list_values;
 	
-	if(!in_array($control_name, array('Ovarian Histology','Uterine Histology','Path Review Type'))) die('ERR 23872837 827 2837 '.$control_name);
+	if(!in_array($control_name, array('Ovarian Histology','Uterine Histology','Path Review Type','Surgery Type'))) die('ERR 23872837 827 2837 '.$control_name);
 	if(!strlen($control_name)) return '';
 	
-	if(!isset($histology_values[$control_name])) {
+	if(!isset($custom_list_values[$control_name])) {
 		$query = "SELECT id, values_max_length FROM structure_permissible_values_custom_controls WHERE name = '$control_name'";
 		$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." [$query] ".__LINE__);
 		if($results->num_rows != 1) die('ERR 23 763287873268632 ');
 		$row = $results->fetch_assoc();
-		$histology_values[$control_name]= array('control_id' => $row['id'], 'values_max_length' => $row['values_max_length'], 'values' => array());
+		$custom_list_values[$control_name]= array('control_id' => $row['id'], 'values_max_length' => $row['values_max_length'], 'values' => array());
 	}
 	$formated_value = strtolower($value);
-	if(strlen($formated_value) > $histology_values[$control_name]['values_max_length']) die('ERR327832732873287');
-	if(!in_array($formated_value, $histology_values[$control_name]['values'])) {
-		customInsertRecord(array('control_id' =>  $histology_values[$control_name]['control_id'], 'value' => $formated_value, 'en' => $value, 'use_as_input' => '1'), 'structure_permissible_values_customs', false);
-		$histology_values[$control_name]['values'][] = $formated_value;
+	if(strlen($formated_value) > $custom_list_values[$control_name]['values_max_length']) die('ERR327832732873287');
+	if(!in_array($formated_value, $custom_list_values[$control_name]['values'])) {
+		customInsertRecord(array('control_id' =>  $custom_list_values[$control_name]['control_id'], 'value' => $formated_value, 'en' => $value, 'use_as_input' => '1'), 'structure_permissible_values_customs', false);
+		$custom_list_values[$control_name]['values'][] = $formated_value;
 	}
 	return $formated_value;
 }

@@ -257,9 +257,67 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='pathologist' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotReviewMaster' AND `tablename`='aliquot_review_masters' AND `field`='basis_of_specimen_review' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+UPDATE structure_formats SET `display_order`='1200', `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='created' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Sources');
+INSERT INTO `structure_permissible_values_customs` (`value`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('cecum', '1', @control_id, NOW(), NOW(), 1, 1),
+('fallopian tube and fimbraie', '1', @control_id, NOW(), NOW(), 1, 1),
+('fimbraie', '1', @control_id, NOW(), NOW(), 1, 1),
+('groin', '1', @control_id, NOW(), NOW(), 1, 1),
+('intra abdominal', '1', @control_id, NOW(), NOW(), 1, 1),
+('intraperitoneum', '1', @control_id, NOW(), NOW(), 1, 1),
+('myometrium', '1', @control_id, NOW(), NOW(), 1, 1),
+('rectum', '1', @control_id, NOW(), NOW(), 1, 1),
+('umbilical hernia', '1', @control_id, NOW(), NOW(), 1, 1),
+('ureter', '1', @control_id, NOW(), NOW(), 1, 1),
+('uterosacrel', '1', @control_id, NOW(), NOW(), 1, 1),
+('vaginal Exudate', '1', @control_id, NOW(), NOW(), 1, 1);
 
+update treatment_extend_controls SET type = 'biopsy procedure', databrowser_label = 'biopsy procedure' where detail_tablename = 'ovcare_txe_biopsies';
+INSERT INTO i18n (id,en) VALUES ('biopsy procedure','Biopsy Procedure');
 
+ALTER TABLE txd_surgeries MODIFY ovcare_residual_disease varchar(15) default null;
+ALTER TABLE txd_surgeries_revs MODIFY ovcare_residual_disease varchar(15) default null;
 
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Sources');
+UPDATE structure_permissible_values_customs set value = 'small intestine' WHERE value = 'small intestin' and control_id = @control_id ;
+
+INSERT INTO i18n (id,en) VALUES ('tissue review', 'Tissue Review');
+
+UPDATE structure_permissible_values_customs SET value = 'uterine cervix' WHERE value = 'uterine cervix ';
+UPDATE structure_permissible_values_customs SET value = 'omentum' WHERE value = 'omentum ';
+
+UPDATE treatment_controls SET tx_method = 'procedure - surgery and biopsy' WHERE tx_method = 'procedure - surgery';
+UPDATE treatment_controls SET flag_active = 0 WHERE tx_method = 'procedure - biopsy';
+UPDATE treatment_extend_controls SET flag_active = 0 WHERE databrowser_label like '%biopsy%';
+UPDATE treatment_controls SET databrowser_label = tx_method;
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("female genital-ovary and endometrium", "female genital-ovary and endometrium");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_tumor_site"), (SELECT id FROM structure_permissible_values WHERE value="female genital-ovary and endometrium" AND language_alias="female genital-ovary and endometrium"), "", "1");
+INSERT INTO i18n (id,en)  VALUES("female genital-ovary and endometrium", "Female Genital-Ovary and Endometrium");
+
+INSERT INTO `storage_controls` (`id`, `storage_type`, `coord_x_title`, `coord_x_type`, `coord_x_size`, `coord_y_title`, `coord_y_type`, `coord_y_size`, `display_x_size`, `display_y_size`, `reverse_x_numbering`, `reverse_y_numbering`, `horizontal_increment`, `set_temperature`, `is_tma_block`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`, `check_conflicts`) VALUES
+(null, 'rack14', 'position', 'integer', 14, NULL, NULL, NULL, 1, 14, 0, 0, 1, 0, 0, 1, '', 'std_racks', 'custom#storage types#rack14', 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Storage Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('rack14', 'Rack 14', '1', @control_id, NOW(), NOW(), 1, 1);
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("macroscopic", "macroscopic");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_residual_disease"), (SELECT id FROM structure_permissible_values WHERE value="macroscopic" AND language_alias="macroscopic"), "", "1");
+INSERT INTO i18n (id,en) VALUES("macroscopic", "Macroscopic");
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_ascites', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', 'ischemia time mn', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_ascites' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ischemia time mn' AND `language_tag`=''), '1', '440', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE sd_spe_ascites ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+ALTER TABLE sd_spe_ascites_revs ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+  
+UPDATE versions SET branch_build_number = '59xx' WHERE version_number = '2.6.3';
 
 
