@@ -1,11 +1,4 @@
 <?php
-//TODO On Excel File: Remove Other... tumor site and replace by other
-//TODO On Excel File: Format Date (not datetime)
-//TODO Replace Figo IV by 4
-
-
-
-//TODO le sample VOA1749e est pas en banque et lié a path review. Que faire?
 
 require_once 'subject_demographics.php';
 require_once 'clinical_outcome.php';
@@ -16,9 +9,9 @@ set_time_limit('3600');
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-//$file_name = "dev_short.xls";
-$file_name = "dev_copy.xls";
-$file_path = "C:/_Perso/Server/ovcare/data/".$file_name;
+$file_name = "FormatedFull_Data_Transfer_16Oct14_1433.xls";
+$file_path = "C:/_Perso/Server/ovcare/data".'/'.$file_name;
+$file_path = "C:\_Perso\Server\ovcare\data\MigrationDataOct15".'\\'.$file_name;
 require_once 'Excel/reader.php';
 
 $tmp_xls_reader = new Spreadsheet_Excel_Reader();
@@ -93,14 +86,20 @@ $atim_controls = loadATiMControlData();
 
 //Load clinical data
 
-$voa_to_patient_id = checkVoaNbrAndPatientId($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells']);
+$voa_to_patient_id = checkVoaNbrAndPatientId($tmp_xls_reader->sheets[$sheets_keys['Patient Id To Voa Corrections']]['cells'], $tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells']);
 $clinical_outcome_data = loadClinicalOutcomeData($tmp_xls_reader->sheets[$sheets_keys['Clinical Outcome']]['cells'], 'Clinical Outcome', $voa_to_patient_id);
-$voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets[$sheets_keys['Subject Demographics']]['cells'], 'Subject Demographics', $voa_to_patient_id, $clinical_outcome_data, $atim_controls);
+$voas_to_collection_data = loadAndRecordClinicalData($tmp_xls_reader->sheets, $sheets_keys, $voa_to_patient_id, $clinical_outcome_data, $atim_controls);
 
 //Load Inventory
 
 $voas_to_collection_ids = recordCollection($voas_to_collection_data);
-$clinical_outcome_data = loadSamplesAndAliquots($tmp_xls_reader->sheets, $sheets_keys, $voas_to_collection_ids, $atim_controls);
+//TODO remove
+//TODO remove$query = "SELECT id, collection_voa_nbr FROM collections;";
+//TODO remove$voas_to_collection_ids = array();
+//TODO remove$results = mysqli_query($db_connection, $query) or die("Dx Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+//TODO removewhile($row = $results->fetch_assoc()) $voas_to_collection_ids[$row['collection_voa_nbr']] = $row['id'];
+
+loadSamplesAndAliquots($tmp_xls_reader->sheets, $sheets_keys, $voas_to_collection_ids, $atim_controls);
 
 // **** END **********************************************************
 
@@ -112,7 +111,7 @@ $queries = array();
 $queries[] = "UPDATE collections SET treatment_master_id = NULL WHERE id NOT IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".$atim_controls['sample_aliquot_controls']['tissue']['sample_control_id'].")";
 $queries[] = "UPDATE collections_revs SET treatment_master_id = NULL WHERE id NOT IN (SELECT collection_id FROM sample_masters WHERE sample_control_id = ".$atim_controls['sample_aliquot_controls']['tissue']['sample_control_id'].")";
 //$queries[] = "DELETE FROM txd_surgeries WHERE path_num IS NULL AND ovcare_residual_disease IS NULL AND ovcare_neoadjuvant_chemotherapy LIKE '' AND ovcare_adjuvant_radiation LIKE '' AND treatment_master_id NOT IN (SELECT treatment_master_id FROM collections WHERE treatment_master_id IS NOT NULL)";
-//$queries[] = "DELETE FROM treatment_masters WHERE treatment_control_id = ".Config::$treatment_controls['procedure - surgery']['treatment_control_id']."  AND id NOT IN (SELECT treatment_master_id FROM txd_surgeries)";
+//$queries[] = "DELETE FROM treatment_masters WHERE treatment_control_id = ".Config::$treatment_controls['procedure - surgery and biopsy']['treatment_control_id']."  AND id NOT IN (SELECT treatment_master_id FROM txd_surgeries)";
 $queries[] = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
 $queries[] = "UPDATE sample_masters_revs SET initial_specimen_sample_id = id WHERE parent_id IS NULL";
 $queries[] = "UPDATE sample_masters SET sample_code = id";
@@ -121,6 +120,7 @@ foreach($queries as $query)  mysqli_query($db_connection, $query) or die("Error 
 //empty collections
 $query = "SELECT participant_id, collection_notes, collection_voa_nbr FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);";
 $results = mysqli_query($db_connection, $query) or die("Dx Control Id [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+$participants_notes_from_ids = array();
 while($row = $results->fetch_assoc()) {
 	$participant_id = $row['participant_id'];
 	$collection_notes = $row['collection_notes'];
@@ -131,12 +131,12 @@ while($row = $results->fetch_assoc()) {
 		'participant_id' => $participant_id,
 		'flag_unique' => $atim_controls['misc_identifier_controls']['unassigned VOA#']['flag_unique'],
 		'identifier_value' => $collection_voa_nbr);
-	customInsertRecord($voa_identifiers, 'misc_identifiers');		
+ 	customInsertRecord($voa_identifiers, 'misc_identifiers');		
 }
 foreach($participants_notes_from_ids as $participant_id => $notes) {
 	$query = "UPDATE participants set notes = '".str_replace("'", "''", implode(' & ', $notes))."' WHERE id = $participant_id;";
-	mysqli_query($db_connection, $query) or die("Error [$query] ");
-	mysqli_query($db_connection, str_replace('participants', 'participants_revs', $query)) or die("Error [$query] ");
+ 	mysqli_query($db_connection, $query) or die("Error [$query] ");
+ 	mysqli_query($db_connection, str_replace('participants', 'participants_revs', $query)) or die("Error [$query] ");
 }
 $query = "DELETE FROM collections WHERE id NOT IN (SELECT distinct collection_id FROM sample_masters);";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -330,8 +330,8 @@ function truncateATiMPatientsClinicalData() {
 		'DELETE FROM drugs;',
 		'DELETE FROM drugs_revs;',
 			
-		"DELETE FROM structure_permissible_values_customs WHERE control_id IN  (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('Ovarian Histology','Uterine Histology','Path Review Type'));",
-		"DELETE FROM structure_permissible_values_customs_revs WHERE control_id IN  (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('Ovarian Histology','Uterine Histology','Path Review Type'));"
+		"DELETE FROM structure_permissible_values_customs WHERE control_id IN  (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('Ovarian Histology','Uterine Histology','Path Review Type','Surgery Type'));",
+		"DELETE FROM structure_permissible_values_customs_revs WHERE control_id IN  (SELECT id FROM structure_permissible_values_custom_controls WHERE name IN ('Ovarian Histology','Uterine Histology','Path Review Type','Surgery Type'));"
 	);
 	foreach($queries as $query)	mysqli_query($db_connection, $query) or die("[$query]".__FUNCTION__." ".__LINE__);
 }
@@ -369,7 +369,7 @@ function loadATiMControlData(){
 	$query = "select tc.id, tc.tx_method, tc.detail_tablename, te.id as te_id, te.detail_tablename as te_detail_tablename
 		from treatment_controls tc
 		LEFT JOIN treatment_extend_controls te ON tc.treatment_extend_control_id = te.id AND te.flag_active = '1'
-		where tc.flag_active = '1' AND tc.tx_method IN ('procedure - surgery','procedure - biopsy','chemotherapy');";
+		where tc.flag_active = '1' AND tc.tx_method IN ('procedure - surgery and biopsy','procedure - biopsy','chemotherapy');";
 	$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		$controls['treatment_controls'][$row['tx_method']] = array(
@@ -380,12 +380,12 @@ function loadATiMControlData(){
 		);
 	}
 	//sample
-	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('tissue', 'blood', 'serum', 'plasma', 'blood cell','saliva')";
+	$query = "select id,sample_type,detail_tablename from sample_controls where sample_type in ('ascite', 'tissue', 'blood', 'serum', 'plasma', 'blood cell','saliva')";
 	$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." ".__LINE__);
 	while($row = $results->fetch_assoc()){
 		$controls['sample_aliquot_controls'][$row['sample_type']] = array('sample_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'aliquots' => array());
 	}
-	if(sizeof($controls['sample_aliquot_controls']) != 6) die("get sample controls failed");
+	if(sizeof($controls['sample_aliquot_controls']) != 7) die("get sample controls failed");
 	foreach($controls['sample_aliquot_controls'] as $sample_type => $data) {
 		$query = "select id,aliquot_type,detail_tablename,volume_unit from aliquot_controls where flag_active = '1' AND sample_control_id = '".$data['sample_control_id']."'";
 		$results = mysqli_query($db_connection, $query) or die(__FUNCTION__." ".__LINE__);
