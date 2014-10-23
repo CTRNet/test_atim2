@@ -33,3 +33,24 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT INTO i18n (id,en) VALUES ('radiologic rf response','Radiologic RF Response');
 
 UPDATE versions SET branch_build_number = '5844' WHERE version_number = '2.6.2';
+
+-- 20141023 --------------------------------------------------------------------------------------------------------
+
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings
+  ADD COLUMN metastatic_lymph_nodes_number smallint(5) unsigned default null,
+  ADD COLUMN metastatic_lymph_nodes_size decimal(6,2) default null;
+ALTER TABLE qc_hb_ed_hepatobilary_medical_imagings_revs
+  ADD COLUMN metastatic_lymph_nodes_number smallint(5) unsigned default null,
+  ADD COLUMN metastatic_lymph_nodes_size decimal(6,2) default null;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'metastatic_lymph_nodes_number', 'integer_positive',  NULL , '0', 'size=5', '', '', '', 'number'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_hb_ed_hepatobilary_medical_imagings', 'metastatic_lymph_nodes_size', 'float_positive',  NULL , '0', 'size=5', '', '', '', 'size (cm)');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='metastatic_lymph_nodes_number' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='number'), '2', '107', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_pancreas'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_hb_ed_hepatobilary_medical_imagings' AND `field`='metastatic_lymph_nodes_size' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='size (cm)'), '2', '107', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `language_label`='tumors',  `language_tag`='number' WHERE model='EventDetail' AND tablename='qc_hb_ed_hepatobilary_medical_imagings' AND field='pancreas_number' AND `type`='integer_positive' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `language_label`='',  `language_tag`='size (cm)' WHERE model='EventDetail' AND tablename='qc_hb_ed_hepatobilary_medical_imagings' AND field='pancreas_size' AND `type`='float_positive' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en) VALUES ('tumors', 'Tumors');
+  
+UPDATE versions SET branch_build_number = '5925' WHERE version_number = '2.6.2';
+  
