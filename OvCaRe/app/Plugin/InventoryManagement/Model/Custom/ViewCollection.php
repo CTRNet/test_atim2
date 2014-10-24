@@ -8,6 +8,7 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
+Collection.collection_voa_nbr,
 		Collection.participant_id AS participant_id,
 		Collection.diagnosis_master_id AS diagnosis_master_id,
 		Collection.consent_master_id AS consent_master_id,
@@ -22,9 +23,10 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 Collection.ovcare_collection_type,
-Collection.collection_voa_nbr
+TreatmentDetail.path_num
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+LEFT JOIN txd_surgeries as TreatmentDetail ON TreatmentDetail.treatment_master_id = Collection.treatment_master_id
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 		
 	function summary($variables=array()) {
