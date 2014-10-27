@@ -18,6 +18,7 @@ $detail_fields = array(
 if(Config::$active_surveillance_project) {
 	$detail_fields['total_positive'] = 'Biopsy information Total positive';
 	$detail_fields['greatest_percent_of_cancer'] = 'Biopsy information Greatest Percent of cancer';
+	$detail_fields['perineural_invasion'] = 'Biopsy information Perineural invasion';
 }	
 
 $model = new MasterDetailModel(1, $pkey, $child, false, 'diagnosis_master_id', $pkey, 'treatment_masters', $fields, 'qc_tf_txd_biopsies_and_turps', 'treatment_master_id', $detail_fields);
@@ -67,6 +68,15 @@ function txBiopsyPostRead(Model $m){
 				$m->values[$xls_field] = '';
 			}
 		}
+	}
+	
+	if(Config::$active_surveillance_project && array_key_exists('Biopsy Perineural invasion', $m->values)) {
+		$m->values['Biopsy Perineural invasion'] =str_replace(array('unknown', ' '), array('', ''),$m->values['Biopsy Perineural invasion']);
+		if(strlen($m->values['Biopsy Perineural invasion']) && !in_array($m->values['Biopsy Perineural invasion'], array('yes','no'))) {
+			Config::$summary_msg['diagnosis: RP']['@@WARNING@@']["'Biopsy Perineural invasion': wrong format"][] = "Yes or no expected. See value [".$m->values['Biopsy Perineural invasion']."] at line ".$m->line.".";
+			$m->values['Biopsy Perineural invasion'] = '';
+		}
+		$m->values['Biopsy Perineural invasion'] =str_replace(array('yes', 'no'), array('y', 'n'),$m->values['Biopsy Perineural invasion']);
 	}
 	
 	excelDateFix($m);

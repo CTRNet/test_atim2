@@ -25,11 +25,15 @@ class Config{
 	
 	//if reading excel file
 	
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/CPCBN Database Manitoba.xls';
+	//--------------------------------------------------------------------------------------------------------------------------
+	//TODO: To change anytime
+	static $relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/KLOTZ 43 patients_20141027_1100.xls';
+	//static $relative_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/';
+	//static $xls_file_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/data/';
 	static $active_surveillance_project = true;
-	//static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/new_classical_version.xls';
-	//static $active_surveillance_project = false;
-	static $use_windows_xls_offset = true;	
+	static $use_windows_xls_offset = true;
+	//--------------------------------------------------------------------------------------------------------------------------
 	
 	static $xls_header_rows = 2;
 
@@ -98,30 +102,35 @@ Config::$parent_models[] = "participants";
 //*Config::$parent_models[] = "inventory";
 
 //add your configs
-$relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/tablesMapping/';
-Config::$config_files[] = $relative_path.'participants.php';
-Config::$config_files[] = $relative_path.'dx_primary.php';
-Config::$config_files[] = $relative_path.'dx_metastasis.php';
-Config::$config_files[] = $relative_path.'tx_surgery.php';
-Config::$config_files[] = $relative_path.'tx_biopsy.php';
-Config::$config_files[] = $relative_path.'dx_recurrence.php';
-Config::$config_files[] = $relative_path.'tx_radiotherapy.php';
-Config::$config_files[] = $relative_path.'tx_chemotherapy.php';
-Config::$config_files[] = $relative_path.'tx_hormonotherapy.php';
-Config::$config_files[] = $relative_path.'tx_other_trt.php';
-Config::$config_files[] = $relative_path.'event_psa.php';
-Config::$config_files[] = $relative_path.'dx_other_primary.php';
-Config::$config_files[] = $relative_path.'dx_unknown_primary.php';
-Config::$config_files[] = $relative_path.'collections.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/participants.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/dx_primary.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/dx_metastasis.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/tx_surgery.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/tx_biopsy.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/dx_recurrence.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/tx_radiotherapy.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/tx_chemotherapy.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/tx_hormonotherapy.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/tx_other_trt.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/event_psa.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/dx_other_primary.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/dx_unknown_primary.php';
+Config::$config_files[] = Config::$relative_path.'tablesMapping/collections.php';
 
 function addonFunctionStart(){
+	
+	$query = "SELECT NOW() as msgdate FROM banks";
+	$results = mysqli_query(Config::$db_connection, $query) or die(__FUNCTION__." ".__LINE__);
+	$row = $results->fetch_assoc();
+	$date_for_msg = $row['msgdate'];
 	
 	$file_name = substr(Config::$xls_file_path, (strrpos(Config::$xls_file_path, '/') + 1));
 	echo "<FONT COLOR=\"green\" >".Config::$line_break_tag.
 	"=====================================================================".Config::$line_break_tag."
 	DATA EXPORT PROCESS : CPCBN TFRI".Config::$line_break_tag."
 	Excel = $file_name".Config::$line_break_tag.
-	(Config::$active_surveillance_project? 'Normal Project' : 'Active Surveillance Project').Config::$line_break_tag.
+	(Config::$active_surveillance_project? 'Active Surveillance Project' : 'Normal Project').Config::$line_break_tag.
+	$date_for_msg.Config::$line_break_tag.
 	"=====================================================================
 	</FONT>".Config::$line_break_tag."";	
 

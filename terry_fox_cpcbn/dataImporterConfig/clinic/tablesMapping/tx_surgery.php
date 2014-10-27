@@ -15,7 +15,10 @@ $detail_fields = array(
 	'qc_tf_capsular_penetration'		=> ((Config::$active_surveillance_project? 'RP ': '').'Presence of capsular penetration'),
 	'qc_tf_seminal_vesicle_invasion' 	=> ((Config::$active_surveillance_project? 'RP ': '').'Presence of seminal vesicle invasion'),
 	'qc_tf_margin'						=> ((Config::$active_surveillance_project? 'RP ': '').'Margin')
-);		
+);	
+if(Config::$active_surveillance_project) {
+	$detail_fields['perineural_invasion'] = 'RP Perineural invasion';
+}
 
 $model = new MasterDetailModel(1, $pkey, $child, false, 'diagnosis_master_id', $pkey, 'treatment_masters', $fields, 'txd_surgeries', 'treatment_master_id', $detail_fields);
 $model->custom_data = array("date_fields" => array($fields["start_date"]	=> key($fields["start_date_accuracy"])));
@@ -52,7 +55,19 @@ function txSurgeryPostRead(Model $m){
 		if(array_key_exists($xls_field, $m->values)) {
 			$m->values[$xls_field] =str_replace(array('unknown', ' '), array('', ''),$m->values[$xls_field]);
 			if(strlen($m->values[$xls_field]) && !in_array($m->values[$xls_field], array('yes','no'))) {
-				Config::$summary_msg['diagnosis: RP']['@@WARNING@@']["$xls_field: wrong format"][] = "Integer expected. See value [".$m->values[$xls_field]."] at line ".$m->line.".";
+				Config::$summary_msg['diagnosis: RP']['@@WARNING@@']["$xls_field: wrong format"][] = "Yes/no expected. See value [".$m->values[$xls_field]."] at line ".$m->line.".";
+				$m->values[$xls_field] = '';
+			}
+			$m->values[$xls_field] =str_replace(array('yes', 'no'), array('y', 'n'),$m->values[$xls_field]);
+		}
+	}
+	
+	if(Config::$active_surveillance_project) {
+		$xls_field = 'RP Perineural invasion';
+		if(array_key_exists($xls_field, $m->values)) {
+			$m->values[$xls_field] =str_replace(array('unknown', ' '), array('', ''),$m->values[$xls_field]);
+			if(strlen($m->values[$xls_field]) && !in_array($m->values[$xls_field], array('yes','no'))) {
+				Config::$summary_msg['diagnosis: RP']['@@WARNING@@']["$xls_field: wrong format"][] = "Yes/no expected. See value [".$m->values[$xls_field]."] at line ".$m->line.".";
 				$m->values[$xls_field] = '';
 			}
 			$m->values[$xls_field] =str_replace(array('yes', 'no'), array('y', 'n'),$m->values[$xls_field]);
