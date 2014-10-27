@@ -204,6 +204,7 @@ function checkTypeOfBiopsySurgeryValue($values, $lines) {
 			'RP Presence of lymph node invasion',
 			'RP Presence of capsular penetration',
 			'RP Presence of seminal vesicle invasion',
+			'RP Perineural invasion',
 			'RP Margin') :	
 		array('Gleason RP (X+Y)',
 			'Gleason sum RP',
@@ -217,6 +218,7 @@ function checkTypeOfBiopsySurgeryValue($values, $lines) {
 			'Biopsy information Gleason Score',
 			'Biopsy information Total positive',
 			'Biopsy information Greatest Percent of cancer',
+			'Biopsy information Perineural invasion',
 			'cTNM'):
 		array('Gleason Grade at biopsy (X+Y)',
 			'Gleason score at biopsy',
