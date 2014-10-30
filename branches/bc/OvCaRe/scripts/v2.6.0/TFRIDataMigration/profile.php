@@ -10,7 +10,7 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 	$summary_msg['Un-migrated VOA#s'] = array();
 	
 	$headers = array();
-	$all_studied_voas = array();
+	$all_patients_worksheet_voas = array();
 	$studied_participant_ids_to_voa = array();
 	$participants_last_contact = array();
 	$participants_family_histories = array();
@@ -39,7 +39,9 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
 			//Get VOA
 			$voa = null;
-			if(preg_match('/^VOA([0-9]+)$/', $new_line_data['Patient Biobank Number (required & unique)'], $matches)) {
+			if($new_line_data['Patient Biobank Number (required & unique)'] == '2237 (2390 blood)') {
+				$voa = '2237';
+			} else if(preg_match('/^VOA([0-9]+)$/', $new_line_data['Patient Biobank Number (required & unique)'], $matches)) {
 				$voa = $matches[1];
 			} else if(preg_match('/^([0-9]+)$/', $new_line_data['Patient Biobank Number (required & unique)'], $matches)) {
 				$voa = $matches[1];
@@ -50,7 +52,7 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 				if(!array_key_exists($voa, $voas_to_participant_id)) {
 					$summary_msg[$worksheet_name]['@@ERROR@@']["Unable to find VOA# into ATiM"][] = "VOA# '".$new_line_data['Patient Biobank Number (required & unique)']."' does not match an ATiM Patient. No data will be migrated. [Worksheet: $worksheet_name /line: $excel_line_counter]";
 				} else {
-					$all_studied_voas[$voa] = $voa;
+					$all_patients_worksheet_voas[$voa] = $voa;
 					$participant_id = $voas_to_participant_id[$voa];
 					$studied_participant_ids_to_voa[$participant_id][$voa] = $voa; 
 					$query = "SELECT first_name, last_name, date_of_birth, date_of_birth_accuracy, vital_status, ovcare_last_followup_date, ovcare_last_followup_date_accuracy, date_of_death, date_of_death_accuracy, p.notes as participant_notes,
@@ -70,12 +72,17 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 					//Date of Birth
 					$dob_data = getDateAndAccuracy($worksheet_name, $new_line_data, $worksheet_name, 'Date of Birth::Date', 'Date of Birth::date accuracy', $excel_line_counter);
 					if($dob_data) {
-						if(!$atim_patient_data['date_of_birth']) {
+						$update_profile = false;
+						if(!strlen($atim_patient_data['date_of_birth'])) {
+							$update_profile = true;
+						} else if($atim_patient_data['date_of_birth'] != $dob_data['date']) {
+							$update_profile = true;
+							$summary_msg[$worksheet_name]['@@WARNING@@']["Date of Birth Conflict"][] = "ATiM date of birth value ".$atim_patient_data['date_of_birth']." (".$atim_patient_data['date_of_birth_accuracy'].") is different than file value ".$new_line_data['Date of Birth::Date'].". Data will be updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+						}
+						if($update_profile) {
 							$profile_data_to_update['date_of_birth'] = "date_of_birth = '".$dob_data['date']."'";
 							$profile_data_to_update['date_of_birth_accuracy'] = "date_of_birth_accuracy = '".$dob_data['accuracy']."'";
 							$update_summary[] = "Date of birth = <b>".$dob_data['date']."(".$dob_data['accuracy'].")</b>";
-						} else if($atim_patient_data['date_of_birth'] != $dob_data['date']) {
-							$summary_msg[$worksheet_name]['@@WARNING@@']["Date of Birth Conflict"][] = "ATiM date of birth value ".$atim_patient_data['date_of_birth']." (".$atim_patient_data['date_of_birth_accuracy'].") is different than file value ".$new_line_data['Date of Birth::Date'].". Data won't be updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 						}
 					}
 					//Date of death
@@ -87,12 +94,17 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 						}
 					}					
 					if($dod_data) {
-						if(!$atim_patient_data['date_of_death']) {
+						$update_profile = false;
+						if(!strlen($atim_patient_data['date_of_death'])) {
+							$update_profile = true;
+						} else if($atim_patient_data['date_of_death'] != $dod_data['date']) {
+							$update_profile = true;
+							$summary_msg[$worksheet_name]['@@WARNING@@']["Date of Death Conflict"][] = "ATiM date of death value ".$atim_patient_data['date_of_death']." (".$atim_patient_data['date_of_death_accuracy'].") is different than file value ".$dod_data['date'].". Data will updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+						}
+						if($update_profile) {
 							$profile_data_to_update['date_of_death'] = "date_of_death = '".$dod_data['date']."'";
 							$profile_data_to_update['date_of_death_accuracy'] = "date_of_death_accuracy = '".$dod_data['accuracy']."'";
 							$update_summary[] = "Date of death = <b>".$dod_data['date']."(".$dod_data['accuracy'].")</b>";
-						} else if($atim_patient_data['date_of_death'] != $dod_data['date']) {
-							$summary_msg[$worksheet_name]['@@WARNING@@']["Date of Death Conflict"][] = "ATiM date of death value ".$atim_patient_data['date_of_death']." (".$atim_patient_data['date_of_death_accuracy'].") is different than file value ".$dod_data['date'].". Data won't be updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 						}
 					}
 					//Vital Status
@@ -108,18 +120,23 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 						$summary_msg[$worksheet_name]['@@WARNING@@']["Excel Vital Status is missing"][] = "File vital status value is not set but a date of death is set. Set excel vital status to deceased. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 					}
 					if($file_vital_status) {
-						if(!$atim_patient_data['vital_status']) {
+						$update_profile = false;
+						if(!strlen($atim_patient_data['vital_status'])) {
+							$update_profile = true;
+						} else if($atim_patient_data['vital_status'] != $file_vital_status) {
+							$update_profile = true;
+							$summary_msg[$worksheet_name]['@@WARNING@@']["Vital Status Conflict"][] = "ATiM Vital Status value ".$atim_patient_data['vital_status']." is different than file value $file_vital_status. Data will be updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+						}
+						if($update_profile) {
 							$profile_data_to_update['vital_status'] = "vital_status = '".$file_vital_status."'";
 							$update_summary[] = "Vital status = <b>$file_vital_status</b>";
-						} else if($atim_patient_data['vital_status'] != $file_vital_status) {
-							$summary_msg[$worksheet_name]['@@WARNING@@']["Vital Status Conflict"][] = "ATiM Vital Status value $file_vital_status is different than file value ".$dod_data['vital_status'].". Data won't be updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 						}
 					}
 					//Notes
 					$new_notes = null;
 					if(strlen($new_line_data['notes'])) {
 						$notes = str_replace("'", "''", $new_line_data['notes']);
-						if($atim_patient_data['participant_notes']) {
+						if(strlen($atim_patient_data['participant_notes'])) {
 							$profile_data_to_update[] = "notes = CONCAT('$notes', '\n', notes)";
 						} else {
 							$profile_data_to_update[] = "notes = '$notes'";
@@ -132,13 +149,7 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 						$summary_msg['Data Creation/Update Summary'][$participant_id]["Profile Update Summary"][] = "Updated following information : ".implode(',',$update_summary).". See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 						$query = "UPDATE participants SET ".implode(',',$profile_data_to_update)." WHERE id = $participant_id;";
 						mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-						$query = "INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,
-							notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
-							modified_by,version_created)
-							(SELECT id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,
-							notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
-							modified_by,modified FROM participants WHERE id = $participant_id)";
-						mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+//TODO Add data in revs table (end of process)
 					}
 					
 					// *** Family history ***
@@ -184,12 +195,11 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 					if($file_brca_data) {
 						$file_brca_msg = 'BRCA1'.($file_brca_data['brca1_plus']? '+' : '-').' BRCA2'.($file_brca_data['brca2_plus']? '+' : '-');
 						if(!$atim_patient_data['event_master_id']) {
-							$file_brca_data['event_master_id'] = customInsertRecord(array('participant_id' => $participant_id, 'event_control_id' => $atim_controls['event_controls']['brca']['event_control_id']), 'event_masters');
-							customInsertRecord($file_brca_data, $atim_controls['event_controls']['brca']['detail_tablename'], true);
+							$file_brca_data['event_master_id'] = customInsertRecord(array('participant_id' => $participant_id, 'event_control_id' => $atim_controls['event_controls']['brca']['event_control_id']), 'event_masters', false, true);
+							customInsertRecord($file_brca_data, $atim_controls['event_controls']['brca']['detail_tablename'], true, true);
 							$summary_msg['Data Creation/Update Summary'][$participant_id]["BRCA Creation"][] = "Created BRCA record: $file_brca_msg. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 						} else if(($file_brca_data['brca1_plus'] != $atim_patient_data['brca1_plus']) || ($file_brca_data['brca2_plus'] != $atim_patient_data['brca2_plus'])) {
-							$db_brca_msg = 'BRCA1'.($atim_patient_data['brca1_plus']? '+' : '-').' BRCA2'.($atim_patient_data['brca2_plus']? '+' : '-');
-							$summary_msg[$worksheet_name]['@@WARNING@@']["BRCA Conflict"][] = "ATiM BRCA values from atim ($db_brca_msg) is different than file value ($file_brca_msg). Data won't be updated. See atim patient id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+							die('ERR377338383');//To update to use file data
 						}
 					}
 					
@@ -205,7 +215,6 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 					}
 				}
 			}
-			
 		}
 	}
 	
@@ -213,22 +222,23 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 
 	foreach($participants_family_histories as $participant_id => $family_histories) {
 		foreach($family_histories['sites'] as $$new_site) {
-			customInsertRecord(array('participant_id' => $participant_id, 'ovcare_tumor_site' => $new_site), 'family_histories');
+			customInsertRecord(array('participant_id' => $participant_id, 'ovcare_tumor_site' => $new_site), 'family_histories', false, true);
 		}
 		$summary_msg['Data Creation/Update Summary'][$participant_id]["Family History Creation"][] = "Created following family histories : <b>".implode('</b> & <b>',$family_histories['sites'])."</b>. See atim patient id $participant_id (VOA#:".implode(',',$family_histories['voas'])."). [Worksheet: $worksheet_name]";
 	}
 		
 	// Check duplicated participants
 	
-	$participant_id_to_skip = array();
+	$participant_ids_to_skip = array();
 	foreach($studied_participant_ids_to_voa as $participant_id => $voas) {
 		if(sizeof($voas) > 1) {
 			$summary_msg['Un-migrated VOA#s']['@@WARNING@@']["Reason: Duplicated Patient Data"][] = "A patient is listed more than one into this excel file : See atim patient id $participant_id (VOA#:".implode(',',$voas)."). [Worksheet: $worksheet_name]";
-			foreach($voas as $voa) $summary_msg['Un-migrated VOA#s']['@@ERROR@@']["Un-migrated VOA#s (Data to enter manually into ATiM after migration process)"][$voa] = "VOA#$voa (ATiM participant_id = $participant_id)";
-			$participant_id_to_skip[] = $participant_id;
+			foreach($voas as $voa) $summary_msg['Un-migrated VOA#s']['@@ERROR@@']["Un-migrated VOA#s (Data has to be enter manually into ATiM after migration process)"][$voa] = "VOA#$voa (ATiM participant_id = $participant_id)";
+			$participant_ids_to_skip[] = $participant_id;
 		}
 	}
-	return array($all_studied_voas, $participants_last_contact, $participant_id_to_skip);
+	
+	return array($all_patients_worksheet_voas, $participants_last_contact, $participant_ids_to_skip);
 }
 
 ?>

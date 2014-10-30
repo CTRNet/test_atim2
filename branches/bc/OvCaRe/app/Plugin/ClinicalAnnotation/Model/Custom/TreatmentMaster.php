@@ -4,36 +4,21 @@ class TreatmentMasterCustom extends TreatmentMaster {
 	var $name = 'TreatmentMaster';
 	var $useTable = 'treatment_masters';
 	
-	var $ovcareIsTreatmentDeletion = false;
-	
-	function atimDelete($model_id, $cascade = true){	
-		$tx_to_delete = $this->find('first', array('conditions' => array('TreatmentMaster.id' => $model_id), 'recursive' => '0'));
-		if(parent::atimDelete($model_id, $cascade)){		
-			if($tx_to_delete['TreatmentControl']['tx_method'] == 'procedure - surgery') {
-				$DiagnosisMaster = AppModel::getInstance("ClinicalAnnotation", "DiagnosisMaster", true);
-				$DiagnosisMaster->updateCalculatedFields($tx_to_delete['TreatmentMaster']['participant_id']);
-			}
-			return true;
-		}
-		return false;
-	}
-	
 	function updateCalculatedFields($participant_id, $treatment_master_id = null) {
-		// MANAGE OVARY DIAGNOSIS CALCULATED FIELDS
 		$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 	
 		// Get Participant Data
-	
+		
 		$particpant_data = $Participant->find('first', array('conditions' => array('Participant.id' => $participant_id), 'recursive' => '-1'));
 		$date_of_birth = $particpant_data['Participant']['date_of_birth'];
 		$date_of_birth_accuracy = $particpant_data['Participant']['date_of_birth_accuracy'];
 	
 		// Get all procedures
 		
-		$conditions = array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentControl.tx_method' => 'procedure - surgery');
+		$conditions = array('TreatmentMaster.participant_id' => $participant_id, 'TreatmentControl.tx_method' => 'procedure - surgery and biopsy');
 		if($treatment_master_id) $conditions['TreatmentMaster.id'] = $treatment_master_id;
 		$all_procedures = $this->find('all', array('conditions' => $conditions));
-		
+	
 		foreach($all_procedures as $new_procedure) {
 			$treatment_master_id = $new_procedure['TreatmentMaster']['id'];
 			

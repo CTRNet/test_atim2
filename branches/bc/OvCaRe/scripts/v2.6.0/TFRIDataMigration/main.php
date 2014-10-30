@@ -77,16 +77,99 @@ setVoaToParticipantIds($atim_controls);
 
 // **** EXCEL DATA EXTRACTION ****************************************
 
-list($all_studied_voas, $participants_last_contact, $participant_id_to_skip) = updateProfile($tmp_xls_reader->sheets, $sheets_keys, 'Patients', $atim_controls);
-updateOvaryEndometriumDiagnosis($tmp_xls_reader->sheets, $sheets_keys, 'EOC - Diagnosis', 'EOC-  Event', $atim_controls, $all_studied_voas, $participant_id_to_skip);
+list($all_patients_worksheet_voas, $participants_last_contact, $participant_ids_to_skip) = updateProfile($tmp_xls_reader->sheets, $sheets_keys, 'Patients', $atim_controls);
+updateOvaryEndometriumDiagnosis($tmp_xls_reader->sheets, $sheets_keys, 'EOC - Diagnosis', 'EOC-  Event', $atim_controls, $all_patients_worksheet_voas, $participant_ids_to_skip);
 
 
 
 
 
 
-//TODO Date of Last Contact
-pr($participants_last_contact);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+displayErrorAndMessage();
+exit;
+
+
+
+
+//TODO
+/*
+
+//-- ** Link collection to patient Dx when patient is linked to one dx **
+
+SET @modified_by = (SELECT id FROM users WHERE username LIKE 'migration');
+SET @modified = (SELECT NOW() FROM users LIMIT 0 ,1);
+UPDATE collections Collection, diagnosis_masters DiagnosisMaster
+SET Collection.diagnosis_master_id = DiagnosisMaster.id, Collection.modified = @modified, Collection.modified_by = @modified_by
+WHERE Collection.deleted <> 1
+AND DiagnosisMaster.deleted <> 1
+AND Collection.participant_id = DiagnosisMaster.participant_id
+AND Collection.participant_id IN (SELECT participant_id FROM (SELECT count(*) as dx_nbr, participant_id FROM diagnosis_masters WHERE deleted <> 1 GROUP BY participant_id) AS res WHERE res.dx_nbr = 1)
+AND Collection.diagnosis_master_id IS NULL;
+INSERT INTO collections_revs (id,acquisition_label,bank_id,collection_site,collection_datetime,collection_datetime_accuracy,ovcare_collection_type,sop_master_id,collection_property,collection_notes,participant_id,diagnosis_master_id,
+consent_master_id,treatment_master_id,event_master_id,collection_voa_nbr,modified_by,version_created)
+(SELECT id,acquisition_label,bank_id,collection_site,collection_datetime,collection_datetime_accuracy,ovcare_collection_type,sop_master_id,collection_property,collection_notes,participant_id,diagnosis_master_id,
+consent_master_id,treatment_master_id,event_master_id,collection_voa_nbr,modified_by,modified FROM collections WHERE modified = @modified AND modified_by = @modified_by);
+*/
+	
+
+
+
+
+//TODO $participants_last_contact;
+
+
+
+
+
+
+
+//TODO plus a la fin de la migration si un dx n'a pas de date mais on a une collection lié au dx alors usiltiser cette date'
+
+//TODO add in revs table any surgery biopsy created or updated today...
+
+//TODO Date of Last Contact $participants_last_contact
+
+//TODO Diagnosis Ovary & endometrium: populate fields Initial Surgery Date, Survival Time in Months, Initial Recurrence Date, Progression Free Time in Months
+
+//TODO update diagnosis_masters_revs + ovcare_dxd_ovaries_endometriums_revs based on modified date
+
+//TODO move blood ischemia time to plasma, serum or buffy coat sample level plus merge blood edta of the same colleciton
+
+//TODO in main						$query = "INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,
+//							notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
+//							modified_by,version_created)
+//							(SELECT id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,
+//							notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,
+//							modified_by,modified FROM participants WHERE id = $participant_id)";
+//						mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+
+//TODO migrer tissue dans les boites = fichier pas donné par ying
+
+//TODO updater tous les ages au Txx...
 
 exit;
 
@@ -231,7 +314,7 @@ function pr($arr) {
 	print_r($arr);
 }
 
-function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
+function customInsertRecord($data_arr, $table_name, $is_detail_table, $insert_into_revs) {
 	global $db_connection;
 	global $modified_by;
 	global $modified;
@@ -257,10 +340,13 @@ function customInsertRecord($data_arr, $table_name, $is_detail_table = false) {
 	mysqli_query($db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	
 	$record_id = mysqli_insert_id($db_connection);
-	$additional_fields = $is_detail_table? array('version_created' => "NOW()") : array('id' => "$record_id", 'version_created' => "NOW()");
-	$rev_insert_arr = array_merge($data_to_insert, $additional_fields);
-	$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
-	mysqli_query($db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	
+	if($insert_into_revs) {
+		$additional_fields = $is_detail_table? array('version_created' => "'$modified'") : array('id' => "$record_id", 'version_created' => "'$modified'");
+		$rev_insert_arr = array_merge($data_to_insert, $additional_fields);
+		$query = "INSERT INTO ".$table_name."_revs (".implode(", ", array_keys($rev_insert_arr)).") VALUES (".implode(", ", array_values($rev_insert_arr)).")";
+		mysqli_query($db_connection, $query) or die("$table_name record [".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	}
 	
 	if(!is_null($tmp_set_id_for_check) && $tmp_set_id_for_check != $record_id) die('ERR 2332872872');//Not really usefull
 	
@@ -292,11 +378,20 @@ function getDateAndAccuracy($data_type, $data, $worksheet, $field, $accuracy_fie
 		$result = array('date' => $date.'-01-01', 'accuracy' => 'm');
 	} else if(preg_match('/^((0[1-9])|([12][0-9])|(3[0-1]))[\/\-]((0[1-9])|(1[0-2]))[\/\-](19|20)([0-9]{2})$/',$date,$matches)) {
 		$result = array('date' => $matches[8].$matches[9].'-'.$matches[5].'-'.$matches[1], 'accuracy' => 'c');
+	} else if(preg_match('/^,\ (19|20)([0-9]{2})$/',$date,$matches)) {
+		$result = array('date' => $matches[1].$matches[2].'-01-01', 'accuracy' => 'm');
+	} else if(preg_match('/^,\ ((January)|(February)|(March)|(April)|(May)|(June)|(July)|(August)|(September)|(October)|(November)|(December))\ (19|20)([0-9]{2})$/',$date,$matches)) {
+		$month = str_replace(array('January','February','March','April','May','June','July','August','September','October','November','December'),
+			array('01','02','03','04','05','06','07','08','09','10','11','12'), 
+			$matches[1]);
+		$result = array('date' => $matches[14].$matches[15]."-$month-01", 'accuracy' => 'd');
 	} else {
 		$summary_msg[$data_type]['@@ERROR@@']['Date Format Error'][] = "Format of date '$date' is not supported! [worksheet $worksheet - field '$field' - line: $line]";
 		return null;
 	}
-	if($data[$accuracy_field] && in_array($data[$accuracy_field], array('m','d'))) $result['accuracy'] = str_replace(array('y','m'), array('m','d'), $data[$accuracy_field]);
+	if($data[$accuracy_field] && in_array($data[$accuracy_field], array('y','m'))) {
+		$result['accuracy'] = str_replace(array('m','y'), array('d','m'), $data[$accuracy_field]);
+	}
 	return $result;
 }
 
@@ -367,13 +462,20 @@ function displayErrorAndMessage() {
 	<br><br>=====================================================================
 	</FONT><br>";
 	echo "<i>";
+	$displayed_changes = array();
 	foreach($creation_summary as $participant_id => $data) {
 		echo "<br><FONT COLOR=\"orange\" ><b> ATiM Patient Id $participant_id </b> </FONT><br>";
 		foreach($data as $type => $msgs) {
+			if(!isset($displayed_changes[$type])) $displayed_changes[$type] = 0;
+			$displayed_changes[$type]++;
 			echo " --> <FONT COLOR=\"green\" >". utf8_decode($type) . "</FONT><br>";
 			foreach($msgs as $msg) echo utf8_decode($msg)."<br>";
 		}
 	}
+	
+	echo "<br><br><FONT COLOR=\"red\" ><b> ***** List of patiend data creation/update messages ***** </b> </FONT><br>";
+	foreach($displayed_changes as $type => $nbr) echo "<FONT COLOR=\"green\" >". utf8_decode($type)."</FONT> ($nbr) <br>";
+
 	echo "</i>";
 	return $commit;
 }
