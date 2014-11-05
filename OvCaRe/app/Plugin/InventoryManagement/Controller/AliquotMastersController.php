@@ -2681,8 +2681,12 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			$aliquot_uses[] = $new_aliquot_use;
 		}
 		$this->request->data = array_merge($this->request->data, $aliquot_uses);
-
-	}
+		
+		$hook_link = $this->hook('format');
+		if($hook_link){
+			require($hook_link);
+		}
+	}	
 	
 	function editInBatch(){
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));

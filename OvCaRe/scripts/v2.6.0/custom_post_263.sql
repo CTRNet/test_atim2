@@ -624,6 +624,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("other-ascite", "other-ascite");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ovcare_tumor_site"), (SELECT id FROM structure_permissible_values WHERE value="other-ascite" AND language_alias="other-ascite"), "", "1");
+INSERT INTO i18n (id,en) VALUES ('other-ascite','Other-Ascite');
 
 -- ** Add Surgery Precison Ovarectomy **
 
@@ -699,38 +700,257 @@ ALTER TABLE ovcare_dxd_ovaries_endometriums_revs
 	DROP COLUMN progression_free_time_months,
 	DROP COLUMN progression_free_time_months_precision;	
 
+-- ** Add histopatho & stage to other diagnosis **
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisDetail', 'ovcare_dxd_others', 'stage', 'input',  NULL , '0', 'size=5', '', '', 'stage', ''), 
+('ClinicalAnnotation', 'DiagnosisDetail', 'ovcare_dxd_others', 'histopathology', 'input',  NULL , '0', 'size=30', '', '', 'histopathology', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_dxd_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_others' AND `field`='stage' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='stage' AND `language_tag`=''), '2', '29', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_dxd_others'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_others' AND `field`='histopathology' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='histopathology' AND `language_tag`=''), '3', '59', 'histopathology', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+ALTER TABLE ovcare_dxd_others ADD COLUMN stage varchar(10) DEFAULT NULL, ADD COLUMN histopathology varchar(50) DEFAULT NULL;
+ALTER TABLE ovcare_dxd_others_revs ADD COLUMN stage varchar(10) DEFAULT NULL, ADD COLUMN histopathology varchar(50) DEFAULT NULL;
+UPDATE structure_formats SET `display_order`='31' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dxd_others') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisDetail' AND `tablename`='ovcare_dxd_others' AND `field`='stage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ** Add hormonal therapy **
+
+INSERT INTO `treatment_extend_controls` (`id`, `detail_tablename`, `detail_form_alias`, `flag_active`, `type`, `databrowser_label`) VALUES
+(null, 'ovcare_txe_hormonal_therapies', 'ovcare_txe_hormonal_therapies', 1, 'hormone', 'hormone');
+INSERT INTO `treatment_controls` (`id`, `tx_method`, `disease_site`, `flag_active`, `detail_tablename`, `detail_form_alias`, `display_order`, `applied_protocol_control_id`, `extended_data_import_process`, `databrowser_label`, `flag_use_for_ccl`, `treatment_extend_control_id`) VALUES
+(null, 'hormonal therapy', '', 1, 'ovcare_txd_hormonal_therapies', 'ovcare_txd_hormonal_therapies', 0, NULL, NULL, 'hormonal therapy', 0, (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'ovcare_txe_hormonal_therapies'));
+CREATE TABLE IF NOT EXISTS `ovcare_txd_hormonal_therapies` (
+  `treatment_master_id` int(11) NOT NULL,
+  KEY `tx_master_id` (`treatment_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `ovcare_txd_hormonal_therapies_revs` (
+  `treatment_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4740 ;
+CREATE TABLE IF NOT EXISTS `ovcare_txe_hormonal_therapies` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  KEY `FK_ovcare_txe_hormonal_therapies_drugs` (`drug_id`),
+  KEY `FK_ovcare_txe_hormonal_therapies_treatment_extend_masters` (`treatment_extend_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `ovcare_txe_hormonal_therapies_revs` (
+  `dose` varchar(50) DEFAULT NULL,
+  `method` varchar(50) DEFAULT NULL,
+  `drug_id` int(11) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  `treatment_extend_master_id` int(11) NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8213 ;
+ALTER TABLE `ovcare_txd_hormonal_therapies`
+  ADD CONSTRAINT `ovcare_txd_hormonal_therapies_ibfk_1` FOREIGN KEY (`treatment_master_id`) REFERENCES `treatment_masters` (`id`);
+ALTER TABLE `ovcare_txe_hormonal_therapies`
+  ADD CONSTRAINT `FK_ovcare_txe_hormonal_therapies_drugs` FOREIGN KEY (`drug_id`) REFERENCES `drugs` (`id`),
+  ADD CONSTRAINT `FK_ovcare_txe_hormonal_therapies_treatment_extend_masters` FOREIGN KEY (`treatment_extend_master_id`) REFERENCES `treatment_extend_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('ovcare_txd_hormonal_therapies');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_txd_hormonal_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_txd_hormonal_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('ovcare_txe_hormonal_therapies');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'ovcare_txe_hormonal_therapies', 'dose', 'input',  NULL , '0', 'size=10', '', 'help_dose', 'dose', ''), 
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'ovcare_txe_hormonal_therapies', 'method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method') , '0', '', '', 'help_method', 'method', ''), 
+('ClinicalAnnotation', 'TreatmentExtendDetail', 'ovcare_txe_hormonal_therapies', 'drug_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='drug_list') , '0', '', '', 'help_drug_id', 'drug', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_txe_hormonal_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='ovcare_txe_hormonal_therapies' AND `field`='dose' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='help_dose' AND `language_label`='dose' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_txe_hormonal_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='ovcare_txe_hormonal_therapies' AND `field`='method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='chemotherapy_method')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_method' AND `language_label`='method' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_txe_hormonal_therapies'), (SELECT id FROM structure_fields WHERE `model`='TreatmentExtendDetail' AND `tablename`='ovcare_txe_hormonal_therapies' AND `field`='drug_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_drug_id' AND `language_label`='drug' AND `language_tag`=''), '1', '1', 'drugs', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO i18n (id,en) VALUEs ('hormone','Hormone'),('hormonal therapy','Hormonal Therapy');
+
+-- ** Add radiology event **
+
+INSERT INTO event_controls (id, disease_site, event_group, event_type, flag_active, detail_form_alias, detail_tablename, display_order, databrowser_label, flag_use_for_ccl, use_addgrid, use_detail_form_for_index) VALUES
+(null, '', 'clinical', 'radiology', 1, 'ovcare_ed_cradiologies', 'ovcare_ed_cradiologies', 0, 'radiology', 0, 1, 1);
+CREATE TABLE ovcare_ed_cradiologies (
+  event_master_id int(11) NOT NULL,
+  KEY event_master_id (event_master_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE ovcare_ed_cradiologies_revs (
+  event_master_id int(11) NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=14896 ;
+ALTER TABLE `ovcare_ed_cradiologies`
+  ADD CONSTRAINT ovcare_ed_cradiologies_ibfk_1 FOREIGN KEY (event_master_id) REFERENCES event_masters (id);
+
+-- ** Move blood ischemia time to plasma, serum or buffy coat sample level plus merge blood edta of the same colleciton **
+
+SET @modified_by = (SELECT id FROM users WHERE username LIKE 'migration');
+SET @modified = (SELECT NOW() FROM users LIMIT 0 ,1);
+
+-- Buffy Coat
+ALTER TABLE sd_der_blood_cells ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+ALTER TABLE sd_der_blood_cells_revs ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+INSERT INTO structures(`alias`) VALUES ('ovcare_sd_der_blood_cells');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_blood_cells', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', 'ischemia time mn', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_sd_der_blood_cells'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_blood_cells' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ischemia time mn' AND `language_tag`=''), '1', '440', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE sample_controls SET detail_form_alias = 'ovcare_sd_der_blood_cells,derivatives' WHERE sample_type = 'blood cell';
+SET @sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'blood cell');
+UPDATE sample_masters SampleMasterBlood, sd_spe_bloods SampleDetailBlood, sample_masters SampleMasterDer, sd_der_blood_cells SampleDetailDer
+SET SampleDetailDer.ovcare_ischemia_time_mn = SampleDetailBlood.ovcare_ischemia_time_mn, SampleMasterDer.modified = @modified, SampleMasterDer.modified_by = @modified_by
+WHERE SampleMasterBlood.id = SampleMasterDer.parent_id
+AND SampleMasterBlood.id = SampleDetailBlood.sample_master_id AND SampleMasterBlood.deleted <> 1 AND SampleMasterBlood.sample_control_id = 2
+AND SampleMasterDer.id = SampleDetailDer.sample_master_id AND SampleMasterDer.deleted <> 1 AND SampleMasterDer.sample_control_id = @sample_control_id
+AND (SampleDetailBlood.ovcare_ischemia_time_mn IS NOT NULL AND SampleDetailBlood.ovcare_ischemia_time_mn NOT LIKE '');
+-- plasma
+ALTER TABLE sd_der_plasmas ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+ALTER TABLE sd_der_plasmas_revs ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_plasmas', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', 'ischemia time mn', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_plasmas'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_plasmas' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ischemia time mn' AND `language_tag`=''), '1', '440', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+SET @sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'plasma');
+UPDATE sample_masters SampleMasterBlood, sd_spe_bloods SampleDetailBlood, sample_masters SampleMasterDer, sd_der_plasmas SampleDetailDer
+SET SampleDetailDer.ovcare_ischemia_time_mn = SampleDetailBlood.ovcare_ischemia_time_mn, SampleMasterDer.modified = @modified, SampleMasterDer.modified_by = @modified_by
+WHERE SampleMasterBlood.id = SampleMasterDer.parent_id
+AND SampleMasterBlood.id = SampleDetailBlood.sample_master_id AND SampleMasterBlood.deleted <> 1 AND SampleMasterBlood.sample_control_id = 2
+AND SampleMasterDer.id = SampleDetailDer.sample_master_id AND SampleMasterDer.deleted <> 1 AND SampleMasterDer.sample_control_id = @sample_control_id
+AND (SampleDetailBlood.ovcare_ischemia_time_mn IS NOT NULL AND SampleDetailBlood.ovcare_ischemia_time_mn NOT LIKE '');
+-- serum
+ALTER TABLE sd_der_serums ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+ALTER TABLE sd_der_serums_revs ADD COLUMN `ovcare_ischemia_time_mn` int(6) DEFAULT NULL;
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_der_serums', 'ovcare_ischemia_time_mn', 'integer_positive',  NULL , '0', 'size=5', '', '', 'ischemia time mn', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_serums'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_der_serums' AND `field`='ovcare_ischemia_time_mn' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='ischemia time mn' AND `language_tag`=''), '1', '440', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+SET @sample_control_id = (SELECT id FROM sample_controls WHERE sample_type = 'serum');
+UPDATE sample_masters SampleMasterBlood, sd_spe_bloods SampleDetailBlood, sample_masters SampleMasterDer, sd_der_serums SampleDetailDer
+SET SampleDetailDer.ovcare_ischemia_time_mn = SampleDetailBlood.ovcare_ischemia_time_mn, SampleMasterDer.modified = @modified, SampleMasterDer.modified_by = @modified_by
+WHERE SampleMasterBlood.id = SampleMasterDer.parent_id
+AND SampleMasterBlood.id = SampleDetailBlood.sample_master_id AND SampleMasterBlood.deleted <> 1 AND SampleMasterBlood.sample_control_id = 2
+AND SampleMasterDer.id = SampleDetailDer.sample_master_id AND SampleMasterDer.deleted <> 1 AND SampleMasterDer.sample_control_id = @sample_control_id
+AND (SampleDetailBlood.ovcare_ischemia_time_mn IS NOT NULL AND SampleDetailBlood.ovcare_ischemia_time_mn NOT LIKE '');
+-- revs
+INSERT INTO sample_masters_revs (sample_control_id, id, sample_code, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, sop_master_id, product_code, is_problematic, notes, modified_by, version_created)
+(SELECT sample_control_id, id, sample_code, initial_specimen_sample_id, initial_specimen_sample_type, collection_id, parent_id, parent_sample_type, sop_master_id, product_code, is_problematic, notes, modified_by, modified
+FROM sample_masters WHERE modified = @modified AND modified_by = @modified_by AND sample_control_id IN (7,8,9,10));
+INSERT INTO derivative_details_revs (sync_with_lab_book, sample_master_id, creation_site, creation_by, creation_datetime, lab_book_master_id, creation_datetime_accuracy, version_created) 
+(SELECT sync_with_lab_book, sample_master_id, creation_site, creation_by, creation_datetime, lab_book_master_id, creation_datetime_accuracy, modified
+FROM derivative_details INNER JOIN sample_masters ON sample_masters.id = derivative_details.sample_master_id WHERE modified = @modified AND modified_by = @modified_by AND sample_control_id IN (7,8,9,10));
+INSERT INTO sd_der_plasmas_revs (sample_master_id, ovcare_ischemia_time_mn, version_created)
+(SELECT sample_master_id, ovcare_ischemia_time_mn, modified
+FROM sd_der_plasmas INNER JOIN sample_masters ON sample_masters.id = sd_der_plasmas.sample_master_id WHERE modified = @modified AND modified_by = @modified_by AND sample_control_id IN (7,8,9,10));
+INSERT INTO sd_der_serums_revs (sample_master_id, ovcare_ischemia_time_mn, version_created)
+(SELECT sample_master_id, ovcare_ischemia_time_mn, modified
+FROM sd_der_serums INNER JOIN sample_masters ON sample_masters.id = sd_der_serums.sample_master_id WHERE modified = @modified AND modified_by = @modified_by AND sample_control_id IN (7,8,9,10));
+INSERT INTO sd_der_blood_cells_revs (sample_master_id, ovcare_ischemia_time_mn, version_created)
+(SELECT sample_master_id, ovcare_ischemia_time_mn, modified
+FROM sd_der_blood_cells INNER JOIN sample_masters ON sample_masters.id = sd_der_blood_cells.sample_master_id WHERE modified = @modified AND modified_by = @modified_by AND sample_control_id IN (7,8,9,10));
+-- Clean Up Blood
+ALTER TABLE sd_spe_bloods DROP COLUMN `ovcare_ischemia_time_mn`;
+ALTER TABLE sd_spe_bloods_revs DROP COLUMN `ovcare_ischemia_time_mn`;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='ovcare_ischemia_time_mn' AND `language_label`='ischemia time mn' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='ovcare_ischemia_time_mn' AND `language_label`='ischemia time mn' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='SampleDetail' AND `tablename`='sd_spe_bloods' AND `field`='ovcare_ischemia_time_mn' AND `language_label`='ischemia time mn' AND `language_tag`='' AND `type`='integer_positive' AND `setting`='size=5' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+
+-- ** Tissue Block Type : Custom List **
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Tissue Block Types\')" WHERE domain_name = 'block_type';
+INSERT INTO structure_permissible_values_custom_controls (name, category, values_max_length) 
+VALUES 
+('Tissue Block Types', 'inventory', '30');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Block Types');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+(SELECT value, i18n.en, '1', @control_id, NOW(), NOW(), 1, 1
+FROM structure_value_domains_permissible_values link
+INNER JOIN structure_value_domains dom ON dom.id = link.structure_value_domain_id
+INNER JOIN structure_permissible_values val ON val.id = link.structure_permissible_value_id
+LEFT JOIN i18n ON i18n.id = val.language_alias
+WHERE dom.domain_name = 'block_type');
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="block_type" AND spv.value="OCT" AND spv.language_alias="oct solution";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="block_type" AND spv.value="paraffin" AND spv.language_alias="paraffin";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="block_type" AND spv.value="frozen" AND spv.language_alias="frozen";
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="block_type" AND spv.value="FFPE" AND spv.language_alias="FFPE";
+DELETE FROM structure_permissible_values WHERE value="OCT" AND language_alias="oct solution" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="paraffin" AND language_alias="paraffin" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="frozen" AND language_alias="frozen" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+DELETE FROM structure_permissible_values WHERE value="FFPE" AND language_alias="FFPE" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+INSERT INTO `structure_permissible_values_customs` (`value`, en, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('MFPE', 'MFPE', '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- ** Display participants linked to study **
+
+INSERT INTO structures(`alias`) VALUES ('ovcare_study_participants');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ovcare_study_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '1', '1', '', '0', '1', 'first name', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_study_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '1', '3', '', '0', '1', 'last name', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='ovcare_study_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '3', '98', 'system data', '0', '0', '', '0', '', '0', '', '1', 'input', '1', 'size=10,class=range file', '0', '', '0', '0', '1', '1', '1', '0', '0', '0', '1', '1', '0', '0', '1', '1', '1', '0');
+
+-- ** Diagnosis Notes Searchable **
+
+UPDATE structure_fields SET  `language_help`='help_memo' WHERE model='DiagnosisMaster' AND tablename='diagnosis_masters' AND field='notes' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `flag_override_help`='0', `language_help`='', `flag_search`='1', `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ** Clinical Aliquot **
+
+ALTER TABLE aliquot_masters ADD COLUMN ovcare_clinical_aliquot varchar(5) DEFAULT 'no';
+ALTER TABLE aliquot_masters_revs ADD COLUMN ovcare_clinical_aliquot varchar(5) DEFAULT 'no';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'ovcare_clinical_aliquot', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'clinical aliquot', '');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES ((SELECT id FROM structure_fields WHERE `field`='ovcare_clinical_aliquot'), 'notEmpty');
+INSERT INTO i18n (id,en) VALUES ('clinical aliquot','Clinical Aliquot');
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '0', '399', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sourcealiquots'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '0', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qctestedaliquots'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '0', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='in_stock_detail'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '1', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='used_aliq_in_stock_details'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '0', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='children_aliquots_selection'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '0', '0', '0', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qualityctrls'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '1', '33', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `display_order`='32' WHERE structure_id=(SELECT id FROM structures WHERE alias='qualityctrls') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotMaster', 'aliquot_masters', 'ovcare_clinical_aliquot', 'input',  NULL , '0', 'size=20', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '0', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `display_order`='30' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters_for_collection_tree_view') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'ViewAliquot', '', 'ovcare_clinical_aliquot', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', 'no', '', 'clinical aliquot', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='ovcare_clinical_aliquot' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno')  AND `flag_confidential`='0' AND `setting`='' AND `default`='no' AND `language_help`='' AND `language_label`='clinical aliquot' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+UPDATE structure_formats SET `display_column`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='view_aliquot_joined_to_sample_and_collection') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='' AND `field`='ovcare_clinical_aliquot' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_override_default`='1', `default`='no' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='ovcare_clinical_aliquot' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yesno') AND `flag_confidential`='0');
+
+-- ** Remove Sop From Edit In Batch **
+
+UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_master_edit_in_batchs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='sop_master_id' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_sop_list') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_edit`='0', `flag_batchedit`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_master_edit_in_batchs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='remove_sop_master_id' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 
 
 
 
-
+-- ** Version **
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = 'xxxxx' WHERE version_number = '2.6.3';
-
-=== QUESTIONS FOR YING ==========================================================================================================================================
-
-** Blood Type **
-
-Set blood type = 'serum' for all blood linked to serum (blood spined to get serum).
-Set blood type = 'EDTA' for all blood linked to plasma or buffy coat (blood spined to get plasma and buffy coat).
-
-
-TODO
-- Check why I was not able to search rack in storage layout to move box from one rach to another one
-- The databrowser relationship diagram is not displayed.
+UPDATE versions SET branch_build_number = '5930' WHERE version_number = '2.6.3';
 
 
 
 
 
 
-** Migration: BRCA values to confirm **
 
-BRCA1 mutated = BRCA1+ ?
-BRCA2 mutated = BRCA2+ ?
-wild type = ? Add the value to the form?
+
 
 
 
