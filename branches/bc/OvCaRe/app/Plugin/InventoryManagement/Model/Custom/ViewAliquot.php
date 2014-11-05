@@ -29,6 +29,7 @@ Collection.collection_voa_nbr,
 		AliquotMaster.barcode,
 		AliquotMaster.aliquot_label,
 		AliquotControl.aliquot_type,
+AliquotMaster.ovcare_clinical_aliquot,			
 		AliquotMaster.aliquot_control_id,
 		AliquotMaster.in_stock,
 	
