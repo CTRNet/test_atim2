@@ -9,7 +9,7 @@ set_time_limit('3600');
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
 require_once './Excel/reader.php';
-$file_name = "Formated-all TFRI cases.xls";
+$file_name = "Formated-all TFRI cases_20141105_1600.xls";
 $file_path = isset($_GET['file_path'])? $_GET['file_path'] : "C:\_Perso\Server\ovcare\data";
 $file_path .= (preg_match('/\//', $file_path)? '/': '\\').$file_name;
 //TODO test file path in arg on unbuntu
@@ -100,9 +100,9 @@ while($row = $results->fetch_assoc()) {
 
 // Work on surgery/biopsy data: Age at surgery/biopsy
 
-$query = "UPDATE ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']." SET ovcare_age_at_surgery = '', ovcare_age_at_surgery_precision = '';";
+$query = "UPDATE ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']." SET ovcare_age_at_surgery = null, ovcare_age_at_surgery_precision = null;";
 mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-$query = "UPDATE ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']."_revs SET ovcare_age_at_surgery = '', ovcare_age_at_surgery_precision = '';";
+$query = "UPDATE ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']."_revs SET ovcare_age_at_surgery = null, ovcare_age_at_surgery_precision = null;";
 mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 $query = "SELECT TreatmentMaster.id AS treatment_master_id,
 	Participant.date_of_birth, 

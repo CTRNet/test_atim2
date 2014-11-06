@@ -242,8 +242,6 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 		} else {
 			$participant_id = $voas_to_participant_id[$voa];
 			$primary_id = $voa_to_diagnosis_master_id[$voa];
-			
-			
 			if(array_key_exists('progression', $new_voa_progressions)) {
 				foreach($new_voa_progressions['progression'] as $new_progression) {
 					if(empty($new_progression['date']) && $new_progression['site'] == 'unknown') {
@@ -260,7 +258,7 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 						//Check also CA progression
 						$tmp_ca125_progression = false;
 						if(array_key_exists('CA125', $new_voa_progressions) && array_key_exists($new_progression['date'], $new_voa_progressions['CA125'])) {
-							$master_data['notes'] = 'And progression of CA125';
+							$master_data['notes'] = 'Plus CA125 progression';
 							$tmp_ca125_progression = true;
 							unset($new_voa_progressions['CA125'][$new_progression['date']]);
 						}
@@ -376,6 +374,8 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 	while($row = $results->fetch_assoc()) {
 		$participant_id_to_atim_ca125s[$row['participant_id']][$row['ca125']][$row['event_master_id']] = $row;
 	}
+	//CTScan check
+	$created_ct_scan = array();
 	//Process
 	$headers = array();
 	$worksheet_name = $event_worksheet_name;
@@ -598,12 +598,11 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 								}
 								//Add Treatment Extend
-								$surgical_procedure_already_recorded = false;
-								foreach($atim_tx_data['surgical_procedures'] as $atim_surgical_procedure) if($atim_surgical_procedure == $surgical_procedure) $surgical_procedure_already_recorded = true;
-								if(!$surgical_procedure_already_recorded) {
+								if(!in_array($surgical_procedure, $atim_tx_data['surgical_procedures'])) {
 									$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
 									customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'surgical_procedure' => $surgical_procedure), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_detail_tablename'], true, true);
 									$summary_msg['Data Creation/Update Summary'][$participant_id]["Created new Surgery/Biopsy Procedure Performed"][] = "Added '$surgical_procedure' to Procedures Performed list for surgery/biopsy on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['surgical_procedures'][$surgical_procedure] = $surgical_procedure;
 								}
 							} else {
 								//Add Treatment
@@ -632,7 +631,7 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 								$summary_msg['Data Creation/Update Summary'][$participant_id]["Surgery/Biopsy Creation"][] = "Created $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 							}
 							break;
-						// == ct scan ==
+						// == CA125 ==
 						case 'CA125':
 							if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 							if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
@@ -679,14 +678,36 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 									$query ="INSERT INTO ovcare_ed_ca125s_revs (event_master_id,ca125,version_created) VALUES ($event_master_id_to_update, '$ca125_value', '$modified');";
 									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 								} else {
-									$master_data = array('participant_id' => $participant_id, 
-										'diagnosis_master_id' => $diagnosis_master_id, 
-										'event_control_id' => $atim_controls['event_controls']['ca125']['event_control_id'], 
-										'event_date' => $start_data['date'], 
-										'event_date_accuracy' => $start_data['accuracy']);
-									$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
-									customInsertRecord(array('event_master_id' => $event_master_id, 'ca125' => $ca125_value), $atim_controls['event_controls']['ca125']['detail_tablename'], true, true);
-									$summary_msg['Data Creation/Update Summary'][$participant_id]["Added CA125 value"][] = "Recorded CA125 = [$ca125_value] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									$ca125_event_found = false;
+									if(isset($participant_id_to_atim_ca125s[$participant_id]) && array_key_exists($ca125_value, $participant_id_to_atim_ca125s[$participant_id])) {
+										foreach($participant_id_to_atim_ca125s[$participant_id][$ca125_value] as $key => $event_data) {
+											if($start_data['date'] == $event_data['event_date']) {
+												$ca125_event_found = true;	
+												$summary_msg[$worksheet_name]['@@WARNING@@']["CA125 Defined twice"][] = "CA125 value $ca125_value on ".$event_data['event_date']." is defined twice in file or both in file and ATiM. Only one record will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+												if($event_data['diagnosis_master_id'] != $diagnosis_master_id) {
+													$summary_msg[$worksheet_name]['@@WARNING@@']["CA125 Defined twice with different linked diagnosis"][] = "CA125 value $ca125_value on ".$event_data['event_date']." is defined twice but this one is defined as linked to 2 different diagnosis (".$event_data['diagnosis_master_id']." != $diagnosis_master_id). Please check and correct if required. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+												}
+												break;
+											}
+										}
+									}
+									if(!$ca125_event_found) {
+										$master_data = array('participant_id' => $participant_id, 
+											'diagnosis_master_id' => $diagnosis_master_id, 
+											'event_control_id' => $atim_controls['event_controls']['ca125']['event_control_id'], 
+											'event_date' => $start_data['date'], 
+											'event_date_accuracy' => $start_data['accuracy']);
+										$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
+										customInsertRecord(array('event_master_id' => $event_master_id, 'ca125' => $ca125_value), $atim_controls['event_controls']['ca125']['detail_tablename'], true, true);
+										$summary_msg['Data Creation/Update Summary'][$participant_id]["Added CA125 value"][] = "Recorded CA125 = [$ca125_value] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$event_master_id] = array(
+											'participant_id' => $participant_id,
+											'diagnosis_master_id' => $diagnosis_master_id,
+											'event_master_id' => $event_master_id,
+											'event_date' => $start_data['date'],
+											'event_date_accuracy' => $start_data['accuracy'],
+											'ca125' => $ca125_value);
+									}
 								}
 							}
 							break;
@@ -699,14 +720,22 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 								$summary_msg[$worksheet_name]['@@ERROR@@']["Wrong CT-Scan result"][] = "The format of a CT-Scan result '".$new_line_data['CT Scan Precision']."' is wrong. Value won't be recorded. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 							}
 							if(strlen($start_data['date'].$new_line_data['CT Scan Precision'])) {
-								$master_data = array('participant_id' => $participant_id,
-									'diagnosis_master_id' => $diagnosis_master_id,
-									'event_control_id' => $atim_controls['event_controls']['ct scan']['event_control_id'],
-									'event_date' => $start_data['date'],
-									'event_date_accuracy' => $start_data['accuracy']);
-								$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
-								customInsertRecord(array('event_master_id' => $event_master_id, 'result' => $new_line_data['CT Scan Precision']), $atim_controls['event_controls']['ct scan']['detail_tablename'], true, true);
-								$summary_msg['Data Creation/Update Summary'][$participant_id]["CT-Scan creation"][] = "CT-Scan with result = [".$new_line_data['CT Scan Precision']."] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if(array_key_exists($participant_id, $created_ct_scan) && array_key_exists($start_data['date'], $created_ct_scan[$participant_id])) {
+									$summary_msg[$worksheet_name]['@@WARNING@@']["CT-Scan defined twice"][] = "CT-Scan on ".$start_data['date']." is defined twice. Only one will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									if($created_ct_scan[$participant_id][$start_data['date']] != $new_line_data['CT Scan Precision']){
+										$summary_msg[$worksheet_name]['@@ERROR@@']["CT-Scan defined twice with 2 different results"][] = "CT-Scan on ".$start_data['date']." is defined twice but the results are different (".$created_ct_scan[$participant_id][$start_data['date']]." != ".$new_line_data['CT Scan Precision']."). Please check and correct. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									}
+								} else {
+									$master_data = array('participant_id' => $participant_id,
+										'diagnosis_master_id' => $diagnosis_master_id,
+										'event_control_id' => $atim_controls['event_controls']['ct scan']['event_control_id'],
+										'event_date' => $start_data['date'],
+										'event_date_accuracy' => $start_data['accuracy']);
+									$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
+									customInsertRecord(array('event_master_id' => $event_master_id, 'result' => $new_line_data['CT Scan Precision']), $atim_controls['event_controls']['ct scan']['detail_tablename'], true, true);
+									$summary_msg['Data Creation/Update Summary'][$participant_id]["CT-Scan creation"][] = "CT-Scan with result = [".$new_line_data['CT Scan Precision']."] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									$created_ct_scan[$participant_id][$start_data['date']] = $new_line_data['CT Scan Precision'];
+								}
 							}
 							break;
 						default:
@@ -748,7 +777,7 @@ function getDrugList() {
 	}
 	foreach(array('Paclitaxel','Ectoposide','Doxorubicin','Cisplatinum','Gemcitabine','Topotecan','Doxetaxel','Vinorelbine','Oxaliplatinum','Cyclophosphamide') as $new_generic_name) {
 		if(!isset($existing_drugs[strtolower($new_generic_name)])) {
-			$drug_id = customInsertRecord(array('generic_name' => $new_generic_name), 'drugs', false, true);
+			$drug_id = customInsertRecord(array('generic_name' => $new_generic_name, 'type' => 'chemotherapy'), 'drugs', false, true);
 			$existing_drugs[strtolower($new_generic_name)] = $drug_id;
 		}
 	}

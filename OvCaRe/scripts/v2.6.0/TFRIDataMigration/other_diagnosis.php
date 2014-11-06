@@ -220,7 +220,7 @@ function updateOtherDiagnosis(&$wroksheetcells, $sheets_keys, $dx_worksheet_name
 						// == procedure - surgery and biopsy ==
 						case 'surgery':
 						case 'biopsy':
-							if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+							if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Drugs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
 							$surgical_procedure = str_replace(array('biopsy', 'surgery'), array('unspecified biopsy', 'unspecified surgery'), $new_line_data['Event Type']);
 							//Add Treatment
 							$master_data = array(
