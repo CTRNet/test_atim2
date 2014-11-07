@@ -117,6 +117,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	
 	function validates($options = array()){
 		$errors = parent::validates($options);
+		
 		if(!isset($this->data['MiscIdentifier']['deleted']) || $this->data['MiscIdentifier']['deleted'] == 0){
 			if(isset($this->validationErrors['identifier_value']) && !is_array($this->validationErrors['identifier_value'])){
 				$this->validationErrors['identifier_value'] = array($this->validationErrors['identifier_value']);
