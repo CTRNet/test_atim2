@@ -1252,3 +1252,22 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='qc_nd_view_progressions'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='dx_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_dx date' AND `language_label`='dx_date' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 UPDATE versions SET branch_build_number = '5876' WHERE version_number = '2.6.3';
+
+-- 2014-11-07 ----------------------------------------------------------------------------------------------------------------------
+
+UPDATE menus SET use_link = '/Administrate/ReusableMiscIdentifiers/index' WHERE use_link = '/Administrate/MiscIdentifiers/index';
+INSERT INTO i18n (id,en,fr) VALUES ('manage', 'Manage', 'Gérer');
+UPDATE versions SET permissions_regenerated = 0;
+
+SET @nbr_of_gyneco_patients_to_create = 90;
+SET @next_identifier_value = (SELECT key_value FROM key_increments WHERE key_name = 'ovary bank no lab'); 
+SET @misc_identifier_control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'ovary/gyneco bank no lab');
+SET @date = (SELECT NOW() FROM aros LIMIt 0,1);
+INSERT INTO misc_identifiers (identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified`, `created`, `created_by`, `modified_by`, tmp_deleted, deleted)
+(SELECT id, @misc_identifier_control_id, null, 1, @date, @date, 9, 9, 1, 1 FROM user_logs WHERE @next_identifier_value <= id AND id < (@nbr_of_gyneco_patients_to_create + @next_identifier_value));
+INSERT INTO misc_identifiers_revs (id, identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified_by`, `version_created`)
+(SELECT id, identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified_by`, `modified` FROM misc_identifiers WHERE misc_identifier_control_id = @misc_identifier_control_id AND created = @date AND created_by = 1);
+UPDATE key_increments SET key_value = (@nbr_of_gyneco_patients_to_create + @next_identifier_value) WHERE key_name = 'ovary bank no lab';
+
+
+
