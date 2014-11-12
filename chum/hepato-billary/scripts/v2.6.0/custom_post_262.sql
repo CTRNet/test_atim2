@@ -53,4 +53,16 @@ UPDATE structure_fields SET  `language_label`='',  `language_tag`='size (cm)' WH
 INSERT INTO i18n (id,en) VALUES ('tumors', 'Tumors');
   
 UPDATE versions SET branch_build_number = '5925' WHERE version_number = '2.6.2';
+
+-- 20141112 --------------------------------------------------------------------------------------------------------
+
+ALTER TABLE ed_cap_report_gallbladders MODIFY distance_of_invasive_carcinoma_from_closest_margin_mm decimal(5,1) DEFAULT NULL;
+ALTER TABLE ed_cap_report_gallbladders_Revs MODIFY distance_of_invasive_carcinoma_from_closest_margin_mm decimal(5,1) DEFAULT NULL;
+ 
+UPDATE versions SET branch_build_number = '5935' WHERE version_number = '2.6.2';
+
+
+
+
+
   
