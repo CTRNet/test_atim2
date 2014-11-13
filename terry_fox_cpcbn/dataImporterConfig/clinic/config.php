@@ -28,7 +28,7 @@ class Config{
 	//--------------------------------------------------------------------------------------------------------------------------
 	//TODO: To change anytime
 	static $relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/';
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/KLOTZ 43 patients_20141027_1100.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/klotzbatch2_20141113.xls';
 	//static $relative_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/';
 	//static $xls_file_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/data/';
 	static $active_surveillance_project = true;
@@ -646,7 +646,6 @@ function addonFunctionEnd(){
 			}
 		}
 	}
-	
 }
 
 //=========================================================================================================
