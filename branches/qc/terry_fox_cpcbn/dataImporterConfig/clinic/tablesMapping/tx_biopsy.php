@@ -43,6 +43,7 @@ function txBiopsyPostRead(Model $m){
 			$m->values['type'] = "Bx";		
 			break;
 		case 'TRUS':
+		case 'TRUS Bx':
 			$m->values['type'] = "Bx TRUS-Guided";
 			break;
 		case 'TURP':

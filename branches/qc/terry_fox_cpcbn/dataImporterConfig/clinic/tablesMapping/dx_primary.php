@@ -65,7 +65,7 @@ function postDxRead(Model $m){
 	
 	$m->values['diagnosis_control_id'] = Config::$dx_controls['primary']['prostate']['id'];
 	$m->values[(Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') ] =str_replace(array('IV','III','II','I'), array('4','3','2','1'),$m->values[(Config::$active_surveillance_project? 'RP pTNM' : 'pTNM RP') ]);
-	$m->values['Active Surveillance'] =str_replace(array('no','unknown'), array('',''),$m->values['Active Surveillance']);
+	$m->values['Active Surveillance'] =str_replace(array('unknown'), array(''),$m->values['Active Surveillance']);
 	//Tool: "biopsy","TRUS-guided biopsy","TURP","PSA+DRE","RP","unknown"
 	if(strtoupper($m->values['Date of diagnosis  diagnostic tool']) == 'TRUS') {
 		$m->values['Date of diagnosis  diagnostic tool'] = 'TRUS-guided biopsy';
@@ -131,7 +131,7 @@ function manageDxValuesOnManyRows(Model $m){
 						$value_to_add['diagnosis_masters'][] = $db_field.'="'.$m->values[$new_field].'"';	
 						break;
 					default:
-						die('ERR 2 2876832768762 '.$new_field);	
+						die('ERR 2 2876832768762 '.$new_field." (the migration process won't add new custom vaue into custom list or it has to be completed)");	
 				}
 			}
 		}
@@ -231,6 +231,7 @@ function checkTypeOfBiopsySurgeryValue($values, $lines) {
 		case 'Bx prior to Tx':
 		case 'Dx Bx':
 		case 'TRUS':
+		case 'TRUS Bx':
 		case 'trus':
 		case 'TURP':
 		case 'biopsy':

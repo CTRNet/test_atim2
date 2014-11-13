@@ -30,7 +30,12 @@ function eventPsaPostRead(Model $m){
 	if(!strlen($m->values['PSA (ng/ml)'])){
 		return false;
 	}
-	if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['PSA (ng/ml)'], $matches)) {
+	$m->values['PSA (ng/ml)'] = str_replace(',', '.', $m->values['PSA (ng/ml)']);
+	if(preg_match('/^<([0-9]*)(\.[0-9]+){0,1}$/', $m->values['PSA (ng/ml)'], $matches)) {
+		$new_psa = str_replace('<', '', $m->values['PSA (ng/ml)']);
+		Config::$summary_msg['event: PSA']['@@WARNING@@']['value defined as inferior than a value'][] = "Will change value [".$m->values['PSA (ng/ml)']."] to  [$new_psa] at line ".$m->line.".";
+		$m->values['PSA (ng/ml)'] = str_replace('<', '', $m->values['PSA (ng/ml)']);
+	} else if(!preg_match('/^([0-9]*)(\.[0-9]+){0,1}$/', $m->values['PSA (ng/ml)'], $matches)) {
 		Config::$summary_msg['event: PSA']['@@WARNING@@']['value error'][] = "Decimal expected. See value [".$m->values['PSA (ng/ml)']."] at line ".$m->line.".";
 		$m->values['PSA (ng/ml)'] = '';
 	}

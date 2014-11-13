@@ -758,3 +758,23 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("1b", "1b");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_ctnm"), (SELECT id FROM structure_permissible_values WHERE value="1b" AND language_alias="1b"), "5", "1");
 UPDATE versions SET branch_build_number = '5927' WHERE version_number = '2.6.3';
+
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 2014-11-13
+-- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_ctnm"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "4", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES ("2+2", "2+2"),("2+3", "2+3"),("1+2", "1+2"),("3+2", "3+2");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_gleason_grades"), (SELECT id FROM structure_permissible_values WHERE value="2+2" AND language_alias="2+2"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_gleason_grades"), (SELECT id FROM structure_permissible_values WHERE value="2+3" AND language_alias="2+3"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_gleason_grades"), (SELECT id FROM structure_permissible_values WHERE value="1+2" AND language_alias="1+2"), "0", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_tf_gleason_grades"), (SELECT id FROM structure_permissible_values WHERE value="3+2" AND language_alias="3+2"), "0", "1");
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('1','1','1');
+INSERT IGNORE INTO i18n (id,en) 
+VALUES 
+("2+2", "2+2"),("2+3", "2+3"),("1+2", "1+2"),("3+2", "3+2");
+UPDATE versions SET branch_build_number = '5936' WHERE version_number = '2.6.3';

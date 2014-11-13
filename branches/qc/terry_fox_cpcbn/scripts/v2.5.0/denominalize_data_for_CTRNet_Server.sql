@@ -15,7 +15,7 @@ UPDATE storage_masters SET qc_tf_tma_name = CONCAT('#',id);
 UPDATE storage_masters_revs SET qc_tf_tma_name = CONCAT('#',id);
 
 UPDATE aliquot_masters SET aliquot_label = SUBSTRING(aliquot_label, 1, (LOCATE('[', aliquot_label) -2));
-UPDATE aliquot_masters_Revs SET aliquot_label = SUBSTRING(aliquot_label, 1, (LOCATE('[', aliquot_label) -2));
+UPDATE aliquot_masters_revs SET aliquot_label = SUBSTRING(aliquot_label, 1, (LOCATE('[', aliquot_label) -2));
 
 UPDATE collections SET collection_site = null;
 UPDATE collections_revs SET collection_site = null;
