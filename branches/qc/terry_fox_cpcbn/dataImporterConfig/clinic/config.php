@@ -28,7 +28,7 @@ class Config{
 	//--------------------------------------------------------------------------------------------------------------------------
 	//TODO: To change anytime
 	static $relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/';
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/klotzbatch2_20141113.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/TestDfs.xls';
 	//static $relative_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/';
 	//static $xls_file_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/data/';
 	static $active_surveillance_project = true;
@@ -423,10 +423,9 @@ function addonFunctionEnd(){
 	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
 		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id
 		WHERE tm.participant_id IN ($str_created_participant_ids) 
-		AND $tc_conditions
+		AND ($tc_conditions)
 		ORDER BY tm.participant_id, tm.start_date ASC";
 	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
-
 	$dfs_tx_ids = array();
 	$participant_id = '-1';
 	$first_tx_list_per_method = array();
@@ -603,7 +602,47 @@ function addonFunctionEnd(){
 			$query = "UPDATE qc_tf_dxd_cpcbn SET bcr_in_months = '$new_bcr', survival_in_months = '$new_survival' WHERE diagnosis_master_id = ".$row['diagnosis_master_id'].";";
 			mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
 			if(Config::$print_queries) echo $query.Config::$line_break_tag;
-			if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('treatment_masters','treatment_masters_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
+			if(Config::$insert_revs) mysqli_query(Config::$db_connection, str_replace('qc_tf_dxd_cpcbn','qc_tf_dxd_cpcbn_revs',$query)) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");	
+		}
+	}
+	
+	//Final test to check only one DFS start exists per primary diagnosis
+	$query = "SELECT
+			TreatmentMaster.participant_id,
+			Bank.name as 'Bank',
+			Participant.participant_identifier as 'ATim#',
+			Participant.qc_tf_bank_participant_identifier as 'Bank#',
+			res.primary_id,
+			TreatmentMaster.id as treatment_master_id,
+			TreatmentMaster.start_date,
+			TreatmentControl.tx_method,
+			TreatmentMaster.created AS 'TreatmentMaster.created',
+			TreatmentMaster.created_by AS 'TreatmentMaster.created_by',
+			TreatmentMaster.modified AS 'TreatmentMaster.modified',
+			TreatmentMaster.modified_by AS 'TreatmentMaster.modified_by'
+		 FROM(
+			SELECT count(*) as nbr,
+				DiagnosisMaster.primary_id,
+				DiagnosisMaster.participant_id
+			FROM diagnosis_masters AS DiagnosisMaster
+			INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
+			INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+			WHERE DiagnosisMaster.deleted <> 1
+			GROUP BY DiagnosisMaster.primary_id, DiagnosisMaster.participant_id
+		) as res
+		INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = res.primary_id
+		INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
+		INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+		INNER JOIN participants Participant ON Participant.id = DiagnosisMaster.participant_id
+		LEFT JOIN banks Bank ON Bank.id = Participant.qc_tf_bank_id
+		WHERE nbr  >1
+		ORDER BY res.participant_id, res.primary_id, TreatmentMaster.start_date, TreatmentControl.tx_method;";
+	$results = mysqli_query(Config::$db_connection, $query) or die("query [$query] failed [".__FUNCTION__." ".__LINE__."]");
+	while($row = $results->fetch_assoc()){
+		if(in_array($row['participant_id'], Config::$created_participant_ids)) {
+			Config::$summary_msg['DFS Start Final Check']['@@ERROR@@']["A diagnosis is linked to more than one treatment flagged as 'DFS Start' (Patient of the migrated batch)"][$row['participant_id']] = "See Patient Bank# ".$row['Bank#'].".";
+		} else {
+			Config::$summary_msg['DFS Start Final Check']['@@ERROR@@']["A diagnosis is linked to more than one treatment flagged as 'DFS Start' (Patient Previously migrated)"][$row['participant_id']] ="See Patient Bank# ".$row['Bank#']." of bank '".$row['Bank']."'.";
 		}
 	}
 	
