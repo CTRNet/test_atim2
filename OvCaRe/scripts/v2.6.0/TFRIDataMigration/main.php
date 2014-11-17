@@ -1,31 +1,19 @@
 <?php
 
-require_once 'profile.php';
-require_once 'diagnosis.php';
-require_once 'other_diagnosis.php';
+require_once 'config.php';
+require_once './SourceCode/profile.php';
+require_once './SourceCode/diagnosis.php';
+require_once './SourceCode/other_diagnosis.php';
 
 set_time_limit('3600');
 
 //-- EXCEL FILE ---------------------------------------------------------------------------------------------------------------------------
 
-require_once './Excel/reader.php';
-$file_name = "Formated-all TFRI cases_20141105_1600.xls";
-$file_path = isset($_GET['file_path'])? $_GET['file_path'] : "C:\_Perso\Server\ovcare\data";
-$file_path .= (preg_match('/\//', $file_path)? '/': '\\').$file_name;
-//TODO test file path in arg on unbuntu
+require_once './SourceCode/Excel/reader.php';
 $tmp_xls_reader = new Spreadsheet_Excel_Reader();
-$tmp_xls_reader->read($file_path);
+$tmp_xls_reader->read($excel_file_name );
 $sheets_keys = array();
 foreach($tmp_xls_reader->boundsheets as $key => $tmp) $sheets_keys[$tmp['name']] = $key;
-
-//-- DB PARAMETERS ---------------------------------------------------------------------------------------------------------------------------
-
-$db_ip			= "localhost";
-$db_port 		= "";
-$db_user 		= "root";
-$db_pwd			= "";
-$db_schema		= "ovcare";
-$db_charset		= "utf8";
 
 //-- DB CONNECTION ---------------------------------------------------------------------------------------------------------------------------
 
@@ -68,7 +56,7 @@ $voas_to_participant_id = array();
 echo "<br><FONT COLOR=\"green\" >
 =====================================================================<br>
 OVCARE TFRI DATA EXPORT PROCESS<br>
-source_file = $file_name<br>
+source_file = $excel_file_name<br>
 Date: $modified<br>
 <br>=====================================================================</FONT><br><br>";
 
@@ -394,7 +382,7 @@ function mergeBloodAndTissue() {
 	$detail_tablename = $row['detail_tablename'];
 	$query = "SELECT SampleMaster.id,collection_id,notes,participant_id,collection_voa_nbr,
 		supplier_dept, reception_by, reception_datetime, reception_datetime_accuracy, time_at_room_temp_mn, 
-		ovcare_ischemia_time_mn, ovcare_tissue_type, tissue_source, ovcare_tissue_source_precision, tissue_laterality, joined_to_xenograft
+		ovcare_ischemia_time_mn, ovcare_tissue_type, tissue_source, ovcare_tissue_source_precision, tissue_laterality, xenograft_collected
 		FROM sample_masters SampleMaster
 		INNER JOIN collections Collection ON Collection.id = SampleMaster.collection_id
 		INNER JOIN specimen_details SpecimenDetail ON SpecimenDetail.sample_master_id = SampleMaster.id

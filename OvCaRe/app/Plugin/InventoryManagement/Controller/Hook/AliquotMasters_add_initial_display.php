@@ -9,17 +9,20 @@
 	$default_aliquot_data = array();
 	foreach($this->request->data as &$new_data_set){	
 		$view_sample = $new_data_set['parent'];
-		//Default_aliquot_data
+		$tmp_default_aliquot_data = array('AliquotMaster.ovcare_clinical_aliquot' => 'no');
 		$suffix = '';
 		switch($view_sample['ViewSample']['sample_type']) {
 			case 'blood cell':
 				$suffix = 'BC';
+				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.0';
 				break;
 			case 'plasma':
 				$suffix = 'P';
+				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.8';
 				break;
 			case 'serum':
 				$suffix = 'S';
+				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.8';
 				break;
 			case 'ascite':
 				$suffix = 'Ascites';
@@ -35,13 +38,15 @@
 						if($key < 24) $key++;				
 					}
 				}
+				if($aliquot_control['AliquotControl']['aliquot_type'] == 'block') {
+					$tmp_default_aliquot_data['AliquotDetail.block_type'] = 'paraffin';
+				} else if($aliquot_control['AliquotControl']['aliquot_type'] == 'tube') {
+					$tmp_default_aliquot_data['AliquotDetail.ovcare_storage_method'] = 'snap frozen';
+				}
 				break;
-		}	
-		$default_aliquot_data[$view_sample['ViewSample']['sample_master_id']] = array('aliquot_label' => 'VOA'.$view_sample['ViewSample']['collection_voa_nbr'].$suffix);
-		//Default Aliquot Block
-		if($view_sample['ViewSample']['sample_type'] == 'tissue' && $aliquot_control['AliquotControl']['aliquot_type'] == 'block') {
-			$default_aliquot_data[$view_sample['ViewSample']['sample_master_id']]['block_type'] = 'paraffin';
 		}
+		$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'VOA'.$view_sample['ViewSample']['collection_voa_nbr'].$suffix;
+		$default_aliquot_data[$view_sample['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
 	}
 	$this->set('default_aliquot_data', $default_aliquot_data);
 	
