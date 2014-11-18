@@ -1269,5 +1269,4 @@ INSERT INTO misc_identifiers_revs (id, identifier_value, misc_identifier_control
 (SELECT id, identifier_value, misc_identifier_control_id, participant_id, flag_unique, `modified_by`, `modified` FROM misc_identifiers WHERE misc_identifier_control_id = @misc_identifier_control_id AND created = @date AND created_by = 1);
 UPDATE key_increments SET key_value = (@nbr_of_gyneco_patients_to_create + @next_identifier_value) WHERE key_name = 'ovary bank no lab';
 
-
-
+UPDATE versions SET branch_build_number = '5939' WHERE version_number = '2.6.3';

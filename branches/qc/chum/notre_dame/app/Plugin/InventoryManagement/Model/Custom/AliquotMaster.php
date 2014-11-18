@@ -25,37 +25,93 @@ class AliquotMasterCustom extends AliquotMaster {
 	}
 	
 	function generateDefaultAliquotLabel($view_sample, $aliquot_control_data) {
-			
 		// Parameters check: Verify parameters have been set
 		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		
-		// Set date for aliquot label			
-		$aliquot_creation_date = '';			
-		if($view_sample['ViewSample']['sample_category'] == 'specimen'){
-			// Specimen Aliquot
-			if(!isset($this->SpecimenDetail)){
-				$this->SpecimenDetail = AppModel::getInstance('InventoryManagement', 'SpecimenDetail', true);
+			
+		$default_aliquot_label = '';
+		if($view_sample['ViewSample']['bank_id'] == 4) {
+			//*** Prostate Bank ***		
+			$idenitfier_value = empty($view_sample['ViewSample']['identifier_value'])? '?': $view_sample['ViewSample']['identifier_value'];
+			$visit_label = empty($view_sample['ViewSample']['visit_label'])? '?': $view_sample['ViewSample']['visit_label'];
+			$label = '-?';
+			switch($view_sample['ViewSample']['sample_type'].'-'.$aliquot_control_data['AliquotControl']['aliquot_type']) {
+				case 'blood-tube':
+					$this->SampleMaster = AppModel::getInstance('InventoryManagement', 'SampleMaster', true);
+					$sample_data = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.id' => $view_sample['ViewSample']['sample_master_id']), 'recursive' => '0'));
+					if($sample_data) {
+						switch($sample_data['SampleDetail']['blood_type']) {
+							case 'gel SST':
+								$label = '-SRB';
+								break;
+							case 'paxgene':
+								$label = '-RNB';
+								break;
+							case 'EDTA':
+								$label = '-EDB';
+								break;
+						}
+					}
+					break;
+				case 'blood-whatman paper':
+					$label = '-WHT';
+					break;
+				case 'serum-tube':
+					$label = '-SER';
+					break;
+				case 'plasma-tube':
+					$label = '-PLA';
+					break;
+				case 'pbmc-tube':
+					$label = '-BFC';
+					break;
+				case 'urine-cup':
+					$label = '-URI';
+					break;
+				case 'centrifuged urine-tube':
+					$label = '-URN';
+					break;
+				case 'tissue-block':
+					$label = '-FRZ';
+					break;
+				case 'rna-tube':
+					$label = '-RNA';
+					break;
+				case 'dna-tube':
+					$label = '-DNA';
+					break;
 			}
-			$specimen_detail = $this->SpecimenDetail->getOrRedirect($view_sample['ViewSample']['sample_master_id']);
+			$default_aliquot_label = $idenitfier_value . ' ' . $visit_label . ' ' . $label;
+		} else {
+			// *** Other Bank ***
 			
-			$aliquot_creation_date = $specimen_detail['SpecimenDetail']['reception_datetime'];
-
-		}else{
-			// Derviative Aliquot
-			if(!isset($this->DerivativeDetail)){
-				$this->DerivativeDetail = AppModel::getInstance('InventoryManagement', 'DerivativeDetail', true);
-			}
+			// Set date for aliquot label			
+			$aliquot_creation_date = '';			
+			if($view_sample['ViewSample']['sample_category'] == 'specimen'){
+				// Specimen Aliquot
+				if(!isset($this->SpecimenDetail)){
+					$this->SpecimenDetail = AppModel::getInstance('InventoryManagement', 'SpecimenDetail', true);
+				}
+				$specimen_detail = $this->SpecimenDetail->getOrRedirect($view_sample['ViewSample']['sample_master_id']);
+				
+				$aliquot_creation_date = $specimen_detail['SpecimenDetail']['reception_datetime'];
+	
+			}else{
+				// Derviative Aliquot
+				if(!isset($this->DerivativeDetail)){
+					$this->DerivativeDetail = AppModel::getInstance('InventoryManagement', 'DerivativeDetail', true);
+				}
+				
+				$derivative_detail = $this->DerivativeDetail->getOrRedirect($view_sample['ViewSample']['sample_master_id']);
+				
+				$aliquot_creation_date = $derivative_detail['DerivativeDetail']['creation_datetime'];
+			} 
 			
-			$derivative_detail = $this->DerivativeDetail->getOrRedirect($view_sample['ViewSample']['sample_master_id']);
-			
-			$aliquot_creation_date = $derivative_detail['DerivativeDetail']['creation_datetime'];
-		} 
+			$default_aliquot_label =
+				(empty($view_sample['ViewSample']['qc_nd_sample_label'])? 'n/a' : $view_sample['ViewSample']['qc_nd_sample_label']) .
+				(empty($aliquot_creation_date)? '' : ' ' . substr($aliquot_creation_date, 0, strpos($aliquot_creation_date," ")));
+		}
 		
-		$default_sample_label =
-			(empty($view_sample['ViewSample']['qc_nd_sample_label'])? 'n/a' : $view_sample['ViewSample']['qc_nd_sample_label']) .
-			(empty($aliquot_creation_date)? '' : ' ' . substr($aliquot_creation_date, 0, strpos($aliquot_creation_date," ")));
-
-		return $default_sample_label;
+		return $default_aliquot_label;
 	}
 	
 	function regenerateAliquotBarcode() {
