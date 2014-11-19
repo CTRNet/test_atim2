@@ -12,7 +12,7 @@
 				'type' => 'detail', 
 				'links'	=> $structure_links,
 				'settings' => array(
-					'header' => __($new_treatment_controls['TreatmentControl']['tx_method'], null),
+					(($new_treatment_controls['TreatmentControl']['tx_method'] == 'procure medication worksheet - drug')? 'language_heading':'header') => __($new_treatment_controls['TreatmentControl']['tx_method'], null),
 					'actions'	=> ((sizeof($all_treatment_controls) == $counter)? true : false)), 
 				'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id'].'/'.$new_treatment_controls['TreatmentControl']['id'])
 			);
@@ -21,6 +21,7 @@
 	} else {
 		//Specific Treatment List Display
 		$final_atim_structure = $atim_structure; 
+		if($display_edit_button) $structure_links['index']['edit'] = '/ClinicalAnnotation/TreatmentMasters/edit/'.$atim_menu_variables['Participant.id'].'/%%TreatmentMaster.id%%/';
 		$final_options = array(
 			'type'=>'index',
 			'settings'	=> array('pagination' => true, 'actions' => false),
