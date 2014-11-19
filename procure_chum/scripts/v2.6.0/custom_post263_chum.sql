@@ -186,8 +186,5 @@ UPDATE versions SET site_branch_build_number = '5870' WHERE version_number = '2.
 
 UPDATE structure_fields SET field = 'qc_nd_aborted_prostatectomy' WHERE  field = 'procure_aborted_prostatectomy';
 UPDATE structure_fields SET field = 'qc_nd_curietherapy' WHERE  field = 'procure_curietherapy';
-
-
-
-
-
+UPDATE versions SET site_branch_build_number = '5945' WHERE version_number = '2.6.3';
+UPDATE versions SET permissions_regenerated = 0;
