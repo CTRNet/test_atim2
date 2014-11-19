@@ -113,3 +113,169 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('procure follow-up worksheet - aps', 'F1 - Follow-up Worksheet :: PSA', 'F1 - Fiche de suivi du patient :: APS');
 
 UPDATE versions SET branch_build_number = '5868' WHERE version_number = '2.6.3';
+
+-- 20141110 ---------------------------------------------------------------------------------------------------------------------------------------
+-- CHANGE MEDICATION AND FOLLOWUP WORKSHEETS
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- TreatmentMaster
+
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='procure_form_identification' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='treatment form identification' AND `language_tag`=''), '1', '-5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='tx_method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_method_site_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_tx_method' AND `language_label`='type' AND `language_tag`=''), '1', '-4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentControl' AND `tablename`='treatment_controls' AND `field`='disease_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tx_disease_site_list')  AND `flag_confidential`='0'), '1', '1', '', '0', '0', '', '1', '-', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_start_date' AND `language_label`='date/start date' AND `language_tag`=''), '1', '-3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('the worksheet date has to be completed', 'The worksheet date has to be completed', 'La date du formulaire doit être saisie');
+
+-- Tx :: Treatment
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='treatment_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_treatment_types') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='3' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='dosage' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='-2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- delete structure_formats
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='followup_event_master_id' AND `language_label`='follow-up worksheet identification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='DE-46' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `language_label`='date/start date' AND `language_tag`='' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='help_start_date' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='locked' AND `flag_confidential`='0');
+-- Delete obsolete structure fields and validations
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='followup_event_master_id' AND `language_label`='follow-up worksheet identification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='followup_event_master_id' AND `language_label`='follow-up worksheet identification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE procure_txd_followup_worksheet_treatments DROP FOREIGN KEY procure_txd_followup_worksheet_treatments_ibfk_2;
+ALTER TABLE procure_txd_followup_worksheet_treatments DROP COLUMN followup_event_master_id;
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs DROP COLUMN followup_event_master_id;
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Tx :: MedicationWorksheets
+
+-- delete structure_formats
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_medications') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='id_confirmation_date' AND `language_label`='' AND `language_tag`='date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_medications') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='procure_form_identification' AND `language_label`='treatment form identification' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- Delete obsolete structure fields and validations
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='id_confirmation_date' AND `language_label`='' AND `language_tag`='date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_medications' AND `field`='id_confirmation_date' AND `language_label`='' AND `language_tag`='date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+UPDATE treatment_masters TreatmentMaster, procure_txd_medications TreatmentDetail
+SET TreatmentMaster.start_date = TreatmentDetail.id_confirmation_date, TreatmentMaster.start_date_accuracy = TreatmentDetail.id_confirmation_date_accuracy
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id;
+UPDATE treatment_masters_revs TreatmentMaster, procure_txd_medications TreatmentDetail
+SET TreatmentMaster.start_date = TreatmentDetail.id_confirmation_date, TreatmentMaster.start_date_accuracy = TreatmentDetail.id_confirmation_date_accuracy
+WHERE TreatmentMaster.id = TreatmentDetail.treatment_master_id;
+ALTER TABLE procure_txd_medications DROP COLUMN id_confirmation_date;
+ALTER TABLE procure_txd_medications_revs DROP COLUMN id_confirmation_date;
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+("at least one of the studied interval date is inaccurate","At least one of the studied interval dates is inaccurate","Au moins une des dates de l'intervalle étudié n'est pas précise"),
+("treatments list from %start% to %end%", "Treatments list from %start% to %end%", 'Liste des traitements du %start% au %end%'),
+("treatments list after %start%", "Treatments list after %start%", 'Liste des traitements après le %start%'),
+("treatments list before %end%", "Treatments list before %end%", 'Liste des traitements avant le %end%'),
+("unable to limit treatments list to a dates interval", "Unable to limit treatments list to a dates interval", "Impossible de limiter la liste des traitements à un intervalle de dates");
+
+-- Tx :: MedicationWorksheets :: Drug
+
+INSERT INTO treatment_controls (id, tx_method, disease_site, flag_active, detail_tablename, detail_form_alias, display_order, applied_protocol_control_id, extended_data_import_process, databrowser_label, flag_use_for_ccl, treatment_extend_control_id) VALUES
+(null, 'procure medication worksheet - drug', '', 1, 'procure_txd_medication_drugs', 'procure_txd_medication_drugs', 0, NULL, NULL, 'procure medication worksheet - drug', 0, NULL);
+CREATE TABLE procure_txd_medication_drugs (
+  dose varchar(50) DEFAULT NULL,
+  duration varchar(50) DEFAULT NULL,
+  drug_id int(11) DEFAULT NULL,
+  treatment_master_id int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE procure_txd_medication_drugs_revs (
+  dose varchar(50) DEFAULT NULL,
+  duration varchar(50) DEFAULT NULL,
+  drug_id int(11) DEFAULT NULL,
+  treatment_master_id int(11) NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (version_id)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+ALTER TABLE `procure_txd_medication_drugs`
+  ADD CONSTRAINT FK_procure_txd_medication_drugs_treatment_masters FOREIGN KEY (treatment_master_id) REFERENCES treatment_masters (id),
+  ADD CONSTRAINT FK_procure_txd_medication_drugs_drugs FOREIGN KEY (drug_id) REFERENCES drugs (id);
+INSERT INTO i18n (id,en,fr) VALUES ('procure medication worksheet - drug', 'F1a - Medication Worksheet :: Drugs', 'F1a - Fiche des médicaments :: Médicaments');
+INSERT INTO structures(`alias`) VALUES ('procure_txd_medication_drugs');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medication_drugs', 'drug_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='drug_list') , '0', '', '', 'help_drug_id', 'medication', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medication_drugs', 'dose', 'input',  NULL , '0', 'size=10', '', 'help_dose', 'dose', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_medication_drugs', 'duration', 'input',  NULL , '0', 'size=20', '', '', 'duration', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_txd_medication_drugs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='finish_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_finish_date' AND `language_label`='finish date' AND `language_tag`=''), '1', '5', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_txd_medication_drugs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_notes' AND `language_label`='notes' AND `language_tag`=''), '1', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_txd_medication_drugs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medication_drugs' AND `field`='drug_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='help_drug_id' AND `language_label`='medication' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_txd_medication_drugs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medication_drugs' AND `field`='dose' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='help_dose' AND `language_label`='dose' AND `language_tag`=''), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='procure_txd_medication_drugs'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_medication_drugs' AND `field`='duration' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='' AND `language_label`='duration' AND `language_tag`=''), '1', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+SET @ctrl_id = (SELECT id FROM treatment_controls WHERE tx_method = 'procure medication worksheet - drug');
+ALTER TABLE treatment_masters ADD COLUMN tmp_previous_treatment_extend_master_id int(11);
+INSERT INTO treatment_masters (treatment_control_id, participant_id, procure_form_identification, 
+created, created_by, modified, modified_by, deleted, tmp_previous_treatment_extend_master_id)
+(SELECT @ctrl_id, TreatmentMaster.participant_id, 'TODO', 
+TreatmentExtendMaster.created, TreatmentExtendMaster.created_by, TreatmentExtendMaster.modified, TreatmentExtendMaster.modified_by, TreatmentExtendMaster.deleted, TreatmentExtendMaster.id
+FROM treatment_masters TreatmentMaster 
+INNER JOIN treatment_extend_masters TreatmentExtendMaster ON TreatmentMaster.id = TreatmentExtendMaster.treatment_master_id
+INNER JOIN procure_txe_medications TreatmentExtendDetail ON TreatmentExtendMaster.id = TreatmentExtendDetail.treatment_extend_master_id);
+INSERT INTO procure_txd_medication_drugs (treatment_master_id, drug_id, duration, dose)
+(SELECT TreatmentMaster.id, TreatmentExtendDetail.drug_id, TreatmentExtendDetail.duration, TreatmentExtendDetail.dose
+FROM treatment_masters TreatmentMaster 
+INNER JOIN treatment_extend_masters TreatmentExtendMaster ON TreatmentMaster.tmp_previous_treatment_extend_master_id = TreatmentExtendMaster.id
+INNER JOIN procure_txe_medications TreatmentExtendDetail ON TreatmentExtendMaster.id = TreatmentExtendDetail.treatment_extend_master_id);
+INSERT INTO treatment_masters_revs (id, treatment_control_id, participant_id, procure_form_identification, 
+modified_by, version_created)
+(SELECT TreatmentMaster.id, @ctrl_id, TreatmentMaster.participant_id, 'TODO', 
+TreatmentExtendMaster.modified_by, TreatmentExtendMaster.version_created
+FROM treatment_masters TreatmentMaster 
+INNER JOIN treatment_extend_masters_revs TreatmentExtendMaster ON TreatmentMaster.tmp_previous_treatment_extend_master_id = TreatmentExtendMaster.id);
+INSERT INTO procure_txd_medication_drugs_revs (dose, duration, drug_id, treatment_master_id, version_created)
+(SELECT dose, duration, drug_id, TreatmentMaster.id, version_created
+FROM treatment_masters TreatmentMaster 
+INNER JOIN treatment_extend_masters TreatmentExtendMaster ON TreatmentMaster.tmp_previous_treatment_extend_master_id = TreatmentExtendMaster.id
+INNER JOIN procure_txe_medications_revs TreatmentExtendDetail ON TreatmentExtendDetail.treatment_extend_master_id = TreatmentExtendMaster.id);
+ALTER TABLE treatment_masters DROP COLUMN tmp_previous_treatment_extend_master_id;
+UPDATE treatment_masters, participants SET procure_form_identification = CONCAT(participant_identifier, ' Vx -MEDx') WHERE  treatment_masters.participant_id = participants.id AND treatment_control_id = @ctrl_id AND procure_form_identification = 'TODO';
+UPDATE treatment_masters_revs, participants SET procure_form_identification = CONCAT(participant_identifier, ' Vx -MEDx') WHERE  treatment_masters_revs.participant_id = participants.id AND treatment_control_id = @ctrl_id AND procure_form_identification = 'TODO';
+DROP TABLE procure_txe_medications;
+DROP TABLE procure_txe_medications_revs;
+DELETE FROM treatment_extend_masters WHERE treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'procure_txe_medications');
+DELETE FROM treatment_extend_masters_revs WHERE treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'procure_txe_medications');
+UPDATE treatment_controls SET treatment_extend_control_id = null WHERE tx_method = 'procure medication worksheet';
+DELETE FROM treatment_extend_controls WHERE detail_tablename = 'procure_txe_medications';
+UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0
+WHERE id1 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster') OR id2 = (SELECT id FROM datamart_structures WHERE model = 'TreatmentExtendMaster');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_medication_drugs') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+REPLACE INTO i18n (id,en,fr) VALUES ('open sale','Open Sale','Libre Service');
+
+-- Event
+
+DELETE FROM structure_formats WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `field`='followup_event_master_id' AND `language_label`='follow-up worksheet identification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `field`='followup_event_master_id' AND `language_label`='follow-up worksheet identification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `field`='followup_event_master_id' AND `language_label`='follow-up worksheet identification' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_event_master_id') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='eventmasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='procure_form_identification' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+DELETE FROM structure_formats WHERE structure_id IN (SELECT id FROM structures WHERE alias LIKE 'procure_ed_%') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventMaster' AND `tablename`='event_masters' AND `field`='procure_form_identification' AND `language_label`='event form identification' AND `language_tag`='' AND `type`='input' AND `setting`='size=30' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps DROP COLUMN followup_event_master_id;
+ALTER TABLE procure_ed_clinical_followup_worksheet_aps_revs DROP COLUMN followup_event_master_id;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events DROP COLUMN followup_event_master_id;
+ALTER TABLE procure_ed_clinical_followup_worksheet_clinical_events_revs DROP COLUMN followup_event_master_id;
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+("%event% list from %start% to %end%", "%event% list from %start% to %end%", 'Liste des %event% du %start% au %end%'),
+("%event% list after %start%", "%event% list after %start%", 'Liste des %event% après le %start%'),
+("%event% list before %end%", "%event% list before %end%", 'Liste des %event% avant le %end%'),
+("unable to limit data list to a dates interval", "Unable to limit data list to a dates interval", "Impossible de limiter la liste de données à un intervalle de dates");
+
+-- Event :: Followup
+
+UPDATE event_controls SET use_detail_form_for_index = '1' WHERE event_type = 'procure follow-up worksheet';
+INSERT INTO i18n (id,en,fr) VALUES ('the visite date has to be completed', 'The visite date has to be completed', 'La date de la visite doit être saisie');
+
+
+UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.3';
+
+
+
+
+
+Remove Date linked to 'I confirm that the identity of the patient has been verified'? 
+  - F1 - Follow-up Worksheet
+  - F1b - Diagnostic Information Worksheet
+Should we do the Benoit Report?
+List Medication Worksheet and Follow-up worksheet with no date?
+

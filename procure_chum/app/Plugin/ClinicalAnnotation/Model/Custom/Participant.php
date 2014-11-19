@@ -71,7 +71,7 @@ class ParticipantCustom extends Participant {
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($tx_controls_list as $treatment_control) {
-			$add_function = ($treatment_control['TreatmentControl']['tx_method'] == 'procure follow-up worksheet - treatment')? 'addInBatch' : 'add';			
+			$add_function = in_array($treatment_control['TreatmentControl']['tx_method'], array('procure medication worksheet - drug', 'procure follow-up worksheet - treatment'))? 'addInBatch' : 'add';			
 			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/'.$add_function.'/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
 		}		
 
@@ -82,29 +82,37 @@ class ParticipantCustom extends Participant {
 	
 	function validateFormIdentification($procure_form_identification, $model, $id) {
 		
-		if(!preg_match("/^(PS[0-9]P0[0-9]+ V[0-9]+ -(CSF|FBP|PST|FSP|MED|QUE)[0-9]+)$/", $procure_form_identification)) {
+		if(!preg_match("/^(PS[0-9]P0[0-9]+ V[0-9x]+ -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+)$/", $procure_form_identification)) {
 			//Format
-			return "the identification format is wrong";
+			return __("the identification format is wrong");
 		
-		} else {
+		} else {			
 			//Unique
-			$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-			$conditions = array('EventMaster.procure_form_identification' => $procure_form_identification, "EventControl.event_type NOT IN ('procure follow-up worksheet - aps','procure follow-up worksheet - clinical event')");
-			if($id && $model == 'EventMaster') $conditions[] = 'EventMaster.id != '. $id;
-			$dup = $EventMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-			if($dup) return "the identification value should be unique";
-			
-			$ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
-			$conditions = array('ConsentMaster.procure_form_identification' => $procure_form_identification);
-			if($id && $model == 'ConsentMaster') $conditions[] = 'ConsentMaster.id != '. $id;
-			$dup = $ConsentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-			if($dup) return "the identification value should be unique";			
-			
-			$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-			$conditions = array('TreatmentMaster.procure_form_identification' => $procure_form_identification, "TreatmentControl.tx_method != 'procure follow-up worksheet - treatment'");
-			if($id && $model == 'TreatmentMaster') $conditions[] = 'TreatmentMaster.id != '. $id;
-			$dup = $TreatmentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-			if($dup) return "the identification value should be unique";
+			switch($model) {
+				case 'EventMaster':
+					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+					$conditions = array('EventMaster.procure_form_identification' => $procure_form_identification, "EventControl.event_type NOT IN ('procure follow-up worksheet - aps','procure follow-up worksheet - clinical event')");
+					if($id && $model == 'EventMaster') $conditions[] = 'EventMaster.id != '. $id;
+					$dup = $EventMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
+					if($dup) return "the identification value should be unique";
+					break;
+				case 'ConsentMaster':
+					$ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
+					$conditions = array('ConsentMaster.procure_form_identification' => $procure_form_identification);
+					if($id && $model == 'ConsentMaster') $conditions[] = 'ConsentMaster.id != '. $id;
+					$dup = $ConsentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
+					if($dup) return "the identification value should be unique";
+					break;
+				case 'TreatmentMaster':
+					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+					$conditions = array('TreatmentMaster.procure_form_identification' => $procure_form_identification, "TreatmentControl.tx_method != 'procure medication worksheet - drug'", "TreatmentControl.tx_method != 'procure follow-up worksheet - treatment'");
+					if($id && $model == 'TreatmentMaster') $conditions[] = 'TreatmentMaster.id != '. $id;
+					$dup = $TreatmentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
+					if($dup) return "the identification value should be unique";
+					break;
+				default:
+					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);					
+			}
 		}
 		
 		return false;
