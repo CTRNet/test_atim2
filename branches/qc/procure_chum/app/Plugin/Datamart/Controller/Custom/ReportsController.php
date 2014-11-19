@@ -44,7 +44,12 @@ class ReportsControllerCustom extends ReportsController {
 								'last_name' => $new_ident['Participant']['last_name']),
 						'0' => array(
 								'RAMQ' => null,
-								'hospital_number' => null)
+								'prostate_bank_no_lab' => null,
+								'ramq_nbr' => null,
+								'hotel_dieu_id_nbr' => null,
+								'notre_dame_id_nbr' => null,
+								'saint_luc_id_nbr' => null,
+								'participant_patho_identifier' => null)
 				);
 			}
 			$data[$participant_id]['0'][str_replace(array(' ', '-'), array('_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
