@@ -147,19 +147,21 @@ class ReportsControllerCustom extends ReportsController {
 		//Analyze participants treatments
 		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
 		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
-		$conditions = array(
-				'TreatmentMaster.participant_id' => $participant_ids,
-				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
-				'TreatmentMaster.start_date IS NOT NULL',
-				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'"));
 		$tx_join = array(
 				'table' => 'procure_txd_followup_worksheet_treatments',
 				'alias' => 'TreatmentDetail',
 				'type' => 'INNER',
 				'conditions' => array('TreatmentDetail.treatment_master_id = TreatmentMaster.id'));
+		//Search Pre and Post Operative Treatments
+		$conditions = array(
+				'TreatmentMaster.participant_id' => $participant_ids,
+				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
+				'TreatmentMaster.start_date IS NOT NULL',
+				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'"));
 		$all_participants_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
+			//Use pathology report date to set pre/post treatment list
 			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
 			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
 			if($pathology_report_date) {
@@ -187,6 +189,7 @@ class ReportsControllerCustom extends ReportsController {
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
+			//Use pathology report date to set pre op psa list
 			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
 			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
 			if($pathology_report_date) {
