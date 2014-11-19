@@ -266,16 +266,25 @@ VALUES
 UPDATE event_controls SET use_detail_form_for_index = '1' WHERE event_type = 'procure follow-up worksheet';
 INSERT INTO i18n (id,en,fr) VALUES ('the visite date has to be completed', 'The visite date has to be completed', 'La date de la visite doit être saisie');
 
+-- Remove Followup id confirmation date
 
-UPDATE versions SET branch_build_number = '???' WHERE version_number = '2.6.3';
+SELECT Participant.participant_identifier AS "List of participants with 'Follow-up Visit Date' != 'Id Confirmation Date' (to correct because confirmation date field will be removed"
+FROM participants Participant
+INNER JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id
+INNER JOIN procure_ed_clinical_followup_worksheets EventDetail ON EventDetail.event_master_id = EventMaster.id
+WHERE EventMaster.deleted <> 1 AND EventMaster.event_date IS NOT NULL AND EventDetail.id_confirmation_date IS NOT NULL 
+AND EventDetail.id_confirmation_date != EventMaster.event_date;
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='id_confirmation_date' AND `language_label`='' AND `language_tag`='date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='id_confirmation_date' AND `language_label`='' AND `language_tag`='date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='id_confirmation_date' AND `language_label`='' AND `language_tag`='date' AND `type`='date' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+ALTER TABLE procure_ed_clinical_followup_worksheets DROP COLUMN id_confirmation_date;
+ALTER TABLE procure_ed_clinical_followup_worksheets_revs DROP COLUMN id_confirmation_date;
 
+-- Change procure report name
 
+UPDATE datamart_reports SET name = 'procure diagnosis and treatments summary' WHERE name = 'procure summary';
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('procure diagnosis and treatments summary', 'PROCURE - Diagnosis & Treatments Summary', 'PROCURE - Résumé du diagnostic & traitments');
 
-
-
-Remove Date linked to 'I confirm that the identity of the patient has been verified'? 
-  - F1 - Follow-up Worksheet
-  - F1b - Diagnostic Information Worksheet
-Should we do the Benoit Report?
-List Medication Worksheet and Follow-up worksheet with no date?
-
+UPDATE versions SET branch_build_number = '5943' WHERE version_number = '2.6.3';
