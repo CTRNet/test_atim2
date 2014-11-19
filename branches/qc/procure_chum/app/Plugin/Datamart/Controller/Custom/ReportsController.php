@@ -145,8 +145,8 @@ class ReportsControllerCustom extends ReportsController {
 				'procure_pre_op_radio' => '',
 				'procure_inaccurate_date_use' => '',
 				'procure_pre_op_psa_date' => '',
-				'procure_aborted_prostatectomy' => '',
-				'procure_curietherapy' => ''
+				'qc_nd_aborted_prostatectomy' => '',
+				'qc_nd_curietherapy' => ''
 			);
 			$data[$participant_id]['EventDetail']['total_ngml'] = '';
 			$data[$participant_id]['TreatmentMaster']['start_date'] = '';
@@ -171,16 +171,18 @@ class ReportsControllerCustom extends ReportsController {
 				'alias' => 'TreatmentDetail',
 				'type' => 'INNER',
 				'conditions' => array('TreatmentDetail.treatment_master_id = TreatmentMaster.id'));
-		$conditions = array(
+		//Search Treatment with type = 'prostatectomy' to list pre and post treatment
+		$prostatectomy_conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
 				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
 				'TreatmentDetail.treatment_type' => 'prostatectomy');
-		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
+		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $prostatectomy_conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_prostatectomy as $new_prostatectomy) {
 			$participant_id = $new_prostatectomy['TreatmentMaster']['participant_id'];
 			$data[$participant_id]['TreatmentMaster']['start_date'] = $new_prostatectomy['TreatmentMaster']['start_date'];
 			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = $new_prostatectomy['TreatmentMaster']['start_date_accuracy'];
 		}
+		//Search Pre and Post Operative Treatments
 		$conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
 				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
@@ -189,6 +191,7 @@ class ReportsControllerCustom extends ReportsController {
 		$all_participants_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
+			//Use prostatectomy date to set pre/post treatment list
 			$pathology_report_date = $data[$participant_id]['TreatmentMaster']['start_date'];
 			$pathology_report_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
 			if($pathology_report_date) {
@@ -209,6 +212,7 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			}
 		}
+		//Defined if patient received curietherapy or prostatectomy
 		$conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
 				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
@@ -217,9 +221,9 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($all_participants_other_treatment as $new_other_treatment) {
 			$participant_id = $new_other_treatment['TreatmentMaster']['participant_id'];
 			if($new_other_treatment['TreatmentDetail']['treatment_type'] == 'curietherapy') {
-				$data[$participant_id][0]['procure_curietherapy'] = 'y';
+				$data[$participant_id][0]['qc_nd_curietherapy'] = 'y';
 			} else {
-				$data[$participant_id][0]['procure_aborted_prostatectomy'] = 'y';
+				$data[$participant_id][0]['qc_nd_aborted_prostatectomy'] = 'y';
 			}
 		}
 		
@@ -229,6 +233,7 @@ class ReportsControllerCustom extends ReportsController {
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
+			//Use prostatectomy date to set pre op psa list
 			$pathology_report_date = $data[$participant_id]['TreatmentMaster']['start_date'];
 			$pathology_report_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
 			if($pathology_report_date) {
