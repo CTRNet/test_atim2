@@ -998,13 +998,31 @@ WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE `field`='coll
 
 UPDATE structure_fields SET  `setting`='size=20,class=range file' WHERE field='collection_voa_nbr';
 
+-- ** MiscIdentifier Search **
+
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='title' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='person title') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='middle_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+-- ** Recurrence **
+
+INSERT IGNORE INTO structures(`alias`) VALUES ('dx_recurrence');
+
+-- ** Add voa#s to participant summary **
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', 'Generated', '', 'ovcare_participant_voas', 'input',  NULL , '0', '', '', '', 'VOA#', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='VOA#' AND `language_tag`=''), '3', '99', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+
+-- ** Changed Voa#s to int (in db for range search) **
+
+SELECT id as collection_id, collection_voa_nbr AS 'voa with wrong format' FROM collections WHERE collection_voa_nbr NOT REGEXP('^[0-9]{1,20}$');
+ALTER TABLE collections MODIFY `collection_voa_nbr` int(20) DEFAULT NULL;
+ALTER TABLE collections_revs MODIFY `collection_voa_nbr` int(20) DEFAULT NULL;
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `field`='collection_voa_nbr' AND tablename = 'collections'), 'custom,/^[0-9]+$/', 'error_must_be_integer');
+
 -- ** Version **
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '5930' WHERE version_number = '2.6.3';
-
-
-
-
-
-
