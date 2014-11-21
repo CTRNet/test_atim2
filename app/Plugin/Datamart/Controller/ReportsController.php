@@ -277,7 +277,7 @@ class ReportsController extends DatamartAppController {
 				}
 				// Get criteria from session data for csv 
 				$criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
-				$criteria_to_sort_report = $_SESSION['report'][$report_id]['sort_criteria'];
+				$criteria_to_sort_report = isset($_SESSION['report'][$report_id]['sort_criteria'])? $_SESSION['report'][$report_id]['sort_criteria'] : array();
 				if($LinkedModel) {
 					// Take care about selected items
 					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
