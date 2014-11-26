@@ -31,6 +31,7 @@
 						$default_volume = '5.0';
 						break;
 					case 'paxgene':
+						$default_in_stock_value = 'yes - available';
 						$label = '-RNB';
 						$default_volume = '9.0';
 						break;

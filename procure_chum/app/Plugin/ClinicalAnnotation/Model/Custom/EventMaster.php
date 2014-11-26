@@ -10,7 +10,7 @@ class EventMasterCustom extends EventMaster {
 		if(array_key_exists('procure_form_identification', $this->data['EventMaster'])) {
 			//Form identification validation
 			$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-			$error = $Participant->validateFormIdentification($this->data['EventMaster']['procure_form_identification'], 'EventMaster', $this->id);
+			$error = $Participant->validateFormIdentification($this->data['EventMaster']['procure_form_identification'], 'EventMaster', $this->id, (isset($this->data['EventMaster']['event_control_id'])? $this->data['EventMaster']['event_control_id']: null));
 			if($error) {
 				$result = false;
 				$this->validationErrors['procure_form_identification'][] = $error;
