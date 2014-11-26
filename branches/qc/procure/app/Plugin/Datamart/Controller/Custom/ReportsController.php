@@ -57,7 +57,7 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => null);
 	}
 	
-	function procureParticipantReport($parameters) {
+	function procureDiagnosisAndTreatmentReports($parameters) {
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -90,6 +90,7 @@ class ReportsControllerCustom extends ReportsController {
 		$diagnosis_event_detail_tablename = $event_controls['procure diagnostic information worksheet']['detail_tablename'];
 		$pathology_event_control_id = $event_controls['procure pathology report']['id'];
 		$pathology_event_detail_tablename = $event_controls['procure pathology report']['detail_tablename'];
+		if(!$diagnosis_event_control_id || !$pathology_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
 		//Get participants data
 		$query = "SELECT 
@@ -102,25 +103,26 @@ class ReportsControllerCustom extends ReportsController {
 			PathologyEventMaster.event_date, 
 			PathologyEventMaster.event_date_accuracy, 
 			PathologyEventDetail.path_number, 
-			DiagnosisEventDetail.biopsy_pre_surgery_date, 
-			DiagnosisEventDetail.biopsy_pre_surgery_date_accuracy,
-			DiagnosisEventDetail.aps_pre_surgery_total_ng_ml,
-			DiagnosisEventDetail.aps_pre_surgery_free_ng_ml,
-			DiagnosisEventDetail.aps_pre_surgery_date,
-			DiagnosisEventDetail.aps_pre_surgery_date_accuracy
+			EventDetail.biopsy_pre_surgery_date, 
+			EventDetail.biopsy_pre_surgery_date_accuracy,
+			EventDetail.aps_pre_surgery_total_ng_ml,
+			EventDetail.aps_pre_surgery_free_ng_ml,
+			EventDetail.aps_pre_surgery_date,
+			EventDetail.aps_pre_surgery_date_accuracy
 			FROM participants Participant
-			LEFT JOIN event_masters DiagnosisEventMaster ON DiagnosisEventMaster.participant_id = Participant.id AND DiagnosisEventMaster.event_control_id = $diagnosis_event_control_id AND DiagnosisEventMaster.deleted <> 1
-			LEFT JOIN $diagnosis_event_detail_tablename DiagnosisEventDetail ON DiagnosisEventDetail.event_master_id = DiagnosisEventMaster.id
+			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $diagnosis_event_control_id AND EventMaster.deleted <> 1
+			LEFT JOIN $diagnosis_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
 			LEFT JOIN event_masters PathologyEventMaster ON PathologyEventMaster.participant_id = Participant.id AND PathologyEventMaster.event_control_id = $pathology_event_control_id AND PathologyEventMaster.deleted <> 1
 			LEFT JOIN $pathology_event_detail_tablename PathologyEventDetail ON PathologyEventDetail.event_master_id = PathologyEventMaster.id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
+		$display_warning = false;
 		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
-			if(isset($data[$participant_id])) AppController::addWarningMsg('at least one participant is linked to more than one diagnosis or pathology worksheet');
+			if(isset($data[$participant_id])) $display_warning = true;
 			$data[$participant_id]['Participant'] = $res['Participant'];
 			$data[$participant_id]['EventMaster'] = $res['PathologyEventMaster'];
-			$data[$participant_id]['EventDetail'] = array_merge($res['PathologyEventDetail'], $res['DiagnosisEventDetail']);	
+			$data[$participant_id]['EventDetail'] = array_merge($res['PathologyEventDetail'], $res['EventDetail']);	
 			$data[$participant_id]['0'] = array(
 				'procure_post_op_hormono' => '',
 				'procure_post_op_chemo' => '',
@@ -140,6 +142,7 @@ class ReportsControllerCustom extends ReportsController {
 					'columns_names' => null,
 					'error_msg' => 'the report contains too many results - please redefine search criteria');
 		}
+		if($display_warning) AppController::addWarningMsg('at least one participant is linked to more than one diagnosis or pathology worksheet'); 
 		
 		$participant_ids = array_keys($data);
 		$inaccurate_date = false;
@@ -226,4 +229,266 @@ class ReportsControllerCustom extends ReportsController {
 				'error_msg' => null);
 	}
 	
+	function procureFollowUpReports($parameters) {
+		$header = null;
+		$conditions = array('TRUE');
+		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
+			//From databrowser
+			$participant_ids  = array_filter($parameters['Participant']['id']);
+			if($participant_ids) $conditions[] = "Participant.id IN ('".implode("','",$participant_ids)."')";
+		} else if(isset($parameters['Participant']['participant_identifier_start'])) {
+			$participant_identifier_start = (!empty($parameters['Participant']['participant_identifier_start']))? $parameters['Participant']['participant_identifier_start']: null;
+			$participant_identifier_end = (!empty($parameters['Participant']['participant_identifier_end']))? $parameters['Participant']['participant_identifier_end']: null;
+			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
+			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
+			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+				
+		//Get Controls Data
+		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
+		$event_controls = array();
+		foreach($participant_model->query($query) as $res) $event_controls[$res['event_controls']['event_type']] = array('id' => $res['event_controls']['id'], 'detail_tablename' => $res['event_controls']['detail_tablename']);
+		$followup_event_control_id = $event_controls['procure follow-up worksheet']['id'];
+		$followup_event_detail_tablename = $event_controls['procure follow-up worksheet']['detail_tablename'];
+		if(!$followup_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
+		$query = "SELECT id, detail_tablename, sample_type FROM sample_controls WHERE sample_type IN ('blood','urine', 'tissue');";
+		$sample_controls = array();
+		$blood_detail_tablename = '';
+		foreach($participant_model->query($query) as $res) {
+			$sample_controls[$res['sample_controls']['id']] = $res['sample_controls']['sample_type'];
+			if($res['sample_controls']['sample_type'] == 'blood') $blood_detail_tablename = $res['sample_controls']['detail_tablename'];
+		}
+		
+		//Get participants data + followup
+		$query = "SELECT
+			Participant.id,
+			Participant.participant_identifier,
+			EventMaster.procure_form_identification,
+			EventMaster.event_date,
+			EventMaster.event_date_accuracy
+			FROM participants Participant
+			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $followup_event_control_id AND EventMaster.deleted <> 1
+			LEFT JOIN $followup_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
+			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
+		$data = array();
+		$empty_form_array = array();
+		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
+			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
+			$empty_form_array["procure_".$visit_id."_procure_form_identification"]= '';
+			$empty_form_array["procure_".$visit_id."_event_date"]= null;
+			$empty_form_array["procure_".$visit_id."_event_date_accuracy"]= '';
+			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_k2_EDTA_collected"]= '';
+			$empty_form_array["procure_".$visit_id."_tissue_collected"]= '';
+		}
+		$display_warning_1 = false;
+		$display_warning_2 = false;
+		foreach($participant_model->query($query) as $res) {
+			$participant_id = $res['Participant']['id'];
+			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], '0' => $empty_form_array);
+			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
+			if($procure_form_identification) {
+				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+$/", $procure_form_identification, $matches)) {
+					$visit_id = $matches[1];
+					if($visit_id != '0') {
+						if(empty($data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"])) {
+							$data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"] = $res['EventMaster']['procure_form_identification'];
+							$data[$participant_id][0]["procure_".$visit_id."_event_date"]= $res['EventMaster']['event_date'];
+							$data[$participant_id][0]["procure_".$visit_id."_event_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
+						} else {
+							$display_warning_1 = true;
+						}
+					}
+				} else {
+					$display_warning_2 = true;
+				}
+			}
+		}
+		if(sizeof($data) > self::$display_limit) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
+		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
+
+		//Get blood and urine
+		if($data) {
+			$query = "SELECT 
+				Collection.participant_id,
+				Collection.procure_visit,
+				SampleMaster.sample_control_id,
+				SampleDetail.blood_type
+				FROM collections Collection 
+				INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id AND SampleMaster.deleted <> 1
+				LEFT JOIN $blood_detail_tablename AS SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+				WHERE sample_control_id IN (".implode(',',array_keys($sample_controls)).");";
+			foreach($participant_model->query($query) as $res) {
+				$participant_id = $res['Collection']['participant_id'];
+				$visit_id = str_replace('V','',$res['Collection']['procure_visit']);
+				if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'blood') {
+					$sample_type = str_replace('k2-EDTA','k2_EDTA',$res['SampleDetail']['blood_type']);
+				} else if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'urine') {
+					$sample_type = 'urine';
+					} else if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'tissue') {
+					$sample_type = 'tissue';
+				} else {
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+				$data[$participant_id][0]["procure_".$visit_id."_".$sample_type."_collected"] = 'y';
+			}
+		}
+		return array(
+			'header' => $header,
+			'data' => $data,
+			'columns_names' => null,
+			'error_msg' => null);
+	}
+	
+	function procureAliquotsReports($parameters) {
+		$header = null;
+		$conditions = array('TRUE');
+		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
+			//From databrowser
+			$participant_ids  = array_filter($parameters['Participant']['id']);
+			if($participant_ids) $conditions[] = "Participant.id IN ('".implode("','",$participant_ids)."')";
+		} else if(isset($parameters['Participant']['participant_identifier_start'])) {
+			$participant_identifier_start = (!empty($parameters['Participant']['participant_identifier_start']))? $parameters['Participant']['participant_identifier_start']: null;
+			$participant_identifier_end = (!empty($parameters['Participant']['participant_identifier_end']))? $parameters['Participant']['participant_identifier_end']: null;
+			if($participant_identifier_start) $conditions[] = "Participant.participant_identifier >= '$participant_identifier_start'";
+			if($participant_identifier_end) $conditions[] = "Participant.participant_identifier <= '$participant_identifier_end'";
+		} else if(isset($parameters['Participant']['participant_identifier'])) {
+			$participant_identifiers  = array_filter($parameters['Participant']['participant_identifier']);
+			if($participant_identifiers) $conditions[] = "Participant.participant_identifier IN ('".implode("','",$participant_identifiers)."')";
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+	
+		//Get Controls Data
+		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$query = "SELECT id, sample_type FROM sample_controls WHERE sample_type IN ('blood', 'serum', 'plasma', 'pbmc','centrifuged urine', 'tissue', 'rna', 'dna');";
+		$sample_controls = array();
+		foreach($participant_model->query($query) as $res) {
+			$sample_controls[$res['sample_controls']['id']] = $res['sample_controls']['sample_type'];
+		}
+		$query = "SELECT id, sample_control_id, aliquot_type FROM aliquot_controls WHERE sample_control_id IN (".implode(',',array_keys($sample_controls)).") AND flag_active = 1;";
+		$aliquotcontrols = array();
+		foreach($participant_model->query($query) as $res) {
+			$aliquotcontrols[$res['aliquot_controls']['id']] = $sample_controls[$res['aliquot_controls']['sample_control_id']].' '.$res['aliquot_controls']['aliquot_type'];
+		}
+		
+		//Get participants data + aliquots count
+		$query = "SELECT
+			count(*) AS nbr_of_aliquots,
+			Participant.id,
+			Participant.participant_identifier,
+			Collection.procure_visit,
+			AliquotMaster.aliquot_control_id,
+			AliquotMaster.in_stock,
+			AliquotDetail.block_type,
+			BloodDetail.blood_type
+			FROM participants Participant
+			INNER JOIN collections Collection ON Collection.participant_id = Participant.id
+			INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id
+			LEFT JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id
+			LEFT JOIN sd_spe_bloods BloodDetail ON BloodDetail.sample_master_id = AliquotMaster.sample_master_id
+			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions) ." 
+			AND AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id IN (".implode(',',array_keys($aliquotcontrols)).")
+			GROUP BY 
+			Participant.id,
+			Participant.participant_identifier,
+			Collection.procure_visit,
+			AliquotMaster.aliquot_control_id,
+			AliquotDetail.block_type,
+			BloodDetail.blood_type,
+			AliquotMaster.in_stock";
+		$empty_form_array = array();
+		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
+			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
+			if($tmp_visit_id == 1) $empty_form_array["procure_".$visit_id."_FRZ"]= '';
+			if($tmp_visit_id == 1) $empty_form_array["procure_".$visit_id."_Paraffin"]= '';
+			$empty_form_array["procure_".$visit_id."_SER"]= '';
+			$empty_form_array["procure_".$visit_id."_RNB"]= '';
+			$empty_form_array["procure_".$visit_id."_PLA"]= '';
+			$empty_form_array["procure_".$visit_id."_BFC"]= '';
+			$empty_form_array["procure_".$visit_id."_WHT"]= '';
+			$empty_form_array["procure_".$visit_id."_URN"]= '';
+			$empty_form_array["procure_".$visit_id."_RNA"]= '';
+			$empty_form_array["procure_".$visit_id."_DNA"]= '';
+		}
+		$data = array();
+		$query_result = $participant_model->query($query);
+		if(sizeof($query_result) > self::$display_limit) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		foreach($query_result as $res) {
+			$participant_id = $res['Participant']['id'];
+			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], '0' => $empty_form_array);
+			$report_aliquot_key = '';
+			if(isset($aliquotcontrols[$res['AliquotMaster']['aliquot_control_id']])) {
+				switch($aliquotcontrols[$res['AliquotMaster']['aliquot_control_id']]) {
+					case 'tissue block':
+						if($res['AliquotDetail']['block_type'] == 'frozen') {
+							$report_aliquot_key = 'FRZ';
+						} else if($res['AliquotDetail']['block_type'] == 'paraffin') {
+							$report_aliquot_key = 'Paraffin';
+						} 
+						break;
+					case 'blood tube':
+						if($res['BloodDetail']['blood_type'] == 'paxgene') {
+							$report_aliquot_key = 'RNB';
+						}
+						break;
+					case 'serum tube':
+						$report_aliquot_key = 'SER';
+						break;
+					case 'plasma tube':
+						$report_aliquot_key = 'PLA';
+						break;
+					case 'pbmc tube':
+						$report_aliquot_key = 'BFC';
+						break;
+					case 'blood whatman paper':
+						$report_aliquot_key = 'WHT';
+						break;
+					case 'centrifuged urine tube':
+						$report_aliquot_key = 'URN';
+						break;
+					case 'rna tube':
+						$report_aliquot_key = 'RNA';
+						break;
+					case 'dna tube':
+						$report_aliquot_key = 'DNA';
+						break;
+				}
+			}
+			if($report_aliquot_key) {
+				$report_aliquot_key = "procure_".str_replace('V','',$res['Collection']['procure_visit'])."_$report_aliquot_key";
+				$nbr_aliquot = ($res['AliquotMaster']['in_stock'] == 'no')? '0' : $res['0']['nbr_of_aliquots'];
+				if(!strlen($data[$participant_id][0][$report_aliquot_key])) {
+					$data[$participant_id][0][$report_aliquot_key] = $nbr_aliquot;
+				} else {
+					$data[$participant_id][0][$report_aliquot_key] += $nbr_aliquot;
+				}				
+			}
+		}
+		return array(
+				'header' => $header,
+				'data' => $data,
+				'columns_names' => null,
+				'error_msg' => null);
+	}
 }
