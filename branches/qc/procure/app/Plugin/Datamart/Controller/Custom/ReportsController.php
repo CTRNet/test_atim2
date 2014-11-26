@@ -331,7 +331,8 @@ class ReportsControllerCustom extends ReportsController {
 				FROM collections Collection 
 				INNER JOIN sample_masters AS SampleMaster ON SampleMaster.collection_id = Collection.id AND SampleMaster.deleted <> 1
 				LEFT JOIN $blood_detail_tablename AS SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
-				WHERE sample_control_id IN (".implode(',',array_keys($sample_controls)).");";
+				WHERE sample_control_id IN (".implode(',',array_keys($sample_controls)).")
+				AND Collection.participant_id IN (".implode(',',array_keys($data)).");";
 			foreach($participant_model->query($query) as $res) {
 				$participant_id = $res['Collection']['participant_id'];
 				$visit_id = str_replace('V','',$res['Collection']['procure_visit']);
@@ -426,15 +427,7 @@ class ReportsControllerCustom extends ReportsController {
 			$empty_form_array["procure_".$visit_id."_DNA"]= '';
 		}
 		$data = array();
-		$query_result = $participant_model->query($query);
-		if(sizeof($query_result) > self::$display_limit) {
-			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'the report contains too many results - please redefine search criteria');
-		}
-		foreach($query_result as $res) {
+		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
 			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], '0' => $empty_form_array);
 			$report_aliquot_key = '';
@@ -485,6 +478,14 @@ class ReportsControllerCustom extends ReportsController {
 				}				
 			}
 		}
+		if(sizeof($data) > self::$display_limit) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		
 		return array(
 				'header' => $header,
 				'data' => $data,
