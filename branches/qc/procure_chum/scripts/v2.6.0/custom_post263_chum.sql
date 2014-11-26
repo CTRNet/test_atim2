@@ -188,3 +188,102 @@ UPDATE structure_fields SET field = 'qc_nd_aborted_prostatectomy' WHERE  field =
 UPDATE structure_fields SET field = 'qc_nd_curietherapy' WHERE  field = 'procure_curietherapy';
 UPDATE versions SET site_branch_build_number = '5945' WHERE version_number = '2.6.3';
 UPDATE versions SET permissions_regenerated = 0;
+
+-- 2014-11-26 --------------------------------------------------------------------------------------------------------
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_followups_report_result'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '1', 'prostate bank no lab', '0', '', '0', '', '0', '', '1', 'size=20,class=range file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_aliquots_report_result'), (SELECT id FROM structure_fields WHERE `model`='MiscIdentifier' AND `tablename`='misc_identifiers' AND `field`='identifier_value' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '1', '', '0', '1', 'prostate bank no lab', '0', '', '0', '', '0', '', '1', 'size=20,class=range file', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+UPDATE event_masters SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -PST', ' V01 -PST') WHERE procure_form_identification LIKE '% V0 -PST%';
+UPDATE event_masters_revs SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -PST', ' V01 -PST') WHERE procure_form_identification LIKE '% V0 -PST%';
+UPDATE event_masters SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -FBP', ' V01 -FBP') WHERE procure_form_identification LIKE '% V0 -FBP%';
+UPDATE event_masters_revs SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -FBP', ' V01 -FBP') WHERE procure_form_identification LIKE '% V0 -FBP%';
+UPDATE event_masters SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -QUE', ' V01 -QUE') WHERE procure_form_identification LIKE '% V0 -QUE%';
+UPDATE event_masters_revs SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -QUE', ' V01 -QUE') WHERE procure_form_identification LIKE '% V0 -QUE%';
+UPDATE event_masters EventMaster, event_controls EventControl, participants Participant
+SET EventMaster.procure_form_identification = CONCAT(participant_identifier, ' Vx -FSPx')
+WHERE EventMaster.event_control_id = EventControl.id 
+AND EventMaster.participant_id = Participant.id
+AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event');
+UPDATE event_masters_revs EventMaster, event_controls EventControl, participants Participant
+SET EventMaster.procure_form_identification = CONCAT(participant_identifier, ' Vx -FSPx')
+WHERE EventMaster.event_control_id = EventControl.id 
+AND EventMaster.participant_id = Participant.id
+AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event');
+SELECT EventMaster.participant_id, EventControl.event_type, EventMaster.id AS event_master_id, EventMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM event_masters EventMaster
+INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -PST[0-9]+$' 
+AND deleted <> 1 AND EventControl.event_type = 'procure pathology report'
+UNION ALL
+SELECT EventMaster.participant_id, EventControl.event_type, EventMaster.id AS event_master_id, EventMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM event_masters EventMaster
+INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FBP[0-9]+$' 
+AND deleted <> 1 AND EventControl.event_type = 'procure diagnostic information worksheet'
+UNION ALL
+SELECT EventMaster.participant_id, EventControl.event_type, EventMaster.id AS event_master_id, EventMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM event_masters EventMaster
+INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -QUE[0-9]+$' 
+AND deleted <> 1 AND EventControl.event_type = 'procure questionnaire administration worksheet'
+UNION ALL
+SELECT EventMaster.participant_id, EventControl.event_type, EventMaster.id AS event_master_id, EventMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM event_masters EventMaster
+INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FSP[0-9]+$' 
+AND deleted <> 1 AND EventControl.event_type = 'procure follow-up worksheet'
+UNION ALL
+SELECT EventMaster.participant_id, EventControl.event_type, EventMaster.id AS event_master_id, EventMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM event_masters EventMaster
+INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ Vx -FSPx$' 
+AND deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event');
+
+UPDATE consent_masters SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -CSF', ' V01 -CSF') WHERE procure_form_identification LIKE '% V0 -CSF%';
+UPDATE consent_masters_revs SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -CSF', ' V01 -CSF') WHERE procure_form_identification LIKE '% V0 -CSF%';
+SELECT participant_id, id AS consent_master_id, procure_form_identification as 'Wrong procure_form_identification' 
+FROM consent_masters 
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -CSF[0-9x]+$' AND deleted <> 1;
+
+UPDATE treatment_masters SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -MED', ' V01 -MED') WHERE procure_form_identification LIKE '% V0 -MED%';
+UPDATE treatment_masters_revs SET procure_form_identification = REPLACE(procure_form_identification, ' V0 -MED', ' V01 -MED') WHERE procure_form_identification LIKE '% V0 -MED%';
+UPDATE treatment_masters TreatmentMaster, treatment_controls TreatmentControl, participants Participant
+SET TreatmentMaster.procure_form_identification = CONCAT(participant_identifier, ' Vx -FSPx')
+WHERE TreatmentControl.id = TreatmentMaster.treatment_control_id
+AND TreatmentMaster.participant_id = Participant.id
+AND TreatmentControl.tx_method = 'procure follow-up worksheet - treatment';
+UPDATE treatment_masters_revs TreatmentMaster, treatment_controls TreatmentControl, participants Participant
+SET TreatmentMaster.procure_form_identification = CONCAT(participant_identifier, ' Vx -FSPx')
+WHERE TreatmentControl.id = TreatmentMaster.treatment_control_id
+AND TreatmentMaster.participant_id = Participant.id
+AND TreatmentControl.tx_method = 'procure follow-up worksheet - treatment';
+UPDATE treatment_masters TreatmentMaster, treatment_controls TreatmentControl, participants Participant
+SET TreatmentMaster.procure_form_identification = CONCAT(participant_identifier, ' Vx -MEDx')
+WHERE TreatmentControl.id = TreatmentMaster.treatment_control_id
+AND TreatmentMaster.participant_id = Participant.id
+AND TreatmentControl.tx_method = 'procure medication worksheet - drug';
+UPDATE treatment_masters_revs TreatmentMaster, treatment_controls TreatmentControl, participants Participant
+SET TreatmentMaster.procure_form_identification = CONCAT(participant_identifier, ' Vx -MEDx')
+WHERE TreatmentControl.id = TreatmentMaster.treatment_control_id
+AND TreatmentMaster.participant_id = Participant.id
+AND TreatmentControl.tx_method = 'procure medication worksheet - drug';
+SELECT TreatmentMaster.participant_id, TreatmentMaster.id AS treatment_master_id, TreatmentControl.tx_method, TreatmentMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM treatment_masters TreatmentMaster
+INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -MED[0-9]+$' AND deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet'
+UNION ALL 
+SELECT TreatmentMaster.participant_id, TreatmentMaster.id AS treatment_master_id, TreatmentControl.tx_method, TreatmentMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM treatment_masters TreatmentMaster
+INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ Vx -FSPx$' AND deleted <> 1 AND TreatmentControl.tx_method = 'procure follow-up worksheet - treatment'
+UNION ALL 
+SELECT TreatmentMaster.participant_id, TreatmentMaster.id AS treatment_master_id, TreatmentControl.tx_method, TreatmentMaster.procure_form_identification as 'Wrong procure_form_identification' 
+FROM treatment_masters TreatmentMaster
+INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+WHERE procure_form_identification NOT REGEXP '^PS[0-9]P0[0-9]+ Vx -MEDx$' AND deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet - drug';
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET site_branch_build_number = '5951' WHERE version_number = '2.6.3';
