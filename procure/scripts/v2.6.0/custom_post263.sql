@@ -1144,4 +1144,6 @@ VALUES
 ('procure_label_RNA','RNA','RNA'),
 ('procure_label_DNA','DNA','DNA');
 
-UPDATE versions SET branch_build_number = '5949' WHERE version_number = '2.6.3';
+REPLACE INTO i18n (id,en,fr) VALUES ('inaccurate date use','Inaccurate date use','Utilisation de dates approximatives');
+
+UPDATE versions SET branch_build_number = '5950' WHERE version_number = '2.6.3';
