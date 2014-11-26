@@ -10,7 +10,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 		if(array_key_exists('procure_form_identification', $this->data['TreatmentMaster'])) {
 			//Form identification validation
 			$Participant = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
-			$error = $Participant->validateFormIdentification($this->data['TreatmentMaster']['procure_form_identification'], 'TreatmentMaster', $this->id);
+			$error = $Participant->validateFormIdentification($this->data['TreatmentMaster']['procure_form_identification'], 'TreatmentMaster', $this->id, (isset($this->data['TreatmentMaster']['treatment_control_id'])? $this->data['TreatmentMaster']['treatment_control_id']: null));
 			if($error) {
 				$result = false;
 				$this->validationErrors['procure_form_identification'][] = $error;

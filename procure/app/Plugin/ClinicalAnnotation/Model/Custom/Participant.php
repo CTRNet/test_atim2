@@ -63,41 +63,112 @@ class ParticipantCustom extends Participant {
 		return $add_links;
 	}
 	
-	function validateFormIdentification($procure_form_identification, $model, $id) {
-		
-		if(!preg_match("/^(PS[0-9]P0[0-9]+ V[0-9x]+ -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+)$/", $procure_form_identification)) {
-			//Format
-			return __("the identification format is wrong");
-		
-		} else {			
-			//Unique
+	function validateFormIdentification($procure_form_identification, $model, $id, $control_id = null) {
+		$pattern_suffix = null;
+		$main_worksheet = true;
+		switch($model) {
+			case 'ConsentMaster':
+				$pattern_suffix = "CSF";
+				break;
+				
+			case 'EventMaster':
+				if($id) {
+					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
+					$studied_event = $EventMaster->find('first', array('conditions' => array('EventMaster.id' => $id), 'recursive' => '0'));
+					$event_type = $studied_event['EventControl']['event_type'];
+				} else if($control_id) {
+					$EventControl = AppModel::getInstance("ClinicalAnnotation", "EventControl", true);
+					$studied_event_control = $EventControl->find('first', array('conditions' => array('id' => $control_id), 'recursive' => '0'));
+					$event_type = $studied_event_control['EventControl']['event_type'];
+				}
+				$pattern_suffix_suffix = '';
+				switch($event_type) {
+					case 'procure pathology report':
+						$pattern_suffix = "PST";
+						break;
+					case 'procure diagnostic information worksheet':
+						$pattern_suffix = "FBP";
+						break;
+					case 'procure questionnaire administration worksheet':
+						$pattern_suffix = "QUE";
+						break;
+					case 'procure follow-up worksheet':
+						$pattern_suffix = "FSP";
+						break;
+					case 'procure follow-up worksheet - aps':
+					case 'procure follow-up worksheet - clinical event':
+						$pattern_suffix = "FSP";
+						$main_worksheet = false;
+						break;
+					default:
+						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+				break;
+				
+			case 'TreatmentMaster':
+				if($id) {
+					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+					$studied_treatment = $TreatmentMaster->find('first', array('conditions' => array('TreatmentMaster.id' => $id), 'recursive' => '0'));
+					$tx_method = $studied_treatment['TreatmentControl']['tx_method'];
+				} else if($control_id) {
+					$TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
+					$studied_treatment_control = $TreatmentControl->find('first', array('conditions' => array('id' => $control_id), 'recursive' => '0'));
+					$tx_method = $studied_treatment_control['TreatmentControl']['tx_method'];
+				} else {
+					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+				}
+				switch($tx_method) {
+					case 'procure medication worksheet':
+						$pattern_suffix = "MED";
+						break;
+					case 'procure follow-up worksheet - treatment':
+						$pattern_suffix = "FSP";
+						$main_worksheet = false;
+						break;
+					case 'procure medication worksheet - drug':
+						break;
+						$pattern_suffix = "MED";
+						$main_worksheet = false;
+					default:
+						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
+				}
+		}
+		if(empty($pattern_suffix)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
+		//Check Format
+		if($main_worksheet) {
+			if(!preg_match("/^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -".$pattern_suffix."[0-9]+$/", $procure_form_identification)) return __("the identification format is wrong")." (PS0P0000 V00 -".$pattern_suffix."0)";
+		} else {
+			if(!preg_match("/^PS[0-9]P0[0-9]+ Vx -".$pattern_suffix."x$/", $procure_form_identification)) return __("the identification format is wrong")." (PS0P0000 Vx -".$pattern_suffix."x)";
+		}
+		//Check Unique
+		if($main_worksheet) {
 			switch($model) {
 				case 'EventMaster':
 					$EventMaster = AppModel::getInstance("ClinicalAnnotation", "EventMaster", true);
-					$conditions = array('EventMaster.procure_form_identification' => $procure_form_identification, "EventControl.event_type NOT IN ('procure follow-up worksheet - aps','procure follow-up worksheet - clinical event')");
+					$conditions = array('EventMaster.procure_form_identification' => $procure_form_identification);
 					if($id && $model == 'EventMaster') $conditions[] = 'EventMaster.id != '. $id;
 					$dup = $EventMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return "the identification value should be unique";
+					if($dup) return __("the identification value should be unique");;
 					break;
 				case 'ConsentMaster':
 					$ConsentMaster = AppModel::getInstance("ClinicalAnnotation", "ConsentMaster", true);
 					$conditions = array('ConsentMaster.procure_form_identification' => $procure_form_identification);
 					if($id && $model == 'ConsentMaster') $conditions[] = 'ConsentMaster.id != '. $id;
 					$dup = $ConsentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return "the identification value should be unique";
+					if($dup) return __("the identification value should be unique");
 					break;
 				case 'TreatmentMaster':
 					$TreatmentMaster = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-					$conditions = array('TreatmentMaster.procure_form_identification' => $procure_form_identification, "TreatmentControl.tx_method != 'procure medication worksheet - drug'", "TreatmentControl.tx_method != 'procure follow-up worksheet - treatment'");
+					$conditions = array('TreatmentMaster.procure_form_identification' => $procure_form_identification);
 					if($id && $model == 'TreatmentMaster') $conditions[] = 'TreatmentMaster.id != '. $id;
 					$dup = $TreatmentMaster->find('count', array('conditions' => $conditions, 'recursive' => '0'));
-					if($dup) return "the identification value should be unique";
+					if($dup) return __("the identification value should be unique");;
 					break;
 				default:
-					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);					
+					AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			}
 		}
-		
+		//All is ok
 		return false;
 	}
 }
