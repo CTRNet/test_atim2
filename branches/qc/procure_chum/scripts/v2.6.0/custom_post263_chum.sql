@@ -337,3 +337,7 @@ version_created)
 (SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
 procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,
 modified FROM ad_tubes INNER JOIN aliquot_masters ON id = aliquot_master_id WHERE modified_by = @modified_by AND modified = @modified);
+
+-- CHANGE datamart_browsing_results
+
+ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
