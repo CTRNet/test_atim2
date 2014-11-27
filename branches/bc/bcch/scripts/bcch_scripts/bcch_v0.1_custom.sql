@@ -47,12 +47,65 @@ Please change datamart_structures_relationships_en(and fr).png in appwebrootimgd
 -- Review specimen review detail form `spr_breast_cancer_types`
 
 /*
-Should change trunk ViewSample to fix bug #2690: 
-Changed [SampleMaster.parent_id AS parent_sample_id,] to [SampleMaster.parent_id AS parent_id].
-Please review custom ViewSample $table_query.
+  Should change trunk ViewSample to fix bug #2690: 
+  Changed [SampleMaster.parent_id AS parent_sample_id,] to [SampleMaster.parent_id AS parent_id].
+  Please review custom ViewSample $table_query.
 */
 
 -- Category for custom lookup domains
 UPDATE `structure_permissible_values_custom_controls` SET `category`='clinical - consent' WHERE `name`='ccbr person consenting';
 UPDATE `structure_permissible_values_custom_controls` SET `category`='clinical - consent' WHERE `name`='ccbr treating physician';
 UPDATE `structure_permissible_values_custom_controls` SET `category`='inventory' WHERE `name`='ccbr sample pickup by';
+
+--  =========================================================================
+--	Eventum ID: #3112 - Add study field to collection
+--	=========================================================================
+
+ALTER TABLE `collections` 
+ADD COLUMN `study_summary_id` INT(11) NULL DEFAULT NULL AFTER `event_master_id` ;
+
+ALTER TABLE `collections_revs` 
+ADD COLUMN `study_summary_id` INT(11) NULL DEFAULT NULL AFTER `event_master_id` ;
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'Collection', 'collections', 'study_summary_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='study_list') , '0', '', '', '', 'study summary id', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='collections'), (SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='study_summary_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study summary id' AND `language_tag`=''), '0', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('study summary id', "Study", '');
+
+--  =========================================================================
+--	Eventum ID: #3109 - Participant Identifier auto-increment
+--  Format: C00001
+--	=========================================================================
+
+-- Executed on production system by Navee
+UPDATE `structure_validations`
+SET `rule` = '/^[0-9]+$/'
+WHERE `structure_field_id` = 521 AND `rule` = '/^CCBR[0-9]+$/';
+
+-- Set field to read-only on EDIT view. Remove from ADD view.
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='1', `flag_edit_readonly`='1', `flag_addgrid`='0', `flag_editgrid`='0', `flag_editgrid_readonly`='1', `flag_batchedit_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Add new misc identifier type
+INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `display_order`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`) VALUES
+ ('CCBR Identifier', '1', '4', '1', '0', '1', '0');
+
+-- Create new misc identifier for each existing participant identifier
+INSERT INTO `misc_identifiers` (`participant_id`, `identifier_value`, `misc_identifier_control_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `flag_unique`)
+SELECT `id`, `participant_identifier`, (SELECT `id` FROM `misc_identifier_controls` WHERE `misc_identifier_name` = 'CCBR Identifier'), NOW(), (SELECT `id` FROM `users` WHERE `username` = 'administrator'), NOW(), (SELECT `id` FROM `users` WHERE `username` = 'administrator'), 0, 1 FROM `participants`;
+
+-- Update all existing identifiers to prep for new values
+UPDATE `participants` SET `participant_identifier` = '';
+
+-- Fix validations for new format using C00001, required and unique
+UPDATE `structure_validations` SET `rule`='notEmpty' WHERE `language_message`='error_participant identifier required';
+UPDATE `structure_validations` SET `rule`='isUnique' WHERE `language_message`='error_participant identifier must be unique';
+
+UPDATE `structure_validations` SET `rule` = '/^[C][0-9][0-9][0-9][0-9][0-9]$'
+WHERE `structure_field_id` = 521 AND `rule` = '/^[0-9]+$/' AND `language_message` = 'ccbr error participant identifier';
+
+-- New error message
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('ccbr error participant identifier', "BCCH Biobank Identifier requires format: C00000 (C, followed by 5 digits)", '');
