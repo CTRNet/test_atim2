@@ -1147,3 +1147,10 @@ VALUES
 REPLACE INTO i18n (id,en,fr) VALUES ('inaccurate date use','Inaccurate date use','Utilisation de dates approximatives');
 
 UPDATE versions SET branch_build_number = '5950' WHERE version_number = '2.6.3';
+
+-- 201411?? ---------------------------------------------------------------------------------------------------------------------------------------
+-- Fix Bug
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- CHANGE datamart_browsing_results
+ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
