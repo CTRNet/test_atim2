@@ -1022,7 +1022,19 @@ ALTER TABLE collections_revs MODIFY `collection_voa_nbr` int(20) DEFAULT NULL;
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
 ((SELECT id FROM structure_fields WHERE `field`='collection_voa_nbr' AND tablename = 'collections'), 'custom,/^[0-9]+$/', 'error_must_be_integer');
 
+-- ** CHANGE datamart_browsing_results ** 
+
+ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
+
 -- ** Version **
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '5930' WHERE version_number = '2.6.3';
+
+ils utilisent un order number order number (add defualt value plus control on format)
+14-OVC-01
+14-OVC-56
+14-OVC-78
+15-ovc-01
+
+
