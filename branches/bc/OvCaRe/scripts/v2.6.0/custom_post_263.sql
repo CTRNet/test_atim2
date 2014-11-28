@@ -1026,15 +1026,89 @@ INSERT INTO structure_validations(structure_field_id, rule, language_message) VA
 
 ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
 
+-- ** Change format of DX forms ** 
+
+UPDATE structure_formats SET `display_column`='2', `display_order`='400', `language_heading`='notes' WHERE structure_id=(SELECT id FROM structures WHERE alias='diagnosismasters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='notes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dx_ovaries_endometriums');
+UPDATE structure_formats SET `display_column`='2', `display_order`='320' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_history' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2', `display_order`='321' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_clinical_diagnosis' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_dxd_others');
+REPLACE INTO i18n (id,en) 
+VALUES 
+('presence of benign lesions precursor','Benign (Precursor)'),
+('fallopian tube lesions','Fallopian Tube');
+
+-- ** be able to browse csv to lookf for on path number **
+
+UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,class=file' WHERE structure_id=(SELECT id FROM structures WHERE alias='ovcare_txd_surgeries') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_surgeries' AND `field`='path_num' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+-- ** Message **
+
+SELECT 'Help Ying to create blood collectiontemplate, first one supposed t be EDTA' AS TODO;
+SELECT 'Check margaret luk has been created into Lab People Custom List' AS TODO;
+
+-- ** Update blood index view
+
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit') AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_tube_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- ** Add voa# to profile in read only mode **
+
+ALTER TABLE participants ADD COLUMN ovcare_voa_nbrs VARCHAR(100) DEFAULT 'n/a';
+ALTER TABLE participants_revs ADD COLUMN ovcare_voa_nbrs VARCHAR(100) DEFAULT 'n/a';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'ovcare_voa_nbrs', 'input',  NULL , '0', 'size=10', '', '', 'VOA#(s)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_voa_nbrs' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='VOA#(s)' AND `language_tag`=''), '1', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `language_label`='VOA#' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='' AND `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `language_label`='VOA#' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='' AND `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `language_label`='VOA#' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('VOA#(s)','VOA#(s)');
+SET @modified = (SELECT now() from users limit 0 ,1);
+UPDATE participants Participant
+JOIN (
+	SELECT Participant.id, GROUP_CONCAT(Collection.collection_voa_nbr  ORDER BY Collection.collection_voa_nbr ASC SEPARATOR " - ") AS ovcare_voa_nbrs
+	FROM participants Participant
+	INNER JOIN collections Collection ON Collection.participant_id = Participant.id
+	WHERE Participant.deleted <> 1 AND Collection.deleted <> 1
+	GROUP BY Participant.id
+) res ON res.id = Participant.id
+SET Participant.ovcare_voa_nbrs = res.ovcare_voa_nbrs, Participant.modified_by = 1, Participant.modified = @modified;
+INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,ovcare_voa_nbrs,
+version_created,modified_by)
+(SELECT id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,ovcare_voa_nbrs,
+modified,modified_by FROM participants WHERE modified_by = 1 AND modified = @modified);
+UPDATE structure_formats SET `display_column`='3', `display_order`='97', `language_heading`='VOA' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_voa_nbrs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en) VALUES ('VOA','VOA');
+
+-- ** Add Pathologist Reviewed **
+
+
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('ovcare_pathologist_reviewed', "StructurePermissibleValuesCustom::getCustomDropdown(\'Pathologist\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, values_max_length) 
+VALUES 
+('Pathologist', 'clinical - diagnosis', '100');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'ovcare_date_reviewed', 'date',  NULL , '0', '', '', '', 'date reviewed', ''), 
+('ClinicalAnnotation', 'DiagnosisMaster', 'diagnosis_masters', 'ovcare_pathologist_reviewed', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ovcare_pathologist_reviewed') , '0', '', '', '', 'pathologist reviewed', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_date_reviewed' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date reviewed' AND `language_tag`=''), '1', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='dx_primary'), (SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_pathologist_reviewed' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_pathologist_reviewed')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pathologist reviewed' AND `language_tag`=''), '1', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en) VALUES ('date reviewed','Date Reviewed'),('pathologist reviewed','Pathologist Reviewed'); 		    
+ALTER TABLE diagnosis_masters
+	ADD COLUMN ovcare_date_reviewed date DEFAULT NULL,
+	ADD COLUMN ovcare_date_reviewed_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN ovcare_pathologist_reviewed varchar(100);
+ALTER TABLE diagnosis_masters_revs
+	ADD COLUMN ovcare_date_reviewed date DEFAULT NULL,
+	ADD COLUMN ovcare_date_reviewed_accuracy char(1) NOT NULL DEFAULT '',
+	ADD COLUMN ovcare_pathologist_reviewed varchar(100);
+UPDATE structure_formats SET `language_heading`='review' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_path_review_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_path_review_type') AND `flag_confidential`='0');
+
 -- ** Version **
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '5930' WHERE version_number = '2.6.3';
-
-ils utilisent un order number order number (add defualt value plus control on format)
-14-OVC-01
-14-OVC-56
-14-OVC-78
-15-ovc-01
-
-

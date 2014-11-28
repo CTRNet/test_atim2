@@ -13,14 +13,13 @@
 		if($sample_control_data['SampleControl']['sample_type'] == 'blood') {
 			$this->request->data['SampleDetail']['collected_volume'] = '6.0';
 			$this->request->data['SampleDetail']['collected_volume_unit'] = 'ml';
-			$tmp_existing_bloods = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => 'blood'), 'recursive' => '0'));
 			$existing_bloods = array();
-			foreach($tmp_existing_bloods as $tmp_sample) {
-					if(in_array($tmp_sample['SampleDetail']['blood_type'], array('EDTA', 'serum'))) $existing_bloods[] = $tmp_sample;
-			}
+			$tmp_existing_bloods = $this->SampleMaster->find('all', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => 'blood'), 'recursive' => '0'));
+			foreach($tmp_existing_bloods as $tmp_sample) if(in_array($tmp_sample['SampleDetail']['blood_type'], array('EDTA', 'serum'))) $existing_bloods[] = $tmp_sample;
 			if(empty($existing_bloods)) {
 				//First Blood we expect should be EDTA
 				$this->request->data['SampleDetail']['blood_type'] = 'EDTA';
+				$this->request->data['SampleDetail']['collected_volume'] = '12.0';
 				$this->request->data['SampleDetail']['collected_tube_nbr'] = '2';
 			} else if(sizeof($existing_bloods) == 1) {
 				if($existing_bloods[0]['SampleDetail']['blood_type'] == 'EDTA') {
@@ -29,6 +28,7 @@
 				} else {
 					//If no EDTA or SERUM, First Blood we expect should be EDTA
 					$this->request->data['SampleDetail']['blood_type'] = 'EDTA';
+					$this->request->data['SampleDetail']['collected_volume'] = '12.0';
 					$this->request->data['SampleDetail']['collected_tube_nbr'] = '2';
 				}			
 			}
