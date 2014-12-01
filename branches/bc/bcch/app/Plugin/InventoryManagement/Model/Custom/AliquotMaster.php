@@ -26,7 +26,7 @@ class AliquotMasterCustom extends AliquotMaster {
 	
 	function generateDefaultAliquotLabel($view_sample, $aliquot_control_data) {
 		// Parameters check: Verify parameters have been set
-		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+/*		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 			
 		$default_aliquot_label = '';
 		if($view_sample['ViewSample']['bank_id'] == 4) {
@@ -110,21 +110,42 @@ class AliquotMasterCustom extends AliquotMaster {
 				(empty($view_sample['ViewSample']['qc_nd_sample_label'])? 'n/a' : $view_sample['ViewSample']['qc_nd_sample_label']) .
 				(empty($aliquot_creation_date)? '' : ' ' . substr($aliquot_creation_date, 0, strpos($aliquot_creation_date," ")));
 		}
-		
+		*/
+		$default_aliquot_label = "BCCH Custom Label";
 		return $default_aliquot_label;
 	}
 	
-	function regenerateAliquotBarcode() {
-		$aliquots_to_update = $this->find('all', array('conditions' => array("AliquotMaster.barcode IS NULL OR AliquotMaster.barcode LIKE ''"), 'fields' => array('AliquotMaster.id')));
-		foreach($aliquots_to_update as $new_aliquot) {
-			$new_aliquot_id = $new_aliquot['AliquotMaster']['id'];
-			$aliquot_data = array('AliquotMaster' => array('barcode' => $new_aliquot_id), 'AliquotDetail' => array());
-			
-			$this->id = $new_aliquot_id;
+	function generateAliquotBarcode($aliquotIDs) {
+		
+		// Get all aliquots that now need barcodes
+		$aliquots_to_update = 
+			$this->find('all', array('conditions' => array('AliquotMaster.id' => $aliquotIDs)));			
+		
+		// Find next barcode to use
+		$new_barcode = $this->findNextBarcode();
+		
+		// Update barcode for selected aliquots
+		foreach($aliquots_to_update as $aliquot) {
+			$aliquot_data = array('AliquotMaster' => array('barcode' => $new_barcode), 'AliquotDetail' => array());
+			$this->id = $aliquot['AliquotMaster']['id'];
 			$this->data = null;
 			$this->addWritableField(array('barcode'));
 			$this->save($aliquot_data, false);
 		}
+	
+	}
+	
+	function findNextBarcode() {
+		
+		// Find aliquot with the highest barcode
+		$lastAliquot = 
+			$this->find('first', array('conditions' => array('AliquotMaster.deleted' => array(0,1)),
+			'order' => array('AliquotMaster.barcode' => 'desc')));
+		$next_barcode = $lastAliquot['AliquotMaster']['barcode'];
+		
+		// Increment last used barcode by 1	
+ 		$next_barcode = $next_barcode + 1;
+		return $next_barcode;
 	}
 }
 
