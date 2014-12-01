@@ -338,7 +338,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 			$this->AliquotMaster->addWritableField(array('collection_id', 'sample_control_id', 'sample_master_id', 'aliquot_control_id', 'storage_master_id', 'current_volume'));
 			$this->AliquotMaster->addWritableField(array('aliquot_master_id'), $aliquot_control['AliquotControl']['detail_tablename']);
 			$this->AliquotMaster->writable_fields_mode = 'addgrid';
-			
+
 			$hook_link = $this->hook('presave_process');
 			if($hook_link){
 				require($hook_link);
@@ -363,12 +363,12 @@ class AliquotMastersController extends InventoryManagementAppController {
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 
 						
-						if($is_batch_process){
+					//	if($is_batch_process){
 							$batch_ids[] = $this->AliquotMaster->getLastInsertId();
-						}
+					//	}
 					}
 				}
-				
+		
 				$hook_link = $this->hook('postsave_process');
 				if( $hook_link ) { 
 					require($hook_link); 
