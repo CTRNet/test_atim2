@@ -28,8 +28,7 @@ class ParticipantCustom extends Participant {
 	}
 	
 	function updateParticipantVOANumbers($participant_id) {
-		if($participant_id) {
-pr("updateParticipantVOANumbers($participant_id)");			
+		if($participant_id) {		
 			$participant_data = $this->getOrRedirect($participant_id);
 			$voa_updated_query = "SELECT GROUP_CONCAT(Collection.collection_voa_nbr  ORDER BY Collection.collection_voa_nbr ASC SEPARATOR ' - ') AS ovcare_voa_nbrs
 				FROM collections Collection
@@ -37,12 +36,10 @@ pr("updateParticipantVOANumbers($participant_id)");
 				GROUP BY Collection.participant_id";
 			$voas = $this->tryCatchQuery($voa_updated_query);
 			$new_ovcare_voa_nbrs = isset($voas[0][0]['ovcare_voa_nbrs'])? $voas[0][0]['ovcare_voa_nbrs'] : 'n/a';
-pr($new_ovcare_voa_nbrs ." != ".$participant_data['Participant']['ovcare_voa_nbrs']);				
 			if($new_ovcare_voa_nbrs != $participant_data['Participant']['ovcare_voa_nbrs']) {
 				$this->data = array();
 				$this->id = $participant_id;
 				$this->check_writable_fields = false;
-pr('update');				
 				$this->save(array('Participant' => array('ovcare_voa_nbrs' => $new_ovcare_voa_nbrs)), false);
 			}	
 		}
