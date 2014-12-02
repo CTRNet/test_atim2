@@ -1153,4 +1153,96 @@ UPDATE versions SET branch_build_number = '5950' WHERE version_number = '2.6.3';
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- CHANGE datamart_browsing_results
+
 ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
+
+-- Add refrigeration date
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SpecimenDetail', 'specimen_details', 'procure_refrigeration_time', 'time',  NULL , '0', '', '', '', 'refrigeration time', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='specimens'), (SELECT id FROM structure_fields WHERE `model`='SpecimenDetail' AND `tablename`='specimen_details' AND `field`='procure_refrigeration_time' AND `type`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='refrigeration time' AND `language_tag`=''), '0', '502', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) VALUES ('refrigeration time','Refrigeration/Ice Time','Heure de réfrigération/glace');
+ALTER TABLE specimen_details ADD COLUMN `procure_refrigeration_time` time DEFAULT NULL;
+ALTER TABLE specimen_details_revs ADD COLUMN `procure_refrigeration_time` time DEFAULT NULL;
+
+-- Change Questionnaire Version List
+
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown('questionnaire version')" WHERE domain_name = 'procure_questionnaire_version';
+
+-- i18n procure medication worksheet - drug
+
+REPLACE INTO i18n (id,en,fr) VALUES ('procure medication worksheet - drug', 'F1a - Medication Worksheet :: Drugs', 'F1a - Fiche des médicaments :: Molécules/Médicaments');
+
+-- Change field for questionnaire defined as complete
+
+ALTER TABLE procure_ed_lifestyle_quest_admin_worksheets ADD COLUMN complete char(1) DEFAULT '';
+ALTER TABLE procure_ed_lifestyle_quest_admin_worksheets_revs ADD COLUMN complete char(1) DEFAULT '';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_lifestyle_quest_admin_worksheets', 'complete', 'yes_no',  NULL , '0', '', '', '', 'complete', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='complete' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='complete' AND `language_tag`=''), '1', '36', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+DELETE FROM i18n WHERE id = 'complete';
+INSERT INTO i18n (id,en,fr) VALUES ('complete', 'Complete', 'Complet');
+SELECT verification_result AS 'unmigrated verification_result' FROM procure_ed_lifestyle_quest_admin_worksheets WHERE verification_result NOT IN ('', 'complete', 'incomplete');
+UPDATE procure_ed_lifestyle_quest_admin_worksheets SET complete = 'y' WHERE verification_result = 'complete';
+UPDATE procure_ed_lifestyle_quest_admin_worksheets SET complete = 'n' WHERE verification_result = 'incomplete';
+UPDATE procure_ed_lifestyle_quest_admin_worksheets_revs SET complete = 'y' WHERE verification_result = 'complete';
+UPDATE procure_ed_lifestyle_quest_admin_worksheets_revs SET complete = 'n' WHERE verification_result = 'incomplete';
+ALTER TABLE procure_ed_lifestyle_quest_admin_worksheets DROP COLUMN verification_result;
+ALTER TABLE procure_ed_lifestyle_quest_admin_worksheets_revs DROP COLUMN verification_result;
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Questionnaire verification result');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE name = 'Questionnaire verification result';
+DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_questionnaire_administration_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='verification_result' AND `language_label`='result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_verification_result') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='verification_result' AND `language_label`='result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_verification_result') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='EventDetail' AND `tablename`='procure_ed_lifestyle_quest_admin_worksheets' AND `field`='verification_result' AND `language_label`='result' AND `language_tag`='' AND `type`='select' AND `setting`='' AND `default`='' AND `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_questionnaire_verification_result') AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+DELETE FROM structure_value_domains WHERE domain_name = 'procure_questionnaire_verification_result';
+
+-- Add copy/past control on add treatment in batch form
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '3', '10000', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0');
+
+-- Change dosage to posologie in i18n and form
+
+DELETE FROM i18n WHERE id =  'dosage';
+INSERT INTO i18n (id,en,fr) VALUES ('dosage','Dosage','Posologie');
+UPDATE structure_fields SET  `language_label`='dosage' WHERE model='TreatmentDetail' AND tablename='procure_txd_medication_drugs' AND field='dose' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- Add curitherapy
+
+SELECT 'WARNING: Added curitherapy to treatment list' as 'Warning';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup medical treatment types');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('curietherapy','Curietherapy','Curiethérapie',  '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- Add hormonotherapy and chemotherapy to drug list
+
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `display_order`="0" WHERE svd.domain_name='procure_drug_type' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="prostate" AND language_alias="prostate");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_drug_type"), (SELECT id FROM structure_permissible_values WHERE value="chemotherapy" AND language_alias="chemotherapy"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("hormonotherapy", "hormonotherapy");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_drug_type"), (SELECT id FROM structure_permissible_values WHERE value="hormonotherapy" AND language_alias="hormonotherapy"), "1", "1");
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='Drug' AND `tablename`='drugs' AND `field`='type'), 'notEmpty');
+SELECT id, generic_name AS 'drug generic_name with no type' FROM drugs where type IS NULL OR type = '';
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES
+('procure_medication_list', 'Drug.Drug::getMedicationPermissibleValues'),
+('procure_treatment_drug_list', 'Drug.Drug::getTreatmentDrugPermissibleValues');
+UPDATE structure_fields SET  `structure_value_domain`=(SELECT id FROM structure_value_domains WHERE domain_name='procure_medication_list')  WHERE model='TreatmentDetail' AND tablename='procure_txd_medication_drugs' AND field='drug_id' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='drug_list');
+ALTER TABLE procure_txd_followup_worksheet_treatments ADD COLUMN drug_id int(11) DEFAULT NULL;
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs ADD COLUMN drug_id int(11) DEFAULT NULL;
+ALTER TABLE procure_txd_followup_worksheet_treatments ADD CONSTRAINT FK_procure_txd_followup_worksheet_treatments_drugs FOREIGN KEY (drug_id) REFERENCES drugs (id);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_followup_worksheet_treatments', 'drug_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_drug_list') , '0', '', '', '', 'drug', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='drug_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_drug_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='drug' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('the type of the selected drug does not match the selected treatment type', 'The type of the selected drug does not match the selected treatment type', 'Le type du médicament sélectionné ne correspond pas au type du traitement sélectionné');
+
+-- version
+
+UPDATE versions SET branch_build_number = '5964' WHERE version_number = '2.6.3';
