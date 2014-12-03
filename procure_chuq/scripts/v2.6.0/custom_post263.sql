@@ -1249,8 +1249,8 @@ UPDATE versions SET branch_build_number = '5964' WHERE version_number = '2.6.3';
 
 -- Add treatment site for radiotherapy
 
-ALTER TABLE procure_txd_followup_worksheet_treatments ADD COLUMN treatment_site varchar(100) DEFAULT NULL:
-ALTER TABLE procure_txd_followup_worksheet_treatments_revs ADD COLUMN treatment_site varchar(100) DEFAULT NULL:
+ALTER TABLE procure_txd_followup_worksheet_treatments ADD COLUMN treatment_site varchar(100) DEFAULT NULL;
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs ADD COLUMN treatment_site varchar(100) DEFAULT NULL;
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
 ('procure_treatment_site', "StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment site\')");
@@ -1266,5 +1266,5 @@ INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_inp
 VALUES
 ('prostate bed','Prostate Bed','Loge prostatique',  '1', @control_id, NOW(), NOW(), 1, 1);
 INSERT INTO i18n (id,en,fr) VALUES ('no site has to be associated to the selected treatment type', 'No site has to be associated to the selected treatment type','Aucun site ne doit être défini pour le type du traitement sélectionné');
-UPDATE versions SET branch_build_number = '5967' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '5970' WHERE version_number = '2.6.3';
 
