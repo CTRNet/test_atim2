@@ -1246,3 +1246,25 @@ VALUES
 -- version
 
 UPDATE versions SET branch_build_number = '5964' WHERE version_number = '2.6.3';
+
+-- Add treatment site for radiotherapy
+
+ALTER TABLE procure_txd_followup_worksheet_treatments ADD COLUMN treatment_site varchar(100) DEFAULT NULL:
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs ADD COLUMN treatment_site varchar(100) DEFAULT NULL:
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('procure_treatment_site', "StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment site\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, values_max_length) 
+VALUES 
+('Treatment site', 'clinical - treatment', '100');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'procure_txd_followup_worksheet_treatments', 'treatment_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_site') , '0', '', '', '', 'site', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='treatment_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_site')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='site' AND `language_tag`=''), '1', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment site');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('prostate bed','Prostate Bed','Loge prostatique',  '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO i18n (id,en,fr) VALUES ('no site has to be associated to the selected treatment type', 'No site has to be associated to the selected treatment type','Aucun site ne doit être défini pour le type du traitement sélectionné');
+UPDATE versions SET branch_build_number = '5967' WHERE version_number = '2.6.3';
+
