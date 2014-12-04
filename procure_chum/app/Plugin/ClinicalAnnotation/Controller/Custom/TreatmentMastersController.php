@@ -102,11 +102,11 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 						'prostate' => array('avodart' => null,'proscar'=> null,'flomax'=> null,'xatral'=> null,'cipro'=> null),
 						'open sale' => array('aspirine'=> null, 'advil'=> null, 'tylenol'=> null, 'vitamines'=> null));
 					$drug_model = AppModel::getInstance("Drug", "Drug", true);
-					$all_drugs = $drug_model->find('all', array('order' => array('Drug.generic_name')));
+					$all_drugs = $drug_model->find('all', array('conditions' => array('Drug.type' => array('prostate','open sale','other diseases')), 'order' => array('Drug.generic_name')));
 					foreach($all_drugs as $new_drug) {
 						$type = $new_drug['Drug']['type'];
 						$generic_name = strtolower($new_drug['Drug']['generic_name']);
-						if(array_key_exists($generic_name, $ordered_drugs_to_dispay[$type])) $ordered_drugs_to_dispay[$type][$generic_name] = $new_drug['Drug']['id'];
+						if(array_key_exists($type, $ordered_drugs_to_dispay) && array_key_exists($generic_name, $ordered_drugs_to_dispay[$type])) $ordered_drugs_to_dispay[$type][$generic_name] = $new_drug['Drug']['id'];
 					}
 					
 					$this->request->data = array();

@@ -341,3 +341,5 @@ modified FROM ad_tubes INNER JOIN aliquot_masters ON id = aliquot_master_id WHER
 -- CHANGE datamart_browsing_results
 
 ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
+
+UPDATE versions SET site_branch_build_number = '5974' WHERE version_number = '2.6.3';
