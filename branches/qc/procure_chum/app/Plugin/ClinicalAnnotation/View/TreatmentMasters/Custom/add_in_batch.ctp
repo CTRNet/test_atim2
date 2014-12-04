@@ -9,4 +9,11 @@
 	if(isset($default_procure_form_identification)) $final_options['override']['TreatmentMaster.procure_form_identification'] = $default_procure_form_identification;
 	
 	$this->Structures->build($atim_structure, $final_options);
-
+?>
+<script type="text/javascript">
+var copyStr = "<?php echo(__("copy", null)); ?>";
+var pasteStr = "<?php echo(__("paste")); ?>";
+var copyingStr = "<?php echo(__("copying")); ?>";
+var pasteOnAllLinesStr = "<?php echo(__("paste on all lines")); ?>";
+var copyControl = true;
+</script>
