@@ -75,14 +75,14 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 					unset($patients_status[$participant_identifier]);
 				}				
 				//Load identifiers
-				$atim_participant_id  = customInsert($data, 'participants', __FILE__, __LINE__, false, true);
+				$atim_participant_id  = customInsert($data, 'participants', __FILE__, __LINE__, false);
 				if(strlen($new_line_data['RAMQ'])) {
 					$misc_identifier_name = 'RAMQ';
 					$data = array('misc_identifier_control_id' => $misc_identifier_controls[$misc_identifier_name]['id'],
 						'participant_id' => $atim_participant_id,
 						'flag_unique' => $misc_identifier_controls[$misc_identifier_name]['flag_unique'],
 						'identifier_value' => $new_line_data['RAMQ']);	
-					customInsert($data, 'misc_identifiers', __FILE__, __LINE__, false, true);
+					customInsert($data, 'misc_identifiers', __FILE__, __LINE__, false);
 				}
 				if(strlen($new_line_data['#dossier'])) {
 					$misc_identifier_name = 'hospital number';
@@ -90,7 +90,7 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 							'participant_id' => $atim_participant_id,
 							'flag_unique' => $misc_identifier_controls[$misc_identifier_name]['flag_unique'],
 							'identifier_value' => $new_line_data['#dossier']);
-					customInsert($data, 'misc_identifiers', __FILE__, __LINE__, false, true);
+					customInsert($data, 'misc_identifiers', __FILE__, __LINE__, false);
 				}
 				if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) die('ERR328728762387632');
 				$psp_nbr_to_participant_id_and_patho[$participant_identifier] = array('participant_id' => $atim_participant_id, 'patho#' => $new_line_data['#Patho']);
@@ -148,8 +148,8 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 					default:
 						die('ERR 237 6287 632 '.$new_line_data['Version du consentement']);
 				}
-				$data['ConsentDetail']['consent_master_id'] = customInsert($data['ConsentMaster'], 'consent_masters', __FILE__, __LINE__, false, true);
-				customInsert($data['ConsentDetail'], $consent_control['detail_tablename'], __FILE__, __LINE__, true, true);
+				$data['ConsentDetail']['consent_master_id'] = customInsert($data['ConsentMaster'], 'consent_masters', __FILE__, __LINE__, false);
+				customInsert($data['ConsentDetail'], $consent_control['detail_tablename'], __FILE__, __LINE__, true);
 				//Questionnaire
 				$delivery_date  = getDateAndAccuracy($new_line_data, 'Date de remise du questionnaire au participant', 'Consent & Questionnaire', $file_name, $line_counter);
 				$recovery_date  = getDateAndAccuracy($new_line_data, 'Date de réception du questionnaire', 'Consent & Questionnaire', $file_name, $line_counter);
@@ -184,8 +184,8 @@ function loadConsents(&$XlsReader, $files_path, $file_name, $psp_nbr_to_particip
 						'procure_chuq_complete_at_recovery' => $procure_chuq_complete_at_recovery,
 						'complete' => $complete));
 				if(empty($delivery_date['date'])) $import_summary['Consent & Questionnaire']['@@WARNING@@']['No Questionnaire Delivery Date'][] = "System is creating a questionnaire with no delivery date. See patient '$participant_identifier'! [field 'Date de remise du questionnaire au participant' - file '$file_name' - line: $line_counter]";
-				$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false, true);
-				customInsert($data['EventDetail'], $questionnaire_control['detail_tablename'], __FILE__, __LINE__, true, true);
+				$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
+				customInsert($data['EventDetail'], $questionnaire_control['detail_tablename'], __FILE__, __LINE__, true);
 			} else {
 				$import_summary['Consent & Questionnaire']['@@ERROR@@']['Patient Identification Unknown'][] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient consent and quuestionnaire data won't be migrated! [field 'Patients' - file '$file_name' - line: $line_counter]";	
 			}
@@ -245,8 +245,8 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 							'total_ngml' => $total_ngml,
 							'procure_chum_minimum' => $procure_chum_minimum,
 							'procure_chum_biochemical_relapse' => $procure_chum_biochemical_relapse));
-					$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false, true);
-					customInsert($data['EventDetail'], $psa_control['detail_tablename'], __FILE__, __LINE__, true, true);
+					$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
+					customInsert($data['EventDetail'], $psa_control['detail_tablename'], __FILE__, __LINE__, true);
 				}
 			} else {
 				$import_summary['PSA']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field 'NoProcure' - file '$file_name' - line: $line_counter]";	
@@ -255,46 +255,29 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_id_and_patho) {
 	global $import_summary;
 	global $controls;
 	// Control
-	$tx_control = $controls['TreatmentControl'];
-pr($tx_control);	
+	$tx_control = $controls['TreatmentControl'];	
+	//Existing Drugs
+	$drugs = array();
+	$query = "SELECT id, generic_name, type FROM drugs WHERE deleted <> 1;";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$drugs[$row['type']][strtolower($row['generic_name'])] = $row['id'];
+	}	
+	//Period
+	$periods = array();
+	$query = "SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Period';";
+	$results = customQuery($query, __FILE__, __LINE__);
+	$row = $results->fetch_assoc();
+	$period_control_id = $row['id'];
+	$query = "SELECT value FROM structure_permissible_values_customs WHERE control_id = $period_control_id AND deleted <> 1;";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$periods[$row['value']] = $row['value'];
+	}
 	//Load Worksheet Names
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
@@ -302,7 +285,6 @@ pr($tx_control);
 	//LoadConsentAndQuestionnaireData
 	$line_counter = 0;
 	$headers = array();
-$types_to_do = array();	
 	foreach($XlsReader->sheets[$sheets_nbr[utf8_decode('Procure_Patient_Traitement 2013')]]['cells'] as $line => $new_line) {
 		$line_counter++;
 		if($line_counter == 1) {
@@ -315,86 +297,116 @@ $types_to_do = array();
 				if(strlen($new_line_data['Type'])) {
 					$start_date = getDateAndAccuracy($new_line_data, 'DDebut', 'Treatment', $file_name, $line_counter);
 					$finish_date = getDateAndAccuracy($new_line_data, 'DFin', 'Treatment', $file_name, $line_counter);
+					$detail_data = array();
+					$treatment_controls = array();
 					switch($new_line_data['Type']) {
-						
-						 	
-						 case 'HBP-AB':
-						 case 'HBP-AI':
-						 	pr('TODO '.$new_line_data['Type']);
+						//Chemotherpay
+						case 'Tx-Chimio':				
+							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
+							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
+						 	$drug_ids = array();
+							foreach(explode('-',$new_line_data['Med']) as $generic_name) $drug_ids[] = getDrugId($generic_name, 'chemotherapy', $drugs);
+						 	if(empty($drug_ids)) $drug_ids[] = null;
+						 	foreach($drug_ids as $drug_id) {
+						 		$detail_data[] = array(
+						 			'treatment_type' => 'chemotherapy',
+						 			'drug_id' => $drug_id,
+						 			'procure_chuq_period' => $period);
+						 	}
 						 	break;
-						
-						
-						
-						
-						
-						
-						
-						
-						
+						case 'Hx-AA':
+						case 'Hx-LA':
+						case 'Hx-X':
+							preg_match('/^Hx\-(.+)$/',  $new_line_data['Type'], $matches);
+							$treatment_controls = $tx_control['procure follow-up worksheet - treatment']; 
+							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
+							$drug_ids = array();
+							if(preg_match('/^((LHRH)|(MDV))\-/', $new_line_data['Med'])) {
+								$drug_ids[] = getDrugId($new_line_data['Med'], 'hormonotherapy', $drugs);
+							} else {
+								foreach(explode('-',$new_line_data['Med']) as $generic_name) $drug_ids[] = getDrugId($generic_name, 'hormonotherapy', $drugs);
+							}
+							if(empty($drug_ids)) $drug_ids[] = null;
+							foreach($drug_ids as $drug_id) {
+								$detail_data[] = array(
+									'treatment_type' => 'hormonotherapy',
+									'type' => $matches[1],
+									'drug_id' => $drug_id,
+									'procure_chuq_period' => $period);
+							}
+							break;
+						case 'Rx-Ext':
+							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
+							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
+							$detail_data = array(array(
+								'treatment_type' => 'radiotherapy',
+								'type' => 'Ext',
+								'procure_chuq_period' => $period));
+							break;
+						case 'HBP-AI':
+						case 'HBP-AB':
+							$drug_id = getDrugId($new_line_data['Med'], 'prostate', $drugs);
+							if($drug_id) {
+								$treatment_controls = $tx_control['procure medication worksheet - drug'];
+								$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
+								$detail_data = array(array(
+									'drug_id' => $drug_id, 
+									'procure_chuq_period' => $period));
+							} else {
+								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been recorded. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file '$file_name' - line: $line_counter]";
+							}				
+//TODO						todo calculer la duree
+							break;
+						case 'Autres':
+							$import_summary['Treatment']['@@WARNING@@']["Treatment 'Autre' To Create Manually"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file '$file_name' - line: $line_counter]";
+							break;
 						default:
-							$types_to_do[$new_line_data['Type']] = 'TODO';
+							die('ERR23873287238723');
 					}
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					//Questionnaire
-					$event_date  = getDateAndAccuracy($new_line_data, 'DPSA', 'Consent & Questionnaire', $file_name, $line_counter);
-					switch($new_line_data['DPSA(P)']) {
-						case 'j':
-							$event_date['accuracy'] = 'd';
-							break;
-						case 'jm':
-							$event_date['accuracy'] = 'm';
-							break;
-						case 'jma':
-							$event_date['accuracy'] = 'y';
-							break;
-						default:
-					}
-					$total_ngml = str_replace(array(' ', ','), array('', '.'), $new_line_data['PSA']);
-					if(strlen($total_ngml)) {
-						$procure_chum_minimum = str_replace(array(' ', ','), array('', '.'), $new_line_data['Minimum']);
-						if(!preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $total_ngml)) die('ERR23873287328732 '.$total_ngml);
-						if(strlen($procure_chum_minimum) && !preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $procure_chum_minimum)) die('ERR23873287328733 '.$procure_chum_minimum);
-						$procure_chum_biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['date de récidive biochimique selon déf. procure'])))? 'y' : '';
-						$data = array(
+					if($treatment_controls)  {
+						if(empty($start_date['date'])) $import_summary['Treatment']['@@WARNING@@']['No Treatment Start Date'][] = "System is creating a treatment with no tratment date. See patient '$participant_identifier'! [field 'DDebut' - file '$file_name' - line: $line_counter]";
+						foreach($detail_data as $new_detail) {
+							$data = array(
 								'TreatmentMaster' => array(
 									'participant_id' => $participant_id,
 									'procure_form_identification' => "$participant_identifier  Vx -FSPx",
-									'treatment_control_id' => $psa_control['event_control_id'],
-									'start_date' => $event_date['date'],
-									'start_date_accuracy' => $event_date['accuracy'],),
-								'TreatmentDetail' => array(
-										'xxx' => '');
-						$data['EventDetail']['event_master_id'] = customInsert($data['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false, true);
-						customInsert($data['EventDetail'], $psa_control['detail_tablename'], __FILE__, __LINE__, true, true);
+									'treatment_control_id' => $treatment_controls['treatment_control_id'],
+									'start_date' => $start_date['date'],
+									'start_date_accuracy' => $start_date['accuracy'],
+									'finish_date' => $finish_date['date'],
+									'finish_date_accuracy' => $finish_date['accuracy']),
+								'TreatmentDetail' => $new_detail);
+							$data['TreatmentDetail']['treatment_master_id'] = customInsert($data['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false);
+							customInsert($data['TreatmentDetail'], $treatment_controls['detail_tablename'], __FILE__, __LINE__, true);
+						}
 					}
-					
-				
-				}
-				
-				
+				}				
 			} else {
 				$import_summary['Treatment']['@@ERROR@@']['Patient Identification Unknown'][$participant_identifier] = "The Identification '$participant_identifier' has not been listed in the patient file! Patient PSA data won't be migrated! [field '. patients' - file '$file_name' - line: $line_counter]";
 			}
 		}
 	}
-	pr($types_to_do);
+}
+
+function getDrugId($generic_name, $type, &$drugs) {
+	$generic_name = trim($generic_name);
+	$generic_name_key = strtolower($generic_name);
+	if(!strlen($generic_name_key)) return null;
+	if(!isset($drugs[$type]) || !isset($drugs[$type][$generic_name_key])) {
+		$drugs[$type][$generic_name_key] = customInsert(array('generic_name' => $generic_name, 'type' => $type), 'drugs', __FILE__, __LINE__, false, true);
+	}
+	return $drugs[$type][$generic_name_key];	
+}
+
+function getPeriod($period, &$periods, $period_control_id) {
+	$period = trim($period);
+	$period_key = strtolower($period);
+	if(!strlen($period_key)) return null;
+	if(!isset($periods[$period_key])) {
+		customInsert(array('value' => $period_key, 'en' => $period, 'fr' => $period, 'use_as_input' => '1', 'control_id' => $period_control_id), 'structure_permissible_values_customs', __FILE__, __LINE__, false, true);
+		$periods[$period_key] = $period_key;
+	}
+	return $period_key;
 }
 
 ?>
