@@ -2,10 +2,7 @@
 
 require_once 'Files/ClinicalAnnotation.php';
 
-/*
- * Import PROCURE clinical data from Chantale file
- * To run after icm_to_procure_sardo_data_migration.php
- */
+set_time_limit('3600');
 
 //==============================================================================================
 // Variables
@@ -53,31 +50,15 @@ list($import_date, $import_by) = array_values(mysqli_fetch_assoc($query_res));
 global $controls;
 $controls = loadATiMControlData();
 
-
 echo "<br><br><FONT COLOR=\"blue\" >
 =====================================================================<br>
 PROCURE - Data Migration to ATiM<br>
 $import_date<br>
 =====================================================================</FONT><br>";
 
-//==============================================================================================
-//TRUNCATE
-//==============================================================================================
+echo "<br><FONT COLOR=\"red\" ><b>Check all dates in excel have been formated to date format 2000-00-00 (including treatment worksheet)</b></FONT><br><br>";
 
-$truncate_queries = array(
-
-//TODO 		'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
-//TODO 		'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
-//TODO  	'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
-				
-//TODO 		'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
-//TODO 		'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
-		
-//TODO	'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
-//TODO	'DELETE FROM participants;','DELETE FROM participants_revs;'
-
-);
-foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
+truncate();
 
 //==============================================================================================
 //Clinical Annotation
@@ -86,27 +67,27 @@ foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patient - File(s) : ".$files_name['patient']." && ".$files_name['patient_status']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
+$patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
+$psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
 
 //TODO delete ************
-		$query = "select id, participant_identifier FROM participants;";
-		$results = customQuery($query, __FILE__, __LINE__);
-		while($row = $results->fetch_assoc()){
-			$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array('participant_id' => $row['id'], 'patho#' => null);
-		}
+//		$query = "select id, participant_identifier FROM participants;";
+//		$results = customQuery($query, __FILE__, __LINE__);
+//		while($row = $results->fetch_assoc()){
+//			$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array('participant_id' => $row['id'], 'patho#' => null);
+//		}
 //TODO end delete ************
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Consent & Questionnaire - File(s) : ".$files_name['consent']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
+loadConsents($XlsReader, $files_path, $files_name['consent'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - PSA - File(s) : ".$files_name['psa']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id_and_patho);
+loadPSAs($XlsReader, $files_path, $files_name['psa'], $psp_nbr_to_participant_id_and_patho);
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) : ".$files_name['treatment']."***</FONT><br>";
 
@@ -114,30 +95,82 @@ $XlsReader = new Spreadsheet_Excel_Reader();
 loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
 
 
-		
-		
-		
+
+
+
+//==============================================================================================
+//End of the process
+//==============================================================================================
 
 dislayErrorAndMessage($import_summary);
 
+insertIntoRevs();
 
+//==============================================================================================
+// Functions
+//==============================================================================================
 
+function truncate() {
+	$truncate_queries = array(
+	
+			
+		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
+	 	'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
+	 	'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
+			
+			
+			
+	//TODO	'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
+	//TODO	'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
+	//TODO  'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
+	//TODO	'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
+	
+	//TODO	'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
+	//TODO	'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
+	
+	//TODO	'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
+	//TODO	'DELETE FROM participants;','DELETE FROM participants_revs;'
+	
+	);
+	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
+}
 
+function insertIntoRevs() {
+	global $import_date;
+	global $import_by;
+		
+	$tables = array(
+		'participants' => 0,
+		'misc_identifiers' => 0,
+			
+		'consent_masters' => 0,
+		'procure_cd_sigantures' => 1,
+		
+		'event_masters' => 0,
+		'procure_ed_lifestyle_quest_admin_worksheets' => 1,
+		'procure_ed_clinical_followup_worksheet_aps' => 1,
 
-
-
-
-
-
-
-exit;
-
-
-
-
-
-
-
+		'treatment_masters' => 0,
+		'procure_txd_medication_drugs' => 1,
+		'procure_txd_followup_worksheet_treatments' => 1			
+	);
+	
+	foreach($tables as $table_name => $is_detail_table) {
+		$fields = array();
+		$results = customQuery("DESC $table_name;", __FILE__, __LINE__);
+		while($row = $results->fetch_assoc()) {
+			$field = $row['Field'];
+			if(!in_array($field, array('created', 'created_by','modified', 'modified_by','deleted'))) $fields[$row['Field']] = $row['Field'];
+		}
+		$fields = implode(',', $fields);
+		if(!$is_detail_table) {
+			$query = "INSERT INTO ".$table_name."_revs ($fields, modified_by, version_created) (SELECT $fields, $import_by, '$import_date' FROM $table_name)";
+		} else {
+			$query = "INSERT INTO ".$table_name."_revs ($fields, version_created) (SELECT $fields, '$import_date' FROM $table_name)";
+		}
+		customQuery($query, __FILE__, __LINE__);
+	}
+}
 
 function loadATiMControlData(){
 	$controls = array();
@@ -194,20 +227,6 @@ function loadATiMControlData(){
 
 
 /*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //TODO set to empty
 $tmp_studied_lines = array();
 
@@ -1817,6 +1836,5 @@ function dislayErrorAndMessage($import_summary) {
 		}
 	}	
 }
-
 
 ?>
