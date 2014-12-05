@@ -126,9 +126,9 @@ class ParticipantCustom extends Participant {
 						$main_worksheet = false;
 						break;
 					case 'procure medication worksheet - drug':
-						break;
 						$pattern_suffix = "MED";
 						$main_worksheet = false;
+						break;
 					default:
 						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
 				}
