@@ -139,9 +139,9 @@ $query = "UPDATE collections Collection, diagnosis_masters DiagnosisMaster
 	AND Collection.diagnosis_master_id IS NULL;";
 mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 $query = "INSERT INTO collections_revs (id,acquisition_label,bank_id,collection_site,collection_datetime,collection_datetime_accuracy,ovcare_collection_type,sop_master_id,collection_property,collection_notes,participant_id,diagnosis_master_id,
-	consent_master_id,treatment_master_id,event_master_id,collection_voa_nbr,modified_by,version_created) 
+	consent_master_id,treatment_master_id,event_master_id,ovcare_collection_voa_nbr,modified_by,version_created) 
 	(SELECT id,acquisition_label,bank_id,collection_site,collection_datetime,collection_datetime_accuracy,ovcare_collection_type,sop_master_id,collection_property,collection_notes,participant_id,diagnosis_master_id,
-	consent_master_id,treatment_master_id,event_master_id,collection_voa_nbr,modified_by,modified FROM collections WHERE modified = '$modified' AND modified_by = '$modified_by');";
+	consent_master_id,treatment_master_id,event_master_id,ovcare_collection_voa_nbr,modified_by,modified FROM collections WHERE modified = '$modified' AND modified_by = '$modified_by');";
 mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 
 // Add missing revs records
@@ -341,15 +341,15 @@ function setVoaToParticipantIds($atim_controls){
 	global $voas_to_participant_id;
 	$voas_to_participant_id = array();
 	//1
-	$query = "SELECT participant_id, collection_voa_nbr FROM collections;";
+	$query = "SELECT participant_id, ovcare_collection_voa_nbr FROM collections;";
 	$results = mysqli_query($db_connection, $query) or die("Main [line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	while($row = $results->fetch_assoc()) {
-		if(isset($voas_to_participant_id[$row['collection_voa_nbr']])) {
-			if($voas_to_participant_id[$row['collection_voa_nbr']] != $row['participant_id']) {
-				$summary_msg['VOA to Participant ID']['@@ERROR@@']["Voa linked to more than one participant"][] = "See V0A# ".$row['collection_voa_nbr']." Linke to ATiM participant id :".$voas_to_participant_id[$row['collection_voa_nbr']]." and ".$row['participant_id'];
+		if(isset($voas_to_participant_id[$row['ovcare_collection_voa_nbr']])) {
+			if($voas_to_participant_id[$row['ovcare_collection_voa_nbr']] != $row['participant_id']) {
+				$summary_msg['VOA to Participant ID']['@@ERROR@@']["Voa linked to more than one participant"][] = "See V0A# ".$row['ovcare_collection_voa_nbr']." Linke to ATiM participant id :".$voas_to_participant_id[$row['ovcare_collection_voa_nbr']]." and ".$row['participant_id'];
 			}
 		} else {
-			$voas_to_participant_id[$row['collection_voa_nbr']] = $row['participant_id'];
+			$voas_to_participant_id[$row['ovcare_collection_voa_nbr']] = $row['participant_id'];
 		}
 	}
 	//2
@@ -380,9 +380,9 @@ function mergeBloodAndTissue() {
 	$row = $results->fetch_assoc();
 	$sample_control_id = $row['id'];
 	$detail_tablename = $row['detail_tablename'];
-	$query = "SELECT SampleMaster.id,collection_id,notes,participant_id,collection_voa_nbr,
+	$query = "SELECT SampleMaster.id,collection_id,notes,participant_id,ovcare_collection_voa_nbr,
 		supplier_dept, reception_by, reception_datetime, reception_datetime_accuracy, time_at_room_temp_mn, 
-		ovcare_ischemia_time_mn, ovcare_tissue_type, tissue_source, ovcare_tissue_source_precision, tissue_laterality, xenograft_collected
+		ovcare_ischemia_time_mn, ovcare_tissue_type, tissue_source, ovcare_tissue_source_precision, tissue_laterality, ovcare_xenograft_collected
 		FROM sample_masters SampleMaster
 		INNER JOIN collections Collection ON Collection.id = SampleMaster.collection_id
 		INNER JOIN specimen_details SpecimenDetail ON SpecimenDetail.sample_master_id = SampleMaster.id
@@ -407,7 +407,7 @@ function mergeBloodAndTissue() {
 	$row = $results->fetch_assoc();
 	$sample_control_id = $row['id'];
 	$detail_tablename = $row['detail_tablename'];
-	$query = "SELECT SampleMaster.id,collection_id,notes,participant_id,collection_voa_nbr,
+	$query = "SELECT SampleMaster.id,collection_id,notes,participant_id,ovcare_collection_voa_nbr,
 		supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy,
 		blood_type, collected_tube_nbr, collected_volume, collected_volume_unit
 		FROM sample_masters SampleMaster
@@ -449,7 +449,7 @@ function mergeSpecimens($collection_specimens, $specimen_type) {
 			$merged_specimen[$merged_specimen_key] = array(
 				'participant_id' => $new_specimen['participant_id'],
 				'collection_id' => $new_specimen['collection_id'],
-				'collection_voa_nbr' => $new_specimen['collection_voa_nbr'],
+				'ovcare_collection_voa_nbr' => $new_specimen['ovcare_collection_voa_nbr'],
 				'specimen_ids' => array(),
 				'id_to_keep' => $sample_master_id,
 				'specimen_type_precision' => ($specimen_type == 'blood')? $new_specimen['blood_type'] : $new_specimen['tissue_source'],
@@ -487,7 +487,7 @@ function mergeSpecimens($collection_specimens, $specimen_type) {
 					foreach($queries as $query)	mysqli_query($db_connection, $query) or die("Main [line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 				}
 			}
-			$summary_msg['Data Creation/Update Summary'][$new_merge_definition['participant_id']]["Merged $specimen_type specimens"][] = "Merged ".sizeof($new_merge_definition['specimen_ids']).' '.$new_merge_definition['specimen_type_precision']." $specimen_type specimens of the same collection (collection_id = '".$new_merge_definition['collection_id']."' / voA#".$new_merge_definition['collection_voa_nbr'].") into specimen with code $sample_master_id_to_keep. (Deleted specimens with codes {". implode(',',$deleted_sample_master_ids).'})';	
+			$summary_msg['Data Creation/Update Summary'][$new_merge_definition['participant_id']]["Merged $specimen_type specimens"][] = "Merged ".sizeof($new_merge_definition['specimen_ids']).' '.$new_merge_definition['specimen_type_precision']." $specimen_type specimens of the same collection (collection_id = '".$new_merge_definition['collection_id']."' / voA#".$new_merge_definition['ovcare_collection_voa_nbr'].") into specimen with code $sample_master_id_to_keep. (Deleted specimens with codes {". implode(',',$deleted_sample_master_ids).'})';	
 			if(!empty($new_merge_definition['notes'])) {
 				$notes = str_replace("'", "''", implode('. ', $new_merge_definition['notes']).'.');
 				$queries = array(

@@ -32,7 +32,9 @@
 					$this->request->data['SampleDetail']['collected_tube_nbr'] = '2';
 				}			
 			}
-		}			
+		} else if($sample_control_data['SampleControl']['sample_type'] == 'tissue') {
+			$this->request->data['SampleDetail']['ovcare_tissue_type'] = 'tumour';
+		}		
 	} else if(in_array($sample_control_data['SampleControl']['sample_type'], array('plasma','blood cell','serum'))) {
 		$last_derivative_crated = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_type' => array('plasma','blood cell','serum')), 'order' => array('SampleMaster.id DESC')));
 		if($last_derivative_crated) {

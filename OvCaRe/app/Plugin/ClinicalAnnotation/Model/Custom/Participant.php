@@ -30,7 +30,7 @@ class ParticipantCustom extends Participant {
 	function updateParticipantVOANumbers($participant_id) {
 		if($participant_id) {		
 			$participant_data = $this->getOrRedirect($participant_id);
-			$voa_updated_query = "SELECT GROUP_CONCAT(Collection.collection_voa_nbr  ORDER BY Collection.collection_voa_nbr ASC SEPARATOR ' - ') AS ovcare_voa_nbrs
+			$voa_updated_query = "SELECT GROUP_CONCAT(Collection.ovcare_collection_voa_nbr  ORDER BY Collection.ovcare_collection_voa_nbr ASC SEPARATOR ' - ') AS ovcare_voa_nbrs
 				FROM collections Collection
 				WHERE Collection.deleted <> 1 AND Collection.participant_id = $participant_id
 				GROUP BY Collection.participant_id";

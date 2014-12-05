@@ -19,10 +19,12 @@
 			case 'plasma':
 				$suffix = 'P';
 				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.8';
+				$tmp_default_aliquot_data['AliquotDetail.hemolysis_signs'] = 'n';
 				break;
 			case 'serum':
 				$suffix = 'S';
 				$tmp_default_aliquot_data['AliquotMaster.initial_volume'] = '1.8';
+				$tmp_default_aliquot_data['AliquotDetail.hemolysis_signs'] = 'n';
 				break;
 			case 'ascite':
 				$suffix = 'Ascites';
@@ -34,7 +36,8 @@
 				if($tissue_suffixes) {
 					$key = 0;
 					foreach($new_data_set['children'] as &$new_aliquot) {
-						$new_aliquot['AliquotMaster']['aliquot_label'] = 'VOA'.$view_sample['ViewSample']['collection_voa_nbr'].$tissue_suffixes[$key];
+						$new_aliquot['AliquotMaster']['aliquot_label'] = 'VOA'.$view_sample['ViewSample']['ovcare_collection_voa_nbr'].$tissue_suffixes[$key];
+						$new_aliquot['AliquotDetail']['ocvare_tissue_section'] = $tissue_suffixes[$key];
 						if($key < 24) $key++;				
 					}
 				}
@@ -45,7 +48,7 @@
 				}
 				break;
 		}
-		$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'VOA'.$view_sample['ViewSample']['collection_voa_nbr'].$suffix;
+		$tmp_default_aliquot_data['AliquotMaster.aliquot_label'] = 'VOA'.$view_sample['ViewSample']['ovcare_collection_voa_nbr'].$suffix;
 		$default_aliquot_data[$view_sample['ViewSample']['sample_master_id']] = $tmp_default_aliquot_data;
 	}
 	$this->set('default_aliquot_data', $default_aliquot_data);

@@ -428,34 +428,34 @@ UPDATE structure_formats SET `flag_override_setting`='1', `setting`='size=30,cla
 
 -- ** Add xenograft flag to tissue and ascites **
 
-ALTER TABLE sd_spe_ascites ADD COLUMN xenograft_collected CHAR(1) DEFAULT '';
-ALTER TABLE sd_spe_ascites_revs ADD COLUMN xenograft_collected CHAR(1) DEFAULT '';
-ALTER TABLE sd_spe_tissues ADD COLUMN xenograft_collected CHAR(1) DEFAULT '';
-ALTER TABLE sd_spe_tissues_revs ADD COLUMN xenograft_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_ascites ADD COLUMN ovcare_xenograft_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_ascites_revs ADD COLUMN ovcare_xenograft_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues ADD COLUMN ovcare_xenograft_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN ovcare_xenograft_collected CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'xenograft_collected', 'yes_no',  NULL , '0', '', '', '', 'xenograft collected', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'ovcare_xenograft_collected', 'yes_no',  NULL , '0', '', '', '', 'xenograft collected', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='xenograft_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='xenograft collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ovcare_xenograft_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='xenograft collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_ascites', 'xenograft_collected', 'yes_no',  NULL , '0', '', '', '', 'xenograft collected', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_ascites', 'ovcare_xenograft_collected', 'yes_no',  NULL , '0', '', '', '', 'xenograft collected', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_ascites' AND `field`='xenograft_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='xenograft collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_ascites' AND `field`='ovcare_xenograft_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='xenograft collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('xenograft collected', 'Xenograft Collected');
 
 -- ** Add cell culture collected flag to tissue and ascites **
 
-ALTER TABLE sd_spe_ascites ADD COLUMN cell_culture_collected CHAR(1) DEFAULT '';
-ALTER TABLE sd_spe_ascites_revs ADD COLUMN cell_culture_collected CHAR(1) DEFAULT '';
-ALTER TABLE sd_spe_tissues ADD COLUMN cell_culture_collected CHAR(1) DEFAULT '';
-ALTER TABLE sd_spe_tissues_revs ADD COLUMN cell_culture_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_ascites ADD COLUMN ovcare_cell_culture_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_ascites_revs ADD COLUMN ovcare_cell_culture_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues ADD COLUMN ovcare_cell_culture_collected CHAR(1) DEFAULT '';
+ALTER TABLE sd_spe_tissues_revs ADD COLUMN ovcare_cell_culture_collected CHAR(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'cell_culture_collected', 'yes_no',  NULL , '0', '', '', '', 'cell culture collected', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_tissues', 'ovcare_cell_culture_collected', 'yes_no',  NULL , '0', '', '', '', 'cell culture collected', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='cell_culture_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell culture collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_tissues'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_tissues' AND `field`='ovcare_cell_culture_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell culture collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'SampleDetail', 'sd_spe_ascites', 'cell_culture_collected', 'yes_no',  NULL , '0', '', '', '', 'cell culture collected', '');
+('InventoryManagement', 'SampleDetail', 'sd_spe_ascites', 'ovcare_cell_culture_collected', 'yes_no',  NULL , '0', '', '', '', 'cell culture collected', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_ascites' AND `field`='cell_culture_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell culture collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+((SELECT id FROM structures WHERE alias='sd_spe_ascites'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_ascites' AND `field`='ovcare_cell_culture_collected' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cell culture collected' AND `language_tag`=''), '1', '460', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en) VALUES ('cell culture collected', 'Cell Culture Collected');
 
 -- ** Deleted any surgeyr/biopsy with no data and not linked to a collection **
@@ -1084,7 +1084,6 @@ INSERT INTO i18n (id,en) VALUES ('VOA','VOA');
 
 -- ** Add Pathologist Reviewed **
 
-
 INSERT INTO structure_value_domains (domain_name, source) 
 VALUES 
 ('ovcare_pathologist_reviewed', "StructurePermissibleValuesCustom::getCustomDropdown(\'Pathologist\')");
@@ -1107,6 +1106,23 @@ ALTER TABLE diagnosis_masters_revs
 	ADD COLUMN ovcare_date_reviewed_accuracy char(1) NOT NULL DEFAULT '',
 	ADD COLUMN ovcare_pathologist_reviewed varchar(100);
 UPDATE structure_formats SET `language_heading`='review' WHERE structure_id=(SELECT id FROM structures WHERE alias='dx_primary') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='DiagnosisMaster' AND `tablename`='diagnosis_masters' AND `field`='ovcare_path_review_type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ovcare_path_review_type') AND `flag_confidential`='0');
+
+-- ** Add spleen to anatomic location **
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Sources');
+INSERT INTO `structure_permissible_values_customs` (`value`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('spleen', '1', @control_id, NOW(), NOW(), 1, 1);
+
+-- ** path num - use file browse ** --
+
+UPDATE structure_fields SET  `setting`='size=30,class=file' WHERE model='ViewCollection' AND tablename='' AND field='path_num' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- ** change collection_voa_nbr to ovcare_collection_voa_nbr **
+
+ALTER TABLE collections CHANGE `collection_voa_nbr` `ovcare_collection_voa_nbr` int(20) DEFAULT NULL;
+ALTER TABLE collections_revs CHANGE `collection_voa_nbr` `ovcare_collection_voa_nbr` int(20) DEFAULT NULL;
+UPDATE structure_fields SET field = 'ovcare_collection_voa_nbr' WHERE field = 'collection_voa_nbr';
 
 -- ** Version **
 

@@ -8,7 +8,7 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
-Collection.collection_voa_nbr,
+Collection.ovcare_collection_voa_nbr,
 		Collection.participant_id AS participant_id,
 		Collection.diagnosis_master_id AS diagnosis_master_id,
 		Collection.consent_master_id AS consent_master_id,
@@ -39,7 +39,7 @@ LEFT JOIN txd_surgeries as TreatmentDetail ON TreatmentDetail.treatment_master_i
 			if(empty($collection_data['ViewCollection']['participant_identifier'])) {
 				$title = __('VOA#').': - [-]';
 			} else {
-				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['collection_voa_nbr'])? '-':$collection_data['ViewCollection']['collection_voa_nbr'])." [".$collection_data['ViewCollection']['participant_identifier']."]";
+				$title = __('VOA#').': '.(empty($collection_data['ViewCollection']['ovcare_collection_voa_nbr'])? '-':$collection_data['ViewCollection']['ovcare_collection_voa_nbr'])." [".$collection_data['ViewCollection']['participant_identifier']."]";
 			}
 			
 			$participant_identifier = empty($collection_data['ViewCollection']['participant_identifier'])? 'n/a' : $collection_data['ViewCollection']['participant_identifier'];

@@ -23,9 +23,11 @@
 				break;
 			case 'plasma':
 				$default_aliquot_data[$sample_master_id]['AliquotMaster.initial_volume'] = '1.8';
+				$default_aliquot_data[$sample_master_id]['AliquotDetail.hemolysis_signs'] = 'n';
 				break;
 			case 'serum':
 				$default_aliquot_data[$sample_master_id]['AliquotMaster.initial_volume'] = '1.8';
+				$default_aliquot_data[$sample_master_id]['AliquotDetail.hemolysis_signs'] = 'n';
 				break;	
 		}
 		if(isset($new_data_set['parent']['AliquotDetail']['ocvare_tissue_section'])) $default_aliquot_data[$sample_master_id]['AliquotDetail.ocvare_tissue_section'] = $new_data_set['parent']['AliquotDetail']['ocvare_tissue_section'];
