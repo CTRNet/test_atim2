@@ -54,7 +54,7 @@ class ParticipantCustom extends Participant {
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($tx_controls_list as $treatment_control) {
-			$add_function = in_array($treatment_control['TreatmentControl']['tx_method'], array('procure medication worksheet - drug', 'procure follow-up worksheet - treatment'))? 'addInBatch' : 'add';			
+			$add_function = in_array($treatment_control['TreatmentControl']['tx_method'], array('procure medication worksheet - drug', 'procure follow-up worksheet - treatment', 'other tumor treatment'))? 'addInBatch' : 'add';			
 			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/'.$add_function.'/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
 		}		
 
@@ -128,6 +128,13 @@ class ParticipantCustom extends Participant {
 					case 'procure medication worksheet - drug':
 						$pattern_suffix = "MED";
 						$main_worksheet = false;
+						break;
+					case 'other tumor treatment': 
+						if(preg_match("/^PS[0-9]P0[0-9]+ N\/A$/", $procure_form_identification)) {
+							return false;
+						} else {
+							return __("the identification format is wrong")." (PS0P0000 N/A)";
+						}
 						break;
 					default:
 						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
