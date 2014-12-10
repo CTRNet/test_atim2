@@ -9,7 +9,13 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		if(!$treatment_control_id) {
 			//*** Manage all lists display ***
-			$this->set('all_treatment_controls', $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => 1), 'order' => array('TreatmentControl.tx_method ASC'))));
+			$all_treatment_controls = $this->TreatmentControl->find('all', array('conditions' => array('TreatmentControl.flag_active' => 1), 'order' => array('TreatmentControl.tx_method ASC')));	
+			foreach($all_treatment_controls as $key => $ctrl_data) {
+				$all_treatment_controls[__($ctrl_data['TreatmentControl']['tx_method'])] = $ctrl_data;
+				unset($all_treatment_controls[$key]);
+			}
+			ksort($all_treatment_controls);
+			$this->set('all_treatment_controls', $all_treatment_controls);
 			$this->set('add_link_for_procure_forms',$this->Participant->buildAddProcureFormsButton($participant_id));
 			$this->request->data = array();
 		} else {
@@ -68,7 +74,7 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$tx_control_data = $this->TreatmentControl->getOrRedirect($tx_control_id);
 		
-		if(!in_array($tx_control_data['TreatmentControl']['tx_method'], array('procure follow-up worksheet - treatment', 'procure medication worksheet - drug'))) {
+		if(!in_array($tx_control_data['TreatmentControl']['tx_method'], array('procure follow-up worksheet - treatment', 'procure medication worksheet - drug', 'other tumor treatment'))) {
 			$this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
 		}
 		
@@ -91,13 +97,16 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 			case'procure follow-up worksheet - treatment':
 				$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' Vx -FSPx';
 				break;
+			case 'other tumor treatment':
+				$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' N/A';
+				break;
 		}
 		$this->set('default_procure_form_identification', $default_procure_form_identification);
 		
 		if(empty($this->request->data)){
 			if(!$already_displayed) {
 				$this->request->data = array();
-				if($tx_control_data['TreatmentControl']['tx_method'] == 'procure medication worksheet - drug') {
+/*				if($tx_control_data['TreatmentControl']['tx_method'] == 'procure medication worksheet - drug') {
 					$ordered_drugs_to_dispay = array(
 						'prostate' => array('avodart' => null,'proscar'=> null,'flomax'=> null,'xatral'=> null,'cipro'=> null),
 						'open sale' => array('aspirine'=> null, 'advil'=> null, 'tylenol'=> null, 'vitamines'=> null));
@@ -117,7 +126,7 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 					}
 				} else {
 					for($id=0; $id<5;$id++) $this->request->data[] = array();
-				}
+				}*/
 			} else {
 				if($already_displayed) $this->TreatmentDetail->validationErrors[''] = 'at least one record has to be created';
 				$this->request->data = array(array());

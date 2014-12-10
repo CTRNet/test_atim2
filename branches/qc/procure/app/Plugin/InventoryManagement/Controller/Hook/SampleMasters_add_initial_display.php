@@ -22,6 +22,7 @@
 			
 			$this->request->data['SpecimenDetail']['reception_datetime'] = $collection_blood_samples[0]['SpecimenDetail']['reception_datetime'];
 			$this->request->data['SpecimenDetail']['reception_datetime_accuracy'] = $collection_blood_samples[0]['SpecimenDetail']['reception_datetime_accuracy'];
+			$this->request->data['SpecimenDetail']['procure_refrigeration_time'] = $collection_blood_samples[0]['SpecimenDetail']['procure_refrigeration_time'];
 			
 			$this->request->data['SampleDetail']['procure_collection_site'] = $collection_blood_samples[0]['SampleDetail']['procure_collection_site'];
 			$this->request->data['SampleDetail']['procure_collection_without_incident'] = $collection_blood_samples[0]['SampleDetail']['procure_collection_without_incident'];
