@@ -257,28 +257,11 @@ mergeBloodAndTissue();
 
 loadTissuePosition($tmp_xls_reader->sheets, $sheets_keys, 'Inventory');
 
+// Add Ischemia Time
 
-
+addIschemiaTime();
 
 //TODO? Empty date clean up 
-
-// $date_times_to_check = array(
-// 	'consent_masters.consent_signed_date',
-// 	'event_masters.event_date',
-// 	'treatment_masters.start_date',
-// 	'treatment_masters.finish_date',
-// 	'collections.collection_datetime',
-// 	'specimen_details.reception_datetime',
-// 	'derivative_details.creation_datetime',
-// 	'aliquot_masters.storage_datetime'			
-// );
-// foreach($date_times_to_check as $table_field) {
-// 	$names = explode(".", $table_field);
-// 	$query = "UPDATE ".$names[0]." SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-// 	mysqli_query($db_connection, $query) or die("Error [$query] ");
-// 	$query = "UPDATE ".$names[0]."_revs SET ".$names[1]." = null,".$names[1]."_accuracy = null WHERE ".$names[1]." LIKE '0000-00-00%'";
-// 	mysqli_query($db_connection, $query) or die("Error [$query] ");
-// }
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -691,6 +674,68 @@ function recordNewBox(&$aliquot_label_to_storage_data, &$created_storages, $box_
 		} else {
 			$summary_msg['Aliquot Position Definition']['@@ERROR@@']['Aliquot Label assigned to 2 different positions'][] = "See aliquot $aliquot_label in box [".$box_data['box81']."] position $storage_coord_x in worksheet [".$box_data['worksheet']."]. Aliquot was already defined as stored in box [".$aliquot_label_to_storage_data[$aliquot_label]['box_name']."] at positon [".$aliquot_label_to_storage_data[$aliquot_label]['storage_coord_x']."]. New position won't be imported.";
 		}
+	}
+}
+
+function addIschemiaTime() {
+	global $db_connection;
+	global $summary_msg;
+	global $modified;
+	global $modified_by;
+	
+	$query = "SELECT id, sample_type, detail_tablename FROM sample_controls WHERE sample_type IN ('serum', 'plasma');";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$controls = array();
+	while($row = $results->fetch_assoc()) {
+		$controls[$row['sample_type']] = array('id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
+	}
+
+	foreach($controls as $sample_type => $sample_control_data) {
+		$query = "SELECT Collection.participant_id, SampleMaster.id as sample_master_id, SampleMaster.sample_code, '$sample_type' sample_type, SampleMaster.notes, ovcare_ischemia_time_mn
+			FROM collections Collection
+			INNEr JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+			INNER JOIN ".$sample_control_data['detail_tablename']." SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+			WHERE SampleMaster.notes LIKE '%Isch#%#%' AND SampleMaster.deleted <> 1;";
+		$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$updated_sample_master_ids = array();
+		while($row = $results->fetch_assoc()) {
+			pr($row);
+			if(preg_match('/Isch#([0-9]+)#/', $row['notes'], $matches)) {
+				$new_ovcare_ischemia_time_mn = $matches[1];
+				$ischemia_note = 'Isch#'.$new_ovcare_ischemia_time_mn.'#';
+				$update = false;
+				if(strlen($row['ovcare_ischemia_time_mn'])) {
+					if($row['ovcare_ischemia_time_mn'] != $new_ovcare_ischemia_time_mn) {
+						$update = true;
+						$summary_msg['Ischemia Time']['@@WARNING@@']['Ischemia Time Conflict'][] = "The current ischemia time [".$row['ovcare_ischemia_time_mn']."] of the $sample_type with Sample System Code = ".$row['sample_code']." will be replaced by value [".$new_ovcare_ischemia_time_mn."] based on notes.";
+					}
+				} else {
+					$update = true;
+				}
+				if($update) {
+					$query = "UPDATE sample_masters SET notes = REPLACE(notes, 'Isch#".$new_ovcare_ischemia_time_mn."#', ''), modified = '$modified', modified_by = '$modified_by' WHERE id = ".$row['sample_master_id'];
+ 					mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+					$query = "UPDATE ".$sample_control_data['detail_tablename']." SET ovcare_ischemia_time_mn = '$new_ovcare_ischemia_time_mn' WHERE sample_master_id =  ".$row['sample_master_id'];
+					mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+					$updated_sample_master_ids[] = $row['sample_master_id'];
+					$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Updated $sample_type ischemia time"][] = "Set ischemia time to [$new_ovcare_ischemia_time_mn] for the $sample_type with Sample System Code = ".$row['sample_code'];						
+				}
+			}
+		}
+	}
+	if($updated_sample_master_ids) {
+		$query = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+			modified_by,version_created)
+			(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+			modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO derivative_details_revs (sample_master_id,creation_site,creation_by,creation_datetime,creation_datetime_accuracy,lab_book_master_id,sync_with_lab_book,version_created)
+			(SELECT sample_master_id,creation_site,creation_by,creation_datetime,creation_datetime_accuracy,lab_book_master_id,sync_with_lab_book, '$modified' FROM derivative_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
+		$query = "INSERT INTO sd_der_plasmas_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_plasmas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
+		$query = "INSERT INTO sd_der_serums_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_serums WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	}
 }
 
