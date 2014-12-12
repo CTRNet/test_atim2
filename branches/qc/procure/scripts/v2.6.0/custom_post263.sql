@@ -1326,6 +1326,11 @@ ALTER TABLE drugs ADD COLUMN procure_study char(1) default '';
 ALTER TABLE drugs_revs ADD COLUMN procure_study char(1) default '';
 UPDATE structure_fields SET  `default`='n' WHERE model='Drug' AND tablename='drugs' AND field='procure_study' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
 INSERT INTO i18n (id,en,fr) VALUES ('the type of a used drug can not be changed', 'The type of a already used drug can not be changed', 'Le type d''un médicament déjà utilisé ne peut être changé');
+UPDATE structure_fields SET language_label = 'clinical study or experimental treatment' WHERE field = 'procure_study' AND model = 'Drug';
+INSERT INTO i18n (id,en,fr) VALUES ('clinical study or experimental treatment', 'Clinical Study/Experimental Treatment', 'Étude clinique/Traitement expérimental');
+ALTER TABLE drugs MODIFY procure_study tinyint(1) DEFAULT '0';
+ALTER TABLE drugs_revs MODIFY procure_study tinyint(1) DEFAULT '0';
+UPDATE structure_fields SET  `type`='checkbox',  `default`='' WHERE model='Drug' AND tablename='drugs' AND field='procure_study' AND `type`='yes_no' AND structure_value_domain  IS NULL ;
 
 -- ADD bcr
 
@@ -1654,12 +1659,9 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='procure_followups_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_prostatectomy_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='prostatectomy' AND `language_tag`=''), '0', '2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_followups_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_last_collection_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='last collection date' AND `language_tag`=''), '0', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='procure_followups_report_result'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_time_from_last_collection_months' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='time from last collection (months)' AND `language_tag`=''), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
-
-
-
-procure_followups_report_result
-
-
+UPDATE structure_fields SET  `language_label`='date' WHERE model='0' AND tablename='' AND field='procure_last_collection_date' AND `type`='date' AND structure_value_domain  IS NULL ;
+UPDATE structure_formats SET `language_heading`='last collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_followups_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_last_collection_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('last collection','Last Collection','Dernière collection'),('time from last collection (months)','Time past (months)','Temps écoulé (mois)');
 
 -- chronology
 
@@ -1672,6 +1674,6 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 
 
-
+UPDATE versions SET branch_build_number = '5964' WHERE version_number = '2.6.3';
 
 
