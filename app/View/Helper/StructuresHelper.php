@@ -2063,7 +2063,11 @@ class StructuresHelper extends Helper {
 										$current['tool'] = '<a href="'.$href.'" class="tool_popup"></a>';
 									}
 								}else{
-									$settings[$setting[0]] = $setting[1];
+									if($setting[0] == 'class' && isset($settings['class'])) {
+										$settings['class'] .=  ' '.$setting[1];
+									} else {
+										$settings[$setting[0]] = $setting[1];
+									}
 								}
 							}
 						}
