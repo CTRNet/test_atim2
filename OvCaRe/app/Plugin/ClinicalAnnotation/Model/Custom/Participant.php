@@ -22,27 +22,17 @@ class ParticipantCustom extends Participant {
 					'structure alias' 	=> 'participants',
 					'data'				=> $result
 			);
+			//Add voas nbr
+			$collection_model = AppModel::getInstance("InventoryManagement", "Collection", true);
+			$participant_collection = $collection_model->find('all', array('conditions' => array('Collection.participant_id' => $variables['Participant.id']), 'order' => array('Collection.ovcare_collection_voa_nbr ASC'), 'recursive' => '-1'));
+			$voas = array();
+			foreach($participant_collection as $new_collections) $voas[] = $new_collections['Collection']['ovcare_collection_voa_nbr'];
+			$voas = implode(', ',$voas);
+			$return['data']['Generated']['ovcare_participant_voas'] = $voas;
 		}
 		
 		return $return;
 	}
 	
-	function updateParticipantVOANumbers($participant_id) {
-		if($participant_id) {		
-			$participant_data = $this->getOrRedirect($participant_id);
-			$voa_updated_query = "SELECT GROUP_CONCAT(Collection.ovcare_collection_voa_nbr  ORDER BY Collection.ovcare_collection_voa_nbr ASC SEPARATOR ' - ') AS ovcare_voa_nbrs
-				FROM collections Collection
-				WHERE Collection.deleted <> 1 AND Collection.participant_id = $participant_id
-				GROUP BY Collection.participant_id";
-			$voas = $this->tryCatchQuery($voa_updated_query);
-			$new_ovcare_voa_nbrs = isset($voas[0][0]['ovcare_voa_nbrs'])? $voas[0][0]['ovcare_voa_nbrs'] : 'n/a';
-			if($new_ovcare_voa_nbrs != $participant_data['Participant']['ovcare_voa_nbrs']) {
-				$this->data = array();
-				$this->id = $participant_id;
-				$this->check_writable_fields = false;
-				$this->save(array('Participant' => array('ovcare_voa_nbrs' => $new_ovcare_voa_nbrs)), false);
-			}	
-		}
-	}
 }
 ?>

@@ -1,6 +1,7 @@
 <?php
 	if(!isset($this->request->data['Collection']['deleted'])) {
-		$this->Participant->updateParticipantVOANumbers($participant_id);
+		$this->MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+		$this->MiscIdentifier->updateParticipantVoaList($participant_id);
 	}
 	
 ?>
