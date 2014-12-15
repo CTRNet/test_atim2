@@ -1,5 +1,6 @@
 <?php
 	
-	$this->Participant->updateParticipantVOANumbers($participant_id);
+	$this->MiscIdentifier = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
+	$this->MiscIdentifier->updateParticipantVoaList($participant_id);
 	
 ?>

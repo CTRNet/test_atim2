@@ -1007,13 +1007,6 @@ UPDATE structure_formats SET `flag_index`='0', `flag_summary`='0' WHERE structur
 
 INSERT IGNORE INTO structures(`alias`) VALUES ('dx_recurrence');
 
--- ** Add voa#s to participant summary **
-
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('', 'Generated', '', 'ovcare_participant_voas', 'input',  NULL , '0', '', '', '', 'VOA#', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='VOA#' AND `language_tag`=''), '3', '99', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
-
 -- ** Changed Voa#s to int (in db for range search) **
 
 SELECT id as collection_id, collection_voa_nbr AS 'voa with wrong format' FROM collections WHERE collection_voa_nbr NOT REGEXP('^[0-9]{1,20}$');
@@ -1052,35 +1045,6 @@ SELECT 'Check margaret luk has been created into Lab People Custom List' AS TODO
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_volume_unit' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='sample_volume_unit') AND `flag_confidential`='0');
 UPDATE structure_formats SET `flag_index`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sd_spe_bloods') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='collected_tube_nbr' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-
--- ** Add voa# to profile in read only mode **
-
-ALTER TABLE participants ADD COLUMN ovcare_voa_nbrs VARCHAR(100) DEFAULT 'n/a';
-ALTER TABLE participants_revs ADD COLUMN ovcare_voa_nbrs VARCHAR(100) DEFAULT 'n/a';
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'Participant', 'participants', 'ovcare_voa_nbrs', 'input',  NULL , '0', 'size=10', '', '', 'VOA#(s)', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_voa_nbrs' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='VOA#(s)' AND `language_tag`=''), '1', '0', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
-DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='' AND `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `language_label`='VOA#' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='' AND `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `language_label`='VOA#' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
-DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='' AND `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `language_label`='VOA#' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
-INSERT INTO i18n (id,en) VALUES ('VOA#(s)','VOA#(s)');
-SET @modified = (SELECT now() from users limit 0 ,1);
-UPDATE participants Participant
-JOIN (
-	SELECT Participant.id, GROUP_CONCAT(Collection.collection_voa_nbr  ORDER BY Collection.collection_voa_nbr ASC SEPARATOR " - ") AS ovcare_voa_nbrs
-	FROM participants Participant
-	INNER JOIN collections Collection ON Collection.participant_id = Participant.id
-	WHERE Participant.deleted <> 1 AND Collection.deleted <> 1
-	GROUP BY Participant.id
-) res ON res.id = Participant.id
-SET Participant.ovcare_voa_nbrs = res.ovcare_voa_nbrs, Participant.modified_by = 1, Participant.modified = @modified;
-INSERT INTO participants_revs (id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,ovcare_voa_nbrs,
-version_created,modified_by)
-(SELECT id,title,first_name,middle_name,last_name,date_of_birth,date_of_birth_accuracy,marital_status,language_preferred,sex,race,vital_status,ovcare_last_followup_date,ovcare_last_followup_date_accuracy,notes,date_of_death,date_of_death_accuracy,cod_icd10_code,secondary_cod_icd10_code,cod_confirmation_source,participant_identifier,last_chart_checked_date,last_chart_checked_date_accuracy,last_modification,last_modification_ds_id,ovcare_voa_nbrs,
-modified,modified_by FROM participants WHERE modified_by = 1 AND modified = @modified);
-UPDATE structure_formats SET `display_column`='3', `display_order`='97', `language_heading`='VOA' WHERE structure_id=(SELECT id FROM structures WHERE alias='participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='ovcare_voa_nbrs' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO i18n (id,en) VALUES ('VOA','VOA');
 
 -- ** Add Pathologist Reviewed **
 
@@ -1123,6 +1087,54 @@ UPDATE structure_fields SET  `setting`='size=30,class=file' WHERE model='ViewCol
 ALTER TABLE collections CHANGE `collection_voa_nbr` `ovcare_collection_voa_nbr` int(20) DEFAULT NULL;
 ALTER TABLE collections_revs CHANGE `collection_voa_nbr` `ovcare_collection_voa_nbr` int(20) DEFAULT NULL;
 UPDATE structure_fields SET field = 'ovcare_collection_voa_nbr' WHERE field = 'collection_voa_nbr';
+
+-- ** Display Patient Note In Index **
+
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='notes' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=3,cols=30' AND `default`='' AND `language_help`='help_memo' AND `language_label`='notes' AND `language_tag`=''), '3', '500', 'notes', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- ** Add Patho Number In Identifier List **
+
+ALTER TABLE`misc_identifiers` MODIFY `identifier_value` varchar(50) DEFAULT NULL;
+ALTER TABLE`misc_identifiers_revs` MODIFY `identifier_value` varchar(50) DEFAULT NULL;
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) 
+VALUES
+(null, 'pathology number', 1, 0, '', NULL, 0, 1, 0, 0, '', '');
+SET @control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'pathology number');
+INSERT INTO misc_identifiers (identifier_value, participant_id, misc_identifier_control_id, modified, created, created_by, modified_by)
+(SELECT DISTINCT TreatmentDetail.path_num, TreatmentMaster.participant_id, @control_id, now(), now(), '0', '0'
+FROM treatment_masters TreatmentMaster 
+INNER JOIN treatment_controls TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+INNER JOIN txd_surgeries TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+WHERE TreatmentControl.tx_method = 'procedure - surgery and biopsy' 
+AND TreatmentMaster.deleted <> 1
+AND TreatmentDetail.path_num NOT LIKE '' AND TreatmentDetail.path_num IS NOT NULL);
+INSERT INTO misc_identifiers_revs (id, identifier_value, participant_id, misc_identifier_control_id, version_created, modified_by)
+(SELECT id, identifier_value, participant_id, misc_identifier_control_id, modified, modified_by FROM misc_identifiers WHERE misc_identifier_control_id = @control_id);
+INSERT INTO i18n (id,en) VALUES ('This identifier is a copy generated by the system','this identifier is a copy generated and managed by the system');
+
+-- ** Add VOA# In Identifier List **
+
+INSERT INTO `misc_identifier_controls` (`id`, `misc_identifier_name`, `flag_active`, `display_order`, `autoincrement_name`, `misc_identifier_format`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`, `reg_exp_validation`, `user_readable_format`) 
+VALUES
+(null, 'VOA#', 1, 0, '', NULL, 0, 0, 0, 0, '', '');
+SET @control_id = (SELECT id FROM misc_identifier_controls WHERE misc_identifier_name = 'VOA#');
+INSERT INTO misc_identifiers (identifier_value, participant_id, misc_identifier_control_id, modified, created, created_by, modified_by)
+(SELECT DISTINCT ovcare_collection_voa_nbr, participant_id, @control_id, now(), now(), '0', '0' FROM collections WHERE deleted <> 1 AND participant_id IS NOT NULL);
+INSERT INTO misc_identifiers_revs (id, identifier_value, participant_id, misc_identifier_control_id, version_created, modified_by)
+(SELECT id, identifier_value, participant_id, misc_identifier_control_id, modified, modified_by FROM misc_identifiers WHERE misc_identifier_control_id = @control_id);
+
+-- ** Add voa#s to participant summary **
+
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('', 'Generated', '', 'ovcare_participant_voas', 'input',  NULL , '0', '', '', '', 'VOA#(s)', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='VOA#(s)' AND `language_tag`=''), '3', '99', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
+INSERT INTO i18n (id,en) VALUES ('VOA#(s)','VOA#(s)');
+
+-- ** change first field label of identifier search
+
+UPDATE structure_formats SET `flag_override_label`='1', `language_label`='participant' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
 
 -- ** Version **
 
