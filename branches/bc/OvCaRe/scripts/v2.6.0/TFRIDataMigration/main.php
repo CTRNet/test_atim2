@@ -261,7 +261,9 @@ loadTissuePosition($tmp_xls_reader->sheets, $sheets_keys, 'Inventory');
 
 addIschemiaTime();
 
-//TODO? Empty date clean up 
+// UPDATE MFPE Blocks
+
+updateMFPEBlocks($tmp_xls_reader->sheets, $sheets_keys, 'MFPE Blocks');
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -735,6 +737,74 @@ function addIschemiaTime() {
 		$query = "INSERT INTO sd_der_plasmas_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_plasmas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
 		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
 		$query = "INSERT INTO sd_der_serums_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_serums WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	}
+}
+
+function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	$query = "SELECT id FROM study_summaries WHERE deleted <> 1 AND title = 'Endometriosis';";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$row = $results->fetch_assoc();
+	$study_summary_id = $row['id'];
+	
+	$query = "SELECT AliquotControl.id
+	FROM aliquot_controls AliquotControl
+	INNER JOIN sample_controls SampleControl ON SampleControl.id = AliquotControl.sample_control_id
+	WHERE AliquotControl.aliquot_type = 'block'
+	AND SampleControl.sample_type = 'tissue';";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$row = $results->fetch_assoc();
+	$aliquot_control_id = $row['id'];
+	
+	$headers = array();
+	$updated_aliquot_master_ids = array();
+	if(!isset($sheets_keys[$worksheet_name])) die('ERR 2387 3287 32 '.$worksheet_name);
+	foreach($wroksheetcells[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers  = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			$query = "SELECT participant_id, AliquotMaster.id AS aliquot_master_id, AliquotMaster.aliquot_label, AliquotMaster.study_summary_id, Study.title, AliquotDetail.block_type
+				FROM collections Collection
+				INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id
+				INNER JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id
+				LEFT JOIN study_summaries Study ON Study.id = AliquotMaster.study_summary_id
+				WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = $aliquot_control_id
+				AND Collection.ovcare_collection_voa_nbr = '".$new_line_data['VOA#']."';";
+			$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+			$block_found = false;
+			while($row = $results->fetch_assoc()) {
+				$aliquot_master_id = $row['aliquot_master_id'];
+				if($row['study_summary_id'] && $row['study_summary_id'] != $study_summary_id) {
+					$summary_msg['MFPE blocks update']['@@WARNING@@']['Block already linked to a study'][] = "A MFPE block is already linked to a study '".$row['title']."'. Study will be updated to 'Endometriosis'. See block with sample identifier ".$row['aliquot_label']." && aliquot_master_id = $aliquot_master_id.";
+				}
+				$query = "UPDATE aliquot_masters SET study_summary_id = $study_summary_id, modified = '$modified', modified_by = '$modified_by' WHERE id = $aliquot_master_id;";
+				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+				$query = "UPDATE ad_blocks SET block_type = 'MFPE' WHERE aliquot_master_id = $aliquot_master_id;";
+				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+				$previously_defined_as_msg = strlen($row['block_type'])? "(previously defined as '".$row['block_type']."' block)" : '';
+				$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Updated MFPE blocks of 'Endometriosis' project"][] = "Set block type to ['MFPE'] and study to 'Endometriosis' for block $previously_defined_as_msg with sample identifier ".$row['aliquot_label']." (aliquot_master_id = $aliquot_master_id).";
+				$updated_aliquot_master_ids[] = $aliquot_master_id;
+				$block_found = true;
+			}
+			if(!$block_found) {
+				$summary_msg['MFPE blocks update']['@@WARNING@@']['No block'][] = "No tissue block has been found for VOA# '".$new_line_data['VOA#']."'";
+			} 
+		}
+	}
+	if($updated_aliquot_master_ids) {
+		$query = "INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+			study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,version_created)
+			(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+			study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,modified FROM aliquot_masters WHERE modified = '$modified_by' AND modified = '$modified' AND id IN (".implode(',',$updated_aliquot_master_ids)."));";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO ad_blocks_revs (aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,version_created)
+		(SELECT aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,'$modified' FROM ad_blocks WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
 		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	}
 }
