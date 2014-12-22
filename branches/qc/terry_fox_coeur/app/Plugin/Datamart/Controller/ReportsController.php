@@ -51,14 +51,18 @@ class ReportsController extends DatamartAppController {
 				$data_to_build_report = empty($this->request->data)? array() : $this->request->data;			
 				foreach($data_to_build_report as $model => $fields_parameters) {
 					foreach($fields_parameters as $field => $parameters) {
-						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
+						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {		
 							$matched_field_name = $matches[1];
 							if(!isset($data_to_build_report[$model][$matched_field_name])) $data_to_build_report[$model][$matched_field_name] = array();
-							$handle = fopen($parameters['tmp_name'], "r");
-							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-								$data_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+							if(strlen($parameters['tmp_name'])) {
+								$handle = fopen($parameters['tmp_name'], "r");
+								if($handle) {
+									while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+										$data_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+									}
+									fclose($handle);
+								}
 							}
-							fclose($handle);
 							unset($data_to_build_report[$model][$field]);
 						}
 					}
