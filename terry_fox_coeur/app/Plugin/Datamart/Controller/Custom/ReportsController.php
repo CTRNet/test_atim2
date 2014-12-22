@@ -57,18 +57,17 @@ class ReportsControllerCustom extends ReportsController {
 				}
 						
 				// 3-PARTICIPANT BANK IDENTIFIER
-				$qc_tf_bank_identifier_criteria_set = false;
+				
 				if(isset($parameters['Participant']['qc_tf_bank_identifier'])) {
 					$participant_ids = array_filter($parameters['Participant']['qc_tf_bank_identifier']);
 					if(!empty($participant_ids)) {
 						$conditions[] = "Participant.qc_tf_bank_identifier IN ('".implode("','", $participant_ids)."')" ;
-						$qc_tf_bank_identifier_criteria_set = true;
+						if($_SESSION['Auth']['User']['group_id'] != '1') {
+							AppController::addWarningMsg(__('your search will be limited to your bank'));
+							$conditions[] = "Participant.qc_tf_bank_id = '$user_bank_id'";
+						}
 						$csv_order_for_display[] = array('field' => 'Participant.qc_tf_bank_identifier', 'order' => $parameters['Participant']['qc_tf_bank_identifier']);
 					}	
-				}
-				if(($_SESSION['Auth']['User']['group_id'] != '1') && $qc_tf_bank_identifier_criteria_set) {
-					AppController::addWarningMsg(__('your search will be limited to your bank'));
-					$conditions[] = "Participant.qc_tf_bank_id = '$user_bank_id'";
 				}
 			
 			}  else if(isset($parameters['AliquotDetail'])) {
@@ -78,6 +77,10 @@ class ReportsControllerCustom extends ReportsController {
 					$patho_dpt_block_codes = array_filter($parameters['AliquotDetail']['patho_dpt_block_code']);
 					if(!empty($patho_dpt_block_codes)) {
 						$conditions[] = "AliquotDetail.patho_dpt_block_code IN ('".implode("','", $patho_dpt_block_codes)."')" ;
+						if($_SESSION['Auth']['User']['group_id'] != '1') {
+							AppController::addWarningMsg(__('your search will be limited to your bank'));
+							$conditions[] = "Participant.qc_tf_bank_id = '$user_bank_id'";
+						}
 						$csv_order_for_display[] = array('field' => 'AliquotDetail.patho_dpt_block_code', 'order' => $parameters['AliquotDetail']['patho_dpt_block_code']);
 					}
 				}
@@ -285,6 +288,7 @@ class ReportsControllerCustom extends ReportsController {
 			if(($_SESSION['Auth']['User']['group_id'] != '1') && ($new_participant['Participant']['qc_tf_bank_id'] != $user_bank_id)) {
 				$new_participant['Participant']['qc_tf_bank_identifier'] = CONFIDENTIAL_MARKER;
 				$new_participant['Participant']['qc_tf_bank_id'] = CONFIDENTIAL_MARKER;
+				if($search_on_patho_number) $new_participant['AliquotDetail']['patho_dpt_block_code'] = CONFIDENTIAL_MARKER;
 			}
 		}
 		

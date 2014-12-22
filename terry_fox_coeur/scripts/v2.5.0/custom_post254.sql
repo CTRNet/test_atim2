@@ -498,4 +498,6 @@ VALUES
 ('the csv order cannot be preserved with these search criteria','The CSV order cannot be preserved with these search criteria'),
 ('system is not able to to preserve the order when both participant identifiers and bank identifiers are used for research','System is not able to to preserve the order when both Participant TFRI# and Participant Bank# are used for research');
 
-UPDATE `versions` SET branch_build_number = '5986', permissions_regenerated = 0 WHERE version_number = '2.5.4';
+UPDATE structure_fields SET flag_confidential = 1 WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code';
+
+UPDATE `versions` SET branch_build_number = '5988', permissions_regenerated = 0 WHERE version_number = '2.5.4';
