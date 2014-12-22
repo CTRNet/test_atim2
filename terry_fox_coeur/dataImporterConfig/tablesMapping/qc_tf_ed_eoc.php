@@ -46,8 +46,9 @@ function edAfterRead(Model $m){
 function edPostWrite(Model $m){	
 	if($m->values['Event Type'] == 'ca125') {
 		if(!empty($m->values['CA125  Precision (U)'])) {
+			$m->values['CA125  Precision (U)'] = str_replace(',','.',$m->values['CA125  Precision (U)']);
 			if(!is_numeric($m->values['CA125  Precision (U)']) || ($m->values['CA125  Precision (U)'] < 0)) {
-				Config::$summary_msg[$m->custom_data['disease'].' - Event']['@@ERROR@@']['CA125 Value'][] = "'CA125  Precision (U)' should be numeric > 0. See patient ".$m->values["Patient Biobank Number (required)"]." line ". $m->line;
+				Config::$summary_msg[$m->custom_data['disease'].' - Event']['@@ERROR@@']['CA125 Value'][] = "'CA125  Precision (U)' should be numeric > 0. See value [".$m->values['CA125  Precision (U)']."] of patient ".$m->values["Patient Biobank Number (required)"]." line ". $m->line;
 				$m->values['CA125  Precision (U)'] = '';
 			}
 		}

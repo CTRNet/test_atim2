@@ -154,6 +154,9 @@ function postCollectionWrite(Model $m){
 				case 'gr':
 					$detail_insert['qc_tf_weight_mg'] = $volume*1000;
 					break;
+				case 'mg':
+					$detail_insert['qc_tf_weight_mg'] = $volume;
+					break;
 				default:	
 					Config::$summary_msg['Collection']['@@WARNING@@']['Tissue'][] = "Unmatched unit value [".$m->values['Tissue Precision Flash Frozen Tissues  Volume Unit']."] at line [".$m->line."]";
 			}

@@ -27,7 +27,7 @@ class Config{
 	//if reading excel file
 	
  	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/OVCARE#3-138pts (June 11_2012) TFRI-COEUR -v3.0 2011-09-01(kim)_rev20121221.xls";
- 	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/TFRI-COEUR OHRI#1-2013-03.xls";
+ 	static $xls_file_path = "C:/_Perso/Server/tfri_coeur/data/TFRI-COEUR OHRI#4- Nov 2014.xls";
  	//static $xls_file_path = "C:/_My_Directory/Local_Server/ATiM/tfri_coeur/data/Test.xls";
  	
  	
@@ -94,7 +94,7 @@ Config::$value_domains['qc_tf_tissue_type']= new ValueDomain("qc_tf_tissue_type"
 Config::$parent_models[] = "participants";
 
 //add your configs
-$relative_path = '../tfri_coeur/dataImporterConfig/tablesMapping/';
+$relative_path = 'C:/_Perso/Server/tfri_coeur/dataImporterConfig/tablesMapping/';
 Config::$config_files[] = $relative_path.'participants.php';
 
 Config::$config_files[] = $relative_path.'qc_tf_dxd_eoc.php';
