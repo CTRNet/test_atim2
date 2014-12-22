@@ -1,8 +1,7 @@
 <?php
 class ReportsControllerCustom extends ReportsController {
 
-	function buildCoeurSummary($parameters) {
-		
+	function buildCoeurSummary($parameters) {	
 		$conditions = array();
 		$warnings = array();	
 		
@@ -19,66 +18,110 @@ class ReportsControllerCustom extends ReportsController {
 		
 		// *********** Get Conditions from parameters *********** 
 		
+		$csv_order_for_display = array();
+		$search_on_patho_number = false;
+		
 		if(isset($parameters['Browser'])) {
 			
 			// 0-REPORT LAUNCHED FROM DATA BROWSER
 				
 			if(isset($parameters['Participant']['id'])) {
 				if(($parameters['Participant']['id'] != 'all')) {
-					$conditions[] = 'Participant.id IN ('.implode($parameters['Participant']['id'], ',').')' ;
+					$conditions[] = 'Participant.id IN ('.implode(',', $parameters['Participant']['id']).')' ;
 				}
 			} else {
 				die('ERR 9900303');
 			}
 			
 		} else {
-			
-			// 1-BANK
-			$bank_ids = array();
-			foreach($parameters['Participant']['qc_tf_bank_id'] as $new_bank_id) if(strlen($new_bank_id)) $bank_ids[] = $new_bank_id;
-			if(!empty($bank_ids)) $conditions[] = 'Participant.qc_tf_bank_id IN ('.implode($bank_ids, ',').')' ;
-			
-			// 2-PARTICIPANT IDENTIFIER
-			
-			if(isset($parameters['Participant']['participant_identifier'])) {
-				$participant_ids = array();
-				foreach($parameters['Participant']['participant_identifier']as $new_participant_id) if(strlen($new_participant_id)) $participant_ids[] = $new_participant_id;
-				if(!empty($participant_ids)) {
-					$conditions[] = 'Participant.participant_identifier IN ('.implode($participant_ids, ',').')' ;
-				}
-			} else if(isset($parameters['Participant']['participant_identifier_start'])) {
-				if(strlen($parameters['Participant']['participant_identifier_start'])) {
-					$conditions[] = 'Participant.participant_identifier >= '.$parameters['Participant']['participant_identifier_start'];
-				}
-				if(strlen($parameters['Participant']['participant_identifier_end'])) {
-					$conditions[] = 'Participant.participant_identifier <= '.$parameters['Participant']['participant_identifier_end'];
-				}
-			}
-					
-			// 3-PARTICIPANT BANK IDENTIFIER
+			if(isset($parameters['Participant'])) {
 				
-			$qc_tf_bank_identifier_criteria_set = false;
-			if(isset($parameters['Participant']['qc_tf_bank_identifier'])) {
-				$participant_ids = array();
-				foreach($parameters['Participant']['qc_tf_bank_identifier']as $new_participant_id) if(strlen($new_participant_id)) $participant_ids[] = $new_participant_id;
-				if(!empty($participant_ids)) {
-					$conditions[] = "Participant.qc_tf_bank_identifier IN ('".implode($participant_ids, "','")."')" ;
-					$qc_tf_bank_identifier_criteria_set = true;
-				}	
+				// 1-BANK
+				$bank_ids = array_filter($parameters['Participant']['qc_tf_bank_id']);
+				if(!empty($bank_ids)) $conditions[] = 'Participant.qc_tf_bank_id IN ('.implode(',', $bank_ids).')' ;
+				
+				// 2-PARTICIPANT IDENTIFIER
+				if(isset($parameters['Participant']['participant_identifier'])) {
+					$participant_ids = array_filter($parameters['Participant']['participant_identifier']);
+					if(!empty($participant_ids)) {
+						$conditions[] = "Participant.participant_identifier IN ('".implode("','", $participant_ids)."')" ;
+						$csv_order_for_display[] = array('field' => 'Participant.participant_identifier', 'order' => $parameters['Participant']['participant_identifier']);
+					}
+				} else if(isset($parameters['Participant']['participant_identifier_start'])) {
+					if(strlen($parameters['Participant']['participant_identifier_start'])) {
+						$conditions[] = 'Participant.participant_identifier >= '.$parameters['Participant']['participant_identifier_start'];
+					}
+					if(strlen($parameters['Participant']['participant_identifier_end'])) {
+						$conditions[] = 'Participant.participant_identifier <= '.$parameters['Participant']['participant_identifier_end'];
+					}
+				}
+						
+				// 3-PARTICIPANT BANK IDENTIFIER
+				$qc_tf_bank_identifier_criteria_set = false;
+				if(isset($parameters['Participant']['qc_tf_bank_identifier'])) {
+					$participant_ids = array_filter($parameters['Participant']['qc_tf_bank_identifier']);
+					if(!empty($participant_ids)) {
+						$conditions[] = "Participant.qc_tf_bank_identifier IN ('".implode("','", $participant_ids)."')" ;
+						$qc_tf_bank_identifier_criteria_set = true;
+						$csv_order_for_display[] = array('field' => 'Participant.qc_tf_bank_identifier', 'order' => $parameters['Participant']['qc_tf_bank_identifier']);
+					}	
+				}
+				if(($_SESSION['Auth']['User']['group_id'] != '1') && $qc_tf_bank_identifier_criteria_set) {
+					AppController::addWarningMsg(__('your search will be limited to your bank'));
+					$conditions[] = "Participant.qc_tf_bank_id = '$user_bank_id'";
+				}
+			
+			}  else if(isset($parameters['AliquotDetail'])) {
+				
+				// 4-PATHOLOGY NUMBER
+				if(isset($parameters['AliquotDetail']['patho_dpt_block_code'])) {
+					$patho_dpt_block_codes = array_filter($parameters['AliquotDetail']['patho_dpt_block_code']);
+					if(!empty($patho_dpt_block_codes)) {
+						$conditions[] = "AliquotDetail.patho_dpt_block_code IN ('".implode("','", $patho_dpt_block_codes)."')" ;
+						$csv_order_for_display[] = array('field' => 'AliquotDetail.patho_dpt_block_code', 'order' => $parameters['AliquotDetail']['patho_dpt_block_code']);
+					}
+				}
+				$search_on_patho_number = true;
+				
 			}
-			if(($_SESSION['Auth']['User']['group_id'] != '1') && $qc_tf_bank_identifier_criteria_set) {
-				AppController::addWarningMsg(__('your search will be limited to your bank'));
-				$conditions[] = "Participant.qc_tf_bank_id = '$user_bank_id'";
+			
+			// 5-CHECK ORDER OF THE RESULT TO CONTROL
+			
+			if(isset($parameters['FunctionManagement']['qc_tf_keep_csv_file_order']) && $parameters['FunctionManagement']['qc_tf_keep_csv_file_order'][0]) {
+				switch(sizeof($csv_order_for_display)) {
+					case '0':
+						$csv_order_for_display = null;
+						AppController::addWarningMsg(__('the csv order cannot be preserved with these search criteria'));
+						break;
+					case '1':
+						$csv_order_for_display = $csv_order_for_display[0];
+						break;
+					case '2':
+						$csv_order_for_display = null;
+						AppController::addWarningMsg(__('system is not able to to preserve the order when both participant identifiers and bank identifiers are used for research'));
+						break;
+					default:
+						$csv_order_for_display = null;
+				}
+			} else {
+				$csv_order_for_display = null;
 			}
 		}
+		if(empty($conditions)) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'please complete at least one search criteria');
+		}
+		$conditions_str = implode(' AND ', $conditions);
 		
-		$conditions_str = empty($conditions)? 'TRUE' : implode($conditions, ' AND ');
-
 		// *********** Get Participant & Diagnosis & Fst Bcr & TMA data ***********
 		
 		$sql = 
-			"SELECT DISTINCT
-				Participant.id AS participant_id,
+			"SELECT DISTINCT ".
+				($search_on_patho_number? 'AliquotDetail.patho_dpt_block_code,' : '').
+				"Participant.id AS participant_id,
 				Participant.qc_tf_bank_id,
 				Participant.participant_identifier,
 				Participant.qc_tf_bank_identifier,
@@ -101,8 +144,9 @@ class ReportsControllerCustom extends ReportsController {
 				DiagnosisDetail.progression_status,
 				DiagnosisDetail.histopathology,
 				DiagnosisDetail.reviewed_histopathology
-			FROM participants AS Participant 
-			LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
+			FROM participants AS Participant ".
+			($search_on_patho_number? 'INNER JOIN collections Collection ON Collection.participant_id = Participant.id INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id AND AliquotMaster.deleted <> 1 INNER JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id ' : '').
+			"LEFT JOIN diagnosis_masters AS DiagnosisMaster ON Participant.id = DiagnosisMaster.participant_id AND DiagnosisMaster.diagnosis_control_id = 14 AND DiagnosisMaster.deleted <> 1
 			LEFT JOIN qc_tf_dxd_eocs AS DiagnosisDetail ON DiagnosisDetail.diagnosis_master_id = DiagnosisMaster.id
 			WHERE Participant.deleted <> 1 AND ($conditions_str)
 			ORDER BY Participant.participant_identifier ASC;";
@@ -246,6 +290,30 @@ class ReportsControllerCustom extends ReportsController {
 		
 		foreach($progression_warnings as $msg => $patient_ids) $warnings[] = __($msg).' - See TFRI# : '.implode(', ', $patient_ids);
 		foreach($warnings as $new_warning) AppController::addWarningMsg($new_warning);
+		
+		if($csv_order_for_display) {
+			list($model_for_order,$field_for_order) = explode('.',$csv_order_for_display['field']);
+			$main_results_sorted_per_key = array();
+			$empty_result = array();
+			foreach($main_results as $new_result) {
+				$csv_key = $new_result[$model_for_order][$field_for_order];
+				$main_results_sorted_per_key[$csv_key][] = $new_result;
+				$empty_result = $new_result;
+			}
+			foreach($empty_result as &$model_result) foreach($model_result as &$result) $result = '';
+			$empty_result['Participant']['participant_id'] = '-1'; 
+			$main_results = array();
+			$values_assigned_to_many_patients = array();
+			foreach($csv_order_for_display['order'] as $next_key) {
+				if(array_key_exists($next_key, $main_results_sorted_per_key)) {
+					if(sizeof($main_results_sorted_per_key[$next_key]) > 1) $values_assigned_to_many_patients[$next_key] = $next_key;
+					foreach($main_results_sorted_per_key[$next_key] as $new_result) $main_results[] = $new_result;
+				} else {
+					$main_results[] = $empty_result;
+				}
+			}
+			if($values_assigned_to_many_patients) AppController::addWarningMsg(__('following values are assigned to many patients').' : '.implode(', ', $values_assigned_to_many_patients));
+		}
 		
 		$array_to_return = array(
 			'header' => array(), 
