@@ -265,6 +265,14 @@ addIschemiaTime();
 
 updateMFPEBlocks($tmp_xls_reader->sheets, $sheets_keys, 'MFPE Blocks');
 
+//UPDATE normal tissu
+
+updateNormalTissues($tmp_xls_reader->sheets, $sheets_keys, 'Normal Tumour');
+
+//UPdate path review
+
+updatePathReviews($tmp_xls_reader->sheets, $sheets_keys, 'path review_date_name');
+
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
 
@@ -701,7 +709,6 @@ function addIschemiaTime() {
 		$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 		$updated_sample_master_ids = array();
 		while($row = $results->fetch_assoc()) {
-			pr($row);
 			if(preg_match('/Isch#([0-9]+)#/', $row['notes'], $matches)) {
 				$new_ovcare_ischemia_time_mn = $matches[1];
 				$ischemia_note = 'Isch#'.$new_ovcare_ischemia_time_mn.'#';
@@ -805,6 +812,124 @@ function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 		$query = "INSERT INTO ad_blocks_revs (aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,version_created)
 		(SELECT aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,'$modified' FROM ad_blocks WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	}
+}
+
+function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+
+	$query = "SELECT SampleControl.id FROM sample_controls SampleControl WHERE SampleControl.sample_type = 'tissue';";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$row = $results->fetch_assoc();
+	$sample_control_id = $row['id'];
+	
+	$headers = array();
+	$updated_sample_master_ids = array();
+	if(!isset($sheets_keys[$worksheet_name])) die('ERR 2387 3287 32 '.$worksheet_name);
+	foreach($wroksheetcells[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers  = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			$query = "SELECT participant_id, SampleMaster.id AS sample_master_id
+				FROM collections Collection
+				INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Collection.id
+				INNER JOIN sd_spe_tissues SampleDetail ON SampleDetail.sample_master_id = SampleMaster.id
+				WHERE SampleMaster.deleted <> 1 AND SampleMaster.sample_control_id = $sample_control_id
+				AND Collection.ovcare_collection_voa_nbr = '".$new_line_data['VOA Number']."';";
+			$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+			$tissue_found = false;
+			while($row = $results->fetch_assoc()) {
+				$sample_master_id = $row['sample_master_id'];
+				$query = "UPDATE sample_masters SET modified = '$modified', modified_by = '$modified_by' WHERE id = $sample_master_id;";
+				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+				$query = "UPDATE sd_spe_tissues SET ovcare_tissue_type = 'normal' WHERE sample_master_id = $sample_master_id;";
+				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+				$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Set tisue to 'Normal'"][] = "See sample_master_id = $sample_master_id).";
+				$updated_sample_master_ids[] = $sample_master_id;
+				$tissue_found = true;
+			}
+			if(!$tissue_found) {
+				$summary_msg['Normal Tissue update']['@@WARNING@@']['No Tissue'][] = "No tissue has been found for VOA# '".$new_line_data['VOA Number']."'. Tissue won't be set to 'Normal'.";
+			}
+		}
+	}
+	if($updated_sample_master_ids) {
+		$query = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+			modified_by,version_created)
+			(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+			modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";	
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO specimen_details_revs (sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, version_created)
+			(SELECT sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, '$modified' FROM specimen_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";	
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
+		$query = "INSERT INTO sd_spe_tissues_revs (sample_master_id, tissue_source, ovcare_tissue_source_precision, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size,
+			tissue_size_unit, tissue_weight, tissue_weight_unit, ovcare_ischemia_time_mn, ovcare_tissue_type, ovcare_xenograft_collected, ovcare_cell_culture_collected, version_created) 
+			(SELECT sample_master_id, tissue_source, ovcare_tissue_source_precision, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size,
+			tissue_size_unit, tissue_weight, tissue_weight_unit, ovcare_ischemia_time_mn, ovcare_tissue_type, ovcare_xenograft_collected, ovcare_cell_culture_collected, '$modified' FROM sd_spe_tissues WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";		
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
+	}
+}
+
+function updatePathReviews(&$wroksheetcells, $sheets_keys, $worksheet_name) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+
+	$query = "SELECT id, controls_type FROM diagnosis_controls WHERE controls_type IN ('other' ,'ovary or endometrium tumor') AND category = 'primary' AND flag_active = 1;";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$sample_controls = array();
+	while($row = $results->fetch_assoc()) $sample_controls[$row['controls_type']] = $row['id'];
+	
+	$headers = array();
+	$updated_diagnosis_master_ids = array();
+	if(!isset($sheets_keys[$worksheet_name])) die('ERR 2387 3287 32 '.$worksheet_name);
+	foreach($wroksheetcells[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers  = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			$pathologist = strtolower($new_line_data['Pathologist ']);
+			$new_line_data['Date Re-Reviewed Accuracy'] = 'c';
+			$review_date = getDateAndAccuracy($worksheet_name, $new_line_data, $worksheet_name, 'Date Re-Reviewed', 'Date Re-Reviewed Accuracy', $excel_line_counter);
+			$date_sql_satement = $review_date? "ovcare_date_reviewed = '".$review_date['date']."', ovcare_date_reviewed_accuracy = '".$review_date['accuracy']."'," : '';
+			$query = "SELECT Collection.participant_id, DiagnosisMaster.id AS diagnosis_master_id
+				FROM collections Collection
+				INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.participant_id = Collection.participant_id
+				WHERE DiagnosisMaster.deleted <> 1 AND DiagnosisMaster.diagnosis_control_id IN (".implode(',',$sample_controls).")
+				AND Collection.deleted <> 1 AND Collection.ovcare_collection_voa_nbr = '".$new_line_data['VOA Number']."';";
+			$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+			$dx_found = false;
+			while($row = $results->fetch_assoc()) {
+				$diagnosis_master_id = $row['diagnosis_master_id'];
+				$query = "UPDATE diagnosis_masters SET ovcare_pathologist_reviewed = '$pathologist', $date_sql_satement modified = '$modified', modified_by = '$modified_by' WHERE id = $diagnosis_master_id;";
+				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+				$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Diagnosis Review Update"][] = "See diagnosis_master_id = $diagnosis_master_id).";
+				$updated_diagnosis_master_ids[] = $diagnosis_master_id;
+				$dx_found = true;
+			}
+			if(!$dx_found) {
+				$summary_msg['Diagnosis Review Data']['@@WARNING@@']['No Diagnosis To Update'][] = "No diagnosis to update has been found for VOA# '".$new_line_data['VOA Number']."'. Path Review won't be recorded.";
+			}
+		}
+	}
+	if($updated_diagnosis_master_ids) {
+		$query = "INSERT INTO diagnosis_masters_revs (id, participant_id, primary_id , parent_id, diagnosis_control_id, dx_date, dx_date_accuracy, tumour_grade, notes, ovcare_clinical_history, ovcare_clinical_diagnosis, ovcare_tumor_site, survival_time_months_precision, ovcare_path_review_type, modified_by, version_created)
+			(SELECT id, participant_id, primary_id , parent_id, diagnosis_control_id, dx_date, dx_date_accuracy, tumour_grade, notes, ovcare_clinical_history, ovcare_clinical_diagnosis, ovcare_tumor_site, survival_time_months_precision, ovcare_path_review_type, modified_by, modified
+			FROM diagnosis_masters WHERE id IN (".implode(',',$updated_diagnosis_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO ovcare_dxd_ovaries_endometriums_revs (diagnosis_master_id, initial_surgery_date_accuracy, initial_recurrence_date_accuracy, figo, laterality, censor, ovarian_histology, uterine_histology, histopathology, benign_lesions_precursor_presence, fallopian_tube_lesions, progression_status, version_created)
+			(SELECT diagnosis_master_id, initial_surgery_date_accuracy, initial_recurrence_date_accuracy, figo, laterality, censor, ovarian_histology, uterine_histology, histopathology, benign_lesions_precursor_presence, fallopian_tube_lesions, progression_status, '$modified'
+			FROM ovcare_dxd_ovaries_endometriums WHERE diagnosis_master_id IN (".implode(',',$updated_diagnosis_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO ovcare_dxd_others_revs (diagnosis_master_id, laterality, stage, histopathology, version_created)
+			(SELECT diagnosis_master_id, laterality, stage, histopathology, '$modified'
+			FROM ovcare_dxd_others WHERE diagnosis_master_id IN (".implode(',',$updated_diagnosis_master_ids)."))";
 		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	}
 }
