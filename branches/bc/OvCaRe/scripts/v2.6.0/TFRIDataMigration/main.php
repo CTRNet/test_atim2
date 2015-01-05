@@ -255,7 +255,7 @@ mergeBloodAndTissue();
 
 // Set Tissue Tube Position
 
-loadTissuePosition($tmp_xls_reader->sheets, $sheets_keys, 'Inventory');
+$updated_aliquot_master_ids = loadTissuePosition($tmp_xls_reader->sheets, $sheets_keys, 'Inventory');
 
 // Add Ischemia Time
 
@@ -263,7 +263,7 @@ addIschemiaTime();
 
 // UPDATE MFPE Blocks
 
-updateMFPEBlocks($tmp_xls_reader->sheets, $sheets_keys, 'MFPE Blocks');
+$updated_aliquot_master_ids = updateMFPEBlocks($tmp_xls_reader->sheets, $sheets_keys, 'MFPE Blocks', $updated_aliquot_master_ids);
 
 //UPDATE normal tissu
 
@@ -272,6 +272,23 @@ updateNormalTissues($tmp_xls_reader->sheets, $sheets_keys, 'Normal Tumour');
 //UPdate path review
 
 updatePathReviews($tmp_xls_reader->sheets, $sheets_keys, 'path review_date_name');
+
+//Final Aliquot Update 
+// Set hemolysis Sign to no + Set storage method to snap frozen for tissue tube + Set inital storage datetime (if required)
+
+$updated_aliquot_master_ids = updateFinalAliquotData($updated_aliquot_master_ids);
+
+// Add tissue tube and block tissue section
+
+$updated_aliquot_master_ids = updateTissueSection($updated_aliquot_master_ids);
+
+// Aliquot Revs Table Update
+
+finalAliquotMasterRevsInsert($updated_aliquot_master_ids);
+
+// Set collecte volume and nbr of tube for blood tube received
+
+updateCollectedBloodTubeInfo();
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -604,10 +621,10 @@ function loadTissuePosition(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 			$summary_msg['Aliquot Position Definition']['@@ERROR@@']["Aliquot not in stock"][] = "The aliquot '$aliquot_label' listed in box ".$aliquot_label_to_storage_data[$aliquot_label]['box_name']." is defined as not in stock in ATiM. Data won't be updated.";
 		} else {
 			$position_set_count++;
-			$query = "UPDATE aliquot_masters SET storage_master_id = ".$aliquot_label_to_storage_data[$aliquot_label]['storage_master_id'].", storage_coord_x = '".$aliquot_label_to_storage_data[$aliquot_label]['storage_coord_x']."', modified = '$modified_by', modified = '$modified' WHERE id = ".$row['id'].";";
+			$query = "UPDATE aliquot_masters SET storage_master_id = ".$aliquot_label_to_storage_data[$aliquot_label]['storage_master_id'].", storage_coord_x = '".$aliquot_label_to_storage_data[$aliquot_label]['storage_coord_x']."', modified_by = '$modified_by', modified = '$modified' WHERE id = ".$row['id'].";";
 			mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 			$all_aliquot_control_ids[$row['aliquot_control_id']] = $row['aliquot_control_id'];	
-			$updated_aliquot_master_ids[] = $row['id'];
+			$updated_aliquot_master_ids[$row['id']] = $row['id'];
 		}
 		unset($aliquot_label_to_storage_data[$aliquot_label]);
 	}
@@ -621,18 +638,8 @@ function loadTissuePosition(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 	while($row = $results->fetch_assoc()) {
 		if(!in_array($row['detail_tablename'], array('ad_tubes','ad_blocks'))) die('ERR32873287328 7'.$row['detail_tablename']);
 	}
-	$query = "INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
-		study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,version_created) (
-		SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
-		study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,modified FROM aliquot_masters WHERE modified = '$modified_by' AND modified = '$modified' AND id IN (".implode(',',$updated_aliquot_master_ids)."));";
-	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-	$query = "INSERT INTO ad_tubes_revs (aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,ovcare_storage_method,ocvare_tissue_section,version_created)
-		(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,ovcare_storage_method,ocvare_tissue_section,'$modified' FROM ad_tubes WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
-	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	
-	$query = "INSERT INTO ad_blocks_revs (aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,version_created)
-	(SELECT aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,'$modified' FROM ad_blocks WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
-	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	return $updated_aliquot_master_ids;
 }
 
 function recordNewBox(&$aliquot_label_to_storage_data, &$created_storages, $box_data, $storage_type_to_id, &$last_storage_master_id){
@@ -748,7 +755,7 @@ function addIschemiaTime() {
 	}
 }
 
-function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name) {
+function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name, $updated_aliquot_master_ids) {
 	global $db_connection;
 	global $modified_by;
 	global $modified;
@@ -769,7 +776,6 @@ function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 	$aliquot_control_id = $row['id'];
 	
 	$headers = array();
-	$updated_aliquot_master_ids = array();
 	if(!isset($sheets_keys[$worksheet_name])) die('ERR 2387 3287 32 '.$worksheet_name);
 	foreach($wroksheetcells[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
 		if($excel_line_counter == 1) {
@@ -796,7 +802,7 @@ function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 				$previously_defined_as_msg = strlen($row['block_type'])? "(previously defined as '".$row['block_type']."' block)" : '';
 				$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Updated MFPE blocks of 'Endometriosis' project"][] = "Set block type to ['MFPE'] and study to 'Endometriosis' for block $previously_defined_as_msg with sample identifier ".$row['aliquot_label']." (aliquot_master_id = $aliquot_master_id).";
-				$updated_aliquot_master_ids[] = $aliquot_master_id;
+				$updated_aliquot_master_ids[$aliquot_master_id] = $aliquot_master_id;
 				$block_found = true;
 			}
 			if(!$block_found) {
@@ -804,16 +810,8 @@ function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 			} 
 		}
 	}
-	if($updated_aliquot_master_ids) {
-		$query = "INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
-			study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,version_created)
-			(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
-			study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,modified FROM aliquot_masters WHERE modified = '$modified_by' AND modified = '$modified' AND id IN (".implode(',',$updated_aliquot_master_ids)."));";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-		$query = "INSERT INTO ad_blocks_revs (aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,version_created)
-		(SELECT aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,'$modified' FROM ad_blocks WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-	}
+	
+	return $updated_aliquot_master_ids;
 }
 
 function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
@@ -827,8 +825,30 @@ function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 	$row = $results->fetch_assoc();
 	$sample_control_id = $row['id'];
 	
-	$headers = array();
 	$updated_sample_master_ids = array();
+	
+	// ** Set tumoral tissue by default **
+	
+	$query = "SELECT SampleMaster.id
+		FROM sample_controls SampleControl, sample_masters SampleMaster, sd_spe_tissues SampleDetail
+		WHERE SampleControl.sample_type = 'tissue'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND (SampleDetail.ovcare_tissue_type = '' OR SampleDetail.ovcare_tissue_type IS NULL);";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($results->num_rows) $summary_msg['Default Aliquot Data Update']['@@MESSAGE@@']['Tissue type set to tumour by default'][] = $results->num_rows." records updated.";
+	while($row = $results->fetch_assoc()) { $updated_sample_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE sample_controls SampleControl, sample_masters SampleMaster, sd_spe_tissues SampleDetail
+		SET SampleDetail.ovcare_tissue_type = 'tumour', SampleMaster.modified = '$modified', SampleMaster.modified_by = '$modified_by'
+		WHERE SampleControl.sample_type = 'tissue'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND (SampleDetail.ovcare_tissue_type = '' OR SampleDetail.ovcare_tissue_type IS NULL);";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		
+	// Then update normal tissue
+	
+	$headers = array();
 	if(!isset($sheets_keys[$worksheet_name])) die('ERR 2387 3287 32 '.$worksheet_name);
 	foreach($wroksheetcells[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
 		if($excel_line_counter == 1) {
@@ -850,7 +870,7 @@ function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 				$query = "UPDATE sd_spe_tissues SET ovcare_tissue_type = 'normal' WHERE sample_master_id = $sample_master_id;";
 				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 				$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Set tisue to 'Normal'"][] = "See sample_master_id = $sample_master_id).";
-				$updated_sample_master_ids[] = $sample_master_id;
+				$updated_sample_master_ids[$sample_master_id] = $sample_master_id;
 				$tissue_found = true;
 			}
 			if(!$tissue_found) {
@@ -934,6 +954,338 @@ function updatePathReviews(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 	}
 }
 
+function updateFinalAliquotData($updated_aliquot_master_ids) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	// ** Set hemolysis Sign to no Set storage method to snap frozen for tissue tube Set inital storage datetime **
+
+	$query = "SELECT AliquotMaster.id
+		FROM aliquot_masters AliquotMaster, ad_tubes AliquotDetail, aliquot_controls AliquotControl
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND AliquotControl.detail_form_alias LIKE '%ad_hemolysis%'
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id AND (AliquotDetail.hemolysis_signs = '' OR AliquotDetail.hemolysis_signs IS NULL);";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($results->num_rows) $summary_msg['Default Aliquot Data Update']['@@MESSAGE@@']["Hemolysis signs set to 'no' by default"][] = $results->num_rows." records updated.";
+	while($row = $results->fetch_assoc()) { $updated_aliquot_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, aliquot_controls AliquotControl
+		SET AliquotDetail.hemolysis_signs = 'n', AliquotMaster.modified = '$modified', AliquotMaster.modified_by = '$modified_by'
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND AliquotControl.detail_form_alias LIKE '%ad_hemolysis%'
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id AND (AliquotDetail.hemolysis_signs = '' OR AliquotDetail.hemolysis_signs IS NULL);";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	
+	// ** Set storage method to snap frozen for tissue tube Set inital storage datetime **
+	
+	$query = "SELECT AliquotMaster.id
+		FROM aliquot_masters AliquotMaster, ad_tubes AliquotDetail, aliquot_controls AliquotControl, sample_controls SampleControl
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND AliquotControl.aliquot_type = 'tube' AND AliquotControl.sample_control_id = SampleControl.id
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+		AND (AliquotDetail.ovcare_storage_method = '' OR AliquotDetail.ovcare_storage_method IS NULL);";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($results->num_rows) $summary_msg['Default Aliquot Data Update']['@@MESSAGE@@']["Tissue tubes storage method set to 'snap frozen' by default"][] = $results->num_rows." records updated.";
+	while($row = $results->fetch_assoc()) { $updated_aliquot_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail, aliquot_controls AliquotControl, sample_controls SampleControl
+		SET AliquotDetail.ovcare_storage_method = 'snap frozen', AliquotMaster.modified = '$modified', AliquotMaster.modified_by = '$modified_by'
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND AliquotControl.aliquot_type = 'tube' AND AliquotControl.sample_control_id = SampleControl.id
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+		AND (AliquotDetail.ovcare_storage_method = '' OR AliquotDetail.ovcare_storage_method IS NULL);";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	
+	// ** Set inital storage datetime **
+	
+	$query = "SELECT AliquotMaster.id
+		FROM aliquot_controls AliquotControl, sample_controls SampleControl, aliquot_masters AliquotMaster, collections Collection
+		WHERE SampleControl.sample_type IN ('ascite','blood cell','plasma','saliva','serum','tissue')
+		AND SampleControl.id = AliquotControl.sample_control_id
+		AND AliquotMaster.aliquot_control_id = AliquotControl.id AND AliquotMaster.deleted <> 1
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotMaster.storage_datetime IS NULL OR AliquotMaster.storage_datetime = '')
+		AND Collection.collection_datetime IS NOT NULL AND Collection.collection_datetime != ''
+		AND Collection.collection_datetime_accuracy IN ('i', 'c');";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = $results->num_rows;
+	while($row = $results->fetch_assoc()) { $updated_aliquot_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE aliquot_controls AliquotControl, sample_controls SampleControl, aliquot_masters AliquotMaster, collections Collection
+		SET AliquotMaster.storage_datetime = Collection.collection_datetime, AliquotMaster.storage_datetime_accuracy = 'h', AliquotMaster.modified = '$modified', AliquotMaster.modified_by = '$modified_by'
+		WHERE SampleControl.sample_type IN ('ascite','blood cell','plasma','saliva','serum','tissue')
+		AND SampleControl.id = AliquotControl.sample_control_id
+		AND AliquotMaster.aliquot_control_id = AliquotControl.id AND AliquotMaster.deleted <> 1
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotMaster.storage_datetime IS NULL OR AliquotMaster.storage_datetime = '')
+		AND Collection.collection_datetime IS NOT NULL AND Collection.collection_datetime != ''
+		AND Collection.collection_datetime_accuracy IN ('i', 'c');";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$query = "SELECT AliquotMaster.id
+		FROM aliquot_controls AliquotControl, sample_controls SampleControl, aliquot_masters AliquotMaster, collections Collection
+		WHERE SampleControl.sample_type IN ('ascite','blood cell','plasma','saliva','serum','tissue')
+		AND SampleControl.id = AliquotControl.sample_control_id
+		AND AliquotMaster.aliquot_control_id = AliquotControl.id AND AliquotMaster.deleted <> 1
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotMaster.storage_datetime IS NULL OR AliquotMaster.storage_datetime = '')
+		AND Collection.collection_datetime IS NOT NULL AND Collection.collection_datetime != ''
+		AND Collection.collection_datetime_accuracy NOT IN ('i', 'c');";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count += $results->num_rows;
+	while($row = $results->fetch_assoc()) { $updated_aliquot_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE aliquot_controls AliquotControl, sample_controls SampleControl, aliquot_masters AliquotMaster, collections Collection
+		SET AliquotMaster.storage_datetime = Collection.collection_datetime, AliquotMaster.storage_datetime_accuracy = Collection.collection_datetime_accuracy
+		WHERE SampleControl.sample_type IN ('ascite','blood cell','plasma','saliva','serum','tissue')
+		AND SampleControl.id = AliquotControl.sample_control_id
+		AND AliquotMaster.aliquot_control_id = AliquotControl.id AND AliquotMaster.deleted <> 1
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotMaster.storage_datetime IS NULL OR AliquotMaster.storage_datetime = '')
+		AND Collection.collection_datetime IS NOT NULL AND Collection.collection_datetime != ''
+		AND Collection.collection_datetime_accuracy NOT IN ('i', 'c');";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($upated_records_count) $summary_msg['Default Aliquot Data Update']['@@MESSAGE@@']["Set default storage date to collection date"][] = $upated_records_count." records updated.";
+	
+	return $updated_aliquot_master_ids;
+}
+
+function updateTissueSection($updated_aliquot_master_ids) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	// Tissue Tube
+	
+	$query = "SELECT AliquotMaster.id, Collection.ovcare_collection_voa_nbr, AliquotMaster.aliquot_label
+		FROM aliquot_masters AliquotMaster, ad_tubes AliquotDetail, aliquot_controls AliquotControl, sample_controls SampleControl, collections Collection
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND AliquotControl.aliquot_type = 'tube' AND AliquotControl.sample_control_id = SampleControl.id
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotDetail.ocvare_tissue_section = '' OR AliquotDetail.ocvare_tissue_section IS NULL) AND AliquotMaster.aliquot_label NOT REGEXP('^VOA[0-9]+[a-zA-Z]+$')";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	while($row = $results->fetch_assoc()) $summary_msg['Tissue Section Update']['@@WARNING@@']["Unable to extract tissue section from tube sample identifier"][] = "See tissue tube Sample Identifier [".$row['aliquot_label']."]. Tissue section won' be updated";
+
+	$query = "SELECT AliquotMaster.id, Collection.ovcare_collection_voa_nbr, AliquotMaster.aliquot_label
+		FROM aliquot_masters AliquotMaster, ad_tubes AliquotDetail, aliquot_controls AliquotControl, sample_controls SampleControl, collections Collection
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND AliquotControl.aliquot_type = 'tube' AND AliquotControl.sample_control_id = SampleControl.id
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotDetail.ocvare_tissue_section = '' OR AliquotDetail.ocvare_tissue_section IS NULL) AND AliquotMaster.aliquot_label REGEXP('^VOA[0-9]+[a-zA-Z]+$')";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = 0;
+	while($row = $results->fetch_assoc()) {
+		$aliquot_master_id = $row['id'];
+		$ovcare_collection_voa_nbr = $row['ovcare_collection_voa_nbr'];
+		$aliquot_label = $row['aliquot_label'];
+		if(preg_match('/^VOA[0]*'.$ovcare_collection_voa_nbr.'([A-Za-z]+)$/', $aliquot_label, $matches)) {
+			$query = "UPDATE aliquot_masters AliquotMaster, ad_tubes AliquotDetail
+				SET AliquotDetail.ocvare_tissue_section = '".$matches[1]."', AliquotMaster.modified = '$modified', AliquotMaster.modified_by = '$modified_by'
+				WHERE AliquotMaster.id = AliquotDetail.aliquot_master_id
+				AND AliquotMaster.id = $aliquot_master_id";
+			mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+			$upated_records_count++;
+			$updated_aliquot_master_ids[$aliquot_master_id] = $aliquot_master_id;
+		} else {
+			$summary_msg['Tissue Section Update']['@@ERROR@@']["Wrong Sample Identifier"][] = "The sample identifier [$aliquot_label] does not match the VOA# [$ovcare_collection_voa_nbr]. Tissue section won't be updated.";
+		}
+	}
+	$summary_msg['Tissue Section Update']['@@MESSAGE@@']["Set tissue tube section"][] = $upated_records_count." records updated.";
+	
+	// Tissue Block
+	
+	$query = "SELECT AliquotMaster.id, Collection.ovcare_collection_voa_nbr, AliquotMaster.aliquot_label
+		FROM aliquot_masters AliquotMaster, ad_blocks AliquotDetail, aliquot_controls AliquotControl, sample_controls SampleControl, collections Collection
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND AliquotControl.aliquot_type = 'block' AND AliquotControl.sample_control_id = SampleControl.id
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotDetail.ocvare_tissue_section = '' OR AliquotDetail.ocvare_tissue_section IS NULL) AND AliquotMaster.aliquot_label NOT REGEXP('^VOA[0-9]+[a-zA-Z]+[0-9]{0,5}[\ ]{0,1}$')";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	while($row = $results->fetch_assoc()) $summary_msg['Tissue Section Update']['@@WARNING@@']["Unable to extract tissue section from block sample identifier"][] = "See tissue block Sample Identifier [".$row['aliquot_label']."]. Tissue section won' be updated";
+	
+	$query = "SELECT AliquotMaster.id, Collection.ovcare_collection_voa_nbr, AliquotMaster.aliquot_label
+		FROM aliquot_masters AliquotMaster, ad_blocks AliquotDetail, aliquot_controls AliquotControl, sample_controls SampleControl, collections Collection
+		WHERE AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id = AliquotControl.id
+		AND SampleControl.sample_type = 'tissue'
+		AND AliquotControl.aliquot_type = 'block' AND AliquotControl.sample_control_id = SampleControl.id
+		AND AliquotMaster.id = AliquotDetail.aliquot_master_id
+		AND Collection.id = AliquotMaster.collection_id
+		AND (AliquotDetail.ocvare_tissue_section = '' OR AliquotDetail.ocvare_tissue_section IS NULL) AND AliquotMaster.aliquot_label REGEXP('^VOA[0-9]+[a-zA-Z]+[0-9]{0,5}[\ ]{0,1}$')";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = 0;
+	while($row = $results->fetch_assoc()) {
+		$aliquot_master_id = $row['id'];
+		$ovcare_collection_voa_nbr = $row['ovcare_collection_voa_nbr'];
+		$aliquot_label = $row['aliquot_label'];
+		if(preg_match('/^VOA[0]*'.$ovcare_collection_voa_nbr.'([A-Za-z]+[0-9]{0,5})[\ ]{0,1}$/', $aliquot_label, $matches)) {
+			$query = "UPDATE aliquot_masters AliquotMaster, ad_blocks AliquotDetail
+				SET AliquotDetail.ocvare_tissue_section = '".$matches[1]."', AliquotMaster.modified = '$modified', AliquotMaster.modified_by = '$modified_by'
+				WHERE AliquotMaster.id = AliquotDetail.aliquot_master_id
+				AND AliquotMaster.id = $aliquot_master_id";
+			mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+			$upated_records_count++;
+			$updated_aliquot_master_ids[$aliquot_master_id] = $aliquot_master_id;
+		} else {
+			$summary_msg['Tissue Section Update']['@@ERROR@@']["Wrong Sample Identifier"][] = "The sample identifier [$aliquot_label] does not match the VOA# [$ovcare_collection_voa_nbr]. Tissue section won't be updated.";
+		}
+	}
+	$summary_msg['Tissue Section Update']['@@MESSAGE@@']["Set tissue block section"][] = $upated_records_count." records updated.";
+	
+	return $updated_aliquot_master_ids;	
+}
+
+function finalAliquotMasterRevsInsert($updated_aliquot_master_ids) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	$query = "INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+		study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,version_created) (
+		SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+		study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes, modified_by,modified FROM aliquot_masters WHERE id IN (".implode(',',$updated_aliquot_master_ids)."));";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$query = "INSERT INTO ad_tubes_revs (aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,ovcare_storage_method,ocvare_tissue_section,version_created)
+		(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,ovcare_storage_method,ocvare_tissue_section,'$modified' FROM ad_tubes WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$query = "INSERT INTO ad_blocks_revs (aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,version_created)
+		(SELECT aliquot_master_id,block_type,patho_dpt_block_code,ocvare_tissue_section,'$modified' FROM ad_blocks WHERE aliquot_master_id IN (".implode(',',$updated_aliquot_master_ids)."));";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+}
+
+function updateCollectedBloodTubeInfo() {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	$updated_sample_master_ids = array();
+	
+	//VOA509-2301:  for samples which we received blood:  1 tube of EDTA (6.0mL)
+	
+	$query = "SELECT SampleMaster.id
+		FROM sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+	 	AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+	 	AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL)
+		AND SampleDetail.blood_type = 'EDTA' AND Collection.ovcare_collection_voa_nbr >= 509 AND Collection.ovcare_collection_voa_nbr <= 2301;";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = $results->num_rows;
+	while($row = $results->fetch_assoc()) { $updated_sample_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		SET SampleDetail.collected_volume = '6.0', SampleDetail.collected_volume_unit = 'ml', SampleDetail.collected_tube_nbr = '1', SampleMaster.modified = '$modified', SampleMaster.modified_by = '$modified_by'
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+	 	AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+	 	AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL)
+		AND SampleDetail.blood_type = 'EDTA' AND Collection.ovcare_collection_voa_nbr >= 509 AND Collection.ovcare_collection_voa_nbr <= 2301;";	
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($upated_records_count) $summary_msg['Blood tubes: Collected volume and tube nbr update']['@@MESSAGE@@']["EDTA of VOA# 509-2301 (1 tube / 6ml)"][] = $upated_records_count." records updated.";
+	
+	//VOA509-2301:  for samples which we received blood:  1 tube of serum (6.0mL)
+	
+	$query = "SELECT SampleMaster.id
+		FROM sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+	 	AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+	 	AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL)
+		AND SampleDetail.blood_type = 'serum' AND Collection.ovcare_collection_voa_nbr >= 509 AND Collection.ovcare_collection_voa_nbr <= 2301;";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = $results->num_rows;
+	while($row = $results->fetch_assoc()) { $updated_sample_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		SET SampleDetail.collected_volume = '6.0', SampleDetail.collected_volume_unit = 'ml', SampleDetail.collected_tube_nbr = '1', SampleMaster.modified = '$modified', SampleMaster.modified_by = '$modified_by'
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+		AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+		AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL)
+		AND SampleDetail.blood_type = 'serum' AND Collection.ovcare_collection_voa_nbr >= 509 AND Collection.ovcare_collection_voa_nbr <= 2301;";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($upated_records_count) $summary_msg['Blood tubes: Collected volume and tube nbr update']['@@MESSAGE@@']["Serum of VOA# 509-2301 (1 tube / 6ml)"][] = $upated_records_count." records updated.";
+	
+	// VOA2303 to 4939:  for samples which we received blood:  2 tubes of EDTA (12.0mL)
+	
+	$query = "SELECT SampleMaster.id
+		FROM sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+		AND SampleDetail.blood_type = 'EDTA' AND Collection.ovcare_collection_voa_nbr >= 2303 AND Collection.ovcare_collection_voa_nbr <= 4939
+	 	AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+	 	AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL);";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = $results->num_rows;
+	while($row = $results->fetch_assoc()) { $updated_sample_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		SET SampleDetail.collected_volume = '12.0', SampleDetail.collected_volume_unit = 'ml', SampleDetail.collected_tube_nbr = '2', SampleMaster.modified = '$modified', SampleMaster.modified_by = '$modified_by'
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+		AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+		AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL)
+		AND SampleDetail.blood_type = 'EDTA' AND Collection.ovcare_collection_voa_nbr >= 2303 AND Collection.ovcare_collection_voa_nbr <= 4939;";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($upated_records_count) $summary_msg['Blood tubes: Collected volume and tube nbr update']['@@MESSAGE@@']["EDTA of VOA# 2303-4939 (2 tubes / 12ml)"][] = $upated_records_count." records updated.";
+	
+	// VOA2303 to 4939:  for samples which we received blood:  1 tube of serum (6.0mL)
+	
+	$query = "SELECT SampleMaster.id
+		FROM sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+		AND SampleDetail.blood_type = 'serum' AND Collection.ovcare_collection_voa_nbr >= 2303 AND Collection.ovcare_collection_voa_nbr <= 4939
+	 	AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+	 	AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL);";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$upated_records_count = $results->num_rows;
+	while($row = $results->fetch_assoc()) { $updated_sample_master_ids[$row['id']] = $row['id']; }
+	$query = "UPDATE sample_controls SampleControl, sample_masters SampleMaster, sd_spe_bloods SampleDetail, collections Collection
+		SET SampleDetail.collected_volume = '6.0', SampleDetail.collected_volume_unit = 'ml', SampleDetail.collected_tube_nbr = '1', SampleMaster.modified = '$modified', SampleMaster.modified_by = '$modified_by'
+		WHERE SampleControl.sample_type = 'blood'
+		AND SampleControl.id = SampleMaster.sample_control_id AND SampleMaster.deleted <> 1
+		AND SampleDetail.sample_master_id = SampleMaster.id
+		AND Collection.id = SampleMaster.collection_id
+		AND (SampleDetail.collected_volume = '' OR SampleDetail.collected_volume IS NULL)
+		AND (SampleDetail.collected_tube_nbr = '' OR SampleDetail.collected_tube_nbr IS NULL)
+		AND SampleDetail.blood_type = 'serum' AND Collection.ovcare_collection_voa_nbr >= 2303 AND Collection.ovcare_collection_voa_nbr <= 4939;";
+	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	if($upated_records_count) $summary_msg['Blood tubes: Collected volume and tube nbr update']['@@MESSAGE@@']["Serum of VOA# 2303-4939 (1 tube / 6ml)"][] = $upated_records_count." records updated.";
+		
+	if($updated_sample_master_ids) {
+		$query = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+			modified_by,version_created)
+			(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+			modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO specimen_details_revs (sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, version_created)
+			(SELECT sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, '$modified' FROM specimen_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		$query = "INSERT INTO sd_spe_bloods_revs (sample_master_id, blood_type, collected_tube_nbr, collected_volume, collected_volume_unit, version_created)
+			(SELECT sample_master_id, blood_type, collected_tube_nbr, collected_volume, collected_volume_unit, '$modified' FROM sd_spe_bloods WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	}
+}
+				
 //===========================================================================================================================================================
 // Other functions
 //===========================================================================================================================================================
