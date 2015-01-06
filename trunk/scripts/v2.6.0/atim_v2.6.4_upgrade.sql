@@ -29,6 +29,20 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='chronology'), (SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='chronology_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3123: Search browsing a file - Add control on source file 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `pages` (`id`, `error_flag`, `language_title`, `language_body`) 
+VALUES
+('err_submitted_file_extension', 1, 'error opening file', 'only .csv and .txt files can be submitted'),
+('err_opening_submitted_file', 1, 'error opening file', 'the system is unable to read the submitted file');
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('error opening file', 'Error opening file', 'Erreur lors de l''ouverture du fichier'),
+('only .csv and .txt files can be submitted', 'Only .csv and .txt files can be submitted', 'Seuls les fichiers .csv et .txt peuvent être soumis'),
+('the system is unable to read the submitted file', 'The system is unable to read the submitted file', 'Le système n''a pas pu lire le fichier soumis');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
