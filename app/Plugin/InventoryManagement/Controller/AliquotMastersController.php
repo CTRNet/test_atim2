@@ -363,9 +363,7 @@ class AliquotMastersController extends InventoryManagementAppController {
 							$this->redirect('/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, null, true); 
 						} 
 						
-						if($is_batch_process){
-							$batch_ids[] = $this->AliquotMaster->getLastInsertId();
-						}
+						$batch_ids[] = $this->AliquotMaster->getLastInsertId();
 					}
 				}
 				
