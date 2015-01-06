@@ -43,6 +43,63 @@ VALUES
 ('the system is unable to read the submitted file', 'The system is unable to read the submitted file', 'Le système n''a pas pu lire le fichier soumis');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3117: dx_recurrence structure is missing 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT IGNORE INTO structures(`alias`) VALUES ('dx_recurrence');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3074: Add revisioning for users/groups 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE users
+ ADD COLUMN created_by int(10) unsigned NOT NULL,
+ ADD COLUMN modified_by int(10) unsigned NOT NULL;
+ 
+CREATE TABLE IF NOT EXISTS users_revs (
+  id int(11) NOT NULL,
+  username varchar(200) NOT NULL DEFAULT '',
+  first_name varchar(50) DEFAULT NULL,
+  last_name varchar(50) DEFAULT NULL,
+  `password` varchar(255) NOT NULL DEFAULT '',
+  email varchar(200) NOT NULL DEFAULT '',
+  department varchar(50) DEFAULT NULL,
+  job_title varchar(50) DEFAULT NULL,
+  institution varchar(50) DEFAULT NULL,
+  laboratory varchar(50) DEFAULT NULL,
+  help_visible varchar(50) DEFAULT NULL,
+  street varchar(50) DEFAULT NULL,
+  city varchar(50) DEFAULT NULL,
+  region varchar(50) DEFAULT NULL,
+  country varchar(50) DEFAULT NULL,
+  mail_code varchar(50) DEFAULT NULL,
+  phone_work varchar(50) DEFAULT NULL,
+  phone_home varchar(50) DEFAULT NULL,
+  group_id int(11) NOT NULL DEFAULT '0',
+  flag_active tinyint(1) NOT NULL,
+  modified_by int(10) unsigned NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  password_modified datetime DEFAULT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+ALTER TABLE groups
+ ADD COLUMN created_by int(10) unsigned NOT NULL,
+ ADD COLUMN modified_by int(10) unsigned NOT NULL;
+ 
+CREATE TABLE IF NOT EXISTS groups_revs (
+  id int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  bank_id int(11) DEFAULT NULL,
+  flag_show_confidential tinyint(1) unsigned NOT NULL DEFAULT '0',
+  modified_by int(10) unsigned NOT NULL,
+  version_id int(11) NOT NULL AUTO_INCREMENT,
+  version_created datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ 
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
