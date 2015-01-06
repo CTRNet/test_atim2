@@ -302,12 +302,18 @@ class ReportsController extends DatamartAppController {
 							$matched_field_name = $matches[1];
 							if(!isset($criteria_to_build_report[$model][$matched_field_name])) $criteria_to_build_report[$model][$matched_field_name] = array();
 							if(strlen($parameters['tmp_name'])) {
-								$handle = fopen($parameters['tmp_name'], "r");
-								if($handle) {
-									while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-										$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+								if(!preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
+									$this->redirect('/Pages/err_submitted_file_extension', null, true);
+								} else {
+									$handle = fopen($parameters['tmp_name'], "r");
+									if($handle) {
+										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+											$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+										}
+										fclose($handle);
+									} else {
+										$this->redirect('/Pages/err_opening_submitted_file', null, true);
 									}
-									fclose($handle);
 								}
 							}
 							unset($criteria_to_build_report[$model][$field]);
