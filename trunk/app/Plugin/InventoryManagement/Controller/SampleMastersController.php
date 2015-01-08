@@ -962,7 +962,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		$ids = array_key_exists('ids', $this->request->data['SampleMaster']) ? $this->request->data['SampleMaster']['ids'] : $this->request->data['sample_master_ids'];
 		$this->set('sample_master_ids', $ids);
 		unset($this->request->data['sample_master_ids']);
-
+		
 		if(is_null($aliquot_master_id)) {
 			$this->setBatchMenu(array('SampleMaster' => $ids));
 		} else {
@@ -1006,6 +1006,10 @@ class SampleMastersController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
+				if(sizeof($aliquots) > Configure::read('SampleDerivativeCreation_processed_items_limit')) {
+					$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('SampleDerivativeCreation_processed_items_limit').')', $url_to_cancel, 5);
+					return;
+				}
 				$this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
 				$this->request->data = array();
 				foreach($aliquots as $aliquot){
@@ -1014,6 +1018,10 @@ class SampleMastersController extends InventoryManagementAppController {
 				}			
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
+				if(sizeof($samples) > Configure::read('SampleDerivativeCreation_processed_items_limit')) {
+					$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('SampleDerivativeCreation_processed_items_limit').')', $url_to_cancel, 5);
+					return;
+				}
 				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
 				$this->request->data = array();
 				foreach($samples as $sample){

@@ -107,6 +107,13 @@ REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
 ('viability (%)', '', 'Viability (&#37;)', 'Viabilité (&#37;)');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3063: Add limit on batch processes
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+REPLACE INTO `i18n` (`id`, `page_id`, `en`, `fr`) VALUES
+('batch init - number of submitted records too big', 'The number of records submitted are too big to be managed in batch!','Le nombre de données soumises pour être traitées en lot est trop important!');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 

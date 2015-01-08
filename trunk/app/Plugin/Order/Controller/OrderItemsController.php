@@ -222,7 +222,7 @@ class OrderItemsController extends OrderAppController {
 					$studied_aliquot_master_ids = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 				}
 				if(!is_array($studied_aliquot_master_ids) && strpos($studied_aliquot_master_ids, ',')){
-					//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+					//User launched action from databrowser but the number of items was bigger than databrowser_and_report_results_display_limit
 					$this->flash(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
 					return;
 				}
@@ -239,6 +239,10 @@ class OrderItemsController extends OrderAppController {
 				$aliquots_count = $this->AliquotMaster->find('count', array('conditions' => array('AliquotMaster.id' => $studied_aliquot_master_ids), 'recursive' => '-1'));
 				if($aliquots_count != sizeof($studied_aliquot_master_ids)) { 
 					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				}
+				if($aliquots_count > Configure::read('AddAliquotToOrder_processed_items_limit')) {
+					$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('AddAliquotToOrder_processed_items_limit').')', $url_to_redirect, 5);
+					return;
 				}
 				
 			}

@@ -424,4 +424,25 @@ Configure::write('max_user_login_attempts', 5);
  */
 Configure::write('password_validity_period_month', null);
 
+/**
+ * Set the limit of records that could either be displayed in the databrowser results 
+ * form or into a report.
+ */
+Configure::write('databrowser_and_report_results_display_limit', 1000);
+
+/**
+ * Set the limit of items that could be processed in batch
+ */
+Configure::write('SampleDerivativeCreation_processed_items_limit', 50);		// SampleMasters.batchDerivative()
+	
+Configure::write('AliquotCreation_processed_items_limit', 50);				// AliquotMasters.add()
+Configure::write('AliquotModification_processed_items_limit', 50);			// AliquotMasters.editInBatch()
+Configure::write('AliquotInternalUseCreation_processed_items_limit', 50);	// AliquotMasters.addAliquotInternalUse()
+Configure::write('RealiquotedAliquotCreation_processed_items_limit', 50);	// AliquotMasters.realiquot()
+Configure::write('AliquotBarcodePrint_processed_items_limit', 50);			// AliquotMasters.printBarcodes()
+	
+Configure::write('QualityCtrlsCreation_processed_items_limit', 50);			// QualityCtrls.add()
+	
+Configure::write('AddAliquotToOrder_processed_items_limit', 50);			// OrderItems.addAliquotsInBatch()
+
 unset($debug);
