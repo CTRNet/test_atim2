@@ -113,6 +113,18 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('batch init - number of submitted records too big', 'The number of records submitted are too big to be managed in batch!','Le nombre de données soumises pour être traitées en lot est trop important!');
 
+
+ this storage type has already been used to build a storage in the past - properties can not be changed anymore
+(default) 43 queries took 11
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3063: Add limit on batch processes
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `i18n` (`id`, `en`, `fr`) 
+VALUES
+('this storage type has already been used to build a storage in the past - properties can not be changed anymore', 'This storage type has already been used to build storages in the past - Properties can not be changed anymore', 'Ce type d''entreposage a déjà été utilisé pour construire un entreposage - Les données ne peuvent plus être modifiées');
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
