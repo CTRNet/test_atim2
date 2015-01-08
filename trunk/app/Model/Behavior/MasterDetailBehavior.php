@@ -128,9 +128,10 @@ class MasterDetailBehavior extends ModelBehavior {
 	 */
 	public function getSingleControlIdCondition(Model $model, $query){
 	    extract($this->__settings[$model->alias]);
-	    if(isset($query['conditions'][$model->name.".".$control_foreign])
-                && count($query['conditions'][$model->name.".".$control_foreign]) == 1){
-	        return $query['conditions'][$model->name.".".$control_foreign];
+	    if(is_array($query['conditions']) 
+	    && array_key_exists($model->name.".".$control_foreign, $query['conditions']) 
+	    && count($query['conditions'][$model->name.".".$control_foreign]) == 1){
+	    	return $query['conditions'][$model->name.".".$control_foreign];
 	    }
 	    return false;
 	}
