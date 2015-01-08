@@ -29,6 +29,7 @@ class StorageMastersController extends StorageLayoutAppController {
 			                     $structure_alias, $structure_index, false, 21);
 			if(count($this->request->data) > 20){
 				$this->request->data = array();
+				$this->Structures->set('empty', 'empty_structure');
 				$this->set('overflow', true);
 			}else{
 				$warn = false;
