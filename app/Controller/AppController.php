@@ -551,7 +551,6 @@ class AppController extends Controller {
 		if(empty($this->request->data)){
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		} else if(!is_array($this->request->data[$data_model_name][$data_key]) && strpos($this->request->data[$data_model_name][$data_key], ',')){
-			//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
 			return array('error' => "batch init - number of submitted records too big");
 		}
 		//extract valid ids

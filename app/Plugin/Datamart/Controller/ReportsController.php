@@ -321,7 +321,7 @@ class ReportsController extends DatamartAppController {
 					}
 				}	
 				
-				// Manage data when launched from databrowser node having a nbr of elements > $display_limit
+				// Manage data when launched from databrowser node having a nbr of elements > databrowser_and_report_results_display_limit
 				if(array_key_exists('node', $criteria_to_build_report)) {
 					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $criteria_to_build_report['node']['id'])));
 					$datamart_structure = $browsing_result['DatamartStructure'];
@@ -371,7 +371,7 @@ class ReportsController extends DatamartAppController {
 				$this->set('csv_creation', false);
 				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 			
-			} else if(sizeof($data_returned_by_fct['data']) > self::$display_limit) {
+			} else if(sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit')) {
 				// Too many results
 				$this->request->data = array();
 				$this->Structures->set('empty', 'result_form_structure');
@@ -1081,7 +1081,7 @@ class ReportsController extends DatamartAppController {
 		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));		
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1136,7 +1136,7 @@ class ReportsController extends DatamartAppController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count =  $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
@@ -1194,7 +1194,7 @@ class ReportsController extends DatamartAppController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count = $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1239,7 +1239,7 @@ class ReportsController extends DatamartAppController {
 		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		// Build Res
 		$tmp_res_count = $storage_master_model->find('count', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1293,7 +1293,7 @@ class ReportsController extends DatamartAppController {
 					'foreignKey'    => 'participant_id'))), false);
 		$diagnosis_master_model->unbindModel(array('hasMany' => array('Collection')), false);
 		$tmp_res_count = $diagnosis_master_model->find('count', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,

@@ -192,6 +192,10 @@ class AliquotMastersController extends InventoryManagementAppController {
 			}
 		}
 		$samples = $this->ViewSample->find('all', array('conditions' => array('sample_master_id' => $sample_master_ids), 'recursive' => -1));
+		if(sizeof($samples) > Configure::read('AliquotCreation_processed_items_limit')) {
+			$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('AliquotCreation_processed_items_limit').')', $url_to_cancel, 5);
+			return;
+		}
 		$this->ViewSample->sortForDisplay($samples, $sample_master_ids);
 		$samples_from_id = array();
 		
@@ -667,6 +671,9 @@ class AliquotMastersController extends InventoryManagementAppController {
 		if(empty($aliquot_data)){
 			$this->flash((__('you have been redirected automatically').' (#'.__LINE__.')'), $url_to_cancel, 5);
 			return;	
+		} else if(sizeof($aliquot_data) > Configure::read('AliquotInternalUseCreation_processed_items_limit')) {
+			$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('AliquotInternalUseCreation_processed_items_limit').')', $url_to_cancel, 5);
+			return;
 		}
 		$this->AliquotMaster->sortForDisplay($aliquot_data, $aliquot_ids);
 		
@@ -1536,7 +1543,7 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 				$ids = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 			}
 			if(!is_array($ids) && strpos($ids, ',')){
-				//User launched action from databrowser but the number of items was bigger than DatamartAppController->display_limit
+				//User launched action from databrowser but the number of items was bigger than databrowser_and_report_results_display_limit
 				$this->flash(__("batch init - number of submitted records too big"), "javascript:history.back();", 5);
 				return;
 			}
@@ -1791,6 +1798,10 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 				'conditions' => array('AliquotMaster.id' => explode(",", $parent_aliquots_ids)),
 				'recursive' => 0
 			));
+			if(sizeof($parent_aliquots) > Configure::read('RealiquotedAliquotCreation_processed_items_limit')) {
+				$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('RealiquotedAliquotCreation_processed_items_limit').')', $this->request->data['url_to_cancel'], 5);
+				return;
+			}			
 			if(empty($parent_aliquots)) { 
 				$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 			}
@@ -2688,6 +2699,14 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 		$this->set('atim_menu', $this->Menus->get('/InventoryManagement/Collections/search'));
 		$this->Structures->set('aliquot_master_edit_in_batchs');
 		
+		$url_to_cancel = AppController::getCancelLink($this->request->data);
+		
+		// Check limit of processed aliquots
+		if(isset($this->request->data['ViewAliquot']['aliquot_master_id']) && sizeof(array_filter($this->request->data['ViewAliquot']['aliquot_master_id'])) > Configure::read('AliquotModification_processed_items_limit')) {
+			$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('AliquotModification_processed_items_limit').')', $url_to_cancel, 5);
+			return;
+		}
+				
 		if(isset($this->request->data['aliquot_ids'])){
 			$aliquot_ids = explode(',', $this->request->data['aliquot_ids']);
 			$to_update['AliquotMaster'] = array_filter($this->request->data['AliquotMaster']);
@@ -2748,7 +2767,7 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 				}			
 			}	
 
-		// Validation
+			// Validation
 
 			if($validates){
 				$to_update['AliquotMaster']['aliquot_control_id'] = 1;//to allow validation, remove afterward
@@ -2816,7 +2835,7 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			$this->request->data['ViewAliquot']['aliquot_master_id'] = explode(",", $browsing_result['BrowsingResult']['id_csv']);
 		}
 		
-		$this->set('cancel_link', AppController::getCancelLink($this->request->data));
+		$this->set('cancel_link', $url_to_cancel);
 		
 		$hook_link = $this->hook('format');
 		if( $hook_link ) {
@@ -2898,7 +2917,12 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 		$offset = 0;
 		AppController::atimSetCookie(false);
 		$at_least_once = false;
-		while($this->request->data = $this->AliquotMaster->find('all', array('conditions' => $conditions, 'limit' => 300, 'offset' => $offset))){
+		$this->request->data = $this->AliquotMaster->find('all', array('conditions' => $conditions, 'limit' => 1000, 'offset' => $offset));
+		if(sizeof($this->request->data) > Configure::read('AliquotBarcodePrint_processed_items_limit')) {
+			$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('AliquotBarcodePrint_processed_items_limit').')', "javascript:history.back();", 5);
+			return;
+		}
+		while($this->request->data){
 			$this->render('../../../Datamart/View/Csv/csv');
 			$this->set('csv_header', false);
 			$offset += 300;

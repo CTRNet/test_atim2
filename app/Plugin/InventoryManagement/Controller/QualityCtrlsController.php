@@ -162,7 +162,11 @@ class QualityCtrlsController extends InventoryManagementAppController {
 				$view_sample_model->sortForDisplay($data, $sample_ids);
 			}
 			
-			
+			if(sizeof($data) > Configure::read('QualityCtrlsCreation_processed_items_limit')) {
+				$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('QualityCtrlsCreation_processed_items_limit').')', $cancel_button, 5);
+				return;
+			}
+				
 			$this->request->data = array();
 			foreach($data as $data_unit){
 				$this->request->data[] = array('parent' => $data_unit, 'children' => array());
