@@ -998,6 +998,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(isset($this->request->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
 			$parent_sample_data_for_display = array();
+			$display_limit = Configure::read('SampleDerivativeCreation_processed_items_limit');
 			if(!empty($this->request->data['AliquotMaster']['ids'])){
 				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$aliquots = $this->AliquotMaster->find('all', array(
@@ -1006,8 +1007,8 @@ class SampleMastersController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
-				if(sizeof($aliquots) > Configure::read('SampleDerivativeCreation_processed_items_limit')) {
-					$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('SampleDerivativeCreation_processed_items_limit').')', $url_to_cancel, 5);
+				if(sizeof($aliquots) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
 					return;
 				}
 				$this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
@@ -1018,8 +1019,8 @@ class SampleMastersController extends InventoryManagementAppController {
 				}			
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
-				if(sizeof($samples) > Configure::read('SampleDerivativeCreation_processed_items_limit')) {
-					$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('SampleDerivativeCreation_processed_items_limit').')', $url_to_cancel, 5);
+				if(sizeof($samples) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
 					return;
 				}
 				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);

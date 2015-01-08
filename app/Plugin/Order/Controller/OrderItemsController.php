@@ -240,11 +240,11 @@ class OrderItemsController extends OrderAppController {
 				if($aliquots_count != sizeof($studied_aliquot_master_ids)) { 
 					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
 				}
-				if($aliquots_count > Configure::read('AddAliquotToOrder_processed_items_limit')) {
-					$this->flash(__("batch init - number of submitted records too big"). ' (>'.Configure::read('AddAliquotToOrder_processed_items_limit').')', $url_to_redirect, 5);
+				$display_limit = Configure::read('AddAliquotToOrder_processed_items_limit');
+				if($aliquots_count > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_redirect, 5);
 					return;
-				}
-				
+				}				
 			}
 			
 			// A.2- Validate submitted aliquot ids
