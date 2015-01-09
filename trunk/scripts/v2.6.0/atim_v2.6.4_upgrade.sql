@@ -143,6 +143,39 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 SELECT 'New code to display details of treatments in index form : Please review all of structures of your treatments, hooks and change control data if required' AS 'TODO';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3118: Build report to list nbr of elements listed in Databrowser per patient
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`, `associated_datamart_structure_id`) 
+VALUES
+(null, 'elements number per participant', 'count the number of elements of a batchset or databrowser result form per participant', '', 'elements_number_per_participant', 'index', 'getElementsNumberPerParticipant', 1, NULL, 0, NULL, 0, (SELECT id FROM datamart_structures WHERE model = 'Participant'));
+INSERT INTO `datamart_structure_functions` (`id`, `datamart_structure_id`, `label`, `link`, `flag_active`, `ref_single_fct_link`) VALUES
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewAliquot'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewCollection'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'ViewSample'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'MiscIdentifier'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'ConsentMaster'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'DiagnosisMaster'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'TreatmentMaster'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, ''),
+(null, (SELECT id FROM datamart_structures WHERE model = 'EventMaster'), 'elements number per participant', CONCAT('/Datamart/Reports/manageReport/', (SELECT id FROM datamart_reports WHERE name = 'elements number per participant')), 1, '');
+INSERT INTO structures(`alias`) VALUES ('elements_number_per_participant');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'elements_number', 'integer_positive',  NULL , '0', 'size=5', '', '', 'elements number', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='elements_number_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '1', '1', '', '0', '1', 'first name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='elements_number_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '1', '3', '', '0', '1', 'last name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='elements_number_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='help_participant identifier' AND `language_label`='participant identifier' AND `language_tag`=''), '1', '-1', 'clin_demographics', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='elements_number_per_participant'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='elements_number' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='elements number' AND `language_tag`=''), '1', '1000', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='data' WHERE structure_id=(SELECT id FROM structures WHERE alias='elements_number_per_participant') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='elements_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('number of %s per participant', 'Number of %s per participant', 'Nombre de %s par participant'),
+('elements number', 'Elements Number', 'Nombre d''éléments'),
+('the selected report can only be launched from a batchset or a databrowser node', 'The selected report can only be launched from a Batchset or Databrowser Node', "Le rapport sélectionné ne peut être lancé qu'à partir d'un 'Lot de données' (ou d'un Noeud du 'Navigateur de Données')"),
+('elements number per participant', 'Elements number per participant', "Nombre d'éléments par participant"),
+('count the number of elements of a batchset or databrowser result form per participant', 'Count the number of elements of a Batchset (or Databrowser Node) per participant', "Compte le nombre d'éléments d'un 'Lot de données' (ou d'un Noeud du 'Navigateur de Données') par participant");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
