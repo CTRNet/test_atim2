@@ -14,18 +14,55 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	
 	var $paginate = array('TreatmentMaster'=>array('limit' => pagination_amount,'order'=>'TreatmentMaster.start_date ASC'));
 
-	function listall($participant_id){
+	function listall($participant_id, $treatment_control_id = null){
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
-		$this->request->data = $this->paginate($this->TreatmentMaster, array('TreatmentMaster.participant_id' => $participant_id));
+		$search_criteria = array();
+		if(!$treatment_control_id) {
+			// 1 - MANAGE DISPLAY
+			$treatment_controls = $this->TreatmentControl->find('all', array('conditions'=>array('TreatmentControl.flag_active' => '1' )));
+			$controls_for_subform_display = array();
+			foreach($treatment_controls as $new_ctrl) {
+				if($new_ctrl['TreatmentControl']['use_detail_form_for_index']) {
+					// Controls that should be listed using detail form
+					$controls_for_subform_display[$new_ctrl['TreatmentControl']['id']] = $new_ctrl;
+					$controls_for_subform_display[$new_ctrl['TreatmentControl']['id']]['TreatmentControl']['tx_header'] = __($new_ctrl['TreatmentControl']['tx_method']) . (empty($treatment_control['TreatmentControl']['disease_site'])? '' : ' - ' . __($treatment_control['TreatmentControl']['disease_site']));
+				} else {
+					$controls_for_subform_display['-1']['TreatmentControl'] = array('id' => '-1', 'tx_header' => null);
+				}
+			}
+			ksort($controls_for_subform_display);
+			$this->set('controls_for_subform_display', $controls_for_subform_display);
+			// find all TXCONTROLS, for ADD form
+			$this->set('add_links', $this->TreatmentControl->getAddLinks($participant_id));
+			// Set structure
+			$this->Structures->set('treatmentmasters');
+		} else if($treatment_control_id == '-1') {
+			// 2 - DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN MASTER VIEW
+			// Set search criteria
+			$search_criteria['TreatmentMaster.participant_id'] = $participant_id;
+			$search_criteria['TreatmentControl.use_detail_form_for_index'] = '0';
+			// Set structure
+			$this->Structures->set('treatmentmasters');		
+		} else {
+			// 3 -  DISPLAY ALL TREATMENTS THAT SHOULD BE DISPLAYED IN DETAILED VIEW
+			// Set search criteria
+			$search_criteria['TreatmentMaster.participant_id'] = $participant_id;
+			$search_criteria['TreatmentControl.id'] = $treatment_control_id;
+			// Set structure
+			$control_data = $this->TreatmentControl->getOrRedirect($treatment_control_id);
+			$this->Structures->set($control_data['TreatmentControl']['form_alias']);
+			self::buildDetailBinding($this->TreatmentMaster,
+					$search_criteria, $control_data['TreatmentControl']['form_alias']);
+		}
+		
+		// MANAGE DATA
+		$this->request->data = $treatment_control_id? $this->paginate($this->TreatmentMaster, $search_criteria) : array();
 		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
 		
-		// find all TXCONTROLS, for ADD form
-		$this->set('add_links', $this->TreatmentControl->getAddLinks($participant_id));
-
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
 		if( $hook_link ) { require($hook_link); }		
