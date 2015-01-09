@@ -1312,4 +1312,103 @@ class ReportsController extends DatamartAppController {
 				'columns_names' => null,
 				'error_msg' => null);
 	}
+	
+	function getElementsNumberPerParticipant($parameters) {
+		$header = '';
+		$res = array();
+		
+		$model = '';
+		$ids = array();
+		if(empty($parameters)) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the selected report can only be launched from a batchset or a databrowser node');
+		} else {
+			foreach(array('ViewAliquot','ViewCollection','ViewSample','MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster') AS $studied_model) {
+				if(array_key_exists($studied_model, $parameters)) {
+					$model = $studied_model;
+					$field = 'id';
+					if(in_array($studied_model, array('ViewAliquot','ViewCollection','ViewSample'))) $field = str_replace(array('ViewAliquot','ViewCollection','ViewSample'), array('aliquot_master_id','collection_id','sample_master_id'), $studied_model);
+					$ids = $parameters[$studied_model][$field];
+					break;
+				}
+			}
+		}
+		
+		if(empty($model) || empty($ids)) {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else {
+			$query = '';			
+			switch($model) {
+				case 'ViewSample':
+					$query = "SELECT count(*) as element_nbrs, Model.participant_id
+						FROM collections Model
+						INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Model.id
+						WHERE SampleMaster.id IN (".implode(',', $ids).") AND SampleMaster.deleted <> 1 AND Model.participant_id IS NOT NULL
+						GROUP BY participant_id";
+					break;
+				case 'ViewAliquot':
+					$query = "SELECT count(*) as element_nbrs, Model.participant_id
+						FROM collections Model
+						INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Model.id
+						WHERE AliquotMaster.id IN (".implode(',', $ids).") AND AliquotMaster.deleted <> 1 AND Model.participant_id IS NOT NULL
+						GROUP BY participant_id";
+					break;
+				case 'ViewCollection':
+				case 'MiscIdentifier':
+				case 'ConsentMaster':
+				case 'DiagnosisMaster':
+				case 'TreatmentMaster':
+				case 'EventMaster':
+					$table_name = str_replace(array('MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster', 'ViewCollection'),
+						array('misc_identifiers','consent_masters','diagnosis_masters','treatment_masters','event_masters','collections'),
+						$model);
+					$query = "SELECT count(*) as element_nbrs, Model.participant_id
+						FROM $table_name Model
+						WHERE id IN (".implode(',', $ids).") AND deleted <> 1 AND Model.participant_id IS NOT NULL
+						GROUP BY participant_id";
+					break;
+				default:
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			
+			//Get elements number per participant
+			$elements_nbr = array();
+			$query_results = $this->Report->tryCatchQuery($query);
+			foreach($query_results as $new_participant) {
+				$elements_nbr[$new_participant['Model']['participant_id']] = $new_participant['0']['element_nbrs'];
+			}
+			
+			//Get participant data
+			$participant_ids = array_keys($elements_nbr);
+			if(sizeof($participant_ids) > Configure::read('databrowser_and_report_results_display_limit')) {
+				return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+			}
+			$Participant = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+			$participants_data = $Participant->find('all', array('conditions' => array('Participant.id' => $participant_ids)));
+			foreach($participants_data as &$new_participant) {
+				$new_participant['0']['elements_number'] = $elements_nbr[$new_participant['Participant']['id']];
+			}
+			$res = $participants_data;
+			
+			//Set header
+			$studied_data = __(str_replace(array('ViewAliquot','ViewCollection','ViewSample','MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster'),
+				array('aliquots','collections','samples','misc identifiers','consents','diagnosis','treatments','events'),
+				$model));
+			$header = str_replace('%s', $studied_data, __('number of %s per participant'));
+		}
+		
+		return array(
+			'header' => $header,
+			'data' => $res,
+			'columns_names' => null,
+			'error_msg' => null);
+		
+	}
 }
