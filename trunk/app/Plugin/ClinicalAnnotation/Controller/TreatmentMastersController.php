@@ -126,6 +126,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 	}
 	
 	function add($participant_id, $tx_control_id, $diagnosis_master_id = null) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall/')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		// MANAGE DATA
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		
@@ -136,9 +140,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 			$this->ProtocolMaster;//lazy load
 			ProtocolMaster::$protocol_dropdown = $this->ProtocolMaster->getProtocolPermissibleValuesFromId($tx_control_data['TreatmentControl']['applied_protocol_control_id']);
 		}
-
-		$this->set('initial_display', (empty($this->request->data)? true : false));
-			
+		
 		// Set diagnosis data for diagnosis selection (radio button)
 		$dx_data = $this->DiagnosisMaster->find('threaded', array('conditions'=>array('DiagnosisMaster.participant_id'=>$participant_id), 'order' => array('DiagnosisMaster.dx_date ASC')));
 		if(isset($this->request->data['TreatmentMaster']['diagnosis_master_id'])){
@@ -147,8 +149,10 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 			$this->DiagnosisMaster->arrangeThreadedDataForView($dx_data, $diagnosis_master_id, 'TreatmentMaster');
 		}
 		
-		$this->set('data_for_checklist', $dx_data);					
-				
+		$this->set('data_for_checklist', $dx_data);		
+		
+		$this->set('initial_display', (empty($this->request->data)? true : false));
+		
 		// MANAGE FORM, MENU AND ACTION BUTTONS
 		$this->set( 'atim_menu_variables', array('Participant.id'=>$participant_id, 'TreatmentControl.id'=>$tx_control_id));
 		
@@ -162,6 +166,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 		$this->Structures->set('view_diagnosis', 'diagnosis_structure');
 		$this->Structures->set($tx_control_data['TreatmentControl']['form_alias'], 'atim_structure', array('model_table_assoc' => array('TreatmentDetail' => $tx_control_data['TreatmentControl']['detail_tablename']))); 			
 		$this->Structures->Set('empty', 'empty_structure');
+		$this->set('use_addgrid', $tx_control_data['TreatmentControl']['use_addgrid']);
 		
 		// CUSTOM CODE: FORMAT DISPLAY DATA
 		$hook_link = $this->hook('format');
@@ -169,34 +174,108 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 			require($hook_link); 
 		}
 		
-		if ( !empty($this->request->data) ) {
-			$this->request->data['TreatmentMaster']['participant_id'] = $participant_id;
-			$this->request->data['TreatmentMaster']['treatment_control_id'] = $tx_control_id;
-			$this->TreatmentMaster->addWritableField(array('participant_id', 'treatment_control_id', 'diagnosis_master_id'));
-			$this->TreatmentMaster->addWritableField('treatment_master_id', $tx_control_data['TreatmentControl']['detail_tablename']);
-			
-			// LAUNCH SPECIAL VALIDATION PROCESS	
-			$submitted_data_validates = true;
-			// ... special validations
-			
-			// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
-			$hook_link = $this->hook('presave_process');
-			if( $hook_link ) { 
-				require($hook_link); 
+		if ( empty($this->request->data)) {
+			if($tx_control_data['TreatmentControl']['use_addgrid']) $this->request->data = array(array());
+				
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
 			}
-
-			if($submitted_data_validates) {
-				if ( $this->TreatmentMaster->save($this->request->data) ) {
-					$hook_link = $this->hook('postsave_process');
+			
+		} else {
+			if(!$tx_control_data['TreatmentControl']['use_addgrid']) {
+				
+				// 1 - ** Single data save **
+				
+				$this->request->data['TreatmentMaster']['participant_id'] = $participant_id;
+				$this->request->data['TreatmentMaster']['treatment_control_id'] = $tx_control_id;
+				$this->TreatmentMaster->addWritableField(array('participant_id', 'treatment_control_id', 'diagnosis_master_id'));
+				$this->TreatmentMaster->addWritableField('treatment_master_id', $tx_control_data['TreatmentControl']['detail_tablename']);
+					
+				// LAUNCH SPECIAL VALIDATION PROCESS
+				$submitted_data_validates = true;
+				// ... special validations
+					
+				// CUSTOM CODE: PROCESS SUBMITTED DATA BEFORE SAVE
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
+				if($submitted_data_validates) {
+					if ( $this->TreatmentMaster->save($this->request->data) ) {
+						$hook_link = $this->hook('postsave_process');
+						if( $hook_link ) {
+							require($hook_link);
+						}
+						$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
+					}
+				}
+							
+			} else {
+				
+				// 2 - ** Multi lines save **
+				
+				$errors_tracking = array();
+				
+				// Launch Structure Fields Validation
+				$diagnosis_master_id = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+				unset($this->request->data['TreatmentMaster']);
+				
+				$row_counter = 0;
+				foreach($this->request->data as &$data_unit){
+					$row_counter++;
+				
+					$data_unit['TreatmentMaster']['treatment_control_id'] = $tx_control_id;
+					$data_unit['TreatmentMaster']['participant_id'] = $participant_id;
+					$data_unit['TreatmentMaster']['diagnosis_master_id'] = $diagnosis_master_id;
+						
+					$this->TreatmentMaster->id = null;
+					$this->TreatmentMaster->set($data_unit);
+					if(!$this->TreatmentMaster->validates()){
+						foreach($this->TreatmentMaster->validationErrors as $field => $msgs) {
+							$msgs = is_array($msgs)? $msgs : array($msgs);
+							foreach($msgs as $msg)$errors_tracking[$field][$msg][] = $row_counter;
+						}
+					}
+					$data_unit = $this->TreatmentMaster->data;
+				}
+				unset($data_unit);
+				
+				$hook_link = $this->hook('presave_process');
+				if( $hook_link ) {
+					require($hook_link);
+				}
+				
+				// Launch Save Process
+				if(empty($this->request->data)) {
+					$this->TreatmentMaster->validationErrors[][] = 'at least one record has to be created';
+				} else if(empty($errors_tracking)){
+					AppModel::acquireBatchViewsUpdateLock();
+					//save all
+					$this->TreatmentMaster->addWritableField(array('participant_id', 'treatment_control_id', 'diagnosis_master_id'));
+					$this->TreatmentMaster->addWritableField('treatment_master_id', $tx_control_data['TreatmentControl']['detail_tablename']);
+					foreach($this->request->data as $new_data_to_save) {
+						$this->TreatmentMaster->id = null;
+						$this->TreatmentMaster->data = array();
+						if(!$this->TreatmentMaster->save($new_data_to_save, false)) $this->redirect( '/Pages/err_plugin_record_err?method='.__METHOD__.',line='.__LINE__, NULL, TRUE );
+					}
+					$hook_link = $this->hook('postsave_process_batch');
 					if( $hook_link ) {
 						require($hook_link);
 					}
-					$this->atimFlash(__('your data has been saved'),'/ClinicalAnnotation/TreatmentMasters/detail/'.$participant_id.'/'.$this->TreatmentMaster->getLastInsertId());
+					AppModel::releaseBatchViewsUpdateLock();
+					$this->atimFlash(__('your data has been updated'), '/ClinicalAnnotation/TreatmentMasters/listall/'.$participant_id.'/');
+				} else {
+					$this->TreatmentMaster->validationErrors = array();
+					foreach($errors_tracking as $field => $msg_and_lines) {
+						foreach($msg_and_lines as $msg => $lines) {
+							$this->TreatmentMaster->validationErrors[$field][] = $msg . ' - ' . str_replace('%s', implode(",", $lines), __('see line %s'));
+						}
+					}
 				}
 			}
-		 }else{
-		 	$this->request->data['TreatmentMaster']['diagnosis_master_id'] = $diagnosis_master_id;
-		 }
+		}
 	}
 
 	function delete( $participant_id, $tx_master_id ) {
