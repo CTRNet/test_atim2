@@ -122,6 +122,21 @@ VALUES
 ('this storage type has already been used to build a storage in the past - properties can not be changed anymore', 'This storage type has already been used to build storages in the past - Properties can not be changed anymore', 'Ce type d''entreposage a déjà été utilisé pour construire un entreposage - Les données ne peuvent plus être modifiées');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3115: Add treatment in batch
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT 'New code to create treatment in batch: Please review all of your treatments creation processes including both structures and hooks and change control data if required' AS 'TODO';
+INSERT INTO i18n (id,en,fr)
+VALUES
+('you need privileges to access this page','You need privileges  to access this page','Vous devez avoir des privilèges pour accéder à cette page');
+ALTER TABLE treatment_controls
+  ADD COLUMN use_addgrid tinyint(1) NOT NULL DEFAULT '0',
+  ADD COLUMN use_detail_form_for_index tinyint(1) NOT NULL DEFAULT '0';
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='treatmentmasters') AND `flag_add`='1';
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='treatmentmasters'), (SELECT id FROM structure_fields WHERE `model`='FunctionManagement' AND `tablename`='' AND `field`='CopyCtrl' AND `type`='checkbox' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='yes_no_checkbox')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='copy control' AND `language_tag`=''), '3', '10000', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0', '0', '0', '0', '0', '0', '0');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
