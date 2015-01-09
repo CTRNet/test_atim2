@@ -294,3 +294,34 @@ AND rh.deleted <> 1 AND dx.deleted <> 1 AND dx.dx_date IS NOT NULL AND dx.dx_dat
 
 UPDATE versions SET branch_build_number = '5779' WHERE version_number = '2.6.2';
 
+-- 2014-01-09 -------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE txd_chemos
+  ADD COLUMN qc_lady_num_doses int(11) DEFAULT NULL,
+  ADD COLUMN qc_lady_administration_frequency int(11) DEFAULT NULL,
+  CHANGE qc_lady_length_cycles_unit qc_lady_administration_frequency_unit varchar(10) DEFAULT NULL;
+ALTER TABLE txd_chemos_revs
+  ADD COLUMN qc_lady_num_doses int(11) DEFAULT NULL,
+  ADD COLUMN qc_lady_administration_frequency int(11) DEFAULT NULL,
+  CHANGE qc_lady_length_cycles_unit qc_lady_administration_frequency_unit varchar(10) DEFAULT NULL;
+  
+UPDATE txd_chemos SET qc_lady_num_doses = num_cycles, qc_lady_administration_frequency = length_cycles;
+UPDATE txd_chemos_revs SET qc_lady_num_doses = num_cycles, qc_lady_administration_frequency = length_cycles;
+UPDATE structure_fields SET field = 'qc_lady_administration_frequency_unit' WHERE field = 'qc_lady_length_cycles_unit' AND tablename = 'txd_chemos';
+UPDATE structure_value_domains SET domain_name='qc_lady_chemo_administration_frequency_unit' WHERE domain_name='qc_lady_length_cycles_unit';
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_chemos', 'qc_lady_num_doses', 'integer_positive',  NULL , '0', 'size=5', '', '', 'number of doses', ''), 
+('ClinicalAnnotation', 'TreatmentDetail', 'txd_chemos', 'qc_lady_administration_frequency', 'integer_positive',  NULL , '0', 'size=5', '', '', 'frequency of administration', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='qc_lady_num_doses' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='number of doses' AND `language_tag`=''), '2', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='txd_chemos'), (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='qc_lady_administration_frequency' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='frequency of administration' AND `language_tag`=''), '2', '14', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('number of doses', 'Number of doses', 'Nombre de doses'),
+('frequency of administration', 'Frequency of administration', 'Fréquence d''administration');
+UPDATE txd_chemos SET num_cycles = null, length_cycles = null;
+UPDATE txd_chemos_revs SET num_cycles = null, length_cycles = null;
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='num_cycles' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='txd_chemos') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='txd_chemos' AND `field`='length_cycles' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+UPDATE versions SET branch_build_number = '6001' WHERE version_number = '2.6.2';
