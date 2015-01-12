@@ -390,7 +390,7 @@ class SampleMastersController extends InventoryManagementAppController {
 					$default_reception_datetime = $collection['Collection']['collection_datetime'];
 					$default_reception_datetime_accuracy = $collection['Collection']['collection_datetime_accuracy'];
 				}else{
-					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id), 'order' => array('SpecimenDetail.reception_datetime')));
+					$sample = $this->SampleMaster->find('first', array('conditions' => array('SampleMaster.collection_id' => $collection_id, 'SampleControl.sample_category' => 'specimen'), 'order' => array('SpecimenDetail.reception_datetime DESC')));
 					$default_reception_datetime = $sample['SpecimenDetail']['reception_datetime'];
 					$default_reception_datetime_accuracy = $sample['SpecimenDetail']['reception_datetime_accuracy'];
 				}
@@ -962,7 +962,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		$ids = array_key_exists('ids', $this->request->data['SampleMaster']) ? $this->request->data['SampleMaster']['ids'] : $this->request->data['sample_master_ids'];
 		$this->set('sample_master_ids', $ids);
 		unset($this->request->data['sample_master_ids']);
-
+		
 		if(is_null($aliquot_master_id)) {
 			$this->setBatchMenu(array('SampleMaster' => $ids));
 		} else {
@@ -998,6 +998,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		if(isset($this->request->data['SampleMaster']['ids'])){
 			//1- INITIAL DISPLAY
 			$parent_sample_data_for_display = array();
+			$display_limit = Configure::read('SampleDerivativeCreation_processed_items_limit');
 			if(!empty($this->request->data['AliquotMaster']['ids'])){
 				$this->AliquotMaster->unbindModel(array('belongsTo' => array('SampleMaster')));
 				$aliquots = $this->AliquotMaster->find('all', array(
@@ -1006,6 +1007,10 @@ class SampleMastersController extends InventoryManagementAppController {
 					'recursive'		=> 0,
 					'joins'			=> $joins)
 				);
+				if(sizeof($aliquots) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+					return;
+				}
 				$this->AliquotMaster->sortForDisplay($aliquots, $this->request->data['AliquotMaster']['ids']);
 				$this->request->data = array();
 				foreach($aliquots as $aliquot){
@@ -1014,6 +1019,10 @@ class SampleMastersController extends InventoryManagementAppController {
 				}			
 			}else{
 				$samples = $this->ViewSample->find('all', array('conditions' => array('ViewSample.sample_master_id' => explode(",", $this->request->data['SampleMaster']['ids'])), 'recursive' => -1));
+				if(sizeof($samples) > $display_limit) {
+					$this->flash(__("batch init - number of submitted records too big")." (>$display_limit)", $url_to_cancel, 5);
+					return;
+				}
 				$this->ViewSample->sortForDisplay($samples, $this->request->data['SampleMaster']['ids']);
 				$this->request->data = array();
 				foreach($samples as $sample){

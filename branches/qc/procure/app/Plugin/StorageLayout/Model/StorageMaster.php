@@ -955,6 +955,36 @@ class StorageMaster extends StorageLayoutAppModel {
 		
 		return $conflicts_found;
 	}
+	
+	function contentNatCaseSort($models_and_fields, $contents_to_sort, $desc_order = false) {
+		$value_to_key = array();
+		$values_to_sort = array();
+		$first_test = true;
+		foreach($contents_to_sort as $key => $new_content) {
+			$sorted_value = '';
+			foreach($models_and_fields as $model_and_field) {
+				list($model, $field) = explode('.', $model_and_field);
+				if($first_test) {	
+					if(!array_key_exists($model, $new_content) || !array_key_exists($field, $new_content[$model])) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+					$first_test = false;
+				}
+				$sorted_value .= $new_content[$model][$field];
+			}
+			$value_to_key[$sorted_value][] = $key;
+			$values_to_sort[$sorted_value] = $sorted_value;
+		}
+		natcasesort($values_to_sort);
+		if($desc_order) $values_to_sort = array_reverse($values_to_sort);
+		$sorted_contents = array();
+		foreach($values_to_sort as $sorted_value) {
+			if(!array_key_exists($sorted_value, $value_to_key)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+			foreach($value_to_key[$sorted_value] as $key) {
+				if(!array_key_exists($key, $contents_to_sort)) AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true); 
+				$sorted_contents[] = $contents_to_sort[$key];
+			}			
+		}
+		return $sorted_contents;
+	}
 }
 
 ?>

@@ -341,17 +341,22 @@ class StructuresComponent extends Component {
 						if((!empty($data) || $data == "0")  && isset($form_fields[$form_fields_key])){
 							// if CSV file uploaded...
 							if(is_array($data) && isset($this->controller->data[$model][$key.'_with_file_upload']) && $this->controller->data[$model][$key.'_with_file_upload']['tmp_name']){
-								
-								// set $DATA array based on contents of uploaded FILE
-								$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
-								unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
-								// in each LINE, get FIRST csv value, and attach to DATA array
-								while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-								    $data[] = $csv_data[0];
+								if(!preg_match('/((\.txt)|(\.csv))$/', $this->controller->data[$model][$key.'_with_file_upload']['name'])) {
+									$this->controller->redirect('/Pages/err_submitted_file_extension', null, true);
+								} else {
+									// set $DATA array based on contents of uploaded FILE
+									$handle = fopen($this->controller->data[$model][$key.'_with_file_upload']['tmp_name'], "r");
+									if($handle) {
+										unset($data['name'], $data['type'], $data['tmp_name'], $data['error'], $data['size']);
+										// in each LINE, get FIRST csv value, and attach to DATA array
+										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+										    $data[] = $csv_data[0];
+										}
+										fclose($handle);
+									} else {
+										$this->controller->redirect('/Pages/err_opening_submitted_file', null, true);
+									}
 								}
-								
-								fclose($handle);
-								
 								unset($this->controller->data[$model][$key.'_with_file_upload']);
 							}
 
