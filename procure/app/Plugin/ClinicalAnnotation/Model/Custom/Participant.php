@@ -54,8 +54,7 @@ class ParticipantCustom extends Participant {
 		$tx_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_controls_list = $tx_model->find('all', array('conditions' => array('flag_active' => '1')));
 		foreach ($tx_controls_list as $treatment_control) {
-			$add_function = in_array($treatment_control['TreatmentControl']['tx_method'], array('procure medication worksheet - drug', 'procure follow-up worksheet - treatment', 'other tumor treatment'))? 'addInBatch' : 'add';			
-			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/'.$add_function.'/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
+			$add_links[__($treatment_control['TreatmentControl']['tx_method'])] = array('link'=> '/ClinicalAnnotation/TreatmentMasters/add/'.$participant_id.'/'.$treatment_control['TreatmentControl']['id'].'/', 'icon' => 'participant');
 		}		
 
 		ksort($add_links);	

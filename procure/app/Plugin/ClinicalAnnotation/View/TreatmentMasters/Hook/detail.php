@@ -17,7 +17,7 @@
 			'settings' => array(
 				'language_heading' => __('drugs', null),
 				'actions'	=> true), 
-			'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/listall/'.$atim_menu_variables['Participant.id']."/$drug_tx_control_id/$interval_start_date/$interval_start_date_accuracy/$interval_finish_date/$interval_finish_date_accuracy")		
+			'extras' => $this->Structures->ajaxIndex('ClinicalAnnotation/TreatmentMasters/listallBasedOnControlId/'.$atim_menu_variables['Participant.id']."/$drug_tx_control_id/$interval_start_date/$interval_start_date_accuracy/$interval_finish_date/$interval_finish_date_accuracy")		
 		);	
 	}
 	
