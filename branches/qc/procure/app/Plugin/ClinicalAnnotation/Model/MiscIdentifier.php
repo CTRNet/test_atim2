@@ -117,6 +117,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 	
 	function validates($options = array()){
 		$errors = parent::validates($options);
+		
 		if(!isset($this->data['MiscIdentifier']['deleted']) || $this->data['MiscIdentifier']['deleted'] == 0){
 			if(isset($this->validationErrors['identifier_value']) && !is_array($this->validationErrors['identifier_value'])){
 				$this->validationErrors['identifier_value'] = array($this->validationErrors['identifier_value']);
@@ -133,7 +134,7 @@ class MiscIdentifier extends ClinicalAnnotationAppModel {
 			if($current && $current['MiscIdentifierControl']['reg_exp_validation']){
 				$rule = $current['MiscIdentifierControl']['reg_exp_validation'];
 			}
-			if($rule && !preg_match('/'.$rule.'/', $this->data['MiscIdentifier']['identifier_value'])){
+			if($rule && isset($this->data['MiscIdentifier']['identifier_value']) && !preg_match('/'.$rule.'/', $this->data['MiscIdentifier']['identifier_value'])){
 				$msg = __('the format of the identifier is incorrect');
 				if(!empty($current['MiscIdentifierControl']['user_readable_format'])) $msg .= ' '.__('expected misc identifier format is %s', $current['MiscIdentifierControl']['user_readable_format']);
 				$this->validationErrors['identifier_value'][] = $msg;
