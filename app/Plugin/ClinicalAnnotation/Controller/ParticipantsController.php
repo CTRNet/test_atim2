@@ -256,7 +256,7 @@ class ParticipantsController extends ClinicalAnnotationAppController {
 				$consent_status_values[$new_value['value']] = __($new_value['language_alias']);
 			}
 		}
-		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id, 'ConsentMaster.consent_status' => 'obtained')));
+		$consents = $this->ConsentMaster->find('all', array('conditions' => array('ConsentMaster.participant_id' => $participant_id)));
 		foreach($consents as $consent){
 			$chronolgy_data_consent = array(
 				'date'			=> $consent['ConsentMaster']['consent_signed_date'],
