@@ -256,7 +256,7 @@ class TreatmentMastersController extends ClinicalAnnotationAppController {
 				$errors_tracking = array();
 				
 				// Launch Structure Fields Validation
-				$diagnosis_master_id = $this->request->data['TreatmentMaster']['diagnosis_master_id'];
+				$diagnosis_master_id = (array_key_exists('TreatmentMaster', $this->request->data) && array_key_exists('diagnosis_master_id', $this->request->data['TreatmentMaster']))? $this->request->data['TreatmentMaster']['diagnosis_master_id'] : null;
 				unset($this->request->data['TreatmentMaster']);
 				
 				$row_counter = 0;
