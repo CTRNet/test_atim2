@@ -429,6 +429,13 @@ class ReportsController extends DatamartAppController {
 	// -------------------------------------------------------------------------------------------------------------------
 	
 	function bankActiviySummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
 		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
@@ -485,6 +492,9 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function sampleAndDerivativeCreationSummary($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
 			
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_start']['year'], $parameters[0]['report_datetime_range_start']['month'], $parameters[0]['report_datetime_range_start']['day']);
@@ -616,6 +626,13 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function bankActiviySummaryPerPeriod($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		if(empty($parameters[0]['report_date_range_period']['0'])) {
 			return array('error_msg' => 'no period has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
 		}
@@ -735,6 +752,9 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function ctrnetCatalogueSubmissionFile($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
 			
 		// 1- Build Header
 		$header = array(
@@ -1059,6 +1079,13 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function participantIdentifiersSummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 		
@@ -1116,6 +1143,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllDerivatives($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 		// Get Parameters
@@ -1162,6 +1193,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getChildrenSamples($view_sample_model, $parent_sample_ids = array()){
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		if(!empty($parent_sample_ids)) {
 			//$view_sample_model->unbindModel(array('hasMany' => array('AliquotMaster')));
 			$children_samples = $view_sample_model->find('all', array('conditions' => array('ViewSample.parent_id' => $parent_sample_ids), 'fields' => array('ViewSample.*, DerivativeDetail.*'), 'order' => array('ViewSample.sample_code ASC'), 'recursive' => '0'));
@@ -1174,6 +1209,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllSpecimens($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array("SampleMaster.id != SampleMaster.initial_specimen_sample_id");
 		// Get Parameters
@@ -1221,6 +1260,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllChildrenStorage($parameters) {
+		if(!AppController::checkLinkPermission('/StorageLayout/StorageMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();	
 		// Get Parameters
@@ -1265,6 +1308,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllRelatedDiagnosis($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 		// Get Parameters
@@ -1314,6 +1361,13 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getElementsNumberPerParticipant($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = '';
 		$res = array();
 		
