@@ -1401,7 +1401,7 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE structure_fields SET  `language_label`='type (to remove)' WHERE model='TreatmentDetail' AND tablename='procure_txd_followup_worksheet_treatments' AND field='type' AND `type`='input' AND structure_value_domain  IS NULL ;
 SELECT 'Remove type of treatment after migration' AS TODO
 UNION ALL
-SELECT 'Run follwoing query after type clean up' AS TODO
+SELECT 'Treatment type (text field renamed to 'type (to remove)') has been replaced by field 'type' (drop down list). Previous fiels has to be removed: Run follwing queries after data check, treatment type clean up and validation' AS TODO
 UNION ALL
 SELECT "DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='type' AND `language_label`='type (to remove)' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');" AS TODO
 UNION ALL
@@ -1412,6 +1412,12 @@ UNION ALL
 SELECT "ALTER TABLE procure_txd_followup_worksheet_treatments DROP COLUMN type;" AS TODO
 UNION ALL
 SELECT "ALTER TABLE procure_txd_followup_worksheet_treatments_revs DROP COLUMN type;" AS TODO;
+
+-- DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='type' AND `language_label`='type (to remove)' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- DELETE FROM structure_validations WHERE structure_field_id IN (SELECT id FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='type' AND `language_label`='type (to remove)' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0'));
+-- DELETE FROM structure_fields WHERE (`public_identifier`='' AND `plugin`='ClinicalAnnotation' AND `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='type' AND `language_label`='type (to remove)' AND `language_tag`='' AND `type`='input' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
+-- ALTER TABLE procure_txd_followup_worksheet_treatments DROP COLUMN type;
+-- ALTER TABLE procure_txd_followup_worksheet_treatments_revs DROP COLUMN type;
 
 -- Add radio precision
 
@@ -1663,17 +1669,6 @@ UPDATE structure_fields SET  `language_label`='date' WHERE model='0' AND tablena
 UPDATE structure_formats SET `language_heading`='last collection' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_followups_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_last_collection_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 INSERT INTO i18n (id,en,fr) VALUES ('last collection','Last Collection','Dernière collection'),('time from last collection (months)','Time past (months)','Temps écoulé (mois)');
 
--- chronology
+-- version
 
-UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chronology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'custom', '', 'procure_chronology_details', 'input',  NULL , '0', '', '', '', 'details', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='chronology'), (SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='procure_chronology_details' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
-
-
-
-
-UPDATE versions SET branch_build_number = '5964' WHERE version_number = '2.6.3';
-
-
+UPDATE versions SET branch_build_number = '5981' WHERE version_number = '2.6.3';

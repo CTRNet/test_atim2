@@ -84,6 +84,8 @@ class StructureValueDomain extends AppModel {
 			}
 		}
 	}
+	
+	function bip() { pr('bip'); }
 }
 
 ?>

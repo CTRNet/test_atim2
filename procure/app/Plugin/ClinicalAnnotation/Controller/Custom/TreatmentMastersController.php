@@ -8,8 +8,8 @@ class TreatmentMastersControllerCustom extends TreatmentMastersController {
 		//*** Specific list display based on control_id
 		$participant_data = $this->Participant->getOrRedirect($participant_id);
 		$this->set('atim_menu_variables', array('Participant.id'=>$participant_id));
+		$this->set('atim_menu', $this->Menus->get('/ClinicalAnnotation/TreatmentMasters/listall/%%Participant.id%%'));
 		$treatment_control = $this->TreatmentControl->getOrRedirect($treatment_control_id);
-		//Limit fields of medication worksheet and display all field for the other one
 		$this->Structures->set(($treatment_control['TreatmentControl']['tx_method'] == 'procure medication worksheet')? '': $treatment_control['TreatmentControl']['form_alias']);
 		if(is_null($interval_start_date) && is_null($interval_finish_date)) {
 			// 1- No Date Restriction (probably generic listall form)
