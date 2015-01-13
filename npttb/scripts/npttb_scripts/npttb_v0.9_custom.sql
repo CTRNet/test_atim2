@@ -49,9 +49,9 @@ ALTER TABLE `cd_npttb_consent_brain_bank_revs`
 ADD COLUMN `npttb_assent_status` VARCHAR(45) NULL AFTER `npttb_use_bone_marrow`;
 
 ALTER TABLE `cd_npttb_consent_brain_bank` 
-ADD COLUMN `npttb_assent_date` DATE NULL DEFAULT NULL AFTER `cd_npttb_consent_brain_bank`;
+ADD COLUMN `npttb_assent_date` DATE NULL DEFAULT NULL AFTER `npttb_assent_status`;
 ALTER TABLE `cd_npttb_consent_brain_bank_revs` 
-ADD COLUMN `npttb_assent_date` DATE NULL DEFAULT NULL AFTER `cd_npttb_consent_brain_bank`;
+ADD COLUMN `npttb_assent_date` DATE NULL DEFAULT NULL AFTER `npttb_assent_status`;
 
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
 ('ClinicalAnnotation', 'ConsentDetail', 'cd_npttb_consent_brain_bank', 'npttb_assent_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='yesno') , '0', '', '', '', 'npttb assent status', '');
