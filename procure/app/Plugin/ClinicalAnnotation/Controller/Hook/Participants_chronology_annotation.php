@@ -11,7 +11,6 @@
 			$chronolgy_data_annotation['event'] = $exam_type;
 			$chronolgy_data_annotation['chronology_details'] = strlen($exam_result)? "$exam_result" : '';
 			break;
-			
 		case 'procure diagnostic information worksheet':
 			if($annotation['EventDetail']['biopsy_pre_surgery_date']) {
 				$biopsy_data_annotation = array(
@@ -23,6 +22,15 @@
 				);
 				$add_to_tmp_array($biopsy_data_annotation);
 			}
+			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
+			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];
+			break;
+		case 'procure questionnaire administration worksheet':
+			$chronolgy_data_annotation['date'] = $annotation['EventDetail']['recovery_date'];
+			$chronolgy_data_annotation['date_accuracy'] = $annotation['EventDetail']['recovery_date_accuracy'];
+			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
+			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];
+			break;
 		default:
 			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
 			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];
