@@ -176,6 +176,14 @@ VALUES
 ('count the number of elements of a batchset or databrowser result form per participant', 'Count the number of elements of a Batchset (or Databrowser Node) per participant', "Compte le nombre d'éléments d'un 'Lot de données' (ou d'un Noeud du 'Navigateur de Données') par participant");
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3142: Add drug in batch 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='drugs') AND `flag_add`='1';
+UPDATE structure_fields SET  `setting`='cols=40,rows=2' WHERE model='Drug' AND tablename='drugs' AND field='description' AND `type`='textarea' AND structure_value_domain  IS NULL ;
+UPDATE structure_fields SET  `setting`='size=40' WHERE model='Drug' AND tablename='drugs' AND field='generic_name' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
