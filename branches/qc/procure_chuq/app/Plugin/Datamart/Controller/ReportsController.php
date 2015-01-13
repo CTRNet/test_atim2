@@ -277,7 +277,7 @@ class ReportsController extends DatamartAppController {
 				}
 				// Get criteria from session data for csv 
 				$criteria_to_build_report = $_SESSION['report'][$report_id]['search_criteria'];
-				$criteria_to_sort_report = $_SESSION['report'][$report_id]['sort_criteria'];
+				$criteria_to_sort_report = isset($_SESSION['report'][$report_id]['sort_criteria'])? $_SESSION['report'][$report_id]['sort_criteria'] : array();
 				if($LinkedModel) {
 					// Take care about selected items
 					if(!isset($this->request->data[$linked_datamart_structure['DatamartStructure']['model']][$LinkedModel->primaryKey])) {
@@ -301,17 +301,27 @@ class ReportsController extends DatamartAppController {
 						if(preg_match('/^(.+)_with_file_upload$/', $field, $matches)) {
 							$matched_field_name = $matches[1];
 							if(!isset($criteria_to_build_report[$model][$matched_field_name])) $criteria_to_build_report[$model][$matched_field_name] = array();
-							$handle = fopen($parameters['tmp_name'], "r");
-							while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
-								$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+							if(strlen($parameters['tmp_name'])) {
+								if(!preg_match('/((\.txt)|(\.csv))$/', $parameters['name'])) {
+									$this->redirect('/Pages/err_submitted_file_extension', null, true);
+								} else {
+									$handle = fopen($parameters['tmp_name'], "r");
+									if($handle) {
+										while (($csv_data = fgetcsv($handle, 1000, csv_separator, '"')) !== FALSE) {
+											$criteria_to_build_report[$model][$matched_field_name][] = $csv_data[0];
+										}
+										fclose($handle);
+									} else {
+										$this->redirect('/Pages/err_opening_submitted_file', null, true);
+									}
+								}
 							}
-							fclose($handle);
 							unset($criteria_to_build_report[$model][$field]);
 						}
 					}
 				}	
 				
-				// Manage data when launched from databrowser node having a nbr of elements > $display_limit
+				// Manage data when launched from databrowser node having a nbr of elements > databrowser_and_report_results_display_limit
 				if(array_key_exists('node', $criteria_to_build_report)) {
 					$browsing_result = $this->BrowsingResult->find('first', array('conditions' => array('BrowsingResult.id' => $criteria_to_build_report['node']['id'])));
 					$datamart_structure = $browsing_result['DatamartStructure'];
@@ -361,7 +371,7 @@ class ReportsController extends DatamartAppController {
 				$this->set('csv_creation', false);
 				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 			
-			} else if(sizeof($data_returned_by_fct['data']) > self::$display_limit) {
+			} else if(sizeof($data_returned_by_fct['data']) > Configure::read('databrowser_and_report_results_display_limit')) {
 				// Too many results
 				$this->request->data = array();
 				$this->Structures->set('empty', 'result_form_structure');
@@ -419,6 +429,13 @@ class ReportsController extends DatamartAppController {
 	// -------------------------------------------------------------------------------------------------------------------
 	
 	function bankActiviySummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_start']['year'], $parameters[0]['report_date_range_start']['month'], $parameters[0]['report_date_range_start']['day']);
 		$end_date_for_display = AppController::getFormatedDateString($parameters[0]['report_date_range_end']['year'], $parameters[0]['report_date_range_end']['month'], $parameters[0]['report_date_range_end']['day']);
@@ -475,6 +492,9 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function sampleAndDerivativeCreationSummary($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
 			
 		// 1- Build Header
 		$start_date_for_display = AppController::getFormatedDateString($parameters[0]['report_datetime_range_start']['year'], $parameters[0]['report_datetime_range_start']['month'], $parameters[0]['report_datetime_range_start']['day']);
@@ -606,6 +626,13 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function bankActiviySummaryPerPeriod($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		if(empty($parameters[0]['report_date_range_period']['0'])) {
 			return array('error_msg' => 'no period has been defined', 'header' => null, 'data' => null, 'columns_names' => null);		
 		}
@@ -725,6 +752,9 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function ctrnetCatalogueSubmissionFile($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
 			
 		// 1- Build Header
 		$header = array(
@@ -1049,6 +1079,13 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function participantIdentifiersSummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 		
@@ -1071,7 +1108,7 @@ class ReportsController extends DatamartAppController {
 		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));		
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1106,6 +1143,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllDerivatives($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 		// Get Parameters
@@ -1126,7 +1167,7 @@ class ReportsController extends DatamartAppController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count =  $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
@@ -1152,6 +1193,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getChildrenSamples($view_sample_model, $parent_sample_ids = array()){
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		if(!empty($parent_sample_ids)) {
 			//$view_sample_model->unbindModel(array('hasMany' => array('AliquotMaster')));
 			$children_samples = $view_sample_model->find('all', array('conditions' => array('ViewSample.parent_id' => $parent_sample_ids), 'fields' => array('ViewSample.*, DerivativeDetail.*'), 'order' => array('ViewSample.sample_code ASC'), 'recursive' => '0'));
@@ -1164,6 +1209,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllSpecimens($parameters) {
+		if(!AppController::checkLinkPermission('/InventoryManagement/SampleMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array("SampleMaster.id != SampleMaster.initial_specimen_sample_id");
 		// Get Parameters
@@ -1184,7 +1233,7 @@ class ReportsController extends DatamartAppController {
 		// Build Res
 		$sample_master_model->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')));
 		$tmp_res_count = $sample_master_model->find('count', array('conditions' => $conditions, 'fields' => array('SampleMaster.*', 'SampleControl.*'), 'order' => array('SampleMaster.sample_code ASC'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1211,6 +1260,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllChildrenStorage($parameters) {
+		if(!AppController::checkLinkPermission('/StorageLayout/StorageMasters/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();	
 		// Get Parameters
@@ -1229,7 +1282,7 @@ class ReportsController extends DatamartAppController {
 		$storage_master_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 		// Build Res
 		$tmp_res_count = $storage_master_model->find('count', array('conditions' => $conditions, 'fields' => array('StorageMaster.*'), 'order' => array('StorageMaster.selection_label ASC'), 'recursive' => '-1'));	
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1255,6 +1308,10 @@ class ReportsController extends DatamartAppController {
 	}
 	
 	function getAllRelatedDiagnosis($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/DiagnosisMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 		// Get Parameters
@@ -1283,7 +1340,7 @@ class ReportsController extends DatamartAppController {
 					'foreignKey'    => 'participant_id'))), false);
 		$diagnosis_master_model->unbindModel(array('hasMany' => array('Collection')), false);
 		$tmp_res_count = $diagnosis_master_model->find('count', array('conditions' => $conditions, 'fields' => array('DISTINCT primary_id'), 'recursive' => '0'));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -1301,5 +1358,111 @@ class ReportsController extends DatamartAppController {
 				'data' => $res,
 				'columns_names' => null,
 				'error_msg' => null);
+	}
+	
+	function getElementsNumberPerParticipant($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
+		$header = '';
+		$res = array();
+		
+		$model = '';
+		$ids = array();
+		if(empty($parameters)) {
+			return array(
+				'header' => null,
+				'data' => null,
+				'columns_names' => null,
+				'error_msg' => 'the selected report can only be launched from a batchset or a databrowser node');
+		} else {
+			foreach(array('ViewAliquot','ViewCollection','ViewSample','MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster') AS $studied_model) {
+				if(array_key_exists($studied_model, $parameters)) {
+					$model = $studied_model;
+					$field = 'id';
+					if(in_array($studied_model, array('ViewAliquot','ViewCollection','ViewSample'))) $field = str_replace(array('ViewAliquot','ViewCollection','ViewSample'), array('aliquot_master_id','collection_id','sample_master_id'), $studied_model);
+					$ids = $parameters[$studied_model][$field];
+					break;
+				}
+			}
+		}
+		
+		if(empty($model) || empty($ids)) {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		} else {
+			$query = '';			
+			switch($model) {
+				case 'ViewSample':
+					$query = "SELECT count(*) as element_nbrs, Model.participant_id
+						FROM collections Model
+						INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Model.id
+						WHERE SampleMaster.id IN (".implode(',', $ids).") AND SampleMaster.deleted <> 1 AND Model.participant_id IS NOT NULL
+						GROUP BY participant_id";
+					break;
+				case 'ViewAliquot':
+					$query = "SELECT count(*) as element_nbrs, Model.participant_id
+						FROM collections Model
+						INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Model.id
+						WHERE AliquotMaster.id IN (".implode(',', $ids).") AND AliquotMaster.deleted <> 1 AND Model.participant_id IS NOT NULL
+						GROUP BY participant_id";
+					break;
+				case 'ViewCollection':
+				case 'MiscIdentifier':
+				case 'ConsentMaster':
+				case 'DiagnosisMaster':
+				case 'TreatmentMaster':
+				case 'EventMaster':
+					$table_name = str_replace(array('MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster', 'ViewCollection'),
+						array('misc_identifiers','consent_masters','diagnosis_masters','treatment_masters','event_masters','collections'),
+						$model);
+					$query = "SELECT count(*) as element_nbrs, Model.participant_id
+						FROM $table_name Model
+						WHERE id IN (".implode(',', $ids).") AND deleted <> 1 AND Model.participant_id IS NOT NULL
+						GROUP BY participant_id";
+					break;
+				default:
+					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+			}
+			
+			//Get elements number per participant
+			$elements_nbr = array();
+			$query_results = $this->Report->tryCatchQuery($query);
+			foreach($query_results as $new_participant) {
+				$elements_nbr[$new_participant['Model']['participant_id']] = $new_participant['0']['element_nbrs'];
+			}
+			
+			//Get participant data
+			$participant_ids = array_keys($elements_nbr);
+			if(sizeof($participant_ids) > Configure::read('databrowser_and_report_results_display_limit')) {
+				return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+			}
+			$Participant = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
+			$participants_data = $Participant->find('all', array('conditions' => array('Participant.id' => $participant_ids)));
+			foreach($participants_data as &$new_participant) {
+				$new_participant['0']['elements_number'] = $elements_nbr[$new_participant['Participant']['id']];
+			}
+			$res = $participants_data;
+			
+			//Set header
+			$studied_data = __(str_replace(array('ViewAliquot','ViewCollection','ViewSample','MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster'),
+				array('aliquots','collections','samples','misc identifiers','consents','diagnosis','treatments','events'),
+				$model));
+			$header = str_replace('%s', $studied_data, __('number of %s per participant'));
+		}
+		
+		return array(
+			'header' => $header,
+			'data' => $res,
+			'columns_names' => null,
+			'error_msg' => null);
+		
 	}
 }

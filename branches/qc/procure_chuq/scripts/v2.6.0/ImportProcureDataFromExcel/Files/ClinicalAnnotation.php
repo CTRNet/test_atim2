@@ -230,10 +230,10 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 				}
 				$total_ngml = str_replace(array(' ', ','), array('', '.'), $new_line_data['PSA']);
 				if(strlen($total_ngml)) {
-					$procure_chum_minimum = str_replace(array(' ', ','), array('', '.'), $new_line_data['Minimum']);
+					$procure_chuq_minimum = str_replace(array(' ', ','), array('', '.'), $new_line_data['Minimum']);
 					if(!preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $total_ngml)) die('ERR23873287328732 '.$total_ngml);
-					if(strlen($procure_chum_minimum) && !preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $procure_chum_minimum)) die('ERR23873287328733 '.$procure_chum_minimum);
-					$procure_chum_biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['date de récidive biochimique selon déf. procure'])))? 'y' : '';
+					if(strlen($procure_chuq_minimum) && !preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $procure_chuq_minimum)) die('ERR23873287328733 '.$procure_chuq_minimum);
+					$procure_biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['date de récidive biochimique selon déf. procure'])))? 'y' : '';
 					$data = array(
 						'EventMaster' => array(
 							'participant_id' => $participant_id,
@@ -243,8 +243,8 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 							'event_date_accuracy' => $event_date['accuracy'],),
 						'EventDetail' => array(
 							'total_ngml' => $total_ngml,
-							'procure_chum_minimum' => $procure_chum_minimum,
-							'procure_chum_biochemical_relapse' => $procure_chum_biochemical_relapse));
+							'procure_chuq_minimum' => $procure_chuq_minimum,
+							'procure_biochemical_relapse' => $procure_biochemical_relapse));
 					$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
 					customInsert($data['EventDetail'], $psa_control['detail_tablename'], __FILE__, __LINE__, true);
 				}
