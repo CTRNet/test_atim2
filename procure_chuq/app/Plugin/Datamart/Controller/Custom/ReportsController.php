@@ -2,6 +2,13 @@
 class ReportsControllerCustom extends ReportsController {
 	
 	function participantIdentifiersSummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 	
@@ -24,7 +31,7 @@ class ReportsControllerCustom extends ReportsController {
 	
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
@@ -58,6 +65,16 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureDiagnosisAndTreatmentReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -135,7 +152,7 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			$data[$participant_id]['EventDetail']['total_ngml'] = '';
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -165,6 +182,7 @@ class ReportsControllerCustom extends ReportsController {
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
 			//Use pathology report date to set pre/post treatment list
+//TODO use prostatectomy date			
 			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
 			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
 			if($pathology_report_date) {
@@ -230,6 +248,19 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureFollowUpReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -247,7 +278,7 @@ class ReportsControllerCustom extends ReportsController {
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-				
+		
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
@@ -256,6 +287,11 @@ class ReportsControllerCustom extends ReportsController {
 		$followup_event_control_id = $event_controls['procure follow-up worksheet']['id'];
 		$followup_event_detail_tablename = $event_controls['procure follow-up worksheet']['detail_tablename'];
 		if(!$followup_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
+		$query = "SELECT id,tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+		$tx_controls = array();
+		foreach($participant_model->query($query) as $res) $tx_controls[$res['treatment_controls']['tx_method']] = array('id' => $res['treatment_controls']['id'], 'detail_tablename' => $res['treatment_controls']['detail_tablename']);
+		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
+		$treatment_control_detail_tablename = $tx_controls['procure follow-up worksheet - treatment']['detail_tablename'];
 		$query = "SELECT id, detail_tablename, sample_type FROM sample_controls WHERE sample_type IN ('blood','urine', 'tissue');";
 		$sample_controls = array();
 		$blood_detail_tablename = '';
@@ -276,12 +312,21 @@ class ReportsControllerCustom extends ReportsController {
 			LEFT JOIN $followup_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
-		$empty_form_array = array();
+		$empty_form_array = array(
+			'procure_prostatectomy_date' => '',
+			'procure_prostatectomy_date_accuracy' => '',
+			'procure_last_collection_date' => '',
+			'procure_last_collection_date_accuracy' => '',
+			'procure_time_from_last_collection_months' => '',
+			'procure_followup_worksheets_nbr' => array(), 
+			'procure_number_of_visit_with_collection' => array());
 		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
 			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
 			$empty_form_array["procure_".$visit_id."_procure_form_identification"]= '';
 			$empty_form_array["procure_".$visit_id."_event_date"]= null;
 			$empty_form_array["procure_".$visit_id."_event_date_accuracy"]= '';
+			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
+			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
 			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
@@ -292,7 +337,9 @@ class ReportsControllerCustom extends ReportsController {
 		$display_warning_2 = false;
 		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
-			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], '0' => $empty_form_array);
+			if(!isset($data[$participant_id])) $data[$participant_id] = array(
+				'Participant' => $res['Participant'], 
+				'0' => $empty_form_array);
 			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
 			if($procure_form_identification) {
 				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+$/", $procure_form_identification, $matches)) {
@@ -302,6 +349,7 @@ class ReportsControllerCustom extends ReportsController {
 							$data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"] = $res['EventMaster']['procure_form_identification'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date"]= $res['EventMaster']['event_date'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
+							$data[$participant_id][0]['procure_followup_worksheets_nbr'][$visit_id] = '-';
 						} else {
 							$display_warning_1 = true;
 						}
@@ -311,7 +359,7 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			}
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -320,12 +368,35 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
 		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
-
-		//Get blood and urine
+		
+		//Get prostatectomy
+		if($data) {
+			$query = "SELECT
+				TreatmentMaster.participant_id,
+				TreatmentMaster.start_date,
+				TreatmentMaster.start_date_accuracy
+				FROM treatment_masters TreatmentMaster 
+				INNER JOIN $treatment_control_detail_tablename TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+				WHERE TreatmentMaster.deleted <> 1 AND TreatmentMaster.treatment_control_id = $treatment_control_id AND TreatmentMaster.participant_id IN (".implode(',',array_keys($data)).")
+				AND TreatmentDetail.treatment_type = 'prostatectomy'
+				AND TreatmentMaster.start_date IS NOT NULL AND TreatmentMaster.start_date NOT LIKE ''
+				ORDER BY TreatmentMaster.start_date ASC;";
+			foreach($participant_model->query($query) as $res) {
+				$participant_id = $res['TreatmentMaster']['participant_id'];
+				if(!strlen($data[$participant_id][0]["procure_prostatectomy_date"])) {
+					$data[$participant_id][0]["procure_prostatectomy_date"] = $res['TreatmentMaster']['start_date'];
+					$data[$participant_id][0]["procure_prostatectomy_date_accuracy"] = $res['TreatmentMaster']['start_date_accuracy'];
+				}
+			}
+		}
+		
+		//Get blood, urine and tissue
 		if($data) {
 			$query = "SELECT 
 				Collection.participant_id,
 				Collection.procure_visit,
+				Collection.collection_datetime,
+				Collection.collection_datetime_accuracy,
 				SampleMaster.sample_control_id,
 				SampleDetail.blood_type
 				FROM collections Collection 
@@ -336,6 +407,25 @@ class ReportsControllerCustom extends ReportsController {
 			foreach($participant_model->query($query) as $res) {
 				$participant_id = $res['Collection']['participant_id'];
 				$visit_id = str_replace('V','',$res['Collection']['procure_visit']);
+				if(strlen($res['Collection']['collection_datetime'])) {
+					$record_collection_date = false;
+					if(!strlen($data[$participant_id][0]["procure_".$visit_id."_first_collection_date"])) {
+						$record_collection_date = true;
+					} else if($res['Collection']['collection_datetime'] < $data[$participant_id][0]["procure_".$visit_id."_first_collection_date"]) {
+						$record_collection_date = true;
+					}
+					if($record_collection_date) {
+						$first_collection_date_accuracy = $res['Collection']['collection_datetime_accuracy'];
+						if(!in_array($first_collection_date_accuracy, array('y', 'm', 'd'))) $first_collection_date_accuracy = 'c';
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date"] = $res['Collection']['collection_datetime'];
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
+						$data[$participant_id][0]['procure_number_of_visit_with_collection'][$visit_id] = '-';
+					}
+					if(empty($data[$participant_id][0]["procure_last_collection_date"]) || $data[$participant_id][0]["procure_last_collection_date"] < $res['Collection']['collection_datetime']) {
+						$data[$participant_id][0]["procure_last_collection_date"] = $res['Collection']['collection_datetime'];
+						$data[$participant_id][0]["procure_last_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
+					}
+				}				
 				if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'blood') {
 					$sample_type = str_replace('k2-EDTA','k2_EDTA',$res['SampleDetail']['blood_type']);
 				} else if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'urine') {
@@ -348,6 +438,26 @@ class ReportsControllerCustom extends ReportsController {
 				$data[$participant_id][0]["procure_".$visit_id."_".$sample_type."_collected"] = 'y';
 			}
 		}
+		
+		//Calculate last fields
+		
+		$query = "SELECT NOW() FROM users LIMIT 0,1;";
+		$res = $participant_model->query($query);
+		$current_date = $res[0][0]['NOW()'];
+		foreach($data as $participant_id => $participant_data){
+			if(!empty($data[$participant_id][0]["procure_last_collection_date"])) {
+				$current_date = substr($current_date, 0, 10);
+				$procure_last_collection_date = substr($data[$participant_id][0]["procure_last_collection_date"], 0, 10);
+				$datetime1 = new DateTime($procure_last_collection_date);
+				$datetime2 = new DateTime($current_date);
+				$interval = $datetime1->diff($datetime2);
+				$progression_time_in_months = (($interval->format('%y')*12) + $interval->format('%m'));
+				if(!$interval->invert) $data[$participant_id][0]["procure_time_from_last_collection_months"] = $progression_time_in_months;
+			}
+			$data[$participant_id][0]['procure_followup_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_followup_worksheets_nbr']);
+			$data[$participant_id][0]['procure_number_of_visit_with_collection'] = sizeof($data[$participant_id][0]['procure_number_of_visit_with_collection']);
+		}
+		
 		return array(
 			'header' => $header,
 			'data' => $data,
@@ -356,6 +466,13 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureAliquotsReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -478,7 +595,7 @@ class ReportsControllerCustom extends ReportsController {
 				}				
 			}
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,

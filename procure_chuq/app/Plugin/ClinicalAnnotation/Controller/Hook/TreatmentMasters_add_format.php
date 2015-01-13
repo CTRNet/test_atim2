@@ -1,6 +1,19 @@
 <?php 
 	
-	if($tx_control_data['TreatmentControl']['tx_method'] == 'procure medication worksheet') {
-		$this->set('default_procure_form_identification', $participant_data['Participant']['participant_identifier'].' V0 -MED1');
+	$default_procure_form_identification = '';
+	switch($tx_control_data['TreatmentControl']['tx_method']) {
+		case'procure medication worksheet - drug':
+			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' Vx -MEDx';
+			break;
+		case'procure follow-up worksheet - treatment':
+			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' Vx -FSPx';
+			break;
+		case 'other tumor treatment':
+			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' N/A';
+			break;
+		case 'procure medication worksheet':
+			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' V0 -MED1';
+			break;
 	}
+	$this->set('default_procure_form_identification', $default_procure_form_identification);
 	
