@@ -31,7 +31,7 @@ class ReportsControllerCustom extends ReportsController {
 	
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
@@ -152,7 +152,7 @@ class ReportsControllerCustom extends ReportsController {
 			);
 			$data[$participant_id]['EventDetail']['total_ngml'] = '';
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -359,7 +359,7 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			}
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -595,7 +595,7 @@ class ReportsControllerCustom extends ReportsController {
 				}				
 			}
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
