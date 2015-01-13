@@ -33,6 +33,12 @@ class ParticipantCustom extends Participant {
 			$result = false;
 			$this->validationErrors['participant_identifier'][] = "the identification format is wrong";
 		}
+		if(isset($this->data['Participant']['procure_patient_withdrawn'])) {
+			if(!$this->data['Participant']['procure_patient_withdrawn'] && (strlen($this->data['Participant']['procure_patient_withdrawn_date']) || strlen(trim($this->data['Participant']['procure_patient_withdrawn_reason'])))) {
+				$result = false;
+				$this->validationErrors['participant_identifier'][] = "please check the patient withdrawn checkbox if required";
+			}
+		}
 		return $result;
 	}
 	
