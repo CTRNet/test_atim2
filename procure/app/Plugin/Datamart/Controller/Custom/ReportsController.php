@@ -2,6 +2,13 @@
 class ReportsControllerCustom extends ReportsController {
 	
 	function participantIdentifiersSummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 	
@@ -58,6 +65,16 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureDiagnosisAndTreatmentReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -231,6 +248,19 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureFollowUpReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -436,6 +466,13 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureAliquotsReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
