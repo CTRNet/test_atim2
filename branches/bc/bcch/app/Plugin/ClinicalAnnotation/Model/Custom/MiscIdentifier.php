@@ -15,7 +15,7 @@ class MiscIdentifierCustom extends MiscIdentifier {
 		)
 	);
 
-	function beforeSave($options) {
+	function beforeSave($options = Array()) {
 		
 	/* 
 		Check identifier type and apply validation rules. Three types are defined as:
