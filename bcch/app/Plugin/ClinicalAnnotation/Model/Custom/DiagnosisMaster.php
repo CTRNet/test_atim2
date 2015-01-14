@@ -15,7 +15,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 		'foreignKey'    => 'diagnosis_control_id')
 	);
 
-	function beforeSave($options) {
+	function beforeSave($options = Array()) {
 
 		// Check $this->data has been populated from screen and not from Participant.beforeSave() function
 		if (!$this->data['DiagnosisMaster']['skip']) {
