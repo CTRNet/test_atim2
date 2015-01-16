@@ -74,8 +74,8 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 					$data = array_merge($data, $patients_status[$participant_identifier]);
 					unset($patients_status[$participant_identifier]);
 				}				
+				$atim_participant_id  = customInsert($data, 'participants', __FILE__, __LINE__);
 				//Load identifiers
-				$atim_participant_id  = customInsert($data, 'participants', __FILE__, __LINE__, false);
 				if(strlen($new_line_data['RAMQ'])) {
 					$misc_identifier_name = 'RAMQ';
 					$data = array('misc_identifier_control_id' => $misc_identifier_controls[$misc_identifier_name]['id'],
@@ -93,7 +93,11 @@ function loadPatients(&$XlsReader, $files_path, $file_name, $patients_status) {
 					customInsert($data, 'misc_identifiers', __FILE__, __LINE__, false);
 				}
 				if(array_key_exists($participant_identifier, $psp_nbr_to_participant_id_and_patho)) die('ERR328728762387632');
-				$psp_nbr_to_participant_id_and_patho[$participant_identifier] = array('participant_id' => $atim_participant_id, 'patho#' => $new_line_data['#Patho']);
+				$psp_nbr_to_participant_id_and_patho[$participant_identifier] = array(
+					'participant_id' => $atim_participant_id, 
+					'patho#' => $new_line_data['#Patho'],
+					'prostate_weight_gr' => null
+				);
 			} else {
 				$import_summary['Profile']['@@ERROR@@']['Patient Identification Format Error'][] = "Format of Identification '$participant_identifier' is not supported! [field 'Patients' - file '$file_name' - line: $line_counter]";
 			}
@@ -233,7 +237,7 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 					$procure_chuq_minimum = str_replace(array(' ', ','), array('', '.'), $new_line_data['Minimum']);
 					if(!preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $total_ngml)) die('ERR23873287328732 '.$total_ngml);
 					if(strlen($procure_chuq_minimum) && !preg_match('/^[0-9]+(\.[0-9]+){0,1}$/', $procure_chuq_minimum)) die('ERR23873287328733 '.$procure_chuq_minimum);
-					$procure_biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['date de récidive biochimique selon déf. procure'])))? 'y' : '';
+					$biochemical_relapse = (strlen(str_replace(' ', '', $new_line_data['date de récidive biochimique selon déf. procure'])))? 'y' : '';
 					$data = array(
 						'EventMaster' => array(
 							'participant_id' => $participant_id,
@@ -244,7 +248,7 @@ function loadPSAs(&$XlsReader, $files_path, $file_name, $psp_nbr_to_participant_
 						'EventDetail' => array(
 							'total_ngml' => $total_ngml,
 							'procure_chuq_minimum' => $procure_chuq_minimum,
-							'procure_biochemical_relapse' => $procure_biochemical_relapse));
+							'biochemical_relapse' => $biochemical_relapse));
 					$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
 					customInsert($data['EventDetail'], $psa_control['detail_tablename'], __FILE__, __LINE__, true);
 				}
@@ -297,8 +301,9 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 				if(strlen($new_line_data['Type'])) {
 					$start_date = getDateAndAccuracy($new_line_data, 'DDebut', 'Treatment', $file_name, $line_counter);
 					$finish_date = getDateAndAccuracy($new_line_data, 'DFin', 'Treatment', $file_name, $line_counter);
+					$treatment_controls = null;
+					$treatment_notes = '';
 					$detail_data = array();
-					$treatment_controls = array();
 					switch($new_line_data['Type']) {
 						//Chemotherpay
 						case 'Tx-Chimio':				
@@ -317,8 +322,9 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 						case 'Hx-AA':
 						case 'Hx-LA':
 						case 'Hx-X':
-							preg_match('/^Hx\-(.+)$/',  $new_line_data['Type'], $matches);
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment']; 
+							preg_match('/^Hx\-(.+)$/',  $new_line_data['Type'], $matches);
+							$treatment_notes = 'Hormono-'.$matches[1];
 							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 							$drug_ids = array();
 							if(preg_match('/^((LHRH)|(MDV))\-/', $new_line_data['Med'])) {
@@ -330,17 +336,16 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							foreach($drug_ids as $drug_id) {
 								$detail_data[] = array(
 									'treatment_type' => 'hormonotherapy',
-									'type' => $matches[1],
 									'drug_id' => $drug_id,
 									'procure_chuq_period' => $period);
 							}
 							break;
 						case 'Rx-Ext':
 							$treatment_controls = $tx_control['procure follow-up worksheet - treatment'];
+							$treatment_notes = 'Radio-Ext';
 							$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 							$detail_data = array(array(
 								'treatment_type' => 'radiotherapy',
-								'type' => 'Ext',
 								'procure_chuq_period' => $period));
 							break;
 						case 'HBP-AI':
@@ -348,14 +353,15 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 							$drug_id = getDrugId($new_line_data['Med'], 'prostate', $drugs);
 							if($drug_id) {
 								$treatment_controls = $tx_control['procure medication worksheet - drug'];
+								preg_match('/^HBP\-(.+)$/',  $new_line_data['Type'], $matches);
+								$treatment_notes = 'HypBegPro-'.$matches[1];
 								$period = getPeriod($new_line_data['Periode'], $periods, $period_control_id);
 								$detail_data = array(array(
 									'drug_id' => $drug_id, 
 									'procure_chuq_period' => $period));
 							} else {
 								$import_summary['Treatment']['@@WARNING@@']["Missing Drug"][] = "A Prostate treatment has been defined on ".$start_date['date']." but no drug has been recorded. This one has to be created manually into ATiM after migration. See patient '$participant_identifier'. [file '$file_name' - line: $line_counter]";
-							}				
-//TODO						todo calculer la duree
+							}
 							break;
 						case 'Autres':
 							$import_summary['Treatment']['@@WARNING@@']["Treatment 'Autre' To Create Manually"][] = "See patient '$participant_identifier' : Treatment [".$new_line_data['Med']." - ".$new_line_data['Type']."' with Periode '".$new_line_data['Periode']."'] on ".$start_date['date']." won't be migrated. This one has to be created manually into ATiM after migration. [file '$file_name' - line: $line_counter]";
@@ -374,7 +380,8 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 									'start_date' => $start_date['date'],
 									'start_date_accuracy' => $start_date['accuracy'],
 									'finish_date' => $finish_date['date'],
-									'finish_date_accuracy' => $finish_date['accuracy']),
+									'finish_date_accuracy' => $finish_date['accuracy'],
+									'notes' => $treatment_notes),
 								'TreatmentDetail' => $new_detail);
 							$data['TreatmentDetail']['treatment_master_id'] = customInsert($data['TreatmentMaster'], 'treatment_masters', __FILE__, __LINE__, false);
 							customInsert($data['TreatmentDetail'], $treatment_controls['detail_tablename'], __FILE__, __LINE__, true);
@@ -386,6 +393,7 @@ function loadTreatments(&$XlsReader, $files_path, $file_name, $psp_nbr_to_partic
 			}
 		}
 	}
+	//TODO: Voire avec claire si on peut remplire les case: palliatif, etc...
 }
 
 function getDrugId($generic_name, $type, &$drugs) {
@@ -407,6 +415,25 @@ function getPeriod($period, &$periods, $period_control_id) {
 		$periods[$period_key] = $period_key;
 	}
 	return $period_key;
+}
+
+function loadPathologyReprot($psp_nbr_to_participant_id_and_patho) {
+	global $import_summary;
+	global $controls;
+	foreach($psp_nbr_to_participant_id_and_patho as $participant_identifier => $new_data) {
+		if(strlen($new_data['patho#'].$new_data['prostate_weight_gr'])) {
+			$data = array(
+				'EventMaster' => array(
+					'participant_id' => $new_data['participant_id'],
+					'procure_form_identification' => "$participant_identifier V01 -PST1",
+					'event_control_id' => $controls['EventControl']['procure pathology report']['event_control_id']),
+				'EventDetail' => array(
+					'path_number' => $new_data['patho#'],
+					'prostate_weight_gr' => $new_data['prostate_weight_gr']));
+			$data['EventDetail']['event_master_id'] = customInsert($data['EventMaster'], 'event_masters', __FILE__, __LINE__, false);
+			customInsert($data['EventDetail'], $controls['EventControl']['procure pathology report']['detail_tablename'], __FILE__, __LINE__, true);
+		}
+	}
 }
 
 ?>
