@@ -63,6 +63,7 @@ $sample_storage_types = array(
 	'serum' => 'box81',
 	'plasma' => 'box81',
 	'pbmc' => 'box81',
+	'whatman' => 'box',
 	'urine' => 'box49'
 );
 
@@ -135,7 +136,7 @@ $psp_nbr_to_blocks_data = loadBlock($XlsReader, $files_path, $files_name['tissue
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['inventory']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_blocks_data, $files_name['tissue'], $psp_nbr_to_participant_id_and_patho);
+loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_blocks_data, $psp_nbr_to_participant_id_and_patho);
 unset($psp_nbr_to_blocks_data);
 
 
@@ -143,6 +144,8 @@ unset($psp_nbr_to_blocks_data);
 
 
 $query = "UPDATE sample_masters SET sample_code = id;";
+customQuery($query, __FILE__, __LINE__);
+$query = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE sample_control_id IN (SELECT id FROM sample_controls WHERE sample_category = 'specimen');";
 customQuery($query, __FILE__, __LINE__);
 $query = "UPDATE storage_masters SET code = id;";
 customQuery($query, __FILE__, __LINE__);
@@ -344,9 +347,15 @@ function updateLftRgt($storage_master_id,&$left_rght_nxt) {
 function truncate() {
 	$truncate_queries = array(
 		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',	
+		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
+		'TRUNCATE ad_tubes;', 'TRUNCATE ad_blocks_revs;',	
 		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 		
+		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
+		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
+		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
 		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
+		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
 		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
 		'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
 		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
@@ -500,9 +509,9 @@ function formatNewLineData($headers, $data) {
 	$line_data = array();
 	foreach($headers as $key => $field) {
 		if(isset($data[$key])) {
-			$line_data[utf8_encode($field)] = utf8_encode($data[$key]);
+			$line_data[trim(utf8_encode($field))] = trim(utf8_encode($data[$key]));
 		} else {
-			$line_data[utf8_encode($field)] = '';
+			$line_data[trim(utf8_encode($field))] = '';
 		}
 	}
 	return $line_data;
