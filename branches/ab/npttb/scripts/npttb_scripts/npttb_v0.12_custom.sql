@@ -5,7 +5,18 @@
 REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('core_installname', 'Clark H. Smith NPTTB - v0.12', '');
 	
+-- ======================================================================================
+-- Eventum ID: 3149 - Change box name (Cardboard -> Styrofoam)
+-- ======================================================================================
+UPDATE `storage_controls` SET `storage_type`='Styrofoam Box', `databrowser_label`='custom#storage types#Styrofoam Box' WHERE
+ `storage_type`='Cardboard Box';
 
+-- ======================================================================================
+-- Eventum ID: 3148 - QC Score
+-- ======================================================================================
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="1" WHERE svd.domain_name='quality_control_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="260/280" AND language_alias="260/280");
+UPDATE structure_value_domains AS svd INNER JOIN structure_value_domains_permissible_values AS svdpv ON svdpv.structure_value_domain_id=svd.id INNER JOIN structure_permissible_values AS spv ON spv.id=svdpv.structure_permissible_value_id SET `flag_active`="0" WHERE svd.domain_name='quality_control_unit' AND spv.id=(SELECT id FROM structure_permissible_values WHERE value="260/268" AND language_alias="260/268");
+ 
  
 /*
 -- Instantiate Nitrogen Tank
