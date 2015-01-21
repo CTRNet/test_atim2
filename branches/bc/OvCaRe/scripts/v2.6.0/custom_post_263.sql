@@ -1148,3 +1148,11 @@ UPDATE structure_formats SET `flag_override_label`='1', `language_label`='partic
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '5930' WHERE version_number = '2.6.3';
+
+-- 20150121 - Fix bug on collections creation (when we reuse a VOA# of a collection just deleted)
+
+ALTER TABLE collections DROP INDEX collection_voa_nbr;
+UPDATE versions SET branch_build_number = '6027' WHERE version_number = '2.6.3';
+
+
+
