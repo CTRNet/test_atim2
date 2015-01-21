@@ -64,7 +64,8 @@ $sample_storage_types = array(
 	'plasma' => 'box81',
 	'pbmc' => 'box81',
 	'whatman' => 'box',
-	'urine' => 'box49'
+	'urine' => 'box49 1A-7G',
+	'concentrated urine' => 'box81'
 );
 
 global $storage_master_ids;
@@ -88,14 +89,14 @@ truncate();
 //==============================================================================================
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patient - File(s) : ".$files_name['patient']." && ".$files_name['patient_status']."***</FONT><br>";
-/*TODO
+
 $XlsReader = new Spreadsheet_Excel_Reader();
 $patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
 $XlsReader = new Spreadsheet_Excel_Reader();
 $psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
-*/
+
 //TODO delete ************
-if(true) {
+if(false) {
 	$psp_nbr_to_participant_id_and_patho = array();
 	$query = "select id, participant_identifier FROM participants;";
 	$results = customQuery($query, __FILE__, __LINE__);
@@ -107,7 +108,7 @@ if(true) {
 	}
 }
 //TODO end delete ************
-/*TODO
+
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Consent & Questionnaire - File(s) : ".$files_name['consent']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -122,11 +123,10 @@ echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) :
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
-*/
+
 //==============================================================================================
 //Inventory
 //==============================================================================================
-
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['tissue']."***</FONT><br>";
 
@@ -348,9 +348,11 @@ function truncate() {
 	$truncate_queries = array(
 		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',	
 		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
-		'TRUNCATE ad_tubes;', 'TRUNCATE ad_blocks_revs;',	
+		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',	
 		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 		
+		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
+		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
 		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
 		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
 		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
@@ -375,21 +377,21 @@ function truncate() {
 'DELETE FROM treatment_masters WHERE treatment_control_id = 6 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_treatments);', 
 'DELETE FROM treatment_masters_revs WHERE treatment_control_id = 6 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_treatments);', 		
 			
-/* 		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
-// 		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
-// 		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
+		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
+		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
+		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
 			
-// 		'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
-// 		'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
-// 		'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
-// 		'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
-// 		'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
+		'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
+		'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
+		'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
+		'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
+		'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
 		
-// 		'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
-// 		'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
+		'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
+		'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
 		
-// 		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
-// 		'DELETE FROM participants;','DELETE FROM participants_revs;'*/
+		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
+		'DELETE FROM participants;','DELETE FROM participants_revs;'
 	
 	);
 	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
@@ -616,7 +618,8 @@ function getDateTimeAndAccuracy($data, $field_date, $field_time, $data_type, $fi
 				$time=$hour.':'.$mn;				
 				return array('datetime' => $formatted_date.' '.((strlen($time) == 5)? $time : '0'.$time), 'accuracy' => 'c');
 			} else {
-				die("ERR time format should be h:mm see value $time for field $field_time' line '$line' [$file] - Be sure cell format = personalisé hh:mm");
+				$import_summary[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [field '$field_time' - file '$file' - line: $line]";
+				return array('datetime' => null, 'accuracy' =>null);;
 			}
 		}
 	}
@@ -643,7 +646,8 @@ function getTime($data, $field_time, $data_type, $file, $line) {
 			$time=$hour.':'.$mn;
 			return (strlen($time) == 5)? $time : '0'.$time;
 		} else {
-			die("ERR time format should be h:mm see value $time for field $field_time' line '$line' [$file] - Be sure cell format = personalisé hh:mm");
+			$import_summary[$data_type]['@@ERROR@@']['Time Format Error'][] = "Format of time '$time' is not supported! [field '$field_time' - file '$file' - line: $line]";
+			return null;
 		}
 	}
 }
