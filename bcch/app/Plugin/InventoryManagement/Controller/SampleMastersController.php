@@ -316,7 +316,7 @@ class SampleMastersController extends InventoryManagementAppController {
 			
 			// Check collection id
 			$collection_data = $this->Collection->getOrRedirect($collection_id);
-			
+
 		} else {
 			// Created sample is a derivative: Get parent sample information
 			$is_specimen = false;

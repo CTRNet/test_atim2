@@ -1,5 +1,5 @@
 <?php
-	// Set aliquot label
+/*	// Set aliquot label
 	$default_aliquot_labels = array();
 	$aliquot_count = 1;
 	foreach($samples as $view_sample){
@@ -8,4 +8,4 @@
 		$aliquot_count++;
 	}
 	//print_r($default_aliquot_labels);
-	$this->set('default_aliquot_labels', $default_aliquot_labels);
+	$this->set('default_aliquot_labels', $default_aliquot_labels); */
