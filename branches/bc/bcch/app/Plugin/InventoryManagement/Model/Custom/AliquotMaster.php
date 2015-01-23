@@ -33,20 +33,18 @@ class AliquotMasterCustom extends AliquotMaster {
 			$this->find('all', array('conditions' => array('AliquotMaster.id' => $aliquotIDs)));
 
 		$sample_code = $sample_master_data['ViewSample']['sample_code'];
-		$number_aliquots = count($aliquots_to_update);
 		$new_label = '';
-		$i = 1;
+		$aliquot_number = 1;
 					
 		// Save aliquot labels
 		foreach($aliquots_to_update as $aliquot) {
-			
-			$new_label = $sample_code.$i;
-			$i = $i + 1;
+			$new_label = $sample_code.$aliquot_number;
 			$aliquot_data = array('AliquotMaster' => array('aliquot_label' => $new_label), 'AliquotDetail' => array());
 			$this->id = $aliquot['AliquotMaster']['id'];
 			$this->data = null;
 			$this->addWritableField(array('aliquot_label'));
 			$this->save($aliquot_data, false);
+			$aliquot_number = $aliquot_number + 1;
 		}
 	}
 	

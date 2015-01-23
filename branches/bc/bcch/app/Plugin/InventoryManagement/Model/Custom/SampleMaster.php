@@ -26,24 +26,45 @@ class SampleMasterCustom extends SampleMaster {
 			case 'cell lysate':
 				$sample_label = 'CL';
 				break;
-			case 'ccbr cerebrospinal fluid':
+			case 'csf':
 				$sample_label = 'CS';
 				break;
 			case 'dna':
 				$sample_label = 'DN';
-				break;				
+				break;
+			case 'ccbr expanded cells':
+				$sample_label = 'EC';
+				break;
+			case 'ccbr leukapheresis':
+				$sample_label = 'LK';
+				break;							
+			case 'pbmc':
+				$sample_label = 'MC';
+				break;					
+			case 'plasma':
+				$sample_label = 'PL';
+				break;							
 			case 'rna':
 				$sample_label = 'RN';
 				break;
 			case 'saliva':
 				$sample_label = 'SL';
 				break;
+			case 'ccbr stem cells':
+				$sample_label = 'SC';
+				break;
+			case 'saliva':
+				$sample_label = 'SW';
+				break;								
 			case 'tissue':
 				$sample_label = 'TI';
 				break;
 			case 'tissue suspension':
 				$sample_label = 'TS';
 				break;
+			case 'urine':
+				$sample_label = 'UR';
+				break;				
 		}
 		
 		// Set participant ID for finding collections and sample counts
@@ -73,8 +94,14 @@ class SampleMasterCustom extends SampleMaster {
 		$query_to_update = null;
 		$query_to_update = "UPDATE sample_masters SET sample_code = '$sample_code' WHERE id = $sample_master_id;";
 		$this->tryCatchQuery($query_to_update);
+		
+		// Update revs table
 		$this->tryCatchQuery(str_replace("sample_masters", "sample_masters_revs", $query_to_update));
-	
+		
+		// Update ViewSample
+		$query_to_update = "UPDATE view_samples SET sample_code = '$sample_code' WHERE sample_master_id = $sample_master_id;";
+		$this->tryCatchQuery($query_to_update);
+		
 	}
 }
 
