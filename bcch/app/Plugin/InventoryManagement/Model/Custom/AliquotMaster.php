@@ -4,7 +4,7 @@ class AliquotMasterCustom extends AliquotMaster {
 	var $useTable = 'aliquot_masters';	
 	var $name = 'AliquotMaster';	
 	
-	function summary($variables=array()) {
+/*	function summary($variables=array()) {
 		$return = false;
 		
 		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.id']) && isset($variables['AliquotMaster.id'])) {
@@ -23,60 +23,31 @@ class AliquotMasterCustom extends AliquotMaster {
 		
 		return $return;
 	}
-	
-	function generateAliquotLabel($view_sample, $aliquot_control_data, $current_aliquot_count) {
+*/	
+	function generateAliquotLabel($sample_master_data, $aliquot_control_data, $aliquotIDs) {
 		// Parameters check: Verify parameters have been set
-		if(empty($view_sample) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		if(empty($sample_master_data) || empty($aliquot_control_data)) AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
-		// Participant Identifier + Sample Type + Sample #(AI) + Aliquot #(AI) Ex: C0001BL0101	
-		$aliquot_label = '';
-		
-		// Get current participant identifier
-		$participant_identifier = 'C00000';
-		
-		// $identifier_value = empty($view_sample['ViewSample']['identifier_value'])? '?': $view_sample['ViewSample']['identifier_value'];
+		// Get all aliquots that need labels
+		$aliquots_to_update = 
+			$this->find('all', array('conditions' => array('AliquotMaster.id' => $aliquotIDs)));
 
-		// Set sample label based on sample type				
-		$sample_label = '';
-		switch($view_sample['ViewSample']['sample_type']) {
-			case 'blood':
-				$sample_label = 'BL';
-				break;
-			case 'bone marrow':
-				$sample_label = 'BM';
-				break;
-			case 'cell culture':
-				$sample_label = 'CC';
-				break;
-			case 'cell lysate':
-				$sample_label = 'CL';
-				break;
-			case 'csf':
-				$sample_label = 'CSF';
-				break;
-			case 'rna':
-				$sample_label = 'RNA';
-				break;
-			case 'saliva':
-				$sample_label = 'SL';
-				break;
-			case 'tissue':
-				$sample_label = 'TI';
-				break;
-			case 'tissue suspension':
-				$sample_label = 'TS';
-				break;
+		$sample_code = $sample_master_data['ViewSample']['sample_code'];
+		$number_aliquots = count($aliquots_to_update);
+		$new_label = '';
+		$i = 1;
+					
+		// Save aliquot labels
+		foreach($aliquots_to_update as $aliquot) {
+			
+			$new_label = $sample_code.$i;
+			$i = $i + 1;
+			$aliquot_data = array('AliquotMaster' => array('aliquot_label' => $new_label), 'AliquotDetail' => array());
+			$this->id = $aliquot['AliquotMaster']['id'];
+			$this->data = null;
+			$this->addWritableField(array('aliquot_label'));
+			$this->save($aliquot_data, false);
 		}
-		
-		// Get sample number for current participant
-		$sample_count = '01'; 
-		
-		// Get sample number for current participant
-		// $aliquot_count = '01'; 
-		
-		$aliquot_label = $participant_identifier . '' . $sample_label . $sample_count . $current_aliquot_count;
-		
-		return $aliquot_label;
 	}
 	
 	function generateAliquotBarcode($aliquotIDs) {
