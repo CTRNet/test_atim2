@@ -111,7 +111,9 @@ VALUES
 ('patient withdrawn', 'Patient Withdrawn', 'patient retiré'),
 ('please check the patient withdrawn checkbox if required','Please check the patient withdrawn checkbox if required','Veuillez cocher le champ Patient Retiré si requis');
 
+-- missing i18n
 
+INSERT INTO i18n (id,en,fr) VALUES ('nanodrop', 'Nanodrop', 'Nanodrop');
 
 
 
