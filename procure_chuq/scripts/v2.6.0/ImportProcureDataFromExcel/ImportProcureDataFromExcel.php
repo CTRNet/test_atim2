@@ -17,7 +17,9 @@ $files_name = array(
 	'treatment' => 'Procure Patient Traitements_short.xls',
 	
 	'inventory' => utf8_decode('inventaire procure CHU Québec_20141202_short.xls'),
-	'tissue' => 'taille tissus_short.xls'
+	'frozen block' => 'taille tissus_short.xls',
+	'paraffin block' => 'sortie de blocs procure_short.xls',
+	'arn' => 'ARN sang paxgene_short.xls'
 );
 $files_path = 'C:\\_Perso\\Server\\procure_chuq\\data\\';
 require_once 'Excel/reader.php';
@@ -65,7 +67,8 @@ $sample_storage_types = array(
 	'pbmc' => 'box81',
 	'whatman' => 'box',
 	'urine' => 'box49 1A-7G',
-	'concentrated urine' => 'box81'
+	'concentrated urine' => 'box81',
+	'rna' => 'box81'
 );
 
 global $storage_master_ids;
@@ -87,27 +90,14 @@ truncate();
 //==============================================================================================
 //Clinical Annotation
 //==============================================================================================
-
+//TODO
+/*
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patient - File(s) : ".$files_name['patient']." && ".$files_name['patient_status']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 $patients_status = loadVitalStatus($XlsReader, $files_path, $files_name['patient_status']);
 $XlsReader = new Spreadsheet_Excel_Reader();
 $psp_nbr_to_participant_id_and_patho = loadPatients($XlsReader, $files_path, $files_name['patient'], $patients_status);
-
-//TODO delete ************
-if(false) {
-	$psp_nbr_to_participant_id_and_patho = array();
-	$query = "select id, participant_identifier FROM participants;";
-	$results = customQuery($query, __FILE__, __LINE__);
-	while($row = $results->fetch_assoc()){
-		$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array(
-			'participant_id' => $row['id'], 
-			'patho#' => null,
-			'prostate_weight_gr' => null);
-	}
-}
-//TODO end delete ************
 
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Consent & Questionnaire - File(s) : ".$files_name['consent']."***</FONT><br>";
 
@@ -123,21 +113,48 @@ echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) :
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
-
+*/
 //==============================================================================================
 //Inventory
+//TODO delete ************
+if(false) {
+	$psp_nbr_to_participant_id_and_patho = array();
+	$query = "select id, participant_identifier FROM participants;";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array(
+			'participant_id' => $row['id'],
+			'patho#' => null,
+			'prostate_weight_gr' => null);
+	}
+}
+//TODO end delete ************
 //==============================================================================================
 
-echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['tissue']."***</FONT><br>";
+echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['frozen block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-$psp_nbr_to_blocks_data = loadBlock($XlsReader, $files_path, $files_name['tissue']);
+//TODO $psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
+
+echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['paraffin block']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+//TODO $psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['inventory']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_blocks_data, $psp_nbr_to_participant_id_and_patho);
-unset($psp_nbr_to_blocks_data);
+//TODO loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
+unset($psp_nbr_to_frozen_blocks_data);
+unset($psp_nbr_to_paraffin_blocks_data);
+
+echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadRNA($XlsReader, $files_path, $files_name['arn']);
+
+
+
 
 
 
@@ -149,7 +166,13 @@ $query = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE sample
 customQuery($query, __FILE__, __LINE__);
 $query = "UPDATE storage_masters SET code = id;";
 customQuery($query, __FILE__, __LINE__);
-
+$query = "SELECT barcode FROM (SELECT barcode, count(*) AS tx FROM aliquot_masters WHERE deleted <> 1 GROUP BY barcode) AS test WHERE test.tx > 1;";
+$results = customQuery($query, __FILE__, __LINE__);
+$query = "UPDATE quality_ctrls SET qc_code = id;";
+customQuery($query, __FILE__, __LINE__);
+while($row = $results->fetch_assoc()){
+	$import_summary['Inventory - Tissue']['@@ERROR@@']['Duplicated Barcodes'][] = "The The migration process created duplciated barcode : ".$row['barcode'];
+}
 //==============================================================================================
 //Pathology report
 //==============================================================================================
@@ -320,6 +343,147 @@ Collection.procure_visit AS procure_visit,
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
 			WHERE AliquotMaster.deleted != 1)';
 	customQuery($query, __FILE__, __LINE__);
+	
+	$query = "TRUNCATE view_aliquot_uses;";
+	customQuery($query, __FILE__, __LINE__);
+	$queries = array("SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		AliquotInternalUse.type AS use_definition,
+		AliquotInternalUse.use_code AS use_code,
+		AliquotInternalUse.use_details AS use_details,
+		AliquotInternalUse.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		AliquotInternalUse.use_datetime AS use_datetime,
+		AliquotInternalUse.use_datetime_accuracy AS use_datetime_accuracy,
+		AliquotInternalUse.duration AS duration,
+		AliquotInternalUse.duration_unit AS duration_unit,
+		AliquotInternalUse.used_by AS used_by,
+		AliquotInternalUse.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		AliquotInternalUse.study_summary_id AS study_summary_id
+		FROM aliquot_internal_uses AS AliquotInternalUse
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE AliquotInternalUse.deleted <> 1",
+		"SELECT CONCAT(SourceAliquot.id,1) AS `id`,
+		AliquotMaster.id AS aliquot_master_id,
+		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
+		SampleMaster.sample_code AS use_code,
+		'' AS `use_details`,
+		SourceAliquot.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		DerivativeDetail.creation_datetime AS use_datetime,
+		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
+		'' AS `duration`,
+		'' AS `duration_unit`,
+		DerivativeDetail.creation_by AS used_by,
+		SourceAliquot.created AS created,
+		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
+		SampleMaster2.id AS sample_master_id,
+		SampleMaster2.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM source_aliquots AS SourceAliquot
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
+		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
+		WHERE SourceAliquot.deleted <> 1",
+		"SELECT CONCAT(Realiquoting.id ,2) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'realiquoted to' AS use_definition,
+		AliquotMasterChild.barcode AS use_code,
+		'' AS use_details,
+		Realiquoting.parent_used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		Realiquoting.realiquoting_datetime AS use_datetime,
+		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		Realiquoting.realiquoted_by AS used_by,
+		Realiquoting.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM realiquotings AS Realiquoting
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE Realiquoting.deleted <> 1",
+		"SELECT CONCAT(QualityCtrl.id,3) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'quality control' AS use_definition,
+		QualityCtrl.qc_code AS use_code,
+		'' AS use_details,
+		QualityCtrl.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		QualityCtrl.date AS use_datetime,
+		QualityCtrl.date_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		QualityCtrl.run_by AS used_by,
+		QualityCtrl.created AS created,
+		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM quality_ctrls AS QualityCtrl
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE QualityCtrl.deleted <> 1",
+		"SELECT CONCAT(OrderItem.id,4) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'aliquot shipment' AS use_definition,
+		Shipment.shipment_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		Shipment.datetime_shipped AS use_datetime,
+		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		Shipment.shipped_by AS used_by,
+		Shipment.created AS created,
+		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		JOIN `orders` AS `Order` ON  Order.id = OrderLine.order_id
+		WHERE OrderItem.deleted <> 1",
+		"SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'specimen review' AS use_definition,
+		SpecimenReviewMaster.review_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		SpecimenReviewMaster.review_date AS use_datetime,
+		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		'' AS used_by,
+		AliquotReviewMaster.created AS created,
+		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM aliquot_review_masters AS AliquotReviewMaster
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
+		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE AliquotReviewMaster.deleted <> 1");
+	foreach($queries as $select_query) customQuery("REPLACE INTO view_aliquot_uses ($select_query);", __FILE__, __LINE__);
 	//rebuild left right
 	$left_rght_nxt = 1;
 	$results = customQuery("SELECT id FROM storage_masters WHERE parent_id IS NULL;", __FILE__, __LINE__);
@@ -329,6 +493,7 @@ Collection.procure_visit AS procure_visit,
 
 }
 function updateLftRgt($storage_master_id,&$left_rght_nxt) {
+	//TODO remove
 	$lft = $left_rght_nxt;
 	$left_rght_nxt++;
 	$results = customQuery("SELECT id FROM storage_masters WHERE parent_id = $storage_master_id;", __FILE__, __LINE__);
@@ -346,11 +511,16 @@ function updateLftRgt($storage_master_id,&$left_rght_nxt) {
 
 function truncate() {
 	$truncate_queries = array(
+		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
+		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+			
 		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',	
 		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
 		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',	
 		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 		
+		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
 		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
 		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
 		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
@@ -372,11 +542,7 @@ function truncate() {
 		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
 		'UPDATE storage_masters SET parent_id = null;',
 		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
-		
-"DELETE FROM procure_txd_followup_worksheet_treatments WHERE treatment_type = 'prostatectomy';", "DELETE FROM procure_txd_followup_worksheet_treatments_revs WHERE treatment_type = 'prostatectomy';",
-'DELETE FROM treatment_masters WHERE treatment_control_id = 6 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_treatments);', 
-'DELETE FROM treatment_masters_revs WHERE treatment_control_id = 6 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_treatments);', 		
-			
+					
 		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
 		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
 		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
@@ -392,7 +558,28 @@ function truncate() {
 		
 		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
 		'DELETE FROM participants;','DELETE FROM participants_revs;'
-	
+	);
+	//TODO
+	$truncate_queries = array(
+			'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
+			'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
+			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+			'UPDATE storage_masters SET parent_id = null;',
+			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
+			
+				
+		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+		"DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT am.id FROM aliquot_masters am INNER JOIN sample_masters sm ON sm.id = am.sample_master_id WHERE sm.sample_control_id = 13);",			
+		"DELETE FROM aliquot_masters WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
+		"TRUNCATE sd_der_rnas;",
+		"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
+		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
+		"DELETE FROM sample_masters WHERE sample_control_id = 13;"
 	);
 	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
 }
@@ -411,17 +598,40 @@ function insertIntoRevs() {
 		'event_masters' => 0,
 		'procure_ed_lifestyle_quest_admin_worksheets' => 1,
 		'procure_ed_clinical_followup_worksheet_aps' => 1,
+		'procure_ed_lab_pathologies' => 1,
 
 		'treatment_masters' => 0,
 		'procure_txd_medication_drugs' => 1,
 		'procure_txd_followup_worksheet_treatments' => 1,
 		
 		'collections' => 0,
+			
 		'sample_masters' => 0,
 		'specimen_details' => 1,
 		'derivative_details' => 1,
-		'sd_spe_tissues' => 1
-			
+		'sd_spe_tissues' => 1,
+		'sd_spe_bloods' => 1,
+		'sd_der_serums' => 1,
+		'sd_der_pbmcs' => 1,
+		'sd_der_plasmas' => 1,
+		'sd_spe_urines' => 1,
+		'sd_der_urine_cents' => 1,
+		'sd_der_rnas' => 1,
+		
+		'aliquot_masters' => 0,
+		'ad_tubes' => 1,
+		'ad_whatman_papers' => 1,
+		'ad_blocks' => 1,
+	
+		'aliquot_internal_uses' => 0,	
+		'source_aliquots' => 0	,	
+	
+		'storage_masters' => 0,
+		'std_nitro_locates' => 1,
+		'std_fridges' => 1,
+		'std_freezers' => 1,
+		'std_boxs' => 1,		
+		'std_racks' => 1
 	);
 	
 	foreach($tables as $table_name => $is_detail_table) {
