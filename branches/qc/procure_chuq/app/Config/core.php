@@ -428,7 +428,7 @@ Configure::write('password_validity_period_month', null);
  * Set the limit of records that could either be displayed in the databrowser results 
  * form or into a report.
  */
-Configure::write('databrowser_and_report_results_display_limit', 5);
+Configure::write('databrowser_and_report_results_display_limit', 1000);
 
 /**
  * Set the limit of items that could be processed in batch

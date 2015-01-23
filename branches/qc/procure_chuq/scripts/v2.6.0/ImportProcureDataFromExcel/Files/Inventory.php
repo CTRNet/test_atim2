@@ -3,9 +3,9 @@
 //TODO Dans l'onglet v01 vérifier que le libellé 'urine concentrée' est bien ajoutée dans la ligne 2: 'urine concentrée vol. après conc.', 'urine concentrée ratio conc.'
 //TODO: Supprimer le contenu de toute cellule = '¯'
 
-function loadBlock(&$XlsReader, $files_path, $file_name) {	
+function loadFrozenBlock(&$XlsReader, $files_path, $file_name) {	
 	global $import_summary;
-	$psp_nbr_to_blocks_data = array('blocks'=>array(), 'file_name' => $file_name);
+	$psp_nbr_to_frozen_blocks_data = array('blocks'=>array(), 'file_name' => $file_name);
 	//Load Worksheet Names
 	$XlsReader->read($files_path.$file_name);
 	$sheets_nbr = array();
@@ -63,17 +63,57 @@ function loadBlock(&$XlsReader, $files_path, $file_name) {
 					//procure_dimensions
 					$procure_dimensions = '';
 					if(strlen($new_line_data['blocs (cm2)'])) $new_line_data['blocs (cm2)'] .= ' (cm2)';
-					$new_line_data['excel_line'] = $line_counter;
+					//Cut by
+					switch($new_line_data['Coupe réalisée par']) {
+						case 'CM':
+						case 'MO':
+						case  '':
+							break;
+						case 'MO-CM':
+							$new_line_data['Coupe réalisée par'] = 'CM';
+							$import_summary['Inventory - Tissue']['@@WARNING@@']["Changed lab staff from 'MO-CM' to 'CM'"][] = "See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";	
+							break;
+						default:
+							$import_summary['Inventory - Tissue']['@@ERROR@@']["Unknown lab staff"][] = "Lab staff '".$new_line_data['Coupe réalisée par']."' is unknown. Value won't be migrated. See patient '$patient_identifier'. [field 'Coupe réalisée par' - file '$file_name' - line $line_counter]";
+							$new_line_data['Coupe réalisée par'] = '';
+					}
 					//set data
-					$psp_nbr_to_blocks_data['blocks'][$new_line_data['# patient']][] = $new_line_data;
+					$new_line_data['excel_line'] = $line_counter;
+					$psp_nbr_to_frozen_blocks_data['blocks'][$new_line_data['# patient']][] = $new_line_data;
 				}
 			}
 		}
 	}
-	return $psp_nbr_to_blocks_data;
+	return $psp_nbr_to_frozen_blocks_data;
 }
 
-function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_blocks_data, &$psp_nbr_to_participant_id_and_patho) {
+function loadParaffinBlock(&$XlsReader, $files_path, $file_name) {
+	global $import_summary;
+	$import_summary['Inventory - Tissue']['@@WARNING@@']["Field '# dossier' won't be migrated and used"][] = "See file $file_name";
+	$psp_nbr_to_paraffin_blocks_data = array('blocks'=>array(), 'file_name' => $file_name);
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	$dublicated_aliquots_check = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//Load data
+	foreach($XlsReader->sheets[$sheets_nbr['Feuil1']]['cells'] as $line_counter => $new_line) {
+		//$line_counter++;
+		if($line_counter == 4) {
+			$headers = $new_line;
+		} else if($line_counter > 4){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$patient_identifier = $new_line_data['# échantillon'];
+			if($patient_identifier && preg_match('/^PS2P/', $patient_identifier) && strlen($new_line_data['bloc tumoral 1'].$new_line_data['bloc tumoral 2'].$new_line_data['bloc normal 1'].$new_line_data['bloc normal 2'])) {
+				$new_line_data['excel_line'] = $line_counter;
+				$psp_nbr_to_paraffin_blocks_data['blocks'][$patient_identifier][] = $new_line_data;
+			}
+		}
+	}
+	return $psp_nbr_to_paraffin_blocks_data;
+}
+
+function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, &$psp_nbr_to_participant_id_and_patho) {
 	global $import_summary;
 	global $controls;
 	// Control
@@ -87,7 +127,7 @@ function loadInventory(&$XlsReader, $files_path, $file_name, $psp_nbr_to_blocks_
 	$headers = array();
 	for($id=1;$id<10;$id++) {
 //TODO
-if(!in_array($id, array(1))) continue;		
+if(!in_array($id, array(1,2))) continue;		
 		$worksheet = "V0".$id;
 		$duplicated_participants_check = array();
 		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
@@ -105,7 +145,7 @@ if(!in_array($id, array(1))) continue;
 								$participant_id = $psp_nbr_to_participant_id_and_patho[$participant_identifier]['participant_id'];
 								//Load Tissue
 								if($worksheet == 'V01') {
-									loadTissue($participant_id, $participant_identifier, $psp_nbr_to_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data);
+									loadTissue($participant_id, $participant_identifier, $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho[$participant_identifier]['patho#'], $file_name, $worksheet, $line_counter, $new_line_data);
 									$psp_nbr_to_participant_id_and_patho[$participant_identifier]['prostate_weight_gr'] = getDecimal($new_line_data, 'poids de prostate entière (gramme)', 'Pathology Report', "$file_name ($worksheet)", $line_counter);
 								}
 								//Blood....
@@ -126,8 +166,11 @@ if(!in_array($id, array(1))) continue;
 		}
 	}
 	//Check unmigrated block data
-	foreach($psp_nbr_to_blocks_data['blocks'] as $participant_identifier => $data) {
-		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' :: $worksheet - line: $line_counter && ".$psp_nbr_to_blocks_data['file_name']."]  ";
+	foreach($psp_nbr_to_frozen_blocks_data['blocks'] as $participant_identifier => $data) {
+		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated frozen blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' :: $worksheet - line: $line_counter && ".$psp_nbr_to_frozen_blocks_data['file_name']."]  ";
+	}
+	foreach($psp_nbr_to_paraffin_blocks_data['blocks'] as $participant_identifier => $data) {
+		$import_summary['Inventory - tissue']['@@ERROR@@']['Unmigrated paraffin blocks'][] = "The blocks of the patient '$participant_identifier' have not been migrated (patient defined into tisue file but not found into invenotry file). [file '$file_name' :: $worksheet - line: $line_counter && ".$psp_nbr_to_paraffin_blocks_data['file_name']."]  ";
 	}
 }
 
@@ -683,7 +726,7 @@ function loadBlood($participant_id, $participant_identifier, $file_name, $worksh
 	}
 }
 	
-function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_blocks_data, $patho_nbr, $file_name, $worksheet, $line_counter, $new_line_data) {
+function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_frozen_blocks_data, &$psp_nbr_to_paraffin_blocks_data, &$patho_nbr, $file_name, $worksheet, $line_counter, $new_line_data) {
 	global $import_summary;
 	global $controls;
 	
@@ -736,11 +779,17 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_block
 	
 	//*** TISSUE SAMPLE **
 	
-	$patient_block_data = array();
-	if(array_key_exists($participant_identifier, $psp_nbr_to_blocks_data['blocks'])) {
-		$patient_block_data = $psp_nbr_to_blocks_data['blocks'][$participant_identifier];
-		unset($psp_nbr_to_blocks_data['blocks'][$participant_identifier]);
+	$patient_frozen_block_data = array();
+	if(array_key_exists($participant_identifier, $psp_nbr_to_frozen_blocks_data['blocks'])) {
+		$patient_frozen_block_data = $psp_nbr_to_frozen_blocks_data['blocks'][$participant_identifier];
+		unset($psp_nbr_to_frozen_blocks_data['blocks'][$participant_identifier]);
 	}	
+	
+	$patient_paraffin_block_data = array();
+	if(array_key_exists($participant_identifier, $psp_nbr_to_paraffin_blocks_data['blocks'])) {
+		$patient_paraffin_block_data = $psp_nbr_to_paraffin_blocks_data['blocks'][$participant_identifier];
+		unset($psp_nbr_to_paraffin_blocks_data['blocks'][$participant_identifier]);
+	}
 	
 	if($collection_id) {
 		$tissue_sample_controls = $controls['sample_aliquot_controls']['tissue'];
@@ -780,7 +829,10 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_block
 				'procure_reference_to_biopsy_report' => $procure_reference_to_biopsy_report));
 		$sample_master_id = createSample($sample_data, $tissue_sample_controls['detail_tablename']);
 		
-		//*** TISSUE ALIQUOTS **
+		$block_created = false;
+		
+		//*** FROZEN TISSUE BLOCKS **
+		//Create block based on tissue size excel file
 		
 		//DateTime
 		$storage_date = $prostatectomy_data['TreatmentMaster']['start_date'];
@@ -798,12 +850,71 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_block
 			$storage_date .= ' 00:00';
 			$storage_date_accuracy = str_replace('c', 'h', $storage_date_accuracy);
 		}
-		//Create block based on tissue size excel file
-		$block_created = false;
 		//$duplicated_label_check = array();
-		foreach($patient_block_data as $new_block) {
-			//Note all value of $new_block from file 'tissue size' already checked in previous function loadBlock()
+		foreach($patient_frozen_block_data as $new_block) {
+			//Note: All values of $new_block from file 'tissue size' already checked in previous function loadFrozenBlock()
 			$block_created = true;
+			$in_stock = 'yes - available';
+			$aliquot_use = array();
+			$notes = '';
+			//Aliquot Internal Use Defintion: Check 'Date de coupe' comment
+			switch($new_block['Date de coupe']) {
+				case '':
+					break;
+				case 'envoi le 20 fév. 2012 au CUSM pour mapping et test extrac. ARN':
+					$in_stock = 'yes - not available';
+					$aliquot_use = array(
+						'use_code' => 'Au CUSM pour Mapping + Extraction ARN', 
+						'type' => 'on loan', 
+						'use_details' => $new_block['Date de coupe'],
+						'use_datetime' => '2012-02-20', 
+						'use_datetime_accuracy' => 'h', 
+						'used_by' => $new_block['Coupe réalisée par']);
+					break;
+				case 'retour des blocs congelé à la patho pour diagnostic':
+					$in_stock = 'no';
+					$aliquot_use = array(
+						'use_code' => 'En Patho pour Diagnostic',
+						'type' => 'on loan',
+						'use_details' => $new_block['Date de coupe'],
+						'use_datetime' => '',
+						'use_datetime_accuracy' => '',
+						'used_by' => $new_block['Coupe réalisée par']);
+					break;
+				case 'tissu redonné à la patho':
+					$in_stock = 'no';
+					$aliquot_use = array(
+						'use_code' => 'Retour Patho',
+						'type' => 'other',
+						'use_details' => $new_block['Date de coupe'],
+						'use_datetime' => '',
+						'use_datetime_accuracy' => '',
+						'used_by' => $new_block['Coupe réalisée par']);
+					break;
+				case 'un peu de calcifications':
+					$notes = 'Un peu de calcifications';
+					break;
+				default:
+					if(preg_match('/^2008\-10\-.+\/\/.+$/', $new_block['Date de coupe'])) {
+						$use_datetime =array('date' => '2008-10-01 00:00', 'accuracy' =>'d');
+					} else if('Hiver-Printemps 2007' == $new_block['Date de coupe']) {
+						$use_datetime =array('date' => '2007-03-01 00:00', 'accuracy' =>'m');
+					} else {
+						$use_datetime = getDateAndAccuracy($new_block, 'Date de coupe', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], $new_block['excel_line']);
+						$use_datetime['accuracy'] = str_replace('c', 'h', $use_datetime['accuracy']);
+					}
+					if($use_datetime['date']) {
+						$aliquot_use = array(
+							'use_code' => 'Coupe',
+							'type' => 'slide creation',
+							'use_datetime' => $use_datetime['date'],
+							'use_datetime_accuracy' => $use_datetime['accuracy'],
+							'used_by' => $new_block['Coupe réalisée par']);
+					} else {
+						$import_summary['Inventory - Tissue']['@@ERROR@@']["Unable to extract 'Aliquot Use' information from 'Date de coupe'"][] = "Value '".$new_block['Date de coupe']."' is not supported and won't be migrated. See patient '$participant_identifier'. [file '".$psp_nbr_to_frozen_blocks_data['file_name']."', line '".$new_block['excel_line']."']";
+					}
+			}
+			$use_counter = empty($aliquot_use)? ' 0' : '1';
 			//time_spent_collection_to_freezing_end_mn
 			$time_spent_collection_to_freezing_end_mn = null;
 			if($storage_date &&  $collection_data['collection_datetime'] && ($collection_data['collection_datetime_accuracy'].$storage_date_accuracy) == 'cc') {				
@@ -815,8 +926,13 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_block
 				}
 			}
 			//Storage data
-			$storage_master_id = getStorageMasterId($participant_identifier, $new_block['boîte'], 'tissue', 'Inventory - Tissue', $psp_nbr_to_blocks_data['file_name'], '', $new_block['excel_line']);
-			$storage_coordinates = getPosition($participant_identifier, $new_block['division'], $new_block['boîte'], 'tissue', 'Inventory - Tissue', $psp_nbr_to_blocks_data['file_name'], '', $new_block['excel_line']);
+			$storage_master_id = getStorageMasterId($participant_identifier, $new_block['boîte'], 'tissue', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], '', $new_block['excel_line']);
+			$storage_coordinates = getPosition($participant_identifier, $new_block['division'], $new_block['boîte'], 'tissue', 'Inventory - Tissue', $psp_nbr_to_frozen_blocks_data['file_name'], '', $new_block['excel_line']);
+			if($in_stock == 'no' && $storage_master_id) {
+				$import_summary['Inventory - Tissue']['@@WARNING@@']["Aliquot 'In Stock' value set to 'No'"][] = "Aliquot 'In Stock' value set to 'No' based on 'Date de coupe' value '".$new_block['Date de coupe']."' so storage information (".$new_block['boîte'].'/'.$new_block['division'].") won't be imported. See patient '$participant_identifier'. [file '".$psp_nbr_to_frozen_blocks_data['file_name']."', line '".$new_block['excel_line']."' &&  file '".$psp_nbr_to_frozen_blocks_data['file_name']."', line '".$new_block['excel_line']."']";
+				$storage_master_id = null;
+				$storage_coordinates = array('x'=>null, 'y'=>null);;
+			}
 			//Create aliquot	
 			$aliquot_data = array(
 				'AliquotMaster' => array(
@@ -824,15 +940,16 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_block
 					'sample_master_id' => $sample_master_id,
 					'aliquot_control_id' => $tissue_sample_controls['aliquots']['block']['aliquot_control_id'],
 					'barcode' => "$participant_identifier V01 -".$new_block['label'],
-					'in_stock' => 'yes - available',
+					'in_stock' => $in_stock,
 					'initial_volume' => null,
 					'current_volume' => null,
-					'use_counter' => '0',
+					'use_counter' => $use_counter,
 					'storage_datetime' => $storage_date,
 					'storage_datetime_accuracy' => $storage_date_accuracy,
 					'storage_master_id' => $storage_master_id,
 					'storage_coord_x' => $storage_coordinates['x'],
-					'storage_coord_y' => $storage_coordinates['y']),
+					'storage_coord_y' => $storage_coordinates['y'],
+					'notes' => $notes),
 				'AliquotDetail' => array(
 					'block_type' => 'frozen',
 					'procure_freezing_type' => $new_block['i=iso  O=OCT'],
@@ -841,15 +958,354 @@ function loadTissue($participant_id, $participant_identifier, &$psp_nbr_to_block
 					'time_spent_collection_to_freezing_end_mn' => $time_spent_collection_to_freezing_end_mn));
 			$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 			customInsert($aliquot_data['AliquotDetail'], $tissue_sample_controls['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
+			//Aliquot Internal Use Record
+			if(!empty($aliquot_use)) {
+				$aliquot_use['aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+				customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+			}
 		}
+		
+		//*** PARAFFIN TISSUE BLOCKS **
+		//Create block based on patho block excel file
+				
+		//$duplicated_label_check = array();
+		foreach($patient_paraffin_block_data as $new_blocks_set) {
+			$patho_nbr_from_paraffin_block = $new_blocks_set['# patho'];
+			if(empty($patho_nbr_from_paraffin_block)) {
+				$import_summary['Inventory - Tissue']['@@ERROR@@']['No Patho Number for paraffin block'][] = "The pathology number is not defined into the paraffin block file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. No block will be created. See patient '$participant_identifier'. ['".$psp_nbr_to_paraffin_blocks_data['file_name']."', line '".$new_blocks_set['excel_line']."']";
+			} else {
+				if(empty($patho_nbr)) {
+					$patho_nbr = $patho_nbr_from_paraffin_block;
+					$import_summary['Inventory - Tissue']['@@MESSAGE@@']['Used Patho Number of paraffin block'][] = "The pathology number ($patho_nbr_from_paraffin_block) is just set into the paraffin block file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. Will use this one for both sample and pathology report data. See patient '$participant_identifier'. ['".$psp_nbr_to_paraffin_blocks_data['file_name']."', line '".$new_blocks_set['excel_line']."']";	
+					$query = "UPDATE ".$tissue_sample_controls['detail_tablename']." SET procure_report_number = '".str_replace("'", "''", $patho_nbr)."' WHERE sample_master_id = $sample_master_id;";
+					customQuery($query, __FILE__, __LINE__);
+				} else if($patho_nbr != $patho_nbr_from_paraffin_block){
+					$import_summary['Inventory - Tissue']['@@ERROR@@']['Patho Numbers conflict'][] = "The pathology number ($patho_nbr) previously defined into patient excel file does not match the number ($patho_nbr_from_paraffin_block) defined into the paraffin block file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. Please confrim. See patient '$participant_identifier'. ['".$psp_nbr_to_paraffin_blocks_data['file_name']."', line '".$new_blocks_set['excel_line']."']";
+				}
+				foreach(array('bloc tumoral 1', 'bloc tumoral 2', 'bloc normal 1', 'bloc normal 2') as $block_key) {
+					if($new_blocks_set[$block_key]) {
+						$block_created = true;
+						//Create aliquot
+						$aliquot_data = array(
+							'AliquotMaster' => array(
+								'collection_id' => $collection_id,
+								'sample_master_id' => $sample_master_id,
+								'aliquot_control_id' => $tissue_sample_controls['aliquots']['block']['aliquot_control_id'],
+								'barcode' => "$patho_nbr_from_paraffin_block-".$new_blocks_set[$block_key],
+								'in_stock' => 'yes - available'),
+							'AliquotDetail' => array(
+								'block_type' => 'paraffin',
+								'procure_classification' => preg_match('/^bloc normal/', $block_key)? 'NC' : 'C'));
+						$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+						customInsert($aliquot_data['AliquotDetail'], $tissue_sample_controls['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
+					}
+				}
+			}
+		}
+		
+		//*** BLOCK CREATION CHECK **
+		
 		if(!$block_created) {
-			$import_summary['Inventory - Tissue']['@@WARNING@@']["No Block defined for a patient tissue collection"][] = "See patient '$participant_identifier'. A tissue sample has been created but no block is defined into tissue size file. No aliquot will be created. [file '".$psp_nbr_to_blocks_data['file_name']."']";
+			$import_summary['Inventory - Tissue']['@@WARNING@@']["No Block defined for a patient tissue collection"][] = "See patient '$participant_identifier'. A tissue sample has been created but no block is defined into file '".$psp_nbr_to_frozen_blocks_data['file_name']."' or file '".$psp_nbr_to_paraffin_blocks_data['file_name']."'. No aliquot will be created.";
 		}
-	} else if(!empty($patient_block_data)) {
-		$import_summary['Inventory - Tissue']['@@ERROR@@']["No collection created but tissue blocks defined in tissue size file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into tissue size file. No aliquot,sample and collection will be created. [file '".$psp_nbr_to_blocks_data['file_name']."']";
+	} else {
+		if(!empty($patient_frozen_block_data)) {
+			$import_summary['Inventory - Tissue']['@@ERROR@@']["No collection created but tissue blocks defined in tissue size file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into tissue size file. No aliquot,sample and collection will be created. [file '".$psp_nbr_to_frozen_blocks_data['file_name']."']";
+		}
+		if(!empty($patient_paraffin_block_data)) {
+			$import_summary['Inventory - Tissue']['@@ERROR@@']["No collection created but tissue blocks defined in path block file"][] = "See patient '$participant_identifier'. No tissue collection has been created but blocks are defined into patho block file. No aliquot,sample and collection will be created. [file '".$psp_nbr_to_paraffin_blocks_data['file_name']."']";
+		}
 	}
 }
 
+function loadRNA(&$XlsReader, $files_path, $file_name) {
+	global $import_summary;
+	global $controls;
+	// Control
+	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
+	$storage_control = $controls['storage_controls'];
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+	//LoadConsentAndQuestionnaireData
+	$headers = array();
+	for($id=1;$id<10;$id++) {
+//TODO
+if(!in_array($id, array(1))) continue;
+		$worksheet = "V0".$id;
+		$paxgene_blood_tubes = array();	
+		$query = "SELECT par.participant_identifier, am.collection_id, am.sample_master_id, am.barcode, am.id AS aliquot_master_id, am.storage_master_id, stm.selection_label
+			FROM participants par
+			INNER JOIN collections col ON col.participant_id = par.id
+			INNER JOIN aliquot_masters am ON am.collection_id = col.id
+			LEFT JOIN storage_masters stm ON stm.id = am.storage_master_id
+			WHERE am.deleted <> 1 AND col.procure_visit = '$worksheet' AND am.aliquot_control_id = ".$sample_aliquot_controls['blood']['aliquots']['tube']['aliquot_control_id'].";";
+		$results = customQuery($query, __FILE__, __LINE__);
+		while($row = $results->fetch_assoc()){
+			$participant_identifier = $row['participant_identifier'];
+			if(array_key_exists($participant_identifier, $paxgene_blood_tubes)) $import_summary['Inventory - RNA']['@@WARNING@@']["More than one paxgene tube exist"][] = "See patient '$participant_identifier'.";
+			$paxgene_blood_tubes[$participant_identifier] = $row;
+		}
+		$procure_chuq_extraction_number = '';
+		$aliquot_master_ids_to_remove = array('-1');
+		foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+			//$line_counter++;
+			if($line_counter == 2) {
+				$headers = $new_line;
+			} else if($line_counter > 3){
+				$new_line_data = formatNewLineData($headers, $new_line);
+				$participant_identifier = $new_line_data['# échantillon'];
+				if(strlen($participant_identifier)) {
+					if(preg_match('/^PS[0-9]P/', $participant_identifier)) {
+						if(array_key_exists($participant_identifier, $paxgene_blood_tubes)) {
+							//Parse excel data
+							if(strlen($new_line_data['# extraction'])) $procure_chuq_extraction_number = $new_line_data['# extraction'];
+							$extraction_date = getDateAndAccuracy($new_line_data, "Date             d'extraction", 'Inventory - RNA', $file_name, $line_counter);
+							$extraction_date['accuracy'] = str_replace('c','h',$extraction_date['accuracy']);
+							$notes = $new_line_data["Note d'incident         durant extration"];
+							$procure_chuq_dnase_duration_mn = '';
+							if($new_line_data["Délai DNAse"]) {
+								if(preg_match('/^([0-9]+)\ min\.\ DNAse$/', $new_line_data["Délai DNAse"], $matches)) {
+									$procure_chuq_dnase_duration_mn = $matches[1];
+								} else {
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Wrong 'Délai DNAse' format"][] = "See value '".$new_line_data["Délai DNAse"]."' for patient '$participant_identifier'. No value imported. [file '$file_name' :: $worksheet - line: $line_counter]";
+								}
+							}
+							$procure_chuq_extraction_method = '';
+							if($new_line_data['extract. Manuelle'] == 1 && $new_line_data['Qiacube kit miRNA'] == 1) {
+								$import_summary['Inventory - RNA']['@@WARNING@@']["Extraction method conflict"][] = "Extraction method defined both as manual and kit. No method will be set. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+							} else if($new_line_data['extract. Manuelle'] == 1) {
+								$procure_chuq_extraction_method = 'manual extraction';
+							} else if($new_line_data['Qiacube kit miRNA'] == 1) {
+								$procure_chuq_extraction_method = 'qiacube kit miRNA';
+							}
+							$created_by = '';
+							switch($new_line_data['extrait par CHUQ']) {
+								case 'CM':
+								case 'MO':
+								case 'VB':
+								case  '':
+									$created_by = $new_line_data['extrait par CHUQ'];
+									break;
+								case 'MO-CM':
+								case 'CM (BC)':
+								case 'CM (BC)':
+								case 'VB et CM':
+								case 'VB/CM':
+									$created_by = 'CM';
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Changed lab staff who extracted RNA to 'CM'"][] = "Value was = '".$new_line_data['extrait par CHUQ']."'. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+									break;
+								default:
+									$import_summary['Inventory - RNA']['@@ERROR@@']["Unknown lab staff who extracted RNA"][] = "Lab staff '".$new_line_data['extrait par CHUQ']."' is unknown. Value won't be migrated. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+							}
+							//Create RNA Sample
+							$sample_data = array(
+								'SampleMaster' => array(
+									'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
+									'sample_control_id' => $sample_aliquot_controls['rna']['sample_control_id'],
+									'initial_specimen_sample_type' => 'blood',
+									'initial_specimen_sample_id' => $paxgene_blood_tubes[$participant_identifier]['sample_master_id'],
+									'parent_sample_type' => 'blood',
+									'parent_id' => $paxgene_blood_tubes[$participant_identifier]['sample_master_id'],
+									'notes' => $notes),
+								'DerivativeDetail' => array(
+									'creation_datetime' => $extraction_date['date'],
+									'creation_datetime_accuracy' => $extraction_date['accuracy'],
+									'creation_by' =>$created_by),
+								'SampleDetail' => array(
+									'procure_chuq_extraction_number' => $procure_chuq_extraction_number,
+									'procure_chuq_dnase_duration_mn' => $procure_chuq_dnase_duration_mn,
+									'procure_chuq_extraction_method' => $procure_chuq_extraction_method));
+							$derivative_sample_master_id = createSample($sample_data, $sample_aliquot_controls['rna']['detail_tablename']);
+							//Create aliquot to sample link		
+							$source_aliquot_barcode = $paxgene_blood_tubes[$participant_identifier]['barcode'];
+							$source_aliquot_master_id = $paxgene_blood_tubes[$participant_identifier]['aliquot_master_id'];
+							customInsert(array('sample_master_id' => $derivative_sample_master_id, 'aliquot_master_id' => $source_aliquot_master_id), 'source_aliquots', __FILE__, __LINE__, false);
+							//Update paxgen tube storage data
+							$aliquot_master_ids_to_remove[] = $source_aliquot_master_id;
+							if($paxgene_blood_tubes[$participant_identifier]['storage_master_id']) {
+								$import_summary['Inventory - RNA']['@@WARNING@@']["Removed Paxgene Tube from Storage"][] = "Paxgen tube '$source_aliquot_barcode' was defined as used for RNA extraction. Migration process removed storage information (Tube was defined as stored into ".$paxgene_blood_tubes[$participant_identifier]['selection_label']."). See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+							}
+							//Create aliquots
+							$aliquot_master_ids = array();
+							//... RNA1
+							$initial_volume = getDecimal($new_line_data, 'RNA-1 volume (ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+							if(strlen($new_line_data['bte rangement RNA-1']) || $initial_volume) {
+								$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement RNA-1'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
+								$storage_coordinates = getPosition($participant_identifier, $new_line_data['Position RNA-1 dans boîte de rangement'], $new_line_data['bte rangement RNA-1'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
+								$aliquot_data = array(
+									'AliquotMaster' => array(
+										'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
+										'sample_master_id' => $derivative_sample_master_id,
+										'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
+										'barcode' => "$participant_identifier V01 -RNA1",
+										'in_stock' => 'yes - available',
+										'initial_volume' => $initial_volume,
+										'current_volume' => $initial_volume,
+										'use_counter' => '0',
+										'storage_datetime' => $extraction_date['date'],
+										'storage_datetime_accuracy' => $extraction_date['accuracy'],
+										'storage_master_id' => $storage_master_id,
+										'storage_coord_x' => $storage_coordinates['x'],
+										'storage_coord_y' => $storage_coordinates['y']),
+									'AliquotDetail' => array());
+								$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+								customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+								$aliquot_master_ids['RNA-1'] = array('aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'uses_counter' => '0');
+							}
+							//Mir
+							if(strlen($new_line_data['MiR']) || strlen($new_line_data['Boîte de rangement Mir'])) {
+								$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['Boîte de rangement Mir'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
+								$storage_coordinates = getPosition($participant_identifier, $new_line_data['Position Mir dans boîte de rangement'], $new_line_data['Boîte de rangement Mir'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
+								$aliquot_data = array(
+									'AliquotMaster' => array(
+										'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
+										'sample_master_id' => $derivative_sample_master_id,
+										'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
+										'barcode' => "$participant_identifier V01 -miRNA",
+										'in_stock' => 'yes - available',
+										'initial_volume' => null,
+										'current_volume' => null,
+										'use_counter' => '0',
+										'storage_datetime' => $extraction_date['date'],
+										'storage_datetime_accuracy' => $extraction_date['accuracy'],
+										'storage_master_id' => $storage_master_id,
+										'storage_coord_x' => $storage_coordinates['x'],
+										'storage_coord_y' => $storage_coordinates['y']),
+									'AliquotDetail' => array(
+										'procure_chuq_micro_rna' => '1'));
+								$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+								customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+								$aliquot_master_ids['RNA-micro'] = array('aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'uses_counter' => '0');
+							}
+							for($id=2;$id<4;$id++) {
+								$initial_volume = getDecimal($new_line_data, 'RNA-'.$id.' volume (ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($initial_volume) {
+									$aliquot_data = array(
+										'AliquotMaster' => array(
+											'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
+											'sample_master_id' => $derivative_sample_master_id,
+											'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
+											'barcode' => "$participant_identifier V01 -RNA".$id,
+											'in_stock' => 'yes - available',
+											'initial_volume' => $initial_volume,
+											'current_volume' => $initial_volume,
+											'use_counter' => '0',
+											'storage_datetime' => $extraction_date['date'],
+											'storage_datetime_accuracy' => $extraction_date['accuracy']),
+										'AliquotDetail' => array());
+									$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+									customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+									$aliquot_master_ids['RNA-'.$id] = array('aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'uses_counter' => '0');
+								}
+							}
+							if(empty($aliquot_master_ids)) {
+								$import_summary['Inventory - RNA']['@@WARNING@@']["No tube of RNA defined"][] = "RNA sample has been created but no tube volume is set. No aliquot has been created .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+							}
+							//Bioanalyzer
+							$qc_code_counter = 0;
+							if($new_line_data['Analysé par bioanalyser'] || strlen($new_line_data["Date d'analyse"])) {
+								$scores = array();
+								$score = getDecimal($new_line_data, 'Valeur RIN', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($score) $scores['RIN'] = $score;
+								$score = getDecimal($new_line_data, 'Ratio 28S/18S Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($score) $scores['28/18'] = $score;
+								if(empty($scores)) $scores[''] = '';
+								$qc_date = getDateAndAccuracy($new_line_data, "Date d'analyse", 'Inventory - RNA', $file_name, $line_counter);
+								$qc_date['accuracy'] = str_replace('c','h',$qc_date['accuracy']);
+								$tested_aliquot_master_id = null;
+								if($new_line_data['Aliquot utilisé pour bioanalyser']) {
+									if(array_key_exists($new_line_data['Aliquot utilisé pour bioanalyser'], $aliquot_master_ids)) {
+										$tested_aliquot_master_id = $aliquot_master_ids[$new_line_data['Aliquot utilisé pour bioanalyser']]['aliquot_master_id'];
+									} else {
+										$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Unable to define tested aliquot"][] = "The system is unable to link test to the specific aliquot defined as  '".$new_line_data['Aliquot utilisé pour bioanalyser']."'. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									}
+								}
+								$new_line_data['Volume pris pour analyse  bioanalyser'] = str_replace(' ul', '', $new_line_data['Volume pris pour analyse  bioanalyser']);
+								$used_volume = getDecimal($new_line_data, 'Volume pris pour analyse  bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if(is_null($tested_aliquot_master_id) && strlen($used_volume)) {
+									$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Used volume but no tested aliquot"][] = "A 'Volume pris pour analyse  bioanalyser' is defined but no tested aliquot is defined. No volume will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									$used_volume = '';
+								}
+								$concentration = getDecimal($new_line_data, 'Concentration (ng/ul) par Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								$concentration_unit = strlen($concentration)? 'ng/ul' : '';
+								foreach($scores as $unit => $score) {
+									$qc_code_counter++;
+									$qc_data = array(
+										'qc_code' => 'tmp'.$derivative_sample_master_id.'-'.$qc_code_counter,
+										'sample_master_id' => $derivative_sample_master_id,
+										'aliquot_master_id' => $tested_aliquot_master_id,
+										'used_volume' => $used_volume,
+										'type' => 'bioanalyzer',
+										'procure_analysis_by' => $new_line_data["Centre d'analyse"],
+										'date' => $qc_date['date'],
+										'date_accuracy' => $qc_date['accuracy'],
+										'score' => $score,
+										'unit' => $unit,
+										'concentration' => $concentration,
+										'concentration_unit' => $concentration_unit,
+										'notes' => strlen($new_line_data['Chip comment'])? 'Chip note: '.$new_line_data['Chip comment'] : '');
+									customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);
+									$used_volume = ''; //In case there are 2 scores
+								}
+//TODO Qualité visuelle Bioanalyser
+//TODO Quantité (ug) par Bioanalyser
+							}
+							//Nanodrop
+							if(strlen($new_line_data["Nanodrop date analyse"])) {
+								pr($new_line_data);
+								$scores = array();
+								$score = getDecimal($new_line_data, 'Nanodrop A260', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($score) $scores['260'] = $score;
+								$score = getDecimal($new_line_data, 'Nanodrop A280', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($score) $scores['280'] = $score;
+								$score = getDecimal($new_line_data, 'Nanodrop 260/280', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($score) $scores['260/280'] = $score;
+								$score = getDecimal($new_line_data, 'Nanodrop 260/230', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								if($score) $scores['260/230'] = $score;
+								if(empty($scores)) $scores[''] = '';
+								$qc_date = getDateAndAccuracy($new_line_data, "Nanodrop date analyse", 'Inventory - RNA', $file_name, $line_counter);
+								$qc_date['accuracy'] = str_replace('c','h',$qc_date['accuracy']);
+								//Volume pris pour analyse nanodrop: Not imported because no linked aliquot
+								$concentration = getDecimal($new_line_data, 'Nanodrop (ng/ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+								$concentration_unit = strlen($concentration)? 'ng/ul' : '';								
+								
+								
+								foreach($scores as $unit => $score) {
+									$qc_code_counter++;
+									$qc_data = array(
+										'qc_code' => 'tmp'.$derivative_sample_master_id.'-'.$qc_code_counter,
+										'sample_master_id' => $derivative_sample_master_id,
+										'type' => 'nanodrop',
+										'procure_analysis_by' => $new_line_data["Nanodrop centre analyse"],
+										'date' => $qc_date['date'],
+										'date_accuracy' => $qc_date['accuracy'],
+										'score' => $score,
+										'unit' => $unit,
+										'concentration' => $concentration,
+										'concentration_unit' => $concentration_unit);
+									customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);
+								}
+
+							}
+								
+//TODO Quantité (ug) par Bioanalyser	poids du sang estimé	ug ARN par gramme de sang	Volume avant analyse	Volume pris pour analyse nanodrop	Nanodrop centre analyse	Nanodrop date analyse	Nanodrop (ng/ul)	Quantité (ug) pa nanodrop	Nanodrop A260	Nanodrop A280	Nanodrop 260/280	Nanodrop 260/230		Ratio concentration Bioanalyser sur Nanodrop	vérif. DNAse PCR direct	Rapport D.O. 260/280	Concentration par D.O. (ng/ul)	Quantité  par D.O. (ug)	Volume (ul)
+								
+							
+							unset($paxgene_blood_tubes[$participant_identifier]);
+						} else {
+							$import_summary['Inventory - RNA']['@@ERROR@@']["No paxgene tube"][] = "RNA has been defined for patient $participant_identifier but no paxgene tube was previously created into the system. No RNA will be created. [file '$file_name' :: $worksheet - line: $line_counter";
+						}
+					}
+				}
+			}
+		}
+		//Update paxgen tube storage data
+		$query = "UPDATE aliquot_masters SET in_stock = 'no', storage_master_id = null, storage_coord_x = null, storage_coord_y = null WHERE id IN ('".implode("','", $aliquot_master_ids_to_remove)."');";
+		customQuery($query, __FILE__, __LINE__);
+	}
+}
 function createSample($sample_data, $detail_tablename) {
 	global $sample_code;
 
@@ -875,6 +1331,7 @@ function getBoxStorageUniqueKey($excel_storage_label, $sample_type) {
 	if(!$excel_storage_label) {
 		die('ERR 283ee234342.1');
 	} else {
+//TODO confirm avec claire		
 		switch($sample_type) {
 			case 'tissue':
 				return 'tissue-'.$excel_storage_label;
@@ -882,6 +1339,7 @@ function getBoxStorageUniqueKey($excel_storage_label, $sample_type) {
 			case 'plasma':
 			case 'pbmc':
 			case 'concentrated urine':
+			case 'rna':
 				return 'blood_and_urinec-'.$excel_storage_label;
 			case 'whatman':
 				return 'whatman-'.$excel_storage_label;
@@ -918,6 +1376,7 @@ function getStorageMasterId($participant_identifier, $excel_storage_label, $samp
 				case 'plasma':
 				case 'pbmc':
 				case 'concentrated urine':
+				case 'rna':
 					if(preg_match('/^(R[0-9]+)(B[0-9]+)$/',$excel_storage_label, $matches)) {
 						$rack_label = $matches[1];
 						$box_label = $matches[2];
@@ -1012,52 +1471,14 @@ function getPosition($participant_identifier, $excel_postions, $excel_storage_la
 				die('ERR327632767326 '.$storage_type);	
 		}
 		if(is_null($positions['x'])) $import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box ($storage_type) is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
-		/*
-		if(!array_key_exists($storage_type, $controls['storage_controls']))  die('ERR 2387 628763287.3 ');
-		$storage_controls_data = $controls['storage_controls'][$storage_type];
-		if(!empty($storage_controls_data['coord_x_type']) && !empty($storage_controls_data['coord_y_type'])) {
-			//Both X & Y
-			if($storage_controls_data['coord_x_type'] == 'integer' && $storage_controls_data['coord_y_type'] == 'alphabetical') {
-				if(preg_match('/^([A-Z]+)([0-9]+)$/', $excel_postions, $matches)) {
-					$coord_x = $matches[2];
-					$coord_y = $matches[1];
-					if(!preg_match('/^[0-9]+$/', $coord_x) || $coord_x < 1 || $coord_x > $storage_controls_data['coord_x_size']) {
-						$import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter] ERR#3 ";
-						return array('x'=>null, 'y'=>null);
-					} else if(!in_array($coord_y, array_slice(range('A', 'Z'), 0, $storage_controls_data['coord_y_size']))) {
-						$import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter] ERR#4 ";
-						return array('x'=>null, 'y'=>null);
-					} else {
-						return array('x'=>$coord_x, 'y'=>$coord_y);
-					}
-				} else {
-					$import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter] ERR#1";
-					return array('x'=>null, 'y'=>null);
-				}
-			} else {
-				//Not supported
-				die('ERR28738237w not supported');
-			}
-		} else if(!empty($storage_controls_data['coord_x_type']) && empty($storage_controls_data['coord_y_type'])) {
-			//Just X
-			if($storage_controls_data['coord_x_type'] == 'integer') {
-				if(!preg_match('/^[0-9]+$/', $excel_postions) || $excel_postions < 1 || $excel_postions > $storage_controls_data['coord_x_size']) {
-					$import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter] ERR#2 ";
-					return array('x'=>null, 'y'=>null);
-				} else {
-					return array('x'=>$excel_postions, 'y'=>null);
-				}					
-			} else {
-				//Not supported
-				die('ERR28738237e not supported');
-			}
-		} else {
-			//Not supported
-			die('ERR287382378 not supported');
-		}
-		*/
 	}
 	return $positions;
 }
+
+
+
+
+
+
 
 ?>
