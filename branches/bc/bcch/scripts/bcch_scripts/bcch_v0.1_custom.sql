@@ -34,7 +34,6 @@ UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SE
 DROP TABLE txe_radiations; 
 DROP TABLE txe_radiations_revs;
 
-
 -- Flag inactive relationsips if required (see queries below).
 -- Don't forget Collection to Annotation, Treatment,Consent, etc if not requried.
 */
@@ -109,74 +108,6 @@ SELECT `id`, `participant_identifier`, (SELECT `id` FROM `misc_identifier_contro
 
 -- Clear all existing identifiers to prep for new identifier values
 UPDATE `participants` SET `participant_identifier` = '';
-
-/*
---  Add new identifiers for all existing participants
-DROP TABLE IF EXISTS `temp_participant_ids`;
-CREATE TABLE `temp_participant_ids` (
-	`id` MEDIUMINT NOT NULL AUTO_INCREMENT,
-	`new_id` CHAR(5) DEFAULT NULL,
-	PRIMARY KEY (`id`)
-) ;
-
-DROP PROCEDURE IF EXISTS `create_new_ids`;
-
-DELIMITER |
-CREATE PROCEDURE `create_new_ids`()
-BEGIN
-	DECLARE num_participants INT;
-	DECLARE generated_id CHAR(5);
-	
-	SET generated_id = 'C0000';
-	SELECT COUNT(*) INTO num_participants FROM `participants`;
-	
-END|
-DELIMITER ;
-
-CALL create_new_ids();
-
-DROP PROCEDURE IF EXISTS `create_new_ids`;
-*/
-/*	WHILE num_participants > 0 DO
-		INSERT INTO `temp_participant_ids` (`new_id`) VALUES (generated_id);
-		SET num_participants = num_participants - 1;
-	END WHILE;*/
-
-/*
-
-INSERT INTO `temp_participant_ids` (`new_id`
-SELECT `id` AS CONVERT (CHAR(5), CHAR(ASCII('C') + (`id`),
-FROM `participants`;
-
-create table T (
-    CoreValue int not null,
-    DisplayValue as CONVERT(varchar(10),(CoreValue / 26)+1) + CHAR(ASCII('A') + (CoreValue-1) % 26)
-)
-go
-insert into T (CoreValue)
-select ROW_NUMBER() OVER (ORDER BY so1.object_id)
-from sys.objects so1,sys.objects so2
-go
-select * from T
-
-'ABC' + RIGHT('000' + LTRIM(IdField),3)
-select top 1 
-    case when SequenceChar = 'Z' then
-        cast((SequenceNum + 1) as varchar) + 'A'
-    else
-        cast(SequenceNum as varchar) + char(ascii(SequenceChar) + 1)
-    end as NextSequence
-from (
-    select Value, 
-        cast(substring(Value, 1, CharIndex - 1) as int) as SequenceNum, 
-        substring(Value, CharIndex, len(Value)) as SequenceChar
-    from (
-        select Value, patindex('%[A-Z]%', Value) as CharIndex
-        from MyTable
-    ) a
-) b
-order by SequenceNum desc, SequenceChar desc
-*/
 
 -- Fix validations for new format using C00001, required and unique
 UPDATE `structure_validations` SET `rule`='notEmpty' WHERE `language_message`='error_participant identifier required';
