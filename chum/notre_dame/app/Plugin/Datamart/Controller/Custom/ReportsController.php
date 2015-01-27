@@ -28,18 +28,17 @@ class ReportsControllerCustom extends ReportsController {
 		}
 		
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
-		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-		if($tmp_res_count > self::$display_limit) {
+		$participant_ids_tmp = $misc_identifier_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC'), 'fields' => array('DISTINCT MiscIdentifier.participant_id'), 'recursive' => '-1'));
+		$participant_ids = array();
+		foreach($participant_ids_tmp as $new_record) $participant_ids[$new_record['MiscIdentifier']['participant_id']] = $new_record['MiscIdentifier']['participant_id'];
+		
+		if(sizeof($participant_ids) > self::$display_limit) {
 			return array(
 					'header' => null,
 					'data' => null,
 					'columns_names' => null,
 					'error_msg' => 'the report contains too many results - please redefine search criteria');
 		}
-		
-		$participant_ids_tmp = $misc_identifier_model->find('all', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC'), 'fields' => array('DISTINCT MiscIdentifier.participant_id'), 'recursive' => '-1'));
-		$participant_ids = array();
-		foreach($participant_ids_tmp as $new_record) $participant_ids[] = $new_record['MiscIdentifier']['participant_id'];
 		
 		$misc_identifiers = $misc_identifier_model->find('all', array('conditions' => array('MiscIdentifier.participant_id' => $participant_ids), 'order' => array('MiscIdentifier.participant_id ASC')));
 		$data = array();
@@ -52,7 +51,9 @@ class ReportsControllerCustom extends ReportsController {
 								'id' => $new_ident['Participant']['id'],
 								'participant_identifier' => $new_ident['Participant']['participant_identifier'],
 								'first_name' => $new_ident['Participant']['first_name'],
-								'last_name' => $new_ident['Participant']['last_name']),
+								'last_name' => $new_ident['Participant']['last_name'],
+								'date_of_birth' => $new_ident['Participant']['date_of_birth'],
+								'date_of_birth_accuracy' => $new_ident['Participant']['date_of_birth_accuracy']),
 						'0' => array(
 								'breast_bank_no_lab' => null,
 								'code_barre' => null,
