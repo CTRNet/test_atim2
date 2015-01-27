@@ -85,13 +85,13 @@ $import_date<br>
 
 echo "<br><FONT COLOR=\"red\" ><b>Check all dates in excel have been formated to date format 2000-00-00 (including treatment worksheet)</b></FONT><br><br>";
 
-truncate();
+//TODO remove
+//TODO truncate();
 
 //==============================================================================================
 //Clinical Annotation
 //==============================================================================================
-//TODO
-/*
+
 echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Patient - File(s) : ".$files_name['patient']." && ".$files_name['patient_status']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
@@ -113,9 +113,11 @@ echo "<br><FONT COLOR=\"green\" >*** Clinical Annotation - Treatment - File(s) :
 
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadTreatments($XlsReader, $files_path, $files_name['treatment'], $psp_nbr_to_participant_id_and_patho);
-*/
+
 //==============================================================================================
 //Inventory
+//==============================================================================================
+
 //TODO delete ************
 if(false) {
 	$psp_nbr_to_participant_id_and_patho = array();
@@ -123,28 +125,27 @@ if(false) {
 	$results = customQuery($query, __FILE__, __LINE__);
 	while($row = $results->fetch_assoc()){
 		$psp_nbr_to_participant_id_and_patho[$row['participant_identifier']] = array(
-			'participant_id' => $row['id'],
-			'patho#' => null,
-			'prostate_weight_gr' => null);
+				'participant_id' => $row['id'],
+				'patho#' => null,
+				'prostate_weight_gr' => null);
 	}
 }
 //TODO end delete ************
-//==============================================================================================
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['frozen block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
+$psp_nbr_to_frozen_blocks_data = loadFrozenBlock($XlsReader, $files_path, $files_name['frozen block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory (Tissue) - File(s) : ".$files_name['paraffin block']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO $psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
+$psp_nbr_to_paraffin_blocks_data = loadParaffinBlock($XlsReader, $files_path, $files_name['paraffin block']);
 
 echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['inventory']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
+loadInventory($XlsReader, $files_path, $files_name['inventory'], $psp_nbr_to_frozen_blocks_data, $psp_nbr_to_paraffin_blocks_data, $psp_nbr_to_participant_id_and_patho);
 unset($psp_nbr_to_frozen_blocks_data);
 unset($psp_nbr_to_paraffin_blocks_data);
 
@@ -153,12 +154,7 @@ echo "<br><FONT COLOR=\"green\" >*** Inventory - File(s) : ".$files_name['arn'].
 $XlsReader = new Spreadsheet_Excel_Reader();
 loadRNA($XlsReader, $files_path, $files_name['arn']);
 
-
-
-
-
-
-
+//codes and barcodes update
 
 $query = "UPDATE sample_masters SET sample_code = id;";
 customQuery($query, __FILE__, __LINE__);
@@ -187,402 +183,14 @@ dislayErrorAndMessage($import_summary);
 
 insertIntoRevs();
 
-//TODO $query = "UPDATE versions SET permissions_regenerated = 0;";
+$query = "UPDATE versions SET permissions_regenerated = 0;";
 customQuery($query, __FILE__, __LINE__);
 
-
-
-
-
-if(true) {
-//TODO remove view insert
-	$query = "TRUNCATE view_collections;";
-	customQuery($query, __FILE__, __LINE__);
-	$query = "REPLACE INTO view_collections (SELECT 
-			Collection.id AS collection_id,
-			Collection.bank_id AS bank_id,
-			Collection.sop_master_id AS sop_master_id,
-			Collection.participant_id AS participant_id,
-			Collection.diagnosis_master_id AS diagnosis_master_id,
-			Collection.consent_master_id AS consent_master_id,
-			Collection.treatment_master_id AS treatment_master_id,
-			Collection.event_master_id AS event_master_id,
-	Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
-	Collection.procure_visit AS procure_visit,
-			Participant.participant_identifier AS participant_identifier,
-			Collection.acquisition_label AS acquisition_label,
-			Collection.collection_site AS collection_site,
-			Collection.collection_datetime AS collection_datetime,
-			Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
-			Collection.collection_property AS collection_property,
-			Collection.collection_notes AS collection_notes,
-			Collection.created AS created 
-			FROM collections AS Collection 
-			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1 
-			WHERE Collection.deleted <> 1)";
-	customQuery($query, __FILE__, __LINE__);
-	
-	$query = "TRUNCATE view_samples;";
-	customQuery($query, __FILE__, __LINE__);
-	$query = 'REPLACE INTO view_samples (SELECT SampleMaster.id AS sample_master_id,
-		SampleMaster.parent_id AS parent_id,
-		SampleMaster.initial_specimen_sample_id,
-		SampleMaster.collection_id AS collection_id,
-		
-		Collection.bank_id,
-		Collection.sop_master_id,
-		Collection.participant_id,
-		
-		Participant.participant_identifier,
-		
-		Collection.acquisition_label,
-		Collection.procure_visit AS procure_visit,
-		
-		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
-		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
-		ParentSampleControl.sample_type AS parent_sample_type,
-		ParentSampleMaster.sample_control_id AS parent_sample_control_id,
-		SampleControl.sample_type,
-		SampleMaster.sample_control_id,
-		SampleMaster.sample_code,
-		SampleControl.sample_category,
-		
-		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
-		IF(Collection.collection_datetime IS NULL, -1,
-		IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
-		IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
-			
-		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
-		IF(Collection.collection_datetime IS NULL, -1,
-		IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
-		IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
-		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg
-		
-		FROM sample_masters AS SampleMaster
-		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
-		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
-		LEFT JOIN specimen_details AS SpecimenDetail ON SpecimenDetail.sample_master_id=SampleMaster.id
-		LEFT JOIN derivative_details AS DerivativeDetail ON DerivativeDetail.sample_master_id=SampleMaster.id
-		LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
-		LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
-		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
-		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
-		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-		WHERE SampleMaster.deleted != 1)';
-	customQuery($query, __FILE__, __LINE__);
-	
-	$query = "TRUNCATE view_aliquots;";
-	customQuery($query, __FILE__, __LINE__);
-	$query = 'REPLACE INTO view_aliquots (SELECT
-			AliquotMaster.id AS aliquot_master_id,
-			AliquotMaster.sample_master_id AS sample_master_id,
-			AliquotMaster.collection_id AS collection_id,
-			Collection.bank_id,
-			AliquotMaster.storage_master_id AS storage_master_id,
-			Collection.participant_id,
-		
-			Participant.participant_identifier,
-		
-			Collection.acquisition_label,
-Collection.procure_visit AS procure_visit,
-		
-			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
-			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
-			ParentSampleControl.sample_type AS parent_sample_type,
-			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
-			SampleControl.sample_type,
-			SampleMaster.sample_control_id,
-		
-			AliquotMaster.barcode,
-			AliquotMaster.aliquot_label,
-			AliquotControl.aliquot_type,
-			AliquotMaster.aliquot_control_id,
-			AliquotMaster.in_stock,
-		
-			StorageMaster.code,
-			StorageMaster.selection_label,
-			AliquotMaster.storage_coord_x,
-			AliquotMaster.storage_coord_y,
-		
-			StorageMaster.temperature,
-			StorageMaster.temp_unit,
-		
-			AliquotMaster.created,
-		
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(Collection.collection_datetime IS NULL, -1,
-			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
-			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
-			IF(AliquotMaster.storage_datetime IS NULL, NULL,
-			 IF(DerivativeDetail.creation_datetime IS NULL, -1,
-			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
-			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
-			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-	
-			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
-		
-			FROM aliquot_masters AS AliquotMaster
-			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
-			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
-			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
-			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
-			LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
-			LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
-			LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
-			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
-			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
-			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
-			WHERE AliquotMaster.deleted != 1)';
-	customQuery($query, __FILE__, __LINE__);
-	
-	$query = "TRUNCATE view_aliquot_uses;";
-	customQuery($query, __FILE__, __LINE__);
-	$queries = array("SELECT CONCAT(AliquotInternalUse.id,6) AS id,
-		AliquotMaster.id AS aliquot_master_id,
-		AliquotInternalUse.type AS use_definition,
-		AliquotInternalUse.use_code AS use_code,
-		AliquotInternalUse.use_details AS use_details,
-		AliquotInternalUse.used_volume AS used_volume,
-		AliquotControl.volume_unit AS aliquot_volume_unit,
-		AliquotInternalUse.use_datetime AS use_datetime,
-		AliquotInternalUse.use_datetime_accuracy AS use_datetime_accuracy,
-		AliquotInternalUse.duration AS duration,
-		AliquotInternalUse.duration_unit AS duration_unit,
-		AliquotInternalUse.used_by AS used_by,
-		AliquotInternalUse.created AS created,
-		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
-		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		AliquotInternalUse.study_summary_id AS study_summary_id
-		FROM aliquot_internal_uses AS AliquotInternalUse
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
-		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		WHERE AliquotInternalUse.deleted <> 1",
-		"SELECT CONCAT(SourceAliquot.id,1) AS `id`,
-		AliquotMaster.id AS aliquot_master_id,
-		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
-		SampleMaster.sample_code AS use_code,
-		'' AS `use_details`,
-		SourceAliquot.used_volume AS used_volume,
-		AliquotControl.volume_unit AS aliquot_volume_unit,
-		DerivativeDetail.creation_datetime AS use_datetime,
-		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
-		'' AS `duration`,
-		'' AS `duration_unit`,
-		DerivativeDetail.creation_by AS used_by,
-		SourceAliquot.created AS created,
-		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
-		SampleMaster2.id AS sample_master_id,
-		SampleMaster2.collection_id AS collection_id,
-		'-1' AS study_summary_id
-		FROM source_aliquots AS SourceAliquot
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
-		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
-		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
-		WHERE SourceAliquot.deleted <> 1",
-		"SELECT CONCAT(Realiquoting.id ,2) AS id,
-		AliquotMaster.id AS aliquot_master_id,
-		'realiquoted to' AS use_definition,
-		AliquotMasterChild.barcode AS use_code,
-		'' AS use_details,
-		Realiquoting.parent_used_volume AS used_volume,
-		AliquotControl.volume_unit AS aliquot_volume_unit,
-		Realiquoting.realiquoting_datetime AS use_datetime,
-		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
-		'' AS duration,
-		'' AS duration_unit,
-		Realiquoting.realiquoted_by AS used_by,
-		Realiquoting.created AS created,
-		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
-		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
-		FROM realiquotings AS Realiquoting
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
-		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		WHERE Realiquoting.deleted <> 1",
-		"SELECT CONCAT(QualityCtrl.id,3) AS id,
-		AliquotMaster.id AS aliquot_master_id,
-		'quality control' AS use_definition,
-		QualityCtrl.qc_code AS use_code,
-		'' AS use_details,
-		QualityCtrl.used_volume AS used_volume,
-		AliquotControl.volume_unit AS aliquot_volume_unit,
-		QualityCtrl.date AS use_datetime,
-		QualityCtrl.date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
-		'' AS duration_unit,
-		QualityCtrl.run_by AS used_by,
-		QualityCtrl.created AS created,
-		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
-		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
-		FROM quality_ctrls AS QualityCtrl
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
-		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		WHERE QualityCtrl.deleted <> 1",
-		"SELECT CONCAT(OrderItem.id,4) AS id,
-		AliquotMaster.id AS aliquot_master_id,
-		'aliquot shipment' AS use_definition,
-		Shipment.shipment_code AS use_code,
-		'' AS use_details,
-		NULL AS used_volume,
-		'' AS aliquot_volume_unit,
-		Shipment.datetime_shipped AS use_datetime,
-		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
-		'' AS duration,
-		'' AS duration_unit,
-		Shipment.shipped_by AS used_by,
-		Shipment.created AS created,
-		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
-		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
-		FROM order_items OrderItem
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
-		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
-		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
-		JOIN `orders` AS `Order` ON  Order.id = OrderLine.order_id
-		WHERE OrderItem.deleted <> 1",
-		"SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
-		AliquotMaster.id AS aliquot_master_id,
-		'specimen review' AS use_definition,
-		SpecimenReviewMaster.review_code AS use_code,
-		'' AS use_details,
-		NULL AS used_volume,
-		'' AS aliquot_volume_unit,
-		SpecimenReviewMaster.review_date AS use_datetime,
-		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
-		'' AS duration,
-		'' AS duration_unit,
-		'' AS used_by,
-		AliquotReviewMaster.created AS created,
-		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
-		SampleMaster.id AS sample_master_id,
-		SampleMaster.collection_id AS collection_id,
-		'-1' AS study_summary_id
-		FROM aliquot_review_masters AS AliquotReviewMaster
-		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
-		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
-		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
-		WHERE AliquotReviewMaster.deleted <> 1");
-	foreach($queries as $select_query) customQuery("REPLACE INTO view_aliquot_uses ($select_query);", __FILE__, __LINE__);
-	//rebuild left right
-	$left_rght_nxt = 1;
-	$results = customQuery("SELECT id FROM storage_masters WHERE parent_id IS NULL;", __FILE__, __LINE__);
-	while($row = $results->fetch_assoc()){
-		updateLftRgt($row['id'],$left_rght_nxt);
-	}
-
-}
-function updateLftRgt($storage_master_id,&$left_rght_nxt) {
-	//TODO remove
-	$lft = $left_rght_nxt;
-	$left_rght_nxt++;
-	$results = customQuery("SELECT id FROM storage_masters WHERE parent_id = $storage_master_id;", __FILE__, __LINE__);
-	while($row = $results->fetch_assoc()){
-		updateLftRgt($row['id'],$left_rght_nxt);
-	}
-	$rght = $left_rght_nxt;
-	$left_rght_nxt++;
-	customQuery("UPDATE storage_masters SET lft = '$lft', rght = '$rght' WHERE id = $storage_master_id;", __FILE__, __LINE__);
-}
+//TODO populateViewsAndLftRght();
 
 //==============================================================================================
-// Functions
+// DEV Functions
 //==============================================================================================
-
-function truncate() {
-	$truncate_queries = array(
-		'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
-		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
-		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
-			
-		'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',	
-		'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
-		'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',	
-		'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
-		
-		'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
-		'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
-		'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
-		'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
-		'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
-		'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
-		'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
-		'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
-		'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
-		'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
-		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
-		'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',	
-				
-		'DELETE FROM collections;', 'DELETE FROM collections_revs;',	
-			
-		'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
-		'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
-		'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
-		'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
-		'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
-		'UPDATE storage_masters SET parent_id = null;',
-		'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
-					
-		'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
-		'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
-		'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
-			
-		'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
-		'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
-		'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
-		'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
-		'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
-		
-		'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
-		'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
-		
-		'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
-		'DELETE FROM participants;','DELETE FROM participants_revs;'
-	);
-	//TODO
-	$truncate_queries = array(
-			'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
-			'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
-			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
-			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
-			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
-			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
-			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
-			'UPDATE storage_masters SET parent_id = null;',
-			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
-			
-				
-		'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
-		'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
-		"DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT am.id FROM aliquot_masters am INNER JOIN sample_masters sm ON sm.id = am.sample_master_id WHERE sm.sample_control_id = 13);",			
-		"DELETE FROM aliquot_masters WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
-		"TRUNCATE sd_der_rnas;",
-		"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
-		'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
-		"DELETE FROM sample_masters WHERE sample_control_id = 13;"
-	);
-	foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
-}
 
 function insertIntoRevs() {
 	global $import_date;
@@ -624,7 +232,9 @@ function insertIntoRevs() {
 		'ad_blocks' => 1,
 	
 		'aliquot_internal_uses' => 0,	
-		'source_aliquots' => 0	,	
+		'source_aliquots' => 0	,
+
+		'quality_ctrls' => 0,
 	
 		'storage_masters' => 0,
 		'std_nitro_locates' => 1,
@@ -912,4 +522,393 @@ function dislayErrorAndMessage($import_summary) {
 	}	
 }
 
+//==============================================================================================
+// DEV Functions
+//==============================================================================================
+
+function truncate() {
+	$truncate_queries = array(
+			'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
+			'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+			'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+				
+			'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
+			'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
+			'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
+			'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
+
+			'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
+			'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
+			'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
+			'TRUNCATE sd_der_plasmas;', 'TRUNCATE sd_der_plasmas_revs;',
+			'TRUNCATE sd_der_pbmcs;', 'TRUNCATE sd_der_pbmcs_revs;',
+			'TRUNCATE sd_der_serums;', 'TRUNCATE sd_der_serums_revs;',
+			'TRUNCATE sd_spe_tissues;', 'TRUNCATE sd_spe_tissues_revs;',
+			'TRUNCATE sd_spe_bloods;', 'TRUNCATE sd_spe_bloods_revs;',
+			'TRUNCATE specimen_details;', 'TRUNCATE specimen_details_revs;',
+			'TRUNCATE derivative_details;', 'TRUNCATE derivative_details_revs;',
+			'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
+			'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',
+
+			'DELETE FROM collections;', 'DELETE FROM collections_revs;',
+				
+			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+			'UPDATE storage_masters SET parent_id = null;',
+			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
+				
+			'TRUNCATE procure_txd_medication_drugs;', 'TRUNCATE procure_txd_medication_drugs_revs;',
+			'TRUNCATE procure_txd_followup_worksheet_treatments;', 'TRUNCATE procure_txd_followup_worksheet_treatments_revs;',
+			'DELETE FROM treatment_masters;', 'DELETE FROM treatment_masters_revs;',
+				
+			'TRUNCATE procure_ed_lab_pathologies;', 'TRUNCATE procure_ed_lab_pathologies_revs;',
+			'TRUNCATE procure_ed_clinical_followup_worksheet_aps;', 'TRUNCATE procure_ed_clinical_followup_worksheet_aps_revs;',
+			'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets;', 'TRUNCATE procure_ed_lifestyle_quest_admin_worksheets_revs;',
+			'DELETE FROM event_masters;', 'DELETE FROM event_masters_revs;',
+			'DELETE FROM event_masters WHERE event_control_id = 54;', 'DELETE FROM event_masters_revs WHERE event_control_id = 54;',
+
+			'TRUNCATE procure_cd_sigantures;', 'TRUNCATE procure_cd_sigantures_revs;',
+			'DELETE FROM consent_masters;', 'DELETE FROM consent_masters_revs;',
+
+			'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
+			'DELETE FROM participants;','DELETE FROM participants_revs;'
+	);
+	//TODO
+	$truncate_queries = array(
+			'UPDATE aliquot_masters SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
+			'UPDATE aliquot_masters_revs SET storage_master_id = null, storage_coord_x = null, storage_coord_y = null;',
+			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+			'UPDATE storage_masters SET parent_id = null;',
+			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
+				
+
+			'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
+			'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
+			"DELETE FROM ad_tubes WHERE aliquot_master_id IN (SELECT am.id FROM aliquot_masters am INNER JOIN sample_masters sm ON sm.id = am.sample_master_id WHERE sm.sample_control_id = 13);",
+			"DELETE FROM aliquot_masters WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
+			"TRUNCATE sd_der_rnas;",
+			"DELETE FROM derivative_details WHERE sample_master_id IN (SELECT id FROM sample_masters WHERE sample_control_id = 13);",
+			'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null  WHERE sample_control_id = 13;',
+			"DELETE FROM sample_masters WHERE sample_control_id = 13;"
+					);
+					foreach($truncate_queries as $query) customQuery($query, __FILE__, __LINE__);
+}
+
+function populateViewsAndLftRght() {
+	//TODO remove view insert
+	$query = "TRUNCATE view_collections;";
+	customQuery($query, __FILE__, __LINE__);
+	$query = "REPLACE INTO view_collections (SELECT
+			Collection.id AS collection_id,
+			Collection.bank_id AS bank_id,
+			Collection.sop_master_id AS sop_master_id,
+			Collection.participant_id AS participant_id,
+			Collection.diagnosis_master_id AS diagnosis_master_id,
+			Collection.consent_master_id AS consent_master_id,
+			Collection.treatment_master_id AS treatment_master_id,
+			Collection.event_master_id AS event_master_id,
+	Collection.procure_patient_identity_verified AS procure_patient_identity_verified,
+	Collection.procure_visit AS procure_visit,
+			Participant.participant_identifier AS participant_identifier,
+			Collection.acquisition_label AS acquisition_label,
+			Collection.collection_site AS collection_site,
+			Collection.collection_datetime AS collection_datetime,
+			Collection.collection_datetime_accuracy AS collection_datetime_accuracy,
+			Collection.collection_property AS collection_property,
+			Collection.collection_notes AS collection_notes,
+			Collection.created AS created
+			FROM collections AS Collection
+			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
+			WHERE Collection.deleted <> 1)";
+	customQuery($query, __FILE__, __LINE__);
+
+	$query = "TRUNCATE view_samples;";
+	customQuery($query, __FILE__, __LINE__);
+	$query = 'REPLACE INTO view_samples (SELECT SampleMaster.id AS sample_master_id,
+		SampleMaster.parent_id AS parent_id,
+		SampleMaster.initial_specimen_sample_id,
+		SampleMaster.collection_id AS collection_id,
+
+		Collection.bank_id,
+		Collection.sop_master_id,
+		Collection.participant_id,
+
+		Participant.participant_identifier,
+
+		Collection.acquisition_label,
+		Collection.procure_visit AS procure_visit,
+
+		SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
+		SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
+		ParentSampleControl.sample_type AS parent_sample_type,
+		ParentSampleMaster.sample_control_id AS parent_sample_control_id,
+		SampleControl.sample_type,
+		SampleMaster.sample_control_id,
+		SampleMaster.sample_code,
+		SampleControl.sample_category,
+
+		IF(SpecimenDetail.reception_datetime IS NULL, NULL,
+		IF(Collection.collection_datetime IS NULL, -1,
+		IF(Collection.collection_datetime_accuracy != "c" OR SpecimenDetail.reception_datetime_accuracy != "c", -2,
+		IF(Collection.collection_datetime > SpecimenDetail.reception_datetime, -3,
+		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, SpecimenDetail.reception_datetime))))) AS coll_to_rec_spent_time_msg,
+
+		IF(DerivativeDetail.creation_datetime IS NULL, NULL,
+		IF(Collection.collection_datetime IS NULL, -1,
+		IF(Collection.collection_datetime_accuracy != "c" OR DerivativeDetail.creation_datetime_accuracy != "c", -2,
+		IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
+		TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg
+
+		FROM sample_masters AS SampleMaster
+		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
+		INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+		LEFT JOIN specimen_details AS SpecimenDetail ON SpecimenDetail.sample_master_id=SampleMaster.id
+		LEFT JOIN derivative_details AS DerivativeDetail ON DerivativeDetail.sample_master_id=SampleMaster.id
+		LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
+		LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
+		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
+		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
+		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+		WHERE SampleMaster.deleted != 1)';
+	customQuery($query, __FILE__, __LINE__);
+
+	$query = "TRUNCATE view_aliquots;";
+	customQuery($query, __FILE__, __LINE__);
+	$query = 'REPLACE INTO view_aliquots (SELECT
+			AliquotMaster.id AS aliquot_master_id,
+			AliquotMaster.sample_master_id AS sample_master_id,
+			AliquotMaster.collection_id AS collection_id,
+			Collection.bank_id,
+			AliquotMaster.storage_master_id AS storage_master_id,
+			Collection.participant_id,
+
+			Participant.participant_identifier,
+
+			Collection.acquisition_label,
+Collection.procure_visit AS procure_visit,
+
+			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
+			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
+			ParentSampleControl.sample_type AS parent_sample_type,
+			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
+			SampleControl.sample_type,
+			SampleMaster.sample_control_id,
+
+			AliquotMaster.barcode,
+			AliquotMaster.aliquot_label,
+			AliquotControl.aliquot_type,
+			AliquotMaster.aliquot_control_id,
+			AliquotMaster.in_stock,
+
+			StorageMaster.code,
+			StorageMaster.selection_label,
+			AliquotMaster.storage_coord_x,
+			AliquotMaster.storage_coord_y,
+
+			StorageMaster.temperature,
+			StorageMaster.temp_unit,
+
+			AliquotMaster.created,
+
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(Collection.collection_datetime IS NULL, -1,
+			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(Collection.collection_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, AliquotMaster.storage_datetime))))) AS coll_to_stor_spent_time_msg,
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(SpecimenDetail.reception_datetime IS NULL, -1,
+			 IF(SpecimenDetail.reception_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(SpecimenDetail.reception_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, SpecimenDetail.reception_datetime, AliquotMaster.storage_datetime))))) AS rec_to_stor_spent_time_msg,
+			IF(AliquotMaster.storage_datetime IS NULL, NULL,
+			 IF(DerivativeDetail.creation_datetime IS NULL, -1,
+			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
+			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
+			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
+
+			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
+
+			FROM aliquot_masters AS AliquotMaster
+			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
+			INNER JOIN sample_controls AS SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+			INNER JOIN collections AS Collection ON Collection.id = SampleMaster.collection_id AND Collection.deleted != 1
+			LEFT JOIN sample_masters AS SpecimenSampleMaster ON SampleMaster.initial_specimen_sample_id = SpecimenSampleMaster.id AND SpecimenSampleMaster.deleted != 1
+			LEFT JOIN sample_controls AS SpecimenSampleControl ON SpecimenSampleMaster.sample_control_id = SpecimenSampleControl.id
+			LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
+			LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id=ParentSampleControl.id
+			LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
+			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
+			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
+			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+			WHERE AliquotMaster.deleted != 1)';
+	customQuery($query, __FILE__, __LINE__);
+
+	$query = "TRUNCATE view_aliquot_uses;";
+	customQuery($query, __FILE__, __LINE__);
+	$queries = array("SELECT CONCAT(AliquotInternalUse.id,6) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		AliquotInternalUse.type AS use_definition,
+		AliquotInternalUse.use_code AS use_code,
+		AliquotInternalUse.use_details AS use_details,
+		AliquotInternalUse.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		AliquotInternalUse.use_datetime AS use_datetime,
+		AliquotInternalUse.use_datetime_accuracy AS use_datetime_accuracy,
+		AliquotInternalUse.duration AS duration,
+		AliquotInternalUse.duration_unit AS duration_unit,
+		AliquotInternalUse.used_by AS used_by,
+		AliquotInternalUse.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detailAliquotInternalUse/',AliquotMaster.id,'/',AliquotInternalUse.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		AliquotInternalUse.study_summary_id AS study_summary_id
+		FROM aliquot_internal_uses AS AliquotInternalUse
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotInternalUse.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE AliquotInternalUse.deleted <> 1",
+			"SELECT CONCAT(SourceAliquot.id,1) AS `id`,
+		AliquotMaster.id AS aliquot_master_id,
+		CONCAT('sample derivative creation#', SampleMaster.sample_control_id) AS use_definition,
+		SampleMaster.sample_code AS use_code,
+		'' AS `use_details`,
+		SourceAliquot.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		DerivativeDetail.creation_datetime AS use_datetime,
+		DerivativeDetail.creation_datetime_accuracy AS use_datetime_accuracy,
+		'' AS `duration`,
+		'' AS `duration_unit`,
+		DerivativeDetail.creation_by AS used_by,
+		SourceAliquot.created AS created,
+		CONCAT('/InventoryManagement/SampleMasters/detail/',SampleMaster.collection_id,'/',SampleMaster.id) AS detail_url,
+		SampleMaster2.id AS sample_master_id,
+		SampleMaster2.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM source_aliquots AS SourceAliquot
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = SourceAliquot.sample_master_id
+		JOIN derivative_details AS DerivativeDetail ON SampleMaster.id = DerivativeDetail.sample_master_id
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = SourceAliquot.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters SampleMaster2 ON SampleMaster2.id = AliquotMaster.sample_master_id
+		WHERE SourceAliquot.deleted <> 1",
+			"SELECT CONCAT(Realiquoting.id ,2) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'realiquoted to' AS use_definition,
+		AliquotMasterChild.barcode AS use_code,
+		'' AS use_details,
+		Realiquoting.parent_used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		Realiquoting.realiquoting_datetime AS use_datetime,
+		Realiquoting.realiquoting_datetime_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		Realiquoting.realiquoted_by AS used_by,
+		Realiquoting.created AS created,
+		CONCAT('/InventoryManagement/AliquotMasters/detail/',AliquotMasterChild.collection_id,'/',AliquotMasterChild.sample_master_id,'/',AliquotMasterChild.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM realiquotings AS Realiquoting
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = Realiquoting.parent_aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN aliquot_masters AS AliquotMasterChild ON AliquotMasterChild.id = Realiquoting.child_aliquot_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE Realiquoting.deleted <> 1",
+			"SELECT CONCAT(QualityCtrl.id,3) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'quality control' AS use_definition,
+		QualityCtrl.qc_code AS use_code,
+		'' AS use_details,
+		QualityCtrl.used_volume AS used_volume,
+		AliquotControl.volume_unit AS aliquot_volume_unit,
+		QualityCtrl.date AS use_datetime,
+		QualityCtrl.date_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		QualityCtrl.run_by AS used_by,
+		QualityCtrl.created AS created,
+		CONCAT('/InventoryManagement/QualityCtrls/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',QualityCtrl.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM quality_ctrls AS QualityCtrl
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = QualityCtrl.aliquot_master_id
+		JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE QualityCtrl.deleted <> 1",
+			"SELECT CONCAT(OrderItem.id,4) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'aliquot shipment' AS use_definition,
+		Shipment.shipment_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		Shipment.datetime_shipped AS use_datetime,
+		Shipment.datetime_shipped_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		Shipment.shipped_by AS used_by,
+		Shipment.created AS created,
+		CONCAT('/Order/Shipments/detail/',Shipment.order_id,'/',Shipment.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		IF(OrderLine.study_summary_id, OrderLine.study_summary_id, Order.default_study_summary_id) AS study_summary_id
+		FROM order_items OrderItem
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = OrderItem.aliquot_master_id
+		JOIN shipments AS Shipment ON Shipment.id = OrderItem.shipment_id
+		JOIN sample_masters SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		JOIN order_lines AS OrderLine ON  OrderLine.id = OrderItem.order_line_id
+		JOIN `orders` AS `Order` ON  Order.id = OrderLine.order_id
+		WHERE OrderItem.deleted <> 1",
+			"SELECT CONCAT(AliquotReviewMaster.id,5) AS id,
+		AliquotMaster.id AS aliquot_master_id,
+		'specimen review' AS use_definition,
+		SpecimenReviewMaster.review_code AS use_code,
+		'' AS use_details,
+		NULL AS used_volume,
+		'' AS aliquot_volume_unit,
+		SpecimenReviewMaster.review_date AS use_datetime,
+		SpecimenReviewMaster.review_date_accuracy AS use_datetime_accuracy,
+		'' AS duration,
+		'' AS duration_unit,
+		'' AS used_by,
+		AliquotReviewMaster.created AS created,
+		CONCAT('/InventoryManagement/SpecimenReviews/detail/',AliquotMaster.collection_id,'/',AliquotMaster.sample_master_id,'/',SpecimenReviewMaster.id) AS detail_url,
+		SampleMaster.id AS sample_master_id,
+		SampleMaster.collection_id AS collection_id,
+		'-1' AS study_summary_id
+		FROM aliquot_review_masters AS AliquotReviewMaster
+		JOIN aliquot_masters AS AliquotMaster ON AliquotMaster.id = AliquotReviewMaster.aliquot_master_id
+		JOIN specimen_review_masters AS SpecimenReviewMaster ON SpecimenReviewMaster.id = AliquotReviewMaster.specimen_review_master_id
+		JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id
+		WHERE AliquotReviewMaster.deleted <> 1");
+	foreach($queries as $select_query) customQuery("REPLACE INTO view_aliquot_uses ($select_query);", __FILE__, __LINE__);
+	//rebuild left right
+	$left_rght_nxt = 1;
+	$results = customQuery("SELECT id FROM storage_masters WHERE parent_id IS NULL;", __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		updateLftRgt($row['id'],$left_rght_nxt);
+	}
+
+}
+function updateLftRgt($storage_master_id,&$left_rght_nxt) {
+	//TODO remove
+	$lft = $left_rght_nxt;
+	$left_rght_nxt++;
+	$results = customQuery("SELECT id FROM storage_masters WHERE parent_id = $storage_master_id;", __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()){
+		updateLftRgt($row['id'],$left_rght_nxt);
+	}
+	$rght = $left_rght_nxt;
+	$left_rght_nxt++;
+	customQuery("UPDATE storage_masters SET lft = '$lft', rght = '$rght' WHERE id = $storage_master_id;", __FILE__, __LINE__);
+}
 ?>
