@@ -1040,11 +1040,11 @@ if(!in_array($id, array(1))) continue;
 			INNER JOIN collections col ON col.participant_id = par.id
 			INNER JOIN aliquot_masters am ON am.collection_id = col.id
 			LEFT JOIN storage_masters stm ON stm.id = am.storage_master_id
-			WHERE am.deleted <> 1 AND col.procure_visit = '$worksheet' AND am.aliquot_control_id = ".$sample_aliquot_controls['blood']['aliquots']['tube']['aliquot_control_id'].";";
+			WHERE am.deleted <> 1 AND am.barcode LIKE '%-RNB%' AND col.procure_visit = '$worksheet' AND am.aliquot_control_id = ".$sample_aliquot_controls['blood']['aliquots']['tube']['aliquot_control_id'].";";
 		$results = customQuery($query, __FILE__, __LINE__);
 		while($row = $results->fetch_assoc()){
 			$participant_identifier = $row['participant_identifier'];
-			if(array_key_exists($participant_identifier, $paxgene_blood_tubes)) $import_summary['Inventory - RNA']['@@WARNING@@']["More than one paxgene tube exist"][] = "See patient '$participant_identifier'.";
+			if(array_key_exists($participant_identifier, $paxgene_blood_tubes)) $import_summary['Inventory - RNA']['@@WARNING@@']["More than one paxgene tube exist"][] = "Only one will be used for RNA extraction. See patient '$participant_identifier'.";
 			$paxgene_blood_tubes[$participant_identifier] = $row;
 		}
 		$procure_chuq_extraction_number = '';
@@ -1094,10 +1094,10 @@ if(!in_array($id, array(1))) continue;
 								case 'VB et CM':
 								case 'VB/CM':
 									$created_by = 'CM';
-									$import_summary['Inventory - RNA']['@@WARNING@@']["Changed lab staff who extracted RNA to 'CM'"][] = "Value was = '".$new_line_data['extrait par CHUQ']."'. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Changed lab staff who extracted RNA to 'CM'"][] = "Value '".$new_line_data['extrait par CHUQ']."' changed to 'CM'. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
 									break;
 								default:
-									$import_summary['Inventory - RNA']['@@ERROR@@']["Unknown lab staff who extracted RNA"][] = "Lab staff '".$new_line_data['extrait par CHUQ']."' is unknown. Value won't be migrated. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
+									$import_summary['Inventory - RNA']['@@ERROR@@']["Unknown lab staff who extracted RNA"][] = "Lab staff '".$new_line_data['extrait par CHUQ']."' is not supported. Value won't be migrated. See patient '$participant_identifier'. [file '$file_name' :: $worksheet - line: $line_counter]";
 							}
 							//Create RNA Sample
 							$sample_data = array(
@@ -1131,6 +1131,12 @@ if(!in_array($id, array(1))) continue;
 							$aliquot_master_ids = array();
 							//... RNA1
 							$initial_volume = getDecimal($new_line_data, 'RNA-1 volume (ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+							$concentration_bioanalyzer = getDecimal($new_line_data, 'Concentration (ng/ul) par Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+							$concentration_unit_bioanalyzer = strlen($concentration_bioanalyzer)? 'ng/ul' : '';
+							$procure_total_quantity_ug = (strlen($initial_volume) && strlen($concentration_bioanalyzer))? ($initial_volume*$concentration_bioanalyzer/1000): '';
+							$concentration_nanodrop = getDecimal($new_line_data, 'Nanodrop (ng/ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
+							$concentration_unit_nanodrop = strlen($concentration_nanodrop)? 'ng/ul' : '';
+							$procure_total_quantity_ug_nanodrop = (strlen($initial_volume) && strlen($concentration_nanodrop))? ($initial_volume*$concentration_nanodrop/1000): '';
 							if(strlen($new_line_data['bte rangement RNA-1']) || $initial_volume) {
 								$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement RNA-1'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
 								$storage_coordinates = getPosition($participant_identifier, $new_line_data['Position RNA-1 dans boîte de rangement'], $new_line_data['bte rangement RNA-1'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
@@ -1139,23 +1145,31 @@ if(!in_array($id, array(1))) continue;
 										'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
 										'sample_master_id' => $derivative_sample_master_id,
 										'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
-										'barcode' => "$participant_identifier V01 -RNA1",
+										'barcode' => "$participant_identifier $worksheet -RNA1",
 										'in_stock' => 'yes - available',
 										'initial_volume' => $initial_volume,
 										'current_volume' => $initial_volume,
+//TODO: Check use counter and volume updated after migration and newVersionSetup() execution											
 										'use_counter' => '0',
 										'storage_datetime' => $extraction_date['date'],
 										'storage_datetime_accuracy' => $extraction_date['accuracy'],
 										'storage_master_id' => $storage_master_id,
 										'storage_coord_x' => $storage_coordinates['x'],
 										'storage_coord_y' => $storage_coordinates['y']),
-									'AliquotDetail' => array());
+									'AliquotDetail' => array(
+										'concentration' => $concentration_bioanalyzer,
+										'concentration_unit' => $concentration_unit_bioanalyzer,
+										'procure_total_quantity_ug' => $procure_total_quantity_ug,
+										'procure_concentration_nanodrop' => $concentration_nanodrop,
+										'procure_concentration_unit_nanodrop' => $concentration_unit_nanodrop,
+										'procure_total_quantity_ug_nanodrop' => $procure_total_quantity_ug_nanodrop
+									));
 								$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 								customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-								$aliquot_master_ids['RNA-1'] = array('aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'uses_counter' => '0');
+								$aliquot_master_ids['RNA-1'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
 							}
 							//Mir
-							if(strlen($new_line_data['MiR']) || strlen($new_line_data['Boîte de rangement Mir'])) {
+							if($new_line_data['MiR'] == '1' || strlen($new_line_data['Boîte de rangement Mir'])) {
 								$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['Boîte de rangement Mir'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
 								$storage_coordinates = getPosition($participant_identifier, $new_line_data['Position Mir dans boîte de rangement'], $new_line_data['Boîte de rangement Mir'], 'rna', 'Inventory - RNA', $file_name, $worksheet, $line_counter);
 								$aliquot_data = array(
@@ -1163,7 +1177,8 @@ if(!in_array($id, array(1))) continue;
 										'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
 										'sample_master_id' => $derivative_sample_master_id,
 										'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
-										'barcode' => "$participant_identifier V01 -miRNA",
+//TODO: Confirm label										
+										'barcode' => "$participant_identifier $worksheet -miRNA",
 										'in_stock' => 'yes - available',
 										'initial_volume' => null,
 										'current_volume' => null,
@@ -1177,7 +1192,7 @@ if(!in_array($id, array(1))) continue;
 										'procure_chuq_micro_rna' => '1'));
 								$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 								customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-								$aliquot_master_ids['RNA-micro'] = array('aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'uses_counter' => '0');
+								$aliquot_master_ids['RNA-micro'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
 							}
 							for($id=2;$id<4;$id++) {
 								$initial_volume = getDecimal($new_line_data, 'RNA-'.$id.' volume (ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
@@ -1187,17 +1202,15 @@ if(!in_array($id, array(1))) continue;
 											'collection_id' => $paxgene_blood_tubes[$participant_identifier]['collection_id'],
 											'sample_master_id' => $derivative_sample_master_id,
 											'aliquot_control_id' => $sample_aliquot_controls['rna']['aliquots']['tube']['aliquot_control_id'],
-											'barcode' => "$participant_identifier V01 -RNA".$id,
-											'in_stock' => 'yes - available',
+											'barcode' => "$participant_identifier $worksheet -RNA".$id,
+											'in_stock' => 'no',
 											'initial_volume' => $initial_volume,
 											'current_volume' => $initial_volume,
-											'use_counter' => '0',
-											'storage_datetime' => $extraction_date['date'],
-											'storage_datetime_accuracy' => $extraction_date['accuracy']),
+											'use_counter' => '0'),
 										'AliquotDetail' => array());
 									$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 									customInsert($aliquot_data['AliquotDetail'], $sample_aliquot_controls['rna']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-									$aliquot_master_ids['RNA-'.$id] = array('aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'uses_counter' => '0');
+									$aliquot_master_ids['RNA-'.$id] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
 								}
 							}
 							if(empty($aliquot_master_ids)) {
@@ -1211,15 +1224,18 @@ if(!in_array($id, array(1))) continue;
 								if($score) $scores['RIN'] = $score;
 								$score = getDecimal($new_line_data, 'Ratio 28S/18S Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								if($score) $scores['28/18'] = $score;
-								if(empty($scores)) $scores[''] = '';
+								if(empty($scores)) {
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Bioanalyzer test with no scrore"][] = "Please confirm .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									$scores[''] = '';
+								}
 								$qc_date = getDateAndAccuracy($new_line_data, "Date d'analyse", 'Inventory - RNA', $file_name, $line_counter);
 								$qc_date['accuracy'] = str_replace('c','h',$qc_date['accuracy']);
 								$tested_aliquot_master_id = null;
 								if($new_line_data['Aliquot utilisé pour bioanalyser']) {
 									if(array_key_exists($new_line_data['Aliquot utilisé pour bioanalyser'], $aliquot_master_ids)) {
-										$tested_aliquot_master_id = $aliquot_master_ids[$new_line_data['Aliquot utilisé pour bioanalyser']]['aliquot_master_id'];
+										$tested_aliquot_master_id = $aliquot_master_ids[$new_line_data['Aliquot utilisé pour bioanalyser']];
 									} else {
-										$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Unable to define tested aliquot"][] = "The system is unable to link test to the specific aliquot defined as  '".$new_line_data['Aliquot utilisé pour bioanalyser']."'. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+										$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Unable to define tested aliquot"][] = "The system is unable to link bioanalyzer test to the specific aliquot defined as  '".$new_line_data['Aliquot utilisé pour bioanalyser']."'. This one has not been created into the system. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
 									}
 								}
 								$new_line_data['Volume pris pour analyse  bioanalyser'] = str_replace(' ul', '', $new_line_data['Volume pris pour analyse  bioanalyser']);
@@ -1228,8 +1244,6 @@ if(!in_array($id, array(1))) continue;
 									$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer: Used volume but no tested aliquot"][] = "A 'Volume pris pour analyse  bioanalyser' is defined but no tested aliquot is defined. No volume will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
 									$used_volume = '';
 								}
-								$concentration = getDecimal($new_line_data, 'Concentration (ng/ul) par Bioanalyser', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
-								$concentration_unit = strlen($concentration)? 'ng/ul' : '';
 								foreach($scores as $unit => $score) {
 									$qc_code_counter++;
 									$qc_data = array(
@@ -1243,18 +1257,16 @@ if(!in_array($id, array(1))) continue;
 										'date_accuracy' => $qc_date['accuracy'],
 										'score' => $score,
 										'unit' => $unit,
-										'concentration' => $concentration,
-										'concentration_unit' => $concentration_unit,
+										'procure_chuq_visual_quality' => $new_line_data["Qualité visuelle Bioanalyser"],
 										'notes' => strlen($new_line_data['Chip comment'])? 'Chip note: '.$new_line_data['Chip comment'] : '');
 									customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);
-									$used_volume = ''; //In case there are 2 scores
+									$used_volume = ''; //In case there are 2 scores no used wolume will be defined for the second one
 								}
-//TODO Qualité visuelle Bioanalyser
-//TODO Quantité (ug) par Bioanalyser
+							} else if(strlen($new_line_data['Valeur RIN'].$new_line_data['Ratio 28S/18S Bioanalyser'])) {
+								$import_summary['Inventory - RNA']['@@ERROR@@']["Bioanalyzer was defined as not executed but results exist"][] = "No bioanalyzer test will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
 							}
 							//Nanodrop
 							if(strlen($new_line_data["Nanodrop date analyse"])) {
-								pr($new_line_data);
 								$scores = array();
 								$score = getDecimal($new_line_data, 'Nanodrop A260', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								if($score) $scores['260'] = $score;
@@ -1264,14 +1276,13 @@ if(!in_array($id, array(1))) continue;
 								if($score) $scores['260/280'] = $score;
 								$score = getDecimal($new_line_data, 'Nanodrop 260/230', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
 								if($score) $scores['260/230'] = $score;
-								if(empty($scores)) $scores[''] = '';
+								if(empty($scores)) {
+									$import_summary['Inventory - RNA']['@@WARNING@@']["Nanodrop test with no scrore"][] = "Please confirm .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+									$scores[''] = '';
+								}
 								$qc_date = getDateAndAccuracy($new_line_data, "Nanodrop date analyse", 'Inventory - RNA', $file_name, $line_counter);
 								$qc_date['accuracy'] = str_replace('c','h',$qc_date['accuracy']);
-								//Volume pris pour analyse nanodrop: Not imported because no linked aliquot
-								$concentration = getDecimal($new_line_data, 'Nanodrop (ng/ul)', 'Inventory - RNA', "$file_name ($worksheet)", $line_counter);
-								$concentration_unit = strlen($concentration)? 'ng/ul' : '';								
-								
-								
+								//Note: Volume pris pour analyse nanodrop: Not imported because no linked aliquot
 								foreach($scores as $unit => $score) {
 									$qc_code_counter++;
 									$qc_data = array(
@@ -1282,17 +1293,12 @@ if(!in_array($id, array(1))) continue;
 										'date' => $qc_date['date'],
 										'date_accuracy' => $qc_date['accuracy'],
 										'score' => $score,
-										'unit' => $unit,
-										'concentration' => $concentration,
-										'concentration_unit' => $concentration_unit);
+										'unit' => $unit);
 									customInsert($qc_data, 'quality_ctrls', __FILE__, __LINE__, false);
 								}
-
-							}
-								
-//TODO Quantité (ug) par Bioanalyser	poids du sang estimé	ug ARN par gramme de sang	Volume avant analyse	Volume pris pour analyse nanodrop	Nanodrop centre analyse	Nanodrop date analyse	Nanodrop (ng/ul)	Quantité (ug) pa nanodrop	Nanodrop A260	Nanodrop A280	Nanodrop 260/280	Nanodrop 260/230		Ratio concentration Bioanalyser sur Nanodrop	vérif. DNAse PCR direct	Rapport D.O. 260/280	Concentration par D.O. (ng/ul)	Quantité  par D.O. (ug)	Volume (ul)
-								
-							
+							} else if(strlen($new_line_data['Nanodrop A260'].$new_line_data['Nanodrop A280'].$new_line_data['Nanodrop 260/280'].$new_line_data['Nanodrop 260/230'])) {
+								$import_summary['Inventory - RNA']['@@ERROR@@']["Nanodrop test was defined as not executed but results exist"][] = "No test will be migrated. See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
+							}							
 							unset($paxgene_blood_tubes[$participant_identifier]);
 						} else {
 							$import_summary['Inventory - RNA']['@@ERROR@@']["No paxgene tube"][] = "RNA has been defined for patient $participant_identifier but no paxgene tube was previously created into the system. No RNA will be created. [file '$file_name' :: $worksheet - line: $line_counter";
