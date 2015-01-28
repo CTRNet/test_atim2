@@ -259,7 +259,7 @@ $updated_aliquot_master_ids = loadTissuePosition($tmp_xls_reader->sheets, $sheet
 
 // Add Ischemia Time
 
-addIschemiaTime();
+$updated_sample_master_ids = addIschemiaTime();
 
 // UPDATE MFPE Blocks
 
@@ -267,7 +267,7 @@ $updated_aliquot_master_ids = updateMFPEBlocks($tmp_xls_reader->sheets, $sheets_
 
 //UPDATE normal tissu
 
-updateNormalTissues($tmp_xls_reader->sheets, $sheets_keys, 'Normal Tumour');
+$updated_sample_master_ids = updateNormalTissues($tmp_xls_reader->sheets, $sheets_keys, 'Normal Tumour', $updated_sample_master_ids);
 
 //UPdate path review
 
@@ -282,13 +282,24 @@ $updated_aliquot_master_ids = updateFinalAliquotData($updated_aliquot_master_ids
 
 $updated_aliquot_master_ids = updateTissueSection($updated_aliquot_master_ids);
 
-// Aliquot Revs Table Update
-
-finalAliquotMasterRevsInsert($updated_aliquot_master_ids);
-
 // Set collecte volume and nbr of tube for blood tube received
 
-updateCollectedBloodTubeInfo();
+$updated_sample_master_ids = updateCollectedBloodTubeInfo($updated_sample_master_ids);
+
+// Update empty creation date and reception date
+
+updateMissingSpecimenAndDerivativeDate();
+
+// Add Cell Cultur Collecte and Xenograft Collecte to appropriate tissue
+
+$updated_sample_master_ids = updateXenograftAndCellCultCollectedField($tmp_xls_reader->sheets, $sheets_keys, 'xeno_and_cell_culture_voas', $updated_sample_master_ids);
+
+// Aliquot & Sample Revs Table Update
+
+finalSampleMasterRevsInsert($updated_sample_master_ids);
+finalAliquotMasterRevsInsert($updated_aliquot_master_ids);
+
+//Final code
 
 $query = "UPDATE versions SET permissions_regenerated = 0;";
 mysqli_query($db_connection, $query) or die("Error [$query] ");
@@ -706,6 +717,8 @@ function addIschemiaTime() {
 	while($row = $results->fetch_assoc()) {
 		$controls[$row['sample_type']] = array('id' => $row['id'], 'detail_tablename' => $row['detail_tablename']);
 	}
+		
+	$updated_sample_master_ids = array();
 
 	foreach($controls as $sample_type => $sample_control_data) {
 		$query = "SELECT Collection.participant_id, SampleMaster.id as sample_master_id, SampleMaster.sample_code, '$sample_type' sample_type, SampleMaster.notes, ovcare_ischemia_time_mn
@@ -714,7 +727,6 @@ function addIschemiaTime() {
 			INNER JOIN ".$sample_control_data['detail_tablename']." SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
 			WHERE SampleMaster.notes LIKE '%Isch#%#%' AND SampleMaster.deleted <> 1;";
 		$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-		$updated_sample_master_ids = array();
 		while($row = $results->fetch_assoc()) {
 			if(preg_match('/Isch#([0-9]+)#/', $row['notes'], $matches)) {
 				$new_ovcare_ischemia_time_mn = $matches[1];
@@ -733,26 +745,13 @@ function addIschemiaTime() {
  					mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 					$query = "UPDATE ".$sample_control_data['detail_tablename']." SET ovcare_ischemia_time_mn = '$new_ovcare_ischemia_time_mn' WHERE sample_master_id =  ".$row['sample_master_id'];
 					mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-					$updated_sample_master_ids[] = $row['sample_master_id'];
+					$updated_sample_master_ids[$row['sample_master_id']] = $row['sample_master_id'];
 					$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Updated $sample_type ischemia time"][] = "Set ischemia time to [$new_ovcare_ischemia_time_mn] for the $sample_type with Sample System Code = ".$row['sample_code'];						
 				}
 			}
 		}
 	}
-	if($updated_sample_master_ids) {
-		$query = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
-			modified_by,version_created)
-			(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
-			modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-		$query = "INSERT INTO derivative_details_revs (sample_master_id,creation_site,creation_by,creation_datetime,creation_datetime_accuracy,lab_book_master_id,sync_with_lab_book,version_created)
-			(SELECT sample_master_id,creation_site,creation_by,creation_datetime,creation_datetime_accuracy,lab_book_master_id,sync_with_lab_book, '$modified' FROM derivative_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
-		$query = "INSERT INTO sd_der_plasmas_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_plasmas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
-		$query = "INSERT INTO sd_der_serums_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_serums WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-	}
+	return $updated_sample_master_ids;
 }
 
 function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name, $updated_aliquot_master_ids) {
@@ -814,7 +813,7 @@ function updateMFPEBlocks(&$wroksheetcells, $sheets_keys, $worksheet_name, $upda
 	return $updated_aliquot_master_ids;
 }
 
-function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
+function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name, $updated_sample_master_ids) {
 	global $db_connection;
 	global $modified_by;
 	global $modified;
@@ -824,8 +823,6 @@ function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	$row = $results->fetch_assoc();
 	$sample_control_id = $row['id'];
-	
-	$updated_sample_master_ids = array();
 	
 	// ** Set tumoral tissue by default **
 	
@@ -878,21 +875,7 @@ function updateNormalTissues(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 			}
 		}
 	}
-	if($updated_sample_master_ids) {
-		$query = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
-			modified_by,version_created)
-			(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
-			modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";	
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-		$query = "INSERT INTO specimen_details_revs (sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, version_created)
-			(SELECT sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, '$modified' FROM specimen_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";	
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
-		$query = "INSERT INTO sd_spe_tissues_revs (sample_master_id, tissue_source, ovcare_tissue_source_precision, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size,
-			tissue_size_unit, tissue_weight, tissue_weight_unit, ovcare_ischemia_time_mn, ovcare_tissue_type, ovcare_xenograft_collected, ovcare_cell_culture_collected, version_created) 
-			(SELECT sample_master_id, tissue_source, ovcare_tissue_source_precision, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size,
-			tissue_size_unit, tissue_weight, tissue_weight_unit, ovcare_ischemia_time_mn, ovcare_tissue_type, ovcare_xenograft_collected, ovcare_cell_culture_collected, '$modified' FROM sd_spe_tissues WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";		
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));	
-	}
+	return $updated_sample_master_ids;
 }
 
 function updatePathReviews(&$wroksheetcells, $sheets_keys, $worksheet_name) {
@@ -1140,6 +1123,160 @@ function updateTissueSection($updated_aliquot_master_ids) {
 	return $updated_aliquot_master_ids;	
 }
 
+
+function updateMissingSpecimenAndDerivativeDate() {
+	//No new row will be added to revs table because too many data
+	
+	$queries = array();
+	
+	$queries[] = "ALTER TABLE specimen_details ADD COLUMN tmp_updated char(1) DEFAULt '0';";
+	
+	$queries[] = "UPDATE specimen_details sd, sample_masters sm, collections c
+		SET sd.tmp_updated = '1', sd.reception_datetime = c.collection_datetime, sd.reception_datetime_accuracy = c.collection_datetime_accuracy
+		WHERE c.id = sm.collection_id AND sm.id = sd.sample_master_id AND sm.deleted <> 1 AND (sd.reception_datetime IS NULL OR sd.reception_datetime = '');";
+	
+	$queries[] = "UPDATE specimen_details sd SET sd.reception_datetime_accuracy = 'h' WHERE sd.reception_datetime_accuracy IN ('c','i') AND tmp_updated = '1';";
+
+	$queries[] = "UPDATE specimen_details sd, specimen_details_revs sd_revs
+		SET sd_revs.reception_datetime = sd.reception_datetime, sd_revs.reception_datetime_accuracy = sd.reception_datetime_accuracy
+		WHERE sd.sample_master_id = sd_revs.sample_master_id AND sd.tmp_updated = '1';";
+	
+	$queries[] = "ALTER TABLE specimen_details DROP COLUMN tmp_updated;";
+	
+	$queries[] = "ALTER TABLE derivative_details ADD COLUMN tmp_updated char(1) DEFAULt '0';";
+	
+	$queries[] = "UPDATE derivative_details dd, sample_masters sm, collections c
+		SET dd.tmp_updated = '1', dd.creation_datetime = c.collection_datetime, dd.creation_datetime_accuracy = c.collection_datetime_accuracy
+		WHERE c.id = sm.collection_id AND sm.id = dd.sample_master_id AND sm.deleted <> 1 AND (dd.creation_datetime IS NULL OR dd.creation_datetime = '')
+		AND sm.sample_control_id IN (SELECT id FROM sample_controls WHERE sample_type IN ('blood cell', 'plasma', 'serum'));";
+	
+	$queries[] = "UPDATE derivative_details dd SET dd.creation_datetime_accuracy = 'h' WHERE dd.creation_datetime_accuracy IN ('c','i') AND tmp_updated = '1';";
+	
+	$queries[] = "UPDATE derivative_details dd, derivative_details_revs dd_revs
+		SET dd_revs.creation_datetime = dd.creation_datetime, dd_revs.creation_datetime_accuracy = dd.creation_datetime_accuracy
+		WHERE dd.sample_master_id = dd_revs.sample_master_id AND dd.tmp_updated = '1';";
+	
+	$queries[] = "ALTER TABLE derivative_details DROP COLUMN tmp_updated;";
+	
+	foreach($queries as $query) $querymysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+}
+
+function updateXenograftAndCellCultCollectedField(&$wroksheetcells, $sheets_keys, $worksheet_name, $updated_sample_master_ids) {
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	//Update based on excel file data (study inclusion field)
+	$cell_culture_voas = array();
+	$xenograft_voas = array();
+	$headers = array();
+	if(!isset($sheets_keys[$worksheet_name])) die('ERR 2387 32eeee '.$worksheet_name);
+	foreach($wroksheetcells[$sheets_keys[$worksheet_name]]['cells'] as $excel_line_counter => $new_line) {
+		if($excel_line_counter == 1) {
+			$headers  = $new_line;
+		} else {
+			$new_line_data = customArrayCombineAndUtf8Encode($headers, $new_line);
+			$voa_nbr = $new_line_data['VOA Number'];
+			if(strlen($voa_nbr)) {
+				if(preg_match('/Cell\ Culture/', $new_line_data['Study Inclusion'])) $cell_culture_voas[] = $voa_nbr;
+				if(preg_match('/Xenograft/', $new_line_data['Study Inclusion'])) $xenograft_voas[] = $voa_nbr;
+			}
+		}
+	}
+	foreach(array('Xenograft Collected' => $xenograft_voas, 'Cell Culture Collected' => $cell_culture_voas) as $title => $voas) {
+		if(!empty($voas)) {
+			$field = ($title == 'Xenograft Collected')? 'ovcare_xenograft_collected': 'ovcare_cell_culture_collected';
+			$query = "SELECT sm.id AS sample_master_id, col.participant_id, col.ovcare_collection_voa_nbr, sd.ovcare_xenograft_collected, sd.ovcare_cell_culture_collected
+				FROM collections col
+				INNER JOIN sample_masters sm ON sm.collection_id = col.id
+				INNER JOIN sd_spe_tissues sd ON sd.sample_master_id = sm.id
+				WHERE sm.deleted <> 1 AND col.ovcare_collection_voa_nbr IN ('".implode("','",$voas)."')";		
+			$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+			while($row = $results->fetch_assoc()) {
+				if($row[$field] != 'y') {
+					$sample_master_id = $row['sample_master_id'];
+					$voa = $row['ovcare_collection_voa_nbr'];
+					$query = "UPDATE sd_spe_tissues SET $field = 'y' WHERE sample_master_id = $sample_master_id;";
+					mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+					$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Flag tissue as '$title' based on excel file content"][$voa] = "See tissues of collection with VOA# [$voa]";
+					$updated_sample_master_ids[$sample_master_id] = $sample_master_id;
+				}
+			}
+		}
+	}
+	//Upate based on Aliquot Study
+	$query = "SELECT id, detail_tablename FROM sample_controls WHERE sample_type = 'tissue';";
+	$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	$row = $results->fetch_assoc();
+	$sample_control_id = $row['id'];
+	foreach(array('Xenograft Collected' => 'Xenograft', 'Cell Culture Collected' => 'Cell Culture') as $title => $study) {
+		$field = ($title == 'Xenograft Collected')? 'ovcare_xenograft_collected': 'ovcare_cell_culture_collected';
+		$query = "SELECT DISTINCT sm.id AS sample_master_id, col.participant_id, col.ovcare_collection_voa_nbr, sd.ovcare_xenograft_collected, sd.ovcare_cell_culture_collected
+			FROM collections col
+			INNER JOIN sample_masters sm ON sm.collection_id = col.id
+			INNER JOIN sd_spe_tissues sd ON sd.sample_master_id = sm.id
+			INNER JOIN aliquot_masters am ON am.sample_master_id = sm.id
+			INNER JOIN study_summaries st ON st.id = am.study_summary_id
+			WHERE sm.deleted <> 1 AND sm.sample_control_id = $sample_control_id AND st.title LIKE '$study'";
+		$results = mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+		while($row = $results->fetch_assoc()) {
+			if($row[$field] != 'y') {
+				$sample_master_id = $row['sample_master_id'];
+				$voa = $row['ovcare_collection_voa_nbr'];
+				$query = "UPDATE sd_spe_tissues SET $field = 'y' WHERE sample_master_id = $sample_master_id;";
+				mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+				$summary_msg['Data Creation/Update Summary'][$row['participant_id']]["Flag tissue as '$title' based on aliquot 'Study/Project'"][] = "See tissues (id = $sample_master_id) of collection with VOA# [$voa]";
+				$updated_sample_master_ids[$sample_master_id] = $sample_master_id;
+			}
+		}
+	}		
+	return $updated_sample_master_ids;		
+}
+
+function finalSampleMasterRevsInsert($updated_sample_master_ids){
+	global $db_connection;
+	global $modified_by;
+	global $modified;
+	global $summary_msg;
+	
+	$queries = array();
+	
+	$queries[] = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+		modified_by,version_created)
+		(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
+		modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";
+	
+	$queries[] = "INSERT INTO specimen_details_revs (sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, version_created)
+		(SELECT sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, '$modified' FROM specimen_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO derivative_details_revs (sample_master_id,creation_site,creation_by,creation_datetime,creation_datetime_accuracy,lab_book_master_id,sync_with_lab_book,version_created)
+		(SELECT sample_master_id,creation_site,creation_by,creation_datetime,creation_datetime_accuracy,lab_book_master_id,sync_with_lab_book, '$modified' FROM derivative_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	
+	$queries[] = "INSERT INTO sd_spe_bloods_revs (sample_master_id, blood_type, collected_tube_nbr, collected_volume, collected_volume_unit, version_created)
+		(SELECT sample_master_id, blood_type, collected_tube_nbr, collected_volume, collected_volume_unit, '$modified' FROM sd_spe_bloods WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[]= "INSERT INTO sd_spe_tissues_revs (sample_master_id, tissue_source, ovcare_tissue_source_precision, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size,
+		tissue_size_unit, tissue_weight, tissue_weight_unit, ovcare_ischemia_time_mn, ovcare_tissue_type, ovcare_xenograft_collected, ovcare_cell_culture_collected, version_created)
+		(SELECT sample_master_id, tissue_source, ovcare_tissue_source_precision, tissue_nature, tissue_laterality, pathology_reception_datetime, pathology_reception_datetime_accuracy, tissue_size,
+		tissue_size_unit, tissue_weight, tissue_weight_unit, ovcare_ischemia_time_mn, ovcare_tissue_type, ovcare_xenograft_collected, ovcare_cell_culture_collected, '$modified' FROM sd_spe_tissues WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[]= "INSERT INTO sd_spe_ascites_revs (sample_master_id,collected_volume,collected_volume_unit,ovcare_ischemia_time_mn,ovcare_xenograft_collected,ovcare_cell_culture_collected, version_created) 
+		(SELECT sample_master_id,collected_volume,collected_volume_unit,ovcare_ischemia_time_mn,ovcare_xenograft_collected,ovcare_cell_culture_collected, '$modified' FROM sd_spe_ascites WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[]= "INSERT INTO sd_spe_salivas_revs (sample_master_id,ovcare_ischemia_time_mn, version_created) 
+		(SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_spe_salivas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	
+	$queries[] = "INSERT INTO sd_der_plasmas_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_plasmas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_serums_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_serums WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_ascite_cells_revs (sample_master_id,version_created) (SELECT sample_master_id, '$modified' FROM sd_der_ascite_cells WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_ascite_sups_revs (sample_master_id,version_created) (SELECT sample_master_id, '$modified' FROM sd_der_ascite_sups WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_cdnas_revs (sample_master_id,version_created) (SELECT sample_master_id, '$modified' FROM sd_der_cdnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_amp_rnas_revs (sample_master_id,version_created) (SELECT sample_master_id, '$modified' FROM sd_der_amp_rnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_blood_cells_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_blood_cells WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_rnas_revs (sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx,version_created) (SELECT sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx, '$modified' FROM sd_der_rnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_dnas _revs (sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx,version_created) (SELECT sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx, '$modified' FROM sd_der_dnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_cell_cultures_revs (sample_master_id,culture_status,culture_status_reason,cell_passage_number,version_created) (SELECT sample_master_id,culture_status,culture_status_reason,cell_passage_number, '$modified' FROM sd_der_cell_cultures WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	
+	foreach($queries as $query) $querymysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+}
+
 function finalAliquotMasterRevsInsert($updated_aliquot_master_ids) {
 	global $db_connection;
 	global $modified_by;
@@ -1159,13 +1296,11 @@ function finalAliquotMasterRevsInsert($updated_aliquot_master_ids) {
 	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 }
 
-function updateCollectedBloodTubeInfo() {
+function updateCollectedBloodTubeInfo($updated_sample_master_ids) {
 	global $db_connection;
 	global $modified_by;
 	global $modified;
 	global $summary_msg;
-	
-	$updated_sample_master_ids = array();
 	
 	//VOA509-2301:  for samples which we received blood:  1 tube of EDTA (6.0mL)
 	
@@ -1271,19 +1406,7 @@ function updateCollectedBloodTubeInfo() {
 	mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 	if($upated_records_count) $summary_msg['Blood tubes: Collected volume and tube nbr update']['@@MESSAGE@@']["Serum of VOA# 2303-4939 (1 tube / 6ml)"][] = $upated_records_count." records updated.";
 		
-	if($updated_sample_master_ids) {
-		$query = "INSERT INTO sample_masters_revs (id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
-			modified_by,version_created)
-			(SELECT id,sample_code,sample_control_id,initial_specimen_sample_id,initial_specimen_sample_type,collection_id,parent_id,parent_sample_type,sop_master_id,product_code,is_problematic,notes,
-			modified_by,modified FROM sample_masters WHERE id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-		$query = "INSERT INTO specimen_details_revs (sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, version_created)
-			(SELECT sample_master_id, supplier_dept, time_at_room_temp_mn, reception_by, reception_datetime, reception_datetime_accuracy, '$modified' FROM specimen_details WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-		$query = "INSERT INTO sd_spe_bloods_revs (sample_master_id, blood_type, collected_tube_nbr, collected_volume, collected_volume_unit, version_created)
-			(SELECT sample_master_id, blood_type, collected_tube_nbr, collected_volume, collected_volume_unit, '$modified' FROM sd_spe_bloods WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
-		mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-	}
+	return $updated_sample_master_ids;
 }
 				
 //===========================================================================================================================================================
