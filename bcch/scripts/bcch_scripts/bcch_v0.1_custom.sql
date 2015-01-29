@@ -113,7 +113,7 @@ UPDATE `participants` SET `participant_identifier` = '';
 UPDATE `structure_validations` SET `rule`='notEmpty' WHERE `language_message`='error_participant identifier required';
 UPDATE `structure_validations` SET `rule`='isUnique' WHERE `language_message`='error_participant identifier must be unique';
 
-UPDATE `structure_validations` SET `rule` = '/^[C][0-9][0-9][0-9][0-9][0-9]$'
+UPDATE `structure_validations` SET `rule` = 'custom,/^[C][0-9][0-9][0-9][0-9][0-9]$/'
 WHERE `structure_field_id` = 521 AND `rule` = '/^[0-9]+$/' AND `language_message` = 'ccbr error participant identifier';
 
 -- New error message
@@ -132,7 +132,9 @@ UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0', `flag_editgrid_
 --	=========================================================================
 
 -- Set label to read-only on all add/edit forms
-UPDATE structure_formats SET `flag_add_readonly`='1', `flag_addgrid_readonly`='1', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add_readonly`='0', `flag_addgrid_readonly`='0', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='aliquot_label' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 
 --  =========================================================================
 --	Eventum ID: #3128 - Sample Code Format
