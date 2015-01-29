@@ -87,6 +87,13 @@ class SampleMasterCustom extends SampleMaster {
 			$collection_sample_count = 0;
 		}
 		
+		// Pad sample count to three digits
+		if ($total_sample_count < 10) {
+			$total_sample_count = '00'.$total_sample_count;
+		} elseif ($total_sample_count < 100) {
+			$total_sample_count = '0'.$total_sample_count;
+		}
+				
 		// Set sample code 
 		$sample_code = $participant_identifier . $sample_label . $total_sample_count;
 
