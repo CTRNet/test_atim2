@@ -22,11 +22,12 @@ class ViewCollectionCustom extends ViewCollection{
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 MiscIdentifier.identifier_value,
-Collection.qcrcoc_misc_identifier_control_id,
-Collection.qcrcoc_collection_type
+Collection.qcroc_misc_identifier_control_id,
+Collection.qcroc_collection_type,
+Collection.qcroc_collection_visit
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcrcoc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
 		WHERE Collection.deleted <> 1 %%WHERE%%';
 	
 	function summary($variables=array()) {
@@ -36,9 +37,12 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id']), 'recursive' => '-1'));
 			$this->Collection = AppModel::getInstance("InventoryManagement", "Collection", true);
 			$qcroc_projects = $this->Collection->getQcrocCollectionProject();
+			
+			
 			//Build Title
-			$title = str_replace('QCROC-', '', $qcroc_projects[$collection_data['ViewCollection']['qcrcoc_misc_identifier_control_id']]).
-				(($collection_data['ViewCollection']['qcrcoc_collection_type'] == 'pre-treatment')? '-1' : '-2').
+			$title = str_replace('QCROC-', '', $qcroc_projects[$collection_data['ViewCollection']['qcroc_misc_identifier_control_id']]).
+				'-'.$collection_data['ViewCollection']['qcroc_collection_type'].
+				($collection_data['ViewCollection']['qcroc_collection_visit']? $collection_data['ViewCollection']['qcroc_collection_visit'] : '?').
 				'-'.($collection_data['ViewCollection']['identifier_value']? $collection_data['ViewCollection']['identifier_value'] : '?');
 			$return = array(
 					'menu' => array(null, $title),

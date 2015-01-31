@@ -12,476 +12,267 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	
-	$collection_labels_to_ids = array();
+	$tissue_collection_labels_to_ids = array();
 	
 	//*** Collection ***
 	
 	$worksheet = 'Collection';
 	$summary_title = "Tissue : $worksheet";
+	$headers = array();
 	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
 		if($line_counter == 1) {
 			$headers = $new_line;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
-			$excel_collectoin_value = $new_line_data['Collection'];
-			if(preg_match('/^01\-([12])-0*([0-9]+)$/', $excel_collectoin_value, $matches)) {
-				$collection_id = getCollectionId($matches[2], $matches[1], $new_line_data['Date'], $new_line_data['Hospital site'], $new_line_data['Note'], $summary_title, $file_name, $worksheet, $line_counter);
-				$collection_labels_to_ids[$excel_collectoin_value] = $collection_id;
+			$excel_collection_value = $new_line_data['Collection'];
+			if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)$/', $excel_collection_value, $matches)) {
+				$collection_id = getCollectionId($matches[1], $matches[3], 'T', $matches[2], $new_line_data['Date'], '', $new_line_data['Hospital site'], $new_line_data['Note'], $summary_title, $file_name, $worksheet, $line_counter);
+				$tissue_collection_labels_to_collection_ids[$excel_collection_value]['collection_id'] = $collection_id;
 			} else {
-				$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [$excel_collectoin_value]! [file '$file_name' ($worksheet) - line: $line_counter]";
+				$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [$excel_collection_value]! [file '$file_name' ($worksheet) - line: $line_counter]";
 			}
 		}
 	}
 	
+	//Work on sample
 	
-	pr($collection_labels_to_ids);
 	
 	
 }
 
+function loadBlood(&$XlsReader, $files_path, $file_name) {
+	global $import_summary;
+	global $controls;
 
-function getCollectionId($qcroc_id, $pre_post_id, $excel_collection_date, $collection_site, $notes, $summary_title, $file_name, $worksheet, $line_counter){
+	// Control
+	$sample_aliquot_controls = $controls['sample_aliquot_controls'];
+
+	//Load Worksheet Names
+	$XlsReader->read($files_path.$file_name);
+	$sheets_nbr = array();
+	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
+
+	$blood_collection_labels_to_ids = array();
+
+	//*** UHL ***
+
+	$worksheet = 'UHL';
+	$summary_title = "Blood : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 2) {
+			$headers = $new_line;
+		} else if($line_counter > 2){
+			// *1* Create Collection **
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$collection_id = getCollectionId($new_line_data['study'], $new_line_data['Patient Id'], 'B', $new_line_data['Visit Id'], $new_line_data['CollectionDate'], $new_line_data['CollectionTime'], $new_line_data['Site'], '', $summary_title, $file_name, $worksheet, $line_counter);
+			$collection_key = $new_line_data['study'].'/'.$new_line_data['Patient Id'].'/'.$new_line_data['Visit Id'].'/'.$new_line_data['CollectionDate'].'/'.$new_line_data['CollectionTime'].'/'.$new_line_data['Site'];
+			$blood_collection_labels_to_ids[$collection_key]['collection_id'] = $collection_id;
+			// *2* Create Blood **
+			$blood_type = '';
+			$derivative_type = null;
+			switch($new_line_data['Type']){
+				case 'EDTA':
+					$derivative_type = 'plasma';
+				case 'Buffy Coat':
+					$blood_type = 'EDTA';
+					if(!$derivative_type) $derivative_type = 'pbmc';
+					break;
+				case 'CTAD':
+					$blood_type = 'CTAD';
+					$derivative_type = 'plasma';
+					break;
+				default:
+//TODO Add summary message err.... die('ERR328762387632');	
+			}
+			if($blood_type) {
+				$blood_key = 'Blood:'.$blood_type;
+				if(!array_key_exists($blood_key, $blood_collection_labels_to_ids[$collection_key])) {
+					$sample_data = array(
+						'SampleMaster' => array(
+							'collection_id' => $collection_id,
+							'sample_control_id' => $controls['sample_aliquot_controls']['blood']['sample_control_id'],
+							'initial_specimen_sample_type' => 'blood'),
+						'SpecimenDetail' => array(),
+						'SampleDetail' => array('blood_type' => $blood_type));
+					$blood_collection_labels_to_ids[$collection_key][$blood_key] = createSample($sample_data, $controls['sample_aliquot_controls']['blood']['detail_tablename']);
+				}
+				$blood_sample_master_id = $blood_collection_labels_to_ids[$collection_key][$blood_key];
+				// *3* Create plasma/buffy coat **
+				$derivative_key = $blood_key.'/'.$derivative_type.':'.$new_line_data['ProcessingDate'].'+'.$new_line_data['ProcessingTime'];
+				if(!array_key_exists($derivative_key, $blood_collection_labels_to_ids[$collection_key])) {
+					$date_of_derivative_creation = getDateTimeAndAccuracy($new_line_data, 'ProcessingDate', 'ProcessingTime', $summary_title, $file_name, $worksheet, $line_counter);
+					$sample_data = array(
+						'SampleMaster' => array(
+							'collection_id' => $collection_id,
+							'sample_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['sample_control_id'],
+							'initial_specimen_sample_type' => 'blood',
+							'initial_specimen_sample_id' => $blood_sample_master_id,
+							'parent_sample_type' => 'blood',
+							'parent_id' => $blood_sample_master_id),
+						'DerivativeDetail' => array(
+							'creation_datetime' => $date_of_derivative_creation['datetime'],
+							'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
+						'SampleDetail' => array());
+					$blood_collection_labels_to_ids[$collection_key][$derivative_key] = createSample($sample_data, $controls['sample_aliquot_controls'][$derivative_type]['detail_tablename']);
+				}
+				$derivative_sample_master_id = $blood_collection_labels_to_ids[$collection_key][$derivative_key];
+				// *4* Derivative Aliquot **
+				$storage_date = getDateTimeAndAccuracy($new_line_data, 'StorageDate', "StorageTime", $summary_title, $file_name, $worksheet, $line_counter);
+				$initial_volume = getDecimal($new_line_data, 'Volume', $summary_title, $file_name, $worksheet, $line_counter);
+				if(strtolower($new_line_data['VolumeUnit']) != 'ul'){
+//TODO Add summary message err	
+					$initial_volume = '';
+				} else {
+					$initial_volume = $initial_volume/1000;
+				}
+				$hemolysis_signs = '';
+				switch($new_line_data['SampleColor']) {
+					case 'Red';
+						$hemolysis_signs = 'y';
+						break;
+					case 'Yellow';
+						$hemolysis_signs = 'n';
+						break;
+					default:
+//TODO Add summary message err		
+				}
+//TODO hemolysis signe to add ot pbmc...				
+				
+//TODO						$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte de rangement plasma-'.$id], 'plasma', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
+//TODO						$storage_coordinates = getPosition($participant_identifier, $new_line_data['position plasma-'.$id.' dans bte rangement'], $new_line_data['bte de rangement plasma-'.$id], 'plasma', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
+				$aliquot_data = array(
+					'AliquotMaster' => array(
+						'collection_id' => $collection_id,
+						'sample_master_id' => $derivative_sample_master_id,
+						'aliquot_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['aliquot_control_id'],
+						'barcode' => $new_line_data['BarCode'],
+						'aliquot_label' => $new_line_data['Aliquot Id (value)'],
+						'in_stock' => 'yes - available',
+						'initial_volume' => $initial_volume,
+						'current_volume' => $initial_volume,
+						'use_counter' => '0',
+						'storage_datetime' => $storage_date['datetime'],
+						'storage_datetime_accuracy' => $storage_date['accuracy']/*,
+						'storage_master_id' => $storage_master_id,
+						'storage_coord_x' => $storage_coordinates['x'],
+						'storage_coord_y' => $storage_coordinates['y']*/,
+						'notes'=> $new_line_data['Comments']),
+					'AliquotDetail' => array(
+						'hemolysis_signs' => $hemolysis_signs));
+				$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+				customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+				
+				
+				
+				
+//TODO: aliquot internal use. Add:	DateReceive TimeReceive			
+			}
+		}
+	}
+}
+
+function getCollectionId($study_id, $patient_qcroc_id, $collection_type, $collection_visit, $excel_collection_date, $excel_collection_time, $collection_site, $notes, $summary_title, $file_name, $worksheet, $line_counter){
 	global $import_summary;
 	global $import_date;
 	global $controls;
-	global $qcroc_ids_to_part_and_col_ids;
+	global $patient_qcroc_ids_to_part_and_col_ids;
+	
+	$study_id = str_replace("'", "", $study_id);
+	if(!preg_match('/^0[1-3]*$/',$study_id)) die('ERR323672673262733.1=d'.$study_id);
+	$misc_identifier_control_name = "QCROC-$study_id";
+	if(preg_match('/^0*([1-9][0-9]*)$/', $patient_qcroc_id, $matches)) {
+		$patient_qcroc_id = $matches[1];
+	} else {
+		die('ERR323672673262733.2=d'.$patient_qcroc_id);
+	}
+	if(!in_array($collection_type, array('T','B'))) die('ERR323672673262733.3='.$collection_type);
+	if(preg_match('/^0*([1-9][0-9]*)$/', $collection_visit, $matches)) {
+		$collection_visit = $matches[1];
+	} else {
+		die('ERR323672673262733.4=d'.$collection_visit);
+	}
 	
 	//Participant Management
 	
-	if(!array_key_exists($qcroc_id, $qcroc_ids_to_part_and_col_ids)) {
+	if(!array_key_exists($patient_qcroc_id, $patient_qcroc_ids_to_part_and_col_ids)) {
 		//Create Participant
-		$data = array('participant_identifier' => (sizeof($qcroc_ids_to_part_and_col_ids) + 1), 'last_modification' => $import_date);
+		$data = array('participant_identifier' => (sizeof($patient_qcroc_ids_to_part_and_col_ids) + 1), 'last_modification' => $import_date);
 		$atim_participant_id  = customInsert($data, 'participants', __FILE__, __LINE__);
-		$qcroc_ids_to_part_and_col_ids[$qcroc_id] = array('participant_id' => $atim_participant_id, 'collections' => array());
+		$patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id] = array('participant_id' => $atim_participant_id, 'collections' => array());
 		//Create MiscIdentifier
 		$data = array(
-			'misc_identifier_control_id' => $controls['MiscIdentifierControl']['QCROC-01']['id'],
+			'misc_identifier_control_id' => $controls['MiscIdentifierControl'][$misc_identifier_control_name]['id'],
 			'participant_id' => $atim_participant_id,
-			'flag_unique' => $controls['MiscIdentifierControl']['QCROC-01']['flag_unique'],
-			'identifier_value' => $qcroc_id);
+			'flag_unique' => $controls['MiscIdentifierControl'][$misc_identifier_control_name]['flag_unique'],
+			'identifier_value' => $patient_qcroc_id);
 		customInsert($data, 'misc_identifiers', __FILE__, __LINE__, false);
 	} 
-	$atim_participant_id = $qcroc_ids_to_part_and_col_ids[$qcroc_id]['participant_id'];
+	$atim_participant_id = $patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['participant_id'];
 	
 	//Collection Management
-	
-	$collection_date = getDateAndAccuracy(array('Date' => $excel_collection_date), 'Date', 'Consent & Questionnaire', $summary_title, $file_name, $worksheet, $line_counter);
-	$collection_date['accuracy'] = str_replace('c', 'h', $collection_date['accuracy']);
-	$collection_key = $pre_post_id."//".$collection_date['date']."//".$collection_date['accuracy']."//".$collection_site;
-	if(!array_key_exists($collection_key, $qcroc_ids_to_part_and_col_ids[$qcroc_id]['collections'])) {
+	if(!$excel_collection_time) {
+		$collection_date = getDateAndAccuracy(array('Date' => $excel_collection_date), 'Date', $summary_title, $file_name, $worksheet, $line_counter);
+		$collection_date['accuracy'] = str_replace('c', 'h', $collection_date['accuracy']);
+	} else {
+		$collection_date = getDateTimeAndAccuracy(array('Date' => $excel_collection_date, 'Time' => $excel_collection_time), 'Date', 'Time', $summary_title, $file_name, $worksheet, $line_counter);
+	}
+	$collection_key = "$study_id/$collection_type/$collection_visit/".(array_key_exists('date', $collection_date)? $collection_date['date']: $collection_date['datetime'])."//".$collection_date['accuracy']."/$collection_site";
+	if(!array_key_exists($collection_key, $patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'])) {
 		switch($collection_site) {
 			case 'JGH':
+			case 'UHL':
 			case '':
 				break;
 			default;
 			$import_summary[$summary_title]['@@WARNING@@']['Collection Site Unknown'][] = "See value [$collection_site]! No collection site will be set! [file '$file_name' ($worksheet) - line: $line_counter]";
 			$collection_site = '';
 		}
-		if(!in_array($pre_post_id, array('1','2'))) die('ERR323672673262736='.$pre_post_id);
 		$collection_data = array(
 			'participant_id' => $atim_participant_id,
-			'collection_datetime' => $collection_date['date'],
+			'collection_datetime' => (array_key_exists('date', $collection_date)? $collection_date['date']: $collection_date['datetime']),
 			'collection_datetime_accuracy' => $collection_date['accuracy'],
 			'collection_property' => 'participant collection',
 			'collection_site' => $collection_site,
-			'qcrcoc_misc_identifier_control_id' => $controls['MiscIdentifierControl']['QCROC-01']['id'],
-			'qcrcoc_collection_type' => (($pre_post_id == '1')? 'pre-treatment' : 'post-treatment'),
+			'qcroc_collection_visit' => $collection_visit,
+			'qcroc_misc_identifier_control_id' => $controls['MiscIdentifierControl'][$misc_identifier_control_name]['id'],
+			'qcroc_collection_type' => $collection_type,
 			'collection_notes' => $notes);
-		$qcroc_ids_to_part_and_col_ids[$qcroc_id]['collections'][$collection_key] = customInsert($collection_data, 'collections', __FILE__, __LINE__); 
+		$patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'][$collection_key] = customInsert($collection_data, 'collections', __FILE__, __LINE__); 
 	} else if(strlen($notes)) {
 		$notes = str_replace("'", "''", $notes);
-		$query = "UPDATE collections SET notes = CONCAT('$notes', ' ', notes) WHERE id = ".$qcroc_ids_to_part_and_col_ids[$qcroc_id]['collections'][$collection_key].";";
+		$query = "UPDATE collections SET notes = CONCAT('$notes', ' ', notes) WHERE id = ".$patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'][$collection_key].";";
 		customQuery($query, __FILE__, __LINE__);
 	}
 	
-	return $qcroc_ids_to_part_and_col_ids[$qcroc_id]['collections'][$collection_key];
+	return $patient_qcroc_ids_to_part_and_col_ids[$patient_qcroc_id]['collections'][$collection_key];
 }
 
+function createSample($sample_data, $detail_tablename) {
+	global $sample_code;
 
+	$sample_data['SampleMaster']['sample_code'] = 'tmp'.($sample_code++);
+	//Master
+	$sample_master_id = customInsert($sample_data['SampleMaster'], 'sample_masters', __FILE__, __LINE__, false);
+	//Specimen/Derivative
+	if(array_key_exists('SpecimenDetail', $sample_data)) {
+		$sample_data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
+		customInsert($sample_data['SpecimenDetail'], 'specimen_details', __FILE__, __LINE__, true);
+	} else {
+		$sample_data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
+		customInsert($sample_data['DerivativeDetail'], 'derivative_details', __FILE__, __LINE__, true);
+	}
+	//Detail
+	$sample_data['SampleDetail']['sample_master_id'] = $sample_master_id;
+	customInsert($sample_data['SampleDetail'], $detail_tablename, __FILE__, __LINE__, true);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return$sample_master_id;
+}
 
 //TODO remove code below ==================================================================================================================================================================================
 // ==================================================================================================================================================================================
 // ==================================================================================================================================================================================
 // ==================================================================================================================================================================================
-
-
-function loadBlood($participant_id, $participant_identifier, $file_name, $worksheet, $line_counter, $new_line_data) {
-	global $import_summary;
-	global $controls;
-	
-	if($new_line_data['date prélèv. sang']) {
-		//Collection
-		$date_of_collection = getDateTimeAndAccuracy($new_line_data, 'date prélèv. sang', "hre de prélèvement sang", 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-		$collection_data = array(
-			'participant_id' => $participant_id,
-			'collection_datetime' => $date_of_collection['datetime'],
-			'collection_datetime_accuracy' => $date_of_collection['accuracy'],
-			'collection_property' => 'participant collection',
-			'collection_notes' => '',
-			'procure_visit' => $worksheet);
-		$collection_id = customInsert($collection_data, 'collections', __FILE__, __LINE__);
-		
-		$date_of_derivative_creation = $date_of_collection;
-		$date_of_derivative_creation['accuracy'] = str_replace(array('c','i'), array('h','h'), $date_of_derivative_creation['accuracy']);
-		
-		$collection_aliquot_created = false;
-		
-		// *** Create Serum Blood + Derivatives ***
-		
-		if($new_line_data['sérum nb tubes']) {
-			//Blood
-			$sample_data = array(
-				'SampleMaster' => array(
-					'collection_id' => $collection_id,
-					'sample_control_id' => $controls['sample_aliquot_controls']['blood']['sample_control_id'],
-					'initial_specimen_sample_type' => 'blood',
-					'notes' => ''),
-				'SpecimenDetail' => array(
-					'reception_datetime' => $date_of_derivative_creation['datetime'],
-					'reception_datetime_accuracy' => $date_of_derivative_creation['accuracy'],
-					'procure_refrigeration_time' => getTime($new_line_data, 'hre de réfrigération tube sérum', 'Inventory - Blood', "$file_name ($worksheet)", $line_counter)),
-				'SampleDetail' => array(
-					'blood_type' => 'serum'));
-			$blood_sample_master_id = createSample($sample_data, $controls['sample_aliquot_controls']['blood']['detail_tablename']);
-			//Serum
-			$serum_controls = $controls['sample_aliquot_controls']['serum'];
-			$sample_data = array(
-				'SampleMaster' => array(
-					'collection_id' => $collection_id,
-					'sample_control_id' => $serum_controls['sample_control_id'],
-					'initial_specimen_sample_type' => 'blood',
-					'initial_specimen_sample_id' => $blood_sample_master_id,
-					'parent_sample_type' => 'blood',
-					'parent_id' => $blood_sample_master_id,
-					'notes' => ''),
-				'DerivativeDetail' => array(
-					'creation_datetime' => $date_of_derivative_creation['datetime'],
-					'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
-				'SampleDetail' => array());
-			$derivative_sample_master_id = createSample($sample_data, $serum_controls['detail_tablename']);
-			//aliquots
-			$storage_date = getDateTimeAndAccuracy($new_line_data, 'date prélèv. sang', "hre de congélation sérum", 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-			$created_aliquots = 0;
-			for($id=1;$id<6;$id++){
-				$initial_volume = getDecimal($new_line_data, 'ser-'.$id, 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-				if($initial_volume) {
-					//Storage data
-					$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte de rangement sérum-'.$id], 'serum', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-					$storage_coordinates = getPosition($participant_identifier, $new_line_data['position dans bte de rangement sérum-'.$id], $new_line_data['bte de rangement sérum-'.$id], 'serum', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-					//Create aliquot
-					$aliquot_data = array(
-						'AliquotMaster' => array(
-							'collection_id' => $collection_id,
-							'sample_master_id' => $derivative_sample_master_id,
-							'aliquot_control_id' => $serum_controls['aliquots']['tube']['aliquot_control_id'],
-							'barcode' => "$participant_identifier $worksheet -SER".$id,
-							'in_stock' => 'yes - available',
-							'initial_volume' => $initial_volume,
-							'current_volume' => $initial_volume,
-							'use_counter' => '0',
-							'storage_datetime' => $storage_date['datetime'],
-							'storage_datetime_accuracy' => $storage_date['accuracy'],
-							'storage_master_id' => $storage_master_id,
-							'storage_coord_x' => $storage_coordinates['x'],
-							'storage_coord_y' => $storage_coordinates['y']),
-						'AliquotDetail' => array());	
-					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-					customInsert($aliquot_data['AliquotDetail'], $serum_controls['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);		
-					$created_aliquots++;
-					$collection_aliquot_created = true;
-				} else if(str_replace('x','',$new_line_data['position dans bte de rangement sérum-'.$id]) || str_replace('x','',$new_line_data['bte de rangement sérum-'.$id])) {
-					$import_summary['Inventory - Blood']['@@WARNING@@']["No serum volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -SER".$id." is empty but a storage information is set (".$new_line_data['bte de rangement sérum-'.$id]." : ".$new_line_data['position dans bte de rangement sérum-'.$id]."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
-				}
-			}
-			if($created_aliquots != $new_line_data['sérum nb tubes']) {
-				$import_summary['Inventory - Blood']['@@WARNING@@']["Numbers of serum tubes (created and defined) are different"][] = "Based on all volume fields, the system created $created_aliquots aliquots but the number of aliquots defined into column 'sérum nb tubes' was equal to ".$new_line_data['sérum nb tubes'].". Please confirm. Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-			}
-		} else if(str_replace('x','',$new_line_data['ser-1'])) {
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No serum defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-		}	
-		
-		// *** Create EDTA Blood + Derivatives (plasma + Whatman + BFC) ***
-		
-		if($new_line_data['plasma nb tubes'] || $new_line_data['FTA Elute WHT'] || $new_line_data['BFC en banque oui-non']) {
-			//EDTA Blood
-			$blood_controls = $controls['sample_aliquot_controls']['blood'];
-			$sample_data = array(
-				'SampleMaster' => array(
-					'collection_id' => $collection_id,
-					'sample_control_id' => $blood_controls['sample_control_id'],
-					'initial_specimen_sample_type' => 'blood',
-					'notes' => ''),
-				'SpecimenDetail' => array(
-					'reception_datetime' => $date_of_derivative_creation['datetime'],
-					'reception_datetime_accuracy' => $date_of_derivative_creation['accuracy'],
-					'procure_refrigeration_time' => getTime($new_line_data, 'hre de réfrigération tube EDTA', 'Inventory - Blood', "$file_name ($worksheet)", $line_counter)),
-				'SampleDetail' => array(
-					'blood_type' => 'k2-EDTA'));
-			$blood_sample_master_id = createSample($sample_data, $blood_controls['detail_tablename']);
-			//1-Whatman
-			if($new_line_data['FTA Elute WHT'] == '1') {
-				//Storage data
-				$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement WHT'], 'whatman', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-				//Create aliquot
-				$aliquot_data = array(
-					'AliquotMaster' => array(
-						'collection_id' => $collection_id,
-						'sample_master_id' => $blood_sample_master_id,
-						'aliquot_control_id' => $blood_controls['aliquots']['whatman paper']['aliquot_control_id'],
-						'barcode' => "$participant_identifier $worksheet -WHT1",
-						'in_stock' => 'yes - available',
-						'use_counter' => '0',
-						'storage_master_id' => $storage_master_id),
-					'AliquotDetail' => array());
-				$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-				customInsert($aliquot_data['AliquotDetail'], $blood_controls['aliquots']['whatman paper']['detail_tablename'], __FILE__, __LINE__, true);
-				$collection_aliquot_created = true;
-			} else if(str_replace('x','',$new_line_data['bte rangement WHT'])) {
-				$import_summary['Inventory - Blood']['@@ERROR@@']["No Whatman paper defined as banked but aliquot storage set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-			}
-			//2-plasma
-			if($new_line_data['plasma nb tubes']) {
-				$plasma_controls = $controls['sample_aliquot_controls']['plasma'];
-				$sample_data = array(
-					'SampleMaster' => array(
-						'collection_id' => $collection_id,
-						'sample_control_id' => $plasma_controls['sample_control_id'],
-						'initial_specimen_sample_type' => 'blood',
-						'initial_specimen_sample_id' => $blood_sample_master_id,
-						'parent_sample_type' => 'blood',
-						'parent_id' => $blood_sample_master_id,
-						'notes' => ''),
-					'DerivativeDetail' => array(
-						'creation_datetime' => $date_of_derivative_creation['datetime'],
-						'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
-					'SampleDetail' => array());
-				$derivative_sample_master_id = createSample($sample_data, $plasma_controls['detail_tablename']);
-				//aliquots
-				$storage_date = getDateTimeAndAccuracy($new_line_data, 'date prélèv. sang', "hre de congélation plasma", 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-				$created_aliquots = 0;
-				for($id=1;$id<6;$id++){
-					$initial_volume = getDecimal($new_line_data, 'pla-'.$id, 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-					if($initial_volume) {
-						//Storage data
-						$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte de rangement plasma-'.$id], 'plasma', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-						$storage_coordinates = getPosition($participant_identifier, $new_line_data['position plasma-'.$id.' dans bte rangement'], $new_line_data['bte de rangement plasma-'.$id], 'plasma', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-						//Create aliquot
-						$aliquot_data = array(
-							'AliquotMaster' => array(
-								'collection_id' => $collection_id,
-								'sample_master_id' => $derivative_sample_master_id,
-								'aliquot_control_id' => $plasma_controls['aliquots']['tube']['aliquot_control_id'],
-								'barcode' => "$participant_identifier $worksheet -PLA".$id,
-								'in_stock' => 'yes - available',
-								'initial_volume' => $initial_volume,
-								'current_volume' => $initial_volume,
-								'use_counter' => '0',
-								'storage_datetime' => $storage_date['datetime'],
-								'storage_datetime_accuracy' => $storage_date['accuracy'],
-								'storage_master_id' => $storage_master_id,
-								'storage_coord_x' => $storage_coordinates['x'],
-								'storage_coord_y' => $storage_coordinates['y']),
-							'AliquotDetail' => array());
-						$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-						customInsert($aliquot_data['AliquotDetail'], $plasma_controls['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-						$created_aliquots++;
-						$collection_aliquot_created = true;
-					} else if(str_replace('x','',$new_line_data['position plasma-'.$id.' dans bte rangement']) || str_replace('x','',$new_line_data['bte de rangement plasma-'.$id])) {
-						$import_summary['Inventory - Blood']['@@WARNING@@']["No plasma volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -PLA".$id." is empty but a storage information is set (".$new_line_data['bte de rangement plasma-'.$id]." : ".$new_line_data['position plasma-'.$id.' dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
-					}
-				}
-				if($created_aliquots != $new_line_data['plasma nb tubes']) {
-					$import_summary['Inventory - Blood']['@@WARNING@@']["Numbers of plasma tubes (created and defined) are different"][] = "Based on volume field, the system created $created_aliquots aliquots but the number of aliquots defined into column 'plasma nb tubes' was equal to ".$new_line_data['plasma nb tubes'].". Please confirm. Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-				}
-			} else if(str_replace('x','',$new_line_data['pla-1'])) {
-					$import_summary['Inventory - Blood']['@@ERROR@@']["No plasma defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-			}
-			//3-BFC (pbmc)
-			if($new_line_data['BFC en banque oui-non']) {
-				$bfc_controls = $controls['sample_aliquot_controls']['pbmc'];
-				$sample_data = array(
-					'SampleMaster' => array(
-						'collection_id' => $collection_id,
-						'sample_control_id' => $bfc_controls['sample_control_id'],
-						'initial_specimen_sample_type' => 'blood',
-						'initial_specimen_sample_id' => $blood_sample_master_id,
-						'parent_sample_type' => 'blood',
-						'parent_id' => $blood_sample_master_id,
-						'notes' => ''),
-					'DerivativeDetail' => array(
-						'creation_datetime' => $date_of_derivative_creation['datetime'],
-						'creation_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
-					'SampleDetail' => array());
-				$derivative_sample_master_id = createSample($sample_data, $bfc_controls['detail_tablename']);
-				//aliquots
-				$storage_date = getDateTimeAndAccuracy($new_line_data, 'date prélèv. sang', "hre de congélation plasma", 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-				$created_aliquots = false;
-				for($id=1;$id<4;$id++){
-					$initial_volume = 0;
-					if($id!=3) {
-						$initial_volume = getDecimal($new_line_data, 'BFC cong. X2 (ml) '.$id, 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);
-					} else {
-						
-						if($new_line_data['BFC 300ul'] == '1') {
-							$initial_volume = '0.3';
-						} else if(str_replace('x', '', $new_line_data['BFC 300ul'])) {
-							$import_summary['Inventory - Blood']['@@ERROR@@']["Wrong 'BFC 300ul' value format"][] = "Value (".$new_line_data['BFC 300ul'].") different than '1'. No third aliquot will be created. See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-						}
-					}
-					if($initial_volume) {
-						//Storage data
-						$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte rangement BFC-'.$id], 'pbmc', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-						$storage_coordinates = getPosition($participant_identifier, $new_line_data['position BFC-'.$id.' dans bte rangement'], $new_line_data['bte rangement BFC-'.$id], 'pbmc', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-						//Create aliquot
-						$aliquot_data = array(
-							'AliquotMaster' => array(
-								'collection_id' => $collection_id,
-								'sample_master_id' => $derivative_sample_master_id,
-								'aliquot_control_id' => $bfc_controls['aliquots']['tube']['aliquot_control_id'],
-								'barcode' => "$participant_identifier $worksheet -BFC".$id,
-								'in_stock' => 'yes - available',
-								'initial_volume' => $initial_volume,
-								'current_volume' => $initial_volume,
-								'use_counter' => '0',
-								'storage_datetime' => $storage_date['datetime'],
-								'storage_datetime_accuracy' => $storage_date['accuracy'],
-								'storage_master_id' => $storage_master_id,
-								'storage_coord_x' => $storage_coordinates['x'],
-								'storage_coord_y' => $storage_coordinates['y']),
-							'AliquotDetail' => array());
-						$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-						customInsert($aliquot_data['AliquotDetail'], $bfc_controls['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-						$collection_aliquot_created = true;
-						$created_aliquots = true;
-					} else if(str_replace('x','',$new_line_data['position BFC-'.$id.' dans bte rangement']) || str_replace('x','',$new_line_data['bte rangement BFC-'.$id])) {
-						$import_summary['Inventory - Blood']['@@WARNING@@']["No BFC volume but storage data set"][] = "Volume of tube $participant_identifier $worksheet -BFC".$id." is empty but a storage information is set (".$new_line_data['bte rangement BFC-'.$id]." : ".$new_line_data['position BFC-'.$id.' dans bte rangement']."). Tube won't be created. Please confirm. [file '$file_name :: $worksheet', line : $line_counter']";
-					}
-				}
-				if(!$created_aliquots) {
-					$import_summary['Inventory - Blood']['@@WARNING@@']["No tube of BFC defined"][] = "BFC tubes were defined as banked but no tube volume is set. No aliquot has been created .See patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-				}
-			} else if(str_replace('x','',$new_line_data['BFC cong. X2 (ml) 1'])) {
-				$import_summary['Inventory - Blood']['@@ERROR@@']["No BFC defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-			}
-		} else if(str_replace('x','',$new_line_data['pla-1'])) {
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No plasma defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-		} else if(str_replace('x','',$new_line_data['BFC cong. X2 (ml) 1'])) {
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No BFC defined as banked but aliquot volume set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-		} else if(str_replace('x','',$new_line_data['bte rangement WHT'])) {
-			//Test can only be done on storage
-			$import_summary['Inventory - Blood']['@@ERROR@@']["No Whatman paper defined as banked but aliquot storage set"][] = "See Patient $participant_identifier. [file '$file_name :: $worksheet', line : $line_counter']";
-		}
-		
-		// *** Create Paxgene Blood + Derivatives ***
-		
-		if($new_line_data['paxgene congelé'] == '1') {
-			//Blood
-			$sample_data = array(
-				'SampleMaster' => array(
-					'collection_id' => $collection_id,
-					'sample_control_id' => $controls['sample_aliquot_controls']['blood']['sample_control_id'],
-					'initial_specimen_sample_type' => 'blood',
-					'notes' => ''),
-				'SpecimenDetail' => array(
-					'reception_datetime' => $date_of_derivative_creation['datetime'],
-					'reception_datetime_accuracy' => $date_of_derivative_creation['accuracy']),
-				'SampleDetail' => array(
-					'blood_type' => 'paxgene',
-					'procure_tubes_correclty_stored' => (($new_line_data['paxgene congelé'] == 'oui')? '1' : '')));
-			$blood_sample_master_id = createSample($sample_data, $controls['sample_aliquot_controls']['blood']['detail_tablename']);
-			//Create aliquot
-			$storage_date = getDateTimeAndAccuracy($new_line_data, 'date prélèv. sang', "hre de congélation paxgene", 'Inventory - Blood', "$file_name ($worksheet)", $line_counter);	
-			$aliquot_data = array(
-				'AliquotMaster' => array(
-					'collection_id' => $collection_id,
-					'sample_master_id' => $blood_sample_master_id,
-					'aliquot_control_id' => $controls['sample_aliquot_controls']['blood']['aliquots']['tube']['aliquot_control_id'],
-					'barcode' => "$participant_identifier $worksheet -RNB1",
-					'in_stock' => 'yes - available',
-					'use_counter' => '0',
-					'storage_datetime' => $storage_date['datetime'],
-					'storage_datetime_accuracy' => $storage_date['accuracy']),
-				'AliquotDetail' => array());
-			$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-			customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['blood']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-		}
-		
-		// *** Final Control ***
-		
-		if(!$collection_aliquot_created) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["Collection date set but no aliquot created"][] = "See patient $participant_identifier. A collection was created (based on date) but no aliquot is defined into excel file. [file '$file_name :: $worksheet', line : $line_counter']";	
-		}
-	}  else {
-		if(str_replace('x','', $new_line_data['sérum nb tubes'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but '".$new_line_data['sérum nb tubes']."' serum tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
-		}
-		if(str_replace('x','', $new_line_data['plasma nb tubes'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but '".$new_line_data['plasma nb tubes']."' plasma tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
-		}
-		if(str_replace('x','', $new_line_data['FTA Elute WHT'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but 'Whatman Paper'  seams to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
-		}
-		if(str_replace('x','', $new_line_data['BFC en banque oui-non'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but 'BFC' plasma tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
-		}
-		if(str_replace('x','', $new_line_data['paxgene congelé'])) {
-			$import_summary['Inventory - Blood']['@@WARNING@@']["No collection date but blood samples defined"][] = "See patient '$participant_identifier'. No collection has been created but paxgene tubes seam to be banked. Please confirm and create missing collection and samples. [file '$file_name :: $worksheet', line : $line_counter']";
-		}
-	}
-}
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function loadTissue2($participant_id, $participant_identifier, &$psp_nbr_to_frozen_blocks_data, &$psp_nbr_to_paraffin_blocks_data, &$patho_nbr, $file_name, $worksheet, $line_counter, $new_line_data) {
@@ -1069,26 +860,6 @@ if(!in_array($id, array(1))) continue;
 		$query = "UPDATE aliquot_masters SET in_stock = 'no', storage_master_id = null, storage_coord_x = null, storage_coord_y = null WHERE id IN ('".implode("','", $aliquot_master_ids_to_remove)."');";
 		customQuery($query, __FILE__, __LINE__);
 	}
-}
-function createSample($sample_data, $detail_tablename) {
-	global $sample_code;
-
-	$sample_data['SampleMaster']['sample_code'] = 'tmp'.($sample_code++);
-	//Master
-	$sample_master_id = customInsert($sample_data['SampleMaster'], 'sample_masters', __FILE__, __LINE__, false);
-	//Specimen/Derivative
-	if(array_key_exists('SpecimenDetail', $sample_data)) {
-		$sample_data['SpecimenDetail']['sample_master_id'] = $sample_master_id;
-		customInsert($sample_data['SpecimenDetail'], 'specimen_details', __FILE__, __LINE__, true);
-	} else {
-		$sample_data['DerivativeDetail']['sample_master_id'] = $sample_master_id;
-		customInsert($sample_data['DerivativeDetail'], 'derivative_details', __FILE__, __LINE__, true);
-	}
-	//Detail
-	$sample_data['SampleDetail']['sample_master_id'] = $sample_master_id;
-	customInsert($sample_data['SampleDetail'], $detail_tablename, __FILE__, __LINE__, true);
-	
-	return$sample_master_id;
 }
 
 function getBoxStorageUniqueKey($excel_storage_label, $sample_type) {	
