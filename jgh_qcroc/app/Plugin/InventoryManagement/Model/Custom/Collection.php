@@ -13,4 +13,17 @@ class CollectionCustom extends Collection{
 		natcasesort($result);
 		return $result;
 	}
+	
+	function getCollectionSampleTypeBasedOnCollectionType($collection_type) {
+		switch($collection_type){
+			case 'T':
+				return 'tissue';
+				break;
+			case 'B':
+				return 'blood';
+				break;
+			default:
+				return '';
+		}
+	}
 }

@@ -37,8 +37,9 @@ class ViewSampleCustom extends ViewSample{
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
 MiscIdentifier.identifier_value,
-Collection.qcrcoc_misc_identifier_control_id,
-Collection.qcrcoc_collection_type
+Collection.qcroc_misc_identifier_control_id,
+Collection.qcroc_collection_type,
+Collection.qcroc_collection_visit
 	
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -50,7 +51,7 @@ Collection.qcrcoc_collection_type
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcrcoc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
 		WHERE SampleMaster.deleted != 1 %%WHERE%%';
 
 }

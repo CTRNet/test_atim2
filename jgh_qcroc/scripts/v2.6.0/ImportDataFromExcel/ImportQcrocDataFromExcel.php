@@ -47,6 +47,9 @@ list($import_date, $import_by) = array_values(mysqli_fetch_assoc($query_res));
 global $controls;
 $controls = loadATiMControlData();
 
+global $patient_qcroc_ids_to_part_and_col_ids;
+$patient_qcroc_ids_to_part_and_col_ids = array();
+
 global $sample_code;
 $sample_code = 0;
 
@@ -69,7 +72,12 @@ $qcroc_ids_to_part_and_col_ids = array();
 echo "<br><FONT COLOR=\"green\" >File(s) : ".$files_name['tissue']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadTissue($XlsReader, $files_path, $files_name['tissue']);
+//TODO loadTissue($XlsReader, $files_path, $files_name['tissue']);
+
+echo "<br><FONT COLOR=\"green\" >File(s) : ".$files_name['blood']."***</FONT><br>";
+
+$XlsReader = new Spreadsheet_Excel_Reader();
+loadBlood($XlsReader, $files_path, $files_name['blood']);
 
 //TODO remove
 populateViewsAndLftRght();
@@ -286,7 +294,7 @@ function getDateTimeAndAccuracy($data, $field_date, $field_time, $summary_title,
 	if(!array_key_exists($field_time, $data)) die("ERR 238729873298 732 $field $file, $line");
 	$time = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field_time]);
 	//Get Date
-	$tmp_date = getDateAndAccuracy($data, $field_date, $summary_title, $file, $line);
+	$tmp_date = getDateAndAccuracy($data, $field_date, $summary_title, $file, $worksheet, $line);
 	if(!$tmp_date['date']) {
 		if(!empty($time) && $time != '-') $import_summary[$summary_title]['@@ERROR@@']['DateTime: Only time is set'][] = "See following fields details. [fields '$field_date' & '$field_time' - file '$file' ($worksheet) - line: $line]";
 		return array('datetime' => null, 'accuracy' =>null);
@@ -443,7 +451,8 @@ function populateViewsAndLftRght() {
 //TODO remove view insert
 	$query = "TRUNCATE view_collections;";
 	customQuery($query, __FILE__, __LINE__);
-	$query = "REPLACE INTO view_collections (SELECT
+	$query = "REPLACE INTO view_collections (
+				SELECT
 		Collection.id AS collection_id,
 		Collection.bank_id AS bank_id,
 		Collection.sop_master_id AS sop_master_id,
@@ -461,12 +470,13 @@ function populateViewsAndLftRght() {
 		Collection.collection_notes AS collection_notes,
 		Collection.created AS created,
 MiscIdentifier.identifier_value,
-Collection.qcrcoc_misc_identifier_control_id,
-Collection.qcrcoc_collection_type
+Collection.qcroc_misc_identifier_control_id,
+Collection.qcroc_collection_type,
+Collection.qcroc_collection_visit
 		FROM collections AS Collection
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted <> 1
-LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcrcoc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
-		WHERE Collection.deleted <> 1 )";
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
+		WHERE Collection.deleted <> 1);";
 	customQuery($query, __FILE__, __LINE__);
 
 	$query = "TRUNCATE view_samples;";
@@ -505,8 +515,9 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 		 IF(Collection.collection_datetime > DerivativeDetail.creation_datetime, -3,
 		 TIMESTAMPDIFF(MINUTE, Collection.collection_datetime, DerivativeDetail.creation_datetime))))) AS coll_to_creation_spent_time_msg,
 MiscIdentifier.identifier_value,
-Collection.qcrcoc_misc_identifier_control_id,
-Collection.qcrcoc_collection_type
+Collection.qcroc_misc_identifier_control_id,
+Collection.qcroc_collection_type,
+Collection.qcroc_collection_visit
 	
 		FROM sample_masters AS SampleMaster
 		INNER JOIN sample_controls as SampleControl ON SampleMaster.sample_control_id=SampleControl.id
@@ -518,8 +529,8 @@ Collection.qcrcoc_collection_type
 		LEFT JOIN sample_masters AS ParentSampleMaster ON SampleMaster.parent_id = ParentSampleMaster.id AND ParentSampleMaster.deleted != 1
 		LEFT JOIN sample_controls AS ParentSampleControl ON ParentSampleMaster.sample_control_id = ParentSampleControl.id
 		LEFT JOIN participants AS Participant ON Collection.participant_id = Participant.id AND Participant.deleted != 1
-LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcrcoc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
-		WHERE SampleMaster.deleted != 1)';
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
+		WHERE SampleMaster.deleted != 1 )';
 	customQuery($query, __FILE__, __LINE__);
 return;
 	$query = "TRUNCATE view_aliquots;";
