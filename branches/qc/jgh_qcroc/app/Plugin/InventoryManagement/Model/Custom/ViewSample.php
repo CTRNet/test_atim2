@@ -1,5 +1,6 @@
 <?php
 class ViewSampleCustom extends ViewSample{
+	
 	var $name = 'ViewSample';
 	
 	static $table_query = '

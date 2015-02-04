@@ -53,6 +53,14 @@ $patient_qcroc_ids_to_part_and_col_ids = array();
 global $sample_code;
 $sample_code = 0;
 
+global $tmp_barcode;
+$tmp_barcode = 0;
+
+global $storage_master_ids;
+$storage_master_ids = array();
+global $last_storage_code;
+$last_storage_code = 0;
+
 echo "<br><br><FONT COLOR=\"blue\" >
 =====================================================================<br>
 QCROC - Data Migration to ATiM<br>
@@ -72,12 +80,12 @@ $qcroc_ids_to_part_and_col_ids = array();
 echo "<br><FONT COLOR=\"green\" >File(s) : ".$files_name['tissue']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadTissue($XlsReader, $files_path, $files_name['tissue']);
+loadTissue($XlsReader, $files_path, $files_name['tissue']);
 
 echo "<br><FONT COLOR=\"green\" >File(s) : ".$files_name['blood']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-loadBlood($XlsReader, $files_path, $files_name['blood']);
+//TODO loadBlood($XlsReader, $files_path, $files_name['blood']);
 
 //TODO remove
 populateViewsAndLftRght();
@@ -89,6 +97,8 @@ populateViewsAndLftRght();
 $query = "UPDATE sample_masters SET sample_code = id;";
 customQuery($query, __FILE__, __LINE__);
 $query = "UPDATE sample_masters SET initial_specimen_sample_id = id WHERE sample_control_id IN (SELECT id FROM sample_controls WHERE sample_category = 'specimen');";
+customQuery($query, __FILE__, __LINE__);
+$query = "UPDATE aliquot_masters SET barcode = CONCAT('SYS#', id) WHERE barcode LIKE 'SYS#%';";
 customQuery($query, __FILE__, __LINE__);
 $query = "UPDATE storage_masters SET code = id;";
 customQuery($query, __FILE__, __LINE__);
@@ -136,12 +146,12 @@ function loadATiMControlData(){
 			$controls['sample_aliquot_controls'][$sample_type]['aliquots'][$row['aliquot_type']] = array('aliquot_control_id' => $row['id'], 'detail_tablename' => $row['detail_tablename'], 'volume_unit' => $row['volume_unit']);
 		}
 	}
-// 	//StorageControl
-// 	$query = "SELECT id as storage_control_id, storage_type, detail_tablename, coord_x_type,coord_x_size,coord_y_type,coord_y_size FROM storage_controls WHERE flag_active = 1;";
-// 	$results = customQuery($query, __FILE__, __LINE__);
-// 	while($row = $results->fetch_assoc()) {
-// 		$controls['storage_controls'][$row['storage_type']] = $row;
-// 	}
+	//StorageControl
+	$query = "SELECT id as storage_control_id, storage_type, detail_tablename, coord_x_type,coord_x_size,coord_y_type,coord_y_size FROM storage_controls WHERE flag_active = 1;";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$controls['storage_controls'][$row['storage_type']] = $row;
+	}
 	return $controls;
 }
 
@@ -434,12 +444,15 @@ function truncate() {
 			'UPDATE sample_masters SET parent_id = null, initial_specimen_sample_id = null;',
 			'DELETE FROM sample_masters;', 'DELETE FROM sample_masters_revs;',
 
-			
-			
-			
-			
-			
 			'DELETE FROM collections;', 'DELETE FROM collections_revs;',
+			
+			'TRUNCATE std_nitro_locates;', 'TRUNCATE std_nitro_locates_revs;',
+			'TRUNCATE std_fridges;', 'TRUNCATE std_fridges_revs;',
+			'TRUNCATE std_freezers;', 'TRUNCATE std_freezers_revs;',
+			'TRUNCATE std_boxs;', 'TRUNCATE std_boxs_revs;',
+			'TRUNCATE std_racks;', 'TRUNCATE std_racks_revs;',
+			'UPDATE storage_masters SET parent_id = null;',
+			'DELETE FROM storage_masters;', 'DELETE FROM storage_masters_revs;',
 
 			'TRUNCATE misc_identifiers;', 'TRUNCATE misc_identifiers_revs;',
 			'DELETE FROM participants;','DELETE FROM participants_revs;'
@@ -532,45 +545,44 @@ Collection.qcroc_collection_visit
 LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
 		WHERE SampleMaster.deleted != 1 )';
 	customQuery($query, __FILE__, __LINE__);
-return;
+
 	$query = "TRUNCATE view_aliquots;";
 	customQuery($query, __FILE__, __LINE__);
-	$query = 'REPLACE INTO view_aliquots (SELECT
+	$query = 'REPLACE INTO view_aliquots (SELECT 
 			AliquotMaster.id AS aliquot_master_id,
 			AliquotMaster.sample_master_id AS sample_master_id,
-			AliquotMaster.collection_id AS collection_id,
-			Collection.bank_id,
+			AliquotMaster.collection_id AS collection_id, 
+			Collection.bank_id, 
 			AliquotMaster.storage_master_id AS storage_master_id,
-			Collection.participant_id,
-
-			Participant.participant_identifier,
-
-			Collection.acquisition_label,
-Collection.procure_visit AS procure_visit,
-
+			Collection.participant_id, 
+			
+			Participant.participant_identifier, 
+			
+			Collection.acquisition_label, 
+			
 			SpecimenSampleControl.sample_type AS initial_specimen_sample_type,
 			SpecimenSampleMaster.sample_control_id AS initial_specimen_sample_control_id,
 			ParentSampleControl.sample_type AS parent_sample_type,
 			ParentSampleMaster.sample_control_id AS parent_sample_control_id,
 			SampleControl.sample_type,
 			SampleMaster.sample_control_id,
-
+			
 			AliquotMaster.barcode,
 			AliquotMaster.aliquot_label,
 			AliquotControl.aliquot_type,
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
-
+			
 			StorageMaster.code,
 			StorageMaster.selection_label,
 			AliquotMaster.storage_coord_x,
 			AliquotMaster.storage_coord_y,
-
+			
 			StorageMaster.temperature,
 			StorageMaster.temp_unit,
-
+			
 			AliquotMaster.created,
-
+			
 			IF(AliquotMaster.storage_datetime IS NULL, NULL,
 			 IF(Collection.collection_datetime IS NULL, -1,
 			 IF(Collection.collection_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
@@ -586,9 +598,13 @@ Collection.procure_visit AS procure_visit,
 			 IF(DerivativeDetail.creation_datetime_accuracy != "c" OR AliquotMaster.storage_datetime_accuracy != "c", -2,
 			 IF(DerivativeDetail.creation_datetime > AliquotMaster.storage_datetime, -3,
 			 TIMESTAMPDIFF(MINUTE, DerivativeDetail.creation_datetime, AliquotMaster.storage_datetime))))) AS creat_to_stor_spent_time_msg,
-
-			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes
-
+			 
+			IF(LENGTH(AliquotMaster.notes) > 0, "y", "n") AS has_notes,
+MiscIdentifier.identifier_value,
+Collection.qcroc_misc_identifier_control_id,
+Collection.qcroc_collection_type,
+Collection.qcroc_collection_visit		
+			
 			FROM aliquot_masters AS AliquotMaster
 			INNER JOIN aliquot_controls AS AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
 			INNER JOIN sample_masters AS SampleMaster ON SampleMaster.id = AliquotMaster.sample_master_id AND SampleMaster.deleted != 1
@@ -602,6 +618,7 @@ Collection.procure_visit AS procure_visit,
 			LEFT JOIN storage_masters AS StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id AND StorageMaster.deleted != 1
 			LEFT JOIN specimen_details AS SpecimenDetail ON AliquotMaster.sample_master_id=SpecimenDetail.sample_master_id
 			LEFT JOIN derivative_details AS DerivativeDetail ON AliquotMaster.sample_master_id=DerivativeDetail.sample_master_id
+LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_control_id = Collection.qcroc_misc_identifier_control_id AND MiscIdentifier.participant_id = Collection.participant_id AND MiscIdentifier.deleted <> 1
 			WHERE AliquotMaster.deleted != 1)';
 	customQuery($query, __FILE__, __LINE__);
 

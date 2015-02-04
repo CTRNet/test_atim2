@@ -2026,9 +2026,7 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 						}
 						
 						$child_id = $this->AliquotMaster->getLastInsertId();
-						if(empty($aliquot_id)){
-							$new_aliquot_ids[] = $child_id;
-						}
+						$new_aliquot_ids[] = $child_id;	
 													
 						// C- Save realiquoting data	
 						
