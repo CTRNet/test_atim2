@@ -36,8 +36,8 @@ class SampleMasterCustom extends SampleMaster {
 			
 			// Set summary	 	
 	 		$return = array(
-				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type']) . $sample_precision . ' : ' . $specimen_data['SampleMaster']['sample_code']),
-				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type']) . ' : ' . $specimen_data['SampleMaster']['sample_code']),
+				'menu'				=> array(null, __($specimen_data['SampleControl']['sample_type']) . $sample_precision),
+				'title' 			=> array(null, __($specimen_data['SampleControl']['sample_type']) . $sample_precision),
 				'data' 				=> $specimen_data,
 	 			'structure alias' 	=> 'sample_masters'
 			);
@@ -46,6 +46,28 @@ class SampleMasterCustom extends SampleMaster {
 		return $return;
 	}
 	
+	function derivativeSummary($variables=array()) {
+		$return = false;
+	
+		if (isset($variables['Collection.id']) && isset($variables['SampleMaster.initial_specimen_sample_id']) && isset($variables['SampleMaster.id'])) {
+			// Get derivative data
+			$criteria = array(
+					'SampleMaster.collection_id' => $variables['Collection.id'],
+					'SampleMaster.id' => $variables['SampleMaster.id']);
+			$this->unbindModel(array('hasMany' => array('AliquotMaster')));
+			$derivative_data = $this->find('first', array('conditions' => $criteria, 'recursive' => '0'));
+	
+			// Set summary
+			$return = array(
+					'menu' 				=> array(null, __($derivative_data['SampleControl']['sample_type']) ),
+					'title' 			=> array(null, __($derivative_data['SampleControl']['sample_type']) ),
+					'data' 				=> $derivative_data,
+					'structure alias' 	=> 'sample_masters'
+			);
+		}
+	
+		return $return;
+	}
 }
 
 ?>

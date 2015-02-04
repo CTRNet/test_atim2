@@ -4,11 +4,13 @@ class CollectionCustom extends Collection{
 	var $name = "Collection";
 	var $useTable = "collections";
 	
-	function getQcrocCollectionProject() {
+	function getQcrocCollectionProjectNumbers($misc_identifier_control_id = null) {
 		$result = array();
 		$this->MiscIdentifierControl = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifierControl", true);
-		foreach($this->MiscIdentifierControl->find('all', array('conditions' => array('flag_active = 1',"misc_identifier_name LIKE '%QCROC%'"))) as $qcroc_identifier_control) {
-			$result[$qcroc_identifier_control['MiscIdentifierControl']['id']] = __($qcroc_identifier_control['MiscIdentifierControl']['misc_identifier_name']);
+		$conditions = array("misc_identifier_name REGEXP '^QCROC\-[0-9]+$'", 'flag_active = 1');
+		if($misc_identifier_control_id) $conditions[] = "id = $misc_identifier_control_id";
+		foreach($this->MiscIdentifierControl->find('all', array('conditions' => $conditions)) as $qcroc_identifier_control) {
+			$result[$qcroc_identifier_control['MiscIdentifierControl']['id']] = str_replace('QCROC-','', $qcroc_identifier_control['MiscIdentifierControl']['misc_identifier_name']);
 		}
 		natcasesort($result);
 		return $result;

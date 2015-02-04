@@ -12,9 +12,9 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 	$sheets_nbr = array();
 	foreach($XlsReader->boundsheets as $key => $tmp) $sheets_nbr[$tmp['name']] = $key;
 	
-	$tissue_collection_labels_to_ids = array();
+	// *1* Create Collection **
 	
-	//*** Collection ***
+	$tissue_collection_labels_to_ids = array();
 	
 	$worksheet = 'Collection';
 	$summary_title = "Tissue : $worksheet";
@@ -25,18 +25,273 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$excel_collection_value = $new_line_data['Collection'];
+//TODO			
+if($excel_collection_value == '01-1-007') break;	
 			if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)$/', $excel_collection_value, $matches)) {
 				$collection_id = getCollectionId($matches[1], $matches[3], 'T', $matches[2], $new_line_data['Date'], '', $new_line_data['Hospital site'], $new_line_data['Note'], $summary_title, $file_name, $worksheet, $line_counter);
-				$tissue_collection_labels_to_collection_ids[$excel_collection_value]['collection_id'] = $collection_id;
+				$tissue_collection_labels_to_collection_ids[$excel_collection_value] = array('collection_id' => $collection_id, 'sample_master_ids' => array());
 			} else {
 				$import_summary[$summary_title]['@@ERROR@@']['Collection Value Format Not Supported'][] = "See value [$excel_collection_value]! [file '$file_name' ($worksheet) - line: $line_counter]";
 			}
 		}
 	}
 	
-	//Work on sample
+	// *2* Create Tissue **
+	
+	$tissue_tube_labels_to_ids = array();
+	
+	$worksheet = 'Sample';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$tissue_tube_aliquot_label = $new_line_data['Sample Id'];
+			if(strlen($tissue_tube_aliquot_label)) {
+				if(!array_key_exists($tissue_tube_aliquot_label, $tissue_tube_labels_to_ids)) {
+					if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)\-([0-9]+)$/', $tissue_tube_aliquot_label, $matches)) {
+						$collection_key = $matches[1].'-'.$matches[2].'-'.$matches[3];
+//TODO
+if($collection_key == '01-1-008') break;						
+						if(array_key_exists($collection_key, $tissue_collection_labels_to_collection_ids)) {
+							$qcroc_collection_method = strtolower($new_line_data['Collection Method']);
+							if($qcroc_collection_method != 'no biopsy') {
+								$collection_id = $tissue_collection_labels_to_collection_ids[$collection_key]['collection_id'];
+								$tissue_sample_key = $new_line_data['Collection Method'].$new_line_data['Tissue Site'].$new_line_data['Laterality'].$new_line_data['Histology'];
+								if(!array_key_exists($tissue_sample_key, $tissue_collection_labels_to_collection_ids[$collection_key]['sample_master_ids'])) {
+									//Create the sample tissue								
+									if(!in_array($qcroc_collection_method, array('', 'biopsy', 'hepatectomy'))) {
+										$import_summary[$summary_title]['@@WARNING@@']['Collection method unknown'][] = "See value [$qcroc_collection_method]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+										$qcroc_collection_method = '';
+									}
+									$tissue_source = strtolower($new_line_data['Tissue Site']);
+									if(!in_array($tissue_source, array('', 'colon'))) {
+										$import_summary[$summary_title]['@@WARNING@@']['Tissue Source unknown'][] = "See value [$tissue_source]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+										$tissue_source = '';
+									}
+									$tissue_laterality = strtolower($new_line_data['Laterality']);
+									if(!in_array($tissue_laterality, array('', 'left', 'right', 'unknown', 'not applicable'))) {
+										$import_summary[$summary_title]['@@WARNING@@']['Tissue Laterality unknown'][] = "See value [$tissue_laterality]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+										$tissue_laterality = '';
+									}
+									$qcroc_histology = strtolower($new_line_data['Histology']);
+									if(!in_array($qcroc_histology, array('', 'tumor'))) {
+										$import_summary[$summary_title]['@@WARNING@@']['Histology unknown'][] = "See value [$qcroc_histology]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+										$qcroc_histology = '';
+									}
+									$sample_data = array(
+										'SampleMaster' => array(
+											'collection_id' => $collection_id,
+											'sample_control_id' => $controls['sample_aliquot_controls']['tissue']['sample_control_id'],
+											'initial_specimen_sample_type' => 'tissue'),
+										'SpecimenDetail' => array(),
+										'SampleDetail' => array(
+											'qcroc_collection_method' => $qcroc_collection_method,
+											'tissue_source' => $tissue_source,
+											'tissue_laterality' => $tissue_laterality,
+											'qcroc_histology' => $qcroc_histology));
+									$tissue_collection_labels_to_collection_ids[$collection_key]['sample_master_ids'][$tissue_sample_key] = createSample($sample_data, $controls['sample_aliquot_controls']['tissue']['detail_tablename']);
+								}
+								$sample_master_id = $tissue_collection_labels_to_collection_ids[$collection_key]['sample_master_ids'][$tissue_sample_key];
+								//Set data for tissue tube creation
+								$tissue_tube_labels_to_ids[$tissue_tube_aliquot_label] = array(
+									'collection_id' => $collection_id,
+									'sample_master_id' => $sample_master_id,
+									'data' => array(
+										'Biopsy >1 cm' => $new_line_data['Biopsy >1 cm'], 
+										'Fragments' => $new_line_data['Fragments'], 
+										'Carrot size Detail 1' => $new_line_data['Carrot size Detail 1'], 
+										'Carrot size Detail 2' => $new_line_data['Carrot size Detail 2'], 
+										'Carrot size Unit' => $new_line_data['Carrot size Unit'],
+										'Date Received' => $new_line_data['Date Received'],
+										'line' => $line_counter,
+										'worksheet' => $worksheet));
+							} else {
+								$import_summary[$summary_title]['@@WARNING@@']['No Biopsy & Tissue Tube Sample ID'][] = "A note defined that 'No biopsy' has been done. The Tissue Tube [".$tissue_tube_aliquot_label."] won't be created. [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+						} else {
+							$import_summary[$summary_title]['@@ERROR@@']['No Collection'][] = "The collection of the Sample ID [".$new_line_data['Sample Id']."] was not defined into the Collection worksheet! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+					} else {
+						$import_summary[$summary_title]['@@ERROR@@']['Wrong Sample Id Format'][] = "The format of the Sample ID [".$new_line_data['Sample Id']."] is not supported! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+				} else {
+					$import_summary[$summary_title]['@@WARNING@@']['Duplicated Tissue Tube Id'][] = "The tissue tube [$tissue_tube_aliquot_label] is defined twice! Only one will be created! Please check data integrity! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
+			} else if(strlen($new_line_data['Collection'])) {
+				$import_summary[$summary_title]['@@MESSAGE@@']['Empty Excel Sample Id'][] = "See line $line_counter! A collection ID was defined [".$new_line_data['Collection']."] but the Sample Id value is empty. No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";	
+			}
+		}
+	}
+	foreach ($tissue_collection_labels_to_collection_ids as $collection_key => $sample_master_ids) {
+		if(empty($sample_master_ids)) {
+			$import_summary[$summary_title]['@@WARNING@@']['No Collection Tissue Defined'][] = "No tissue has been created for created collection [$collection_key]! Please confirm and delete collection after migration! [file '$file_name' ($worksheet) - line: $line_counter]";
+		}		
+	}
+	unset($tissue_collection_labels_to_collection_ids);
+	
+	// *3* Create Tissue **
+	
+	$worksheet = 'Tube';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$sample_tube_id = $new_line_data['Sample Tube Id'];
+if($sample_tube_id == '01-1-008-1') break;
+			if(strlen($sample_tube_id)) {
+				if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids)) {			
+					//1-Data from Sample Worksheet
+					$prev_worksheet_line_data = $tissue_tube_labels_to_ids[$sample_tube_id]['data'];
+					$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
+					$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
+					unset($tissue_tube_labels_to_ids[$sample_tube_id]);
+					//1.a-qcroc_tissue_biopsy_big_than_1cm
+					$qcroc_tissue_biopsy_big_than_1cm = '';
+					switch(strtolower($prev_worksheet_line_data['Biopsy >1 cm'])) {
+						case 'yes':
+							$qcroc_tissue_biopsy_big_than_1cm = 'y';
+							break;
+						case 'no':
+							$qcroc_tissue_biopsy_big_than_1cm = 'n';
+							break;
+						case '';
+							break;
+						default:
+							$import_summary[$summary_title]['@@WARNING@@']['Biopsy >1 cm unknown'][] = "See value [".$prev_worksheet_line_data['Biopsy >1 cm']."]. Value won't be migrated! [file '$file_name' (".$prev_worksheet_line_data['worksheet'].") - line: ".$prev_worksheet_line_data['line']."]";
+					}
+					//1.b-qcroc_tissue_biopsy_fragments
+					$qcroc_tissue_biopsy_fragments = '';
+					if(preg_match('/^[0-9]+$/', $prev_worksheet_line_data['Fragments'])) {
+						$qcroc_tissue_biopsy_fragments = $prev_worksheet_line_data['Fragments'];
+					} else if(strlen($prev_worksheet_line_data['Fragments'])) {
+						$import_summary[$summary_title]['@@WARNING@@']['Fragments format error'][] = "See value [".$prev_worksheet_line_data['Fragments']."]. Value won't be migrated! [file '$file_name' (".$prev_worksheet_line_data['worksheet'].") - line: ".$prev_worksheet_line_data['line']."]";
+					}
+					//1.c-qcroc_tissue_biopsy_carrot_size_cm
+					$qcroc_tissue_biopsy_carrot_size_cm = '';
+					if($prev_worksheet_line_data['Carrot size Detail 1'] == $prev_worksheet_line_data['Carrot size Detail 2']) {
+						$qcroc_tissue_biopsy_carrot_size_cm = $prev_worksheet_line_data['Carrot size Detail 1'];
+					} else {
+						$qcroc_tissue_biopsy_carrot_size_cm = trim(implode(' ', array($prev_worksheet_line_data['Carrot size Detail 1'],$prev_worksheet_line_data['Carrot size Detail 2'])));
+					}
+					if(strlen($qcroc_tissue_biopsy_carrot_size_cm) && 	!in_array($prev_worksheet_line_data['Carrot size Unit'], array('','cm'))) {
+						$import_summary[$summary_title]['@@WARNING@@']['Wrong Carrot size Unit'][] = "See value [".$prev_worksheet_line_data['Carrot size Unit']."]. Size will be migrated but system will consider unit as 'cm'! [file '$file_name' (".$prev_worksheet_line_data['worksheet'].") - line: ".$prev_worksheet_line_data['line']."]";
+					}		
+					//2-Data from curent worksheet
+					//2.a-qcroc_storage_method & croc_storage_solution
+					$qcroc_storage_method = '';
+					$qcroc_storage_solution = '';
+					switch(strtolower($new_line_data['Processing Agent'])) {
+						case '':
+							break;
+						case 'snap frozen':
+							$qcroc_storage_method = 'snap frozen';
+							break;
+						case 'formalin':
+							$qcroc_storage_solution = 'formalin';
+							break;
+						case 'rnalater':
+							$qcroc_storage_solution = 'RNAlater';
+							break;
+						default:
+							$import_summary[$summary_title]['@@WARNING@@']['Processing Agent unknown'][] = "See value [".$new_line_data['Processing Agent']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+							
+					}
+					//2.b-qcroc_collected_processed_according_sop
+					$qcroc_collected_processed_according_sop = '';
+					switch(strtolower($new_line_data['Collection and processing according SOP?'])) {
+						case 'yes':
+							$qcroc_collected_processed_according_sop = 'y';
+							break;
+						case 'no':
+							$qcroc_collected_processed_according_sop = 'n';
+							break;
+						case '';
+							break;
+						default:
+							$import_summary[$summary_title]['@@WARNING@@']['Collection and processing according SOP unknown'][] = "See value [".$new_line_data['Collection and processing according SOP?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+//TODO Shipping conditions correct?	Shipping detail
+					$aliquot_data = array(
+						'AliquotMaster' => array(
+							'collection_id' => $collection_id,
+							'sample_master_id' => $sample_master_id,
+							'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['aliquot_control_id'],
+							'barcode' => getNextTmpBarcode(),
+							'aliquot_label' => $sample_tube_id,
+							'in_stock' => 'yes - available',
+							'use_counter' => '0',
+							'notes'=> $new_line_data['Collection and processing Detail']),
+						'AliquotDetail' => array(
+							'qcroc_storage_method' => $qcroc_storage_method,
+							'qcroc_storage_solution' => $qcroc_storage_solution,
+							'qcroc_tissue_biopsy_big_than_1cm' => $qcroc_tissue_biopsy_big_than_1cm,
+							'qcroc_tissue_biopsy_fragments' => $qcroc_tissue_biopsy_fragments,
+							'qcroc_tissue_biopsy_carrot_size_cm' => $qcroc_tissue_biopsy_carrot_size_cm,
+							'qcroc_collected_processed_according_sop' => $qcroc_collected_processed_according_sop));
+					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+					//Add shipping information
+					if(strlen($new_line_data['Shipping conditions correct?'].$new_line_data['Shipping detail'])) {
+						$qcroc_shipping_conditions_correct = '';
+						switch(strtolower($new_line_data['Shipping conditions correct?'])) {
+							case 'yes':
+								$qcroc_shipping_conditions_correct = 'y';
+								break;
+							case 'no':
+								$qcroc_shipping_conditions_correct = 'n';
+								break;
+							case '';
+							break;
+							default:
+								$import_summary[$summary_title]['@@WARNING@@']['Shipping conditions correct unknown'][] = "See value [".$new_line_data['Shipping conditions correct?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+						$aliquot_use = array(
+							'aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
+							'type' => 'shipped to LDI',
+							'qcroc_shipping_conditions_correct' => $qcroc_shipping_conditions_correct,
+							'use_details' => $new_line_data['Shipping detail']
+						);
+						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+					}
+					if(strlen($prev_worksheet_line_data['Date Received'])) {
+						$reception_date = getDateAndAccuracy($prev_worksheet_line_data, 'Date Received', $summary_title, $file_name, $prev_worksheet_line_data['worksheet'], $prev_worksheet_line_data['line']);
+						$reception_date['accuracy'] = str_replace('c', 'h', $reception_date['accuracy']);
+						if($reception_date['date']) {
+							$aliquot_use = array(
+								'aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
+								'type' => 'reception at LDI',
+								'use_datetime' => $reception_date['date'],
+								'use_datetime_accuracy' => $reception_date['accuracy']);
+							customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
+						}
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Tube ID [$sample_tube_id] was not defined into the Sample worksheet (or defined twice in )! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}			
+			}
+		}
+	}
+	foreach($tissue_tube_labels_to_ids as $sample_tube_id => $tmp) {
+		$import_summary[$summary_title]['@@WARNING@@']['Missing Tissue Tube Definition'][] = "Sample Tube Id [$sample_tube_id] was defined in Sample Worksheet but this one has not been listed into Tube Worksheet! No tube will be created! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+	}
+	unset($tissue_tube_labels_to_ids);
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+
 	
 }
 
@@ -83,7 +338,7 @@ function loadBlood(&$XlsReader, $files_path, $file_name) {
 					$derivative_type = 'plasma';
 					break;
 				default:
-//TODO Add summary message err.... die('ERR328762387632');	
+				$import_summary[$summary_title]['@@ERROR@@']['Blood type not supported'][] = "See value [".$new_line_data['Type']."]! [file '$file_name' ($worksheet) - line: $line_counter]";	
 			}
 			if($blood_type) {
 				$blood_key = 'Blood:'.$blood_type;
@@ -118,55 +373,59 @@ function loadBlood(&$XlsReader, $files_path, $file_name) {
 				}
 				$derivative_sample_master_id = $blood_collection_labels_to_ids[$collection_key][$derivative_key];
 				// *4* Derivative Aliquot **
-				$storage_date = getDateTimeAndAccuracy($new_line_data, 'StorageDate', "StorageTime", $summary_title, $file_name, $worksheet, $line_counter);
-				$initial_volume = getDecimal($new_line_data, 'Volume', $summary_title, $file_name, $worksheet, $line_counter);
-				if(strtolower($new_line_data['VolumeUnit']) != 'ul'){
-//TODO Add summary message err	
-					$initial_volume = '';
+				if(strlen($new_line_data['Aliquot Id (value)'])) {
+					$barcode = '';
+					if(empty($new_line_data['BarCode']))  {
+						$import_summary[$summary_title]['@@WARNING@@']['Blood Barcode Is Missing'][] = "See line $line_counter! [file '$file_name' ($worksheet) - line: $line_counter]";	
+						$barcode = getNextTmpBarcode(); 
+					} else {
+						$barcode = $new_line_data['BarCode'];
+					}
+					$storage_date = getDateTimeAndAccuracy($new_line_data, 'StorageDate', "StorageTime", $summary_title, $file_name, $worksheet, $line_counter);
+					$initial_volume = getDecimal($new_line_data, 'Volume', $summary_title, $file_name, $worksheet, $line_counter);
+					if(strtolower($new_line_data['VolumeUnit']) != 'ul'){
+						$import_summary[$summary_title]['@@ERROR@@']['Blood volume unit not supported'][] = "See value [".$new_line_data['VolumeUnit']."]! [file '$file_name' ($worksheet) - line: $line_counter]";
+						$initial_volume = '';
+					} else {
+						$initial_volume = $initial_volume/1000;
+					}
+					$hemolysis_signs = '';
+					switch($new_line_data['SampleColor']) {
+						case 'Red';
+							$hemolysis_signs = 'y';
+							break;
+						case 'Yellow';
+							$hemolysis_signs = 'n';
+							break;
+						default:
+							$import_summary[$summary_title]['@@WARNING@@']['Blood Sample Color Not Supported'][] = "See value [".$new_line_data['SampleColor']."]! [file '$file_name' ($worksheet) - line: $line_counter]";	
+					}			
+					$storage_master_id = getStorageMasterId($new_line_data['Box'], 'blood', $summary_title, $file_name, $worksheet, $line_counter);
+					$storage_coordinates = getPosition($new_line_data['Box'], $new_line_data['BoxLocation'], 'blood', $summary_title, $file_name, $worksheet, $line_counter);
+					$aliquot_data = array(
+						'AliquotMaster' => array(
+							'collection_id' => $collection_id,
+							'sample_master_id' => $derivative_sample_master_id,
+							'aliquot_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['aliquot_control_id'],
+							'barcode' => $barcode,
+							'aliquot_label' => $new_line_data['Aliquot Id (value)'],
+							'in_stock' => 'yes - available',
+							'initial_volume' => $initial_volume,
+							'current_volume' => $initial_volume,
+							'use_counter' => '0',
+							'storage_datetime' => $storage_date['datetime'],
+							'storage_datetime_accuracy' => $storage_date['accuracy'],
+							'storage_master_id' => $storage_master_id,
+							'storage_coord_x' => $storage_coordinates['x'],
+							'storage_coord_y' => $storage_coordinates['y'],
+							'notes'=> $new_line_data['Comments']),
+						'AliquotDetail' => array(
+							'hemolysis_signs' => $hemolysis_signs));
+					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
 				} else {
-					$initial_volume = $initial_volume/1000;
+					$import_summary[$summary_title]['@@ERROR@@']['Empty Aliquot ID'][] = "See blood aliquotat line $line_counter. No ID then no aliquot will be created. [file '$file_name' ($worksheet) - line: $line_counter]";
 				}
-				$hemolysis_signs = '';
-				switch($new_line_data['SampleColor']) {
-					case 'Red';
-						$hemolysis_signs = 'y';
-						break;
-					case 'Yellow';
-						$hemolysis_signs = 'n';
-						break;
-					default:
-//TODO Add summary message err		
-				}
-//TODO hemolysis signe to add ot pbmc...				
-				
-//TODO						$storage_master_id = getStorageMasterId($participant_identifier, $new_line_data['bte de rangement plasma-'.$id], 'plasma', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-//TODO						$storage_coordinates = getPosition($participant_identifier, $new_line_data['position plasma-'.$id.' dans bte rangement'], $new_line_data['bte de rangement plasma-'.$id], 'plasma', 'Inventory - Blood', $file_name, $worksheet, $line_counter);
-				$aliquot_data = array(
-					'AliquotMaster' => array(
-						'collection_id' => $collection_id,
-						'sample_master_id' => $derivative_sample_master_id,
-						'aliquot_control_id' => $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['aliquot_control_id'],
-						'barcode' => $new_line_data['BarCode'],
-						'aliquot_label' => $new_line_data['Aliquot Id (value)'],
-						'in_stock' => 'yes - available',
-						'initial_volume' => $initial_volume,
-						'current_volume' => $initial_volume,
-						'use_counter' => '0',
-						'storage_datetime' => $storage_date['datetime'],
-						'storage_datetime_accuracy' => $storage_date['accuracy']/*,
-						'storage_master_id' => $storage_master_id,
-						'storage_coord_x' => $storage_coordinates['x'],
-						'storage_coord_y' => $storage_coordinates['y']*/,
-						'notes'=> $new_line_data['Comments']),
-					'AliquotDetail' => array(
-						'hemolysis_signs' => $hemolysis_signs));
-				$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
-				customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls'][$derivative_type]['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
-				
-				
-				
-				
-//TODO: aliquot internal use. Add:	DateReceive TimeReceive			
 			}
 		}
 	}
@@ -267,6 +526,153 @@ function createSample($sample_data, $detail_tablename) {
 	customInsert($sample_data['SampleDetail'], $detail_tablename, __FILE__, __LINE__, true);
 
 	return$sample_master_id;
+}
+
+function getNextTmpBarcode() {
+	global $tmp_barcode;
+	$tmp_barcode++;
+	return 'SYS#'.$tmp_barcode;
+}
+
+function getBoxStorageUniqueKey($excel_storage_label, $sample_type) {
+	if(!$excel_storage_label) {
+		die('ERR 283ee234342.1');
+	} else {
+		switch($sample_type) {
+			case 'tissue':
+				return 'tissue-'.$excel_storage_label;
+			case 'blood':
+				return 'blood-'.$excel_storage_label;
+			default:
+				die('ERR 283ee234342.2');
+		}
+	}
+}
+
+function getStorageMasterId($excel_storage_label, $sample_type, $summary_title, $file_name, $worksheet, $line_counter) {
+	global $controls;
+	global $storage_master_ids;
+	global $last_storage_code;
+	global $import_summary;
+
+	$excel_storage_label = $excel_storage_label;
+	if(empty($excel_storage_label)) {
+		return null;
+	} else {
+		$box_storage_unique_key = getBoxStorageUniqueKey($excel_storage_label, $sample_type);
+		if(array_key_exists($box_storage_unique_key, $storage_master_ids)) {
+			return $storage_master_ids[$box_storage_unique_key]['storage_master_id'];
+		} else {
+			//Storage to create
+			$rack_label = null;
+			$box_label = null;
+			$storage_type = null;
+			switch($sample_type) {
+				// 				case 'tissue':
+				// 				case 'serum':
+				// 				case 'plasma':
+				// 				case 'pbmc':
+				// 				case 'concentrated urine':
+				// 				case 'rna':
+				// 					if(preg_match('/^(R[0-9]+)(B[0-9]+)$/',$excel_storage_label, $matches)) {
+				// 						$rack_label = $matches[1];
+				// 						$box_label = $matches[2];
+				// 					} else {
+				// 						$import_summary[$summary_title]['@@ERROR@@']["Unable to extract both rack and box labels"][] = "Unable to extract the rack and box labels for $sample_type box with value '$excel_storage_label'. Box label will be set to '$excel_storage_label' and no rack will be created. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
+				// 						$box_label = $excel_storage_label;
+				// 					}
+				// 					break;
+				case 'blood':
+					$box_label = $excel_storage_label;
+					$storage_type = 'box100';
+					break;
+				default:
+					die('ERR 283728 7628762');
+			}
+			if(!$box_label) die('ERR 232 87 6287632.2');
+			//create rack
+			$parent_storage_master_id = null;
+			if($rack_label) {
+				die('TODO...36273828832');
+				// 				$rack_storage_unique_key = 'rack'.$rack_label;
+				// 				if(array_key_exists($rack_storage_unique_key, $storage_master_ids)) {
+				// 					$parent_storage_master_id = $storage_master_ids[$rack_storage_unique_key]['storage_master_id'];
+				// 				} else {
+				// 					$storage_controls_data = $controls['storage_controls']['rack16'];
+				// 					$last_storage_code++;
+				// 					$storage_data = array(
+				// 						'StorageMaster' => array(
+				// 							"code" => 'tmp'.$last_storage_code,
+				// 							"short_label" => $rack_label,
+				// 							"selection_label" => $rack_label,
+				// 							"storage_control_id" => $storage_controls_data['storage_control_id'],
+				// 							"parent_id" => null),
+				// 						'StorageDetail' => array());
+				// 					$storage_data['StorageDetail']['storage_master_id'] = customInsert($storage_data['StorageMaster'], 'storage_masters', __FILE__, __LINE__, false);
+				// 					customInsert($storage_data['StorageDetail'],$storage_controls_data['detail_tablename'], __FILE__, __LINE__, true);
+				// 					$parent_storage_master_id = $storage_data['StorageDetail']['storage_master_id'];
+				// 					$storage_master_ids[$rack_storage_unique_key] = array('storage_master_id' => $parent_storage_master_id, 'storage_type' => 'rack16');
+				// 				}
+			}
+			//create box
+			if(!array_key_exists($storage_type, $controls['storage_controls'])) die('ERR2327627623');
+			$storage_controls_data = $controls['storage_controls'][$storage_type];
+			$last_storage_code++;
+			$storage_data = array(
+				'StorageMaster' => array(
+					"code" => 'tmp'.$last_storage_code,
+					"short_label" => $box_label,
+					"selection_label" => ($rack_label? $rack_label.'-' : '').$box_label,
+					"storage_control_id" => $storage_controls_data['storage_control_id'],
+					"parent_id" => $parent_storage_master_id),
+				'StorageDetail' => array());
+			$storage_data['StorageDetail']['storage_master_id'] = customInsert($storage_data['StorageMaster'], 'storage_masters', __FILE__, __LINE__, false);
+			customInsert($storage_data['StorageDetail'],$storage_controls_data['detail_tablename'], __FILE__, __LINE__, true);
+			$storage_master_ids[$box_storage_unique_key] = array('storage_master_id' => $storage_data['StorageDetail']['storage_master_id'], 'storage_type' => $storage_type);			
+			return $storage_data['StorageDetail']['storage_master_id'];
+		}
+	}
+}
+
+function getPosition($excel_storage_label, $excel_postions, $sample_type, $summary_title, $file_name, $worksheet, $line_counter) {
+	global $storage_master_ids;
+	global $controls;
+	global $import_summary;
+	$excel_postions = $excel_postions;
+	$positions = array('x'=>null, 'y'=>null);
+	if(empty($excel_postions)) {
+		//Nothing to do
+	} else if(empty($excel_storage_label)) {
+		$import_summary[$summary_title]['@@ERROR@@']["Storage position but no box label defined"][] = "No position will be set. [file '$file_name' :: $worksheet - line: $line_counter]";
+	} else {
+		$box_storage_unique_key = getBoxStorageUniqueKey($excel_storage_label, $sample_type);
+		if(!array_key_exists($box_storage_unique_key, $storage_master_ids))  die('ERR 2387 628763287.2');
+		$storage_type = $storage_master_ids[$box_storage_unique_key]['storage_type'];
+		switch($storage_type) {
+			case 'box27 1A-9C':
+				if(preg_match('/^([A-C])([1-9])$/', $excel_postions, $matches)) {
+					$positions['x'] = $matches[2];
+					$positions['y'] = $matches[1];
+				}
+				break;
+			case 'box100':
+				if(preg_match('/^(([1-9])|([1-9][0-9])|(100))$/', $excel_postions)) $positions['x'] = $excel_postions;
+				break;
+			case 'box81':
+				if(preg_match('/^(([1-9])|([1-7][0-9])|(8[0-1]))$/', $excel_postions)) $positions['x'] = $excel_postions;
+				break;
+			case 'box49 1A-7G':
+				if(preg_match('/^([A-G])([1-7])$/', $excel_postions, $matches)) {
+					$positions['x'] = $matches[2];
+					$positions['y'] = $matches[1];
+				}
+				break;
+			default:
+				die('ERR327632767326 '.$storage_type);
+		}
+		if(is_null($positions['x'])) $import_summary[$summary_title]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box ($storage_type) is wrong. No position will be set. [file '$file_name' :: $worksheet - line: $line_counter]";
+	}
+	return $positions;
 }
 
 //TODO remove code below ==================================================================================================================================================================================
@@ -860,154 +1266,6 @@ if(!in_array($id, array(1))) continue;
 		$query = "UPDATE aliquot_masters SET in_stock = 'no', storage_master_id = null, storage_coord_x = null, storage_coord_y = null WHERE id IN ('".implode("','", $aliquot_master_ids_to_remove)."');";
 		customQuery($query, __FILE__, __LINE__);
 	}
-}
-
-function getBoxStorageUniqueKey($excel_storage_label, $sample_type) {	
-	if(!$excel_storage_label) {
-		die('ERR 283ee234342.1');
-	} else {
-//TODO confirm avec claire		
-		switch($sample_type) {
-			case 'tissue':
-				return 'tissue-'.$excel_storage_label;
-			case 'serum':
-			case 'plasma':
-			case 'pbmc':
-			case 'concentrated urine':
-			case 'rna':
-				return 'blood_and_urinec-'.$excel_storage_label;
-			case 'whatman':
-				return 'whatman-'.$excel_storage_label;
-			case 'urine':
-				return 'urine-'.$excel_storage_label;
-			default:
-				die('ERR 283ee234342.2');
-		}
-	}
-}
-
-function getStorageMasterId($participant_identifier, $excel_storage_label, $sample_type, $data_type, $file_name, $worksheet, $line_counter) {
-	global $controls;
-	global $storage_master_ids;
-	global $sample_storage_types;
-	global $last_storage_code;
-	global $import_summary;
-	
-	$excel_storage_label = $excel_storage_label;
-	if(empty($excel_storage_label)) {
-		return null;
-	} else {
-		$box_storage_unique_key = getBoxStorageUniqueKey($excel_storage_label, $sample_type);
-		if(array_key_exists($box_storage_unique_key, $storage_master_ids)) {
-			return $storage_master_ids[$box_storage_unique_key]['storage_master_id'];
-		} else {
-			//Storage to create
-			$rack_label = null;
-			$box_label = null;
-			if(!array_key_exists($sample_type, $sample_storage_types)) die('ERR 232 87 6287632.1');
-			switch($sample_type) {
-				case 'tissue':
-				case 'serum':
-				case 'plasma':
-				case 'pbmc':
-				case 'concentrated urine':
-				case 'rna':
-					if(preg_match('/^(R[0-9]+)(B[0-9]+)$/',$excel_storage_label, $matches)) {
-						$rack_label = $matches[1];
-						$box_label = $matches[2];
-					} else {
-						$import_summary[$data_type]['@@ERROR@@']["Unable to extract both rack and box labels"][] = "Unable to extract the rack and box labels for $sample_type box with value '$excel_storage_label'. Box label will be set to '$excel_storage_label' and no rack will be created. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
-						$box_label = $excel_storage_label;
-					}
-					break;
-				case 'whatman':
-				case 'urine':
-					$box_label = $excel_storage_label;
-					break;
-				default:
-					die('ERR 283728 7628762');
-			}
-			if(!$box_label) die('ERR 232 87 6287632.2');
-			//create rack
-			$parent_storage_master_id = null;
-			if($rack_label) {
-				$rack_storage_unique_key = 'rack'.$rack_label;
-				if(array_key_exists($rack_storage_unique_key, $storage_master_ids)) {
-					$parent_storage_master_id = $storage_master_ids[$rack_storage_unique_key]['storage_master_id'];
-				} else {
-					$storage_controls_data = $controls['storage_controls']['rack16'];
-					$last_storage_code++;
-					$storage_data = array(
-						'StorageMaster' => array(
-							"code" => 'tmp'.$last_storage_code,
-							"short_label" => $rack_label,
-							"selection_label" => $rack_label,
-							"storage_control_id" => $storage_controls_data['storage_control_id'],
-							"parent_id" => null),
-						'StorageDetail' => array());
-					$storage_data['StorageDetail']['storage_master_id'] = customInsert($storage_data['StorageMaster'], 'storage_masters', __FILE__, __LINE__, false);
-					customInsert($storage_data['StorageDetail'],$storage_controls_data['detail_tablename'], __FILE__, __LINE__, true);
-					$parent_storage_master_id = $storage_data['StorageDetail']['storage_master_id'];
-					$storage_master_ids[$rack_storage_unique_key] = array('storage_master_id' => $parent_storage_master_id, 'storage_type' => 'rack16');
-				}
-			}
-			//create box
-			$storage_type = $sample_storage_types[$sample_type];
-			if(!array_key_exists($storage_type, $controls['storage_controls'])) die('ERR2327627623');
-			$storage_controls_data = $controls['storage_controls'][$storage_type];
-			$last_storage_code++;
-			$storage_data = array(
-				'StorageMaster' => array(
-					"code" => 'tmp'.$last_storage_code,
-					"short_label" => $box_label,
-					"selection_label" => ($rack_label? $rack_label.'-' : '').$box_label,
-					"storage_control_id" => $storage_controls_data['storage_control_id'],
-					"parent_id" => $parent_storage_master_id),
-				'StorageDetail' => array());
-			$storage_data['StorageDetail']['storage_master_id'] = customInsert($storage_data['StorageMaster'], 'storage_masters', __FILE__, __LINE__, false);
-			customInsert($storage_data['StorageDetail'],$storage_controls_data['detail_tablename'], __FILE__, __LINE__, true);
-			$storage_master_ids[$box_storage_unique_key] = array('storage_master_id' => $storage_data['StorageDetail']['storage_master_id'], 'storage_type' => $storage_type);
-			return $storage_data['StorageDetail']['storage_master_id'];
-		}
-	}
-}
-
-function getPosition($participant_identifier, $excel_postions, $excel_storage_label, $sample_type, $data_type, $file_name, $worksheet, $line_counter) {
-	global $storage_master_ids;
-	global $controls;
-	global $import_summary;
-	$excel_postions = $excel_postions;
-	$positions = array('x'=>null, 'y'=>null);
-	if(empty($excel_postions)) {
-		//Nothing to do
-	} else if(empty($excel_storage_label)) {
-		$import_summary[$data_type]['@@ERROR@@']["Storage position but no box label defined"][] = "No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
-	} else {
-		$box_storage_unique_key = getBoxStorageUniqueKey($excel_storage_label, $sample_type);
-		if(!array_key_exists($box_storage_unique_key, $storage_master_ids))  die('ERR 2387 628763287.2');
-		$storage_type = $storage_master_ids[$box_storage_unique_key]['storage_type'];
-		switch($storage_type) {
-			case 'box27 1A-9C':
-				if(preg_match('/^([A-C])([1-9])$/', $excel_postions, $matches)) {
-					$positions['x'] = $matches[2];
-					$positions['y'] = $matches[1];
-				}
-				break;
-			case 'box81':
-				if(preg_match('/^(([1-9])|([1-7][0-9])|(8[0-1]))$/', $excel_postions)) $positions['x'] = $excel_postions;
-				break;
-			case 'box49 1A-7G':
-				if(preg_match('/^([A-G])([1-7])$/', $excel_postions, $matches)) {
-					$positions['x'] = $matches[2];
-					$positions['y'] = $matches[1];
-				}
-				break;
-			default:
-				die('ERR327632767326 '.$storage_type);	
-		}
-		if(is_null($positions['x'])) $import_summary[$data_type]['@@ERROR@@']["Storage position format error"][] = "The format of the position [$excel_postions] for $sample_type box ($storage_type) is wrong. No position will be set. See patient $participant_identifier. [file '$file_name' :: $worksheet - line: $line_counter]";
-	}
-	return $positions;
 }
 
 

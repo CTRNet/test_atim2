@@ -36,11 +36,10 @@ LEFT JOIN misc_identifiers AS MiscIdentifier on MiscIdentifier.misc_identifier_c
 		if(isset($variables['Collection.id'])) {
 			$collection_data = $this->find('first', array('conditions'=>array('ViewCollection.collection_id' => $variables['Collection.id']), 'recursive' => '-1'));
 			$this->Collection = AppModel::getInstance("InventoryManagement", "Collection", true);
-			$qcroc_projects = $this->Collection->getQcrocCollectionProject();
-			
+			$qcroc_project_number = array_shift($this->Collection->getQcrocCollectionProjectNumbers($collection_data['ViewCollection']['qcroc_misc_identifier_control_id']));
 			
 			//Build Title
-			$title = str_replace('QCROC-', '', $qcroc_projects[$collection_data['ViewCollection']['qcroc_misc_identifier_control_id']]).
+			$title = $qcroc_project_number.
 				'-'.$collection_data['ViewCollection']['qcroc_collection_type'].
 				($collection_data['ViewCollection']['qcroc_collection_visit']? $collection_data['ViewCollection']['qcroc_collection_visit'] : '?').
 				'-'.($collection_data['ViewCollection']['identifier_value']? $collection_data['ViewCollection']['identifier_value'] : '?');
