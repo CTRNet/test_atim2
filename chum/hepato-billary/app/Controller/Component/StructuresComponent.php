@@ -351,8 +351,14 @@ class StructuresComponent extends Component {
 								}
 								
 								fclose($handle);
-								
-								unset($this->controller->data[$model][$key.'_with_file_upload']);
+
+//********************************************************************************************
+//Code line changed to fix Issue#3164-Databrowser search browsing a file: Indirect modification of overloaded property has no effect 							
+ 								$tmp_controler_data = $this->controller->data;							
+ 								unset($tmp_controler_data[$model][$key.'_with_file_upload']);
+ 								$this->controller->data = $tmp_controler_data;
+//								unset($this->controller->data[$model][$key.'_with_file_upload']);
+//********************************************************************************************
 							}
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
