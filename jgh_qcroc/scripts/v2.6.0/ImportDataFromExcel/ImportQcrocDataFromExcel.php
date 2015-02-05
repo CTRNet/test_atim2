@@ -152,6 +152,17 @@ function loadATiMControlData(){
 	while($row = $results->fetch_assoc()) {
 		$controls['storage_controls'][$row['storage_type']] = $row;
 	}
+	//ReviewControl
+	$query = "SELECT id as specimen_review_control_id, review_type, detail_tablename FROM specimen_review_controls WHERE flag_active = 1;";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$controls['specimen_review_controls'][$row['review_type']] = $row;
+	}
+	$query = "SELECT id as aliquot_review_control_id, databrowser_label as review_type, detail_tablename FROM aliquot_review_controls WHERE flag_active = 1;";
+	$results = customQuery($query, __FILE__, __LINE__);
+	while($row = $results->fetch_assoc()) {
+		$controls['aliquot_review_controls'][$row['review_type']] = $row;
+	}
 	return $controls;
 }
 
@@ -179,11 +190,18 @@ function insertIntoRevs() {
 		
 		'aliquot_masters' => 0,
 		'ad_tubes' => 1,
+		'ad_tissue_slides' => 1,
 		'ad_whatman_papers' => 1,
 		'ad_blocks' => 1,
 	
+		'specimen_review_masters' => 1,
+		'qcroc_spr_tissues'=> 0,
+		'aliquot_review_masters' => 1,
+		'qcroc_ar_tissue_slides'=> 0,
+			
 		'aliquot_internal_uses' => 0,	
 		'source_aliquots' => 0	,
+		'realiquotings' => 0,
 
 		'quality_ctrls' => 0
 	
@@ -422,13 +440,20 @@ function dislayErrorAndMessage($import_summary) {
 
 function truncate() {
 	$truncate_queries = array(
+			'TRUNCATE qcroc_ar_tissue_slides;', 'TRUNCATE qcroc_ar_tissue_slides_revs;',
+			'TRUNCATE qcroc_spr_tissues;', 'TRUNCATE qcroc_spr_tissues_revs;',
+			'DELETE FROM specimen_review_masters;', 'DELETE FROM specimen_review_masters_revs;',
+			'DELETE FROM aliquot_review_masters;', 'DELETE FROM aliquot_review_masters_revs;',
+			
 			'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
+			'TRUNCATE realiquotings;', 'TRUNCATE realiquotings_revs;',
 			'TRUNCATE quality_ctrls;', 'TRUNCATE quality_ctrls_revs;',
 			'TRUNCATE source_aliquots;', 'TRUNCATE source_aliquots_revs;',
 				
 			'TRUNCATE ad_blocks;', 'TRUNCATE ad_blocks_revs;',
 			'TRUNCATE ad_whatman_papers;', 'TRUNCATE ad_whatman_papers_revs;',
 			'TRUNCATE ad_tubes;', 'TRUNCATE ad_tubes_revs;',
+			'TRUNCATE ad_tissue_slides;', 'TRUNCATE ad_tissue_slides_revs;',
 			'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 
 			'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',

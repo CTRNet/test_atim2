@@ -26,7 +26,7 @@ function loadTissue(&$XlsReader, $files_path, $file_name) {
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$excel_collection_value = $new_line_data['Collection'];
 //TODO			
-if($excel_collection_value == '01-1-007') break;	
+if($excel_collection_value == '01-1-008') break;	
 			if(preg_match('/^([0-9]+)\-([0-9]+)-([0-9]+)$/', $excel_collection_value, $matches)) {
 				$collection_id = getCollectionId($matches[1], $matches[3], 'T', $matches[2], $new_line_data['Date'], '', $new_line_data['Hospital site'], $new_line_data['Note'], $summary_title, $file_name, $worksheet, $line_counter);
 				$tissue_collection_labels_to_collection_ids[$excel_collection_value] = array('collection_id' => $collection_id, 'sample_master_ids' => array());
@@ -107,7 +107,11 @@ if($collection_key == '01-1-008') break;
 										'Carrot size Unit' => $new_line_data['Carrot size Unit'],
 										'Date Received' => $new_line_data['Date Received'],
 										'line' => $line_counter,
-										'worksheet' => $worksheet));
+										'worksheet' => $worksheet),
+									'tube_aliquot_master_id' => null,
+									'bloc_aliquot_master_ids' => array(),
+									'slide_aliquot_master_ids' => array()	
+								);
 							} else {
 								$import_summary[$summary_title]['@@WARNING@@']['No Biopsy & Tissue Tube Sample ID'][] = "A note defined that 'No biopsy' has been done. The Tissue Tube [".$tissue_tube_aliquot_label."] won't be created. [file '$file_name' ($worksheet) - line: $line_counter]";
 							}
@@ -127,7 +131,7 @@ if($collection_key == '01-1-008') break;
 	}
 	foreach ($tissue_collection_labels_to_collection_ids as $collection_key => $sample_master_ids) {
 		if(empty($sample_master_ids)) {
-			$import_summary[$summary_title]['@@WARNING@@']['No Collection Tissue Defined'][] = "No tissue has been created for created collection [$collection_key]! Please confirm and delete collection after migration! [file '$file_name' ($worksheet) - line: $line_counter]";
+			$import_summary[$summary_title]['@@WARNING@@']['No Collection Tissue Defined'][] = "No tissue has been created for created collection [$collection_key]! Please confirm and delete collection after migration (if required)! [file '$file_name' ($worksheet) - line: $line_counter]";
 		}		
 	}
 	unset($tissue_collection_labels_to_collection_ids);
@@ -143,14 +147,15 @@ if($collection_key == '01-1-008') break;
 		} else if($line_counter > 1){
 			$new_line_data = formatNewLineData($headers, $new_line);
 			$sample_tube_id = $new_line_data['Sample Tube Id'];
+//TODO
 if($sample_tube_id == '01-1-008-1') break;
 			if(strlen($sample_tube_id)) {
-				if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids)) {			
+				if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && is_null($tissue_tube_labels_to_ids[$sample_tube_id]['tube_aliquot_master_id'])) {			
 					//1-Data from Sample Worksheet
 					$prev_worksheet_line_data = $tissue_tube_labels_to_ids[$sample_tube_id]['data'];
+					unset($tissue_tube_labels_to_ids[$sample_tube_id]['data']);
 					$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
 					$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
-					unset($tissue_tube_labels_to_ids[$sample_tube_id]);
 					//1.a-qcroc_tissue_biopsy_big_than_1cm
 					$qcroc_tissue_biopsy_big_than_1cm = '';
 					switch(strtolower($prev_worksheet_line_data['Biopsy >1 cm'])) {
@@ -216,7 +221,6 @@ if($sample_tube_id == '01-1-008-1') break;
 						default:
 							$import_summary[$summary_title]['@@WARNING@@']['Collection and processing according SOP unknown'][] = "See value [".$new_line_data['Collection and processing according SOP?']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
 					}
-//TODO Shipping conditions correct?	Shipping detail
 					$aliquot_data = array(
 						'AliquotMaster' => array(
 							'collection_id' => $collection_id,
@@ -236,15 +240,16 @@ if($sample_tube_id == '01-1-008-1') break;
 							'qcroc_collected_processed_according_sop' => $qcroc_collected_processed_according_sop));
 					$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
 					customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['tube']['detail_tablename'], __FILE__, __LINE__, true);
+					$tissue_tube_labels_to_ids[$sample_tube_id]['tube_aliquot_master_id'] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
 					//Add shipping information
 					if(strlen($new_line_data['Shipping conditions correct?'].$new_line_data['Shipping detail'])) {
-						$qcroc_shipping_conditions_correct = '';
+						$qcroc_compliant_processing = '';
 						switch(strtolower($new_line_data['Shipping conditions correct?'])) {
 							case 'yes':
-								$qcroc_shipping_conditions_correct = 'y';
+								$qcroc_compliant_processing = 'y';
 								break;
 							case 'no':
-								$qcroc_shipping_conditions_correct = 'n';
+								$qcroc_compliant_processing = 'n';
 								break;
 							case '';
 							break;
@@ -254,7 +259,7 @@ if($sample_tube_id == '01-1-008-1') break;
 						$aliquot_use = array(
 							'aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],
 							'type' => 'shipped to LDI',
-							'qcroc_shipping_conditions_correct' => $qcroc_shipping_conditions_correct,
+							'qcroc_compliant_processing' => $qcroc_compliant_processing,
 							'use_details' => $new_line_data['Shipping detail']
 						);
 						customInsert($aliquot_use, 'aliquot_internal_uses', __FILE__, __LINE__, true);
@@ -272,27 +277,290 @@ if($sample_tube_id == '01-1-008-1') break;
 						}
 					}
 				} else {
-					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Tube ID [$sample_tube_id] was not defined into the Sample worksheet (or defined twice in )! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Tube ID [$sample_tube_id] was not defined into the Sample worksheet (or has been defined twice in )! No tissue tube will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
 				}			
 			}
 		}
 	}
 	foreach($tissue_tube_labels_to_ids as $sample_tube_id => $tmp) {
-		$import_summary[$summary_title]['@@WARNING@@']['Missing Tissue Tube Definition'][] = "Sample Tube Id [$sample_tube_id] was defined in Sample Worksheet but this one has not been listed into Tube Worksheet! No tube will be created! Please confirm! [file '$file_name' ($worksheet) - line: $line_counter]";
+		if(is_null($tmp['tube_aliquot_master_id'])) {
+			$import_summary[$summary_title]['@@WARNING@@']['Missing Tissue Tube Definition'][] = "Sample Tube Id [$sample_tube_id] was defined in Sample Worksheet but this one has not been listed into Tube Worksheet! No tube will be created! Please confirm and delete collection and smaple after migration (if required)! [file '$file_name' ($worksheet) - line: $line_counter]";
+			unset($tissue_tube_labels_to_ids[$sample_tube_id]);
+		}
 	}
-	unset($tissue_tube_labels_to_ids);
 	
+	// *4* Create Block **
 	
+	$tube_sample_master_ids_status_to_udpate = array();
 	
+	$worksheet = 'Block';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$sample_block_id = $new_line_data['Block Id'];
+//TODO
+if($sample_block_id == '01-1-008-1a') break;
+			if(strlen($sample_block_id)) {
+				if(preg_match('/^([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)([A-Za-z]+)$/', $sample_block_id, $matches)) {
+					$sample_tube_id = $matches[1];
+					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && !array_key_exists($sample_block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+						$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
+						$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
+						//a-qcroc_storage_method & croc_storage_solution
+						$qcroc_acceptance_status = strtolower($new_line_data['Acceptance Status']);
+						if(!in_array($qcroc_acceptance_status, array('', 'block rejected','whole block accepted','partial block accepted'))) {
+							$qcroc_acceptance_status = '';
+							$import_summary[$summary_title]['@@WARNING@@']['Acceptance Status unknown'][] = "See value [".$new_line_data['Acceptance Status']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}
+						//b-qcroc_macro_dissectable & qcroc_to_macro_dissect & qcroc_macrodissection_lines_on_slide
+						$qcroc_macro_dissectable = '';
+						$qcroc_to_macro_dissect = '';
+						$qcroc_macrodissection_lines_on_slide = '';
+						foreach(array('1' => 'Can it be macrodissected (pathologist)', '2' => 'Should it be macrodissected (technologist)', '3' => 'lines for macrodissection marked on slide') as $key => $excel_field) {
+							$excel_value = strtolower($new_line_data[$excel_field]);
+							$value = '';
+							switch($excel_value) {
+								case 'yes':
+									$value = 'y';
+									break;
+								case 'no':
+									$value = 'n';
+									break;
+								case '';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@'][$excel_field.' unknown'][] = "See value [".$new_line_data[$excel_field]."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+							switch($key) {
+								case '1':
+									$qcroc_macro_dissectable = $value;
+									break;
+								case '2':
+									$qcroc_to_macro_dissect = $value;
+									break;
+								case '3':
+									$qcroc_macrodissection_lines_on_slide = $value;
+									break;
+							}							
+						}
+						//c-qcroc_acceptance_macrodissection_reason
+						$qcroc_acceptance_macrodissection_reason = $new_line_data['Reasons'];
+						//d-block_type
+						$block_type = '';
+						switch(strtolower($new_line_data['Block Type'])) {
+							case 'frozen':
+							case '';
+								$block_type = $new_line_data['Block Type'];
+								break;
+							case 'oct':
+								$block_type = 'OCT';
+								break;
+							default:
+								$import_summary[$summary_title]['@@WARNING@@']['Block Type unknown'][] = "See value [".$new_line_data['Block Type']."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+						}	
+						$aliquot_data = array(
+							'AliquotMaster' => array(
+								'collection_id' => $collection_id,
+								'sample_master_id' => $sample_master_id,
+								'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['aliquot_control_id'],
+								'barcode' => getNextTmpBarcode(),
+								'aliquot_label' => $sample_block_id,
+								'in_stock' => 'yes - available',
+								'use_counter' => '0',
+								'notes'=> $new_line_data['Comments on preparation\shipment']),
+							'AliquotDetail' => array(
+								'qcroc_acceptance_status' => $qcroc_acceptance_status,
+								'qcroc_macro_dissectable' => $qcroc_macro_dissectable,
+								'qcroc_to_macro_dissect' => $qcroc_to_macro_dissect,
+								'qcroc_macrodissection_lines_on_slide' => $qcroc_macrodissection_lines_on_slide,
+								'qcroc_acceptance_macrodissection_reason' => $qcroc_acceptance_macrodissection_reason,
+								'block_type' => $block_type));
+						$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+						customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['block']['detail_tablename'], __FILE__, __LINE__, true);
+						$tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id] = array('id' => $aliquot_data['AliquotDetail']['aliquot_master_id'], 'slide_counter' => 0);
+						//Create realiquoting relation
+						$tube_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['tube_aliquot_master_id'];
+						$realiquoting_datetime = getDateAndAccuracy($new_line_data, 'Date of Block Creation', $summary_title, $file_name, $worksheet, $line_counter);
+						$realiquoting_datetime['accuracy'] = str_replace('c', 'h', $realiquoting_datetime['accuracy']);
+						$realiquoting_data = array(
+							'parent_aliquot_master_id' => $tube_aliquot_master_id,	
+							'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id'],	
+							'realiquoting_datetime' => $realiquoting_datetime['date'],	
+							'realiquoting_datetime_accuracy' => $realiquoting_datetime['accuracy']);
+						customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, true);	
+						$tube_sample_master_ids_status_to_udpate[] = $tube_aliquot_master_id;
+					} else {
+						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Tube ID [$sample_tube_id] for block [$sample_block_id] was not defined into the Sample worksheet or block was defined twice! No tissue block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "Unable to extract Sample Tube ID  from block ID [$sample_block_id] based on block ID format! No block will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
+			}
+		}
+	}
+	if($tube_sample_master_ids_status_to_udpate) {
+		$query = "UPDATE aliquot_masters SET in_stock = 'no' WHERE id IN (".implode(',',$tube_sample_master_ids_status_to_udpate).");";
+		customQuery($query, __FILE__, __LINE__);
+	}
 	
+	// *5* Create Slide **
 	
-	
-	
-	
-	
-	
+	$worksheet = 'Slide';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$sample_slide_id = $new_line_data['Slide id'];
+//TODO
+if($sample_slide_id == '01-1-008-1a-l1') break;
+			if(strlen($sample_slide_id)) {
+				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+)\-(.+)$/', $sample_slide_id, $matches)) {
+					$sample_tube_id = $matches[2];
+					$sample_block_id = $matches[1];
+					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($sample_block_id, $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'])) {
+						if(!array_key_exists($sample_slide_id, $tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'])) {
+							$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
+							$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
+							$tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['slide_counter'] += 1;
+							$slide_counter = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['slide_counter'];
+							$aliquot_data = array(
+								'AliquotMaster' => array(
+									'collection_id' => $collection_id,
+									'sample_master_id' => $sample_master_id,
+									'aliquot_control_id' => $controls['sample_aliquot_controls']['tissue']['aliquots']['slide']['aliquot_control_id'],
+									'barcode' => getNextTmpBarcode(),
+									'aliquot_label' => $sample_block_id.'-'.$slide_counter,
+									'in_stock' => 'yes - available',
+									'use_counter' => '0',
+									'notes'=> $new_line_data['Comment on slide']),
+								'AliquotDetail' => array(
+									'qcroc_level' => $new_line_data['level']));
+							$aliquot_data['AliquotDetail']['aliquot_master_id'] = customInsert($aliquot_data['AliquotMaster'], 'aliquot_masters', __FILE__, __LINE__, false);
+							customInsert($aliquot_data['AliquotDetail'], $controls['sample_aliquot_controls']['tissue']['aliquots']['slide']['detail_tablename'], __FILE__, __LINE__, true);
+							$tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'][$sample_slide_id] = $aliquot_data['AliquotDetail']['aliquot_master_id'];
+							//Create realiquoting relation
+							$block_aliquot_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['bloc_aliquot_master_ids'][$sample_block_id]['id'];
+							$realiquoting_data = array(
+								'parent_aliquot_master_id' => $block_aliquot_master_id,
+								'child_aliquot_master_id' => $aliquot_data['AliquotDetail']['aliquot_master_id']);
+							customInsert($realiquoting_data, 'realiquotings', __FILE__, __LINE__, true);
+						}
+					} else {
+						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Block ID [$sample_block_id] for slide [$sample_slide_id] was not defined into the Block worksheet! No tissue slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "Unable to extract Sample Tube and block ID from slide ID [$sample_slide_id] based on slide ID format! No slide will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
+			}
+		}
+	}
 
+	// *6* Slide Review **
 	
+	$tmp_patho_review_ids = array();
+
+
+	$worksheet = 'Slide HQC';
+	$summary_title = "Tissue : $worksheet";
+	$headers = array();
+	foreach($XlsReader->sheets[$sheets_nbr[$worksheet]]['cells'] as $line_counter => $new_line) {
+		if($line_counter == 1) {
+			$headers = $new_line;
+		} else if($line_counter > 1){
+			$new_line_data = formatNewLineData($headers, $new_line);
+			$slide_revision_code = $new_line_data['HQC id'];
+//TODO
+if($slide_revision_code == '01-1-008-1a-l1-HQC1') break;
+			if(strlen($slide_revision_code)) {
+				if(preg_match('/^(([0-9]+\-[0-9]+\-[0-9]+\-[0-9]+)[A-Za-z]+\-.+)\-(.+)$/', $slide_revision_code, $matches)) {
+					$sample_tube_id = $matches[2];
+					$sample_slide_id = $matches[1];
+					if(array_key_exists($sample_tube_id, $tissue_tube_labels_to_ids) && array_key_exists($sample_slide_id, $tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'])) {
+						$collection_id = $tissue_tube_labels_to_ids[$sample_tube_id]['collection_id'];
+						$sample_master_id = $tissue_tube_labels_to_ids[$sample_tube_id]['sample_master_id'];
+						//Create specimen review
+						$key = $new_line_data['Review by'].$new_line_data['Date'].md5($new_line_data['Comments']);
+						if(!array_key_exists($key, $tmp_patho_review_ids)) {
+							//Create speciemn review
+							$review_date = 
+							$review_date = getDateAndAccuracy($new_line_data, 'Date', $summary_title, $file_name, $worksheet, $line_counter);
+							$review_date['accuracy'] = str_replace('c', 'h', $review_date['accuracy']);
+							$review_data = array(
+								'SpecimenReviewMaster' => array(
+									'collection_id' => $collection_id,
+									'sample_master_id' => $sample_master_id,
+									'specimen_review_control_id' => $controls['specimen_review_controls']['tissue']['specimen_review_control_id'],
+									'review_code' => $sample_tube_id.' '.$review_date['date'],
+									'review_date' => $review_date['date'],
+									'review_date_accuracy' => $review_date['accuracy'],
+									'pathologist' => $new_line_data['Review by'],
+									'notes'=> $new_line_data['Comments']),
+								'SpecimenReviewDetail' => array());
+							$review_data['SpecimenReviewDetail']['specimen_review_master_id'] = customInsert($review_data['SpecimenReviewMaster'], 'specimen_review_masters', __FILE__, __LINE__, false);
+							customInsert($review_data['SpecimenReviewDetail'], $controls['specimen_review_controls']['tissue']['detail_tablename'], __FILE__, __LINE__, true);
+							$tmp_patho_review_ids[$key] = $review_data['SpecimenReviewDetail']['specimen_review_master_id'];
+						}
+						$specimen_review_master_id = $tmp_patho_review_ids[$key];
+						//Create aliquot review
+						$detail_data = array();
+						$fields_info = array(
+							'sample_pct_tumor' => 'sample% tumor',
+							'sample_pct_normal' => 'sample% normal',
+							'sample_pct_necrosis' => 'sample%necrosis',
+							'sample_pct_fibrosis' => 'sample%fibrosis',
+							'tumor_pct_tumor_cells' => 'tumor%tumor cells',
+							'tumor_pct_necrosis' => 'tumor% necrosis',
+							'tumor_pct_benign_cell_non_neoplastic' => 'tumor% benign cell  non-neoplastic (fibrosis)',
+							'tumor_pct_stroma' => 'tumor% stroma');
+						foreach($fields_info as $db_field => $excel_field) {
+							if(strlen($new_line_data[$excel_field])) {
+								if(preg_match('/^[0-9\.]$', $new_line_data[$excel_field])) {
+									$detail_data[$db_field] = $new_line_data[$excel_field];
+								} else {
+									$import_summary[$summary_title]['@@WARNING@@'][$excel_field.' unknown'][] = "See value [".$new_line_data[$excel_field]."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+								}
+							}
+						}
+						foreach(array('can_be_microdisected' => 'Can sample be microdisected', 'microdissection_lines_marked' => 'Iines for microdissection_lines_marked') as $db_field => $excel_field) {
+							$excel_value = strtolower($new_line_data[$excel_field]);
+							switch($excel_value) {
+								case 'yes':
+									$detail_data[$db_field] = 'y';
+									break;
+								case 'no':
+									$detail_data[$db_field] = 'n';
+									break;
+								case '';
+									break;
+								default:
+									$import_summary[$summary_title]['@@WARNING@@'][$excel_field.' unknown'][] = "See value [".$new_line_data[$excel_field]."]. Value won't be migrated! [file '$file_name' ($worksheet) - line: $line_counter]";
+							}
+						}
+						$review_data = array(
+							'AliquotReviewMaster' => array(
+								'aliquot_master_id' => $tissue_tube_labels_to_ids[$sample_tube_id]['slide_aliquot_master_ids'][$sample_slide_id],
+								'specimen_review_master_id' => $specimen_review_master_id,
+								'aliquot_review_control_id' => $controls['aliquot_review_controls']['tissue slide']['aliquot_review_control_id'],
+								'review_code' => $slide_revision_code),
+							'AliquotReviewDetail' => $detail_data);
+						$review_data['AliquotReviewMaster']['aliquot_review_master_id'] = customInsert($review_data['AliquotReviewMaster'], 'aliquot_review_masters', __FILE__, __LINE__, false);
+						customInsert($review_data['AliquotReviewDetail'], $controls['aliquot_review_controls']['tissue slide']['detail_tablename'], __FILE__, __LINE__, true);
+					} else {
+						$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "The Sample Slide ID [$sample_slide_id] for tissue tube [$sample_tube_id] was not defined into the Slide worksheet! No slide revision will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+					}
+				} else {
+					$import_summary[$summary_title]['@@ERROR@@']['No Sample'][] = "Unable to extract Sample Tube and slide ID from slide revision code [$slide_revision_code] based on ID format! No slide revision will be created! [file '$file_name' ($worksheet) - line: $line_counter]";
+				}
+			}
+		}
+	}
 }
 
 function loadBlood(&$XlsReader, $files_path, $file_name) {

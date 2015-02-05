@@ -403,6 +403,63 @@ VALUES
 ('processing','Processing','Traitement'),
 ('collected processed according to sop', 'Coll & Proces. According to SOP', 'Coll & Trt. selon SOP');
 
+-- Tissue Block
+
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+ALTER TABLE ad_blocks
+  ADD COLUMN qcroc_acceptance_status varchar(30),
+  ADD COLUMN qcroc_macro_dissectable char(1) default '',
+  ADD COLUMN qcroc_to_macro_dissect char(1) default '',
+  ADD COLUMN qcroc_macrodissection_lines_on_slide char(1) default '',
+  ADD COLUMN qcroc_acceptance_macrodissection_reason text;
+ALTER TABLE ad_blocks_revs
+  ADD COLUMN qcroc_acceptance_status varchar(30),
+  ADD COLUMN qcroc_macro_dissectable char(1) default '',
+  ADD COLUMN qcroc_to_macro_dissect char(1) default '',
+  ADD COLUMN qcroc_macrodissection_lines_on_slide char(1) default '',
+  ADD COLUMN qcroc_acceptance_macrodissection_reason text;
+INSERT INTO structure_value_domains (domain_name, source)
+VALUES 
+('qcroc_tissue_block_acceptance', "StructurePermissibleValuesCustom::getCustomDropdown('Tissue Block Acceptance Status')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Tissue Block Acceptance Status', 1, 30, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Tissue Block Acceptance Status');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('block rejected', 'Block rejected', 'Bloc rejeté', '1', @control_id, NOW(), NOW(), 1, 1),
+('whole block accepted', 'Whole Block Accepted', 'Bloc entier accepté', '1', @control_id, NOW(), NOW(), 1, 1),
+('partial block accepted', 'Partial Block Accepted', 'Bloc partiel accepté', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qcroc_acceptance_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qcroc_tissue_block_acceptance') , '0', '', '', '', 'acceptance status', ''), 
+('InventoryManagement', 'AliquotDetail', '', 'qcroc_macro_dissectable', 'yes_no',  NULL , '0', '', '', '', 'macro dissectable', ''), 
+('InventoryManagement', 'AliquotDetail', '', 'qcroc_to_macro_dissect', 'yes_no',  NULL , '0', '', '', '', 'should be macrodissected', ''), 
+('InventoryManagement', 'AliquotDetail', '', 'qcroc_acceptance_macrodissection_reason', 'textarea',  NULL , '0', 'rows=3,cols=30', '', '', 'reason', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_acceptance_status'), '1', '80', 'acceptance and macrodissection', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_macro_dissectable'), '1', '81', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_to_macro_dissect'), '1', '82', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_acceptance_macrodissection_reason'), '1', '83', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('reason', 'Reason', 'Raison'),
+('acceptance status', 'Acceptance Status', 'Acceptation'),
+('macro dissectable', 'Macro-Dissectable', 'Macro-disséquable'), 
+('should be macrodissected', 'Should Be Macro-Dissected', 'Doit être macro-disséqué'),
+('acceptance and macrodissection', 'Acceptance & Macro-Dissection', 'Acceptation & Macro-Dissection');
+
+-- Tissue Slide
+
+ALTER TABLE ad_tissue_slides
+  ADD COLUMN qcroc_level int(4);
+ALTER TABLE ad_tissue_slides_revs
+  ADD COLUMN qcroc_level int(4);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotDetail', '', 'qcroc_level', 'integer_positive',  NULL , '0', 'size=3', '', '', 'level', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tiss_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='qcroc_level' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='level' AND `language_tag`=''), '1', '71', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_tiss_slides') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
 -- Aliquot Uses/Events
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Aliquot Use and Event Types');
@@ -415,21 +472,107 @@ UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id F
 UPDATE structure_formats SET `display_order`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='type' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_internal_use_type') AND `flag_confidential`='0');
 DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='use_code');
 ALTER TABLE aliquot_internal_uses
-  ADD COLUMN qcroc_shipping_conditions_correct char(1) DEFAULT '';
+  ADD COLUMN qcroc_compliant_processing char(1) DEFAULT '';
 ALTER TABLE aliquot_internal_uses_revs
-  ADD COLUMN qcroc_shipping_conditions_correct char(1) DEFAULT '';
+  ADD COLUMN qcroc_compliant_processing char(1) DEFAULT '';
 INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_shipping_conditions_correct', 'yes_no',  NULL , '0', '', '', '', 'shipping conditions correct', '');
+('InventoryManagement', 'AliquotInternalUse', 'aliquot_internal_uses', 'qcroc_compliant_processing', 'yes_no',  NULL , '0', '', '', 'qcroc_compliant_processing_help', 'compliant processing', '');
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_shipping_conditions_correct' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hipping conditions correct' AND `language_tag`=''), '1', '15', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_formats SET `display_column`='0', `display_order`='14' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquotinternaluses') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_shipping_conditions_correct' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO i18n (id,en,fr) VALUES ('shipping conditions correct','Shipping Conditions Correct (if applicable)','Conditions d''expédition correcte (si applicable)');
+((SELECT id FROM structures WHERE alias='aliquotinternaluses'), (SELECT id FROM structure_fields WHERE `model`='AliquotInternalUse' AND `tablename`='aliquot_internal_uses' AND `field`='qcroc_compliant_processing'), '0', '3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES  
+('compliant processing','Compliant processing','Traitement conforme'),
+('qcroc_compliant_processing_help','Flag (if applicable) to indicate that the process/use was performed according to SOP or business rules then validated: Shipping conditions correct, etc.',
+'Flag (le cas échéant) pour indiquer que le processus/utilisation a été effectué(e) selon un SOP ou des règles d''affaires et validé(e): Conditions d''envoie validées, etc.');
 
+-- Path Review
 
+UPDATE aliquot_review_controls SET flag_active = 0;
+INSERT INTO `aliquot_review_controls` (`review_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `aliquot_type_restriction`, `databrowser_label`) VALUES
+('tissue slide', 1, 'qcroc_ar_tissue_slides', 'qcroc_ar_tissue_slides', 'slide', 'tissue slide');
+CREATE TABLE IF NOT EXISTS `qcroc_ar_tissue_slides` (
+  `aliquot_review_master_id` int(11) NOT NULL,
+  `sample_pct_tumor` decimal(5,1) DEFAULT NULL,
+  `sample_pct_normal` decimal(5,1) DEFAULT NULL,
+  `sample_pct_necrosis` decimal(5,1) DEFAULT NULL,
+  `sample_pct_fibrosis` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_tumor_cells` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_necrosis` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_benign_cell_non_neoplastic` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_stroma` decimal(5,1) DEFAULT NULL,
+  `can_be_microdisected` char(1) DEFAULT '',
+  `microdissection_lines_marked` char(1) DEFAULT '',
+  KEY `FK_qcroc_ar_tissue_slides_aliquot_review_masters` (`aliquot_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `qcroc_ar_tissue_slides`
+  ADD CONSTRAINT `FK_qcroc_ar_tissue_slides_aliquot_review_masters` FOREIGN KEY (`aliquot_review_master_id`) REFERENCES `aliquot_review_masters` (`id`);
+CREATE TABLE IF NOT EXISTS `qcroc_ar_tissue_slides_revs` (
+  `aliquot_review_master_id` int(11) NOT NULL,
+  `sample_pct_tumor` decimal(5,1) DEFAULT NULL,
+  `sample_pct_normal` decimal(5,1) DEFAULT NULL,
+  `sample_pct_necrosis` decimal(5,1) DEFAULT NULL,
+  `sample_pct_fibrosis` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_tumor_cells` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_necrosis` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_benign_cell_non_neoplastic` decimal(5,1) DEFAULT NULL,
+  `tumor_pct_stroma` decimal(5,1) DEFAULT NULL,
+  `can_be_microdisected` char(1) DEFAULT '',
+  `microdissection_lines_marked` char(1) DEFAULT '',
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+UPDATE specimen_review_controls SET flag_active = 0;
+INSERT INTO `specimen_review_controls` (`sample_control_id`, `aliquot_review_control_id`, `review_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `databrowser_label`) VALUES
+((SELECT id FROM sample_controls WHERE sample_type = 'tissue'), (SELECT id FROM aliquot_review_controls WHERE detail_tablename = 'qcroc_ar_tissue_slides'), 'tissue', 0, 'qcroc_spr_tissues', 'qcroc_spr_tissues', 'tissue|qcroc');
+CREATE TABLE IF NOT EXISTS `qcroc_spr_tissues` (
+  `specimen_review_master_id` int(11) NOT NULL,
+  `tumour_grade_category` varchar(100) DEFAULT NULL,
+  KEY `FK_qcroc_spr_tissues_specimen_review_masters` (`specimen_review_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `qcroc_spr_tissues`
+  ADD CONSTRAINT `FK_qcroc_spr_tissues_specimen_review_masters` FOREIGN KEY (`specimen_review_master_id`) REFERENCES `specimen_review_masters` (`id`);
+CREATE TABLE IF NOT EXISTS `qcroc_spr_tissues_revs` (
+  `specimen_review_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-
-
-
+UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_index`='0', `flag_detail`='0', `flag_summary`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='specimen_review_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SpecimenReviewMaster' AND `tablename`='specimen_review_masters' AND `field`='review_status' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='specimen_review_status') AND `flag_confidential`='0');
+INSERT INTO structures(`alias`) VALUES ('qcroc_spr_tissues');
+INSERT INTO structures(`alias`) VALUES ('qcroc_ar_tissue_slides');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_tumor', 'float_positive',  NULL , '0', 'size=5', '', '', 'tumor percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_normal', 'float_positive',  NULL , '0', 'size=5', '', '', 'normal percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_necrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'necrosis percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'sample_pct_fibrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'fibrosis percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_tumor_cells', 'float_positive',  NULL , '0', 'size=5', '', '', 'tumor cells percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_necrosis', 'float_positive',  NULL , '0', 'size=5', '', '', 'necrosis percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_benign_cell_non_neoplastic', 'float_positive',  NULL , '0', 'size=5', '', '', 'benign cell non-neoplastic percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'tumor_pct_stroma', 'float_positive',  NULL , '0', 'size=5', '', '', 'stroma percentage', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'can_be_microdisected', 'yes_no',  NULL , '0', '', '', '', 'micro dissectable', ''), 
+('InventoryManagement', 'AliquotReviewDetail', 'qcroc_ar_tissue_slides', 'microdissection_lines_marked', 'yes_no',  NULL , '0', '', '', '', 'microdissection lines marked', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_tumor'), '0', '10', 'sample', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_normal'), '0', '11', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_necrosis'), '0', '12', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='sample_pct_fibrosis'), '0', '13', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_tumor_cells'), '0', '20', 'tumor', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_necrosis'), '0', '21', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_benign_cell_non_neoplastic' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='benign cell non-neoplastic percentage' AND `language_tag`=''), '0', '22', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='tumor_pct_stroma'), '0', '23', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='can_be_microdisected'), '0', '4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qcroc_ar_tissue_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotReviewDetail' AND `tablename`='qcroc_ar_tissue_slides' AND `field`='microdissection_lines_marked'), '0', '5', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '0', '1', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES
+('micro dissectable','Micro-Dissectable', 'Micro-disséquable'), 
+('microdissection lines marked','Microdissection Lines Marked','Lignes de microdissection marquées'),        	
+('tumor percentage','T&#37;','T&#37;'),     	   	
+('necrosis percentage','NEC&#37;','NEC&#37;'),     	
+('fibrosis percentage','FIB&#37;','FIB&#37;'),     	
+('tumor cells percentage','Tumor Cells &#37;','Cellules tumorales &#37;'),     	   	
+('benign cell non-neoplastic percentage','Benign Cell Non-Neoplastic &#37;','Cellules bénigne non-néoplasiques &#37;');    	
 
 -- --------------------------------------------------------------------------------
 -- Other...
