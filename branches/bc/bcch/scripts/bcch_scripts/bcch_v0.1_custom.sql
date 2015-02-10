@@ -144,17 +144,148 @@ UPDATE structure_formats SET `flag_add`='0', `flag_addgrid`='0' WHERE structure_
 UPDATE structure_formats SET `flag_add`='0', `flag_edit_readonly`='1', `flag_editgrid`='1', `flag_editgrid_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='sample_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 --  =========================================================================
---	Eventum ID: #3165 - Sample Code Format
+--	Eventum ID: #3165 - CSV Export Fields
 --	=========================================================================
 
 -- Remove the Aliquot Type from the CSV
 DELETE FROM `structure_formats` WHERE `structure_id`=(SELECT id FROM structures WHERE alias='aliquot_barcode') AND `structure_field_id`=(SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotControl' AND field='aliquot_type' AND language_label='aliquot type' AND type='select' AND structure_value_domain=(SELECT id FROM structure_value_domains WHERE domain_name='aliquot_type'));
 
 -- Add Label column to the CSV
-INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES (NULL, (SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotMaster' AND tablename='aliquot_masters' AND field='aliquot_label' AND language_label='aliquot label' AND type='input'), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
+ (NULL, (SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotMaster' AND tablename='aliquot_masters' AND field='aliquot_label' AND language_label='aliquot label' AND type='input'), '1', '2', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- Add Study/Project to the CSV
-INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES (NULL, (SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotMaster' AND tablename='aliquot_masters' AND field='study_summary_id' AND language_label='study / project' AND type='select'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
+ (NULL, (SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotMaster' AND tablename='aliquot_masters' AND field='study_summary_id' AND language_label='study / project' AND type='select'), '1', '3', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 -- Add Initial Storage Date to the CSV
-INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES (NULL, (SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotMaster' AND tablename='aliquot_masters' AND field='storage_datetime' AND language_label='initial storage date' AND type='datetime'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_summary`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_float`, `margin`) VALUES
+ (NULL, (SELECT id FROM structures WHERE alias='aliquot_barcode'), (SELECT id FROM structure_fields WHERE plugin='InventoryManagement' AND model='AliquotMaster' AND tablename='aliquot_masters' AND field='storage_datetime' AND language_label='initial storage date' AND type='datetime'), '1', '4', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+--  =========================================================================
+--	Eventum ID: #3163 - Study Title Validation
+--	=========================================================================
+
+INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_message`) VALUES
+ ((SELECT `id` FROM `structure_fields` WHERE tablename = 'study_summaries' AND field = 'title'), 'custom,/^[A-Za-z][A-Za-z][A-Za-z][A-Za-z][A-Za-z]$/', 'ccbr study title must be 5 characters');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('ccbr study title must be 5 characters', "Study title must be 5 characters long", '');
+
+--  =========================================================================
+--	Eventum ID: #3161 - Tissue source - Add values
+--	=========================================================================
+UPDATE structure_value_domains SET `override`="", `source`="" WHERE domain_name="tissue_source_list";
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("placenta", "placenta");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"), (SELECT id FROM structure_permissible_values WHERE value="placenta" AND language_alias="placenta"), "1", "1");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="tissue_source_list"), (SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "2", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('placenta', "Placenta", '');
+
+--  =========================================================================
+--	Eventum ID: #3167 - Migration - CSF conversion
+--  Tables to update: sample_controls, sample
+--	=========================================================================
+
+-- Disable CCBR sample type
+UPDATE parent_to_derivative_sample_controls SET flag_active=0 
+WHERE `derivative_sample_control_id` = (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr cerebrospinal fluid');
+
+-- Move all data from CCBR cerebrospinal_fluid sample detail table to ATiM csf detail table
+INSERT INTO `sd_spe_csfs` (`sample_master_id`, `collected_volume`, `collected_volume_unit`)
+SELECT `sample_master_id`, `collected_volume`, `collected_volume_unit` FROM `sd_spe_ccbr_cerebrospinal_fluid`; 
+
+INSERT INTO `sd_spe_csfs_revs` (`sample_master_id`, `collected_volume`, `collected_volume_unit`, `version_id`, `version_created`)
+SELECT `sample_master_id`, `collected_volume`, `collected_volume_unit` FROM `sd_spe_ccbr_cerebrospinal_fluid_revs`; 
+
+-- Update sample_masters
+UPDATE `sample_masters` 
+SET `sample_control_id` = (SELECT `id` FROM sample_controls WHERE `sample_type` = 'csf'), `initial_specimen_sample_type` = ('csf')
+WHERE `sample_control_id` = (SELECT `id` FROM sample_controls WHERE `sample_type` = 'ccbr cerebrospinal fluid');
+
+-- Remove from sample_controls and parent_to_derivative_sample_controls
+DELETE FROM parent_to_derivative_sample_controls
+WHERE `derivative_sample_control_id` = (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr cerebrospinal fluid');
+
+DELETE FROM `sample_controls`
+WHERE `sample_type` = 'ccbr cerebrospinal fluid';
+
+-- DROP TABLE
+DROP TABLE `bc_children_atim`.`sd_spe_ccbr_cerebrospinal_fluid`;
+DROP TABLE `bc_children_atim`.`sd_spe_ccbr_cerebrospinal_fluid_revs`;
+
+-- Update aliquot masters
+-- Wait for Tamsin's reply. Leave as-is for ml
+
+--  =========================================================================
+--	Eventum ID: #XXXX - New sample type (Swab)
+--	=========================================================================
+CREATE TABLE `sd_spe_swabs` (
+  `sample_master_id` int(11) NOT NULL,
+  `ccbr_swab_location` varchar(255) DEFAULT NULL,
+  KEY `FK_sd_spe_swabss_sample_masters` (`sample_master_id`),
+  CONSTRAINT `FK_sd_spe_swabs_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sd_spe_swabs_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `ccbr_swab_location` varchar(255) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Add structure
+INSERT INTO `structures` (`alias`) VALUES ('sd_spe_swabs');
+
+-- Add swab location field to detail form
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+ ('ccbr swab', 'specimen', 'sd_spe_swabs,specimens', 'sd_spe_swabs', '0', 'swab');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('ccbr swab', "Swab", '');
+
+-- Value domain for swab location
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("ccbr_swab_location", "", "", NULL);
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("buccal", "buccal");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ccbr_swab_location"), (SELECT id FROM structure_permissible_values WHERE value="buccal" AND language_alias="buccal"), "1", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("cervix", "cervix");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ccbr_swab_location"), (SELECT id FROM structure_permissible_values WHERE value="cervix" AND language_alias="cervix"), "2", "1");
+INSERT INTO structure_permissible_values (value, language_alias) VALUES("vagina", "vagina");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="ccbr_swab_location"), (SELECT id FROM structure_permissible_values WHERE value="vagina" AND language_alias="vagina"), "3", "1");
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('buccal', "Buccal", ''),
+('cervix', "Cervix", ''),
+('vagina', "Vagina", '');
+
+-- Add swab location to detail form
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', 'sd_spe_swabs', 'ccbr_swab_location', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='ccbr_swab_location') , '0', '', '', '', 'ccbr swab location', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_spe_swabs'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='sd_spe_swabs' AND `field`='ccbr_swab_location' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='ccbr_swab_location')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ccbr swab location' AND `language_tag`=''), '1', '5', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('ccbr swab location', "Swab Location", '');
+
+-- Enable new sample type
+INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr swab'), '1');
+
+-- Add aliquot
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `detail_form_alias`, `detail_tablename`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+ ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr swab'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'Specimen tube', '0', 'swab|tube');
+
+
+--  =========================================================================
+--	Eventum ID: #XXXX - New sample type (Cord Blood)
+--	========================================================================
+
+
+
+--  =========================================================================
+--	Eventum ID: #3155 - Collection - Add new needs default participant ID 
+--	=========================================================================
+
+-- Set Collection Property to 'Independant Collection'
+-- UPDATE structure_formats SET `flag_override_default`='1', `default`='independent collection', `flag_add_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
