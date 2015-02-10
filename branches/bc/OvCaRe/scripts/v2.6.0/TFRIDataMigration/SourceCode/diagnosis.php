@@ -57,8 +57,9 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 				$summary_msg[$worksheet_name]['@@ERROR@@']["Unable to find VOA# from cell"][] = "Cell val = '".$new_line_data['Patient Biobank Number (required & unique)']."'. No data will be migrated. [Worksheet: $worksheet_name /line: $excel_line_counter]";
 			}
 			if($voa) {
-				if(!in_array($voa, $all_patients_worksheet_voas)) die('ERR 237328832832 voa'.$voa);
-				if(in_array($voa, $studied_voas_for_duplicated_data_check)) {
+				if(!array_key_exists($voa, $voas_to_participant_id)) {
+					$summary_msg[$worksheet_name]['@@ERROR@@']["VOA not studied by process"][] = "VOA#$voa won't be updated: either this one has not been defined into 'Patients' worksheet or this voa number does not exist into ATiM. [Worksheet: $worksheet_name /line: $excel_line_counter]";
+				} else if(in_array($voa, $studied_voas_for_duplicated_data_check)) {
 					$summary_msg[$worksheet_name]['@@ERROR@@']["VOA linked to many rows"][] = "VOA#$voa is linked to at least 2 rows. Only data of the first row will be parsed for updates. [Worksheet: $worksheet_name /line: $excel_line_counter]";	
 				} else {
 					$studied_voas_for_duplicated_data_check[$voa] = $voa;
@@ -420,326 +421,330 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 				$previous_voa = null;
 			}
 			if($voa) {
-				$participant_id = $voas_to_participant_id[$voa];
-				if(!in_array($participant_id, $participant_ids_to_skip)) {
-					$diagnosis_master_id = (isset($voa_to_diagnosis_master_id[$voa]) && $voa_to_diagnosis_master_id[$voa])? $voa_to_diagnosis_master_id[$voa] : null;
-					$start_data = getDateAndAccuracy($worksheet_name, $new_line_data, $worksheet_name, 'Date of event (beginning)::Date', 'Date of event (beginning)::Accuracy', $excel_line_counter);
-					$finish_data = getDateAndAccuracy($worksheet_name, $new_line_data, $worksheet_name, 'Date of event (end)::Date', 'Date of event (end)::Accuracy', $excel_line_counter);
-					$drug_data_set = strlen($new_line_data['Chemotherapy Precision::Drug1'].$new_line_data['Chemotherapy Precision::Drug2'].$new_line_data['Chemotherapy Precision::Drug3'].$new_line_data['Chemotherapy Precision::Drug4'])? true : false;
-					$ca125_data_set = strlen($new_line_data['CA125  Precision (U)'])? true : false;
-					$scan_data_set = strlen($new_line_data['CT Scan Precision'])? true : false;
-					switch($new_line_data['Event Type']) {
-						case '':
-							if($drug_data_set || $ca125_data_set || $scan_data_set || $start_data) die('ERR238327832732');
-							break;
-						// == chemotherapy ==
-						case 'chemotherapy':
-							if($ca125_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CA125 linked to wrong event type"][] = "CA125 are associated to event ".$new_line_data['Event Type'].". CA125 data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							$chemo_drugs = array();
-							for($id=1; $id<5; $id++) {
-								$drug = trim(str_replace(array('carboplatinum'), array('carboplatin'), strtolower($new_line_data["Chemotherapy Precision::Drug$id"])));
-								if($drug == 'other') {
-									$summary_msg[$worksheet_name]['@@WARNING@@']["Chemo Drug Value 'other'"][] = "A chemo drug was defined as 'other' for chemotherapy on on '".$start_data['date']."'. Value won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-								} else if(strlen($drug)) {
-									if(!array_key_exists($drug, $drug_list)) die('ERR8237832732 '.$drug);
-									$chemo_drugs[$drug] = $drug_list[$drug];
-								}							
-							}
-							if(isset($participant_id_to_atim_chemos[$participant_id][$start_data['date']])) {
-								if(sizeof($participant_id_to_atim_chemos[$participant_id][$start_data['date']]) > 1) die('ERR327328eesd 232 to support');
-								$key = key($participant_id_to_atim_chemos[$participant_id][$start_data['date']]);
-								$atim_tx_data = $participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key];
-								$treatment_master_id = $atim_tx_data['treatment_master_id'];
-								//Update TreatmentMaster
-								$master_data_to_update = array();
-								$update_msg = array();
-								if($start_data['date'] != $atim_tx_data['start_date']) die('ERR 2823797329 7297'); //Suppose to be the same
-								if($start_data['accuracy'] != $atim_tx_data['start_date_accuracy']) {
-									$master_data_to_update[] = "start_date_accuracy = '".$start_data['accuracy']."'";
-									$summary_msg[$worksheet_name]['@@WARNING@@']["Chemotherapy Start Date Accuracy"][] = "An ATiM chemotherapy matched a file chemotherapy based on voa# and start date '".$start_data['date']."' but the  accuracy values are different (".$start_data['accuracy']." != ".$atim_tx_data['start_date_accuracy']."). Accuracy will be updated. Please check after migration. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed chemo start date accurcy"][] = "Changed start date accuracy (from ".$atim_tx_data['start_date_accuracy']." to ".$start_data['accuracy'].") for a chemotherapy started on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['start_date_accuracy'] = $start_data['accuracy'];
+				if(!array_key_exists($voa, $voas_to_participant_id)) {
+					$summary_msg[$worksheet_name]['@@ERROR@@']["VOA not studied by process"][] = "VOA#$voa won't be updated: either this one has not been defined into 'Patients' worksheet or this voa number does not exist into ATiM. [Worksheet: $worksheet_name /line: $excel_line_counter]";
+				} else {
+					$participant_id = $voas_to_participant_id[$voa];
+					if(!in_array($participant_id, $participant_ids_to_skip)) {
+						$diagnosis_master_id = (isset($voa_to_diagnosis_master_id[$voa]) && $voa_to_diagnosis_master_id[$voa])? $voa_to_diagnosis_master_id[$voa] : null;
+						$start_data = getDateAndAccuracy($worksheet_name, $new_line_data, $worksheet_name, 'Date of event (beginning)::Date', 'Date of event (beginning)::Accuracy', $excel_line_counter);
+						$finish_data = getDateAndAccuracy($worksheet_name, $new_line_data, $worksheet_name, 'Date of event (end)::Date', 'Date of event (end)::Accuracy', $excel_line_counter);
+						$drug_data_set = strlen($new_line_data['Chemotherapy Precision::Drug1'].$new_line_data['Chemotherapy Precision::Drug2'].$new_line_data['Chemotherapy Precision::Drug3'].$new_line_data['Chemotherapy Precision::Drug4'])? true : false;
+						$ca125_data_set = strlen($new_line_data['CA125  Precision (U)'])? true : false;
+						$scan_data_set = strlen($new_line_data['CT Scan Precision'])? true : false;
+						switch($new_line_data['Event Type']) {
+							case '':
+								if($drug_data_set || $ca125_data_set || $scan_data_set || $start_data) die('ERR238327832732');
+								break;
+							// == chemotherapy ==
+							case 'chemotherapy':
+								if($ca125_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CA125 linked to wrong event type"][] = "CA125 are associated to event ".$new_line_data['Event Type'].". CA125 data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								$chemo_drugs = array();
+								for($id=1; $id<5; $id++) {
+									$drug = trim(str_replace(array('carboplatinum'), array('carboplatin'), strtolower($new_line_data["Chemotherapy Precision::Drug$id"])));
+									if($drug == 'other') {
+										$summary_msg[$worksheet_name]['@@WARNING@@']["Chemo Drug Value 'other'"][] = "A chemo drug was defined as 'other' for chemotherapy on on '".$start_data['date']."'. Value won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									} else if(strlen($drug)) {
+										if(!array_key_exists($drug, $drug_list)) die('ERR8237832732 '.$drug);
+										$chemo_drugs[$drug] = $drug_list[$drug];
+									}							
 								}
-								if($finish_data['date'] != $atim_tx_data['finish_date'] || $finish_data['accuracy'] != $atim_tx_data['finish_date_accuracy']) {
-									$master_data_to_update[] = "finish_date = '".$finish_data['date']."', finish_date_accuracy = '".$finish_data['accuracy']."'";
-									$summary_msg[$worksheet_name]['@@ERROR@@']["Chemotherapy Finish Date"][] = "An ATiM chemotherapy matched a file chemotherapy based on voa# and start date '".$start_data['date']."' but the finish dates are different (".$finish_data['date']." (".$finish_data['accuracy'].") != ".$atim_tx_data['finish_date']." (".$atim_tx_data['finish_date_accuracy'].")). Finish Date will be updated. Please check after migration. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed chemo end date"][] = "Changed end date (from ".$atim_tx_data['finish_date']." (".$atim_tx_data['finish_date_accuracy'].") to ".$finish_data['date']." (".$finish_data['accuracy'].")) for a chemotherapy started on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['finish_date'] = $finish_data['date'];
-									$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['finish_date_accuracy'] = $finish_data['accuracy'];
-								}
-								if($diagnosis_master_id) {
-									$update_diagnosis_master_id = false;
-									if(!$atim_tx_data['diagnosis_master_id']) {
-										$update_diagnosis_master_id = true;
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked a chemotherapy to diagnosis"][] = "Linked chemotherapy started on '".$start_data['date']."' to a diagnosis. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									} else if($atim_tx_data['diagnosis_master_id'] != $diagnosis_master_id) {
-										$update_diagnosis_master_id = true;
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed the diagnosis linked to a chemotherapy"][] = "Linked chemotherapy started on '".$start_data['date']."' to another diagnosis (atim id ".$atim_tx_data['diagnosis_master_id']." to $diagnosis_master_id) . See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if(isset($participant_id_to_atim_chemos[$participant_id][$start_data['date']])) {
+									if(sizeof($participant_id_to_atim_chemos[$participant_id][$start_data['date']]) > 1) die('ERR327328eesd 232 to support');
+									$key = key($participant_id_to_atim_chemos[$participant_id][$start_data['date']]);
+									$atim_tx_data = $participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key];
+									$treatment_master_id = $atim_tx_data['treatment_master_id'];
+									//Update TreatmentMaster
+									$master_data_to_update = array();
+									$update_msg = array();
+									if($start_data['date'] != $atim_tx_data['start_date']) die('ERR 2823797329 7297'); //Suppose to be the same
+									if($start_data['accuracy'] != $atim_tx_data['start_date_accuracy']) {
+										$master_data_to_update[] = "start_date_accuracy = '".$start_data['accuracy']."'";
+										$summary_msg[$worksheet_name]['@@WARNING@@']["Chemotherapy Start Date Accuracy"][] = "An ATiM chemotherapy matched a file chemotherapy based on voa# and start date '".$start_data['date']."' but the  accuracy values are different (".$start_data['accuracy']." != ".$atim_tx_data['start_date_accuracy']."). Accuracy will be updated. Please check after migration. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed chemo start date accurcy"][] = "Changed start date accuracy (from ".$atim_tx_data['start_date_accuracy']." to ".$start_data['accuracy'].") for a chemotherapy started on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['start_date_accuracy'] = $start_data['accuracy'];
 									}
-									if($update_diagnosis_master_id) {
-										$master_data_to_update[] = "diagnosis_master_id = '$diagnosis_master_id'";
-										$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['diagnosis_master_id'] = $diagnosis_master_id;
+									if($finish_data['date'] != $atim_tx_data['finish_date'] || $finish_data['accuracy'] != $atim_tx_data['finish_date_accuracy']) {
+										$master_data_to_update[] = "finish_date = '".$finish_data['date']."', finish_date_accuracy = '".$finish_data['accuracy']."'";
+										$summary_msg[$worksheet_name]['@@ERROR@@']["Chemotherapy Finish Date"][] = "An ATiM chemotherapy matched a file chemotherapy based on voa# and start date '".$start_data['date']."' but the finish dates are different (".$finish_data['date']." (".$finish_data['accuracy'].") != ".$atim_tx_data['finish_date']." (".$atim_tx_data['finish_date_accuracy'].")). Finish Date will be updated. Please check after migration. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed chemo end date"][] = "Changed end date (from ".$atim_tx_data['finish_date']." (".$atim_tx_data['finish_date_accuracy'].") to ".$finish_data['date']." (".$finish_data['accuracy'].")) for a chemotherapy started on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['finish_date'] = $finish_data['date'];
+										$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['finish_date_accuracy'] = $finish_data['accuracy'];
 									}
-								}
-								if($master_data_to_update) {
-									$master_data_to_update[] = "modified = '$modified', modified_by = '$modified_by'";
-									$master_data_to_update = implode(',',$master_data_to_update);
-									$query = "UPDATE treatment_masters SET $master_data_to_update WHERE id = $treatment_master_id";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-									$query ="INSERT INTO treatment_masters_revs (id,participant_id,treatment_control_id,start_date,start_date_accuracy,finish_date,finish_date_accuracy,notes,diagnosis_master_id,modified_by, version_created)
-										(SELECT id,participant_id,treatment_control_id,start_date,start_date_accuracy,finish_date,finish_date_accuracy,notes,diagnosis_master_id,modified_by,modified FROM treatment_masters WHERE id = $treatment_master_id);";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-									$query ="INSERT INTO txd_chemos_revs (treatment_master_id,version_created) VALUES ($treatment_master_id, '$modified');";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-								}
-								//Add Treatment Extend
-								$surgical_procedure_already_recorded = false;
-								foreach($chemo_drugs as $drug_name => $drug_id) {
-									if(!in_array($drug_name, $atim_tx_data['drugs'])) {
-										$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['chemotherapy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
-										customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'drug_id' => $drug_id), $atim_controls['treatment_controls']['chemotherapy']['te_detail_tablename'], true, true);
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Added new chemotherapy drug"][] = "Added '$drug_name' to chemotherapy started on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";			
-										$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$treatment_master_id]['drugs'][$drug_name] = $drug_name;
-									}
-								}
-							} else {
-								//Add Treatment
-								$master_data = array(
-									'participant_id' => $participant_id,
-									'diagnosis_master_id' => $diagnosis_master_id,
-									'treatment_control_id' => $atim_controls['treatment_controls']['chemotherapy']['treatment_control_id'],
-									'start_date' => $start_data['date'],
-									'start_date_accuracy' => $start_data['accuracy'],
-									'finish_date' =>  $finish_data['date'],
-									'finish_date_accuracy' =>  $finish_data['accuracy']);						
-								$treatment_master_id = customInsertRecord($master_data, 'treatment_masters', false, true);
-								customInsertRecord(array('treatment_master_id' => $treatment_master_id), $atim_controls['treatment_controls']['chemotherapy']['detail_tablename'], true, true);			
-								//Add Treatment Extend
-								foreach($chemo_drugs as $drug => $drug_id) {
-									$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['chemotherapy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
-									customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'drug_id' => $drug_id), $atim_controls['treatment_controls']['chemotherapy']['te_detail_tablename'], true, true);
-								}
-								//Keep creation in memory
-								$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$treatment_master_id] = 
-									array('treatment_master_id' => $treatment_master_id,
-										'participant_id' => $participant_id,
-										'diagnosis_master_id' => $diagnosis_master_id,
-										'start_date' => $start_data['date'],
-										'start_date_accuracy' =>  $start_data['accuracy'],
-										'finish_date' =>  $finish_data['date'],
-										'finish_date_accuracy' =>  $finish_data['accuracy'],
-										'drugs' => array());
-								foreach($chemo_drugs as $drug => $id) $participant_id_to_atim_chemos[$participant_id][$start_data['date']][$treatment_master_id]['drugs'][$drug] = $drug;
-								$summary_msg['Data Creation/Update Summary'][$participant_id]["Chemotherapy Creation"][] = "Created chemotherapy on '".$start_data['date']."' with drugs list {".implode(', ',array_keys($chemo_drugs))."}. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							}
-							break;
-						// == procedure - surgery and biopsy ==
-						case 'surgery(ovarectomy)':
-						case 'surgery(other)':
-						case 'biopsy':
-							if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							if($ca125_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CA125 linked to wrong event type"][] = "CA125 are associated to event ".$new_line_data['Event Type'].". CA125 data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							$surgical_procedure = str_replace(array('biopsy', 'surgery(other)', 'surgery(ovarectomy)'), array('unspecified biopsy', 'unspecified surgery', 'ovarectomy'), $new_line_data['Event Type']);
-							$residual_disease = '';
-							if(isset($tmp_voa_to_residual_disease[$voa]) && $surgical_procedure == 'ovarectomy') {
-								$residual_disease = $tmp_voa_to_residual_disease[$voa];
-								unset($tmp_voa_to_residual_disease[$voa]);
-								if(!in_array($residual_disease, array('', "macroscopic","1-2cm","<1cm",">2cm","miliary","none","suboptimal","unknown","yes unknown"))) die('ERR23873283278732');							
-							}
-							if(isset($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']])) {
-								if(sizeof($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']]) > 1) {			
-									$summary_msg[$worksheet_name]['@@WARNING@@']["2 surgeries or biopsy on same date"][] = "Migration process detected 2 biopsy or surgery on same date (".$start_data['date']."). Please check and confirm no migration error has been done. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-								}
-								reset($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']]);
-								$key = key($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']]);
-								$atim_tx_data = $participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key];
-								$treatment_master_id = $atim_tx_data['treatment_master_id'];
-								//Update TreatmentDetail
-								$update_residual_disease = false;
-								if($residual_disease) {
-									if(!$atim_tx_data['ovcare_residual_disease']) {
-										$update_residual_disease = true;
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Recorded residual disease"][] = "Set residual disease '$residual_disease' for $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									} else if($atim_tx_data['ovcare_residual_disease'] != $residual_disease) {
-										$update_residual_disease = true;
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Updated residual disease"][] = "Changed residual disease '".$atim_tx_data['ovcare_residual_disease']."'  to '$residual_disease' for $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									}
-									if($update_residual_disease) {
-										$query = "UPDATE ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']." SET ovcare_residual_disease = '".$residual_disease."' WHERE treatment_master_id = $treatment_master_id";
-										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));								
-										$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['ovcare_residual_disease'] = $residual_disease;
-									}									
-								}
-								//Update TreatmentMaster
-								if($start_data['date'] != $atim_tx_data['start_date']) die('ERR 2823797329 7297'); //Suppose to be the same
-								if($start_data['accuracy'] != $atim_tx_data['start_date_accuracy']) die('ERR to support 327238328');
-								$master_data_to_update = array();
-								if($update_residual_disease) $master_data_to_update['modified'] = "modified = '$modified', modified_by = '$modified_by'";
-								if($diagnosis_master_id) {
-									$update_diagnosis_master_id = false;
-									if(!$atim_tx_data['diagnosis_master_id']) {
-										$update_diagnosis_master_id = true;
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked a surgery to diagnosis"][] = "Linked $surgical_procedure on '".$start_data['date']."' to a diagnosis. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									} else if($atim_tx_data['diagnosis_master_id'] != $diagnosis_master_id) {
-										$update_diagnosis_master_id = true;
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed the diagnosis linked to a surgery"][] = "Linked $surgical_procedure on '".$start_data['date']."' to another diagnosis (atim id ".$atim_tx_data['diagnosis_master_id']." to $diagnosis_master_id) . See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									}
-									if($update_diagnosis_master_id) {
-										$master_data_to_update['modified'] = "modified = '$modified', modified_by = '$modified_by'";
-										$master_data_to_update['$diagnosis_master_id'] = "diagnosis_master_id = '$diagnosis_master_id'";
-										$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['diagnosis_master_id'] = $diagnosis_master_id;
-									}	
-								}
-								if(!empty($master_data_to_update)) {
-									$master_data_to_update = implode(', ', $master_data_to_update);
-									$query = "UPDATE treatment_masters SET $master_data_to_update WHERE id = $treatment_master_id";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-								}
-								//Add Treatment Extend
-								if(!in_array($surgical_procedure, $atim_tx_data['surgical_procedures'])) {
-									$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
-									customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'surgical_procedure' => $surgical_procedure), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_detail_tablename'], true, true);
-									$summary_msg['Data Creation/Update Summary'][$participant_id]["Created new Surgery/Biopsy Procedure Performed"][] = "Added '$surgical_procedure' to Procedures Performed list for surgery/biopsy on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['surgical_procedures'][$surgical_procedure] = $surgical_procedure;
-								}
-							} else {
-								//Add Treatment
-								$master_data = array(
-									'participant_id' => $participant_id,
-									'diagnosis_master_id' => $diagnosis_master_id,
-									'treatment_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['treatment_control_id'],
-									'start_date' => $start_data['date'],
-									'start_date_accuracy' => $start_data['accuracy']);						
-								$treatment_master_id = customInsertRecord($master_data, 'treatment_masters', false, false);
-								customInsertRecord(array('treatment_master_id' => $treatment_master_id, 'ovcare_residual_disease' => $residual_disease), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename'], true, false);		
-								//Add Treatment Extend
-								$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
-								customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'surgical_procedure' => $surgical_procedure), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_detail_tablename'], true, true);
-								//Keep creation in memory
-								$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$treatment_master_id] = 
-									array('treatment_master_id' => $treatment_master_id,
-										'participant_id' => $participant_id,
-										'diagnosis_master_id' => $diagnosis_master_id,
-										'start_date' => $start_data['date'],
-										'start_date_accuracy' =>  $start_data['accuracy'],
-										'finish_date' => null,
-										'finish_date_accuracy' => null,
-										'ovcare_residual_disease' => $residual_disease,
-										'surgical_procedures' => array($surgical_procedure => $surgical_procedure));
-								$summary_msg['Data Creation/Update Summary'][$participant_id]["Surgery/Biopsy Creation"][] = "Created $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							}
-							break;
-						// == CA125 ==
-						case 'CA125':
-							if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							$ca125_value = $new_line_data['CA125  Precision (U)'];
-							if(!strlen($ca125_value)) {
-								$summary_msg[$worksheet_name]['@@ERROR@@']["CA125 value empty"][] = "No CA125 Value is set for an event on '".$start_data['date']."'. No CA125 will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							} else if(!preg_match('/^[0-9]+\.[0-9]{2}$/', $ca125_value)){
-								$summary_msg[$worksheet_name]['@@ERROR@@']["Wrong CA125 value format"][] = "Format of CA125 Value '$ca125_value' is wrong. No CA125 will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							} else {
-								$event_master_id_to_update = null;
-								$diagnosis_master_id_of_event_to_update = null;
-								if(isset($participant_id_to_atim_ca125s[$participant_id]) && array_key_exists($ca125_value, $participant_id_to_atim_ca125s[$participant_id])) {
-									foreach($participant_id_to_atim_ca125s[$participant_id][$ca125_value] as $key => $event_data) {
-										if(empty($event_data['event_date'])) {
-											$event_master_id_to_update = $event_data['event_master_id'];
-											$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$key]['event_date'] = $start_data['date'];
-											$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$key]['event_date_accuracy'] =  $start_data['accuracy'];
-											$summary_msg['Data Creation/Update Summary'][$participant_id]["Set date to an existing ATiM CA125"][] = "The test of an existing CA125 = [$ca125_value] has been set to '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-											$diagnosis_master_id_of_event_to_update = $event_data['diagnosis_master_id'];
-											break;
+									if($diagnosis_master_id) {
+										$update_diagnosis_master_id = false;
+										if(!$atim_tx_data['diagnosis_master_id']) {
+											$update_diagnosis_master_id = true;
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked a chemotherapy to diagnosis"][] = "Linked chemotherapy started on '".$start_data['date']."' to a diagnosis. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										} else if($atim_tx_data['diagnosis_master_id'] != $diagnosis_master_id) {
+											$update_diagnosis_master_id = true;
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed the diagnosis linked to a chemotherapy"][] = "Linked chemotherapy started on '".$start_data['date']."' to another diagnosis (atim id ".$atim_tx_data['diagnosis_master_id']." to $diagnosis_master_id) . See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										}
+										if($update_diagnosis_master_id) {
+											$master_data_to_update[] = "diagnosis_master_id = '$diagnosis_master_id'";
+											$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$key]['diagnosis_master_id'] = $diagnosis_master_id;
 										}
 									}
-								}
-								if(isset($ca125_progression_diagnosis_master_id[$voa]) && array_key_exists($start_data['date'], $ca125_progression_diagnosis_master_id[$voa])) {
-									$diagnosis_master_id = $ca125_progression_diagnosis_master_id[$voa][$start_data['date']];
-									$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked a CA125 value to a diagnosis progression"][] = "CA125 on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-								} else if($diagnosis_master_id && $event_master_id_to_update) {
-									if(!$diagnosis_master_id_of_event_to_update) {
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked existing CA125 to diagnosis"][] = "Linked CA125 on '".$start_data['date']."' to a diagnosis. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									} else if($diagnosis_master_id_of_event_to_update != $diagnosis_master_id) {
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed diagnosis linked to CA125"][] = "Linked CA125 on '".$start_data['date']."' to another diagnosis (atim id $diagnosis_master_id_of_event_to_update to $diagnosis_master_id) . See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									if($master_data_to_update) {
+										$master_data_to_update[] = "modified = '$modified', modified_by = '$modified_by'";
+										$master_data_to_update = implode(',',$master_data_to_update);
+										$query = "UPDATE treatment_masters SET $master_data_to_update WHERE id = $treatment_master_id";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+										$query ="INSERT INTO treatment_masters_revs (id,participant_id,treatment_control_id,start_date,start_date_accuracy,finish_date,finish_date_accuracy,notes,diagnosis_master_id,modified_by, version_created)
+											(SELECT id,participant_id,treatment_control_id,start_date,start_date_accuracy,finish_date,finish_date_accuracy,notes,diagnosis_master_id,modified_by,modified FROM treatment_masters WHERE id = $treatment_master_id);";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+										$query ="INSERT INTO txd_chemos_revs (treatment_master_id,version_created) VALUES ($treatment_master_id, '$modified');";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 									}
-								}
-								if($event_master_id_to_update) {
-									$data_to_update = array("modified = '$modified', modified_by = '$modified_by'");
-									$data_to_update[] = "event_date = '".$start_data['date']."', event_date_accuracy = '".$start_data['accuracy']."'";
-									if($diagnosis_master_id) $data_to_update[] = "diagnosis_master_id = $diagnosis_master_id";
-									$data_to_update = implode(',', $data_to_update);
-									$query = "UPDATE event_masters SET $data_to_update WHERE id = $event_master_id_to_update";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-									$query ="INSERT INTO event_masters_revs (id,event_control_id,event_summary,event_date,event_date_accuracy,participant_id,diagnosis_master_id,modified_by,version_created) 
-										(SELECT id,event_control_id,event_summary,event_date,event_date_accuracy,participant_id,diagnosis_master_id,modified_by,modified FROM event_masters WHERE id = $event_master_id_to_update);";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
-									$query ="INSERT INTO ovcare_ed_ca125s_revs (event_master_id,ca125,version_created) VALUES ($event_master_id_to_update, '$ca125_value', '$modified');";
-									mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+									//Add Treatment Extend
+									$surgical_procedure_already_recorded = false;
+									foreach($chemo_drugs as $drug_name => $drug_id) {
+										if(!in_array($drug_name, $atim_tx_data['drugs'])) {
+											$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['chemotherapy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
+											customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'drug_id' => $drug_id), $atim_controls['treatment_controls']['chemotherapy']['te_detail_tablename'], true, true);
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Added new chemotherapy drug"][] = "Added '$drug_name' to chemotherapy started on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";			
+											$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$treatment_master_id]['drugs'][$drug_name] = $drug_name;
+										}
+									}
 								} else {
-									$ca125_event_found = false;
+									//Add Treatment
+									$master_data = array(
+										'participant_id' => $participant_id,
+										'diagnosis_master_id' => $diagnosis_master_id,
+										'treatment_control_id' => $atim_controls['treatment_controls']['chemotherapy']['treatment_control_id'],
+										'start_date' => $start_data['date'],
+										'start_date_accuracy' => $start_data['accuracy'],
+										'finish_date' =>  $finish_data['date'],
+										'finish_date_accuracy' =>  $finish_data['accuracy']);						
+									$treatment_master_id = customInsertRecord($master_data, 'treatment_masters', false, true);
+									customInsertRecord(array('treatment_master_id' => $treatment_master_id), $atim_controls['treatment_controls']['chemotherapy']['detail_tablename'], true, true);			
+									//Add Treatment Extend
+									foreach($chemo_drugs as $drug => $drug_id) {
+										$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['chemotherapy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
+										customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'drug_id' => $drug_id), $atim_controls['treatment_controls']['chemotherapy']['te_detail_tablename'], true, true);
+									}
+									//Keep creation in memory
+									$participant_id_to_atim_chemos[$participant_id][$start_data['date']][$treatment_master_id] = 
+										array('treatment_master_id' => $treatment_master_id,
+											'participant_id' => $participant_id,
+											'diagnosis_master_id' => $diagnosis_master_id,
+											'start_date' => $start_data['date'],
+											'start_date_accuracy' =>  $start_data['accuracy'],
+											'finish_date' =>  $finish_data['date'],
+											'finish_date_accuracy' =>  $finish_data['accuracy'],
+											'drugs' => array());
+									foreach($chemo_drugs as $drug => $id) $participant_id_to_atim_chemos[$participant_id][$start_data['date']][$treatment_master_id]['drugs'][$drug] = $drug;
+									$summary_msg['Data Creation/Update Summary'][$participant_id]["Chemotherapy Creation"][] = "Created chemotherapy on '".$start_data['date']."' with drugs list {".implode(', ',array_keys($chemo_drugs))."}. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								}
+								break;
+							// == procedure - surgery and biopsy ==
+							case 'surgery(ovarectomy)':
+							case 'surgery(other)':
+							case 'biopsy':
+								if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if($ca125_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CA125 linked to wrong event type"][] = "CA125 are associated to event ".$new_line_data['Event Type'].". CA125 data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								$surgical_procedure = str_replace(array('biopsy', 'surgery(other)', 'surgery(ovarectomy)'), array('unspecified biopsy', 'unspecified surgery', 'ovarectomy'), $new_line_data['Event Type']);
+								$residual_disease = '';
+								if(isset($tmp_voa_to_residual_disease[$voa]) && $surgical_procedure == 'ovarectomy') {
+									$residual_disease = $tmp_voa_to_residual_disease[$voa];
+									unset($tmp_voa_to_residual_disease[$voa]);
+									if(!in_array($residual_disease, array('', "macroscopic","1-2cm","<1cm",">2cm","miliary","none","suboptimal","unknown","yes unknown"))) die('ERR23873283278732');							
+								}
+								if(isset($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']])) {
+									if(sizeof($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']]) > 1) {			
+										$summary_msg[$worksheet_name]['@@WARNING@@']["2 surgeries or biopsy on same date"][] = "Migration process detected 2 biopsy or surgery on same date (".$start_data['date']."). Please check and confirm no migration error has been done. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									}
+									reset($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']]);
+									$key = key($participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']]);
+									$atim_tx_data = $participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key];
+									$treatment_master_id = $atim_tx_data['treatment_master_id'];
+									//Update TreatmentDetail
+									$update_residual_disease = false;
+									if($residual_disease) {
+										if(!$atim_tx_data['ovcare_residual_disease']) {
+											$update_residual_disease = true;
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Recorded residual disease"][] = "Set residual disease '$residual_disease' for $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										} else if($atim_tx_data['ovcare_residual_disease'] != $residual_disease) {
+											$update_residual_disease = true;
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Updated residual disease"][] = "Changed residual disease '".$atim_tx_data['ovcare_residual_disease']."'  to '$residual_disease' for $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										}
+										if($update_residual_disease) {
+											$query = "UPDATE ".$atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename']." SET ovcare_residual_disease = '".$residual_disease."' WHERE treatment_master_id = $treatment_master_id";
+											mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));								
+											$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['ovcare_residual_disease'] = $residual_disease;
+										}									
+									}
+									//Update TreatmentMaster
+									if($start_data['date'] != $atim_tx_data['start_date']) die('ERR 2823797329 7297'); //Suppose to be the same
+									if($start_data['accuracy'] != $atim_tx_data['start_date_accuracy']) die('ERR to support 327238328');
+									$master_data_to_update = array();
+									if($update_residual_disease) $master_data_to_update['modified'] = "modified = '$modified', modified_by = '$modified_by'";
+									if($diagnosis_master_id) {
+										$update_diagnosis_master_id = false;
+										if(!$atim_tx_data['diagnosis_master_id']) {
+											$update_diagnosis_master_id = true;
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked a surgery to diagnosis"][] = "Linked $surgical_procedure on '".$start_data['date']."' to a diagnosis. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										} else if($atim_tx_data['diagnosis_master_id'] != $diagnosis_master_id) {
+											$update_diagnosis_master_id = true;
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed the diagnosis linked to a surgery"][] = "Linked $surgical_procedure on '".$start_data['date']."' to another diagnosis (atim id ".$atim_tx_data['diagnosis_master_id']." to $diagnosis_master_id) . See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										}
+										if($update_diagnosis_master_id) {
+											$master_data_to_update['modified'] = "modified = '$modified', modified_by = '$modified_by'";
+											$master_data_to_update['$diagnosis_master_id'] = "diagnosis_master_id = '$diagnosis_master_id'";
+											$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['diagnosis_master_id'] = $diagnosis_master_id;
+										}	
+									}
+									if(!empty($master_data_to_update)) {
+										$master_data_to_update = implode(', ', $master_data_to_update);
+										$query = "UPDATE treatment_masters SET $master_data_to_update WHERE id = $treatment_master_id";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+									}
+									//Add Treatment Extend
+									if(!in_array($surgical_procedure, $atim_tx_data['surgical_procedures'])) {
+										$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
+										customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'surgical_procedure' => $surgical_procedure), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_detail_tablename'], true, true);
+										$summary_msg['Data Creation/Update Summary'][$participant_id]["Created new Surgery/Biopsy Procedure Performed"][] = "Added '$surgical_procedure' to Procedures Performed list for surgery/biopsy on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$key]['surgical_procedures'][$surgical_procedure] = $surgical_procedure;
+									}
+								} else {
+									//Add Treatment
+									$master_data = array(
+										'participant_id' => $participant_id,
+										'diagnosis_master_id' => $diagnosis_master_id,
+										'treatment_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['treatment_control_id'],
+										'start_date' => $start_data['date'],
+										'start_date_accuracy' => $start_data['accuracy']);						
+									$treatment_master_id = customInsertRecord($master_data, 'treatment_masters', false, false);
+									customInsertRecord(array('treatment_master_id' => $treatment_master_id, 'ovcare_residual_disease' => $residual_disease), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['detail_tablename'], true, false);		
+									//Add Treatment Extend
+									$treatment_extend_master_id = customInsertRecord(array('treatment_master_id' => $treatment_master_id,'treatment_extend_control_id' => $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_treatment_control_id']), 'treatment_extend_masters', false, true);
+									customInsertRecord(array('treatment_extend_master_id' => $treatment_extend_master_id, 'surgical_procedure' => $surgical_procedure), $atim_controls['treatment_controls']['procedure - surgery and biopsy']['te_detail_tablename'], true, true);
+									//Keep creation in memory
+									$participant_id_to_atim_surgery_biopsy[$participant_id][$start_data['date']][$treatment_master_id] = 
+										array('treatment_master_id' => $treatment_master_id,
+											'participant_id' => $participant_id,
+											'diagnosis_master_id' => $diagnosis_master_id,
+											'start_date' => $start_data['date'],
+											'start_date_accuracy' =>  $start_data['accuracy'],
+											'finish_date' => null,
+											'finish_date_accuracy' => null,
+											'ovcare_residual_disease' => $residual_disease,
+											'surgical_procedures' => array($surgical_procedure => $surgical_procedure));
+									$summary_msg['Data Creation/Update Summary'][$participant_id]["Surgery/Biopsy Creation"][] = "Created $surgical_procedure on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								}
+								break;
+							// == CA125 ==
+							case 'CA125':
+								if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if($scan_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CTScan result linked to wrong event type"][] = "CTScan are associated to event ".$new_line_data['Event Type'].". CTScan data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								$ca125_value = $new_line_data['CA125  Precision (U)'];
+								if(!strlen($ca125_value)) {
+									$summary_msg[$worksheet_name]['@@ERROR@@']["CA125 value empty"][] = "No CA125 Value is set for an event on '".$start_data['date']."'. No CA125 will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								} else if(!preg_match('/^[0-9]+\.[0-9]{2}$/', $ca125_value)){
+									$summary_msg[$worksheet_name]['@@ERROR@@']["Wrong CA125 value format"][] = "Format of CA125 Value '$ca125_value' is wrong. No CA125 will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								} else {
+									$event_master_id_to_update = null;
+									$diagnosis_master_id_of_event_to_update = null;
 									if(isset($participant_id_to_atim_ca125s[$participant_id]) && array_key_exists($ca125_value, $participant_id_to_atim_ca125s[$participant_id])) {
 										foreach($participant_id_to_atim_ca125s[$participant_id][$ca125_value] as $key => $event_data) {
-											if($start_data['date'] == $event_data['event_date']) {
-												$ca125_event_found = true;	
-												$summary_msg[$worksheet_name]['@@WARNING@@']["CA125 Defined twice"][] = "CA125 value $ca125_value on ".$event_data['event_date']." is defined twice in file or both in file and ATiM. Only one record will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-												if($event_data['diagnosis_master_id'] != $diagnosis_master_id) {
-													$summary_msg[$worksheet_name]['@@WARNING@@']["CA125 Defined twice with different linked diagnosis"][] = "CA125 value $ca125_value on ".$event_data['event_date']." is defined twice but this one is defined as linked to 2 different diagnosis (".$event_data['diagnosis_master_id']." != $diagnosis_master_id). Please check and correct if required. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-												}
+											if(empty($event_data['event_date'])) {
+												$event_master_id_to_update = $event_data['event_master_id'];
+												$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$key]['event_date'] = $start_data['date'];
+												$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$key]['event_date_accuracy'] =  $start_data['accuracy'];
+												$summary_msg['Data Creation/Update Summary'][$participant_id]["Set date to an existing ATiM CA125"][] = "The test of an existing CA125 = [$ca125_value] has been set to '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+												$diagnosis_master_id_of_event_to_update = $event_data['diagnosis_master_id'];
 												break;
 											}
 										}
 									}
-									if(!$ca125_event_found) {
-										$master_data = array('participant_id' => $participant_id, 
-											'diagnosis_master_id' => $diagnosis_master_id, 
-											'event_control_id' => $atim_controls['event_controls']['ca125']['event_control_id'], 
-											'event_date' => $start_data['date'], 
+									if(isset($ca125_progression_diagnosis_master_id[$voa]) && array_key_exists($start_data['date'], $ca125_progression_diagnosis_master_id[$voa])) {
+										$diagnosis_master_id = $ca125_progression_diagnosis_master_id[$voa][$start_data['date']];
+										$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked a CA125 value to a diagnosis progression"][] = "CA125 on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+									} else if($diagnosis_master_id && $event_master_id_to_update) {
+										if(!$diagnosis_master_id_of_event_to_update) {
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Linked existing CA125 to diagnosis"][] = "Linked CA125 on '".$start_data['date']."' to a diagnosis. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										} else if($diagnosis_master_id_of_event_to_update != $diagnosis_master_id) {
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Changed diagnosis linked to CA125"][] = "Linked CA125 on '".$start_data['date']."' to another diagnosis (atim id $diagnosis_master_id_of_event_to_update to $diagnosis_master_id) . See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										}
+									}
+									if($event_master_id_to_update) {
+										$data_to_update = array("modified = '$modified', modified_by = '$modified_by'");
+										$data_to_update[] = "event_date = '".$start_data['date']."', event_date_accuracy = '".$start_data['accuracy']."'";
+										if($diagnosis_master_id) $data_to_update[] = "diagnosis_master_id = $diagnosis_master_id";
+										$data_to_update = implode(',', $data_to_update);
+										$query = "UPDATE event_masters SET $data_to_update WHERE id = $event_master_id_to_update";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+										$query ="INSERT INTO event_masters_revs (id,event_control_id,event_summary,event_date,event_date_accuracy,participant_id,diagnosis_master_id,modified_by,version_created) 
+											(SELECT id,event_control_id,event_summary,event_date,event_date_accuracy,participant_id,diagnosis_master_id,modified_by,modified FROM event_masters WHERE id = $event_master_id_to_update);";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+										$query ="INSERT INTO ovcare_ed_ca125s_revs (event_master_id,ca125,version_created) VALUES ($event_master_id_to_update, '$ca125_value', '$modified');";
+										mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+									} else {
+										$ca125_event_found = false;
+										if(isset($participant_id_to_atim_ca125s[$participant_id]) && array_key_exists($ca125_value, $participant_id_to_atim_ca125s[$participant_id])) {
+											foreach($participant_id_to_atim_ca125s[$participant_id][$ca125_value] as $key => $event_data) {
+												if($start_data['date'] == $event_data['event_date']) {
+													$ca125_event_found = true;	
+													$summary_msg[$worksheet_name]['@@WARNING@@']["CA125 Defined twice"][] = "CA125 value $ca125_value on ".$event_data['event_date']." is defined twice in file or both in file and ATiM. Only one record will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+													if($event_data['diagnosis_master_id'] != $diagnosis_master_id) {
+														$summary_msg[$worksheet_name]['@@WARNING@@']["CA125 Defined twice with different linked diagnosis"][] = "CA125 value $ca125_value on ".$event_data['event_date']." is defined twice but this one is defined as linked to 2 different diagnosis (".$event_data['diagnosis_master_id']." != $diagnosis_master_id). Please check and correct if required. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+													}
+													break;
+												}
+											}
+										}
+										if(!$ca125_event_found) {
+											$master_data = array('participant_id' => $participant_id, 
+												'diagnosis_master_id' => $diagnosis_master_id, 
+												'event_control_id' => $atim_controls['event_controls']['ca125']['event_control_id'], 
+												'event_date' => $start_data['date'], 
+												'event_date_accuracy' => $start_data['accuracy']);
+											$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
+											customInsertRecord(array('event_master_id' => $event_master_id, 'ca125' => $ca125_value), $atim_controls['event_controls']['ca125']['detail_tablename'], true, true);
+											$summary_msg['Data Creation/Update Summary'][$participant_id]["Added CA125 value"][] = "Recorded CA125 = [$ca125_value] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+											$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$event_master_id] = array(
+												'participant_id' => $participant_id,
+												'diagnosis_master_id' => $diagnosis_master_id,
+												'event_master_id' => $event_master_id,
+												'event_date' => $start_data['date'],
+												'event_date_accuracy' => $start_data['accuracy'],
+												'ca125' => $ca125_value);
+										}
+									}
+								}
+								break;
+							// == ct scan ==
+							case 'CT scan':
+								if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if($ca125_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CA125 linked to wrong event type"][] = "CA125 are associated to event ".$new_line_data['Event Type'].". CA125 data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								if(!in_array($new_line_data['CT Scan Precision'], array('', 'negative', 'positive', 'unknown'))) {
+									$new_line_data['CT Scan Precision'] = '';
+									$summary_msg[$worksheet_name]['@@ERROR@@']["Wrong CT-Scan result"][] = "The format of a CT-Scan result '".$new_line_data['CT Scan Precision']."' is wrong. Value won't be recorded. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+								}
+								if(strlen($start_data['date'].$new_line_data['CT Scan Precision'])) {
+									if(array_key_exists($participant_id, $created_ct_scan) && array_key_exists($start_data['date'], $created_ct_scan[$participant_id])) {
+										$summary_msg[$worksheet_name]['@@WARNING@@']["CT-Scan defined twice"][] = "CT-Scan on ".$start_data['date']." is defined twice. Only one will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										if($created_ct_scan[$participant_id][$start_data['date']] != $new_line_data['CT Scan Precision']){
+											$summary_msg[$worksheet_name]['@@ERROR@@']["CT-Scan defined twice with 2 different results"][] = "CT-Scan on ".$start_data['date']." is defined twice but the results are different (".$created_ct_scan[$participant_id][$start_data['date']]." != ".$new_line_data['CT Scan Precision']."). Please check and correct. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										}
+									} else {
+										$master_data = array('participant_id' => $participant_id,
+											'diagnosis_master_id' => $diagnosis_master_id,
+											'event_control_id' => $atim_controls['event_controls']['ct scan']['event_control_id'],
+											'event_date' => $start_data['date'],
 											'event_date_accuracy' => $start_data['accuracy']);
 										$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
-										customInsertRecord(array('event_master_id' => $event_master_id, 'ca125' => $ca125_value), $atim_controls['event_controls']['ca125']['detail_tablename'], true, true);
-										$summary_msg['Data Creation/Update Summary'][$participant_id]["Added CA125 value"][] = "Recorded CA125 = [$ca125_value] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-										$participant_id_to_atim_ca125s[$participant_id][$ca125_value][$event_master_id] = array(
-											'participant_id' => $participant_id,
-											'diagnosis_master_id' => $diagnosis_master_id,
-											'event_master_id' => $event_master_id,
-											'event_date' => $start_data['date'],
-											'event_date_accuracy' => $start_data['accuracy'],
-											'ca125' => $ca125_value);
+										customInsertRecord(array('event_master_id' => $event_master_id, 'result' => $new_line_data['CT Scan Precision']), $atim_controls['event_controls']['ct scan']['detail_tablename'], true, true);
+										$summary_msg['Data Creation/Update Summary'][$participant_id]["CT-Scan creation"][] = "CT-Scan with result = [".$new_line_data['CT Scan Precision']."] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
+										$created_ct_scan[$participant_id][$start_data['date']] = $new_line_data['CT Scan Precision'];
 									}
 								}
-							}
-							break;
-						// == ct scan ==
-						case 'CT scan':
-							if($drug_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["Durgs linked to wrong event type"][] = "Drugs are associated to event ".$new_line_data['Event Type'].". Drug data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							if($ca125_data_set) $summary_msg[$worksheet_name]['@@ERROR@@']["CA125 linked to wrong event type"][] = "CA125 are associated to event ".$new_line_data['Event Type'].". CA125 data won't be migrated. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							if(!in_array($new_line_data['CT Scan Precision'], array('', 'negative', 'positive', 'unknown'))) {
-								$new_line_data['CT Scan Precision'] = '';
-								$summary_msg[$worksheet_name]['@@ERROR@@']["Wrong CT-Scan result"][] = "The format of a CT-Scan result '".$new_line_data['CT Scan Precision']."' is wrong. Value won't be recorded. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-							}
-							if(strlen($start_data['date'].$new_line_data['CT Scan Precision'])) {
-								if(array_key_exists($participant_id, $created_ct_scan) && array_key_exists($start_data['date'], $created_ct_scan[$participant_id])) {
-									$summary_msg[$worksheet_name]['@@WARNING@@']["CT-Scan defined twice"][] = "CT-Scan on ".$start_data['date']." is defined twice. Only one will be created. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									if($created_ct_scan[$participant_id][$start_data['date']] != $new_line_data['CT Scan Precision']){
-										$summary_msg[$worksheet_name]['@@ERROR@@']["CT-Scan defined twice with 2 different results"][] = "CT-Scan on ".$start_data['date']." is defined twice but the results are different (".$created_ct_scan[$participant_id][$start_data['date']]." != ".$new_line_data['CT Scan Precision']."). Please check and correct. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									}
-								} else {
-									$master_data = array('participant_id' => $participant_id,
-										'diagnosis_master_id' => $diagnosis_master_id,
-										'event_control_id' => $atim_controls['event_controls']['ct scan']['event_control_id'],
-										'event_date' => $start_data['date'],
-										'event_date_accuracy' => $start_data['accuracy']);
-									$event_master_id = customInsertRecord($master_data, 'event_masters', false, true);
-									customInsertRecord(array('event_master_id' => $event_master_id, 'result' => $new_line_data['CT Scan Precision']), $atim_controls['event_controls']['ct scan']['detail_tablename'], true, true);
-									$summary_msg['Data Creation/Update Summary'][$participant_id]["CT-Scan creation"][] = "CT-Scan with result = [".$new_line_data['CT Scan Precision']."] on '".$start_data['date']."'. See ATiM participant_id $participant_id (VOA#$voa). [Worksheet: $worksheet_name /line: $excel_line_counter]";
-									$created_ct_scan[$participant_id][$start_data['date']] = $new_line_data['CT Scan Precision'];
-								}
-							}
-							break;
-						default:
-							die('ERR327328732832 '.$new_line_data['Event Type'].$excel_line_counter);
+								break;
+							default:
+								die('ERR327328732832 '.$new_line_data['Event Type'].$excel_line_counter);
+						}
 					}
 				}
 			}

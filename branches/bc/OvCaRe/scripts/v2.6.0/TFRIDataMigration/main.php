@@ -1158,7 +1158,7 @@ function updateMissingSpecimenAndDerivativeDate() {
 	
 	$queries[] = "ALTER TABLE derivative_details DROP COLUMN tmp_updated;";
 	
-	foreach($queries as $query) $querymysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	foreach($queries as $query) mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 }
 
 function updateXenograftAndCellCultCollectedField(&$wroksheetcells, $sheets_keys, $worksheet_name, $updated_sample_master_ids) {

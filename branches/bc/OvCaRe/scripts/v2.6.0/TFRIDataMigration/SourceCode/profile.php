@@ -6,6 +6,7 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 	global $modified;
 	global $summary_msg;
 	global $voas_to_participant_id;
+	$tmp_updated_voas_to_participant_id = array();
 	
 	$summary_msg['Un-migrated VOA#s'] = array();
 	
@@ -53,6 +54,7 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 				} else {
 					$all_patients_worksheet_voas[$voa] = $voa;
 					$participant_id = $voas_to_participant_id[$voa];
+					$tmp_updated_voas_to_participant_id[$voa] = $participant_id;
 					$studied_participant_ids_to_voa[$participant_id][$voa] = $voa; 
 					$query = "SELECT first_name, last_name, date_of_birth, date_of_birth_accuracy, vital_status, ovcare_last_followup_date, ovcare_last_followup_date_accuracy, date_of_death, date_of_death_accuracy, p.notes as participant_notes,
 						event_master_id,  brca1_plus, brca2_plus, ovcare_last_followup_date, ovcare_last_followup_date_accuracy
@@ -239,6 +241,8 @@ function updateProfile(&$wroksheetcells, $sheets_keys, $worksheet_name, $atim_co
 			$participant_ids_to_skip[] = $participant_id;
 		}
 	}
+	
+	$voas_to_participant_id = $tmp_updated_voas_to_participant_id;
 	
 	return array($all_patients_worksheet_voas, $participant_ids_to_skip);
 }
