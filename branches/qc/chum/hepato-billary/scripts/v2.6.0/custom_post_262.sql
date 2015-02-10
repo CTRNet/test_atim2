@@ -1,4 +1,4 @@
-
+﻿
 REPLACE INTO i18n (id,en,fr) 
 VALUES 
 ('necrosis percentage','Necrosis &#37;','Nécrose &#37;'),
@@ -59,7 +59,7 @@ UPDATE versions SET branch_build_number = '5925' WHERE version_number = '2.6.2';
 ALTER TABLE ed_cap_report_gallbladders MODIFY distance_of_invasive_carcinoma_from_closest_margin_mm decimal(5,1) DEFAULT NULL;
 ALTER TABLE ed_cap_report_gallbladders_Revs MODIFY distance_of_invasive_carcinoma_from_closest_margin_mm decimal(5,1) DEFAULT NULL;
  
-UPDATE versions SET branch_build_number = '6050' WHERE version_number = '2.6.2';
+UPDATE versions SET branch_build_number = '6055' WHERE version_number = '2.6.2';
 
 
 
