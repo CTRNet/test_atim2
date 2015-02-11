@@ -267,7 +267,7 @@ function updateOvaryEndometriumDiagnosis(&$wroksheetcells, $sheets_keys, $dx_wor
 						if($tmp_ca125_progression) $ca125_progression_diagnosis_master_id[$voa][$new_progression['date']] = $diagnosis_master_id;
 						customInsertRecord(array('diagnosis_master_id' => $diagnosis_master_id), $atim_controls['diagnosis_control_ids']['secondary']['all']['detail_tablename'], true, true);
 						if(array_key_exists($participant_id, $existing_secondaries)) {
-							$summary_msg[$progression_summary_msg_key]['@@WARNING@@']["Existsing Secondary"][] = "A new secondary has been created for patient but a '".$existing_secondaries[$participant_id]."' was already created into ATiM. Check if these 2 secodnaries can be merged and do it manually after migration if they have to. See ATiM participant_id $participant_id (VOA#$voa).";
+							$summary_msg[$progression_summary_msg_key]['@@WARNING@@']["Existsing Secondary"][] = "A new secondary has been created for patient but a '".$existing_secondaries[$participant_id]."' was already created into ATiM. Check if these 2 secondaries can be merged and do it manually after migration if they have to. See ATiM participant_id $participant_id (VOA#$voa).";
 						}
 					}
 				}
