@@ -615,8 +615,8 @@ function loadTissuePosition(&$wroksheetcells, $sheets_keys, $worksheet_name) {
 		$summary_msg['Aliquot Position Definition']['@@WARNING@@']["More than one aliquot"][] = "The aliquot label '$aliquot_label' listed in box ".$aliquot_label_to_storage_data[$aliquot_label]['box_name']." matches more than one aliquot into ATiM. Data has to be checked and position has then to be set manually after the process."; 
 		unset($aliquot_label_to_storage_data[$aliquot_label]);
 	}
-	$all_aliquot_control_ids = array();
-	$query = "SELECT AliquotMaster.id, AliquotMaster.aliquot_label, AliquotMaster.aliquot_control_id, AliquotMaster.in_stock, AliquotMaster.storage_master_id, StorageMaster.selection_label
+	$all_aliquot_control_ids = array('-1' => '-1');
+	$query = "SELECT AliquotMaster.id, AliquotMaster.aliquot_label, AliquotMaster.aliquot_control_id, AliquotMaster.in_stock, AliquotMaster.storage_master_id, StorageMaster.selection_label, AliquotMaster.storage_coord_x
 		FROM aliquot_masters AliquotMaster
 		LEFT JOIN storage_masters StorageMaster ON StorageMaster.id = AliquotMaster.storage_master_id 
 		WHERE AliquotMaster.deleted <> 1 AND BINARY AliquotMaster.aliquot_label IN ('".implode("','", array_keys($aliquot_label_to_storage_data))."') ORDER BY aliquot_label";
@@ -1125,6 +1125,7 @@ function updateTissueSection($updated_aliquot_master_ids) {
 
 
 function updateMissingSpecimenAndDerivativeDate() {
+	global $db_connection;
 	//No new row will be added to revs table because too many data
 	
 	$queries = array();
@@ -1271,10 +1272,10 @@ function finalSampleMasterRevsInsert($updated_sample_master_ids){
 	$queries[] = "INSERT INTO sd_der_amp_rnas_revs (sample_master_id,version_created) (SELECT sample_master_id, '$modified' FROM sd_der_amp_rnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
 	$queries[] = "INSERT INTO sd_der_blood_cells_revs (sample_master_id,ovcare_ischemia_time_mn,version_created) (SELECT sample_master_id,ovcare_ischemia_time_mn, '$modified' FROM sd_der_blood_cells WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
 	$queries[] = "INSERT INTO sd_der_rnas_revs (sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx,version_created) (SELECT sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx, '$modified' FROM sd_der_rnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
-	$queries[] = "INSERT INTO sd_der_dnas _revs (sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx,version_created) (SELECT sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx, '$modified' FROM sd_der_dnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
+	$queries[] = "INSERT INTO sd_der_dnas_revs (sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx,version_created) (SELECT sample_master_id,ovcare_extraction_method,ovcare_enzyme_tx, '$modified' FROM sd_der_dnas WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
 	$queries[] = "INSERT INTO sd_der_cell_cultures_revs (sample_master_id,culture_status,culture_status_reason,cell_passage_number,version_created) (SELECT sample_master_id,culture_status,culture_status_reason,cell_passage_number, '$modified' FROM sd_der_cell_cultures WHERE sample_master_id IN (".implode(',',$updated_sample_master_ids)."))";
 	
-	foreach($queries as $query) $querymysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
+	foreach($queries as $query) mysqli_query($db_connection, $query) or die(__FILE__."[line:".__LINE__."] qry failed [".$query."] ".mysqli_error($db_connection));
 }
 
 function finalAliquotMasterRevsInsert($updated_aliquot_master_ids) {

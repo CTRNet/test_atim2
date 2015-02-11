@@ -331,9 +331,8 @@ UPDATE versions SET branch_build_number = '6027' WHERE version_number = '2.6.3';
 -- ==========================================================================================================================================
 
 -- ** blood type **
-
-select '*** Test blood types ****' AS MSG;
-select sample_master_id, blood_type FROM sd_spe_bloods WHERE blood_type Is NOT NULL;
+select '*** List blood types (before blood type update (not null and equal to serum, edta or unknown)) ****' AS MSG;
+select sample_master_id as 'sample system code', blood_type FROM sd_spe_bloods WHERE blood_type Is NOT NULL;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("serum", "serum");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="blood_type"), (SELECT id FROM structure_permissible_values WHERE value="serum" AND language_alias="serum"), "", "1");
 INSERT IGNORE INTO i18n (id,en) VALUES("serum", "Serum");
@@ -1014,7 +1013,7 @@ INSERT IGNORE INTO structures(`alias`) VALUES ('dx_recurrence');
 
 -- ** Changed Voa#s to int (in db for range search) **
 
-SELECT id as collection_id, collection_voa_nbr AS 'voa with wrong format' FROM collections WHERE collection_voa_nbr NOT REGEXP('^[0-9]{1,20}$');
+SELECT id as collection_id, collection_voa_nbr AS 'voa with wrong format (not integer)' FROM collections WHERE collection_voa_nbr NOT REGEXP('^[0-9]{1,20}$') AND deleted <> 1;
 ALTER TABLE collections MODIFY `collection_voa_nbr` int(20) DEFAULT NULL;
 ALTER TABLE collections_revs MODIFY `collection_voa_nbr` int(20) DEFAULT NULL;
 INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
@@ -1145,13 +1144,28 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='ovcare_participant_voas' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='VOA#(s)' AND `language_tag`=''), '3', '99', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0');
 INSERT INTO i18n (id,en) VALUES ('VOA#(s)','VOA#(s)');
 
--- ** change first field label of identifier search
+-- ** change first field label of identifier search **
 
 UPDATE structure_formats SET `flag_override_label`='1', `language_label`='participant' WHERE structure_id=(SELECT id FROM structures WHERE alias='miscidentifiers_for_participant_search') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+
+-- ** Add Field Complete **
+
+ALTER TABLE consent_masters
+  ADD COLUMN ovcare_complete char(1) default '';
+ALTER TABLE consent_masters_revs
+  ADD COLUMN ovcare_complete char(1) default '';  
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'ovcare_complete', 'yes_no',  NULL , '0', '', '', '', 'complete', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='ovcare_complete' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='complete' AND `language_tag`=''), '1', '16', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE consent_masters SET ovcare_complete = 'n' WHERE notes LIKE '%incomplete%';
+UPDATE consent_masters_revs SET ovcare_complete = 'n' WHERE notes LIKE '%incomplete%';
+UPDATE consent_masters SET ovcare_complete = 'y' WHERE ovcare_complete != 'n' AND consent_status = 'obtained';
+UPDATE consent_masters_revs SET ovcare_complete = 'y' WHERE ovcare_complete != 'n' AND consent_status = 'obtained';
 
 -- ** Version **
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '5930' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6057' WHERE version_number = '2.6.3';
 
 
