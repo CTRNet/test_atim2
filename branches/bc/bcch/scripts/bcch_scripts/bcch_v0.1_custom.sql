@@ -571,30 +571,6 @@ INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch other materials des
 
 INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch formal consent type', '', 'Type', '');
 
---  =========================================================================
---	Eventum ID: #3170 - Adding new staff names for doing the consents
---	=========================================================================
-
-INSERT INTO structure_permissible_values_customs(`id`, `control_id`, `value`, `en`, `fr`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`, `deleted`) VALUES
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'nidhi arora', 'Nidhi Arora', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'adam velenosi', 'Adam Velenosi', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'katey townsend', 'Katey Townsend', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'olive zhu', 'Olive Zhu', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'fellow', 'Fellow', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'resident', 'Resident', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'physician', 'Physician', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='ccbr person consenting' AND category='clinical - consent'), 'nurse', 'Nurse', '', '0', '1', '', '1', '', '1','0');
-
---  =========================================================================
---	Eventum ID: #3171 - Adding new version number to the Form Version Drop Down menu
---	=========================================================================
-
--- Adding new form versions into the Form Version drop down menu
-
-INSERT INTO structure_permissible_values_customs(`id`, `control_id`, `value`, `en`, `fr`, `display_order`, `use_as_input`, `created`, `created_by`, `modified`, `modified_by`, `deleted`) VALUES
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='Consent Form Versions' AND category='clinical - consent'), 'v1.0', 'v1.0', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='Consent Form Versions' AND category='clinical - consent'), 'v2.0', 'v2.0', '', '0', '1', '', '1', '', '1','0'),
-(NULL, (SELECT id FROM structure_permissible_values_custom_controls WHERE name='Consent Form Versions' AND category='clinical - consent'), 'v3.0', 'v3.0', '', '0', '1', '', '1', '', '1','0');
 
 
 --  =========================================================================
