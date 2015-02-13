@@ -9,8 +9,8 @@ set_time_limit('3600');
 //==============================================================================================
 
 $files_name = array(
-	'tissue' => 'Q-CROC-01 Tissue data v9_20150128.xls',
-	'blood' => 'Q-CROC-01 Blood Data v5_20150128.xls'
+	'tissue' => 'Q-CROC-01 Tissue data v9_20150128_test.xls',
+	'blood' => 'Q-CROC-01 Blood Data v5_20150128_test.xls'
 );
 $files_path = 'C:\\_Perso\\Server\\jgh_qcroc\\data\\';
 require_once 'Excel/reader.php';
@@ -61,6 +61,9 @@ $storage_master_ids = array();
 global $last_storage_code;
 $last_storage_code = 0;
 
+global $qc_code_counter;
+$qc_code_counter = 0;
+
 echo "<br><br><FONT COLOR=\"blue\" >
 =====================================================================<br>
 QCROC - Data Migration to ATiM<br>
@@ -68,7 +71,7 @@ $import_date<br>
 =====================================================================</FONT><br>";
 
 //TODO remove
-truncate();
+//TODO truncate();
 
 //==============================================================================================
 //MAIN CODE
@@ -85,10 +88,10 @@ loadTissue($XlsReader, $files_path, $files_name['tissue']);
 echo "<br><FONT COLOR=\"green\" >File(s) : ".$files_name['blood']."***</FONT><br>";
 
 $XlsReader = new Spreadsheet_Excel_Reader();
-//TODO loadBlood($XlsReader, $files_path, $files_name['blood']);
+loadBlood($XlsReader, $files_path, $files_name['blood']);
 
 //TODO remove
-populateViewsAndLftRght();
+//TODO populateViewsAndLftRght();
 
 //==============================================================================================
 //BARCODES UPDATE
@@ -187,6 +190,7 @@ function insertIntoRevs() {
 		'sd_spe_urines' => 1,
 		'sd_der_urine_cents' => 1,
 		'sd_der_rnas' => 1,
+		'sd_der_dnas' => 1,
 		
 		'aliquot_masters' => 0,
 		'ad_tubes' => 1,
@@ -194,10 +198,10 @@ function insertIntoRevs() {
 		'ad_whatman_papers' => 1,
 		'ad_blocks' => 1,
 	
-		'specimen_review_masters' => 1,
-		'qcroc_spr_tissues'=> 0,
-		'aliquot_review_masters' => 1,
-		'qcroc_ar_tissue_slides'=> 0,
+		'specimen_review_masters' => 0,
+		'qcroc_spr_tissues'=> 1,
+		'aliquot_review_masters' => 0,
+		'qcroc_ar_tissue_slides'=> 1,
 			
 		'aliquot_internal_uses' => 0,	
 		'source_aliquots' => 0	,
@@ -290,7 +294,7 @@ function customInsert($data, $table_name, $file, $line, $is_detail_table = false
 function getDateAndAccuracy($data, $field, $summary_title, $file, $worksheet, $line) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 732 $field $file, $line");
-	$date = str_replace(array(' ', 'N/A', 'n/a', 'x', '??'), array('', '', '', '', '', ''), $data[$field]);
+	$date = str_replace(array(' ', 'N/A', 'n/a', 'x', '??', 'ND'), array('', '', '', '', '', '', ''), $data[$field]);
 	if(empty($date) || $date == '-') {
 		return array('date' => null, 'accuracy' =>null);
 	} else if(preg_match('/^([0-9]+)$/', $date, $matches)) {
@@ -387,47 +391,52 @@ function getTime($data, $field_time, $summary_title, $file, $worksheet, $line) {
 function getDecimal($data, $field, $summary_title, $file, $worksheet, $line) {
 	global $import_summary;
 	if(!array_key_exists($field, $data)) die("ERR 238729873298 7eeee $field / $file / $worksheet / $line");
-	$decimal_value = str_replace('x', '', $data[$field]);
+	$decimal_value = str_replace(array('x','ND'), array('',''), $data[$field]);
 	if(strlen($decimal_value)) {
 		if(preg_match('/^[0-9]+([\.,][0-9]+){0,1}$/', $decimal_value)) {
 			return str_replace(',', '.', $decimal_value);
 		} else {
 			$import_summary[$summary_title]['@@ERROR@@']["Wrong decimal format for field '$field'"][] = "See value [$decimal_value]. [field '$field' - file '$file' ($worksheet) - line: $line]";
+			return '';
 		}
 	} else {
-		return null;
+		return '';
 	}	
 }
 
 function dislayErrorAndMessage($import_summary) {
-	$err_counter = 0;
-	foreach($import_summary as $worksheet => $data1) {
-		echo "<br><br><FONT COLOR=\"blue\" >
-			=====================================================================<br>
-			Errors on $worksheet<br>
-			=====================================================================</FONT><br>";
-		foreach($data1 as $message_type => $data2) {
-			$color = 'black';
-			switch($message_type) {
-				case '@@ERROR@@':
-					$color = 'red';
-					break;
-				case '@@WARNING@@':
-					$color = 'orange';
-					break;
-				case '@@MESSAGE@@':
-					$color = 'green';
-					break;
-				default:
-					echo '<br><br><br>UNSUPORTED message_type : '.$message_type.'<br><br><br>';
-			}
-			foreach($data2 as $error => $details) {
-				$err_counter++;
-				$error = str_replace("\n", ' ', utf8_decode("[ER#$err_counter] $error"));
-				echo "<br><br><FONT COLOR=\"$color\" ><b>$error</b></FONT><br>";
-				foreach($details as $detail) {
-					$detail = str_replace("\n", ' ', $detail);
-					echo ' - '.utf8_decode($detail)."<br>";	
+	if(empty($import_summary)) {
+		echo "<br><br><FONT COLOR=\"blue\" >No Migration Message</FONT><br>";
+	} else {
+		$err_counter = 0;
+		foreach($import_summary as $worksheet => $data1) {
+			echo "<br><br><FONT COLOR=\"blue\" >
+				=====================================================================<br>
+				Errors on $worksheet<br>
+				=====================================================================</FONT><br>";
+			foreach($data1 as $message_type => $data2) {
+				$color = 'black';
+				switch($message_type) {
+					case '@@ERROR@@':
+						$color = 'red';
+						break;
+					case '@@WARNING@@':
+						$color = 'orange';
+						break;
+					case '@@MESSAGE@@':
+						$color = 'green';
+						break;
+					default:
+						echo '<br><br><br>UNSUPORTED message_type : '.$message_type.'<br><br><br>';
+				}
+				foreach($data2 as $error => $details) {
+					$err_counter++;
+					$error = str_replace("\n", ' ', utf8_decode("[ER#$err_counter] $error"));
+					echo "<br><br><FONT COLOR=\"$color\" ><b>$error</b></FONT><br>";
+					foreach($details as $detail) {
+						$detail = str_replace("\n", ' ', $detail);
+						echo ' - '.utf8_decode($detail)."<br>";	
+					}
 				}
 			}
 		}
@@ -442,8 +451,8 @@ function truncate() {
 	$truncate_queries = array(
 			'TRUNCATE qcroc_ar_tissue_slides;', 'TRUNCATE qcroc_ar_tissue_slides_revs;',
 			'TRUNCATE qcroc_spr_tissues;', 'TRUNCATE qcroc_spr_tissues_revs;',
-			'DELETE FROM specimen_review_masters;', 'DELETE FROM specimen_review_masters_revs;',
 			'DELETE FROM aliquot_review_masters;', 'DELETE FROM aliquot_review_masters_revs;',
+			'DELETE FROM specimen_review_masters;', 'DELETE FROM specimen_review_masters_revs;',
 			
 			'TRUNCATE aliquot_internal_uses;', 'TRUNCATE aliquot_internal_uses_revs;',
 			'TRUNCATE realiquotings;', 'TRUNCATE realiquotings_revs;',
@@ -456,6 +465,7 @@ function truncate() {
 			'TRUNCATE ad_tissue_slides;', 'TRUNCATE ad_tissue_slides_revs;',
 			'DELETE FROM aliquot_masters;', 'DELETE FROM aliquot_masters_revs;',
 
+			'TRUNCATE sd_der_dnas;', 'TRUNCATE sd_der_dnas_revs;',
 			'TRUNCATE sd_der_rnas;', 'TRUNCATE sd_der_rnas_revs;',
 			'TRUNCATE sd_der_urine_cents;', 'TRUNCATE sd_der_urine_cents_revs;',
 			'TRUNCATE sd_spe_urines;', 'TRUNCATE sd_spe_urines_revs;',
