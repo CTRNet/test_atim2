@@ -113,6 +113,8 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('batch init - number of submitted records too big', 'The number of records submitted are too big to be managed in batch!','Le nombre de données soumises pour être traitées en lot est trop important!');
 
+SELECT 'DatamartAppController::$display_limit variable has been removed. Please review any process and report that use this variable' AS 'TODO';
+
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3135: StorageControl.changeActiveStatus(): Change rules checking that no StorageMaster is linked to the processed storage type 
 -- -----------------------------------------------------------------------------------------------------------------------------------
@@ -182,6 +184,131 @@ VALUES
 UPDATE structure_formats SET `flag_addgrid`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='drugs') AND `flag_add`='1';
 UPDATE structure_fields SET  `setting`='cols=40,rows=2' WHERE model='Drug' AND tablename='drugs' AND field='description' AND `type`='textarea' AND structure_value_domain  IS NULL ;
 UPDATE structure_fields SET  `setting`='size=40' WHERE model='Drug' AND tablename='drugs' AND field='generic_name' AND `type`='input' AND structure_value_domain  IS NULL ;
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- 'tisue block' to 'tissue block' realiquoting control
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT "Created 'tisue block' to 'tissue block' realiquoting control (disabled). Comment line if already created in custom version" AS message;
+SET @control_id = (SELECT ac.id FROM aliquot_controls ac INNER JOIN sample_controls sc ON sc.id = ac.sample_control_id WHERE sample_type = 'tissue' AND aliquot_type = 'block');
+INSERT INTO realiquoting_controls (parent_aliquot_control_id,child_aliquot_control_id,flag_active) VALUES (@control_id,@control_id,0);
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+-- Issue #3175: Add Xenograft Derivative
+-- -----------------------------------------------------------------------------------------------------------------------------------
+
+SELECT "Created 'Xenograft' derivatiuve. Comment line if already created in custom version or disable sample_type if not used" AS message;
+INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+(null, 'xenograft', 'derivative', 'sd_der_xenografts,derivatives', 'sd_der_xenografts', 0, 'xenograft');
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ('xenograft', 'Xenograft', 'Xénogreffe');
+CREATE TABLE IF NOT EXISTS `sd_der_xenografts` (
+  `sample_master_id` int(11) NOT NULL,
+  species varchar(50),
+  implantation_site varchar(50),
+  laterality varchar(30)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `sd_der_xenografts_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  species varchar(50),
+  implantation_site varchar(50),
+  laterality varchar(30),
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `sd_der_xenografts`
+  ADD CONSTRAINT `FK_sd_der_xenografts_sample_masters` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('sd_der_xenografts');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('xenograft_species', "StructurePermissibleValuesCustom::getCustomDropdown('Xenograft Species')"),
+('xenograft_implantation_sites', "StructurePermissibleValuesCustom::getCustomDropdown('Xenograft Implantation Sites')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Xenograft Species', 1, 50, 'inventory'),
+('Xenograft Implantation Sites', 1, 50, 'inventory');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Xenograft Species');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('mouse', 'Mouse',  'Souris', '1', @control_id, NOW(), NOW(), 1, 1);
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Xenograft Implantation Sites');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('liver', 'Liver',  'Foie', '1', @control_id, NOW(), NOW(), 1, 1),
+('mammary fat pad', 'Mammary Fat Pad',  'Tissu graisseux mammaire', '1', @control_id, NOW(), NOW(), 1, 1),
+('flank', 'Flank',  'Flanc', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('InventoryManagement', 'SampleDetail', '', 'species', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='xenograft_species') , '0', '', '', '', 'species', ''), 
+('InventoryManagement', 'SampleDetail', '', 'implantation_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='xenograft_implantation_sites') , '0', '', '', '', 'implantation site', ''), 
+('InventoryManagement', 'SampleDetail', '', 'laterality', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='tissue_laterality') , '0', '', '', '', 'laterality', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='species' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='xenograft_species')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='species' AND `language_tag`=''), '1', '444', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='implantation_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='xenograft_implantation_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='implantation site' AND `language_tag`=''), '1', '445', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='sd_der_xenografts'), (SELECT id FROM structure_fields WHERE `model`='SampleDetail' AND `tablename`='' AND `field`='laterality' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='tissue_laterality')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='laterality' AND `language_tag`=''), '1', '446', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('species', 'Species', 'Espèce'),
+('implantation site','Implantation Site','Site d''implantation');
+SET @control_id = (SELECT id FROM sample_controls WHERE sample_type = 'xenograft');
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) 
+(SELECT id, @control_id, '1' FROM sample_controls WHERE sample_type IN ('tissue','cell culture'));
+INSERT INTO `parent_to_derivative_sample_controls` (`parent_sample_control_id`, `derivative_sample_control_id`, `flag_active`) 
+(SELECT @control_id, id, '1' FROM sample_controls WHERE sample_type IN ('dna','rna','cell culture', 'protein','xenograft'));
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
+(@control_id, 'tube', '', 'ad_der_xenograft_tubes', 'ad_tubes', NULL, 1, '', 0, 'xenograft|tube'),
+(@control_id, 'block', NULL, 'ad_der_xenograft_blocks', 'ad_blocks', NULL, 1, '', 0, 'xenograft|block'),
+(@control_id, 'slide', '', 'ad_der_xenograft_slides', 'ad_xenograft_slides', NULL, 1, '', 0, 'xenograft|slide'),
+(@control_id, 'core', '', 'ad_der_xenograft_cores', 'ad_xenograft_cores', NULL, 1, '', 0, 'xenograft|core');
+INSERT INTO structures(`alias`) VALUES ('ad_der_xenograft_tubes');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='lot number' AND `language_tag`=''), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_creat_to_stor_spent_time_msg_defintion' AND `language_label`='creation to storage spent time' AND `language_tag`=''), '1', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_coll_to_stor_spent_time_msg_defintion' AND `language_label`='collection to storage spent time' AND `language_tag`=''), '1', '59', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '60', '', '0', '1', 'creation to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_tubes'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '0', '1', 'collection to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('ad_der_xenograft_blocks');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_blocks'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='block_type' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='block_type')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='block type' AND `language_tag`=''), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0'),
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_blocks'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_creat_to_stor_spent_time_msg_defintion' AND `language_label`='creation to storage spent time' AND `language_tag`=''), '1', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_blocks'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='inv_coll_to_stor_spent_time_msg_defintion' AND `language_label`='collection to storage spent time' AND `language_tag`=''), '1', '59', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_blocks'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='creat_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '60', '', '0', '1', 'creation to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_blocks'), (SELECT id FROM structure_fields WHERE `model`='ViewAliquot' AND `tablename`='view_aliquots' AND `field`='coll_to_stor_spent_time_msg' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '59', '', '0', '1', 'collection to storage spent time (min)', '0', '', '0', '', '1', 'integer_positive', '1', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('ad_der_xenograft_slides');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_der_xenograft_slides'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='immunochemistry' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='immunochemistry code' AND `language_tag`=''), '1', '70', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structures(`alias`) VALUES ('ad_der_xenograft_cores');
+CREATE TABLE IF NOT EXISTS `ad_xenograft_cores` (
+  `aliquot_master_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `ad_xenograft_cores_revs` (
+  `aliquot_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+CREATE TABLE IF NOT EXISTS `ad_xenograft_slides` (
+  `aliquot_master_id` int(11) NOT NULL,
+  `immunochemistry` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `ad_xenograft_slides_revs` (
+  `aliquot_master_id` int(11) NOT NULL,
+  `immunochemistry` varchar(30) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `ad_xenograft_cores`
+  ADD CONSTRAINT `FK_ad_xenograft_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_ad_xenograft_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active) 
+VALUES 
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_tubes'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_tubes'), '1'),
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_tubes'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'), '1'),
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_tubes'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_slides'), '1'),
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'), '1'),
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_tubes'), '1'),
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_slides'), '1'),
+((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_cores'), '1');
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
