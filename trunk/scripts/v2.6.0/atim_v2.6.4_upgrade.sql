@@ -298,7 +298,8 @@ CREATE TABLE IF NOT EXISTS `ad_xenograft_slides_revs` (
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 ALTER TABLE `ad_xenograft_cores`
-  ADD CONSTRAINT `FK_ad_xenograft_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`),
+  ADD CONSTRAINT `FK_ad_xenograft_cores_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
+ALTER TABLE `ad_xenograft_slides`
   ADD CONSTRAINT `FK_ad_xenograft_slides_aliquot_masters` FOREIGN KEY (`aliquot_master_id`) REFERENCES `aliquot_masters` (`id`);
 INSERT INTO realiquoting_controls (parent_aliquot_control_id, child_aliquot_control_id, flag_active) 
 VALUES 
