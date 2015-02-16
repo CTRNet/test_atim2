@@ -7,7 +7,7 @@ class DiagnosisMasterCustom extends DiagnosisMaster {
 	function updateAgeAtDxAndSurvival($model, $primary_key_id) {	
 		$criteria = array(
 			'DiagnosisControl.category' => 'primary', 
-			'DiagnosisControl.controls_type' => array('breast'),
+			'DiagnosisControl.controls_type' => array('breast','other'),
 			'DiagnosisMaster.deleted <> 1',
 			$model.'.id' => $primary_key_id);
 		$joins = array(array(
