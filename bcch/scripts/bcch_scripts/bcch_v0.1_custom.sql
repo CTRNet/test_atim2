@@ -166,6 +166,8 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 --	Eventum ID: #3166 - BCCH Consent Form
 --	=========================================================================
 
+-- SVN Test
+
 CREATE TABLE `cd_bcch_consents` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `bcch_verbal_consent` varchar(45) DEFAULT NULL,
