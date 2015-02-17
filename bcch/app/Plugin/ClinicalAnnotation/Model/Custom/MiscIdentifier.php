@@ -92,8 +92,8 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				break;
 
 			case "CCBR Identifier":
-				// Validate: CCBR1234
-				if (preg_match("^\A[\w]{6,6}$^", $identifierValue)) {
+				// Validate: Starts with 'CCBR' then any number of digits
+				if (preg_match("^\ACCBR[0-9]+$^", $identifierValue)) {
 					$value_validated = true;
 				} else {
 					$this->validationErrors['MiscIdentifier']['identifier_value'] = "ccbr validation error";
@@ -102,7 +102,7 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				break;
 								
 			default:
-				echo "DEFAULT";
+				echo "No defined validation! See administrator!";
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
 		
