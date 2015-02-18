@@ -1166,6 +1166,4 @@ UPDATE consent_masters_revs SET ovcare_complete = 'y' WHERE ovcare_complete != '
 -- ** Version **
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '6059' WHERE version_number = '2.6.3';
-
-
+UPDATE versions SET branch_build_number = '6072' WHERE version_number = '2.6.3';
