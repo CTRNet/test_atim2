@@ -29,9 +29,9 @@ class ReportsControllerCustom extends ReportsController {
 			
 			// 0-REPORT LAUNCHED FROM DATA BROWSER
 				
-			if(isset($parameters['StorageMaster']['id'])) {
+			if(isset($parameters['ViewStorageMaster']['id'])) {
 				$join_on_storage = 'INNER JOIN';
-				$criteria = ($parameters['StorageMaster']['id'] == 'all')? array('StorageControl.is_tma_block = 1') :  array('StorageMaster.id'=>$parameters['StorageMaster']['id']);
+				$criteria = ($parameters['ViewStorageMaster']['id'] == 'all')? array('StorageControl.is_tma_block = 1') :  array('StorageMaster.id'=>$parameters['ViewStorageMaster']['id']);
 				$storage_model = AppModel::getInstance("StorageLayout", "StorageMaster", true);
 				$selected_storages = $storage_model->find('all', array('conditions' => $criteria, 'recursive' => 0));		
 				$tma_storage_master_ids = array();
