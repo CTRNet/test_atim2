@@ -131,7 +131,7 @@ function manageDxValuesOnManyRows(Model $m){
 						$value_to_add['diagnosis_masters'][] = $db_field.'="'.$m->values[$new_field].'"';	
 						break;
 					default:
-						die('ERR 2 2876832768762 '.$new_field." (the migration process won't add new custom vaue into custom list or it has to be completed)");	
+						die('ERR 2 2876832768762 '.$new_field." (the migration process won't add new custom value into custom list or it has to be completed)");	
 				}
 			}
 		}
