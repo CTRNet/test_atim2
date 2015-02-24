@@ -28,10 +28,10 @@ class Config{
 	//--------------------------------------------------------------------------------------------------------------------------
 	//TODO: To change anytime
 	static $relative_path = 'C:/_Perso/Server/tfri_cpcbn/dataImporterConfig/clinic/';
-	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/TestDfs.xls';
+	static $xls_file_path = 'C:/_Perso/Server/tfri_cpcbn/data/testdrug.xls';
 	//static $relative_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/';
 	//static $xls_file_path = '/ATiM/atim-tfri/dataImporter/projects/tfri_cpcbn/data/';
-	static $active_surveillance_project = true;
+	static $active_surveillance_project = false;
 	static $use_windows_xls_offset = true;
 	//--------------------------------------------------------------------------------------------------------------------------
 	
@@ -163,12 +163,6 @@ function addonFunctionStart(){
 	while($row = $results->fetch_assoc()){
 		$ctrl_data = array('id'=> $row['id'], 'detail_tablename'=> $row['detail_tablename'], 'treatment_extend_control_id' => $row['treatment_extend_control_id']);
 		Config::$tx_controls[$row['tx_method']] = $ctrl_data;
-	}	
-	
-	$query = "SELECT id, generic_name FROM drugs WHERE type = 'chemotherapy';";
-	$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
-	while($row = $results->fetch_assoc()){
-		Config::$drugs[strtolower($row['generic_name'])] = $row['id'];
 	}
 		
 	Config::$created_participant_ids = array();

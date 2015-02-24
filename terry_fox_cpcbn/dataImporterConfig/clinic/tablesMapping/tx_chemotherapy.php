@@ -72,7 +72,19 @@ function txChemotherapyPostWrite(Model $m){
 }
 
 function getDrugId($drug_name, $type) {
-	$drug_key = strtolower($drug_name).$type;
+	if(!strlen($drug_name)) return null;
+	
+	if(empty(Config::$drugs)) {
+		//Get first drugs list from ATiM 
+		$query = "SELECT id, generic_name, type FROM drugs WHERE deleted <> 1;";
+		$results = mysqli_query(Config::$db_connection, $query) or die("[$query] ".__FUNCTION__." ".__LINE__);
+		while($row = $results->fetch_assoc()){
+			$drug_key = getDrugKey($row['generic_name'], $row['type']);
+			Config::$drugs[$drug_key] = $row['id'];
+		}
+	}
+	
+	$drug_key = getDrugKey($drug_name, $type);
 	if(array_key_exists($drug_key, Config::$drugs)) return Config::$drugs[$drug_key];
 		
 	$query = "INSERT INTO drugs (generic_name, type, created, created_by, modified, modified_by) VALUES ('$drug_name', '$type', NOW(), ".Config::$db_created_id.", NOW(), ".Config::$db_created_id.");";
@@ -88,4 +100,7 @@ function getDrugId($drug_name, $type) {
 	return $id;
 }
 
-
+function getDrugKey($drug_name, $type) {
+	if(!in_array($type, array('', 'bone', 'HR', 'chemotherapy', 'hormonal'))) die('ERR 237 7263726 drug type'.$type);
+	return strtolower($drug_name.'## ##'.$type);
+}
