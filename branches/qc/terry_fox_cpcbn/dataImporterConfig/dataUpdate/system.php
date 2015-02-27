@@ -108,7 +108,12 @@ $atim_controls['event_controls'] = array();
 foreach(getSelectQueryResult("SELECT id, disease_site, event_type, detail_tablename FROM event_controls WHERE flag_active = 1") as $new_control) $atim_controls['event_controls'][(strlen($new_control['disease_site'])? $new_control['disease_site'].'-': '').$new_control['event_type']] = $new_control;
 //*** Control : diagnosis_controls ***
 $atim_controls['diagnosis_controls'] = array();
-foreach(getSelectQueryResult("SELECT id, category, controls_type, detail_tablename FROM diagnosis_controls WHERE flag_active = 1") as $new_control) $atim_controls['diagnosis_controls'][$new_control['category'].'-'.$new_control['controls_type']] = $new_control;
+$primary_control_ids = array();
+foreach(getSelectQueryResult("SELECT id, category, controls_type, detail_tablename FROM diagnosis_controls WHERE flag_active = 1") as $new_control) {
+	$atim_controls['diagnosis_controls'][$new_control['category'].'-'.$new_control['controls_type']] = $new_control;
+	if($new_control['category'] == 'primary') $primary_control_ids[] = $new_control['id']; 
+}
+$atim_controls['diagnosis_controls']['***primary_control_ids***'] = $primary_control_ids;
 //*** Control : misc_identifier_controls ***
 $atim_controls['misc_identifier_controls'] = array();
 foreach(getSelectQueryResult("SELECT id, misc_identifier_name, flag_active, autoincrement_name, misc_identifier_format, flag_once_per_participant, flag_unique FROM misc_identifier_controls WHERE flag_active = 1") as $new_control) $atim_controls['misc_identifier_controls'][$new_control['misc_identifier_name']] = $new_control;
@@ -142,6 +147,9 @@ global $XlsReader;
 $XlsReader = null;
 global $studied_excel_file_name_properties;
 $studied_excel_file_name_properties = null;
+
+global $modified_database_tables_list;
+$modified_database_tables_list = array();
 
 //==================================================================================================================================================================================
 // SYSTEM FUNCTION
@@ -278,6 +286,7 @@ function getSelectQueryResult($query) {
 function customInsertRecord($tables_data) {
 	global $import_date;
 	global $imported_by;
+	global $atim_controls;
 	$record_id = null;
 	$main_table_data = array();
 	$details_tables_data = array();
@@ -286,7 +295,7 @@ function customInsertRecord($tables_data) {
 		switch(sizeof($tables_data)) {
 			case '1':
 				$table_name = array_shift(array_keys($tables_data));
-				if(preg_match('/_masters$/', $table_name)) migrationDie("customInsertRecord(): Detail table is missing to record data into $table_name");
+				if(preg_match('/_masters$/', $table_name)) migrationDie("ERR_FUNCTION_customInsertRecord(): Detail table is missing to record data into $table_name");
 				$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
 				break;
 			case '3':
@@ -303,16 +312,16 @@ function customInsertRecord($tables_data) {
 						$details_table_name = $table_name;
 					}
 				}
-				if(empty($main_table_data)) migrationDie("customInsertRecord(): Table sample_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(empty($details_tables_data)) migrationDie("customInsertRecord(): Table 'specimen_details' or 'derivative_details' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(sizeof($tables_data) != 1) migrationDie("customInsertRecord(): Wrong 3 tables names for a new sample (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(empty($main_table_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table sample_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(empty($details_tables_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'specimen_details' or 'derivative_details' is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(sizeof($tables_data) != 1) migrationDie("ERR_FUNCTION_customInsertRecord(): Wrong 3 tables names for a new sample (See table names: ".implode(' & ', array_keys($tables_data)).")");
 				$details_tables_data[] = array('name' => $details_table_name, 'data' => $tables_data[$details_table_name]);
 				break;
 			case '2':
 				$details_table_name = '';
 				foreach(array_keys($tables_data) as $table_name) {
 					if(in_array($table_name, array('specimen_details', 'derivative_details', 'sample_masters'))) {
-						migrationDie("customInsertRecord(): Table 'sample_masters', 'specimen_details' or 'derivative_details' defined for a record different than Sample or wrong tables definition for a sample creation (See table names: ".implode(' & ', array_keys($tables_data)).")");
+						migrationDie("ERR_FUNCTION_customInsertRecord(): Table 'sample_masters', 'specimen_details' or 'derivative_details' defined for a record different than Sample or wrong tables definition for a sample creation (See table names: ".implode(' & ', array_keys($tables_data)).")");
 						exit;
 					} else if(preg_match('/_masters$/', $table_name)) {
 						$main_table_data = array('name' => $table_name, 'data' => $tables_data[$table_name]);
@@ -321,26 +330,39 @@ function customInsertRecord($tables_data) {
 						$details_table_name = $table_name;
 					}
 				}
-				if(empty($main_table_data)) migrationDie("customInsertRecord(): Table %%_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
-				if(sizeof($tables_data) != 1) migrationDie("customInsertRecord(): Wrong 2 tables names for a master/detail model record (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(empty($main_table_data)) migrationDie("ERR_FUNCTION_customInsertRecord(): Table %%_masters is missing (See table names: ".implode(' & ', array_keys($tables_data)).")");
+				if(sizeof($tables_data) != 1) migrationDie("ERR_FUNCTION_customInsertRecord(): Wrong 2 tables names for a master/detail model record (See table names: ".implode(' & ', array_keys($tables_data)).")");
 				$details_tables_data[] = array('name' => $details_table_name, 'data' => $tables_data[$details_table_name]);
 				break;
 			default:
-				migrationDie("customInsertRecord(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+				migrationDie("ERR_FUNCTION_customInsertRecord(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
 		}
 		//-- 2 -- Main or master table record
 		$main_table_data['data'] = array_merge($main_table_data['data'], array("created" => $import_date, "created_by" => $imported_by, "modified" => "$import_date", "modified_by" => $imported_by));
 		$query = "INSERT INTO `".$main_table_data['name']."` (`".implode("`, `", array_keys($main_table_data['data']))."`) VALUES (\"".implode("\", \"", array_values($main_table_data['data']))."\")";
 		$record_id = customQuery($query, true);
+		if(isset($main_table_data['data']['diagnosis_control_id'])) {
+			if(in_array($main_table_data['data']['diagnosis_control_id'], $atim_controls['diagnosis_controls']['***primary_control_ids***'])) {
+				$query = "UPDATE diagnosis_masters SET primary_id=id WHERE id = $record_id;";
+				customQuery("UPDATE diagnosis_masters SET ", true);
+			} else {
+				if(!isset($main_table_data['data']['primary_id']) || !isset($main_table_data['data']['parent_id']))
+				migrationDie('ERR_FUNCTION_customInsertRecord(): Missing diagnosis_masters primary_id or parent_id key.');
+			}
+		}	
 		//-- 3 -- Details tables record
+		$tmp_detail_tablename = null;
 		if($details_tables_data) {
 			$foreign_key = str_replace('_masters', '_master_id', $main_table_data['name']);
 			foreach($details_tables_data as $detail_table) {
 				$detail_table['data'] = array_merge($detail_table['data'], array($foreign_key => $record_id));
 				$query = "INSERT INTO `".$detail_table['name']."` (`".implode("`, `", array_keys($detail_table['data']))."`) VALUES (\"".implode("\", \"", array_values($detail_table['data']))."\")";
 				customQuery($query, true);
+				if(!in_array($detail_table['name'], array('specimen_details', 'derivative_details'))) $tmp_detail_tablename = $detail_table['name'];
 			}
 		}
+		//-- 4 -- Keep updated tables in memory
+		addToModifiedDatabaseTablesList($main_table_data['name'], $tmp_detail_tablename);
 	}
 	return $record_id;
 }
@@ -361,15 +383,15 @@ function updateTableData($id, $tables_data) {
 			case '3':
 				foreach(array_keys($tables_data) as $table_name) {
 					if(preg_match('/_masters$/', $table_name)) {
-						if(!is_null($main_or_master_tablename)) migrationDie("updateTableData(): 2 Master tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+						if(!is_null($main_or_master_tablename)) migrationDie("ERR_FUNCTION_updateTableData(): 2 Master tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
 						$main_or_master_tablename = $table_name;
 					}
 					if(!empty($tables_data[$table_name])) $to_update = true;
 				}
-				if(is_null($main_or_master_tablename)) migrationDie("updateTableData(): Master table not passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+				if(is_null($main_or_master_tablename)) migrationDie("ERR_FUNCTION_updateTableData(): Master table not passed in arguments: ".implode(', ',array_keys($tables_data)).".");
 				break;
 			default:
-				migrationDie("updateTableData(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
+				migrationDie("ERR_FUNCTION_updateTableData(): Too many tables passed in arguments: ".implode(', ',array_keys($tables_data)).".");
 		}
 		if($to_update) {
 			//Master/Main Table Update
@@ -379,66 +401,81 @@ function updateTableData($id, $tables_data) {
 			$set_sql_strings = array();
 			foreach(array_merge($table_data, array('modified' => $import_date, 'modified_by' => $imported_by))  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
 			$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `id` = $id;";
-//pr($query);		
 			customQuery($query);
 			//Detail or SpecimenDetail/DerivativeDetail Table Update
 			$foreaign_key = str_replace('_masters', '_master_id', $main_or_master_tablename);
+			$tmp_detail_tablename = null;
 			foreach($tables_data as $table_name => $table_data) {
 				if(!empty($table_data)) {
 					$set_sql_strings = array();
 					foreach($table_data  as $key => $value) $set_sql_strings[] = "`$key` = \"$value\"";
-					$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `$foreaign_key` = $id;";	
-//pr($query);
+					$query = "UPDATE `$table_name` SET ".implode(', ', $set_sql_strings)." WHERE `$foreaign_key` = $id;";
 					customQuery($query);
+					if(!in_array($table_name, array('specimen_details', 'derivative_details'))) $tmp_detail_tablename = $table_name;
 				}
 			}
+			//Keep updated tables in memory
+			addToModifiedDatabaseTablesList($main_or_master_tablename, $tmp_detail_tablename);
 		}
 	}	
 }
 
-function insertIntoRevsBasedOnModifiedValues($main_tablename, $detail_tablename = null) {
+function addToModifiedDatabaseTablesList($main_table_name, $detail_table_name) {
+	global $modified_database_tables_list;
+	$key = $main_table_name.'-'.(is_null($detail_table_name)? '' : $detail_table_name);
+	$modified_database_tables_list[$key] = array($main_table_name, $detail_table_name);
+}
+
+function insertIntoRevsBasedOnModifiedValues($main_tablename = null, $detail_tablename = null) {
 	global $import_date;
 	global $imported_by;
+	global $modified_database_tables_list;
+	
+	$tables_sets_to_update = is_null($main_tablename)? $modified_database_tables_list : array(array($main_tablename, $detail_tablename));
 	$insert_queries = array();
-	if(!$detail_tablename) {
-		// *** CLASSICAL MODEL ***
-		$query = "DESCRIBE $main_tablename;";
-		$results = customQuery($query);
-		$table_fields = array();
-		while($row = $results->fetch_assoc()) {
-			if(!in_array($row['Field'], array('created','created_by','modified','modified_by','deleted'))) $table_fields[] = $row['Field'];
-		}
-		$source_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ')."`modified_by`, `modified`";
-		$revs_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ').'`modified_by`, `version_created`';
-		$insert_queries[] = "INSERT INTO `".$main_tablename."_revs` ($revs_table_fields)
-			(SELECT $source_table_fields FROM `$main_tablename` WHERE `modified_by` = '$imported_by' AND `modified` = '$import_date');";
-	} else {
-		// *** MASTER DETAIL MODEL ***
-		if(!preg_match('/^.+\_masters$/', $main_tablename)) migrationDie("'$main_tablename' is not a 'Master' table of a MasterDetail model.");
-		$foreign_key = str_replace('_masters', '_master_id', $main_tablename);
-		//Master table
-		$query = "DESCRIBE $main_tablename;";
-		$results = customQuery($query);
-		$table_fields = array();
-		while($row = $results->fetch_assoc()) {
-			if(!in_array($row['Field'], array('created','created_by','modified','modified_by','deleted'))) $table_fields[] = $row['Field'];
-		}
-		$source_table_fields = (empty($table_fields)? '' : 'Master.`'.implode('`, Master.`',$table_fields).'`, ')."Master.`modified_by`, Master.`modified`";
-		$revs_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ').'`modified_by`, `version_created`';
-		$insert_queries[] = "INSERT INTO `".$main_tablename."_revs` ($revs_table_fields)
-			(SELECT $source_table_fields FROM `$main_tablename` AS Master INNER JOIN $detail_tablename AS Detail ON Master.`id` = Detail.`$foreign_key` WHERE Master.`modified_by` = '$imported_by' AND Master.`modified` = '$import_date');";
-		//Detail table
-		$all_detail_tablenames = ($main_tablename != 'sample_masters')? array($detail_tablename) : array($detail_tablename, 'specimen_details', 'derivative_details');
-		foreach($all_detail_tablenames as $detail_tablename) {
-			$query = "DESCRIBE $detail_tablename;";
+	$set_key_done = array();
+	foreach($tables_sets_to_update as $new_tables_set) {
+		list($main_tablename, $detail_tablename) = $new_tables_set;
+		if(!$detail_tablename) {
+			// *** CLASSICAL MODEL ***
+			$query = "DESCRIBE $main_tablename;";
 			$results = customQuery($query);
 			$table_fields = array();
-			while($row = $results->fetch_assoc()) $table_fields[] = $row['Field'];
-			if(!in_array($foreign_key, $table_fields)) migrationDie("Foreign Key '$foreign_key' defined based on 'Master' table name '$main_tablename' is not a field of the 'Detail' table '$detail_tablename'.");
-			$source_table_fields = (empty($table_fields)? '' : 'Detail.`'.implode('`, Detail.`',$table_fields).'`, ')."Master.`modified`";
-			$revs_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ').'`version_created`';
-			$insert_queries[] = "INSERT INTO `".$detail_tablename."_revs` ($revs_table_fields)
-				(SELECT $source_table_fields FROM `$main_tablename` AS Master INNER JOIN `$detail_tablename` AS Detail ON Master.`id` = Detail.`$foreign_key` WHERE Master.`modified_by` = '$imported_by' AND Master.`modified` = '$import_date');";
+			while($row = $results->fetch_assoc()) {
+				if(!in_array($row['Field'], array('created','created_by','modified','modified_by','deleted'))) $table_fields[] = $row['Field'];
+			}
+			$source_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ')."`modified_by`, `modified`";
+			$revs_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ').'`modified_by`, `version_created`';
+			$insert_queries[] = "INSERT INTO `".$main_tablename."_revs` ($revs_table_fields)
+				(SELECT $source_table_fields FROM `$main_tablename` WHERE `modified_by` = '$imported_by' AND `modified` = '$import_date');";
+		} else {
+			// *** MASTER DETAIL MODEL ***
+			if(!preg_match('/^.+\_masters$/', $main_tablename)) migrationDie("ERR_FUNCTION_insertIntoRevsBasedOnModifiedValues(): '$main_tablename' is not a 'Master' table of a MasterDetail model.");
+			$foreign_key = str_replace('_masters', '_master_id', $main_tablename);
+			//Master table
+			$query = "DESCRIBE $main_tablename;";
+			$results = customQuery($query);
+			$table_fields = array();
+			while($row = $results->fetch_assoc()) {
+				if(!in_array($row['Field'], array('created','created_by','modified','modified_by','deleted'))) $table_fields[] = $row['Field'];
+			}
+			$source_table_fields = (empty($table_fields)? '' : 'Master.`'.implode('`, Master.`',$table_fields).'`, ')."Master.`modified_by`, Master.`modified`";
+			$revs_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ').'`modified_by`, `version_created`';
+			$insert_queries[] = "INSERT INTO `".$main_tablename."_revs` ($revs_table_fields)
+				(SELECT $source_table_fields FROM `$main_tablename` AS Master INNER JOIN $detail_tablename AS Detail ON Master.`id` = Detail.`$foreign_key` WHERE Master.`modified_by` = '$imported_by' AND Master.`modified` = '$import_date');";
+			//Detail table
+			$all_detail_tablenames = ($main_tablename != 'sample_masters')? array($detail_tablename) : array($detail_tablename, 'specimen_details', 'derivative_details');
+			foreach($all_detail_tablenames as $detail_tablename) {
+				$query = "DESCRIBE $detail_tablename;";
+				$results = customQuery($query);
+				$table_fields = array();
+				while($row = $results->fetch_assoc()) $table_fields[] = $row['Field'];
+				if(!in_array($foreign_key, $table_fields)) migrationDie("ERR_FUNCTION_insertIntoRevsBasedOnModifiedValues(): Foreign Key '$foreign_key' defined based on 'Master' table name '$main_tablename' is not a field of the 'Detail' table '$detail_tablename'.");
+				$source_table_fields = (empty($table_fields)? '' : 'Detail.`'.implode('`, Detail.`',$table_fields).'`, ')."Master.`modified`";
+				$revs_table_fields = (empty($table_fields)? '' : '`'.implode('`, `',$table_fields).'`, ').'`version_created`';
+				$insert_queries[] = "INSERT INTO `".$detail_tablename."_revs` ($revs_table_fields)
+					(SELECT $source_table_fields FROM `$main_tablename` AS Master INNER JOIN `$detail_tablename` AS Detail ON Master.`id` = Detail.`$foreign_key` WHERE Master.`modified_by` = '$imported_by' AND Master.`modified` = '$import_date');";
+			}
 		}
 	}
 	foreach($insert_queries as $query) {

@@ -571,9 +571,95 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 //*** END PROCESS ***
 
 executeEndProcessSourceCode();
-//TODO insertIntoRevsBasedOnModifiedValues(); Voire si cela ne peut pas se faire automatiquement.... la selection des tables
-//TODO voire is le primary_id, etc de diagnosis ne peut pas se faire automatiquement....
-//TODO Il faut tenir compte des accuracy pour comparer les dates... mais trop complexe.... alors sortir un rapport definissant les econdaire si deux dans la même année...
+insertIntoRevsBasedOnModifiedValues();
+
+//Review dates in case we created a new secondary, BCR, psa, etc at the same date (or close) to an existing one because dates were inaccurate
+$summary_section_title = 'Duplicated diagnosis, events and treatment detection for review (on all patients)';
+//1-Secondary Diagnosis
+$query = "SELECT res.participant_id, p.qc_tf_bank_participant_identifier, b.name AS bank_name, 'secondary diagnosis', date_year, site
+	FROM (
+		SELECT count(*) AS nbr_of_records, participant_id, diagnosis_control_id, DATE_FORMAT(dx_date,'%Y') as date_year, site
+		FROM diagnosis_masters 
+		INNER JOIN ".$atim_controls['diagnosis_controls']['secondary-other']['detail_tablename']." ON id = diagnosis_master_id
+		WHERE deleted <> 1 AND diagnosis_control_id = ".$atim_controls['diagnosis_controls']['secondary-other']['id']."
+		GROUP BY participant_id, diagnosis_control_id, DATE_FORMAT(dx_date,'%Y'), site
+	) AS res
+	INNER JOIN participants p ON p.id = res.participant_id
+	LEFT JOIN banks b ON p.qc_tf_bank_id = b.id
+	WHERE res.nbr_of_records > 1 AND p.deleted <> 1
+	ORDER BY res.participant_id, res.date_year;";
+foreach(getSelectQueryResult($query) as $new_data) {
+	recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one secondary diagnosis in the same year", "Review secondary diagnosis on '".$new_data['date_year']." for patient '".$new_data['qc_tf_bank_participant_identifier']."' of bank '".$new_data['bank_name'].". (ATiM Participant # '".$new_data['participant_id']."')");
+}
+
+//Other or unknown diagnosis
+
+$query = "SELECT res.participant_id, p.qc_tf_bank_participant_identifier, b.name AS bank_name, 'other or unknown diagosis', date_year
+	FROM (
+		SELECT count(*) AS nbr_of_records, participant_id, diagnosis_control_id, DATE_FORMAT(dx_date,'%Y') as date_year
+		FROM diagnosis_masters
+		WHERE deleted <> 1 AND diagnosis_control_id IN (".$atim_controls['diagnosis_controls']['primary-other']['id'].",".$atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['id'].")
+		GROUP BY participant_id, diagnosis_control_id, DATE_FORMAT(dx_date,'%Y')
+	) AS res
+	INNER JOIN participants p ON p.id = res.participant_id
+	LEFT JOIN banks b ON p.qc_tf_bank_id = b.id
+	WHERE res.nbr_of_records > 1 AND p.deleted <> 1
+	ORDER BY res.participant_id, res.date_year;";
+foreach(getSelectQueryResult($query) as $new_data) {
+	recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one other or unknown primary diagnosis in the same year", "Review the other or unknown primary diagnosis on '".$new_data['date_year']." for patient '".$new_data['qc_tf_bank_participant_identifier']."' of bank '".$new_data['bank_name'].". (ATiM Participant # '".$new_data['participant_id']."')");
+}
+
+// BCR
+
+$query = "SELECT res.participant_id, p.qc_tf_bank_participant_identifier, b.name AS bank_name, 'bcr', date_year
+	FROM (
+		SELECT count(*) AS nbr_of_records, participant_id, diagnosis_control_id, DATE_FORMAT(dx_date,'%Y') as date_year
+		FROM diagnosis_masters
+		WHERE deleted <> 1 AND diagnosis_control_id = ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['id']."
+		GROUP BY participant_id, diagnosis_control_id, DATE_FORMAT(dx_date,'%Y')
+	) AS res
+	INNER JOIN participants p ON p.id = res.participant_id
+	LEFT JOIN banks b ON p.qc_tf_bank_id = b.id
+	WHERE res.nbr_of_records > 1 AND p.deleted <> 1
+	ORDER BY res.participant_id, res.date_year;";
+foreach(getSelectQueryResult($query) as $new_data) {
+	recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one BCR in the same year", "Review the BCR on '".$new_data['date_year']." for patient '".$new_data['qc_tf_bank_participant_identifier']."' of bank '".$new_data['bank_name'].". (ATiM Participant # '".$new_data['participant_id']."')");
+}
+
+//PSA
+
+$query = "SELECT res.participant_id, p.qc_tf_bank_participant_identifier, b.name AS bank_name, 'psa', event_date
+	FROM (
+		SELECT count(*) AS nbr_of_records, participant_id, event_control_id, event_date
+		FROM event_masters
+		WHERE deleted <> 1 AND event_control_id = ".$atim_controls['event_controls']['psa']['id']."
+		GROUP BY participant_id, event_control_id, event_date
+	) AS res
+	INNER JOIN participants p ON p.id = res.participant_id
+	LEFT JOIN banks b ON p.qc_tf_bank_id = b.id
+	WHERE res.nbr_of_records > 1 AND p.deleted <> 1
+	ORDER BY res.participant_id, res.event_date;";
+foreach(getSelectQueryResult($query) as $new_data) {
+	recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one PSA on the same date", "Review PSA on '".$new_data['event_date']." for patient '".$new_data['qc_tf_bank_participant_identifier']."' of bank '".$new_data['bank_name'].". (ATiM Participant # '".$new_data['participant_id']."')");
+}
+
+//Treatment
+foreach(array('radiation','hormonotherapy','chemotherapy','other treatment bone specific','other treatment HR specific') AS $tx_method) {
+	$query = "SELECT res.participant_id, p.qc_tf_bank_participant_identifier, b.name AS bank_name, date_year, '$tx_method' AS tx_method
+		FROM (
+			SELECT count(*) AS nbr_of_records, participant_id, treatment_control_id, DATE_FORMAT(start_date,'%M %Y') as date_year
+			FROM treatment_masters
+			WHERE deleted <> 1 AND treatment_control_id = ".$atim_controls['treatment_controls'][$tx_method]['id']."
+			GROUP BY participant_id, treatment_control_id, DATE_FORMAT(start_date, '%M %Y')
+		) AS res
+		INNER JOIN participants p ON p.id = res.participant_id
+		LEFT JOIN banks b ON p.qc_tf_bank_id = b.id
+		WHERE res.nbr_of_records > 1 AND p.deleted <> 1
+		ORDER BY res.participant_id, res.date_year;";
+	foreach(getSelectQueryResult($query) as $new_data) {
+		recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one treatment '$tx_method' on the same month", "Review '$tx_method' on '".$new_data['date_year']." for patient '".$new_data['qc_tf_bank_participant_identifier']."' of bank '".$new_data['bank_name'].". (ATiM Participant # '".$new_data['participant_id']."')");
+	}
+}
 
 //*** SUMMARY DISPLAY ***
 
@@ -704,8 +790,6 @@ function executeEndProcessSourceCode(){
 			AND dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-other']['id']."
 			AND p.id IN ($all_updated_participant_ids_strg)
 			AND dx.modified = '$import_date' AND dx.modified_by = '$imported_by'",
-		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL AND parent_id IS NULL;",
-		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
 		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';",
 		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';",
 		"UPDATE diagnosis_masters SET age_at_dx = NULL WHERE age_at_dx LIKE '0';",
@@ -892,6 +976,7 @@ function executeEndProcessSourceCode(){
 			WHERE rec.first_biochemical_recurrence = 1 AND dmr.participant_id IN ($all_updated_participant_ids_strg)
 		) bcr ON bcr.primary_id = dm.id
 		WHERE part.id IN ($all_updated_participant_ids_strg) AND dm.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-prostate']['id'] ." AND dm.deleted <> 1
+		AND trt.deleted <> 1
 		ORDER BY dm.participant_id";
 	$participant_id = '-1';
 	foreach(getSelectQueryResult($query) as $row) {
@@ -917,17 +1002,17 @@ function executeEndProcessSourceCode(){
 		$new_survival = '';
 		if(!empty($dfs_date) && !empty($survival_end_date)) {
 			if(in_array($survival_end_date_accuracy.$dfs_accuracy, array('cd','dc','cc'))) {
-				if($survival_end_date_accuracy.$dfs_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Survival calculation with unaccuracy date", "Survival has been calculated with at least one inaccurate date (month precision or more). See patient ".$label_data['label_for_summary']);
+				if($survival_end_date_accuracy.$dfs_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Survival calculation with unaccuracy date", "Survival has been calculated with at least one inaccurate date (month precision or more). See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
 				$dfs_date_ob = new DateTime($dfs_date);
 				$survival_end_date_ob = new DateTime($survival_end_date);
 				$interval = $dfs_date_ob->diff($survival_end_date_ob);
 				if($interval->invert) {
-					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate survival on non-chronological dates", "Survival cannot be calculated because dates are not chronological. See patient ".$label_data['label_for_summary']);
+					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate survival on non-chronological dates", "Survival cannot be calculated because dates are not chronological. See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
 				} else {
 					$new_survival = $interval->y*12 + $interval->m;
 				}
 			} else {
-				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate survival on inaccurate dates", "Survival cannot be calculated on inaccurate dates (month unknown). See patient ".$label_data['label_for_summary']);
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate survival on inaccurate dates", "Survival cannot be calculated on inaccurate dates (month unknown). See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
 			}
 		}
 	
@@ -936,17 +1021,17 @@ function executeEndProcessSourceCode(){
 		$new_bcr = '';
 		if(!empty($dfs_date) && !empty($bcr_date)) {
 			if(in_array($dfs_accuracy.$bcr_accuracy, array('cd','dc','cc'))) {
-				if($dfs_accuracy.$bcr_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "BCR calculation with unaccuracy date", "BCR has been calculated with at least one inaccurate date (month precision or more). See patient ".$label_data['label_for_summary']);
+				if($dfs_accuracy.$bcr_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "BCR calculation with unaccuracy date", "BCR has been calculated with at least one inaccurate date (month precision or more). See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
 				$dfs_date_ob = new DateTime($dfs_date);
 				$bcr_date_ob = new DateTime($bcr_date);
 				$interval = $dfs_date_ob->diff($bcr_date_ob);
 				if($interval->invert) {
-					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate BCR on non-chronological dates", "BCR cannot be calculated because dates are not chronological. See patient ".$label_data['label_for_summary']);
+					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate BCR on non-chronological dates", "BCR cannot be calculated because dates are not chronological. See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
 				} else {
 					$new_bcr = $interval->y*12 + $interval->m;
 				}
 			} else {
-				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate BCR on inaccurate dates", "BCR cannot be calculated on inaccurate dates (month unknown). See patient ".$label_data['label_for_summary']);
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate BCR on inaccurate dates", "BCR cannot be calculated on inaccurate dates (month unknown). See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
 			}
 		} else {
 			$new_bcr = $new_survival;
@@ -981,7 +1066,7 @@ function executeEndProcessSourceCode(){
 			FROM diagnosis_masters AS DiagnosisMaster
 			INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
 			INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
-			WHERE DiagnosisMaster.deleted <> 1
+			WHERE DiagnosisMaster.deleted <> 1 AND TreatmentMaster.deleted <> 1
 			GROUP BY DiagnosisMaster.primary_id, DiagnosisMaster.participant_id
 		) as res
 		INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = res.primary_id
@@ -989,14 +1074,10 @@ function executeEndProcessSourceCode(){
 		INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
 		INNER JOIN participants Participant ON Participant.id = DiagnosisMaster.participant_id
 		LEFT JOIN banks Bank ON Bank.id = Participant.qc_tf_bank_id
-		WHERE nbr  >1
+		WHERE nbr  >1 AND DiagnosisMaster.deleted <> 1 AND TreatmentMaster.deleted <> 1 AND Participant.deleted <> 1 
 		ORDER BY res.participant_id, res.primary_id, TreatmentMaster.start_date, TreatmentControl.tx_method;";
 	foreach(getSelectQueryResult($query) as $row) {
-		if(in_array($row['participant_id'], Config::$created_participant_ids)) {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "A diagnosis is linked to more than one treatment flagged as 'DFS Start'", "...Patient of the migrated batch. See patient ".$row['Bank#']." (".$row['Bank'].")");
-		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "A diagnosis is linked to more than one treatment flagged as 'DFS Start'", "...Patient Previously migrated. See patient ".$row['Bank#']." (".$row['Bank'].")");
-		}
+		recordErrorAndMessage($summary_section_title, '@@ERROR@@', "A diagnosis is linked to more than one treatment flagged as 'DFS Start'", "See patient ".$row['Bank#']." (".$row['Bank'].")");
 	}
 }
 	
