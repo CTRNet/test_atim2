@@ -5,7 +5,7 @@ set_time_limit('3600');
 $db_ip			= "localhost";
 $db_port 		= "";
 $db_user 		= "root";
-$db_pwd			= "am3-y-4606";
+$db_pwd			= "";
 $db_schema		= "atimtfricpcbn";
 $db_charset		= "utf8";
 

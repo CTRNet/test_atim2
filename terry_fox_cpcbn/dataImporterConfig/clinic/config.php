@@ -432,7 +432,7 @@ function addonFunctionEnd(){
 					foreach($tx_methode_sorted_for_dfs as $next_tx_method) {					
 						if(isset($first_tx_list_per_method[$next_tx_method])) {
 							$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
-							if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient # $qc_tf_bank_participant_identifier.";
+							if($accuracy_warning) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient # $qc_tf_bank_participant_identifier.";
 							break;
 						}
 					}
@@ -457,7 +457,7 @@ function addonFunctionEnd(){
 	foreach($tx_methode_sorted_for_dfs as $next_tx_method) {
 		if(isset($first_tx_list_per_method[$next_tx_method])) {
 			$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
-			if($accuracy_warning) if(empty($m->values['SURVIVAL & BCR'])) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient # $qc_tf_bank_participant_identifier.";
+			if($accuracy_warning) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['free survival start event defintion'][] = "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient # $qc_tf_bank_participant_identifier.";
 			break;
 		}
 	}
@@ -494,7 +494,6 @@ function addonFunctionEnd(){
 			if($participant_id != $row['participant_id']) {
 				$participant_id = $row['participant_id'];
 				$first_bcr_dx_ids[$participant_id] = $row['id'];
-				
 				if($accuracy_warning) Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['first bcr defintion'][] = "Fisrt BCR has been defined based on bcrs with at least one unaccracy date. See patient # $previous_qc_tf_bank_participant_identifier.";
 				$accuracy_warning = false;
 				$previous_qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];;
@@ -519,7 +518,7 @@ function addonFunctionEnd(){
 		trt.start_date as dfs_date,
 		trt.start_date_accuracy as dfs_date_accuracy	
 		FROM diagnosis_masters dm 
-		INNER JOIN diagnosis_controls dc ON dc.category = 'primary' AND dc.controls_type = 'prostate' 
+		INNER JOIN diagnosis_controls dc ON dm.diagnosis_control_id = dc.id AND dc.category = 'primary' AND dc.controls_type = 'prostate' 
 		INNER JOIN participants part ON part.id = dm.participant_id
 		INNER JOIN treatment_masters trt ON trt.diagnosis_master_id = dm.id AND trt.qc_tf_disease_free_survival_start_events = 1
 		LEFT JOIN (
@@ -555,17 +554,17 @@ function addonFunctionEnd(){
 		$new_survival = '';
 		if(!empty($dfs_date) && !empty($survival_end_date)) {
 			if(in_array($survival_end_date_accuracy.$dfs_accuracy, array('cd','dc','cc'))) {
-				if($survival_end_date_accuracy.$dfs_accuracy != 'cc') Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival has been calculated with at least one unaccuracy date. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+				if($survival_end_date_accuracy.$dfs_accuracy != 'cc') Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival has been calculated with at least one inaccurate date (month precision or more). See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 				$dfs_date_ob = new DateTime($dfs_date);
 				$survival_end_date_ob = new DateTime($survival_end_date);
 				$interval = $dfs_date_ob->diff($survival_end_date_ob);
 				if($interval->invert) {
-					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival cannot be calculated because dates are not chronological. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+					Config::$summary_msg['SURVIVAL & BCR']['@@ERROR@@']['Survival'][] = "Survival cannot be calculated because dates are not chronological. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 				} else {
 					$new_survival = $interval->y*12 + $interval->m;
 				}
 			} else {
-					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival cannot be calculated on inaccurate dates. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "Survival cannot be calculated on inaccurate dates (month unknown). See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 			}
 		}
 	
@@ -574,17 +573,17 @@ function addonFunctionEnd(){
 		$new_bcr = '';
 		if(!empty($dfs_date) && !empty($bcr_date)) {
 			if(in_array($dfs_accuracy.$bcr_accuracy, array('cd','dc','cc'))) {
-				if($dfs_accuracy.$bcr_accuracy != 'cc') Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "BCR has been calculated with at least one unaccuracy date. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+				if($dfs_accuracy.$bcr_accuracy != 'cc') Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['Survival'][] = "BCR has been calculated with at least one inaccurate date (month precision or more). See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 				$dfs_date_ob = new DateTime($dfs_date);
 				$bcr_date_ob = new DateTime($bcr_date);
 				$interval = $dfs_date_ob->diff($bcr_date_ob);
 				if($interval->invert) {
-					Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['BCR'][] = "BCR cannot be calculated because dates are not chronological. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+					Config::$summary_msg['SURVIVAL & BCR']['@@ERROR@@']['BCR'][] = "BCR cannot be calculated because dates are not chronological. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 				} else {
 					$new_bcr = $interval->y*12 + $interval->m;
 				}
 			} else {
-				Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['BCR'][] = "BCR cannot be calculated  on inaccurate dates. See patient # ".$row['qc_tf_bank_participant_identifier'].".";
+				Config::$summary_msg['SURVIVAL & BCR']['@@WARNING@@']['BCR'][] = "BCR cannot be calculated  on inaccurate dates (month unknown). See patient # ".$row['qc_tf_bank_participant_identifier'].".";
 			}
 		} else {
 			$new_bcr = $new_survival;

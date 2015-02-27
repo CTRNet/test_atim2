@@ -25,25 +25,26 @@ if(!testExcelFile(array_keys($excel_files_names))) {
 	exit;
 }
 
+// *** PARSE EXCEL FILES ***
+
 foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
-	//New excel file so new bank
-	
-	$bank_participant_identifier_to_id = array('' => '-1');
-	$file_bank_name = null;
+	$file_bank_name = null;	//New excel file so new bank
+	$bank_participant_identifier_to_participant_id = array('-1' => '-1');
 	
 	// ******* Patient Data Update *******
 	
 	$worksheet_name = 'patient';
 	$summary_section_title = "Worksheet '$worksheet_name'";
+	
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Bank'])) {
-			if($file_bank_name && $file_bank_name != $excel_line_data['Bank']) die("ERR_NO_UNIQUE_FILE_BANK - $excel_file_name - $file_bank_name != ".$excel_line_data['Bank']);
+			if($file_bank_name && $file_bank_name != $excel_line_data['Bank']) die("ERR_MANY_BANKS : $excel_file_name - $file_bank_name != ".$excel_line_data['Bank']);
 			$file_bank_name = $excel_line_data['Bank'];
 			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
 			$atim_patient_data = getSelectQueryResult("SELECT p.* FROM participants p INNER JOIN banks b ON b.id = p.qc_tf_bank_id WHERE b.name = '".$excel_line_data['Bank']."' AND p.qc_tf_bank_participant_identifier = '".$excel_line_data['Patient # in biobank']."' AND p.deleted <>1;");
 			if(!empty($atim_patient_data)) {
 				$atim_patient_data = $atim_patient_data[0];
-				$bank_participant_identifier_to_id[$excel_line_data['Patient # in biobank']] = $atim_patient_data['id'];
+				$bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']] = $atim_patient_data['id'];
 				//Get Excel Value
 				$excel_patient_data = array();
 				$excel_field = 'Death from prostate cancer';
@@ -64,12 +65,12 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 				//Get ATiM Patient Data to Update
 				$data_to_update = getDataToUpdate($atim_patient_data, $excel_patient_data);		
 				updateTableData($atim_patient_data['id'], array('participants' => $data_to_update));
-				addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Upddated Participant Field(s)', $data_to_update);
+				addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Upddated participant field(s)', $data_to_update);
 			} else {
-				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank Patient Unknown", "No ATim Patient matches excel patient. Patient data won't be parsed. $summary_details_add_in");
+				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient unknown", "No ATim Patient matches excel patient. Patient data won't be parsed. $summary_details_add_in");
 			}
 		} else {
-			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank Column Missing", "'Bank' column is missing into worksheet '$worksheet_name'. No data will be parsed.");
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank column missing", "'Bank' column is missing into worksheet '$worksheet_name'. No data will be parsed.");
 		}
 	}
 		
@@ -77,8 +78,11 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 	
 	$worksheet_name = 'diagnosis';
 	$summary_section_title = "Worksheet '$worksheet_name'";
-	$existing_prostate_dxs = array();
-	$existing_bcrs = array();
+	
+	$atim_prostate_primary_diagnosis_data = array();
+	$atim_bcrs = array();
+	$atim_secondary_diagnosis = array();
+	
 	$query = "SELECT pr_dx.participant_id, 
 		pr_dx.id AS prostate_diagnosis_master_id, 
 		pr_dxd.hormonorefractory_status, 
@@ -89,150 +93,148 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 		FROM diagnosis_masters pr_dx
 		INNER JOIN ".$atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']." AS pr_dxd ON pr_dxd.diagnosis_master_id = pr_dx.id
 		LEFT JOIN diagnosis_masters bcr_dx ON pr_dx.id = bcr_dx.parent_id AND bcr_dx.deleted <> 1 AND bcr_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['id']."
-		LEFT JOIN qc_tf_dxd_recurrence_bio bcr_dxd ON bcr_dx.id = bcr_dxd.diagnosis_master_id
-		WHERE pr_dx.deleted <> 1 AND pr_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-prostate']['id']." AND pr_dx.participant_id IN (".implode(',', $bank_participant_identifier_to_id).");";
-	$participant_id_to_primary_diagnosis_ids = array('-1' => '-1');
+		LEFT JOIN ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] ." bcr_dxd ON bcr_dx.id = bcr_dxd.diagnosis_master_id
+		WHERE pr_dx.deleted <> 1 AND pr_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-prostate']['id']." AND pr_dx.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
 	foreach(getSelectQueryResult($query) as $new_record) {  
-		if(isset($existing_prostate_dxs[$new_record['participant_id']]) && $existing_prostate_dxs[$new_record['participant_id']]['id'] != $new_record['prostate_diagnosis_master_id']) {
-			//$participant_id_to_bank_participant_identifiers = array_flip($bank_participant_identifier_to_id);
-			//recordErrorAndMessage($summary_section_title, '@@ERROR@@', "More Than One Prostate Diagnosis", "Patient '".$participant_id_to_bank_participant_identifiers[$new_record['participant_id']]."' of the bank '$file_bank_name' is linked to more than one Prostate Diagnosis. Only first one will be considered. Review all the data!");
-			die("ERR_MANY_PROSTATE_DIAGNOSIS: Patient '".$participant_id_to_bank_participant_identifiers[$new_record['participant_id']]."' / bank '$file_bank_name'");
+		if(isset($atim_prostate_primary_diagnosis_data[$new_record['participant_id']])) {
+			if($atim_prostate_primary_diagnosis_data[$new_record['participant_id']]['id'] != $new_record['prostate_diagnosis_master_id']) {
+				$participant_id_to_bank_participant_identifiers = array_flip($bank_participant_identifier_to_participant_id);
+				die("ERR_MANY_PROSTATE_DIAGNOSIS: Patient '".$participant_id_to_bank_participant_identifiers[$new_record['participant_id']]."' / bank '$file_bank_name'");
+			}
 		} else {
-			$existing_prostate_dxs[$new_record['participant_id']] = array('id' => $new_record['prostate_diagnosis_master_id'], 'hormonorefractory_status' => $new_record['hormonorefractory_status']);
-			$participant_id_to_primary_diagnosis_ids[$new_record['participant_id']] = $new_record['prostate_diagnosis_master_id'];
+			$atim_prostate_primary_diagnosis_data[$new_record['participant_id']] = array('id' => $new_record['prostate_diagnosis_master_id'], 'hormonorefractory_status' => $new_record['hormonorefractory_status']);
 		}
-		if($new_record['bcr_diagnosis_master_id']) $existing_bcrs[$new_record['participant_id']][$new_record['bcr_dx_date']] = $new_record['bcr_type'];
+		if($new_record['bcr_diagnosis_master_id']) $atim_bcrs[$new_record['participant_id']][$new_record['bcr_dx_date']] = $new_record['bcr_type'];
 	}
-	$existing_secondary_diagnosis = array();
 	$query = "SELECT second_dx.participant_id,
-		second_dx.parent_id AS prostate_diagnosis_master_id,
 		second_dx.id AS second_diagnosis_master_id,
 		second_dx.dx_date AS second_dx_date,
 		second_dx.dx_date_accuracy AS second_dx_date_accuracy,
 		second_dxd.site AS second_site
-		FROM diagnosis_masters second_dx
+		FROM diagnosis_masters pr_dx
+		INNER JOIN diagnosis_masters second_dx ON pr_dx.id = second_dx.parent_id AND second_dx.deleted <> 1 AND second_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['secondary-other']['id']." 
 		INNER JOIN ".$atim_controls['diagnosis_controls']['secondary-other']['detail_tablename']." AS second_dxd ON second_dxd.diagnosis_master_id = second_dx.id
-		WHERE second_dx.deleted <> 1 AND second_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['secondary-other']['id']." AND second_dx.parent_id IN (".implode(',', $participant_id_to_primary_diagnosis_ids).");";
+		WHERE pr_dx.deleted <> 1 AND pr_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-prostate']['id']." AND pr_dx.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
 	foreach(getSelectQueryResult($query) as $new_record) {
-		if($new_record['second_diagnosis_master_id']) {
-			$existing_secondary_diagnosis[$new_record['participant_id']]['sites'][$new_record['second_site']][] = $new_record['second_dx_date'];
-			$existing_secondary_diagnosis[$new_record['participant_id']]['dates'][$new_record['second_dx_date']][] = empty($new_record['second_site'])? '-1' : $new_record['second_site'];
-		}
+		$atim_secondary_diagnosis[$new_record['participant_id']]['sites'][$new_record['second_site']][] = $new_record['second_dx_date'];
+		$atim_secondary_diagnosis[$new_record['participant_id']]['dates'][$new_record['second_dx_date']][] = empty($new_record['second_site'])? '-1' : $new_record['second_site'];
 	}
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Patient # in biobank'])) {
 			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
-			if(isset($bank_participant_identifier_to_id[$excel_line_data['Patient # in biobank']])) {				
-				$atim_participant_id = $bank_participant_identifier_to_id[$excel_line_data['Patient # in biobank']];
-				//1-Diagnosis Update
-				$excel_field = "hormonorefractory status status";
-				$excel_hormonorefractory_status = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qc_tf_hormonorefractory_status', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
-				if(strlen($excel_hormonorefractory_status)) {
-					//Get ATiM Diagnosis Data to Update
-					if(!isset($existing_prostate_dxs[$atim_participant_id])) {
-						recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Prostate Primary Diagnosis Missing", "No prostate diagnosis exists into ATiM but a diagnosis data hase to be updated. Data won't be migrated. $summary_details_add_in");
-					} else {
-						$data_to_update = getDataToUpdate($existing_prostate_dxs[$atim_participant_id], array('hormonorefractory_status' => $excel_hormonorefractory_status));
-						updateTableData($existing_prostate_dxs[$atim_participant_id]['id'], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename'] => $data_to_update));
-						addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Upddated Primary Prostate Diagnosis Field(s)', $data_to_update);
-					}
-				}
-				//2-Secondary Creation
-				$excel_metastasis_data = array();
-				$excel_field = "Development of metastasis Type of metastasis";
-				$excel_metastasis_data['site'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qc_tf_metastasis_type', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
-				$excel_field = "Development of metastasis Date";
-				list($excel_metastasis_data['dx_date'], $excel_metastasis_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
-				$excel_patient_data['dx_date_accuracy'] = updateWithExcelAccuracy($excel_metastasis_data['dx_date_accuracy'], $excel_line_data["Development of metastasis Accuracy"]);
-				$create_new_secondary = false;
-				if($excel_metastasis_data['dx_date']) {
-					if(isset($existing_secondary_diagnosis[$atim_participant_id]['dates'][$excel_metastasis_data['dx_date']])) {
-						if($excel_metastasis_data['site']) {
-							if(!in_array($excel_metastasis_data['site'], $existing_secondary_diagnosis[$atim_participant_id]['dates'][$excel_metastasis_data['dx_date']])) {
-								//A secondary exists for the same date but site are different
-								$create_new_secondary = true;
-								if(in_array('-1',  $existing_secondary_diagnosis[$atim_participant_id]['dates'][$excel_metastasis_data['dx_date']])) {
-									recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Secondary Diagnosis Created With Site But Undefined Secondary At Same Date Exists", "On '".$excel_metastasis_data['dx_date']."', a '".$excel_metastasis_data['site']."' secondary diagnosis has been created but an undefined secondary diagnosis was already defined for the same date into ATiM. Plase review data. $summary_details_add_in");
-								}
+			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']])) {				
+				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']];
+				if(isset($atim_prostate_primary_diagnosis_data[$atim_participant_id])) {
+					$diagnosis_master_id = $atim_prostate_primary_diagnosis_data[$atim_participant_id]['id'];
+					//1-Diagnosis Update
+					$excel_field = "hormonorefractory status status";
+					$new_diagnosis_data = array('hormonorefractory_status' => validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qc_tf_hormonorefractory_status', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in));
+					$data_to_update = getDataToUpdate($atim_prostate_primary_diagnosis_data[$atim_participant_id], $new_diagnosis_data);
+					updateTableData($atim_prostate_primary_diagnosis_data[$atim_participant_id]['id'], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename'] => $data_to_update));
+					addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Upddated primary prostate diagnosis field(s)', $data_to_update);
+					//2-Secondary Creation
+					$excel_metastasis_data = array();
+					$excel_field = "Development of metastasis Type of metastasis";
+					$excel_metastasis_data['site'] = validateAndGetStructureDomainValue($excel_line_data[$excel_field], 'qc_tf_metastasis_type', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+					$excel_field = "Development of metastasis Date";
+					list($excel_metastasis_data['dx_date'], $excel_metastasis_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+					$excel_patient_data['dx_date_accuracy'] = updateWithExcelAccuracy($excel_metastasis_data['dx_date_accuracy'], $excel_line_data["Development of metastasis Accuracy"]);
+					$create_new_secondary = false;
+					if($excel_metastasis_data['dx_date']) {
+						if(isset($atim_secondary_diagnosis[$atim_participant_id]['dates'][$excel_metastasis_data['dx_date']])) {
+							if($excel_metastasis_data['site']) {
+								if(!in_array($excel_metastasis_data['site'], $atim_secondary_diagnosis[$atim_participant_id]['dates'][$excel_metastasis_data['dx_date']])) {
+									//A secondary exists for the same date but site are different
+									$create_new_secondary = true;
+									if(in_array('-1',  $atim_secondary_diagnosis[$atim_participant_id]['dates'][$excel_metastasis_data['dx_date']])) {
+										recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Both known secondary and undefined secondary will exist into ATiM at the same date after update", "On '".$excel_metastasis_data['dx_date']."', a '".$excel_metastasis_data['site']."' secondary diagnosis has been created but an undefined secondary diagnosis was already defined for the same date into ATiM. Plase review data and update if required. $summary_details_add_in");
+									}
+								} else {
+									//Already created: same site same date
+								}							
 							} else {
-								//Already created: same site same date
-							}							
+								//No site into excel. A secondary already exists into ATiM for this date. We won't create a new one with no site.
+							}					
 						} else {
-							//No site into excel. A secondary already exists into ATiM for this date. We won't create a new one with no site.
-						}					
-					} else {
-						//No ATiM secondary exists into ATiM for this date: create new secondary
-						$create_new_secondary = true;
+							//No ATiM secondary exists into ATiM for this date: create new secondary
+							$create_new_secondary = true;
+						}
+					} else if($excel_metastasis_data['site']) {
+						if(!isset($atim_secondary_diagnosis[$atim_participant_id]['sites'][$excel_metastasis_data['site']])) {
+							$create_new_secondary = true;
+						} else {
+							//No date into excel. A secondary already exists into ATiM for this site. We won't create a new one with no date.
+						}
 					}
-				} else if($excel_metastasis_data['site']) {
-					if(!isset($existing_secondary_diagnosis[$atim_participant_id]['sites'][$excel_metastasis_data['site']])) {
-						$create_new_secondary = true;
-					} else {
-						//No date into excel. A secondary already exists into ATiM for this site. We won't create a new one with no date.
-					}
-				}
-				if($create_new_secondary) {
-					$secondary_data = array(
-						'diagnosis_masters' => array(
-							'participant_id' => $atim_participant_id,
-							'diagnosis_control_id' => $atim_controls['diagnosis_controls']['secondary-other']['id'],
-							'dx_date' => $excel_metastasis_data['dx_date'],
-							'dx_date_accuracy' => $excel_metastasis_data['dx_date_accuracy']),
-						$atim_controls['diagnosis_controls']['secondary-other']['detail_tablename'] => array(
-							'site' => $excel_metastasis_data['site']));
-					customInsertRecord($secondary_data);
-					addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created Secondary Diagnosis', $excel_metastasis_data);
-				}
-				//3-BCR
-				$excel_bcr_data = array();
-				$excel_field = "Date of biochemical recurrence Date";
-				list($excel_bcr_data['dx_date'], $excel_bcr_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
-				$excel_patient_data['dx_date_accuracy'] = updateWithExcelAccuracy($excel_metastasis_data['dx_date_accuracy'], $excel_line_data["Date of biochemical recurrence Accuracy"]);
-				$excel_field = "Date of biochemical recurrence Definition";
-				$excel_bcr_data['type'] = validateAndGetStructureDomainValue(str_replace(array('first PSA of at least 0.2 and rising'), array('qc_tf_first_psa_2'), $excel_line_data[$excel_field]), 'qc_tf_date_biochemical_recurrence_definition', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
-				if($excel_bcr_data['dx_date']) {
-					if(!array_key_exists($atim_participant_id, $existing_bcrs) || !array_key_exists($excel_bcr_data['dx_date'], $existing_bcrs[$atim_participant_id])) {
-						$bcr_data = array(
+					if($create_new_secondary) {
+						$secondary_data = array(
 							'diagnosis_masters' => array(
 								'participant_id' => $atim_participant_id,
-								'diagnosis_control_id' => $atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['id'],
-								'dx_date' => $excel_bcr_data['dx_date'],
-								'dx_date_accuracy' => $excel_bcr_data['dx_date_accuracy']),
-							$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] => array(
-								'type' => $excel_bcr_data['type']));
+								'diagnosis_control_id' => $atim_controls['diagnosis_controls']['secondary-other']['id'],
+								'primary_id' => $diagnosis_master_id,
+								'parent_id' => $diagnosis_master_id,
+								'dx_date' => $excel_metastasis_data['dx_date'],
+								'dx_date_accuracy' => $excel_metastasis_data['dx_date_accuracy']),
+							$atim_controls['diagnosis_controls']['secondary-other']['detail_tablename'] => array(
+								'site' => $excel_metastasis_data['site']));
 						customInsertRecord($secondary_data);
-						addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created BCR Diagnosis', $excel_bcr_data);
-					} else if($existing_bcrs[$atim_participant_id][$excel_bcr_data['dx_date']] != $excel_bcr_data['type'] ) {
-						recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Types Of BCR Does Not Match", "Types of BCR does not match on '".$excel_bcr_data['dx_date']."' between ATiM '".$existing_bcrs[$atim_participant_id][$excel_bcr_data['dx_date']]."' and Excel '".$excel_bcr_data['type']."'. Plase review data. $summary_details_add_in");
+						addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created Secondary Diagnosis', $excel_metastasis_data);
 					}
-				} else if($excel_bcr_data['type']) {
-					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "BCR Date Missing", "BCR date is missing. BCR data won't be parsed. Plase review data. $summary_details_add_in");
+					//3-BCR
+					$excel_bcr_data = array();
+					$excel_field = "Date of biochemical recurrence Date";
+					list($excel_bcr_data['dx_date'], $excel_bcr_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+					$excel_patient_data['dx_date_accuracy'] = updateWithExcelAccuracy($excel_metastasis_data['dx_date_accuracy'], $excel_line_data["Date of biochemical recurrence Accuracy"]);
+					$excel_field = "Date of biochemical recurrence Definition";
+					$excel_bcr_data['type'] = validateAndGetStructureDomainValue(str_replace(array('first PSA of at least 0.2 and rising'), array('qc_tf_first_psa_2'), $excel_line_data[$excel_field]), 'qc_tf_date_biochemical_recurrence_definition', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+					if($excel_bcr_data['dx_date']) {
+						if(!array_key_exists($atim_participant_id, $atim_bcrs) || !array_key_exists($excel_bcr_data['dx_date'], $atim_bcrs[$atim_participant_id])) {
+							$bcr_data = array(
+								'diagnosis_masters' => array(
+									'participant_id' => $atim_participant_id,
+									'diagnosis_control_id' => $atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['id'],
+									'primary_id' => $diagnosis_master_id,
+									'parent_id' => $diagnosis_master_id,
+									'dx_date' => $excel_bcr_data['dx_date'],
+									'dx_date_accuracy' => $excel_bcr_data['dx_date_accuracy']),
+								$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] => array(
+									'type' => $excel_bcr_data['type']));
+							customInsertRecord($bcr_data);
+							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created BCR', $excel_bcr_data);
+						} else if($atim_bcrs[$atim_participant_id][$excel_bcr_data['dx_date']] != $excel_bcr_data['type'] ) {
+							recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Types Of BCR does not match", "Types of BCR does not match on '".$excel_bcr_data['dx_date']."'. See following values: ATiM '".$atim_bcrs[$atim_participant_id][$excel_bcr_data['dx_date']]."' & Excel '".$excel_bcr_data['type']."'. Data won't be updated. $summary_details_add_in");
+						}
+					} else if($excel_bcr_data['type']) {
+						recordErrorAndMessage($summary_section_title, '@@ERROR@@', "BCR date missing", "The date of the '".$excel_bcr_data['type']."' BCR is missing. New BCR won't be created. Plase review data. $summary_details_add_in");
+					}
+				} else {
+					recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Missing prostate primary diagnosis", "No prostate primary diagnosis was defined into ATiM. Diagnosis, bcr and secondaries won't be parsed. $summary_details_add_in");
 				}
 			} else {
-				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank Patient Un-Parsed", "The patient was not defined into 'Patient' worksheet. Patient data won't be parsed. $summary_details_add_in");
+				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Patient data won't be parsed. $summary_details_add_in");
 			}
 		}
 	}
-	unset($existing_prostate_dxs);
-	unset($existing_bcrs);
-	unset($existing_secondary_diagnosis);
+	unset($atim_bcrs);
+	unset($atim_secondary_diagnosis);
 	
-	// ******* Event Data Update *******
+	// ******* Event/Treatment Data Update *******
 	
 	$worksheet_name = 'event';
 	$summary_section_title = "Worksheet '$worksheet_name'";
-	$existing_psa = array();
+	
+	$atim_psa = array();
+	$atim_radiotherapies = array();
+	$atim_therapies_with_drugs = array();
+	
 	$query = "SELECT em.participant_id,
 		em.event_date, 
 		em.event_date_accuracy,
 		ed.psa_ng_per_ml
 		FROM event_masters em
 		INNER JOIN ".$atim_controls['event_controls']['psa']['detail_tablename']." ed ON ed.event_master_id = em.id
-		WHERE em.deleted <> 1 AND em.event_control_id = ".$atim_controls['event_controls']['psa']['id']." AND em.participant_id IN (".implode(',', $bank_participant_identifier_to_id).");";
-	foreach(getSelectQueryResult($query) as $new_record) {
-		$existing_psa[$new_record['participant_id']][$new_record['event_date']] = $new_record['psa_ng_per_ml'];
-	}
-	$existing_radiotherapies = array();
+		WHERE em.deleted <> 1 AND em.event_control_id = ".$atim_controls['event_controls']['psa']['id']." AND em.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
+	foreach(getSelectQueryResult($query) as $new_record) $atim_psa[$new_record['participant_id']][$new_record['event_date']] = $new_record['psa_ng_per_ml'];
 	$query = "SELECT tm.participant_id,
 		tm.start_date,
 		tm.start_date_accuracy,
@@ -242,12 +244,8 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 		td.qc_tf_type
 		FROM treatment_masters tm 
 		INNER JOIN ".$atim_controls['treatment_controls']['radiation']['detail_tablename']." td ON tm.id = td.treatment_master_id
-		WHERE tm.deleted <> 1 AND tm.treatment_control_id  = ".$atim_controls['treatment_controls']['radiation']['id']." AND tm.participant_id IN (".implode(',', $bank_participant_identifier_to_id).");";
-	foreach(getSelectQueryResult($query) as $new_record) {
-		$existing_radiotherapies[$new_record['participant_id']][$new_record['start_date']] = $new_record;
-	}
-	
-	$existing_therapies_with_drugs = array();
+		WHERE tm.deleted <> 1 AND tm.treatment_control_id  = ".$atim_controls['treatment_controls']['radiation']['id']." AND tm.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
+	foreach(getSelectQueryResult($query) as $new_record) $atim_radiotherapies[$new_record['participant_id']][$new_record['start_date']] = $new_record;
 	foreach(array('hormonotherapy', 'chemotherapy', 'other treatment bone specific', 'other treatment HR specific') as $tx_method) {
 		$query = "SELECT tm.participant_id,
 			tm.id AS treatment_master_id,
@@ -261,27 +259,27 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 			LEFT JOIN treatment_extend_masters tem ON tem.treatment_master_id = tm.id AND tem.deleted <> 1 AND tem.treatment_extend_control_id = ".$atim_controls['treatment_controls'][$tx_method]['treatment_extend_control_id']."
 			LEFT JOIN ".$atim_controls['treatment_controls'][$tx_method]['treatment_extend_detail_tablename']." ted ON tem.id = ted.treatment_extend_master_id
 			LEFT JOIN drugs dr ON dr.id = ted.drug_id AND dr.deleted <> 1
-			WHERE tm.deleted <> 1 AND tm.treatment_control_id  = ".$atim_controls['treatment_controls'][$tx_method]['id']." AND tm.participant_id IN (".implode(',', $bank_participant_identifier_to_id).");";
+			WHERE tm.deleted <> 1 AND tm.treatment_control_id  = ".$atim_controls['treatment_controls'][$tx_method]['id']." AND tm.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
 		foreach(getSelectQueryResult($query) as $new_record) {
-			if(!isset($existing_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']])) {
+			if(!isset($atim_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']])) {
 				$new_record['drugs'] = array();
 				if($new_record['generic_name']) $new_record['drugs'][$new_record['generic_name']] = $new_record['generic_name'];
 				unset($new_record['generic_name']);
-				$existing_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']] = $new_record;
+				$atim_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']] = $new_record;
 			} else {
-				if($new_record['generic_name']) $existing_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']]['drugs'][] = $new_record['generic_name'];
+				if($new_record['generic_name']) $atim_therapies_with_drugs[$tx_method][$new_record['participant_id']][$new_record['start_date']][$new_record['treatment_master_id']]['drugs'][$new_record['generic_name']] = $new_record['generic_name'];
 			}
 		}
 	}
 	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
 		if(isset($excel_line_data['Patient # in biobank'])) {
 			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
-			if(isset($bank_participant_identifier_to_id[$excel_line_data['Patient # in biobank']])) {				
-				$atim_participant_id = $bank_participant_identifier_to_id[$excel_line_data['Patient # in biobank']];
-				if(isset($participant_id_to_primary_diagnosis_ids[$atim_participant_id])) {
-					$diagnosis_master_id = $participant_id_to_primary_diagnosis_ids[$atim_participant_id];
-					$nbr_of_defined_treatement_types = 0;
-					//Get Dates
+			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']])) {				
+				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']];
+				if(isset($atim_prostate_primary_diagnosis_data[$atim_participant_id])) {
+					$diagnosis_master_id = $atim_prostate_primary_diagnosis_data[$atim_participant_id]['id'];
+					$nbr_of_defined_treatement_types_on_row = 0;
+					//0-Get Event Dates
 					$excel_event_dates = array();
 					$excel_field = "Dates of event Date of event (beginning)";
 					list($excel_event_dates['start_date'], $excel_event_dates['start_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
@@ -293,23 +291,23 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 					$excel_field = "PSA (ng/ml)";
 					$excel_psa = validateAndGetDecimal($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 					if(strlen($excel_psa)) {
-						$nbr_of_defined_treatement_types++;
-						if(isset($existing_psa[$atim_participant_id][$excel_event_dates['start_date']])) {
-							if($existing_psa[$atim_participant_id][$excel_event_dates['start_date']] != $excel_psa) {
-								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "PSA Value Does Not Match", "See ATiM value [".$existing_psa[$atim_participant_id][$excel_event_dates['start_date']]."] and excel value [$excel_psa] on '".$excel_event_dates['start_date']."'. Data won't be updated. $summary_details_add_in");	
+						$nbr_of_defined_treatement_types_on_row++;
+						if(isset($atim_psa[$atim_participant_id][$excel_event_dates['start_date']])) {
+							if($atim_psa[$atim_participant_id][$excel_event_dates['start_date']] != $excel_psa) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "PSA values don't match", "See PSA values on '".$excel_event_dates['start_date']."': ATiM value [".$atim_psa[$atim_participant_id][$excel_event_dates['start_date']]."] != Excel value [$excel_psa] . Data won't be updated. $summary_details_add_in");	
 							}
 						} else {
+							$event_dates = array('event_date' => $excel_event_dates['start_date'], 'event_date_accuracy' => $excel_event_dates['start_date_accuracy']);
 							$psa_data = array(
-								'event_masters' => array(
-									'participant_id' => $atim_participant_id,
-									'diagnosis_master_id' => $diagnosis_master_id,
-									'event_control_id' => $atim_controls['event_controls']['psa']['id'],
-									'event_date' => $excel_event_dates['start_date'],
-									'event_date_accuracy' => $excel_event_dates['start_date_accuracy']),
+								'event_masters' => array_merge(
+									array('participant_id' => $atim_participant_id,
+										'diagnosis_master_id' => $diagnosis_master_id,
+										'event_control_id' => $atim_controls['event_controls']['psa']['id']),
+									$event_dates),
 								 $atim_controls['event_controls']['psa']['detail_tablename'] => array(
 									'psa_ng_per_ml' => $excel_psa));
 							customInsertRecord($psa_data);
-							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created PSA', array_merge(array('event_date' => $excel_event_dates['start_date'], 'event_date_accuracy' => $excel_event_dates['start_date_accuracy']), array('psa_ng_per_ml' => $excel_psa)));
+							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created PSA', array_merge($event_dates, array('psa_ng_per_ml' => $excel_psa)));
 						}
 					}
 					//2-Radiotherapy
@@ -318,108 +316,125 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 					$excel_field = "radiotherapy dose cGy";
 					$qc_tf_dose_cg = validateAndGetInteger($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
 					if(strlen($qc_tf_type) || strlen($qc_tf_type)) {
-						$nbr_of_defined_treatement_types++;
-						if(isset($existing_radiotherapies[$atim_participant_id][$excel_event_dates['start_date']])) {
-							$mismatch_data = getDataToUpdate($existing_radiotherapies[$atim_participant_id][$excel_event_dates['start_date']],
-								array_merge($excel_event_dates, array('participant_id' => $atim_participant_id, 'qc_tf_type' => $qc_tf_type, 'qc_tf_dose_cg' => $qc_tf_dose_cg)));
-							if($mismatch_data) {
+						$nbr_of_defined_treatement_types_on_row++;
+						if(isset($atim_radiotherapies[$atim_participant_id][$excel_event_dates['start_date']])) {
+							//Just add a note if data does not match
+							$data_that_could_be_updated = getDataToUpdate($atim_radiotherapies[$atim_participant_id][$excel_event_dates['start_date']], array_merge($excel_event_dates, array('qc_tf_type' => $qc_tf_type, 'qc_tf_dose_cg' => $qc_tf_dose_cg)));
+							if($data_that_could_be_updated) {
 								$diff_strg = array();
-								foreach($mismatch_data as $key => $excel_value) $diff_strg[] = "$key : '".$existing_radiotherapies[$atim_participant_id][$excel_event_dates['start_date']][$key]."'(ATiM) != '$excel_value'(Excel)";
+								foreach($data_that_could_be_updated as $field => $excel_value) $diff_strg[] = "$field : '".$atim_radiotherapies[$atim_participant_id][$excel_event_dates['start_date']][$field]."'(ATiM) != '$excel_value'(Excel)";
 								$diff_strg = implode (' & ', $diff_strg);
-								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Radiation Value(s) Does Not Match", "See following values [$diff_strg]. Data won't be updated. $summary_details_add_in");
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Radiation value(s) does not match", "Radiation value(s) on '".$excel_event_dates['start_date']."' does not match ($diff_strg). Data won't be updated. Please check and update if required. $summary_details_add_in");
 							}
-//TODO Should we update values in case values are empty into ATiM? Todo if many cases.				
+							
 						} else {
 							$tx_data = array(
 								'treatment_masters' => array_merge(
-									array('participant_id' => $atim_participant_id, 'diagnosis_master_id' => $diagnosis_master_id, 'treatment_control_id' => $atim_controls['treatment_controls']['radiation']['id']), 
+									array('participant_id' => $atim_participant_id, 
+										'diagnosis_master_id' => $diagnosis_master_id, 
+										'treatment_control_id' => $atim_controls['treatment_controls']['radiation']['id']), 
 									$excel_event_dates),
 								$atim_controls['treatment_controls']['radiation']['detail_tablename'] => array(
 									'qc_tf_type' => $qc_tf_type,
 									'qc_tf_dose_cg' => $qc_tf_dose_cg));
 							customInsertRecord($tx_data);
-							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created Radiotherpay', array_merge($excel_event_dates, $tx_data[$atim_controls['treatment_controls']['radiation']['detail_tablename']]));
+							addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created radiotherpay', array_merge($excel_event_dates, $tx_data[$atim_controls['treatment_controls']['radiation']['detail_tablename']]));
 						}
 					}	
 					//3-Treatment Linked To Drugs
 					$excel_drug_list = array();
+					$treatment_with_drug_detected = false;
 					for($i = 1; $i < 5; $i ++) {
 						$key = 'treatment Precision drug '.$i;
 						if(!in_array($excel_line_data[$key], array('', 'no', 'unknown'))){
-							$excel_drug_list['Drug '.$i] = $excel_line_data[$key];
+							$excel_drug_list['Drug-'.$i] = $excel_line_data[$key];
 						}
 					}
-					$treatment_with_drug_detected = false;
-					foreach(array(array('hormonotherapy', 'hormonotherapy', 'hormonal'), array('chemotherapy', 'chemiotherapy', 'chemotherapy'), array('other treatment', 'Other treatments', '?')) as $new_treatment_data) {
-						list($treatment_type, $excel_field, $drug_type) = $new_treatment_data;
+					foreach(array(array('hormonotherapy', 'hormonotherapy', 'hormonal'), array('chemiotherapy', 'chemotherapy', 'chemotherapy'), array('Other treatments', 'other treatment', '?')) as $new_treatment_data) {
+						list($excel_field, $atim_treatment_type, $drug_type) = $new_treatment_data;
 						$excel_line_data[$excel_field] = str_replace(array('no', 'unknown') , array('', ''), strtolower($excel_line_data[$excel_field]));
-						if($excel_field == 'Other treatments') {
-							if(in_array($excel_line_data[$excel_field], array('bone specific', 'hr specific'))) {
-								$treatment_type = 'other treatment '.(($excel_line_data[$excel_field] == 'bone specific')? 'bone specific' : 'HR specific');
-								$drug_type = ($excel_line_data[$excel_field] == 'bone specific')? 'bone' : 'HR';
-								$excel_line_data[$excel_field] = 'yes';								
+						if($atim_treatment_type == 'other treatment') {
+							switch($excel_line_data[$excel_field]) {
+								case 'bone specific':
+									$atim_treatment_type = 'other treatment bone specific';
+									$drug_type = 'bone';
+									$excel_line_data[$excel_field] = 'yes';
+									break;
+								case 'hr specific':
+									$atim_treatment_type = 'other treatment HR specific';
+									$drug_type = 'HR';
+									$excel_line_data[$excel_field] = 'yes';
+									break;
+								case 'yes':
+									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The $excel_field value not supported", "See value [".$excel_line_data[$excel_field]."]. Treatment won't be parsed. $summary_details_add_in");
+									$excel_line_data[$excel_field] == '';
+									break;
 							}
 						}
 						if($excel_line_data[$excel_field] == 'yes') {
-							$nbr_of_defined_treatement_types++;
+							$nbr_of_defined_treatement_types_on_row++;
 							$treatment_with_drug_detected = true;
-							if(isset($existing_therapies_with_drugs[$treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) {
-								if(sizeof(isset($existing_therapies_with_drugs[$treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) > 1) {
-									recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Too Many $treatment_type On Same date", "More than one $treatment_type exists into ATiM on '".$excel_event_dates['start_date']."' for the patient. Migration process won't be able to select the good one. The $treatment_type data won't be updated. $summary_details_add_in");
+							if(isset($atim_therapies_with_drugs[$atim_treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) {
+								if(sizeof(isset($atim_therapies_with_drugs[$atim_treatment_type][$atim_participant_id][$excel_event_dates['start_date']])) > 1) {
+									recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Too many $atim_treatment_type on same date", "More than one $atim_treatment_type exists into ATiM on '".$excel_event_dates['start_date']."' for the patient. Migration process won't be able to select the good one. The $atim_treatment_type data won't be updated. Please process manually after migration. $summary_details_add_in");
 								} else {
-									$atim_data = array_shift($existing_therapies_with_drugs[$treatment_type][$atim_participant_id][$excel_event_dates['start_date']]);
+									$matching_atim_treatment = current($atim_therapies_with_drugs[$atim_treatment_type][$atim_participant_id][$excel_event_dates['start_date']]);
 									$updated_tx_data = array();
-									//Compare Finish Dates
-									if($atim_data['finish_date'] != $excel_event_dates['finish_date']) {
-										if(!$atim_data['finish_date']) {
+									//Compare finish dates
+									if($excel_event_dates['finish_date']) {
+										if(!$matching_atim_treatment['finish_date']) {
+											//Finish date was not set into ATiM
 											$updated_tx_data = array('finish_date' => $excel_event_dates['finish_date'], 'finish_date_accuracy' => $excel_event_dates['finish_date_accuracy']);
-											updateTableData($atim_data['treatment_master_id'], array('treatment_masters' => $updated_tx_data));
-										} else if($excel_event_dates['finish_date']) {
-											recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Different Finish Data", "The finish dates of the $treatment_type started on '".$excel_event_dates['start_date']."' are different ('".$atim_data['finish_date']."'(ATiM) != '".$excel_event_dates['finish_date']."'(Excel)). Migration process won't be able to select the good one. Date won't be updated. $summary_details_add_in");
+											updateTableData($matching_atim_treatment['treatment_master_id'], array('treatment_masters' => $updated_tx_data));
+										} else if($matching_atim_treatment['finish_date'] != $excel_event_dates['finish_date']) {
+											recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The $atim_treatment_type Finish dates does not match", "The finish dates of the $atim_treatment_type started on '".$excel_event_dates['start_date']."' are different ('".$matching_atim_treatment['finish_date']."'(ATiM) != '".$excel_event_dates['finish_date']."'(Excel)). Migration process won't be able to select the good one. Date won't be updated. $summary_details_add_in");
 										}
-									}
+									}									
 									//Compare drugs
-									$formated_excel_list = array();
-									foreach($excel_drug_list as $new_drug) $formated_excel_list[strtolower($new_drug)] = strtolower($new_drug);
-									$formated_atim_list = array();
-									foreach($atim_data['drugs'] as $new_drug) $formated_atim_list[strtolower($new_drug)] = strtolower($new_drug);
-									$drug_only_into_atim = array();;
-									$created_drug_counter = 0;
-									foreach(array_merge($formated_excel_list, $formated_atim_list) as $drug_name) {
-										if(in_array($drug_name, $formated_excel_list) && in_array($drug_name, $formated_atim_list)) {
-											//Nothing to do
-										} else if(in_array($drug_name, $formated_excel_list)) {
+									$formated_excel_drugs_list = array();
+									foreach($excel_drug_list as $new_drug) $formated_excel_drugs_list[strtolower($new_drug)] = strtolower($new_drug);
+									$formated_atim_drugs_list = array();
+									foreach($matching_atim_treatment['drugs'] as $new_drug) $formated_atim_drugs_list[strtolower($new_drug)] = strtolower($new_drug);
+									$drugs_only_listed_into_atim = array();;
+									$created_drug_counter_for_display = 0;
+									foreach(array_merge($formated_excel_drugs_list, $formated_atim_drugs_list) as $drug_name) {
+										if(in_array($drug_name, $formated_excel_drugs_list) && in_array($drug_name, $formated_atim_drugs_list)) {
+											//Both in excel and ATiM: nothing to update or create
+										} else if(in_array($drug_name, $formated_excel_drugs_list)) {
+											//Drug into excel (only)
 											$drug_id = getDrugId($drug_name, $drug_type);
 											if($drug_id) {
-												$created_drug_counter++;
+												$created_drug_counter_for_display++;
 												$tx_ext_data = array(
 													'treatment_extend_masters' => array(
-														'treatment_master_id' => $atim_data['treatment_master_id'],
-														'treatment_extend_control_id' => $atim_controls['treatment_controls'][$treatment_type]['treatment_extend_control_id']),
-													$atim_controls['treatment_controls'][$treatment_type]['treatment_extend_detail_tablename'] => array(
+														'treatment_master_id' => $matching_atim_treatment['treatment_master_id'],
+														'treatment_extend_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_control_id']),
+													$atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_detail_tablename'] => array(
 														'drug_id' => $drug_id));
 												customInsertRecord($tx_ext_data);
-												$updated_tx_data['Created Drug'.$created_drug_counter] = $drug_name;
+												$updated_tx_data['drug_creation_#'.$created_drug_counter_for_display] = $drug_name;
 											}
 										} else {
-											//Drug Only Into ATiM
-											$drug_only_into_atim[] = $drug_name;
+											//Drug Only into ATiM
+											$drugs_only_listed_into_atim[] = $drug_name;
 										}
 									}
-									if($drug_only_into_atim) {
-										recordErrorAndMessage($summary_section_title, '@@WARNING@@', "$treatment_type Drugs Only Into ATiM", "See following drugs [".implode(' & ', $drug_only_into_atim)."] of treatment strated on '".$excel_event_dates['start_date']."'. Data won't be updated. $summary_details_add_in");
+									if($drugs_only_listed_into_atim) {
+										recordErrorAndMessage($summary_section_title, '@@WARNING@@', "One ro many $atim_treatment_type drugs are only listed into ATiM", "Following drugs [".implode(' & ', $drugs_only_listed_into_atim)."] of treatment strated on '".$excel_event_dates['start_date']."' are only defined into ATiM and don't match a drug listed into the excel file row. No ATiM drug will be erased. Plases confirm and correct if required. $summary_details_add_in");
 									}
 									if($updated_tx_data) {
-										addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Upddated $treatment_type started on ".$excel_event_dates['start_date'], $updated_tx_data);
+										addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Upddated $atim_treatment_type started on ".$excel_event_dates['start_date'], $updated_tx_data);
 									}
 								}
 							} else {
 								//TreatmentMaster
 								$tx_data = array(
 									'treatment_masters' => array_merge(
-										array('participant_id' => $atim_participant_id, 'diagnosis_master_id' => $diagnosis_master_id, 'treatment_control_id' => $atim_controls['treatment_controls'][$treatment_type]['id']),
+										array('participant_id' => $atim_participant_id, 
+											'diagnosis_master_id' => $diagnosis_master_id, 
+											'treatment_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['id']),
 										$excel_event_dates),
-									$atim_controls['treatment_controls'][$treatment_type]['detail_tablename'] => array());
+									$atim_controls['treatment_controls'][$atim_treatment_type]['detail_tablename'] => array());
 								$treatment_master_id = customInsertRecord($tx_data);
 								if($excel_drug_list) {
 									//TreatmentExtendMaster
@@ -429,57 +444,138 @@ foreach($excel_files_names as $excel_file_name => $excel_xls_offset) {
 											$tx_ext_data = array(
 												'treatment_extend_masters' => array(
 													'treatment_master_id' => $treatment_master_id, 
-													'treatment_extend_control_id' => $atim_controls['treatment_controls'][$treatment_type]['treatment_extend_control_id']),
-												$atim_controls['treatment_controls'][$treatment_type]['treatment_extend_detail_tablename'] => array(
+													'treatment_extend_control_id' => $atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_control_id']),
+												$atim_controls['treatment_controls'][$atim_treatment_type]['treatment_extend_detail_tablename'] => array(
 													'drug_id' => $drug_id));
 											customInsertRecord($tx_ext_data);
 										}
 									}
 								}
-								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Created $treatment_type", array_merge($excel_event_dates, $excel_drug_list));
+								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], "Created $atim_treatment_type", array_merge($excel_event_dates, $excel_drug_list));
 							}
 						} else if(strlen($excel_line_data[$excel_field])) {
-							recordErrorAndMessage($summary_section_title, '@@ERROR@@', "$excel_field Value Not Supported", "See value [".$excel_line_data[$excel_field]."]. No treatment will be migrated. $summary_details_add_in");
+							recordErrorAndMessage($summary_section_title, '@@ERROR@@', "The $excel_field value not supported", "See value [".$excel_line_data[$excel_field]."]. Treatment won't be parsed. $summary_details_add_in");
 						}			
 					}
 					if(!$treatment_with_drug_detected && !empty($excel_drug_list)) {
-						recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Drugs List With No Treatment", "A drug list has been defined but no treatment to link to this one is defined into excel. No drug will be migrated. $summary_details_add_in");
+						recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Drugs list but no treatment defined", "A drugs list is defined but no treatment to link to this one has been detected into the excel row. No drug will be migrated or updated. $summary_details_add_in");
 					}
-					//Check only on treatment per row is defined
-					if($nbr_of_defined_treatement_types > 1) {
-						recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More Than One Treatment Type Defined On The Same Row", "Please review data and validate migration. $summary_details_add_in");
+					//Check only one treatment/event per row is defined
+					if($nbr_of_defined_treatement_types_on_row > 1) {
+						recordErrorAndMessage($summary_section_title, '@@WARNING@@', "More than one treatment or event is defined on the same row", "Please review migrated/updated data and validate. $summary_details_add_in");
 					}
 				} else {
-					recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Missing Prostate Primary Diagnosis", "No prostate primary diagnosis was defined into ATiM. Event won't be parsed. $summary_details_add_in");	
+					recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Missing prostate primary diagnosis", "No prostate primary diagnosis was defined into ATiM. Event data won't be parsed. $summary_details_add_in");	
 				}
 			} else {
-				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank Patient Un-Parsed", "The patient was not defined into 'Patient' worksheet. Patient data won't be parsed. $summary_details_add_in");
+				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Event data won't be parsed. $summary_details_add_in");
 			}
 		}
-	}	
+	}
+	unset($atim_prostate_primary_diagnosis_data);
+	unset($atim_psa);
+	unset($atim_radiotherapies);
+	unset($atim_therapies_with_drugs);
+
+	// ******* Secondary Data Update *******
+	
+	$worksheet_name = 'other cancer';
+	$summary_section_title = "Worksheet '$worksheet_name'";
+	
+	$atim_other_primary_diagnosis_data = array('sorted_by_dates_and_sites' => array(), 'sorted_by_dates' => array(), 'sorted_by_sites' => array(), 'unknown_diagnosis' => array());
+	
+	$query = "SELECT other_dx.participant_id,
+		other_dx.id AS diagnosis_master_id,
+		other_dx.dx_date,
+		other_dx.dx_date_accuracy,
+		other_dxd.type
+		FROM diagnosis_masters other_dx
+		INNER JOIN ".$atim_controls['diagnosis_controls']['primary-other']['detail_tablename']." AS other_dxd ON other_dxd.diagnosis_master_id = other_dx.id
+		WHERE other_dx.deleted <> 1 AND other_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-other']['id']." AND other_dx.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
+	foreach(getSelectQueryResult($query) as $new_record) {
+		$atim_other_primary_diagnosis_data['sorted_by_dates_and_sites'][$new_record['participant_id']][$new_record['dx_date'].'|'.$new_record['type']][] = $new_record;
+		$atim_other_primary_diagnosis_data['sorted_by_dates'][$new_record['participant_id']][$new_record['dx_date']][] = $new_record;
+		$atim_other_primary_diagnosis_data['sorted_by_sites'][$new_record['participant_id']][$new_record['type']][] = $new_record;
+	}
+	$query = "SELECT unknown_dx.participant_id,
+		unknown_dx.id AS diagnosis_master_id,
+		unknown_dx.dx_date,
+		unknown_dx.dx_date_accuracy
+		FROM diagnosis_masters unknown_dx
+		WHERE unknown_dx.deleted <> 1 AND unknown_dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['id']." AND unknown_dx.participant_id IN (".implode(',', $bank_participant_identifier_to_participant_id).");";
+	foreach(getSelectQueryResult($query) as $new_record) $atim_other_primary_diagnosis_data['unknown_diagnosis'][$new_record['participant_id']][$new_record['dx_date']][] = $new_record;
+	
+	while(list($line_number, $excel_line_data) = getNextExcelLineData($excel_file_name, $worksheet_name, 2, $excel_xls_offset)) {
+		if(isset($excel_line_data['Patient # in biobank'])) {
+			$summary_details_add_in = "Patient '".$excel_line_data['Patient # in biobank']."' / bank '$file_bank_name' / line '$line_number'";
+			if(isset($bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']])) {
+				$atim_participant_id = $bank_participant_identifier_to_participant_id[$excel_line_data['Patient # in biobank']];
+				$excel_diagnosis_data = array();
+				$excel_field = "Date of diagnostics Date";
+				list($excel_diagnosis_data['dx_date'], $excel_diagnosis_data['dx_date_accuracy']) = validateAndGetDateAndAccuracy($excel_line_data[$excel_field], $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				$excel_diagnosis_data['dx_date_accuracy'] = updateWithExcelAccuracy($excel_diagnosis_data['dx_date_accuracy'], $excel_line_data["Date of diagnostics Accuracy"]);
+				$excel_field = "cancer type";
+				$excel_diagnosis_data['type'] = validateAndGetStructureDomainValue(str_replace('non - hodgkin', 'non-hodgkin', strtolower(str_replace('-',' - ', $excel_line_data[$excel_field]))), 'qc_tf_radiotherapy_type', $summary_section_title, "$worksheet_name::$excel_field", $summary_details_add_in);
+				if($excel_diagnosis_data['type'] == 'prostate') die("ERR_PROSTATE_OTHER_DIAGNOSIS: ".$summary_details_add_in);
+				if($excel_diagnosis_data['type'] || $excel_diagnosis_data['dx_date']) {
+					if($excel_diagnosis_data['type'] == 'other - primary unknown') {
+						//1--Unknown diagnosis
+						if(!isset($atim_other_primary_diagnosis_data['unknown_diagnosis'][$atim_participant_id][$excel_diagnosis_data['dx_date']])) {
+							if(isset($atim_other_primary_diagnosis_data['unknown_diagnosis'][$atim_participant_id])) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis already exists", "No new one will be created. Please review migrated/updated data, validate and create the new one if required. $summary_details_add_in");
+							} else {
+								$unknown_dx = array(
+									'diagnosis_masters' => array(
+										'participant_id' => $atim_participant_id,
+										'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['id'],
+										'dx_date' => $excel_diagnosis_data['dx_date'],
+										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy']),
+									$atim_controls['diagnosis_controls']['primary-primary diagnosis unknown']['detail_tablename'] => array());
+								customInsertRecord($unknown_dx);
+								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created unknown primary diagnosis', $excel_diagnosis_data);
+							}
+						}
+					} else {
+						//2--Other Primary
+						if(!isset($atim_other_primary_diagnosis_data['sorted_by_dates_and_sites'][$atim_participant_id][$excel_diagnosis_data['dx_date'].'|'.$excel_diagnosis_data['type']])) {
+							if(isset($atim_other_primary_diagnosis_data['sorted_by_dates'][$atim_participant_id][$excel_diagnosis_data['dx_date']])) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An other primary diagnosis already exists on the same date", "No ".(empty($excel_diagnosis_data['type'])? "new other primary diagnosis" : "new '".$excel_diagnosis_data['type']."' other primary diagnosis")." will be created ".(empty($excel_diagnosis_data['dx_date'])? "" : "on '".$excel_diagnosis_data['dx_date']."'").". Please review migrated/updated data, validate and create the new one if required. $summary_details_add_in");
+							} else if(isset($atim_other_primary_diagnosis_data['sorted_by_sites'][$atim_participant_id][$excel_diagnosis_data['type']])) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An other primary diagnosis already exists for the same site", "No new '".$excel_diagnosis_data['type']."' other primary diagnosis will be created ".(empty($excel_diagnosis_data['dx_date'])? "" : "on '".$excel_diagnosis_data['dx_date']."'").". Please review migrated/updated data, validate and create the new one if required. $summary_details_add_in");
+							} else if(isset($atim_other_primary_diagnosis_data['unknown_diagnosis'][$atim_participant_id][$excel_diagnosis_data['dx_date']])) {
+								recordErrorAndMessage($summary_section_title, '@@WARNING@@', "An unknown primary diagnosis exists on the same date of a new other primary", "No ".(empty($excel_diagnosis_data['type'])? "new other primary diagnosis" : "new '".$excel_diagnosis_data['type']."' other primary diagnosis")." will be created ".(empty($excel_diagnosis_data['dx_date'])? "" : "on '".$excel_diagnosis_data['dx_date']."'").". Please review migrated/updated data, validate and create the new one or change the unknown diagnosis to other diagnosis if required. $summary_details_add_in");
+							} else {
+								$other_primary_dx = array(
+									'diagnosis_masters' => array(
+										'participant_id' => $atim_participant_id,
+										'diagnosis_control_id' => $atim_controls['diagnosis_controls']['primary-other']['id'],
+										'dx_date' => $excel_diagnosis_data['dx_date'],
+										'dx_date_accuracy' => $excel_diagnosis_data['dx_date_accuracy']),
+									$atim_controls['diagnosis_controls']['primary-other']['detail_tablename'] => array(
+										'type' => $excel_diagnosis_data['type']));
+								customInsertRecord($unknown_dx);
+								addUpdatedDataToSummary($file_bank_name, $excel_line_data['Patient # in biobank'], 'Created other primary diagnosis', $excel_diagnosis_data);
+							}
+						} 
+					}
+				}				
+			} else {
+				recordErrorAndMessage($summary_section_title, '@@ERROR@@', "Bank patient un-parsed", "The patient was not defined into 'Patient' worksheet. Event data won't be parsed. $summary_details_add_in");
+			}
+		}
+	}
+	
+	// End of excel file reading
 }
 
+//*** END PROCESS ***
 
+executeEndProcessSourceCode();
+//TODO insertIntoRevsBasedOnModifiedValues(); Voire si cela ne peut pas se faire automatiquement.... la selection des tables
+//TODO voire is le primary_id, etc de diagnosis ne peut pas se faire automatiquement....
+//TODO Il faut tenir compte des accuracy pour comparer les dates... mais trop complexe.... alors sortir un rapport definissant les econdaire si deux dans la même année...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//TODO refiare les champs calculé???
-//TODO Mettre PSA lié a récurrence si besoin
-//TODO redéfinir le DFS start...
+//*** SUMMARY DISPLAY ***
 
 global $import_summary;
 
@@ -550,6 +646,7 @@ function getDrugId($drug_name, $type) {
 
 	$drug_data = array('drugs' => array('generic_name' => $drug_name, 'type' =>$type));
 	$atim_drugs[$drug_key] = customInsertRecord($drug_data);
+	recordErrorAndMessage('Drugs', '@@MESSAGE@@', "New ATiM Drug Creation", "$drug_name ($type)");
 
 	return $atim_drugs[$drug_key];
 }
@@ -557,6 +654,350 @@ function getDrugId($drug_name, $type) {
 function getDrugKey($drug_name, $type) {
 	if(!in_array($type, array('', 'bone', 'HR', 'chemotherapy', 'hormonal'))) die('ERR 237 7263726 drug type'.$type);
 	return strtolower($drug_name.'## ##'.$type);
+}
+
+function executeEndProcessSourceCode(){
+	global $import_date;
+	global $imported_by;
+	global $atim_controls;
+	
+	$all_updated_participants_labels = array('-1' => '');
+	$query = "SELECT p.id AS participant_id, b.name AS bank_name, p.qc_tf_bank_participant_identifier
+		FROM (
+			SELECT id AS participant_id FROM participants WHERE modified = '$import_date' AND modified_by = '$imported_by'
+			UNION  
+			SELECT participant_id FROM diagnosis_masters WHERE modified = '$import_date' AND modified_by = '$imported_by'
+			UNION  
+			SELECT participant_id FROM event_masters WHERE modified = '$import_date' AND modified_by = '$imported_by'
+			UNION  
+			SELECT participant_id FROM treatment_masters WHERE modified = '$import_date' AND modified_by = '$imported_by'
+		) AS p2 
+		INNER JOIN participants p ON p2.participant_id = p.id 
+		LEFT JOIN banks b ON p.qc_tf_bank_id = b.id
+		WHERE p.deleted <> 1";
+	foreach(getSelectQueryResult($query) as $new_record) $all_updated_participants_labels[$new_record['participant_id']] = array(
+		'qc_tf_bank_participant_identifier' => $new_record['qc_tf_bank_participant_identifier'],
+		'bank' => $new_record['bank_name'],
+		'label_for_summary' => $new_record['qc_tf_bank_participant_identifier'].' ('.$new_record['bank_name'].')');
+	$all_updated_participant_ids_strg = implode(',',array_keys($all_updated_participants_labels));
+	
+	// ** Clean-up PARTICIPANTS **
+	
+	$queries = array(
+		"UPDATE participants SET last_modification = NOW() WHERE id IN ($all_updated_participant_ids_strg);",
+		"UPDATE participants SET date_of_birth = NULL WHERE date_of_birth LIKE '0000-00-00';",
+		"UPDATE participants SET date_of_death = NULL WHERE date_of_death LIKE '0000-00-00';",
+		"UPDATE participants SET qc_tf_suspected_date_of_death = NULL WHERE qc_tf_suspected_date_of_death LIKE '0000-00-00';",
+		"UPDATE participants SET qc_tf_last_contact = NULL WHERE qc_tf_last_contact LIKE '0000-00-00';",
+		"UPDATE participants SET date_of_birth_accuracy = 'c' WHERE date_of_birth IS NOT NULL AND date_of_birth_accuracy LIKE '';",
+		"UPDATE participants SET date_of_death_accuracy = 'c' WHERE date_of_death IS NOT NULL AND date_of_death_accuracy LIKE '';",
+		"UPDATE participants SET qc_tf_suspected_date_of_death_accuracy = 'c' WHERE qc_tf_suspected_date_of_death IS NOT NULL AND qc_tf_suspected_date_of_death_accuracy LIKE '';",
+		"UPDATE participants SET qc_tf_last_contact_accuracy = 'c' WHERE qc_tf_last_contact IS NOT NULL AND qc_tf_last_contact_accuracy LIKE '';");
+	foreach($queries as $query)	customQuery($query);
+
+	//  ** Clean-up DIAGNOSIS_MASTERS **
+
+	$queries = array(
+		"UPDATE participants p, diagnosis_masters dx
+			SET dx.age_at_dx = TIMESTAMPDIFF(YEAR,p.date_of_birth,dx.dx_date)
+			WHERE p.deleted <> 1 AND dx.deleted <> 1 AND p.id = dx.participant_id
+			AND dx.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-other']['id']."
+			AND p.id IN ($all_updated_participant_ids_strg)
+			AND dx.modified = '$import_date' AND dx.modified_by = '$imported_by'",
+		"UPDATE diagnosis_masters SET primary_id=id WHERE primary_id IS NULL AND parent_id IS NULL;",
+		"UPDATE diagnosis_masters SET primary_id=parent_id WHERE primary_id IS NULL AND parent_id IS NOT NULL;",
+		"UPDATE diagnosis_masters SET dx_date = NULL WHERE dx_date LIKE '0000-00-00';",
+		"UPDATE diagnosis_masters SET dx_date_accuracy = 'c' WHERE dx_date IS NOT NULL AND dx_date_accuracy LIKE '';",
+		"UPDATE diagnosis_masters SET age_at_dx = NULL WHERE age_at_dx LIKE '0';",
+		"UPDATE ".$atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']." dd, diagnosis_masters dm SET dd.hormonorefractory_status = 'not HR'
+			WHERE dm.participant_id IN ($all_updated_participant_ids_strg) AND dm.id = dd.diagnosis_master_id AND (dd.hormonorefractory_status IS NULL OR dd.hormonorefractory_status = '');");
+	foreach($queries as $query)	customQuery($query);
+
+	//  ** Clean-up TREAMTENT_MASTERS **
+	
+	$queries = array(
+		"UPDATE treatment_masters SET start_date = NULL WHERE start_date LIKE '0000-00-00';",
+		"UPDATE treatment_masters SET start_date_accuracy = 'c' WHERE start_date IS NOT NULL AND start_date_accuracy LIKE '';",
+		"UPDATE treatment_masters SET finish_date = NULL WHERE finish_date LIKE '0000-00-00';",
+		"UPDATE treatment_masters SET finish_date_accuracy = 'c' WHERE finish_date IS NOT NULL AND finish_date_accuracy LIKE '';");
+	foreach($queries as $query)	customQuery($query);
+
+	//  ** Clean-up EVENT_MASTERS **
+	
+	$queries = array(
+		"UPDATE event_masters SET event_date = NULL WHERE event_date LIKE '0000-00-00';",
+		"UPDATE event_masters SET event_date_accuracy = 'c' WHERE event_date IS NOT NULL AND event_date_accuracy LIKE '';",
+		"UPDATE event_masters ev, diagnosis_masters rec
+			SET ev.diagnosis_master_id = rec.id
+			WHERE rec.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['id']."
+			AND ev.event_control_id = ".$atim_controls['event_controls']['psa']['id']."
+			AND ev.diagnosis_master_id = rec.parent_id
+			AND ev.event_date = rec.dx_date
+			AND rec.dx_date IS NOT NULL
+			AND rec.participant_id IN ($all_updated_participant_ids_strg);");
+	foreach($queries as $query)	customQuery($query);
+	
+	// ** SURVIVAL & BCR **
+	
+	$summary_section_title = 'DFS start & 1st BCR defintion + Survival & BCR calculation';
+	
+	// Set all treatments defined as DFS Start
+	$query = "SELECT participant_id FROM treatment_masters WHERE deleted <> 1 AND (start_date IS NULL OR start_date LIKE '') AND participant_id IN ($all_updated_participant_ids_strg);";
+	$participant_ids_to_remove = array();
+	foreach(getSelectQueryResult($query) as $new_record) {
+		$participant_ids_to_remove[] = $new_record['participant_id'];
+		recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Missing some treatment date(s) to define the DFS start", "Survival and BCR have to be reviewed and updated manually if required. See patient ".$all_updated_participants_labels[$new_record['participant_id']]['label_for_summary']);
+	}
+	
+	$tx_methode_sorted_for_dfs = array(
+		'1' => 'RP',
+		'2' => 'hormonotherapy',
+		'3' => 'radiation',
+		'4' => 'chemotherapy');
+	$tc_conditions = array();
+	foreach($tx_methode_sorted_for_dfs as $tmp_ct) $tc_conditions[] = "tc.tx_method = '$tmp_ct'";
+	$tc_conditions = '('.implode(') OR (',$tc_conditions).')';
+	$query = "SELECT tm.id, tm.participant_id, part.qc_tf_bank_participant_identifier, tm.start_date, tm.start_date_accuracy, tc.tx_method, tc.disease_site
+		FROM treatment_masters tm INNER JOIN treatment_controls tc ON tc.id = tm.treatment_control_id INNER JOIN participants part ON part.id = tm.participant_id
+		WHERE tm.participant_id IN ($all_updated_participant_ids_strg) 
+		AND ($tc_conditions)
+		ORDER BY tm.participant_id, tm.start_date ASC";
+	$dfs_tx_ids = array();
+	$participant_id = '-1';
+	$first_tx_list_per_method = array();
+	$accuracy_warning = false;
+	$qc_tf_bank_participant_identifier = null;
+	foreach(getSelectQueryResult($query) as $row) {
+		if(!in_array($row['participant_id'], $participant_ids_to_remove)) {
+			if($participant_id != $row['participant_id']) {
+				if($participant_id != '-1') {
+					foreach($tx_methode_sorted_for_dfs as $next_tx_method) {					
+						if(isset($first_tx_list_per_method[$next_tx_method])) {
+							$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
+							if($accuracy_warning) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Free survival start event defintion (unaccracy date detected)", "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient ".$all_updated_participants_labels[$participant_id]['label_for_summary']);
+							break;
+						}
+					}
+				}
+				$participant_id = $row['participant_id'];
+				$first_tx_list_per_method = array();
+				$accuracy_warning = false;
+				$qc_tf_bank_participant_identifier = null;
+				$qc_tf_bank_name = null;
+			}
+			$tx_method = $row['tx_method'].(empty($row['disease_site'])? '' : '-'.$row['disease_site']);	
+			if(!in_array($tx_method, $tx_methode_sorted_for_dfs)) {
+				pr($tx_method);
+				pr($tx_methode_sorted_for_dfs);
+				die("ERR88938 [".__FUNCTION__." ".__LINE__."]");
+			}
+			if(!isset($first_tx_list_per_method[$tx_method])) $first_tx_list_per_method[$tx_method] = $row['id'];
+			if($row['start_date_accuracy'] != 'c') $accuracy_warning = true;
+			$qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];
+		}
+	}
+	foreach($tx_methode_sorted_for_dfs as $next_tx_method) {
+		if(isset($first_tx_list_per_method[$next_tx_method])) {
+			$dfs_tx_ids[$participant_id] = $first_tx_list_per_method[$next_tx_method];
+			if($accuracy_warning) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Free survival start event defintion (unaccracy date detected)", "Free survival start event has been defined but at least one treatment (of the patient) was attached to an unaccracy date. Be sure this 'unaccracy' treatment should not be the 'DFS Start'. See patient ".$all_updated_participants_labels[$participant_id]['label_for_summary']);
+			break;
+		}
+	}
+	
+	$current_atim_dfs_tx_ids = array();
+	$query = "SELECT id, participant_id FROM treatment_masters WHERE qc_tf_disease_free_survival_start_events = '1' AND deleted <> 1 AND participant_id IN ($all_updated_participant_ids_strg)";
+	foreach(getSelectQueryResult($query) as $row) $current_atim_dfs_tx_ids[$row['participant_id']] = $row['id'];
+	foreach($all_updated_participants_labels as $updated_participant_id => $label_data) {
+		if(isset($current_atim_dfs_tx_ids[$updated_participant_id]) && isset($dfs_tx_ids[$updated_participant_id])) {
+			if($current_atim_dfs_tx_ids[$updated_participant_id] != $dfs_tx_ids[$updated_participant_id]) {
+				//Update
+				updateTableData($current_atim_dfs_tx_ids[$updated_participant_id], array('treatment_masters' => array('qc_tf_disease_free_survival_start_events' => '')));
+				updateTableData($dfs_tx_ids[$updated_participant_id], array('treatment_masters' => array('qc_tf_disease_free_survival_start_events' => '1')));
+				addUpdatedDataToSummary($label_data['bank'], $label_data['qc_tf_bank_participant_identifier'], 'Changed DFS start from one treatment to another one', array('from_treatment_master_id' => $current_atim_dfs_tx_ids[$updated_participant_id], 'to_treatment_master_id' => $dfs_tx_ids[$updated_participant_id]));
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Changed DFS start from one treatment to another one", "See patient ".$label_data['label_for_summary']);
+			}		
+		} else if(isset($current_atim_dfs_tx_ids[$updated_participant_id])) {
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Validate previous DFS start set into ATiM", "Update process was unable to defined the DFS start treatment but one was already set into ATiM. This one has not been updated but has to be validated. See patient ".$label_data['label_for_summary']);
+		} else if(isset($dfs_tx_ids[$updated_participant_id])) {
+			updateTableData($dfs_tx_ids[$updated_participant_id], array('treatment_masters' => array('qc_tf_disease_free_survival_start_events' => '1')));
+			addUpdatedDataToSummary($label_data['bank'], $label_data['qc_tf_bank_participant_identifier'], 'Set DFS start', array('to_treatment_master_id' => $dfs_tx_ids[$updated_participant_id]));
+		}		
+	}
+
+	// Set first BCR
+	$query = "SELECT dm.participant_id FROM diagnosis_masters dm INNER JOIN ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] ." rec ON dm.id = rec.diagnosis_master_id WHERE (dm.dx_date IS NULL OR dm.dx_date LIKE '') AND dm.participant_id IN ($all_updated_participant_ids_strg);";
+	$participant_ids_to_remove = array();
+	foreach(getSelectQueryResult($query) as $row) {
+		//added to allow process to continue when dates are missing
+		$participant_ids_to_remove[] = $row['participant_id'];
+		recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Missing BCR date to define the first BCR", "See patient ".$all_updated_participants_labels[$row['participant_id']]['label_for_summary']);
+	}
+	
+	$query = "SELECT dm.id, dm.participant_id, part.qc_tf_bank_participant_identifier, dm.dx_date, dm.dx_date_accuracy
+		FROM diagnosis_masters dm INNER JOIN ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] ." rec ON dm.id = rec.diagnosis_master_id AND dm.deleted != 1 INNER JOIN participants part ON part.id = dm.participant_id
+		WHERE dm.participant_id IN ($all_updated_participant_ids_strg) AND dm.dx_date IS NOT NULL
+		ORDER BY dm.participant_id, dm.dx_date ASC";
+	$participant_id = '-1';
+	$first_bcr_dx_ids = array();
+	$accuracy_warning = false;
+	$previous_qc_tf_bank_participant_identifier = null;
+	foreach(getSelectQueryResult($query) as $row) {
+		if(!in_array($row['participant_id'], $participant_ids_to_remove)) {
+			if($participant_id != $row['participant_id']) {
+				$participant_id = $row['participant_id'];
+				$first_bcr_dx_ids[$participant_id] = $row['id'];
+				if($accuracy_warning) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "First BCR defintion (unaccracy date detected)", "Fisrt BCR has been defined based on bcrs with at least one unaccracy date. See patient ".$all_updated_participants_labels[$participant_id]['label_for_summary']);
+				$accuracy_warning = false;
+				$previous_qc_tf_bank_participant_identifier = $row['qc_tf_bank_participant_identifier'];;
+			}
+			if($row['dx_date_accuracy'] != 'c') $accuracy_warning = true;
+		}
+	}
+	if($accuracy_warning) recordErrorAndMessage($summary_section_title, '@@WARNING@@', "First BCR defintion (unaccracy date detected)", "Fisrt BCR has been defined based on bcrs with at least one unaccracy date. See patient ".$all_updated_participants_labels[$participant_id]['label_for_summary']);
+	
+	$current_atim_first_bcr_dx_ids = array();
+	$query = "SELECT id, participant_id FROM diagnosis_masters INNER JOIN ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] ." ON id = diagnosis_master_id WHERE first_biochemical_recurrence = '1' AND deleted <> 1 AND participant_id IN ($all_updated_participant_ids_strg)";
+	foreach(getSelectQueryResult($query) as $row) $current_atim_first_bcr_dx_ids[$row['participant_id']] = $row['id'];
+	foreach($all_updated_participants_labels as $updated_participant_id => $label_data) {
+		if(isset($current_atim_first_bcr_dx_ids[$updated_participant_id]) && isset($first_bcr_dx_ids[$updated_participant_id])) {
+			if($current_atim_first_bcr_dx_ids[$updated_participant_id] != $first_bcr_dx_ids[$updated_participant_id]) {
+				//Update
+				updateTableData($current_atim_first_bcr_dx_ids[$updated_participant_id], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] => array('first_biochemical_recurrence' => '')));
+				updateTableData($first_bcr_dx_ids[$updated_participant_id], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] => array('first_biochemical_recurrence' => '1')));
+				addUpdatedDataToSummary($label_data['bank'], $label_data['qc_tf_bank_participant_identifier'], 'Changed first BCR from one recurrence to another one', array('from_diagnosis_master_id' => $current_atim_first_bcr_dx_ids[$updated_participant_id], 'to_diagnosis_master_id' => $first_bcr_dx_ids[$updated_participant_id]));
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Changed first BCR from one recurrence to another one", "See patient ".$label_data['label_for_summary']);
+			}
+		} else if(isset($current_atim_first_bcr_dx_ids[$updated_participant_id])) {
+			recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Validate previous first BCR set into ATiM", "Update process was unable to defined the first BCR but one was already set into ATiM. This one has not been updated but has to be validated. See patient ".$label_data['label_for_summary']);
+		} else if(isset($first_bcr_dx_ids[$updated_participant_id])) {
+			updateTableData($first_bcr_dx_ids[$updated_participant_id], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] => array('first_biochemical_recurrence' => '1')));
+			addUpdatedDataToSummary($label_data['bank'], $label_data['qc_tf_bank_participant_identifier'], 'Set first BCR', array('to_diagnosis_master_id' => $first_bcr_dx_ids[$updated_participant_id]));
+		}
+	}
+
+	// Calculate survival and bcr
+	$query = "SELECT dm.id as diagnosis_master_id, dm.participant_id, dd.bcr_in_months, dd.survival_in_months,
+		part.qc_tf_bank_participant_identifier, part.date_of_death, part.date_of_death_accuracy, part.qc_tf_last_contact, part.qc_tf_last_contact_accuracy,
+		bcr.bcr_date,
+		bcr.bcr_date_accuracy,
+		trt.start_date as dfs_date,
+		trt.start_date_accuracy as dfs_date_accuracy	
+		FROM diagnosis_masters dm 
+		INNER JOIN ".$atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']." dd ON dd.diagnosis_master_id = dm.id
+		INNER JOIN participants part ON part.id = dm.participant_id
+		INNER JOIN treatment_masters trt ON trt.diagnosis_master_id = dm.id AND trt.qc_tf_disease_free_survival_start_events = 1
+		LEFT JOIN (
+			SELECT dmr.primary_id, dmr.dx_date bcr_date, dmr.dx_date_accuracy bcr_date_accuracy
+			FROM diagnosis_masters dmr INNER JOIN ".$atim_controls['diagnosis_controls']['recurrence-biochemical recurrence']['detail_tablename'] ." rec ON dmr.id = rec.diagnosis_master_id AND dmr.deleted != 1
+			WHERE rec.first_biochemical_recurrence = 1 AND dmr.participant_id IN ($all_updated_participant_ids_strg)
+		) bcr ON bcr.primary_id = dm.id
+		WHERE part.id IN ($all_updated_participant_ids_strg) AND dm.diagnosis_control_id = ".$atim_controls['diagnosis_controls']['primary-prostate']['id'] ." AND dm.deleted <> 1
+		ORDER BY dm.participant_id";
+	$participant_id = '-1';
+	foreach(getSelectQueryResult($query) as $row) {
+		if($participant_id == $row['participant_id']) die('ERR889930303');
+
+		$bcr_date = $row['bcr_date'];
+		$bcr_accuracy = $row['bcr_date_accuracy'];
+			
+		$dfs_date = $row['dfs_date'];
+		$dfs_accuracy = $row['dfs_date_accuracy'];
+			
+		$survival_end_date = '';
+		$survival_end_date_accuracy = '';
+		if(!empty($row['date_of_death'])) {
+			$survival_end_date = $row['date_of_death'];
+			$survival_end_date_accuracy = $row['date_of_death_accuracy'];
+		} else if(!empty($row['qc_tf_last_contact'])) {
+			$survival_end_date = $row['qc_tf_last_contact'];
+			$survival_end_date_accuracy = $row['qc_tf_last_contact_accuracy'];
+		}
+			
+		// Calculate Survival	
+		$new_survival = '';
+		if(!empty($dfs_date) && !empty($survival_end_date)) {
+			if(in_array($survival_end_date_accuracy.$dfs_accuracy, array('cd','dc','cc'))) {
+				if($survival_end_date_accuracy.$dfs_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Survival calculation with unaccuracy date", "Survival has been calculated with at least one inaccurate date (month precision or more). See patient ".$label_data['label_for_summary']);
+				$dfs_date_ob = new DateTime($dfs_date);
+				$survival_end_date_ob = new DateTime($survival_end_date);
+				$interval = $dfs_date_ob->diff($survival_end_date_ob);
+				if($interval->invert) {
+					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate survival on non-chronological dates", "Survival cannot be calculated because dates are not chronological. See patient ".$label_data['label_for_summary']);
+				} else {
+					$new_survival = $interval->y*12 + $interval->m;
+				}
+			} else {
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate survival on inaccurate dates", "Survival cannot be calculated on inaccurate dates (month unknown). See patient ".$label_data['label_for_summary']);
+			}
+		}
+	
+		// Calculate bcr
+			
+		$new_bcr = '';
+		if(!empty($dfs_date) && !empty($bcr_date)) {
+			if(in_array($dfs_accuracy.$bcr_accuracy, array('cd','dc','cc'))) {
+				if($dfs_accuracy.$bcr_accuracy != 'cc') recordErrorAndMessage($summary_section_title, '@@WARNING@@', "BCR calculation with unaccuracy date", "BCR has been calculated with at least one inaccurate date (month precision or more). See patient ".$label_data['label_for_summary']);
+				$dfs_date_ob = new DateTime($dfs_date);
+				$bcr_date_ob = new DateTime($bcr_date);
+				$interval = $dfs_date_ob->diff($bcr_date_ob);
+				if($interval->invert) {
+					recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate BCR on non-chronological dates", "BCR cannot be calculated because dates are not chronological. See patient ".$label_data['label_for_summary']);
+				} else {
+					$new_bcr = $interval->y*12 + $interval->m;
+				}
+			} else {
+				recordErrorAndMessage($summary_section_title, '@@WARNING@@', "Unable to calculate BCR on inaccurate dates", "BCR cannot be calculated on inaccurate dates (month unknown). See patient ".$label_data['label_for_summary']);
+			}
+		} else {
+			$new_bcr = $new_survival;
+		}
+		
+		// Data to update
+		$data_to_update = array();//getDataToUpdate() can not be used because we have to erase value if the new one is empty
+		if($row['survival_in_months'] != $new_survival) $data_to_update['survival_in_months'] = $new_bcr;
+		if($row['bcr_in_months'] != $new_bcr) $data_to_update['bcr_in_months'] = $new_bcr;
+		updateTableData($row['diagnosis_master_id'], array('diagnosis_masters' => array(), $atim_controls['diagnosis_controls']['primary-prostate']['detail_tablename']  => $data_to_update));
+		addUpdatedDataToSummary($all_updated_participants_labels[$row['participant_id']]['bank'], $all_updated_participants_labels[$row['participant_id']]['qc_tf_bank_participant_identifier'], 'Upddated primary diagnosis BCR or Survival', $data_to_update);
+	}
+	
+	//Final test to check only one DFS start exists per primary diagnosis
+	$query = "SELECT
+			TreatmentMaster.participant_id,
+			Bank.name as 'Bank',
+			Participant.participant_identifier as 'ATim#',
+			Participant.qc_tf_bank_participant_identifier as 'Bank#',
+			res.primary_id,
+			TreatmentMaster.id as treatment_master_id,
+			TreatmentMaster.start_date,
+			TreatmentControl.tx_method,
+			TreatmentMaster.created AS 'TreatmentMaster.created',
+			TreatmentMaster.created_by AS 'TreatmentMaster.created_by',
+			TreatmentMaster.modified AS 'TreatmentMaster.modified',
+			TreatmentMaster.modified_by AS 'TreatmentMaster.modified_by'
+		 FROM(
+			SELECT count(*) as nbr,
+				DiagnosisMaster.primary_id,
+				DiagnosisMaster.participant_id
+			FROM diagnosis_masters AS DiagnosisMaster
+			INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
+			INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+			WHERE DiagnosisMaster.deleted <> 1
+			GROUP BY DiagnosisMaster.primary_id, DiagnosisMaster.participant_id
+		) as res
+		INNER JOIN diagnosis_masters DiagnosisMaster ON DiagnosisMaster.id = res.primary_id
+		INNER JOIN treatment_masters AS TreatmentMaster ON TreatmentMaster.diagnosis_master_id = DiagnosisMaster.id AND TreatmentMaster.deleted <> 1 AND TreatmentMaster.qc_tf_disease_free_survival_start_events = 1
+		INNER JOIN treatment_controls AS TreatmentControl ON TreatmentControl.id = TreatmentMaster.treatment_control_id
+		INNER JOIN participants Participant ON Participant.id = DiagnosisMaster.participant_id
+		LEFT JOIN banks Bank ON Bank.id = Participant.qc_tf_bank_id
+		WHERE nbr  >1
+		ORDER BY res.participant_id, res.primary_id, TreatmentMaster.start_date, TreatmentControl.tx_method;";
+	foreach(getSelectQueryResult($query) as $row) {
+		if(in_array($row['participant_id'], Config::$created_participant_ids)) {
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "A diagnosis is linked to more than one treatment flagged as 'DFS Start'", "...Patient of the migrated batch. See patient ".$row['Bank#']." (".$row['Bank'].")");
+		} else {
+			recordErrorAndMessage($summary_section_title, '@@ERROR@@', "A diagnosis is linked to more than one treatment flagged as 'DFS Start'", "...Patient Previously migrated. See patient ".$row['Bank#']." (".$row['Bank'].")");
+		}
+	}
 }
 	
 ?>
