@@ -215,22 +215,26 @@ function dislayErrorAndMessage($commit = false) {
 		=====================================================================</FONT><br>";
 		foreach($data1 as $message_type => $data2) {
 			$color = 'black';
+			$code = 'ER';
 			switch($message_type) {
 				case '@@ERROR@@':
 					$color = 'red';
+					$code = 'ER';
 					break;
 				case '@@WARNING@@':
 					$color = 'orange';
+					$code = 'WAR';
 					break;
 				case '@@MESSAGE@@':
 					$color = 'green';
+					$code = 'MSG';
 					break;
 				default:
 					echo '<br><br><br>UNSUPORTED message_type : '.$message_type.'<br><br><br>';
 			}
 			foreach($data2 as $error => $details) {
 				$err_counter++;
-				$error = str_replace("\n", ' ', utf8_decode("[ER#$err_counter] $error"));
+				$error = str_replace("\n", ' ', utf8_decode("[$code#$err_counter] $error"));
 				echo "<br><br><FONT COLOR=\"$color\" ><b>$error</b></FONT><br>";
 				foreach($details as $detail) {
 					$detail = str_replace("\n", ' ', $detail);
@@ -240,6 +244,8 @@ function dislayErrorAndMessage($commit = false) {
 		}
 	}
 	if($commit) {
+		$query = "UPDATE versions SET permissions_regenerated = 0;";
+		customQuery($query);
 		mysqli_commit($db_connection);
 		$ccl = '& Commited';
 	} else {
