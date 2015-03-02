@@ -26,6 +26,9 @@ class SampleMasterCustom extends SampleMaster {
 			case 'cell lysate':
 				$sample_label = 'CL';
 				break;
+			case 'cord blood':
+				$sample_label = 'CB';
+				break;				
 			case 'csf':
 				$sample_label = 'CS';
 				break;
@@ -55,7 +58,13 @@ class SampleMasterCustom extends SampleMaster {
 				break;
 			case 'saliva':
 				$sample_label = 'SW';
-				break;								
+				break;	
+			case 'stool':
+				$sample_label = 'SB';
+				break;					
+			case 'ccbr swab':
+				$sample_label = 'SB';
+				break;											
 			case 'tissue':
 				$sample_label = 'TI';
 				break;
