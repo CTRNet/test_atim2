@@ -1917,5 +1917,11 @@ FROM event_masters WHERE event_control_id = @event_control_id);
 INSERT INTO qc_nd_ed_studies_revs (`study_summary_id`, `identifier`, `event_master_id`, `version_created`) 
 (SELECT `study_summary_id`, `identifier`, `event_master_id`, @modified FROM qc_nd_ed_studies);
 
+INSERT INTO i18n (id,en,fr) VALUES 
+('study/project is assigned to a participant', 
+'Your data cannot be deleted! This study/project is linked to a participant.',
+"Vos données ne peuvent être supprimées! Ce(tte) étude/projet est attaché(e) à un patient."),
+('lab direct access','Lab Direct Access','Accès direct au lab');
+
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '6082' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6083' WHERE version_number = '2.6.3';
