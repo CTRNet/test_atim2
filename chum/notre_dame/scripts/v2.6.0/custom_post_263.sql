@@ -1284,3 +1284,638 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 
 UPDATE versions SET branch_build_number = '6045' WHERE version_number = '2.6.3';
 
+-- 2015-02-27 -- Prostate Bank Patho Review ---------------------------------------------------------------------------------------
+
+UPDATE menus SET use_summary = 'ClinicalAnnotation.EventMaster::summary' WHERE use_summary = '' AND use_link LIKE '/ClinicalAnnotation/EventMasters/%';
+
+-- Section 1
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'lab', 'prostate pathology review', 1, 'qc_nd_ed_prostate_pathology_reviews', 'qc_nd_ed_prostate_pathology_reviews', 0, 'lab|prostate pathology review', 0, 0, 0);
+INSERT INTO i18n (id,en,fr) VALUES ('prostate pathology review','Prostate Pathology Review', 'Révision de la pathologie de la prostate');
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_prostate_pathology_reviews` (
+   	`box` int(10) DEFAULT NULL,
+ 	`reader_1` varchar(30) DEFAULT NULL,
+  	`date_of_revision_2` date DEFAULT NULL,
+  	`date_of_revision_2_accuracy` char(1) NOT NULL DEFAULT '',
+ 	`reader_2` varchar(30) DEFAULT NULL,
+  	`snap_frozen_research_slides` char(1) DEFAULT '',
+  	`ffpe_research_slides` char(1) DEFAULT '',
+  	`maximal_dimension_cm` int(6) DEFAULT NULL,
+  	`weight_g` int(6) DEFAULT NULL,
+  	`number_of_blocks` int(6) DEFAULT NULL,
+  	`number_of_missing_blocks` int(6) DEFAULT NULL,
+  	`pct_of_missing_blocks` int(6) DEFAULT NULL,
+  	`recuts_of_blocks` varchar(10) DEFAULT NULL,
+  	`number_of_slides` int(6) DEFAULT NULL,
+  	`number_of_missing_slides` int(6) DEFAULT NULL,
+  	`pct_of_missing_slides` int(6) DEFAULT NULL,
+  	`ihc_cap` char(1) DEFAULT '',
+  	`ihc_erg` char(1) DEFAULT '',
+  	`acinar` char(1) DEFAULT '',
+  	`particular_morphology_ductal` tinyint(1) DEFAULT '0',
+  	`particular_morphology_mucinous` tinyint(1) DEFAULT '0',
+  	`particular_morphology_foamy` tinyint(1) DEFAULT '0',
+  	`particular_morphology_vacuoles` tinyint(1) DEFAULT '0',
+  	`particular_morphology_other` tinyint(1) DEFAULT '0',
+  	`particular_morphology_other_precision` varchar(250) DEFAULT NULL,
+  	`pct_of_prostate_involved_by_tumor` int(6) DEFAULT NULL,
+  	`lymph_vascular_invasion` char(1) DEFAULT '',
+  	`extraprostatic_extension` char(1) DEFAULT '',
+  	`margin_status` varchar(30) DEFAULT NULL,
+  	`seminal_vesicule_invasion` char(1) DEFAULT '',
+  	`number_of_lymph_nodes_examined` int(6) DEFAULT NULL,
+  	`number_of_lymph_nodes_involved` int(6) DEFAULT NULL,
+  	`pt` varchar(10) DEFAULT NULL,
+  	`pt_subclass` varchar(10) DEFAULT NULL,  
+  	`pn` varchar(10) DEFAULT NULL, 
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_prostate_pathology_reviews_revs` (
+   	`box` int(10) DEFAULT NULL,
+ 	`reader_1` varchar(30) DEFAULT NULL,
+  	`date_of_revision_2` date DEFAULT NULL,
+  	`date_of_revision_2_accuracy` char(1) NOT NULL DEFAULT '',
+ 	`reader_2` varchar(30) DEFAULT NULL,
+  	`snap_frozen_research_slides` char(1) DEFAULT '',
+  	`ffpe_research_slides` char(1) DEFAULT '',
+  	`maximal_dimension_cm` int(6) DEFAULT NULL,
+  	`weight_g` int(6) DEFAULT NULL,
+  	`number_of_blocks` int(6) DEFAULT NULL,
+  	`number_of_missing_blocks` int(6) DEFAULT NULL,
+  	`pct_of_missing_blocks` int(6) DEFAULT NULL,
+  	`recuts_of_blocks` varchar(10) DEFAULT NULL,
+  	`number_of_slides` int(6) DEFAULT NULL,
+  	`number_of_missing_slides` int(6) DEFAULT NULL,
+  	`pct_of_missing_slides` int(6) DEFAULT NULL,
+  	`ihc_cap` char(1) DEFAULT '',
+  	`ihc_erg` char(1) DEFAULT '',
+  	`acinar` char(1) DEFAULT '',
+  	`particular_morphology_ductal` tinyint(1) DEFAULT '0',
+  	`particular_morphology_mucinous` tinyint(1) DEFAULT '0',
+  	`particular_morphology_foamy` tinyint(1) DEFAULT '0',
+  	`particular_morphology_vacuoles` tinyint(1) DEFAULT '0',
+  	`particular_morphology_other` tinyint(1) DEFAULT '0',
+  	`particular_morphology_other_precision` varchar(250) DEFAULT NULL,
+  	`pct_of_prostate_involved_by_tumor` int(6) DEFAULT NULL,
+  	`lymph_vascular_invasion` char(1) DEFAULT '',
+  	`extraprostatic_extension` char(1) DEFAULT '',
+  	`margin_status` varchar(30) DEFAULT NULL,
+  	`seminal_vesicule_invasion` char(1) DEFAULT '',
+  	`number_of_lymph_nodes_examined` int(6) DEFAULT NULL,
+  	`number_of_lymph_nodes_involved` int(6) DEFAULT NULL,
+  	`pt` varchar(10) DEFAULT NULL,
+  	`pt_subclass` varchar(10) DEFAULT NULL,  
+  	`pn` varchar(10) DEFAULT NULL, 
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_prostate_pathology_reviews`
+  ADD CONSTRAINT `qc_nd_ed_prostate_pathology_reviews_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_prostate_pathology_reviews');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_prostate_pathology_reviewers', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Pathology Review: Reviewers\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Pathology Review: Reviewers', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Pathology Review: Reviewers');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('AAG', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('DT', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('ML', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('RC', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_positive_negative", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_positive_negative"), (SELECT id FROM structure_permissible_values WHERE value="negative" AND language_alias="negative"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_positive_negative"), (SELECT id FROM structure_permissible_values WHERE value="positive" AND language_alias="positive"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ed_prostate_pathology_review_pt", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pt"), (SELECT id FROM structure_permissible_values WHERE value="2" AND language_alias="2"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pt"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ed_prostate_pathology_review_pt_subclass", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("a", "a"),("b", "b");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pt_subclass"), (SELECT id FROM structure_permissible_values WHERE value="a" AND language_alias="a"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pt_subclass"), (SELECT id FROM structure_permissible_values WHERE value="b" AND language_alias="b"), "1", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ed_prostate_pathology_review_pn", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("x", "x");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pn"), (SELECT id FROM structure_permissible_values WHERE value="x" AND language_alias="x"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pn"), (SELECT id FROM structure_permissible_values WHERE value="0" AND language_alias="0"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_pathology_review_pn"), (SELECT id FROM structure_permissible_values WHERE value="1" AND language_alias="1"), "", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_prostate_pathology_review_recuts_of_blocks", "", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("to do", "to do");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_pathology_review_recuts_of_blocks"), (SELECT id FROM structure_permissible_values WHERE value="completed" AND language_alias="completed"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_pathology_review_recuts_of_blocks"), (SELECT id FROM structure_permissible_values WHERE value="to do" AND language_alias="to do"), "1", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_prostate_pathology_review_recuts_of_blocks"), (SELECT id FROM structure_permissible_values WHERE value="no" AND language_alias="no"), "", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'box', 'integer_positive',  NULL , '0', 'size=10', '', '', 'box', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'reader_1', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_pathology_reviewers') , '0', '', '', '', 'reader', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'date_of_revision_2', 'date',  NULL , '0', '', '', '', 'date of revision 2', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'reader_2', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_pathology_reviewers') , '0', '', '', '', 'reader 2', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'snap_frozen_research_slides', 'yes_no',  NULL , '0', '', '', '', 'snap frozen research slides', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'ffpe_research_slides', 'yes_no',  NULL , '0', '', '', '', 'ffpe research slides', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'maximal_dimension_cm', 'integer_positive',  NULL , '0', 'size=3', '', '', 'maximal dimension cm', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'weight_g', 'integer_positive',  NULL , '0', 'size=3', '', '', 'weight g', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'number_of_blocks', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'number_of_missing_blocks', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of missing blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'pct_of_missing_blocks', 'integer_positive',  NULL , '0', 'size=3', '', '', 'pct of missing blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'recuts_of_blocks', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_pathology_review_recuts_of_blocks') , '0', '', '', '', 'recuts of blocks (missing slides)', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'number_of_slides', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of slides', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'number_of_missing_slides', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of missing slides', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'pct_of_missing_slides', 'integer_positive',  NULL , '0', 'size=3', '', '', 'pct of missing slides', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'acinar', 'yes_no',  NULL , '0', '', '', '', 'acinar', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'particular_morphology_ductal', 'checkbox',  NULL , '0', '', '', '', 'particular morphology', 'ductal'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'particular_morphology_mucinous', 'checkbox',  NULL , '0', '', '', '', '', 'mucinous'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'particular_morphology_foamy', 'checkbox',  NULL , '0', '', '', '', '', 'foamy'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'particular_morphology_vacuoles', 'checkbox',  NULL , '0', '', '', '', '', 'vacuoles'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'particular_morphology_other', 'checkbox',  NULL , '0', '', '', '', '', 'other'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'particular_morphology_other_precision', 'input',  NULL , '0', '', '', '', 'particular morphology precisions', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'pct_of_prostate_involved_by_tumor', 'integer_positive',  NULL , '0', 'size=3', '', '', 'pct of prostate involved by tumor', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'lymph_vascular_invasion', 'yes_no',  NULL , '0', '', '', '', 'lymph vascular invasion', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'extraprostatic_extension', 'yes_no',  NULL , '0', '', '', '', 'extraprostatic extension', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'margin_status', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_positive_negative') , '0', '', '', '', 'margin status', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'seminal_vesicule_invasion', 'yes_no',  NULL , '0', '', '', '', 'seminal vesicule invasion', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'number_of_lymph_nodes_examined', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of lymph nodes examined', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'number_of_lymph_nodes_involved', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of lymph nodes involved', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'pt', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_pathology_review_pt') , '0', '', '', '', 'pt', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'pt_subclass', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_pathology_review_pt_subclass') , '0', '', '', '', 'pt subclass', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'pn', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_pathology_review_pn') , '0', '', '', '', 'pn', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'ihc_cap', 'yes_no',  NULL , '0', '', '', '', 'cap', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_pathology_reviews', 'ihc_erg', 'yes_no',  NULL , '0', '', '', '', 'erg', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='box' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=10' AND `default`='' AND `language_help`='' AND `language_label`='box' AND `language_tag`=''), '1', '-4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='reader_1' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_pathology_reviewers')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reader' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='date_of_revision_2' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date of revision 2' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='reader_2' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_pathology_reviewers')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='reader 2' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='snap_frozen_research_slides' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='snap frozen research slides' AND `language_tag`=''), '1', '30', 'slides', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='ffpe_research_slides' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='ffpe research slides' AND `language_tag`=''), '1', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='maximal_dimension_cm' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='maximal dimension cm' AND `language_tag`=''), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='weight_g' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='weight g' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='number_of_blocks' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of blocks' AND `language_tag`=''), '1', '20', 'blocks', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='number_of_missing_blocks' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of missing blocks' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pct_of_missing_blocks' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='pct of missing blocks' AND `language_tag`=''), '1', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='recuts_of_blocks' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_prostate_pathology_review_recuts_of_blocks')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='recuts of blocks (missing slides)' AND `language_tag`=''), '1', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='number_of_slides' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of slides' AND `language_tag`=''), '1', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='number_of_missing_slides' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of missing slides' AND `language_tag`=''), '1', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pct_of_missing_slides' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='pct of missing slides' AND `language_tag`=''), '1', '34', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='acinar' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='acinar' AND `language_tag`=''), '2', '50', 'review data', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='particular_morphology_ductal' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='particular morphology' AND `language_tag`='ductal'), '2', '51', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='particular_morphology_mucinous' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='mucinous'), '2', '52', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='particular_morphology_foamy' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='foamy'), '2', '53', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='particular_morphology_vacuoles' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='vacuoles'), '2', '54', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='particular_morphology_other' AND `type`='checkbox' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='other'), '2', '55', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='particular_morphology_other_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='particular morphology precisions' AND `language_tag`=''), '2', '56', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pct_of_prostate_involved_by_tumor' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='pct of prostate involved by tumor' AND `language_tag`=''), '2', '57', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='lymph_vascular_invasion' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='lymph vascular invasion' AND `language_tag`=''), '2', '58', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='extraprostatic_extension' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='extraprostatic extension' AND `language_tag`=''), '2', '59', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='margin_status' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_positive_negative')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='margin status' AND `language_tag`=''), '2', '60', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='seminal_vesicule_invasion' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='seminal vesicule invasion' AND `language_tag`=''), '2', '61', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='number_of_lymph_nodes_examined' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes examined' AND `language_tag`=''), '2', '62', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='number_of_lymph_nodes_involved' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of lymph nodes involved' AND `language_tag`=''), '2', '63', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pt' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_pathology_review_pt')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pt' AND `language_tag`=''), '2', '64', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pt_subclass' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_pathology_review_pt_subclass')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pt subclass' AND `language_tag`=''), '2', '65', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pn' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_pathology_review_pn')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='pn' AND `language_tag`=''), '2', '66', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '100', '', '0', '1', 'notes', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='ihc_cap' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cap' AND `language_tag`=''), '2', '40', 'ihc', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_pathology_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='ihc_erg' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='erg' AND `language_tag`=''), '2', '41', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_fields SET  `setting`='size=50' WHERE model='EventDetail' AND tablename='qc_nd_ed_prostate_pathology_reviews' AND field='particular_morphology_other_precision' AND `type`='input' AND structure_value_domain  IS NULL ;
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_pathology_reviews' AND `field`='pct_of_prostate_involved_by_tumor' ), 'range,-1,101', 'qc_nd_error_percentage_value_expected');
+INSERT IGNORE INTO i18n (id,en) 
+VALUES
+('blocks', 'Blocks'),
+('to do', 'To do'),
+('date of revision 1', 'Date of revision 1'),
+('reader', 'Reader'),
+('date of revision 2', 'Date of revision 2'),
+('reader 2', 'Reader 2'),
+('snap frozen research slides', 'Snap frozen research slides'),
+('ffpe research slides', 'FFPE research slides'),
+('maximal dimension cm', 'Maximal dimension (cm)'),
+('weight g', 'Weight (g)'),
+('number of blocks', 'Number of blocks'),
+('number of missing blocks', 'Number of missing blocks'),
+('pct of missing blocks', '&#37; of missing blocks'),
+('recuts of blocks (missing slides)','Recuts of blocks (missing slides)'),
+('number of slides', 'Number of slides'),
+('number of missing slides', 'Number of missing slides'),
+('pct of missing slides', '&#37; of missing slides'),
+('acinar', 'Acinar'),
+('particular morphology', 'Particular morphology'),
+('pct of prostate involved by tumor', '&#37; of prostate involved by tumor'),
+('extraprostatic extension', 'Extraprostatic extension'),
+('margin status', 'Margin status'),
+('seminal vesicule invasion', 'Seminal vesicule invasion'),
+('number of lymph nodes examined', 'Number of lymph nodes examined'),
+('number of lymph nodes involved', 'Number of lymph nodes involved'),
+('pt', 'pT'),
+('pt subclass', 'pT subclass'),
+('foamy', 'Foamy'),
+('vacuoles', 'Vacuoles'),
+('particular morphology precisions', 'Particular morphology precisions'),
+('pn', 'pN'),
+('cap', 'CAP'),
+('erg', 'ERG'),
+("wrong pct of prostate involved by tumor value","Wrong value for the &#37; of prostate involved by tumor value"),
+('review data', 'Review data'),
+("pt subclass has not to be completed","pT subclass has not to be completed"),
+("the system is unable to calculate the precentage of missing slides", "The system is unable to calculate the precentage of missing slides"),
+("the system is unable to calculate the precentage of missing blocks", "The system is unable to calculate the precentage of missing blocks");
+
+-- Nodules
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'lab', 'prostate nodule review', 1, 'qc_nd_ed_prostate_nodule_reviews', 'qc_nd_ed_prostate_nodule_reviews', 0, 'lab|prostate nodule review', 0, 0, 0);
+INSERT INTO i18n (id,en,fr) VALUES ('prostate nodule review','Prostate Nodule Review', 'Révision des nodules de prostate');
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_prostate_nodule_reviews` (
+   	`nodule` varchar(10) NOT NULL,
+   	`primary_grade` varchar(10) DEFAULT NULL,
+   	`secondary_grade` varchar(10) DEFAULT NULL,
+   	`tertiary_grade` varchar(10) DEFAULT NULL,
+   	`gleason_score` varchar(10) DEFAULT NULL,
+   	`pct_of_high_grade` int(6) DEFAULT NULL,
+   	`grade_4_description` varchar(30) DEFAULT NULL,
+   	`grade_5_description` varchar(30) DEFAULT NULL,
+   	`number_of_blocks_index_t` int(6) DEFAULT NULL,
+   	`highest_pct_of_tumor_on_section` int(6) DEFAULT NULL,
+   	`best_representative_blocks` varchar(60) DEFAULT NULL,
+   	`notes_blocks` text,
+   	`erg_plus` char(1) NOT NULL DEFAULT '',
+   	`idc_p_1_intraductal` char(1) NOT NULL DEFAULT '',
+   	`idc_p_2_density_1` varchar(30) DEFAULT NULL,
+   	`idc_p_2_density_1_precision` varchar(250) DEFAULT NULL,
+   	`idc_p_3_density_2` varchar(30) DEFAULT NULL,
+   	`idc_p_3_density_2_precision` varchar(250) DEFAULT NULL,
+   	`idc_p_4_atypical_cells` varchar(30) DEFAULT NULL,
+   	`idc_p_5_vs_adjacent_tumor` varchar(30) DEFAULT NULL,
+   	`idc_p_6_comedonecrosis` char(1) NOT NULL DEFAULT '',
+   	`idc_p_7_duct_2x` char(1) NOT NULL DEFAULT '',
+   	`idc_p_8_branching` char(1) NOT NULL DEFAULT '',
+   	`idc_p_9_streaming` char(1) NOT NULL DEFAULT '',
+   	`idc_p_blocks` varchar(250) DEFAULT NULL,
+   	`notes_idc_p_blocks` text,
+   	`pct_idc_p` int(6) DEFAULT NULL,
+   	`idc_p_erg_plus` char(1) NOT NULL DEFAULT '',
+   	`hgpin` char(1) NOT NULL DEFAULT '',
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_prostate_nodule_reviews_revs` (
+   	`nodule` varchar(10) NOT NULL,
+   	`primary_grade` varchar(10) DEFAULT NULL,
+   	`secondary_grade` varchar(10) DEFAULT NULL,
+   	`tertiary_grade` varchar(10) DEFAULT NULL,
+   	`gleason_score` varchar(10) DEFAULT NULL,
+   	`pct_of_high_grade` int(6) DEFAULT NULL,
+   	`grade_4_description` varchar(30) DEFAULT NULL,
+   	`grade_5_description` varchar(30) DEFAULT NULL,
+   	`number_of_blocks_index_t` int(6) DEFAULT NULL,
+   	`highest_pct_of_tumor_on_section` int(6) DEFAULT NULL,
+   	`best_representative_blocks` varchar(60) DEFAULT NULL,
+   	`notes_blocks` text,
+   	`erg_plus` char(1) NOT NULL DEFAULT '',
+   	`idc_p_1_intraductal` char(1) NOT NULL DEFAULT '',
+   	`idc_p_2_density_1` varchar(30) DEFAULT NULL,
+   	`idc_p_2_density_1_precision` varchar(250) DEFAULT NULL,
+   	`idc_p_3_density_2` varchar(30) DEFAULT NULL,
+   	`idc_p_3_density_2_precision` varchar(250) DEFAULT NULL,
+   	`idc_p_4_atypical_cells` varchar(30) DEFAULT NULL,
+   	`idc_p_5_vs_adjacent_tumor` varchar(30) DEFAULT NULL,
+   	`idc_p_6_comedonecrosis` char(1) NOT NULL DEFAULT '',
+   	`idc_p_7_duct_2x` char(1) NOT NULL DEFAULT '',
+   	`idc_p_8_branching` char(1) NOT NULL DEFAULT '',
+   	`idc_p_9_streaming` char(1) NOT NULL DEFAULT '',
+   	`idc_p_blocks` varchar(250) DEFAULT NULL,
+   	`notes_idc_p_blocks` text,
+   	`pct_idc_p` int(6) DEFAULT NULL,
+   	`idc_p_erg_plus` char(1) NOT NULL DEFAULT '',
+   	`hgpin` char(1) NOT NULL DEFAULT '',
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_prostate_nodule_reviews`
+  ADD CONSTRAINT `qc_nd_ed_prostate_nodule_reviews_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_prostate_nodule_reviews');
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_secondary_nodules', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: Nodules\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: Nodules', 1, 10, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: Nodules');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('Index T', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Sec T1', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Sec T2', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ed_prostate_nodule_review_grade_345", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345"), (SELECT id FROM structure_permissible_values WHERE value="5" AND language_alias="5"), "5", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ed_prostate_nodule_review_grade_345x", "open", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345x"), (SELECT id FROM structure_permissible_values WHERE value="3" AND language_alias="3"), "3", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345x"), (SELECT id FROM structure_permissible_values WHERE value="4" AND language_alias="4"), "4", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345x"), (SELECT id FROM structure_permissible_values WHERE value="5" AND language_alias="5"), "5", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_345x"), (SELECT id FROM structure_permissible_values WHERE value="x" AND language_alias="x"), "6", "1");
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("qc_nd_ed_prostate_nodule_review_grade_6to10", "", "", NULL);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="6" AND language_alias="6"), "6", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="7" AND language_alias="7"), "7", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="8" AND language_alias="8"), "8", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="9" AND language_alias="9"), "9", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="qc_nd_ed_prostate_nodule_review_grade_6to10"), (SELECT id FROM structure_permissible_values WHERE value="10" AND language_alias="10"), "10", "1");
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_nodule_review_grade4', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: Grade 4\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: Grade 4', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: Grade 4');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('X', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Fused or ill-defined glands', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Cribriform', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Glomeruloid', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_nodule_review_grade5', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: Grade 5\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: Grade 5', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: Grade 5');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('X', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Solid', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Single cells', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Comedonecrosis', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_nodule_review_idcp2_density1', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: IDCP2 Density 1\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: IDCP2 Density 1', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: IDCP2 Density 1');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('100% (solid)', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('>=70% (dense cribriform)', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('<70% (loose cribriform)', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('0% (other: specify)', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_nodule_review_idcp3_density2', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: IDCP3 Density 2\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: IDCP3 Density 2', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: IDCP3 Density 2');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('X', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('100% (solid)', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('>=70% (dense cribriform)', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('<70% (loose cribriform)', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('0% (other: specify)', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_nodule_review_idcp4_atypical_cells', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: IDCP4 Atypical Cells\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: IDCP4 Atypical Cells', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: IDCP4 Atypical Cells');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('Marked', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Moderate', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Light', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Marked with maturation', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('qc_nd_ed_prostate_nodule_review_idcp5_adjacent_tumors', "StructurePermissibleValuesCustom::getCustomDropdown(\'Prostate Nodule Review: IDCP5 Adjacent Tumors\')");
+INSERT INTO structure_permissible_values_custom_controls (name, flag_active, values_max_length, category) 
+VALUES 
+('Prostate Nodule Review: IDCP5 Adjacent Tumors', 1, 30, 'clinical - annotation');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Prostate Nodule Review: IDCP5 Adjacent Tumors');
+INSERT INTO `structure_permissible_values_customs` (`value`, `en`, `fr`, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('More atypical', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Comparable', '', '', '1', @control_id, NOW(), NOW(), 1, 1),
+('Less atypical', '', '', '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'nodule', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_secondary_nodules') , '0', '', '', '', 'nodule', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'primary_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_345') , '0', '', '', '', 'primary grade', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'secondary_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_345') , '0', '', '', '', 'secondary grade', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'tertiary_grade', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_345x') , '0', '', '', '', 'tertiary grade', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'gleason_score', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_6to10') , '0', '', '', '', 'gleason score', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'pct_of_high_grade', 'integer_positive',  NULL , '0', 'size=3', '', '', 'pct of high grade', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'grade_4_description', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade4') , '0', '', '', '', 'grade 4 description', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'grade_5_description', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade5') , '0', '', '', '', 'grade 5 description', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'number_of_blocks_index_t', 'integer_positive',  NULL , '0', 'size=3', '', '', 'number of blocks index t', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'highest_pct_of_tumor_on_section', 'integer_positive',  NULL , '0', 'size=3', '', '', 'highest pct of tumor on section', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'best_representative_blocks', 'input',  NULL , '0', 'size=30', '', '', 'best representative blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'notes_blocks', 'textarea',  NULL , '0', 'rows=1,cols=30', '', '', 'notes blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'erg_plus', 'yes_no',  NULL , '0', '', '', '', 'erg plus', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_1_intraductal', 'yes_no',  NULL , '0', '', '', '', 'idc p 1 intraductal', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_2_density_1', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp2_density1') , '0', '', '', '', 'idc p 2 density 1', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_2_density_1_precision', 'input',  NULL , '0', '', '', '', '', 'precision'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_3_density_2', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp3_density2') , '0', '', '', '', 'idc p 3 density 2', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_3_density_2_precision', 'input',  NULL , '0', '', '', '', '', 'precision'), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_4_atypical_cells', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp4_atypical_cells') , '0', '', '', '', 'idc p 4 atypical cells', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_5_vs_adjacent_tumor', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp5_adjacent_tumors') , '0', '', '', '', 'idc p 5 vs adjacent tumor', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_6_comedonecrosis', 'yes_no',  NULL , '0', '', '', '', 'idc p 6 comedonecrosis', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_7_duct_2x', 'yes_no',  NULL , '0', '', '', '', 'idc p 7 duct 2x', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_8_branching', 'yes_no',  NULL , '0', '', '', '', 'idc p 8 branching', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_9_streaming', 'yes_no',  NULL , '0', '', '', '', 'idc p 9 streaming', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_blocks', 'input',  NULL , '0', 'size=30', '', '', 'idc p blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'notes_idc_p_blocks', 'textarea',  NULL , '0', 'rows=1,cols=30', '', '', 'notes idc p blocks', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'pct_idc_p', 'integer_positive',  NULL , '0', 'size=3', '', '', 'pct idc p', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'idc_p_erg_plus', 'yes_no',  NULL , '0', '', '', '', 'idc p erg plus', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_prostate_nodule_reviews', 'hgpin', 'yes_no',  NULL , '0', '', '', '', 'hgpin', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='nodule' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_secondary_nodules')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='nodule' AND `language_tag`=''), '1', '10', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='primary_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_345')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='primary grade' AND `language_tag`=''), '1', '11', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='secondary_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_345')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='secondary grade' AND `language_tag`=''), '1', '12', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='tertiary_grade' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_345x')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='tertiary grade' AND `language_tag`=''), '1', '13', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='gleason_score' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade_6to10')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='gleason score' AND `language_tag`=''), '1', '14', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='pct_of_high_grade' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='pct of high grade' AND `language_tag`=''), '1', '15', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='grade_4_description' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade4')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='grade 4 description' AND `language_tag`=''), '1', '16', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='grade_5_description' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_grade5')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='grade 5 description' AND `language_tag`=''), '1', '17', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='number_of_blocks_index_t' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='number of blocks index t' AND `language_tag`=''), '1', '18', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='highest_pct_of_tumor_on_section' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='highest pct of tumor on section' AND `language_tag`=''), '1', '19', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='best_representative_blocks' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='best representative blocks' AND `language_tag`=''), '1', '20', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='notes_blocks' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='notes blocks' AND `language_tag`=''), '1', '21', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='erg_plus' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='erg plus' AND `language_tag`=''), '1', '22', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_1_intraductal' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 1 intraductal' AND `language_tag`=''), '2', '23', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_2_density_1' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp2_density1')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 2 density 1' AND `language_tag`=''), '2', '24', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_2_density_1_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '2', '25', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_3_density_2' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp3_density2')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 3 density 2' AND `language_tag`=''), '2', '26', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_3_density_2_precision' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='precision'), '2', '27', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_4_atypical_cells' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp4_atypical_cells')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 4 atypical cells' AND `language_tag`=''), '2', '28', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_5_vs_adjacent_tumor' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='qc_nd_ed_prostate_nodule_review_idcp5_adjacent_tumors')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 5 vs adjacent tumor' AND `language_tag`=''), '2', '29', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_6_comedonecrosis' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 6 comedonecrosis' AND `language_tag`=''), '2', '30', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_7_duct_2x' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 7 duct 2x' AND `language_tag`=''), '2', '31', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_8_branching' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 8 branching' AND `language_tag`=''), '2', '32', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_9_streaming' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p 9 streaming' AND `language_tag`=''), '2', '33', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_blocks' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='idc p blocks' AND `language_tag`=''), '2', '34', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='notes_idc_p_blocks' AND `type`='textarea' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=1,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='notes idc p blocks' AND `language_tag`=''), '2', '35', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='pct_idc_p' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=3' AND `default`='' AND `language_help`='' AND `language_label`='pct idc p' AND `language_tag`=''), '2', '36', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='idc_p_erg_plus' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='idc p erg plus' AND `language_tag`=''), '2', '37', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_prostate_nodule_reviews'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='hgpin' AND `type`='yes_no' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='hgpin' AND `language_tag`=''), '2', '38', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='nodule' ), 'notEmpty');
+INSERT INTO structure_validations(structure_field_id, rule, language_message) VALUES
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='pct_of_high_grade' ), 'range,-1,101', 'qc_nd_error_percentage_value_expected'),
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='highest_pct_of_tumor_on_section' ), 'range,-1,101', 'qc_nd_error_percentage_value_expected'),
+((SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_prostate_nodule_reviews' AND `field`='pct_idc_p' ), 'range,-1,101', 'qc_nd_error_percentage_value_expected');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES
+('qc_nd_error_percentage_value_expected','Value should be a percentage [0-100]','La valeur doit être un pourcentage [0-100]');
+INSERT IGNORE INTO i18n (id,en) 
+VALUES
+('nodule','Nodule'),
+("no pt subclass has to be recorded","No pt subclass has to be recorded"),
+("precision is requested", 'Precision is requested'), 
+('index t', 'Index T'),
+('primary grade', 'Primary grade'),
+('secondary grade', 'Secondary grade'),
+('tertiary grade', 'Tertiary grade'),
+('gleason score', 'Gleason score'),
+('pct of high grade', '&#37; of high grade'),
+('grade 4 description', 'Grade 4 description'),
+('grade 5 description', 'Grade 5 description'),
+('number of blocks index t', 'Number of blocks Index T'),
+('highest pct of tumor on section', 'Highest &#37; of tumor on section'),
+('best representative blocks', 'Best representative blocks'),
+('notes blocks', 'Notes (Blocks)'),
+('erg plus', 'ERG+'),
+('idc p 1 intraductal', 'IDC-P 1: intraductal'),
+('idc p 2 density 1', 'IDC-P 2: density 1'),
+('idc p 3 density 2', 'IDC-P 3: density 2'),
+('idc p 4 atypical cells', 'IDC-P 4: atypical cells'),
+('idc p 5 vs adjacent tumor', 'IDC-P 5: vs adjacent tumor'),
+('idc p 6 comedonecrosis', 'IDC-P 6: comedonecrosis'),
+('idc p 7 duct 2x', 'IDC-P 7: duct 2x'),
+('idc p 8 branching', 'IDC-P 8: branching'),
+('idc p 9 streaming', 'IDC-P 9: streaming'),
+('idc p blocks', 'IDC-P blocks'),
+('notes idc p blocks', 'Notes (IDC-P blocks)'),
+('pct idc p', '&#37; IDC-P'),
+('idc p erg plus', 'IDC-P ERG+'),
+("idc-p 1 different than yes : no value has to be enterred for fields icd-p 2 to 9", "IDC-P 1 different than yes : No value has to be enterred for fields IDC-P 2 to 9"),
+('hgpin', 'HGPIN');
+
+-- STUDY
+
+UPDATE menus SET flag_active = 1 WHERE language_title = 'clin_study';
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'Study', 'study', 1, 'qc_nd_ed_studies', 'qc_nd_ed_studies', 0, 'clin_study|study', 0, 1, 1);
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_studies` (
+	`study_summary_id` int(11),
+	`identifier` varchar(50),
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `qc_nd_ed_studies_revs` (
+	`study_summary_id` int(11),
+	`identifier` varchar(50),
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+ALTER TABLE `qc_nd_ed_studies`
+  ADD CONSTRAINT `qc_nd_ed_studies_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`),
+  ADD CONSTRAINT `qc_nd_ed_studies_ibfk_2` FOREIGN KEY (`study_summary_id`) REFERENCES `study_summaries` (`id`);
+INSERT INTO structures(`alias`) VALUES ('qc_nd_ed_studies');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_studies', 'study_summary_id', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='study_list') , '0', '', '', '', 'study', ''), 
+('ClinicalAnnotation', 'EventDetail', 'qc_nd_ed_studies', 'identifier', 'input',  NULL , '0', '', '', '', 'identifier', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_studies'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '100', '', '0', '1', 'notes', '0', '', '0', '', '0', '', '1', 'cols=40,rows=2', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_studies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='study_summary_id' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='study_list')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='study' AND `language_tag`=''), '1', '-4', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_ed_studies'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='identifier' AND `language_tag`=''), '1', '-3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='qc_nd_ed_studies' AND `field`='study_summary_id'), 'notEmpty');
+UPDATE structure_fields SET  `language_label`='patient identifier' WHERE model='EventDetail' AND tablename='qc_nd_ed_studies' AND field='identifier' AND `type`='input' AND structure_value_domain  IS NULL ;
+INSERT INTO i18n (id,en,fr) VALUES ('patient identifier', 'Patient Identifier', 'Identifiant du patient');
+INSERT INTO structures(`alias`) VALUES ('qc_nd_study_participants');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_nd_study_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '1', '1', 'clin_demographics', '0', '1', 'first name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_study_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1'), '1', '3', '', '0', '1', 'last name', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_nd_study_participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '4', '99', '', '0', '0', '', '0', '', '0', '', '0', '', '1', 'class=range file', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'),
+((SELECT id FROM structures WHERE alias='qc_nd_study_participants'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='qc_nd_ed_studies' AND `field`='identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '1', '50', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_study_participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='1');
+UPDATE structure_formats SET `language_heading`='system data' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_nd_study_participants') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+-- Populate Event Tables
+SET @modified = (SELECT NOW() FROM users WHERE id = 1);
+SET @modified_by = (SELECT id FROM users WHERE username = 'Migration');
+SET @event_control_id = (SELECT id FROM event_controls WHERE event_type = 'study' AND event_group = 'Study');
+SET @cpcbn_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'TFRI CPCBN' AND deleted <> 1);
+SET @coeur_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'TFRI COEUR' AND deleted <> 1);
+SET @procure_study_summary_id = (SELECT id FROM study_summaries WHERE title = 'PROCURE' AND deleted <> 1);
+-- PROCURE
+INSERT INTO event_masters (`event_summary`, `event_control_id`, `participant_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT procure_p.participant_identifier, @event_control_id, icm_p.id, @modified, @modified_by, @modified, @modified_by
+FROM participants icm_p
+INNER JOIN misc_identifiers icm_mi ON icm_mi.participant_id = icm_p.id AND icm_mi.deleted <> 1
+INNER JOIN misc_identifier_controls icm_mic ON icm_mic.id = icm_mi.misc_identifier_control_id AND icm_mic.misc_identifier_name = 'prostate bank no lab'
+INNER JOIN procurechum.misc_identifiers procure_mi ON icm_mi.identifier_value = procure_mi.identifier_value AND procure_mi.deleted <> 1
+INNER JOIN procurechum.misc_identifier_controls procure_mic ON procure_mic.id = procure_mi.misc_identifier_control_id AND procure_mic.misc_identifier_name = 'prostate bank no lab'
+INNER JOIN procurechum.participants procure_p ON procure_p.id = procure_mi.participant_id AND procure_p.deleted <> 1
+WHERE icm_p.deleted <> 1);
+INSERT INTO qc_nd_ed_studies (`study_summary_id`, `identifier`, `event_master_id`)
+(SELECT @procure_study_summary_id, event_summary, id FROM event_masters WHERE event_control_id = @event_control_id AND event_summary NOT LIKE '');
+UPDATE event_masters SET event_summary = '' WHERE event_control_id = @event_control_id;
+-- CPCBN
+INSERT INTO event_masters (`event_summary`, `event_control_id`, `participant_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT cpcbn_p.participant_identifier, @event_control_id, icm_p.id, @modified, @modified_by, @modified, @modified_by
+FROM participants icm_p
+INNER JOIN misc_identifiers icm_mi ON icm_mi.participant_id = icm_p.id AND icm_mi.deleted <> 1
+INNER JOIN misc_identifier_controls icm_mic ON icm_mic.id = icm_mi.misc_identifier_control_id AND icm_mic.misc_identifier_name = 'prostate bank no lab'
+INNER JOIN tfricpcbn.participants cpcbn_p ON cpcbn_p.qc_tf_bank_participant_identifier = icm_mi.identifier_value AND cpcbn_p.deleted <> 1
+INNER JOIN tfricpcbn.banks cpcbn_b ON cpcbn_b.id = cpcbn_p.qc_tf_bank_id AND cpcbn_b.name = 'CHUM-Saad #1'
+WHERE icm_p.deleted <> 1);
+INSERT INTO qc_nd_ed_studies (`study_summary_id`, `identifier`, `event_master_id`)
+(SELECT @cpcbn_study_summary_id, event_summary, id FROM event_masters WHERE event_control_id = @event_control_id AND event_summary NOT LIKE '');
+UPDATE event_masters SET event_summary = '' WHERE event_control_id = @event_control_id;
+-- COEUR
+INSERT INTO event_masters (`event_summary`, `event_control_id`, `participant_id`, `modified`, `created`, `created_by`, `modified_by`) 
+(SELECT coeur_p.participant_identifier, @event_control_id, icm_p.id, @modified, @modified_by, @modified, @modified_by
+FROM participants icm_p
+INNER JOIN misc_identifiers icm_mi ON icm_mi.participant_id = icm_p.id AND icm_mi.deleted <> 1
+INNER JOIN misc_identifier_controls icm_mic ON icm_mic.id = icm_mi.misc_identifier_control_id AND icm_mic.misc_identifier_name = 'ovary/gyneco bank no lab'
+INNER JOIN tfricoeur.participants coeur_p ON coeur_p.qc_tf_bank_identifier = icm_mi.identifier_value AND coeur_p.deleted <> 1
+INNER JOIN tfricoeur.banks coeur_b ON coeur_b.id = coeur_p.qc_tf_bank_id AND coeur_b.name = 'CHUM-COEUR'
+WHERE icm_p.deleted <> 1);
+INSERT INTO qc_nd_ed_studies (`study_summary_id`, `identifier`, `event_master_id`)
+(SELECT @coeur_study_summary_id, event_summary, id FROM event_masters WHERE event_control_id = @event_control_id AND event_summary NOT LIKE '');
+UPDATE event_masters SET event_summary = '' WHERE event_control_id = @event_control_id;
+-- Revs
+INSERT INTO event_masters_revs (`event_control_id`, `event_date`, `event_summary`, `participant_id`, `diagnosis_master_id`, `event_date_accuracy`, `modified_by`, `id`, `version_created`) 
+(SELECT `event_control_id`, `event_date`, `event_summary`, `participant_id`, `diagnosis_master_id`, `event_date_accuracy`, `modified_by`, `id`, `modified`
+FROM event_masters WHERE event_control_id = @event_control_id);
+INSERT INTO qc_nd_ed_studies_revs (`study_summary_id`, `identifier`, `event_master_id`, `version_created`) 
+(SELECT `study_summary_id`, `identifier`, `event_master_id`, @modified FROM qc_nd_ed_studies);
+
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '6082' WHERE version_number = '2.6.3';
