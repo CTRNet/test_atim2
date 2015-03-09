@@ -261,8 +261,8 @@ class SampleMasterCustom extends SampleMaster {
 					if(empty($matching_records)){
 						// The selected type code and labo laterality combination not currently supported by the laboratory				
 						$process_validates= false;
-						$this->validationErrors[] 
-							= 'the selected type code and labo laterality combination is not supported';
+						$this->validationErrors['labo_laterality'][] = 'the selected type code and labo laterality combination is not supported';
+						$this->validationErrors['type_code'][] = 'the selected type code and labo laterality combination is not supported';
 						
 					}else if(count($matching_records) > 1){
 						// Only one row should be defined in model 'LabTypeLateralityMatch' 

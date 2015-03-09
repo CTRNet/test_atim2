@@ -2017,4 +2017,4 @@ ALTER TABLE lab_type_laterality_match
 	MODIFY `nature_matching` varchar(15) NOT NULL DEFAULT '',
 	MODIFY `laterality_matching` varchar(10) NOT NULL DEFAULT '';
 
-UPDATE versions SET branch_build_number = '6090' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6091' WHERE version_number = '2.6.3';
