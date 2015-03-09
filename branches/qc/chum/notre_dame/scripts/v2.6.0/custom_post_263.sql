@@ -1987,3 +1987,34 @@ mycoplasma_test,tmp_storage_solution,tmp_storage_method,chum_purification_method
 modified FROM ad_tubes INNER JOIN aliquot_masters ON id = aliquot_master_id WHERE modified_by = @modified_by AND modified = @modified);
 
 UPDATE versions SET branch_build_number = '6987' WHERE version_number = '2.6.3';
+
+-- 2015-03-04 --------------------------------------------------------------------------------------------------------
+-- Add lab_type_laterality_match values
+
+INSERT INTO `lab_type_laterality_match` (`selected_type_code`, `sample_type_matching`, `tissue_source_matching`) 
+VALUES
+('CX', 'tissue', 'cervix'),
+('VU', 'tissue', 'vulva'),
+('VA', 'tissue', 'vagina'),
+('GG', 'tissue', 'lymph node'),
+('EP', 'tissue', 'omentum'),
+('PT', 'tissue', 'peritoneum'),
+('Mx', 'tissue', 'metastasis');
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+('cervix','Cervix','Col de l''utérus'),
+('vulva','Vulva','Vulve'),
+('vagina','Vagina','Vagin'),
+('metastasis','Metastasis','Métastase');
+REPLACE INTO i18n (id,en,fr) 
+VALUES 
+('peritoneum','Peritoneum','Pérition');
+ALTER TABLE lab_type_laterality_match
+	MODIFY `selected_type_code` varchar(10) NOT NULL,
+	MODIFY `selected_labo_laterality` varchar(10) NOT NULL DEFAULT '',
+	MODIFY `sample_type_matching` varchar(30) NOT NULL,
+	MODIFY `tissue_source_matching` varchar(20) NOT NULL DEFAULT '',
+	MODIFY `nature_matching` varchar(15) NOT NULL DEFAULT '',
+	MODIFY `laterality_matching` varchar(10) NOT NULL DEFAULT '';
+
+UPDATE versions SET branch_build_number = '6090' WHERE version_number = '2.6.3';
