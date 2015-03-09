@@ -61,8 +61,6 @@ if(empty($query_result)) {
 $import_date = $query_result[0]['import_date'];
 $imported_by = $query_result[0]['id'];
 
-$files_path = str_replace('/','\\', $files_path).'\\';
-
 global $atim_controls;
 $atim_controls = array();
 //*** Control : sample_controls ***

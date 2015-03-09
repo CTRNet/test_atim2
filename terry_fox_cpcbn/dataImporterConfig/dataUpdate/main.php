@@ -675,7 +675,7 @@ dislayErrorAndMessage();
 
 $import_summary = $update_summary;
 
-dislayErrorAndMessage();
+dislayErrorAndMessage(true);
 
 //==================================================================================================================================================================================
 // CUSTOM FUNCTIONS
