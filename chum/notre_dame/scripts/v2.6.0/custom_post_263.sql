@@ -1144,7 +1144,8 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='report_list_all_derivatives_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='qc_nd_sample_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sample label' AND `language_tag`=''), '0', '99', 'selected parent samples', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
 ((SELECT id FROM structures WHERE alias='report_list_all_derivatives_criteria_and_result'), (SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='qc_nd_sample_label' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='' AND `language_label`='sample label' AND `language_tag`=''), '0', '9', 'derivatives', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_list_all_derivatives_criteria_and_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='ViewSample' AND `tablename`='' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_list_all_derivatives_criteria_and_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0;UPDATE versions SET branch_build_number = '5821' WHERE version_number = '2.6.3';esult
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='report_list_all_derivatives_criteria_and_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='SampleMaster' AND `tablename`='sample_masters' AND `field`='sample_code' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0;
+UPDATE versions SET branch_build_number = '5821' WHERE version_number = '2.6.3';esult
 
 UPDATE versions SET branch_build_number = '5822' WHERE version_number = '2.6.3';
 
@@ -1925,3 +1926,64 @@ INSERT INTO i18n (id,en,fr) VALUES
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '6083' WHERE version_number = '2.6.3';
+
+-- 2015-03-04 --------------------------------------------------------------------------------------------------------
+-- Remove barcode empty in revs
+
+-- Clean Up in stock field
+
+SET @modified_by = '9';
+SET @modified = (SELECT NOW() FROM users LIMIt 0,1);
+
+-- EDTA/SERUM blood tube
+
+UPDATE aliquot_masters am, aliquot_controls ac, sample_masters sm, sample_controls sc, sd_spe_bloods sd, collections col, banks bk
+SET am.in_stock = 'no', am.storage_master_id = null, am.storage_coord_x = '', am.storage_coord_y = '', am.modified = @modified, am.modified_by = @modified_by
+WHERE bk.name = 'Prostate'
+AND bk.id = col.bank_id AND col.id = sm.collection_id
+AND sc.id = sm.sample_control_id AND sd.sample_master_id = sm.id
+AND ac.id = am.aliquot_control_id AND am.sample_master_id = sm.id 
+AND am.deleted <> 1
+AND (am.in_stock = 'yes - not available' OR (am.in_stock = 'yes - available' AND in_stock_detail = 'used'))
+AND sc.sample_type = 'blood' AND sd.blood_type IN ('EDTA','gel SST') AND ac.aliquot_type = 'tube';
+
+-- URINE
+
+UPDATE aliquot_masters am, aliquot_controls ac, sample_masters sm, sample_controls sc, collections col, banks bk
+SET am.in_stock = 'no', am.storage_master_id = null, am.storage_coord_x = '', am.storage_coord_y = '', am.modified = @modified, am.modified_by = @modified_by
+WHERE bk.name = 'Prostate'
+AND bk.id = col.bank_id AND col.id = sm.collection_id
+AND ac.id = am.aliquot_control_id AND am.sample_master_id = sm.id AND sc.id = sm.sample_control_id
+AND am.deleted <> 1
+AND (am.in_stock = 'yes - not available' OR (am.in_stock = 'yes - available' AND in_stock_detail = 'used'))
+AND sc.sample_type = 'urine';
+
+-- Paxgene use for RNA
+
+UPDATE aliquot_masters am, aliquot_controls ac, sample_masters sm, sample_controls sc, sd_spe_bloods sd, sample_masters rna_sm, sample_controls rna_sc, collections col, banks bk
+SET am.in_stock = 'no', am.storage_master_id = null, am.storage_coord_x = '', am.storage_coord_y = '', am.modified = @modified, am.modified_by = @modified_by
+WHERE bk.name = 'Prostate'
+AND bk.id = col.bank_id AND col.id = sm.collection_id
+AND ac.id = am.aliquot_control_id AND am.sample_master_id = sm.id AND sc.id = sm.sample_control_id AND sd.sample_master_id = sm.id
+AND am.deleted <> 1
+AND am.in_stock != 'no'
+AND sc.sample_type = 'blood' AND sd.blood_type IN ('paxgene') AND ac.aliquot_type = 'tube'
+AND rna_sm.parent_id = sm.id
+AND rna_sc.id = rna_sm.sample_control_id
+AND rna_sc.sample_type = 'rna';
+
+INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,qc_nd_stored_by,
+modified_by,version_created)
+(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
+study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,qc_nd_stored_by,
+modified_by,modified FROM aliquot_masters WHERE modified_by = @modified_by AND modified = @modified);
+
+INSERT INTO ad_tubes_revs(aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
+procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,
+version_created)
+(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
+procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,
+modified FROM ad_tubes INNER JOIN aliquot_masters ON id = aliquot_master_id WHERE modified_by = @modified_by AND modified = @modified);
+
+UPDATE versions SET branch_build_number = '6986' WHERE version_number = '2.6.3';
