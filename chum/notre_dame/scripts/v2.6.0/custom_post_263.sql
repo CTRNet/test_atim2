@@ -1972,18 +1972,18 @@ AND rna_sm.parent_id = sm.id
 AND rna_sc.id = rna_sm.sample_control_id
 AND rna_sc.sample_type = 'rna';
 
-INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
-study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,qc_nd_stored_by,
+INSERT INTO aliquot_masters_revs (id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,
+use_counter,study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,stored_by,product_code,notes ,
 modified_by,version_created)
-(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,use_counter,
-study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,product_code,notes,qc_nd_stored_by,
+(SELECT id,barcode,aliquot_label,aliquot_control_id,collection_id,sample_master_id,sop_master_id,initial_volume,current_volume,in_stock,in_stock_detail,
+use_counter,study_summary_id,storage_datetime,storage_datetime_accuracy,storage_master_id,storage_coord_x,storage_coord_y,stored_by,product_code,notes,
 modified_by,modified FROM aliquot_masters WHERE modified_by = @modified_by AND modified = @modified);
 
-INSERT INTO ad_tubes_revs(aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
-procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,
+INSERT INTO ad_tubes_revs(aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,cell_passage_number,mycoplasma_free,
+mycoplasma_test,tmp_storage_solution,tmp_storage_method,chum_purification_method,
 version_created)
-(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,
-procure_expiration_date,procure_tube_weight_gr,procure_total_quantity_ug,qc_nd_storage_solution,qc_nd_purification_method,
+(SELECT aliquot_master_id,lot_number,concentration,concentration_unit,cell_count,cell_count_unit,cell_viability,hemolysis_signs,cell_passage_number,mycoplasma_free,
+mycoplasma_test,tmp_storage_solution,tmp_storage_method,chum_purification_method,
 modified FROM ad_tubes INNER JOIN aliquot_masters ON id = aliquot_master_id WHERE modified_by = @modified_by AND modified = @modified);
 
-UPDATE versions SET branch_build_number = '6986' WHERE version_number = '2.6.3';
+UPDATE versions SET branch_build_number = '6987' WHERE version_number = '2.6.3';
