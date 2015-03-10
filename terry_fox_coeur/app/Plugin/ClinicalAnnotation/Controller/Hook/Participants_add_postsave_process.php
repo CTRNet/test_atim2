@@ -3,7 +3,8 @@
 	// --------------------------------------------------------------------------------
 	// Save Participant Identifier
 	// -------------------------------------------------------------------------------- 
-	$this->Participant->addWritableField(array('participant_identifier'));
-	if(!$this->Participant->save(array('Participant' => array('participant_identifier' => $this->Participant->id)))) $this->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+	$query_to_update = "UPDATE participants SET participants.participant_identifier = participants.id WHERE participants.id = ".$this->Participant->id.";";
+	$this->Participant->tryCatchQuery($query_to_update);
+	$this->Participant->tryCatchQuery(str_replace("participants", "participants_revs", $query_to_update));
 	
 ?>

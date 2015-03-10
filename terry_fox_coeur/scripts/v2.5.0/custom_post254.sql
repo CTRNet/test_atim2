@@ -501,3 +501,5 @@ VALUES
 UPDATE structure_fields SET flag_confidential = 1 WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='patho_dpt_block_code';
 
 UPDATE `versions` SET branch_build_number = '5988', permissions_regenerated = 0 WHERE version_number = '2.5.4';
+
+UPDATE `versions` SET branch_build_number = '6092', permissions_regenerated = 0 WHERE version_number = '2.5.4';

@@ -599,6 +599,19 @@ function postCollectionWrite(Model $m){
 		die("Invalid collected specimen type [".$m->values['Collected Specimen Type']."] at line [".$m->line."]");
 	}
 	
+	//Final check: Verifie that no more than 2 samples types are recorded on the same line	
+	$sample_types_with_data = array();
+	foreach($m->values as $field => $value) {
+		if(strlen(trim($value))) {
+			if(preg_match('/^Tissue Precision/', $field)) $sample_types_with_data['tissue'] = 'tissue';
+			if(preg_match('/^Ascite Precision/', $field)) $sample_types_with_data['ascite'] = 'ascite';
+			if(preg_match('/^Blood Precision/', $field)) $sample_types_with_data['blood'] = 'blood';
+		}
+	}
+	if(sizeof($sample_types_with_data) > 1) {
+		Config::$summary_msg['Collection']['@@ERROR@@']['More than one sample type on same row'][] = "Both ".implode(' and ', $sample_types_with_data)." information is recorded on the same row but only ".$m->values['Collected Specimen Type']." data will be recorded. See line [".$m->line."]";
+	}
+	
 	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]";	
 }
 
