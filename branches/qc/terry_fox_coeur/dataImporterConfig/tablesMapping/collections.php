@@ -610,6 +610,8 @@ function postCollectionWrite(Model $m){
 	}
 	if(sizeof($sample_types_with_data) > 1) {
 		Config::$summary_msg['Collection']['@@ERROR@@']['More than one sample type on same row'][] = "Both ".implode(' and ', $sample_types_with_data)." information is recorded on the same row but only ".$m->values['Collected Specimen Type']." data will be recorded. See line [".$m->line."]";
+	} else if(sizeof($sample_types_with_data) == 1 && !in_array($m->values['Collected Specimen Type'], $sample_types_with_data)) {
+		Config::$summary_msg['Collection']['@@ERROR@@']['Wrong collected specimen type'][] = "User defined data as ".$m->values['Collected Specimen Type']." data but only ".array_shift($sample_types_with_data)." data is set into the file. No inventory will be created. See line [".$m->line."]";
 	}
 	
 	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]";	
