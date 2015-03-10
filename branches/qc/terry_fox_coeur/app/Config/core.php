@@ -182,8 +182,8 @@ $debug = 2;
  * -medium: 100;
  * -low: 300;
  */
-	Configure::write('Security.level', $debug ? 'medium': 'high');
-	Configure::write('Session.timeout', $debug ? 3600 : 600);//in seconds
+	Configure::write('Security.level', $debug ? 'medium': 'medium');
+	Configure::write('Session.timeout', $debug ? 3600 : 3600);//in seconds
 
 /**
  * A random string used in security hashing methods.
