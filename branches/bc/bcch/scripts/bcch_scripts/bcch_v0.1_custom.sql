@@ -7,58 +7,6 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`)
 	VALUES ('core_installname', "BCCH Biobank - BCCH v0.1", '');
 
 --  =========================================================================
---	Eventum ID: #3108 - Core Upgrade - v2.6.3
---	=========================================================================
-/*
--- Deactivate Participant Identifiers demo report
-UPDATE datamart_reports SET flag_active = 0 WHERE name = 'participant identifiers';
-UPDATE datamart_structure_functions SET flag_active = 0 WHERE link = (SELECT CONCAT('/Datamart/Reports/manageReport/',id) FROM datamart_reports WHERE name = 'participant identifiers');
-
-
--- Extended Treatment tables (txe_radiations)
-SET @treatment_extend_control_id = (SELECT id FROM treatment_extend_controls WHERE detail_tablename = 'txe_radiations' AND detail_form_alias = 'txe_radiations');
-ALTER TABLE treatment_extend_masters ADD COLUMN tmp_old_extend_id int(11) DEFAULT NULL;
-INSERT INTO treatment_extend_masters (tmp_old_extend_id, treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted) (SELECT id, @treatment_extend_control_id, treatment_master_id, created, created_by, modified, modified_by, deleted FROM txe_radiations);
-
-ALTER TABLE txe_radiations ADD treatment_extend_master_id int(11) NOT NULL, DROP FOREIGN KEY FK_txe_radiations_tx_masters, DROP COLUMN treatment_master_id, DROP COLUMN created, DROP COLUMN created_by, DROP COLUMN modified, DROP COLUMN modified_by, DROP COLUMN deleted;
-UPDATE treatment_extend_masters extend_master, txe_radiations extend_detail SET extend_detail.treatment_extend_master_id = extend_master.id WHERE extend_master.tmp_old_extend_id = extend_detail.id;
-ALTER TABLE txe_radiations_revs ADD COLUMN treatment_extend_master_id int(11) NOT NULL;
-UPDATE txe_radiations_revs extend_detail_revs, txe_radiations extend_detail SET extend_detail_revs.treatment_extend_master_id = extend_detail.treatment_extend_master_id WHERE extend_detail.id = extend_detail_revs.id;
-ALTER TABLE txe_radiations ADD CONSTRAINT FK_txe_radiations_treatment_extend_masters FOREIGN KEY (treatment_extend_master_id) REFERENCES treatment_extend_masters (id), DROP COLUMN id;
-INSERT INTO treatment_extend_masters_revs (id, treatment_extend_control_id, treatment_master_id, modified_by, version_created) (SELECT treatment_extend_master_id, @treatment_extend_control_id, treatment_master_id, modified_by, version_created FROM txe_radiations_revs ORDER BY version_id ASC);
-ALTER TABLE treatment_extend_masters DROP COLUMN tmp_old_extend_id;
-ALTER TABLE txe_radiations_revs DROP COLUMN modified_by, DROP COLUMN id, DROP COLUMN treatment_master_id;
-UPDATE treatment_extend_masters SET deleted = 1 WHERE treatment_master_id IN (SELECT id FROM treatment_masters WHERE deleted = 1);
-
--- Drop `txe_radiations`
-DROP TABLE txe_radiations;
-DROP TABLE txe_radiations_revs;
-
--- Flag inactive relationsips if required (see queries below).
--- Don't forget Collection to Annotation, Treatment,Consent, etc if not requried.
-*/
-/*
-SELECT str1.model AS model_1, str2.model AS model_2, use_field FROM datamart_browsing_controls ctrl, datamart_structures str1, datamart_structures str2 WHERE str1.id = ctrl.id1 AND str2.id = ctrl.id2 AND (ctrl.flag_active_1_to_2 = 1 OR ctrl.flag_active_2_to_1 = 1);
-UPDATE datamart_structure_functions fct, datamart_structures str SET fct.flag_active = 0 WHERE fct.datamart_structure_id = str.id AND/OR str.model IN ('Model1', 'Model2', 'Model...');
-Please flag inactive datamart structure functions if required (see queries below).
-UPDATE datamart_browsing_controls SET flag_active_1_to_2 = 0, flag_active_2_to_1 = 0 WHERE id1 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...')) OR id2 IN (SELECT id FROM datamart_structures WHERE model IN ('Model1', 'Model2', 'Model...'));
-Please change datamart_structures_relationships_en(and fr).png in appwebrootimgdataBrowser
-*/
-
--- Review specimen review detail form `spr_breast_cancer_types`
-
-/*
-  Should change trunk ViewSample to fix bug #2690:
-  Changed [SampleMaster.parent_id AS parent_sample_id,] to [SampleMaster.parent_id AS parent_id].
-  Please review custom ViewSample $table_query.
-*/
-/*
--- Category for custom lookup domains
-UPDATE `structure_permissible_values_custom_controls` SET `category`='clinical - consent' WHERE `name`='ccbr person consenting';
-UPDATE `structure_permissible_values_custom_controls` SET `category`='clinical - consent' WHERE `name`='ccbr treating physician';
-UPDATE `structure_permissible_values_custom_controls` SET `category`='inventory' WHERE `name`='ccbr sample pickup by';
-*/
---  =========================================================================
 --	Eventum ID: #3112 - Add study field to collection
 --	=========================================================================
 
@@ -166,8 +114,7 @@ INSERT INTO `structure_formats` (`id`, `structure_id`, `structure_field_id`, `di
 --	Eventum ID: #3166 - BCCH Consent Form
 --	=========================================================================
 
--- SVN Test
-
+-- Create tables for new BCCH consent form
 CREATE TABLE `cd_bcch_consents` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `bcch_verbal_consent` varchar(45) DEFAULT NULL,
@@ -261,21 +208,12 @@ INSERT INTO structure_value_domains (`id`, `domain_name`, `override`, `category`
 
 
 -- Create the yes, no, na values
-
-
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("consented", "bcch_consented");
-
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_consent_status"), (SELECT id FROM structure_permissible_values WHERE value="consented" AND language_alias="bcch_consented"), "1", "1");# 1 row affected.
-
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("declined", "bcch_declined");
-
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_consent_status"), (SELECT id FROM structure_permissible_values WHERE value="declined" AND language_alias="bcch_declined"), "2", "1");# 1 row affected.
-
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("withdrawn", "bcch_withdrawn");
-
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_consent_status"), (SELECT id FROM structure_permissible_values WHERE value="withdrawn" AND language_alias="bcch_withdrawn"), "3", "1");
-
-
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("assented", "bcch_assented");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_assent_status"), (SELECT id FROM structure_permissible_values WHERE value="assented" AND language_alias="bcch_assented"), "1", "1");
@@ -283,7 +221,6 @@ INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_assent_status"), (SELECT id FROM structure_permissible_values WHERE value="declined" AND language_alias="bcch_declined"), "2", "1");
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("not assented", "bcch_not_assented");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_assent_status"), (SELECT id FROM structure_permissible_values WHERE value="not assented" AND language_alias="bcch_not_assented"), "3", "1");
-
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("age", "bcch_age");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="bcch_assent_reason_decline"), (SELECT id FROM structure_permissible_values WHERE value="age" AND language_alias="bcch_age"), "1", "1");
@@ -517,62 +454,56 @@ VALUES (NULL, (SELECT id FROM structures WHERE alias='cd_bcch_consents'), (SELEC
 
 
 -- Add the language translation
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('BCCH Consent', '', 'BCCH Consent', '');
 
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch_yes', '', 'Yes', 'Oui'), ('bcch_no', '', 'No', 'Non'), ('bcch_na', '', 'NA', ''), ('bcch consent tissue', '', 'Consent to Tissue Donation', ''), ('bcch formal consent', '', 'Formal consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch_consented', '', 'Consented', ''), ('bcch_declined', '', 'Declined',''), ('bcch_withdrawn', '', 'Withdrawn','');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch date verbal consent', '', 'Date of Verbal Consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch date formal consent', '', 'Date of Formal Consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch date assent', '', 'Date of Assent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch assent', '', 'Assent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch verbal consent', '', 'Verbal Consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent details', '', 'Consent Details', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent all donation', '', 'Consent to Donation of All Sample Types', ''), ('bcch consent bone marrow', '', 'Consent to Donation of Bone Marrow', ''), ('bcch consent blood', '', 'Consent to Donation of Blood', ''), ('bcch consent extra blood', '', 'Consent to Collection of an Additional Blood Draw', ''), ('bcch consent csf', '', 'Use of Left Over CSF', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent leukopheresis', '', 'Use of Left Over Leukapheresis', ''), ('bcch consent genetic material', '', 'Use of Left Over Genetic Materials', ''), ('bcch consent stem cells', '', 'Use of Left Over Stem cells', ''), ('bcch consent buccal', '', 'Use of Buccal Swabs', ''), ('bcch consent saliva', '', 'Use of Saliva', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent urine', '', 'Use of Urine',''), ('bcch consent stool', '', 'Use of Stool', ''), ('bcch consent previous materials', '', 'Use of Samples Previously Collected', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch assent status', '', 'Assent', ''), ('bcch assent reason decline', '', 'Reason for Lack of Assent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch_assented', '', 'Assented', ''), ('bcch_not_assented', '', 'Not Assented', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch_age', '', 'Age', ''), ('bcch_cognitive', '', 'Cognitive', ''), ('bcch_other', '', 'Other', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch withdrawal', '', 'Withdrawal', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch date withdrawal revoke', '', 'Date of Withdrawal/Revoke', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch formal at age majority', '', 'Formal Consent - Age Majority', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch assent adolescent capacity', '', 'Adolescent Capacity to Consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent revoke', '', 'Revoke of Consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent withdrawal', '', 'Withdrawal of Consent', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch participant', '', 'Participant', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch parental', '', 'Parental', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch person verbal consent', '', 'Person Consenting (Verbal)', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch person formal consent', '', 'Person Consenting (Formal)', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch consent other materials', '', 'Consent to Other Materials', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch other materials description', '', 'Other Materials:', '');
-
-INSERT INTO i18n (`id`, `page_id`, `en`, `fr`) VALUES ('bcch formal consent type', '', 'Type', '');
-
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('BCCH Consent', 'BCCH Consent', ''),
+('bcch_yes', 'Yes', 'Oui'),
+('bcch_no', 'No', 'Non'), 
+('bcch_na', 'NA', ''),
+('bcch consent tissue', 'Consent to Tissue Donation', ''), 
+('bcch formal consent', 'Formal consent', ''),
+('bcch_consented', 'Consented', ''), 
+('bcch_declined', 'Declined',''), 
+('bcch_withdrawn', 'Withdrawn',''),
+('bcch date verbal consent', 'Date of Verbal Consent', ''),
+('bcch date formal consent', 'Date of Formal Consent', ''),
+('bcch date assent', 'Date of Assent', ''),
+('bcch assent', 'Assent', ''),
+('bcch verbal consent', 'Verbal Consent', ''),
+('bcch consent details', 'Consent Details', ''),
+('bcch consent all donation', 'Consent to Donation of All Sample Types', ''),
+('bcch consent bone marrow', 'Consent to Donation of Bone Marrow', ''), 
+('bcch consent blood', 'Consent to Donation of Blood', ''), 
+('bcch consent extra blood', 'Consent to Collection of an Additional Blood Draw', ''), 
+('bcch consent csf', 'Use of Left Over CSF', ''),
+('bcch consent leukopheresis', 'Use of Left Over Leukapheresis', ''),
+('bcch consent genetic material', 'Use of Left Over Genetic Materials', ''), 
+('bcch consent stem cells', 'Use of Left Over Stem cells', ''),
+('bcch consent buccal', 'Use of Buccal Swabs', ''), 
+('bcch consent saliva', 'Use of Saliva', ''),
+('bcch consent urine', 'Use of Urine',''), 
+('bcch consent stool', 'Use of Stool', ''),
+('bcch consent previous materials', 'Use of Samples Previously Collected', ''),
+('bcch assent status', 'Assent', ''),
+('bcch assent reason decline', 'Reason for Lack of Assent', ''),
+('bcch_assented', 'Assented', ''),
+('bcch_not_assented', 'Not Assented', ''),
+('bcch_age', 'Age', ''), 
+('bcch_cognitive', 'Cognitive', ''),
+('bcch_other', 'Other', ''),
+('bcch withdrawal', 'Withdrawal', ''),
+('bcch date withdrawal revoke', 'Date of Withdrawal/Revoke', ''),
+('bcch formal at age majority', 'Formal Consent - Age Majority', ''),
+('bcch assent adolescent capacity', 'Adolescent Capacity to Consent', ''),
+('bcch consent revoke', 'Revoke of Consent', ''),
+('bcch consent withdrawal', 'Withdrawal of Consent', ''),
+('bcch participant', 'Participant', ''),
+('bcch parental', 'Parental', ''),
+('bcch person verbal consent', 'Person Consenting (Verbal)', ''),
+('bcch person formal consent', 'Person Consenting (Formal)', ''),
+('bcch consent other materials', 'Consent to Other Materials', ''),
+('bcch other materials description', 'Other Materials:', ''),
+('bcch formal consent type', 'Type', '');
 
 
 --  =========================================================================
@@ -610,7 +541,7 @@ INSERT INTO `sd_spe_csfs` (`sample_master_id`, `collected_volume`, `collected_vo
 SELECT `sample_master_id`, `collected_volume`, `collected_volume_unit` FROM `sd_spe_ccbr_cerebrospinal_fluid`;
 
 INSERT INTO `sd_spe_csfs_revs` (`sample_master_id`, `collected_volume`, `collected_volume_unit`, `version_id`, `version_created`)
-SELECT `sample_master_id`, `collected_volume`, `collected_volume_unit` FROM `sd_spe_ccbr_cerebrospinal_fluid_revs`;
+SELECT `sample_master_id`, `collected_volume`, `collected_volume_unit`, `version_id`, `version_created` FROM `sd_spe_ccbr_cerebrospinal_fluid_revs`;
 
 -- Update sample_masters
 UPDATE `sample_masters`
@@ -621,19 +552,21 @@ WHERE `sample_control_id` = (SELECT `id` FROM sample_controls WHERE `sample_type
 DELETE FROM parent_to_derivative_sample_controls
 WHERE `derivative_sample_control_id` = (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr cerebrospinal fluid');
 
+-- TODO: ViewSamples Update
+-- Verify other links to sample controls for old type before deletion else FK error
+
 DELETE FROM `sample_controls`
 WHERE `sample_type` = 'ccbr cerebrospinal fluid';
 
 -- DROP TABLE
-DROP TABLE `bc_children_atim`.`sd_spe_ccbr_cerebrospinal_fluid`;
-DROP TABLE `bc_children_atim`.`sd_spe_ccbr_cerebrospinal_fluid_revs`;
+DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid`;
+DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid_revs`;
 
--- Update aliquot masters
--- Wait for Tamsin's reply. Leave as-is for ml
 
 --  =========================================================================
---	Eventum ID: #XXXX - New sample type (Swab)
+--	Eventum ID: #3160 - New sample type (Swab)
 --	=========================================================================
+
 CREATE TABLE `sd_spe_swabs` (
   `sample_master_id` int(11) NOT NULL,
   `ccbr_swab_location` varchar(255) DEFAULT NULL,
@@ -688,17 +621,3 @@ INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_i
 -- Add aliquot
 INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `detail_form_alias`, `detail_tablename`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES
  ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr swab'), 'tube', 'ad_spec_tubes', 'ad_tubes', '1', 'Specimen tube', '0', 'swab|tube');
-
-
---  =========================================================================
---	Eventum ID: #XXXX - New sample type (Cord Blood)
---	========================================================================
-
-
-
---  =========================================================================
---	Eventum ID: #3155 - Collection - Add new needs default participant ID
---	=========================================================================
-
--- Set Collection Property to 'Independant Collection'
--- UPDATE structure_formats SET `flag_override_default`='1', `default`='independent collection', `flag_add_readonly`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='collections') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='Collection' AND `tablename`='collections' AND `field`='collection_property' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='collection_property') AND `flag_confidential`='0');
