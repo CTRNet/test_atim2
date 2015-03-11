@@ -17,7 +17,7 @@ INSERT INTO i18n (id,en,fr) VALUES ('manage', 'Manage', 'Gérer');
 -- Issue: Change datamart_browsing_results id_csv to allow system to keep more than 10000 records
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-ALTER TABLE datamart_browsing_results MODIFY  id_csv longtext NOT NULL;
+ALTER TABLE datamart_browsing_results MODIFY id_csv longtext NOT NULL;
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3131: Participant Review Change Request (hook call, details, etc)
@@ -310,6 +310,53 @@ VALUES
 ((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_tubes'), '1'),
 ((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_slides'), '1'),
 ((SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_blocks'),(SELECT id FROM aliquot_controls WHERE detail_form_alias = 'ad_der_xenograft_cores'), '1');
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+--	Issue: #3189 - New sample type (Cord Blood)
+-- -----------------------------------------------------------------------------------------------------------------------------------=
+
+CREATE TABLE `sd_spe_cord_bloods` (
+  `sample_master_id` int(11) NOT NULL,
+  KEY `FK_sd_spe_swabss_sample_masters` (`sample_master_id`),
+  CONSTRAINT `FK_sd_spe_cord_bloods` FOREIGN KEY (`sample_master_id`) REFERENCES `sample_masters` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `sd_spe_cord_bloods_revs` (
+  `sample_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Add structure
+INSERT INTO `structures` (`alias`) VALUES ('sd_spe_cord_bloods');
+
+-- Add control row
+INSERT INTO `sample_controls` (`sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
+ ('cord blood', 'specimen', 'sd_spe_cord_bloods,specimens', 'sd_spe_cord_bloods', '0', 'cord blood');
+
+REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
+('cord blood', "Cord Blood", '');
+
+-- Enable new sample type
+INSERT INTO `parent_to_derivative_sample_controls` (`derivative_sample_control_id`, `flag_active`) VALUES ((SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'cord blood'), '1');
+
+-- Create aliquot tube for cord blood
+INSERT INTO `aliquot_controls` (`sample_control_id`, `aliquot_type`, `aliquot_type_precision`, `detail_form_alias`, `detail_tablename`, `volume_unit`, `flag_active`, `comment`, `display_order`, `databrowser_label`) VALUES 
+((SELECT `id` FROM `sample_controls` where `sample_type` = 'cord blood'), 'tube', '(ul + conc)', 'ad_spec_tubes_incl_ul_vol_and_conc', 'ad_tubes', 'ul', '1', 'Specimen tube requiring volume in ul and concentration', '0', 'cord blood|tube');
+
+-- Add new specimen tube for cord blood
+INSERT INTO `structures` (`alias`) VALUES ('ad_spec_tubes_incl_ul_vol_and_conc');
+
+-- Add cell count fields
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='cell_count' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='cell count' AND `language_tag`=''), '1', '451', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0'), 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `field`='cell_count_unit' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='cell_count_unit')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_tag`=''), '1', '452', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
+-- Add volume fields
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='ad_spec_tubes_incl_ul_vol_and_conc'), (SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='initial_volume' AND `type`='float_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=5' AND `default`='' AND `language_help`='' AND `language_label`='initial volume' AND `language_tag`=''), '1', '73', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '1', '0', '0');
+
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
