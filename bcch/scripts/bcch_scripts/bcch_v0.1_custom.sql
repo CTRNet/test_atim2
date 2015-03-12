@@ -49,10 +49,17 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='1', `flag_edit_readonl
 -- Add new misc identifier type
 INSERT INTO `misc_identifier_controls` (`misc_identifier_name`, `flag_active`, `display_order`, `flag_once_per_participant`, `flag_confidential`, `flag_unique`, `pad_to_length`) VALUES
  ('CCBR Identifier', '1', '4', '1', '0', '1', '0');
-
+/*
 -- Create new misc identifier for each existing participant identifier
 INSERT INTO `misc_identifiers` (`participant_id`, `identifier_value`, `misc_identifier_control_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `flag_unique`)
 SELECT `id`, `participant_identifier`, (SELECT `id` FROM `misc_identifier_controls` WHERE `misc_identifier_name` = 'CCBR Identifier'), NOW(), (SELECT `id` FROM `users` WHERE `username` = 'administrator'), NOW(), (SELECT `id` FROM `users` WHERE `username` = 'administrator'), 0, 1 FROM `participants`;
+*/
+
+-- Create new misc identifier for each existing participant identifier
+-- Returned error code 1062 duplicate entry '4--1' for key 'misc_identifier_control_id'
+-- Fixed by modifing the SQL statement to the following:
+INSERT INTO `misc_identifiers` (`participant_id`, `identifier_value`, `misc_identifier_control_id`, `created`, `created_by`, `modified`, `modified_by`, `deleted`, `flag_unique`)
+SELECT `id`, `participant_identifier`, (SELECT `id` FROM `misc_identifier_controls` WHERE `misc_identifier_name` = 'CCBR Identifier'), NOW(), (SELECT `id` FROM `users` WHERE `username` = 'administrator'), NOW(), (SELECT `id` FROM `users` WHERE `username` = 'administrator'), 0, 1 FROM `participants` GROUP BY `participant_identifier` ORDER BY `id` ASC ;
 
 -- Clear all existing identifiers to prep for new identifier values
 UPDATE `participants` SET `participant_identifier` = '';
@@ -456,14 +463,14 @@ VALUES (NULL, (SELECT id FROM structures WHERE alias='cd_bcch_consents'), (SELEC
 -- Add the language translation
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
-('BCCH Consent', 'BCCH Consent', ''),
+('BCCH Consent', 'BCCH Consent Form', ''),
 ('bcch_yes', 'Yes', 'Oui'),
-('bcch_no', 'No', 'Non'), 
+('bcch_no', 'No', 'Non'),
 ('bcch_na', 'NA', ''),
-('bcch consent tissue', 'Consent to Tissue Donation', ''), 
+('bcch consent tissue', 'Consent to Tissue Donation', ''),
 ('bcch formal consent', 'Formal consent', ''),
-('bcch_consented', 'Consented', ''), 
-('bcch_declined', 'Declined',''), 
+('bcch_consented', 'Consented', ''),
+('bcch_declined', 'Declined',''),
 ('bcch_withdrawn', 'Withdrawn',''),
 ('bcch date verbal consent', 'Date of Verbal Consent', ''),
 ('bcch date formal consent', 'Date of Formal Consent', ''),
@@ -472,23 +479,23 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('bcch verbal consent', 'Verbal Consent', ''),
 ('bcch consent details', 'Consent Details', ''),
 ('bcch consent all donation', 'Consent to Donation of All Sample Types', ''),
-('bcch consent bone marrow', 'Consent to Donation of Bone Marrow', ''), 
-('bcch consent blood', 'Consent to Donation of Blood', ''), 
-('bcch consent extra blood', 'Consent to Collection of an Additional Blood Draw', ''), 
+('bcch consent bone marrow', 'Consent to Donation of Bone Marrow', ''),
+('bcch consent blood', 'Consent to Donation of Blood', ''),
+('bcch consent extra blood', 'Consent to Collection of an Additional Blood Draw', ''),
 ('bcch consent csf', 'Use of Left Over CSF', ''),
 ('bcch consent leukopheresis', 'Use of Left Over Leukapheresis', ''),
-('bcch consent genetic material', 'Use of Left Over Genetic Materials', ''), 
+('bcch consent genetic material', 'Use of Left Over Genetic Materials', ''),
 ('bcch consent stem cells', 'Use of Left Over Stem cells', ''),
-('bcch consent buccal', 'Use of Buccal Swabs', ''), 
+('bcch consent buccal', 'Use of Buccal Swabs', ''),
 ('bcch consent saliva', 'Use of Saliva', ''),
-('bcch consent urine', 'Use of Urine',''), 
+('bcch consent urine', 'Use of Urine',''),
 ('bcch consent stool', 'Use of Stool', ''),
 ('bcch consent previous materials', 'Use of Samples Previously Collected', ''),
 ('bcch assent status', 'Assent', ''),
 ('bcch assent reason decline', 'Reason for Lack of Assent', ''),
 ('bcch_assented', 'Assented', ''),
 ('bcch_not_assented', 'Not Assented', ''),
-('bcch_age', 'Age', ''), 
+('bcch_age', 'Age', ''),
 ('bcch_cognitive', 'Cognitive', ''),
 ('bcch_other', 'Other', ''),
 ('bcch withdrawal', 'Withdrawal', ''),
@@ -506,6 +513,16 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('bcch formal consent type', 'Type', '');
 
 
+-- Remove Status Date from Formal Consent Section of the BCCH Consent Form
+-- Request from Tamsin after initial testing
+
+UPDATE structure_formats
+SET `flag_add`=0, `flag_edit`=0, `flag_search`=0, `flag_summary`=0, `flag_index`=0, `flag_detail`=0
+WHERE `structure_id`=(SELECT `id` FROM structures WHERE `alias`='consent_masters')
+AND `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='ClinicalAnnotation' AND `model`='ConsentMaster'
+						  AND `tablename`='consent_masters' AND `field`='status_date' AND `type`='date');
+
+
 --  =========================================================================
 --	Eventum ID: #3163 - Study Title Validation
 --	=========================================================================
@@ -515,6 +532,19 @@ INSERT INTO `structure_validations` (`structure_field_id`, `rule`, `language_mes
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('ccbr study title must be 5 characters', "Study title must be 5 characters long", '');
+
+-- Study title can be maximum 5 letters or less
+-- Request from Adam and Tamsin
+UPDATE structure_validations
+SET `rule`='custom,/^[A-Za-z]+$/', `language_message`='ccbr study title must be letters only'
+WHERE `structure_field_id`=(SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `type`='input')
+AND `rule`='custom,/^[A-Za-z][A-Za-z][A-Za-z][A-Za-z][A-Za-z]$/';
+
+INSERT INTO structure_validations
+(`structure_field_id`, `rule`, `language_message`)
+VALUES
+((SELECT `id` FROM structure_fields WHERE `plugin`='Study' AND `model`='StudySummary' AND `tablename`='study_summaries' AND `field`='title' AND `type`='input'), 'between,1,5', 'ccbr study title must be between 1 to 5 letters');
+
 
 --  =========================================================================
 --	Eventum ID: #3161 - Tissue source - Add values
@@ -526,6 +556,21 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('placenta', "Placenta", '');
+
+--  =========================================================================
+--	Eventum ID: #3176 - Updating Existing Participant Identifiers to New Format
+--	=========================================================================
+
+UPDATE participants SET participant_identifier=CONCAT('C','0000',id) WHERE id>=1 AND id<=9;
+UPDATE participants SET participant_identifier=CONCAT('C','000',id) WHERE id>=10 AND id<=99;
+UPDATE participants SET participant_identifier=CONCAT('C','00',id) WHERE id>=100 AND id<=999;
+
+UPDATE participants_revs, participants SET participants_revs.participant_identifier=participants.participant_identifier WHERE participants_revs.id=participants.id;
+
+UPDATE view_samples, participants SET view_samples.participant_identifier=participants.participant_identifier WHERE view_samples.participant_id=participants.id;
+UPDATE view_aliquots, participants SET view_aliquots.participant_identifier=participants.participant_identifier WHERE view_aliquots.participant_id=participants.id;
+UPDATE view_collections, participants SET view_collections.participant_identifier=participants.participant_identifier WHERE view_collections.participant_id=participants.id;
+
 
 --  =========================================================================
 --	Eventum ID: #3167 - Migration - CSF conversion
@@ -552,15 +597,30 @@ WHERE `sample_control_id` = (SELECT `id` FROM sample_controls WHERE `sample_type
 DELETE FROM parent_to_derivative_sample_controls
 WHERE `derivative_sample_control_id` = (SELECT `id` FROM `sample_controls` WHERE `sample_type` = 'ccbr cerebrospinal fluid');
 
+-- Allow the old cerebrospinal fluid aliquots to be searchable in the databrowser as CSF
+UPDATE aliquot_masters
+SET aliquot_masters.`aliquot_control_id`=(SELECT `id` FROM aliquot_controls WHERE `sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='csf' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_csfs' AND `databrowser_label`='csf') AND `detail_form_alias`='ad_spec_tubes_incl_ul_vol' AND `databrowser_label`='csf|tube')
+WHERE aliquot_masters.`aliquot_control_id`=(SELECT `id` FROM aliquot_controls WHERE `aliquot_type`='tube' AND `detail_form_alias`='ad_spec_tubes_incl_ml_vol' AND `detail_tablename`='ad_tubes' AND `volume_unit`='ml' AND `databrowser_label`='cerebrospinal fluid|tube');
+
+-- Convert volume from ml to ul
+UPDATE aliquot_masters
+SET aliquot_masters.`initial_volume`= aliquot_masters.`initial_volume`*1000, aliquot_masters.`current_volume`=aliquot_masters.`current_volume`*1000
+WHERE aliquot_masters.`aliquot_control_id`=(SELECT `id` FROM aliquot_controls WHERE `sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='csf' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_csfs' AND `databrowser_label`='csf') AND `detail_form_alias`='ad_spec_tubes_incl_ul_vol' AND `databrowser_label`='csf|tube') AND aliquot_masters.`initial_volume` IS NOT NULL AND aliquot_masters.`current_volume` IS NOT NULL;
+
+
 -- TODO: ViewSamples Update
 -- Verify other links to sample controls for old type before deletion else FK error
 
+SET foreign_key_checks = 0;
 DELETE FROM `sample_controls`
 WHERE `sample_type` = 'ccbr cerebrospinal fluid';
+SET foreign_key_checks = 1;
 
 -- DROP TABLE
 DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid`;
 DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid_revs`;
+
+
 
 
 --  =========================================================================
