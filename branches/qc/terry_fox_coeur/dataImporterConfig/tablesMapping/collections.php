@@ -70,7 +70,7 @@ function postCollectionWrite(Model $m){
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		$sample_master_id = mysqli_insert_id(Config::$db_connection);
-		$query = "UPDATE sample_masters SET sample_code=CONCAT('T - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		$query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sample_masters', $sample_master_id);
 		
@@ -274,7 +274,7 @@ function postCollectionWrite(Model $m){
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		$sample_master_id = mysqli_insert_id(Config::$db_connection);
-		$query = "UPDATE sample_masters SET sample_code=CONCAT('A - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		$query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sample_masters', $sample_master_id);
 		
@@ -341,7 +341,7 @@ function postCollectionWrite(Model $m){
 		$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		$sample_master_id = mysqli_insert_id(Config::$db_connection);
-		$query = "UPDATE sample_masters SET sample_code=CONCAT('B - ', id), initial_specimen_sample_id=id WHERE id=".$sample_master_id;
+		$query = "UPDATE sample_masters SET sample_code=id, initial_specimen_sample_id=id WHERE id=".$sample_master_id;
 		mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 		Database::insertRev('sample_masters', $sample_master_id);
 		
@@ -373,7 +373,7 @@ function postCollectionWrite(Model $m){
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$serum_sample_master_id = mysqli_insert_id(Config::$db_connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('SER - ', id) WHERE id=".$serum_sample_master_id;
+				$query = "UPDATE sample_masters SET sample_code=id WHERE id=".$serum_sample_master_id;
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $serum_sample_master_id);
 				
@@ -433,7 +433,7 @@ function postCollectionWrite(Model $m){
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$plasma_sample_master_id = mysqli_insert_id(Config::$db_connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('PLS - ', id) WHERE id=".$plasma_sample_master_id;
+				$query = "UPDATE sample_masters SET sample_code=id WHERE id=".$plasma_sample_master_id;
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $plasma_sample_master_id);
 				
@@ -493,7 +493,7 @@ function postCollectionWrite(Model $m){
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$dna_sample_master_id = mysqli_insert_id(Config::$db_connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('DNA - ', id) WHERE id=".$dna_sample_master_id;
+				$query = "UPDATE sample_masters SET sample_code=id WHERE id=".$dna_sample_master_id;
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $dna_sample_master_id);
 				
@@ -552,7 +552,7 @@ function postCollectionWrite(Model $m){
 				$query = "INSERT INTO sample_masters (".implode(", ", array_keys($insert)).") VALUES (".implode(", ", array_values($insert)).")";
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				$bc_sample_master_id = mysqli_insert_id(Config::$db_connection);
-				$query = "UPDATE sample_masters SET sample_code=CONCAT('BLD-C - ', id) WHERE id=".$bc_sample_master_id;
+				$query = "UPDATE sample_masters SET sample_code=id WHERE id=".$bc_sample_master_id;
 				mysqli_query(Config::$db_connection, $query) or die("postCollectionWrite [".__LINE__."] qry failed [".$query."] ".mysqli_error(Config::$db_connection));
 				Database::insertRev('sample_masters', $bc_sample_master_id);
 				
@@ -614,7 +614,7 @@ function postCollectionWrite(Model $m){
 		Config::$summary_msg['Collection']['@@ERROR@@']['Wrong collected specimen type'][] = "User defined data as ".$m->values['Collected Specimen Type']." data but only ".array_shift($sample_types_with_data)." data is set into the file. No inventory will be created. See line [".$m->line."]";
 	}
 	
-	if(!$aliquot_created) Config::$summary_msg['Collection']['@@WARNING@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]";	
+	if(!$aliquot_created) Config::$summary_msg['Collection']['@@ERROR@@']['Aliquot'][] = "No aliquot created into collection for line [".$m->line."]";	
 }
 
 function generateDefaultAliquotLabel($sample_type, $qc_tf_bank_name, $qc_tf_bank_identifier, $aliquot_type) {
