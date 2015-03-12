@@ -607,7 +607,6 @@ UPDATE aliquot_masters
 SET aliquot_masters.`initial_volume`= aliquot_masters.`initial_volume`*1000, aliquot_masters.`current_volume`=aliquot_masters.`current_volume`*1000
 WHERE aliquot_masters.`aliquot_control_id`=(SELECT `id` FROM aliquot_controls WHERE `sample_control_id`=(SELECT `id` FROM sample_controls WHERE `sample_type`='csf' AND `sample_category`='specimen' AND `detail_tablename`='sd_spe_csfs' AND `databrowser_label`='csf') AND `detail_form_alias`='ad_spec_tubes_incl_ul_vol' AND `databrowser_label`='csf|tube') AND aliquot_masters.`initial_volume` IS NOT NULL AND aliquot_masters.`current_volume` IS NOT NULL;
 
-
 -- TODO: ViewSamples Update
 -- Verify other links to sample controls for old type before deletion else FK error
 
@@ -619,8 +618,6 @@ SET foreign_key_checks = 1;
 -- DROP TABLE
 DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid`;
 DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid_revs`;
-
-
 
 
 --  =========================================================================
