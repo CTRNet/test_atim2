@@ -73,15 +73,13 @@ class SampleMastersController extends InventoryManagementAppController {
 		$this->set("collection_id", $collection_id);
 		$this->set("is_ajax", $is_ajax);
 		
-		// Unbind models
-		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail','DerivativeDetail'),'hasMany' => array('AliquotMaster')),false);
-		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
-		
+		$this->SampleMaster->unbindModel(array('belongsTo' => array('Collection'),'hasOne' => array('SpecimenDetail'),'hasMany' => array('AliquotMaster')),false);
 		if($sample_master_id == 0){
 			//fetch all
 			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id IS NULL"), 'recursive' => 0));
 		}else{
-			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'recursive' => 0));
+			$this->request->data = $this->SampleMaster->find('all', array('conditions' => array("SampleMaster.collection_id" => $collection_id, "SampleMaster.parent_id" => $sample_master_id), 'order' => 'DerivativeDetail.creation_datetime ASC, SampleMaster.id ASC', 'recursive' => 0));
+			foreach($this->request->data as &$new_sample) $new_sample['DerivativeDetail']['creation_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h','h','h'), $new_sample['DerivativeDetail']['creation_datetime_accuracy']);
 		}
 		
 		$ids = array();
@@ -94,6 +92,7 @@ class SampleMastersController extends InventoryManagementAppController {
 		}
 		if($sample_master_id != 0){
 			//aliquots that are not realiquots
+			$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 			$aliquot_ids = $this->AliquotMaster->find('list', array('fields' => array('AliquotMaster.id'), 'conditions' => array("AliquotMaster.collection_id" => $collection_id, "AliquotMaster.sample_master_id" => $sample_master_id), 'recursive' => -1));
 			$aliquot_ids = array_diff($aliquot_ids, $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array("Realiquoting.child_aliquot_master_id" => $aliquot_ids), 'group' => array("Realiquoting.child_aliquot_master_id"))));
 			$aliquot_ids_has_child = array_flip($this->AliquotMaster->hasChild($aliquot_ids));
@@ -105,7 +104,7 @@ class SampleMastersController extends InventoryManagementAppController {
 				$aliquot['children'] = array_key_exists($aliquot['AliquotMaster']['id'], $aliquot_ids_has_child);
 				$aliquot['css'][] = $aliquot['AliquotMaster']['in_stock'] == 'no' ? 'disabled' : '';
 			}
-			$this->request->data = array_merge($this->request->data, $aliquots);
+			$this->request->data = array_merge($aliquots, $this->request->data);
 		}
 
 		// Set menu variables
