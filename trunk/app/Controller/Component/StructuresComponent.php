@@ -398,12 +398,12 @@ class StructuresComponent extends Component {
 								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
 										foreach($data as &$unit){
-											$unit = Sanitize::escape($unit);
+											$unit = trim(Sanitize::escape($unit));
 										}
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
 									}else{
-										$data = '%'.Sanitize::escape($data).'%';
+										$data = '%'.trim(Sanitize::escape($data)).'%';
 									}
 								}
 								
@@ -438,7 +438,8 @@ class StructuresComponent extends Component {
 											$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
 										);
 										$conditions[] = array("OR" => $tmp_cond);
-									}else{
+									}else{										
+										foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
 										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
 									}
 								}
