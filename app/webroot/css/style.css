@@ -2110,3 +2110,9 @@ div.descriptive_heading:not(:first-child){
 input[type=number]{
     width: 6em;
 }
+input[type=number].year{
+    width: 4em;
+}
+input[type=number].month, input[type=number].day{
+    width: 3em;
+}
