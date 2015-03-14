@@ -357,7 +357,9 @@ class StructuresComponent extends Component {
 										$this->controller->redirect('/Pages/err_opening_submitted_file', null, true);
 									}
 								}
-								unset($this->controller->data[$model][$key.'_with_file_upload']);
+								$tmp_controler_data = $this->controller->data;
+								unset($tmp_controler_data[$model][$key.'_with_file_upload']);
+								$this->controller->data = $tmp_controler_data;
 							}
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
