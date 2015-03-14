@@ -713,7 +713,12 @@ class AppController extends Controller {
 			if($limit){
 				$this->request->data = $model->find('all', array('conditions' => $_SESSION['ctrapp_core']['search'][$search_id]['criteria'], 'limit' => $limit));
 			}else{
-				$this->request->data = $this->Paginator->paginate($model, $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
+			    if (isset($this->paginate[$model->name])) {
+			        $this->Paginator->settings = $this->paginate[$model->name];
+			    }
+				$this->request->data = $this->Paginator->paginate(
+				    $model,
+				    $_SESSION['ctrapp_core']['search'][$search_id]['criteria']);
 			}
 				
 			// if SEARCH form data, save number of RESULTS and URL (used by the form builder pagination links)
