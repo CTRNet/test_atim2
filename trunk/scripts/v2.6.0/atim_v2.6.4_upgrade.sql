@@ -395,15 +395,22 @@ VALUES
 ('the selected report can only be launched from a batchset or a databrowser node', 'The selected report can only be launched from a Batchset or Databrowser Node', "Le rapport sélectionné ne peut être lancé qu'à partir d'un 'Lot de données' (ou d'un Noeud du 'Navigateur de Données')");
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
---	Alter table aliquot_masters field use_counter to set default value to 0 and update function newVersionSetup() (to be compliant with Issue: #3107)
+--	Alter table aliquot_masters field use_counter to set default value to 0 and update function newVersionSetup() (to be consistent with Issue: #3107)
 -- -----------------------------------------------------------------------------------------------------------------------------------
  
 ALTER TABLE aliquot_masters MODIFY `use_counter` int(6) NOT NULL DEFAULT '0';
 ALTER TABLE aliquot_masters_revs MODIFY `use_counter` int(6) NOT NULL DEFAULT '0';
   
 -- -----------------------------------------------------------------------------------------------------------------------------------
+--	Added message to remove Hook and Custom code versions files initially committed for test (to be consistent with Issue: #3079) 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+ 
+SELECT "Please delete files /app/Plugin/Administrate/Controller/Custom/VersionsController.php and /app/Plugin/Administrate/Model/Custom/Version.php if they exist on the customized version (see issue #3079)." AS '### MESSAGE ###';
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
+update versions set permissions_regenerated = 0;
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.4', NOW(),'6109','n/a');
+VALUES('2.6.4', NOW(),'6115','n/a');
