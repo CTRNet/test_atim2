@@ -217,7 +217,7 @@ class ReportsController extends DatamartAppController {
 	function index(){
 		$_SESSION['report'] = array(); // clear SEARCH criteria
 		
-		$this->request->data = $this->paginate($this->Report, array('Report.flag_active' => '1'));
+		$this->request->data = $this->paginate($this->Report, array('Report.flag_active' => '1', 'Report.limit_access_from_datamart_structrue_function' => '0'));
 		
 		// Translate data
 		foreach($this->request->data as $key => $data) {
@@ -243,7 +243,9 @@ class ReportsController extends DatamartAppController {
 		$this->set( 'atim_menu_variables', array('Report.id' => $report_id));
 		$this->set('atim_menu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
 		
-		if(empty($this->request->data) && (!empty($report['Report']['form_alias_for_search'])) && (!$csv_creation) && !array_key_exists('sort', $this->passedArgs)) {
+		if($report['Report']['limit_access_from_datamart_structrue_function'] && empty($this->request->data) && (!$csv_creation) && !array_key_exists('sort', $this->passedArgs)) {
+			$this->flash(__('you have been redirected automatically'), "/Datamart/Reports/index", 5);
+		} else if(empty($this->request->data) && (!empty($report['Report']['form_alias_for_search'])) && (!$csv_creation) && !array_key_exists('sort', $this->passedArgs)) {
 			
 			// ** SEARCH FROM DISPLAY **
 			
@@ -367,7 +369,7 @@ class ReportsController extends DatamartAppController {
 				$this->request->data = array();
 				$this->Structures->set('empty', 'result_form_structure');
 				$this->set('result_form_type', 'index');
-				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
+				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function'])? false:true);
 				$this->set('csv_creation', false);
 				$this->Report->validationErrors[][] = $data_returned_by_fct['error_msg'];
 			
@@ -376,7 +378,7 @@ class ReportsController extends DatamartAppController {
 				$this->request->data = array();
 				$this->Structures->set('empty', 'result_form_structure');
 				$this->set('result_form_type', 'index');
-				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
+				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function'])? false:true);
 				$this->set('csv_creation', false);			
 				$this->Report->validationErrors[][] = 'the report contains too many results - please redefine search criteria';
 				
@@ -387,7 +389,7 @@ class ReportsController extends DatamartAppController {
 				$this->set('result_form_type', $report['Report']['form_type_for_results']);
 				$this->set('result_header', $data_returned_by_fct['header']);
 				$this->set('result_columns_names', $data_returned_by_fct['columns_names']);
-				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search'])? false:true));
+				$this->set('display_new_search', (empty($report['Report']['form_alias_for_search']) || $report['Report']['limit_access_from_datamart_structrue_function'])? false:true);
 				$this->set('csv_creation', $csv_creation);
 				
 				if($csv_creation) {
@@ -1465,4 +1467,85 @@ class ReportsController extends DatamartAppController {
 			'error_msg' => null);
 		
 	}
+	
+	function countNumberOfElementsPerParticipants($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
+		$header = null;
+		$conditions = array();
+		
+		// Get studied model
+		
+		$models_list = array('MiscIdentifier' => array(),
+			'ConsentMaster' => array('id', array('consent_masters')),
+			'DiagnosisMaster' => array('id', array('diagnosis_masters')),
+			'TreatmentMaster' => array('id', array('treatment_masters')),
+			'EventMaster' => array('id', array('event_masters')),
+			'ReproductiveHistory' => array('id', array('consent_masters')),
+			'FamilyHistory' => array('id', array('family_histories')),
+			'ParticipantMessage' => array('id', array('participant_messages')),
+			'ParticipantContact' => array('id', array('participant_contacts')),
+			'ViewCollection' => array('id', array('collections')),
+			'TreatmentExtendMaster' => array('id', array('treatment_masters')),
+				
+			'ViewAliquot' => array('aliquot_master_id', array('aliquot_masters', 'collections')),
+			'ViewSample' => array('sample_master_id', array('sample_masters', 'collections')),
+			'QualityCtrl' => array('id', array('quality_ctrls', 'sample_masters', 'collections')),
+			'SpecimenReviewMaster' => array('id', array('specimen_review_masters', 'sample_masters', 'collections')),
+			'ViewAliquotUse' => array('id', array('view_aliquot_uses', 'aliquot_masters', 'collections')),
+			'AliquotReviewMaster' => array('id', array('aliquot_review_masters', 'aliquot_masters', 'sample_masters', 'collections')));
+		$model_name = null;
+		foreach(array_keys($models_list) as $tm_model_name) {
+			if(isset($parameters[$tm_model_name])) { $model_name = $tm_model_name; break; }
+		}
+		
+		if($model_name) {
+			list($model_id_key, $ordered_linked_table_names) = $models_list[$model_name];
+			$ids = array_filter($parameters[$model_name][$model_id_key]);		
+			$ids = empty($ids)? '-1' : implode(',',$ids); 
+			$joins = array();
+			$delete_constraints = array();
+			$model_levels = 0;
+			$foreign_key_to_previous_model = null;
+			foreach(array_reverse($ordered_linked_table_names) as $new_table_name) {
+				$model_levels++;
+				if($model_levels == 1) {
+					$joins[] = "INNER JOIN $new_table_name ModelLevel1 ON ModelLevel1.participant_id = Participant.id";
+					$foreign_key_to_previous_model = preg_replace('/s$/', '_id', $new_table_name);
+				} else {
+					$joins[] = "INNER JOIN $new_table_name ModelLevel$model_levels ON ModelLevel$model_levels.".$foreign_key_to_previous_model." = ModelLevel".($model_levels-1).".id";
+					$foreign_key_to_previous_model = preg_replace('/s$/', '_id', $new_table_name);
+				}
+				if($new_table_name != 'view_aliquot_uses') $delete_constraints[] = "ModelLevel$model_levels.deleted <> 1";
+			}			
+			$query = "SELECT count(*) AS nbr_of_elements, Participant.*
+				FROM participants AS Participant ".
+				implode(' ', $joins).
+				" WHERE Participant.deleted <> 1 AND ".
+				implode(' AND ', $delete_constraints).
+				" AND ModelLevel$model_levels.id IN ($ids)
+				GROUP BY Participant.id;";		
+		} else {
+			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		}
+		
+		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
+		$data = $participant_model->tryCatchQuery($query);
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
+			return array(
+					'header' => null,
+					'data' => null,
+					'columns_names' => null,
+					'error_msg' => 'the report contains too many results - please redefine search criteria');
+		}
+		foreach($data as &$new_row) $new_row['Generated'] = $new_row['0'];
+		return array(
+			'header' => $header,
+			'data' => $data,
+			'columns_names' => null,
+			'error_msg' => null);
+	}
+	
 }
