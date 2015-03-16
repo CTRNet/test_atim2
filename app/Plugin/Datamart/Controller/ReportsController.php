@@ -244,7 +244,8 @@ class ReportsController extends DatamartAppController {
 		$this->set('atim_menu', $this->Menus->get('/Datamart/Reports/manageReport/%%Report.id%%/'));
 		
 		if($report['Report']['limit_access_from_datamart_structrue_function'] && empty($this->request->data) && (!$csv_creation) && !array_key_exists('sort', $this->passedArgs)) {
-			$this->flash(__('you have been redirected automatically'), "/Datamart/Reports/index", 5);
+			$this->flash(__('the selected report can only be launched from a batchset or a databrowser node'), "/Datamart/Reports/index", 5);
+			
 		} else if(empty($this->request->data) && (!empty($report['Report']['form_alias_for_search'])) && (!$csv_creation) && !array_key_exists('sort', $this->passedArgs)) {
 			
 			// ** SEARCH FROM DISPLAY **
@@ -1362,112 +1363,6 @@ class ReportsController extends DatamartAppController {
 				'error_msg' => null);
 	}
 	
-	function getElementsNumberPerParticipant($parameters) {
-		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
-			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
-		}
-		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
-			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
-		}
-		
-		$header = '';
-		$res = array();
-		
-		$model = '';
-		$ids = array();
-		if(empty($parameters)) {
-			return array(
-				'header' => null,
-				'data' => null,
-				'columns_names' => null,
-				'error_msg' => 'the selected report can only be launched from a batchset or a databrowser node');
-		} else {
-			foreach(array('ViewAliquot','ViewCollection','ViewSample','MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster') AS $studied_model) {
-				if(array_key_exists($studied_model, $parameters)) {
-					$model = $studied_model;
-					$field = 'id';
-					if(in_array($studied_model, array('ViewAliquot','ViewCollection','ViewSample'))) $field = str_replace(array('ViewAliquot','ViewCollection','ViewSample'), array('aliquot_master_id','collection_id','sample_master_id'), $studied_model);
-					$ids = $parameters[$studied_model][$field];
-					break;
-				}
-			}
-		}
-		
-		if(empty($model) || empty($ids)) {
-			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-		} else {
-			$query = '';			
-			switch($model) {
-				case 'ViewSample':
-					$query = "SELECT count(*) as element_nbrs, Model.participant_id
-						FROM collections Model
-						INNER JOIN sample_masters SampleMaster ON SampleMaster.collection_id = Model.id
-						WHERE SampleMaster.id IN (".implode(',', $ids).") AND SampleMaster.deleted <> 1 AND Model.participant_id IS NOT NULL
-						GROUP BY participant_id";
-					break;
-				case 'ViewAliquot':
-					$query = "SELECT count(*) as element_nbrs, Model.participant_id
-						FROM collections Model
-						INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Model.id
-						WHERE AliquotMaster.id IN (".implode(',', $ids).") AND AliquotMaster.deleted <> 1 AND Model.participant_id IS NOT NULL
-						GROUP BY participant_id";
-					break;
-				case 'ViewCollection':
-				case 'MiscIdentifier':
-				case 'ConsentMaster':
-				case 'DiagnosisMaster':
-				case 'TreatmentMaster':
-				case 'EventMaster':
-					$table_name = str_replace(array('MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster', 'ViewCollection'),
-						array('misc_identifiers','consent_masters','diagnosis_masters','treatment_masters','event_masters','collections'),
-						$model);
-					$query = "SELECT count(*) as element_nbrs, Model.participant_id
-						FROM $table_name Model
-						WHERE id IN (".implode(',', $ids).") AND deleted <> 1 AND Model.participant_id IS NOT NULL
-						GROUP BY participant_id";
-					break;
-				default:
-					$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
-			}
-			
-			//Get elements number per participant
-			$elements_nbr = array();
-			$query_results = $this->Report->tryCatchQuery($query);
-			foreach($query_results as $new_participant) {
-				$elements_nbr[$new_participant['Model']['participant_id']] = $new_participant['0']['element_nbrs'];
-			}
-			
-			//Get participant data
-			$participant_ids = array_keys($elements_nbr);
-			if(sizeof($participant_ids) > Configure::read('databrowser_and_report_results_display_limit')) {
-				return array(
-					'header' => null,
-					'data' => null,
-					'columns_names' => null,
-					'error_msg' => 'the report contains too many results - please redefine search criteria');
-			}
-			$Participant = AppModel::getInstance('ClinicalAnnotation', 'Participant', true);
-			$participants_data = $Participant->find('all', array('conditions' => array('Participant.id' => $participant_ids)));
-			foreach($participants_data as &$new_participant) {
-				$new_participant['0']['elements_number'] = $elements_nbr[$new_participant['Participant']['id']];
-			}
-			$res = $participants_data;
-			
-			//Set header
-			$studied_data = __(str_replace(array('ViewAliquot','ViewCollection','ViewSample','MiscIdentifier','ConsentMaster','DiagnosisMaster','TreatmentMaster','EventMaster'),
-				array('aliquots','collections','samples','misc identifiers','consents','diagnosis','treatments','events'),
-				$model));
-			$header = str_replace('%s', $studied_data, __('number of %s per participant'));
-		}
-		
-		return array(
-			'header' => $header,
-			'data' => $res,
-			'columns_names' => null,
-			'error_msg' => null);
-		
-	}
-	
 	function countNumberOfElementsPerParticipants($parameters) {
 		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
 			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
@@ -1478,31 +1373,33 @@ class ReportsController extends DatamartAppController {
 		
 		// Get studied model
 		
-		$models_list = array('MiscIdentifier' => array(),
-			'ConsentMaster' => array('id', array('consent_masters')),
-			'DiagnosisMaster' => array('id', array('diagnosis_masters')),
-			'TreatmentMaster' => array('id', array('treatment_masters')),
-			'EventMaster' => array('id', array('event_masters')),
-			'ReproductiveHistory' => array('id', array('consent_masters')),
-			'FamilyHistory' => array('id', array('family_histories')),
-			'ParticipantMessage' => array('id', array('participant_messages')),
-			'ParticipantContact' => array('id', array('participant_contacts')),
-			'ViewCollection' => array('collection_id', array('collections')),
-			'TreatmentExtendMaster' => array('id', array('treatment_masters')),
+		$models_list = array('MiscIdentifier' => array('id', array('misc_identifiers'), 'misc identifiers'),
+			'ConsentMaster' => array('id', array('consent_masters'), 'consents'),
+			'DiagnosisMaster' => array('id', array('diagnosis_masters'), 'diagnosis'),
+			'TreatmentMaster' => array('id', array('treatment_masters'), 'treatments'),
+			'EventMaster' => array('id', array('event_masters'), 'events'),
+			'ReproductiveHistory' => array('id', array('consent_masters'), 'reproductive histories'),
+			'FamilyHistory' => array('id', array('family_histories'), 'family histories'),
+			'ParticipantMessage' => array('id', array('participant_messages'), 'messages'),
+			'ParticipantContact' => array('id', array('participant_contacts'), 'contacts'),
+			'ViewCollection' => array('collection_id', array('collections'), 'collections'),
+			'TreatmentExtendMaster' => array('id', array('treatment_masters'), 'xxxx'),
 				
-			'ViewAliquot' => array('aliquot_master_id', array('aliquot_masters', 'collections')),
-			'ViewSample' => array('sample_master_id', array('sample_masters', 'collections')),
-			'QualityCtrl' => array('id', array('quality_ctrls', 'sample_masters', 'collections')),
-			'SpecimenReviewMaster' => array('id', array('specimen_review_masters', 'sample_masters', 'collections')),
-			'ViewAliquotUse' => array('id', array('view_aliquot_uses', 'aliquot_masters', 'collections')),
-			'AliquotReviewMaster' => array('id', array('aliquot_review_masters', 'aliquot_masters', 'sample_masters', 'collections')));
+			'ViewAliquot' => array('aliquot_master_id', array('aliquot_masters', 'collections'), 'aliquots'),
+			'ViewSample' => array('sample_master_id', array('sample_masters', 'collections'), 'samples'),
+			'QualityCtrl' => array('id', array('quality_ctrls', 'sample_masters', 'collections'), 'quality controls'),
+			'SpecimenReviewMaster' => array('id', array('specimen_review_masters', 'sample_masters', 'collections'), 'specimen review'),
+			'ViewAliquotUse' => array('id', array('view_aliquot_uses', 'aliquot_masters', 'collections'), 'aliquot uses and events'),
+			'AliquotReviewMaster' => array('id', array('aliquot_review_masters', 'aliquot_masters', 'sample_masters', 'collections'), 'aliquot review'));
 		$model_name = null;
 		foreach(array_keys($models_list) as $tm_model_name) {
 			if(isset($parameters[$tm_model_name])) { $model_name = $tm_model_name; break; }
 		}
 		
+		//Get data
+		
 		if($model_name) {
-			list($model_id_key, $ordered_linked_table_names) = $models_list[$model_name];
+			list($model_id_key, $ordered_linked_table_names, $header_detail) = $models_list[$model_name];
 			$ids = array_filter($parameters[$model_name][$model_id_key]);		
 			$ids = empty($ids)? '-1' : implode(',',$ids); 
 			$joins = array();
@@ -1526,7 +1423,9 @@ class ReportsController extends DatamartAppController {
 				" WHERE Participant.deleted <> 1 AND ".
 				implode(' AND ', $delete_constraints).
 				" AND ModelLevel$model_levels.id IN ($ids)
-				GROUP BY Participant.id;";		
+				GROUP BY Participant.id;";	
+			//Set header
+			$header = str_replace('%s', __($header_detail), __('number of %s per participant'));
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
