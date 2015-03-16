@@ -379,16 +379,52 @@ INSERT INTO structures(`alias`) VALUES ('realiquoting_data_for_collection_tree_v
 INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
 ((SELECT id FROM structures WHERE alias='realiquoting_data_for_collection_tree_view'), (SELECT id FROM structure_fields WHERE `model`='Realiquoting' AND `tablename`='realiquotings' AND `field`='realiquoting_datetime' AND `type`='datetime' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='inv_realiquoting_datetime_defintion' AND `language_label`='realiquoting date' AND `language_tag`=''), '0', '100', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
+-- -----------------------------------------------------------------------------------------------------------------------------------
+--	Issue: #3118 - Report to list patient having a nbr of element listed in Databrowser
+-- -----------------------------------------------------------------------------------------------------------------------------------=
 
-
-
-
-
-
-
+ALTER TABLE datamart_reports ADD COLUMN limit_access_from_datamart_structrue_function tinyint(1) NOT NULL DEFAULT '0';
+INSERT INTO `datamart_reports` (`name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `associated_datamart_structure_id`, limit_access_from_datamart_structrue_function) VALUES
+('number of elements per participant', 'number_of_elements_per_participant_description', '', 'number_of_elements_per_participant', 'index', 'countNumberOfElementsPerParticipants', 1, (SELECT id FROM datamart_structures WHERE model = 'Participant'), 1);
+SET @control_id = (SELECT id FROM datamart_reports WHERE name = 'number of elements per participant');
+INSERT INTO `datamart_structure_functions` (`datamart_structure_id`, `label`, `link`, `flag_active`) 
+(SELECT id, 'number of elements per participant', CONCAT('/Datamart/Reports/manageReport\/', @control_id), 1
+FROM datamart_structures WHERE model IN ('MiscIdentifier',
+'ConsentMaster',
+'DiagnosisMaster',
+'TreatmentMaster',
+'EventMaster',
+'ReproductiveHistory',
+'FamilyHistory',
+'ParticipantMessage',
+'ParticipantContact',
+'ViewCollection',
+'TreatmentExtendMaster',
+'ViewAliquot',
+'ViewSample',
+'QualityCtrl',
+'SpecimenReviewMaster',
+'ViewAliquotUse',
+'AliquotReviewMaster'));
+INSERT INTO structures(`alias`) VALUES ('number_of_elements_per_participant');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'Participant', 'participants', 'first_name', 'input',  NULL , '0', 'size=20', '', 'help_first_name', 'first name', ''), 
+('ClinicalAnnotation', 'Participant', 'participants', 'last_name', 'input',  NULL , '0', 'size=30', '', 'help_last_name', 'last name', ''), 
+('ClinicalAnnotation', 'Generated', '', 'nbr_of_elements', 'integer_positive',  NULL , '0', '', '', '', 'number of elements', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='number_of_elements_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='first_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='help_first_name' AND `language_label`='first name' AND `language_tag`=''), '1', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='number_of_elements_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='last_name' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=30' AND `default`='' AND `language_help`='help_last_name' AND `language_label`='last name' AND `language_tag`=''), '1', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='number_of_elements_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='participant_identifier' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='size=20' AND `default`='' AND `language_help`='help_participant identifier' AND `language_label`='participant identifier' AND `language_tag`=''), '1', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='number_of_elements_per_participant'), (SELECT id FROM structure_fields WHERE `model`='Generated' AND `tablename`='' AND `field`='nbr_of_elements' AND `type`='integer_positive' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='number of elements' AND `language_tag`=''), '1', '1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('number of elements per participant', 'Number of elements per participant', 'Nombre d''éléments par patient'), 
+('number_of_elements_per_participant_description', "Count the number of elements displayed in the previous list (Batchset, Databrowser Node) grouped by participant",
+"Compte le nombre d'éléments affichés dans la liste précédente (lot de données, Noeud du 'Navigateur de Données') par participant");
+ 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
 INSERT INTO `versions` (version_number, date_installed, trunk_build_number, branch_build_number) 
-VALUES('2.6.4', NOW(),'???','n/a');
+VALUES('2.6.4', NOW(),'6109','n/a');
