@@ -1487,7 +1487,7 @@ class ReportsController extends DatamartAppController {
 			'FamilyHistory' => array('id', array('family_histories')),
 			'ParticipantMessage' => array('id', array('participant_messages')),
 			'ParticipantContact' => array('id', array('participant_contacts')),
-			'ViewCollection' => array('id', array('collections')),
+			'ViewCollection' => array('collection_id', array('collections')),
 			'TreatmentExtendMaster' => array('id', array('treatment_masters')),
 				
 			'ViewAliquot' => array('aliquot_master_id', array('aliquot_masters', 'collections')),
