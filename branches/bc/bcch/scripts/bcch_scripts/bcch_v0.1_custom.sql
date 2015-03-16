@@ -621,6 +621,30 @@ DROP TABLE `sd_spe_ccbr_cerebrospinal_fluid_revs`;
 
 
 --  =========================================================================
+--	Eventum ID: #XXXX - New Project Specific Identifiers (2015-03-13)
+--	=========================================================================
+
+INSERT INTO misc_identifier_controls (`misc_identifier_name`, `flag_active`, `display_order`, `flag_once_per_participant`, `flag_unique`)
+VALUES
+('G. Reid 1 Identifier', 1, 5, 1, 1),
+('L. Brown 1 Identifier', 1, 6, 1, 1),
+('Pediatric Neurology Identifier', 1, 7, 1, 1),
+('EPGEN Identifier', 1, 8, 1, 1),
+('SLED Identifier', 1, 9, 1, 1),
+('UST1D Identifier', 1, 10, 1, 1);
+
+INSERT INTO i18n (`id`, `en`)
+VALUES
+('G. Reid 1 Identifier', 'G. Reid 1 Identifier'),
+('L. Brown 1 Identifier', 'L. Brown 1 Identifier'),
+('Pediatric Neurology Identifier', 'Pediatric Neurology Identifier'),
+('EPGEN Identifier', 'EPGEN Identifier'),
+('SLED Identifier', 'SLED Identifier'),
+('UST1D Identifier', 'UST1D Identifier'),
+('CCBR Identifier', 'CCBR Identifier');
+
+
+--  =========================================================================
 --	Eventum ID: #3160 - New sample type (Swab)
 --	=========================================================================
 

@@ -100,7 +100,37 @@ class MiscIdentifierCustom extends MiscIdentifier {
 					$value_validated = false;
 				}				
 				break;
-								
+			
+			case "G. Reid 1 Identifier":
+				//No Validation for SLED Identifier
+				$value_validated = true;
+				break;
+			
+			case "L. Brown 1 Identifier":
+				//No Validation for L. Brown 1
+				$value_validated = true;
+				break;
+			
+			case "Pediatric Neurology Identifier":
+				//No Validation for Pediatric Neurology
+				$value_validated = true;
+				break;
+			
+			case "EPGEN Identifier":
+				//No Validation for EPGEN
+				$value_validated = true;
+				break;
+			
+			case "SLED Identifier":
+				//No Validation for SLED
+				$value_validated = true;
+				break;
+			
+			case "UST1D Identifier":
+				//No Validation for UST1D
+				$value_validated = true;
+				break;
+											
 			default:
 				echo "No defined validation! See administrator!";
 				AppController::getInstance()->redirect('/pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
