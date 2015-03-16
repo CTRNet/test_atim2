@@ -393,6 +393,13 @@ VALUES
 ('number of %s per participant', 'Number of %s per participant', 'Nombre de %s par participant'),
 ('number of elements', 'Number of Elements', 'Nombre d''éléments'),
 ('the selected report can only be launched from a batchset or a databrowser node', 'The selected report can only be launched from a Batchset or Databrowser Node', "Le rapport sélectionné ne peut être lancé qu'à partir d'un 'Lot de données' (ou d'un Noeud du 'Navigateur de Données')");
+
+-- -----------------------------------------------------------------------------------------------------------------------------------
+--	Alter table aliquot_masters field use_counter to set default value to 0 and update function newVersionSetup() (to be compliant with Issue: #3107)
+-- -----------------------------------------------------------------------------------------------------------------------------------
+ 
+ALTER TABLE aliquot_masters MODIFY `use_counter` int(6) NOT NULL DEFAULT '0';
+ALTER TABLE aliquot_masters_revs MODIFY `use_counter` int(6) NOT NULL DEFAULT '0';
   
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Versions table
