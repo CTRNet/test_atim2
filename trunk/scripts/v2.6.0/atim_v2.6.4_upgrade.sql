@@ -113,7 +113,7 @@ REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 REPLACE INTO `i18n` (`id`, `en`, `fr`) VALUES
 ('batch init - number of submitted records too big', 'The number of records submitted are too big to be managed in batch!','Le nombre de données soumises pour être traitées en lot est trop important!');
 
-SELECT "Application Change: DatamartAppController::$display_limit variable has been removed and replaced by core variable 'databrowser_and_report_results_display_limit'. Please review any custom process or report that uses this variable and that has to be updated." AS 'MESSAGE';
+SELECT "Application Change: DatamartAppController::$display_limit variable has been removed and replaced by core variable 'databrowser_and_report_results_display_limit'. Please review any custom process or report that uses this variable and that has to be updated." AS '### MESSAGE ###';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3135: StorageControl.changeActiveStatus(): Change rules checking that no StorageMaster is linked to the processed storage type 
@@ -127,7 +127,7 @@ VALUES
 -- Issue #3115: Add treatment in batch
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SELECT 'Application Change: Added new code to create treatment in batch. To use this functionality, please review all of your treatment creation processes (including both structures and hooks call) and change trreatment_controls data.' AS 'MESSAGE';
+SELECT 'Application Change: Added new code to create treatment in batch. To use this functionality, please review all of your treatment creation processes (including both structures and hooks call) and change trreatment_controls data.' AS '### MESSAGE ###';
 INSERT INTO i18n (id,en,fr)
 VALUES
 ('you need privileges to access this page','You need privileges  to access this page','Vous devez avoir des privilèges pour accéder à cette page');
@@ -142,7 +142,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 -- Issue #3139: Add option to display details of treatments in index form 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SELECT 'Application Change: Added new code to display details of treatments in index form : Please review all of structures of your treatments, hooks and change control data if required' AS 'MESSAGE';
+SELECT 'Application Change: Added new code to display details of treatments in index form : Please review all of structures of your treatments, hooks and change control data if required' AS '### MESSAGE ###';
 
 -- -----------------------------------------------------------------------------------------------------------------------------------
 -- Issue #3118: Build report to list nbr of elements listed in Databrowser per patient
@@ -189,7 +189,7 @@ UPDATE structure_fields SET  `setting`='size=40' WHERE model='Drug' AND tablenam
 -- 'tisue block' to 'tissue block' realiquoting control
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SELECT "New Realiquoting Control: Created 'tisue block' to 'tissue block' realiquoting link but set it as 'disabled'. 1- Comment line if already created in the custom version. 2- Activate link if you link has to be used in your bank." AS 'MESSAGE';
+SELECT "New Realiquoting Control: Created 'tisue block' to 'tissue block' realiquoting link but set it as 'disabled'. 1- Comment line if already created in the custom version. 2- Activate link if you link has to be used in your bank." AS '### MESSAGE ###';
 SET @control_id = (SELECT ac.id FROM aliquot_controls ac INNER JOIN sample_controls sc ON sc.id = ac.sample_control_id WHERE sample_type = 'tissue' AND aliquot_type = 'block');
 INSERT INTO realiquoting_controls (parent_aliquot_control_id,child_aliquot_control_id,flag_active) VALUES (@control_id,@control_id,0);
 
@@ -197,7 +197,7 @@ INSERT INTO realiquoting_controls (parent_aliquot_control_id,child_aliquot_contr
 -- Issue #3175: Add Xenograft Derivative
 -- -----------------------------------------------------------------------------------------------------------------------------------
 
-SELECT "New Sample Type: Created 'Xenograft' derivative. 1- Comment line if already created in the custom version. 2- Disable sample_type if this sample type is not supported into your bank." AS message;
+SELECT "New Sample Type: Created 'Xenograft' derivative. 1- Comment line if already created in the custom version. 2- Disable sample_type if this sample type is not supported into your bank." AS '### MESSAGE ###';
 INSERT INTO `sample_controls` (`id`, `sample_type`, `sample_category`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`) VALUES
 (null, 'xenograft', 'derivative', 'sd_der_xenografts,derivatives', 'sd_der_xenografts', 0, 'xenograft');
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('xenograft', 'Xenograft', 'Xénogreffe');
@@ -315,7 +315,7 @@ VALUES
 --	Issue: #3189 - New sample type (Cord Blood)
 -- -----------------------------------------------------------------------------------------------------------------------------------=
 
-SELECT "New Sample Type: Created 'Cord Blood' specimen. 1- Comment line if already created in the custom version. 2- Disable sample_type if this sample type is not supported into your bank." AS message;
+SELECT "New Sample Type: Created 'Cord Blood' specimen. 1- Comment line if already created in the custom version. 2- Disable sample_type if this sample type is not supported into your bank." AS '### MESSAGE ###';
 
 CREATE TABLE `sd_spe_cord_bloods` (
   `sample_master_id` int(11) NOT NULL,
