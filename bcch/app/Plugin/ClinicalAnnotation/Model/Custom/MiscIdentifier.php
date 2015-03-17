@@ -101,32 +101,32 @@ class MiscIdentifierCustom extends MiscIdentifier {
 				}				
 				break;
 			
-			case "G. Reid 1 Identifier":
-				//No Validation for SLED Identifier
+			case "GREID ID":
+				//No Validation for GREID
 				$value_validated = true;
 				break;
 			
-			case "L. Brown 1 Identifier":
+			case "LBRWN ID":
 				//No Validation for L. Brown 1
 				$value_validated = true;
 				break;
 			
-			case "Pediatric Neurology Identifier":
+			case "NEURO ID":
 				//No Validation for Pediatric Neurology
 				$value_validated = true;
 				break;
 			
-			case "EPGEN Identifier":
+			case "EPGEN ID":
 				//No Validation for EPGEN
 				$value_validated = true;
 				break;
 			
-			case "SLED Identifier":
+			case "SLED1 ID":
 				//No Validation for SLED
 				$value_validated = true;
 				break;
 			
-			case "UST1D Identifier":
+			case "UST1D ID":
 				//No Validation for UST1D
 				$value_validated = true;
 				break;

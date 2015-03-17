@@ -643,6 +643,55 @@ VALUES
 ('UST1D Identifier', 'UST1D Identifier'),
 ('CCBR Identifier', 'CCBR Identifier');
 
+-- Requested ID name changes after discussions between Elodie and Adam
+
+UPDATE misc_identifier_controls
+SET `misc_identifier_name`='GREID ID'
+WHERE `misc_identifier_name`='G. Reid 1 Identifier';
+
+UPDATE i18n
+SET `id`='GREID ID', `en`='GREID ID'
+WHERE `id`='G. Reid 1 Identifier';
+
+UPDATE misc_identifier_controls
+SET `misc_identifier_name`='LBRWN ID'
+WHERE `misc_identifier_name`='L. Brown 1 Identifier';
+
+UPDATE i18n
+SET `id`='LBRWN ID', `en`='LBRWN ID'
+WHERE `id`='L. Brown 1 Identifier';
+
+UPDATE misc_identifier_controls
+SET `misc_identifier_name`='NEURO ID'
+WHERE `misc_identifier_name`='Pediatric Neurology Identifier';
+
+UPDATE i18n
+SET `id`='NEURO ID', `en`='NEURO ID'
+WHERE `id`='Pediatric Neurology Identifier';
+
+UPDATE misc_identifier_controls
+SET `misc_identifier_name`='EPGEN ID'
+WHERE `misc_identifier_name`='EPGEN Identifier';
+
+UPDATE i18n
+SET `id`='EPGEN ID', `en`='EPGEN ID'
+WHERE `id`='EPGEN Identifier';
+
+UPDATE misc_identifier_controls
+SET `misc_identifier_name`='SLED1 ID'
+WHERE `misc_identifier_name`='SLED Identifier';
+
+UPDATE i18n
+SET `id`='SLED1 ID', `en`='SLED1 ID'
+WHERE `id`='SLED Identifier';
+
+UPDATE misc_identifier_controls
+SET `misc_identifier_name`='UST1D ID'
+WHERE `misc_identifier_name`='UST1D Identifier';
+
+UPDATE i18n
+SET `id`='UST1D ID', `en`='UST1D ID'
+WHERE `id`='UST1D Identifier';
 
 --  =========================================================================
 --	Eventum ID: #3160 - New sample type (Swab)
