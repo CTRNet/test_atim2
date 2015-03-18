@@ -213,7 +213,14 @@ class ClinicalCollectionLinksController extends ClinicalAnnotationAppController 
 			require($hook_link); 
 		}
 	
-		if ( !empty($this->request->data) ) {
+		if ( empty($this->request->data) ) {
+			//Initial Display: Hook call to set default values
+			$hook_link = $this->hook('initial_display');
+			if($hook_link){
+				require($hook_link);
+			}
+			
+		} else {
 			// Launch Save Process
 			$fields = array('participant_id', 'diagnosis_master_id', 'consent_master_id', 'treatment_master_id', 'event_master_id');
 			if($this->request->data['Collection']['id']){

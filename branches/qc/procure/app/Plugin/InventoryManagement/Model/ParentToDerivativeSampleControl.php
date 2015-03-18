@@ -28,12 +28,15 @@ class ParentToDerivativeSampleControl extends InventoryManagementAppModel {
 	}
 	
 	private static function getActiveIdsFromRelations($relations, $current_check){
-		$active_ids = array();
-		foreach($relations[$current_check] as $sample_id){
-			if($current_check != $sample_id){
-				$active_ids[] = $sample_id;
-				if(isset($relations[$sample_id])){
-					$active_ids = array_merge($active_ids, self::getActiveIdsFromRelations($relations, $sample_id));
+		$active_ids = array('-1');	//If no sample
+		if(array_key_exists($current_check, $relations)) {
+			foreach($relations[$current_check] as $sample_id){
+				if($current_check != $sample_id && $sample_id != 'already_parsed'){
+					$active_ids[] = $sample_id;
+					if(isset($relations[$sample_id]) && !in_array('already_parsed', $relations[$sample_id])){
+						$relations[$sample_id][] = 'already_parsed';
+						$active_ids = array_merge($active_ids, self::getActiveIdsFromRelations($relations, $sample_id));
+					}
 				}
 			}
 		}
