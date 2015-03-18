@@ -305,8 +305,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($identifier_value_start) $conditions[] = "MiscIdentifier.identifier_value >= '$identifier_value_start'";
 			if($identifier_value_end) $conditions[] = "MiscIdentifier.identifier_value <= '$identifier_value_end'";
 		}
-			
-		//exit;
+		
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
@@ -340,12 +339,14 @@ class ReportsControllerCustom extends ReportsController {
 			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
-		$empty_form_array = array();
+		$empty_form_array = array('procure_followup_worksheets_nbr' => array(), 'procure_number_of_visit_with_collection' => array());
 		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
 			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
 			$empty_form_array["procure_".$visit_id."_procure_form_identification"]= '';
 			$empty_form_array["procure_".$visit_id."_event_date"]= null;
 			$empty_form_array["procure_".$visit_id."_event_date_accuracy"]= '';
+			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
+			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
 			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
@@ -356,7 +357,10 @@ class ReportsControllerCustom extends ReportsController {
 		$display_warning_2 = false;
 		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
-			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], 'MiscIdentifier' => $res['MiscIdentifier'], '0' => $empty_form_array);
+			if(!isset($data[$participant_id])) $data[$participant_id] = array(
+				'Participant' => $res['Participant'], 
+				'MiscIdentifier' => $res['MiscIdentifier'], 
+				'0' => $empty_form_array);
 			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
 			if($procure_form_identification) {
 				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+$/", $procure_form_identification, $matches)) {
@@ -366,6 +370,7 @@ class ReportsControllerCustom extends ReportsController {
 							$data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"] = $res['EventMaster']['procure_form_identification'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date"]= $res['EventMaster']['event_date'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
+							$data[$participant_id][0]['procure_followup_worksheets_nbr'][$visit_id] = '-';
 						} else {
 							$display_warning_1 = true;
 						}
@@ -385,11 +390,13 @@ class ReportsControllerCustom extends ReportsController {
 		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
 		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
 
-		//Get blood and urine
+		//Get blood, urine and tissue
 		if($data) {
 			$query = "SELECT 
 				Collection.participant_id,
 				Collection.procure_visit,
+				Collection.collection_datetime,
+				Collection.collection_datetime_accuracy,
 				SampleMaster.sample_control_id,
 				SampleDetail.blood_type
 				FROM collections Collection 
@@ -400,6 +407,23 @@ class ReportsControllerCustom extends ReportsController {
 			foreach($participant_model->query($query) as $res) {
 				$participant_id = $res['Collection']['participant_id'];
 				$visit_id = str_replace('V','',$res['Collection']['procure_visit']);
+				if(strlen($res['Collection']['collection_datetime'])) {
+					$record_collection_date = false;
+					if(!strlen($data[$participant_id][0]["procure_".$visit_id."_first_collection_date"])) {
+						$record_collection_date = true;
+					} else if($res['Collection']['collection_datetime'] < $data[$participant_id][0]["procure_".$visit_id."_first_collection_date"]) {
+						$record_collection_date = true;
+					}
+					if($record_collection_date) {
+						$first_collection_date_accuracy = $res['Collection']['collection_datetime_accuracy'];
+						if(!in_array($first_collection_date_accuracy, array('y', 'm', 'd'))) $first_collection_date_accuracy = 'c';
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date"] = $res['Collection']['collection_datetime'];
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
+						$data[$participant_id][0]['procure_number_of_visit_with_collection'][$visit_id] = '-';
+					}
+					$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
+					$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
+				}				
 				if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'blood') {
 					$sample_type = str_replace('k2-EDTA','k2_EDTA',$res['SampleDetail']['blood_type']);
 				} else if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'urine') {
@@ -411,6 +435,10 @@ class ReportsControllerCustom extends ReportsController {
 				}
 				$data[$participant_id][0]["procure_".$visit_id."_".$sample_type."_collected"] = 'y';
 			}
+		}
+		foreach($data as $participant_id => $participant_data){
+			$data[$participant_id][0]['procure_followup_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_followup_worksheets_nbr']);
+			$data[$participant_id][0]['procure_number_of_visit_with_collection'] = sizeof($data[$participant_id][0]['procure_number_of_visit_with_collection']);
 		}
 		return array(
 			'header' => $header,

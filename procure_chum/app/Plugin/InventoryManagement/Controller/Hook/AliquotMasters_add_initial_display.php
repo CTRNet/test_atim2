@@ -29,6 +29,7 @@
 					case 'serum':
 						$label = '-SRB';
 						$default_volume = '5.0';
+						$default_storage_datetime = '';
 						break;
 					case 'paxgene':
 						$default_in_stock_value = 'yes - available';
@@ -38,12 +39,16 @@
 					case 'k2-EDTA':
 						$label = '-EDB';
 						$default_volume = '9.0';
+						$default_storage_datetime = '';
 						break;
+					default:
+						$default_storage_datetime = '';
 				}
 				break;
 				
 			case 'blood-whatman paper':
 				$label = '-WHT';
+				$default_storage_datetime = '';
 				break;
 			case 'serum-tube':
 				$label = '-SER';
@@ -105,10 +110,10 @@
 		$tmp_default_aliquot_data = array();
 		if($set_default_value) {
 			$tmp_default_aliquot_data['AliquotMaster.barcode'] = $participant_identifier . ' ' . $visite . ' ' . $label;
-//			$tmp_default_aliquot_data['AliquotMaster.in_stock'] = $default_in_stock_value;
+			$tmp_default_aliquot_data['AliquotMaster.in_stock'] = $default_in_stock_value;
 //			if($default_volume) $tmp_default_aliquot_data['AliquotMaster.initial_volume'] = $default_volume;
 			if($default_concentration_unit) $tmp_default_aliquot_data['AliquotDetail.concentration_unit'] = $default_concentration_unit;
-//			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $default_storage_datetime;
+			$tmp_default_aliquot_data['AliquotMaster.storage_datetime'] = $default_storage_datetime;
 			
 			$counter = 0;
 			foreach($new_sample_record['children'] AS &$new_aliquot) {
