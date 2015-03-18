@@ -9,7 +9,7 @@
 		$event_control_data = $this->EventControl->find('first', array('conditions'=>array('EventControl.event_type' => 'procure follow-up worksheet - clinical event')));
 		$this->set('clinical_event_control_id', $event_control_data['EventControl']['id']);
 		//Set Treatment Control Id for treatments list
-		$this->TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
+		$this->TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
 		$tx_control_data = $this->TreatmentControl->find('first', array('conditions'=>array('TreatmentControl.tx_method' => 'procure follow-up worksheet - treatment')));
 		$this->set('treatment_control_id', $tx_control_data['TreatmentControl']['id']);
 		//Set Inteval Dates (previous Medication Worksheet date to studied Medication Worksheet date)

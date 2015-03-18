@@ -29,6 +29,7 @@ class SampleMasterCustom extends SampleMaster {
 	}
 	
 	
+//*** PROCURE CHUM **************************************************************************
 	function validates($options = array()){
 		$val_res = parent::validates($options);
 		if(isset($this->data['SampleDetail']['blood_type'])
@@ -38,5 +39,6 @@ class SampleMasterCustom extends SampleMaster {
 		}
 		return $val_res;
 	}	
+//*** END PROCURE CHUM **************************************************************************
 	
 }

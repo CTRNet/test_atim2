@@ -1,0 +1,1 @@
+Config|a:4:{s:9:"userAgent";s:32:"44afb1ba2736faa89ca986abb17d05b9";s:4:"time";i:1426917872;s:9:"countdown";i:10;s:8:"language";s:3:"eng";}Acl|a:3:{s:49:"Controller_ClinicalAnnotation_Participants_search";a:1:{s:5:"Group";b:0;}s:49:"Controller_InventoryManagement_Collections_search";a:1:{s:5:"Group";b:0;}s:38:"Controller_Customize_Preferences_index";a:1:{s:5:"Group";b:0;}}

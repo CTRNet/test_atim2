@@ -2,6 +2,13 @@
 class ReportsControllerCustom extends ReportsController {
 	
 	function participantIdentifiersSummary($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/MiscIdentifiers/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array();
 	
@@ -24,7 +31,7 @@ class ReportsControllerCustom extends ReportsController {
 	
 		$misc_identifier_model = AppModel::getInstance("ClinicalAnnotation", "MiscIdentifier", true);
 		$tmp_res_count = $misc_identifier_model->find('count', array('conditions' => $conditions, 'order' => array('MiscIdentifier.participant_id ASC')));
-		if($tmp_res_count > self::$display_limit) {
+		if($tmp_res_count > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
@@ -63,6 +70,16 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureDiagnosisAndTreatmentReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -80,6 +97,7 @@ class ReportsControllerCustom extends ReportsController {
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
+//*** PROCURE CHUM *****************************************************
 		if(isset($parameters['MiscIdentifier']['identifier_value'])) {
 			$no_labos  = array_filter($parameters['MiscIdentifier']['identifier_value']);
 			if($no_labos) $conditions[] = "MiscIdentifier.identifier_value IN ('".implode("','",$no_labos)."')";
@@ -89,6 +107,7 @@ class ReportsControllerCustom extends ReportsController {
 			if($identifier_value_start) $conditions[] = "MiscIdentifier.identifier_value >= '$identifier_value_start'";
 			if($identifier_value_end) $conditions[] = "MiscIdentifier.identifier_value <= '$identifier_value_end'";
 		}
+//*** END PROCURE CHUM *****************************************************
 		
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
@@ -105,9 +124,11 @@ class ReportsControllerCustom extends ReportsController {
 		$pathology_event_control_id = $event_controls['procure pathology report']['id'];
 		$pathology_event_detail_tablename = $event_controls['procure pathology report']['detail_tablename'];
 		if(!$diagnosis_event_control_id || !$pathology_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+//*** PROCURE CHUM *****************************************************
 		$query = "SELECT id FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name = 'prostate bank no lab';";
 		$misc_identifier_control_id = null;
 		foreach($participant_model->query($query) as $res) $misc_identifier_control_id = $res['misc_identifier_controls']['id'];
+//*** END PROCURE CHUM *****************************************************
 		
 		//Get participants data
 		$query = "SELECT 
@@ -126,12 +147,14 @@ class ReportsControllerCustom extends ReportsController {
 			EventDetail.aps_pre_surgery_free_ng_ml,
 			EventDetail.aps_pre_surgery_date,
 			EventDetail.aps_pre_surgery_date_accuracy,
+//*** PROCURE CHUM *****************************************************
 			MiscIdentifier.identifier_value
 			FROM participants Participant
 			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $diagnosis_event_control_id AND EventMaster.deleted <> 1
 			LEFT JOIN $diagnosis_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
 			LEFT JOIN event_masters PathologyEventMaster ON PathologyEventMaster.participant_id = Participant.id AND PathologyEventMaster.event_control_id = $pathology_event_control_id AND PathologyEventMaster.deleted <> 1
 			LEFT JOIN $pathology_event_detail_tablename PathologyEventDetail ON PathologyEventDetail.event_master_id = PathologyEventMaster.id
+//*** PROCURE CHUM *****************************************************
 			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
@@ -140,6 +163,7 @@ class ReportsControllerCustom extends ReportsController {
 			$participant_id = $res['Participant']['id'];
 			if(isset($data[$participant_id])) $display_warning = true;
 			$data[$participant_id]['Participant'] = $res['Participant'];
+//*** PROCURE CHUM *****************************************************
 			$data[$participant_id]['MiscIdentifier'] = $res['MiscIdentifier'];
 			$data[$participant_id]['EventMaster'] = $res['PathologyEventMaster'];
 			$data[$participant_id]['EventDetail'] = array_merge($res['PathologyEventDetail'], $res['EventDetail']);	
@@ -152,6 +176,7 @@ class ReportsControllerCustom extends ReportsController {
 				'procure_pre_op_radio' => '',
 				'procure_inaccurate_date_use' => '',
 				'procure_pre_op_psa_date' => '',
+//*** PROCURE CHUM *****************************************************
 				'qc_nd_aborted_prostatectomy' => '',
 				'qc_nd_curietherapy' => ''
 			);
@@ -159,7 +184,9 @@ class ReportsControllerCustom extends ReportsController {
 			$data[$participant_id]['TreatmentMaster']['start_date'] = '';
 			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = '';
 		}
-		if(sizeof($data) > self::$display_limit) {
+pr('SUPPRIMER qc_nd_curietherapy');
+pr('Veut on utiliser prostatectomy dans la version procure');
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -220,6 +247,7 @@ class ReportsControllerCustom extends ReportsController {
 				}
 			}
 		}
+pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		//Defined if patient received curietherapy or prostatectomy
 		$conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
@@ -279,6 +307,19 @@ class ReportsControllerCustom extends ReportsController {
 	}
 	
 	function procureFollowUpReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/TreatmentMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/EventMasters/listall')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -305,7 +346,8 @@ class ReportsControllerCustom extends ReportsController {
 			if($identifier_value_start) $conditions[] = "MiscIdentifier.identifier_value >= '$identifier_value_start'";
 			if($identifier_value_end) $conditions[] = "MiscIdentifier.identifier_value <= '$identifier_value_end'";
 		}
-		
+			
+		//exit;
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
@@ -339,14 +381,12 @@ class ReportsControllerCustom extends ReportsController {
 			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
-		$empty_form_array = array('procure_followup_worksheets_nbr' => array(), 'procure_number_of_visit_with_collection' => array());
+		$empty_form_array = array();
 		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
 			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
 			$empty_form_array["procure_".$visit_id."_procure_form_identification"]= '';
 			$empty_form_array["procure_".$visit_id."_event_date"]= null;
 			$empty_form_array["procure_".$visit_id."_event_date_accuracy"]= '';
-			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
-			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
 			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
@@ -357,10 +397,7 @@ class ReportsControllerCustom extends ReportsController {
 		$display_warning_2 = false;
 		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
-			if(!isset($data[$participant_id])) $data[$participant_id] = array(
-				'Participant' => $res['Participant'], 
-				'MiscIdentifier' => $res['MiscIdentifier'], 
-				'0' => $empty_form_array);
+			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], 'MiscIdentifier' => $res['MiscIdentifier'], '0' => $empty_form_array);
 			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
 			if($procure_form_identification) {
 				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+$/", $procure_form_identification, $matches)) {
@@ -370,7 +407,6 @@ class ReportsControllerCustom extends ReportsController {
 							$data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"] = $res['EventMaster']['procure_form_identification'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date"]= $res['EventMaster']['event_date'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
-							$data[$participant_id][0]['procure_followup_worksheets_nbr'][$visit_id] = '-';
 						} else {
 							$display_warning_1 = true;
 						}
@@ -390,13 +426,11 @@ class ReportsControllerCustom extends ReportsController {
 		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
 		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
 
-		//Get blood, urine and tissue
+		//Get blood and urine
 		if($data) {
 			$query = "SELECT 
 				Collection.participant_id,
 				Collection.procure_visit,
-				Collection.collection_datetime,
-				Collection.collection_datetime_accuracy,
 				SampleMaster.sample_control_id,
 				SampleDetail.blood_type
 				FROM collections Collection 
@@ -407,23 +441,6 @@ class ReportsControllerCustom extends ReportsController {
 			foreach($participant_model->query($query) as $res) {
 				$participant_id = $res['Collection']['participant_id'];
 				$visit_id = str_replace('V','',$res['Collection']['procure_visit']);
-				if(strlen($res['Collection']['collection_datetime'])) {
-					$record_collection_date = false;
-					if(!strlen($data[$participant_id][0]["procure_".$visit_id."_first_collection_date"])) {
-						$record_collection_date = true;
-					} else if($res['Collection']['collection_datetime'] < $data[$participant_id][0]["procure_".$visit_id."_first_collection_date"]) {
-						$record_collection_date = true;
-					}
-					if($record_collection_date) {
-						$first_collection_date_accuracy = $res['Collection']['collection_datetime_accuracy'];
-						if(!in_array($first_collection_date_accuracy, array('y', 'm', 'd'))) $first_collection_date_accuracy = 'c';
-						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date"] = $res['Collection']['collection_datetime'];
-						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
-						$data[$participant_id][0]['procure_number_of_visit_with_collection'][$visit_id] = '-';
-					}
-					$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
-					$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
-				}				
 				if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'blood') {
 					$sample_type = str_replace('k2-EDTA','k2_EDTA',$res['SampleDetail']['blood_type']);
 				} else if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'urine') {
@@ -435,10 +452,6 @@ class ReportsControllerCustom extends ReportsController {
 				}
 				$data[$participant_id][0]["procure_".$visit_id."_".$sample_type."_collected"] = 'y';
 			}
-		}
-		foreach($data as $participant_id => $participant_data){
-			$data[$participant_id][0]['procure_followup_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_followup_worksheets_nbr']);
-			$data[$participant_id][0]['procure_number_of_visit_with_collection'] = sizeof($data[$participant_id][0]['procure_number_of_visit_with_collection']);
 		}
 		return array(
 			'header' => $header,

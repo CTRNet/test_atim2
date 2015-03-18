@@ -1,0 +1,490 @@
+2014-06-06 13:05:41 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'redirect' at line 1
+Request URL: /procure_chum/InventoryManagement/AliquotMasters/add/67719/11
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('redirect', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('redirect', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(618): DboSource->fetchAll('redirect', Array, Array)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(799): DboSource->query('redirect', Array, Object(AliquotMasterCustom))
+#5 C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Model\AliquotMaster.php(458): Model->__call('redirect', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Model\AliquotMaster.php(458): AliquotMasterCustom->redirect('/Pages/err_plug...', NULL, true)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Controller\AliquotMastersController.php(251): AliquotMaster->getDefaultStorageDate(Array)
+#8 [internal function]: AliquotMastersController->add('67719', '11')
+#9 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(AliquotMastersController), Array)
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(AliquotMastersController), Object(CakeRequest), Object(CakeResponse))
+#12 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#13 {main}
+2014-07-04 18:56:43 Warning: Warning (2): PDO::__construct() [<a href='pdo.--construct'>pdo.--construct</a>]: MySQL server has gone away in [C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\Database\Mysql.php, line 175]
+Trace:
+PDO::__construct() - [internal], line ??
+Mysql::connect() - CORE\Cake\Model\Datasource\Database\Mysql.php, line 175
+DboSource::__construct() - CORE\Cake\Model\Datasource\DboSource.php, line 265
+ConnectionManager::getDataSource() - CORE\Cake\Model\ConnectionManager.php, line 105
+RevisionBehavior::createShadowModel() - APP\Model\Behavior\RevisionBehavior.php, line 979
+RevisionBehavior::setup() - APP\Model\Behavior\RevisionBehavior.php, line 150
+BehaviorCollection::load() - CORE\Cake\Model\BehaviorCollection.php, line 145
+BehaviorCollection::init() - CORE\Cake\Model\BehaviorCollection.php, line 66
+Model::__construct() - CORE\Cake\Model\Model.php, line 746
+AppModel::__construct() - APP\Model\AppModel.php, line 87
+AppController::init() - APP\Controller\AppController.php, line 226
+include - APP\Controller\AppController.php, line 1284
+App::load() - CORE\Cake\Core\App.php, line 544
+spl_autoload_call - [internal], line ??
+include - APP\Plugin\ClinicalAnnotation\Controller\ClinicalAnnotationAppController.php, line 3
+App::load() - CORE\Cake\Core\App.php, line 544
+spl_autoload_call - [internal], line ??
+include - APP\Plugin\ClinicalAnnotation\Controller\EventMastersController.php, line 3
+App::load() - CORE\Cake\Core\App.php, line 544
+spl_autoload_call - [internal], line ??
+class_exists - [internal], line ??
+Dispatcher::_loadController() - CORE\Cake\Routing\Dispatcher.php, line 277
+Dispatcher::_getController() - CORE\Cake\Routing\Dispatcher.php, line 227
+Dispatcher::dispatch() - CORE\Cake\Routing\Dispatcher.php, line 151
+[main] - APP\webroot\index.php, line 107
+
+2014-08-22 16:34:38 Error: Fatal Error (4): syntax error, unexpected T_RETURN, expecting T_FUNCTION in [C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Model\Custom\ViewCollection.php, line 113]
+2014-08-22 16:34:38 Error: [FatalErrorException] syntax error, unexpected T_RETURN, expecting T_FUNCTION
+Request URL: /procure_chum/Datamart/Browser/browse/42/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 113)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 113, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 113, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-22 16:35:01 Error: Fatal Error (4): syntax error, unexpected T_RETURN, expecting T_FUNCTION in [C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Model\Custom\ViewCollection.php, line 113]
+2014-08-22 16:35:01 Error: [FatalErrorException] syntax error, unexpected T_RETURN, expecting T_FUNCTION
+Request URL: /procure_chum/InventoryManagement/Collections/detail/10295
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 113)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 113, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 113, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-22 16:35:20 Error: Fatal Error (4): syntax error, unexpected T_RETURN, expecting T_FUNCTION in [C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Model\Custom\ViewCollection.php, line 99]
+2014-08-22 16:35:20 Error: [FatalErrorException] syntax error, unexpected T_RETURN, expecting T_FUNCTION
+Request URL: /procure_chum/Datamart/Browser/browse/42/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 99)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 99, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 99, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-22 16:57:02 Error: Fatal Error (4): syntax error, unexpected $end, expecting T_FUNCTION in [C:\_Perso\Server\procure_chum\app\Plugin\InventoryManagement\Model\Custom\ViewCollection.php, line 117]
+2014-08-22 16:57:02 Error: [FatalErrorException] syntax error, unexpected $end, expecting T_FUNCTION
+Request URL: /procure_chum/InventoryManagement/Collections/detail/10295
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 117)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 117, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 117, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-22 17:17:17 Error: Fatal Error (1): Call to a member function find() on a non-object in [C:\_Perso\Server\procure_chum\app\Plugin\ClinicalAnnotation\Model\Custom\Participant.php, line 26]
+2014-08-22 17:17:17 Error: [FatalErrorException] Call to a member function find() on a non-object
+Request URL: /procure_chum/ClinicalAnnotation/Participants/profile/7819
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(1, 'Call to a membe...', 'C:\_Perso\Serve...', 26)
+#1 [internal function]: ErrorHandler::handleError(1, 'Call to a membe...', 'C:\_Perso\Serve...', 26, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 1, 'Call to a membe...', 'C:\_Perso\Serve...', 26, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-22 17:17:34 Error: Fatal Error (4): syntax error, unexpected '=' in [C:\_Perso\Server\procure_chum\app\Plugin\ClinicalAnnotation\Model\Custom\Participant.php, line 26]
+2014-08-22 17:17:34 Error: [FatalErrorException] syntax error, unexpected '='
+Request URL: /procure_chum/ClinicalAnnotation/Participants/profile/7819
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 26)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 26, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 26, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-22 17:26:21 Error: Fatal Error (4): syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting ')' in [C:\_Perso\Server\procure_chum\app\Plugin\ClinicalAnnotation\Model\Custom\Participant.php, line 31]
+2014-08-22 17:26:21 Error: [FatalErrorException] syntax error, unexpected T_CONSTANT_ENCAPSED_STRING, expecting ')'
+Request URL: /procure_chum/ClinicalAnnotation/ConsentMasters/edit/7805/6994/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 31)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 31, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 31, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-26 13:50:05 Error: [PDOException] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'EventMaster.event_dates' in 'order clause'
+Request URL: /procure_chum/ClinicalAnnotation/EventMasters/listall/Clinical/4972/-1/noActions:/?_=1409061004869
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `EventMa...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `EventMa...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `EventMa...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(EventMasterCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Model\AppModel.php(397): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Component\PaginatorComponent.php(190): AppModel->paginate(Array, NULL, NULL, 20, 1, 1, Array)
+#8 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(1088): PaginatorComponent->paginate(Object(EventMasterCustom), Array, Array)
+#9 C:\_Perso\Server\procure_chum\app\Controller\AppController.php(676): Controller->paginate(Object(EventMasterCustom), Array, Array)
+#10 C:\_Perso\Server\procure_chum\app\Plugin\ClinicalAnnotation\Controller\EventMastersController.php(66): AppController->paginate(Object(EventMasterCustom), Array)
+#11 [internal function]: EventMastersController->listall('Clinical', '4972', '-1')
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(EventMastersController), Array)
+#13 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#14 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(EventMastersController), Object(CakeRequest), Object(CakeResponse))
+#15 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#16 {main}
+2014-08-26 13:50:06 Error: [PDOException] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'EventMaster.event_dates' in 'order clause'
+Request URL: /procure_chum/ClinicalAnnotation/EventMasters/listall/Clinical/4972/54/noActions:/?_=1409061004870
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `EventMa...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `EventMa...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `EventMa...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(EventMasterCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Model\AppModel.php(397): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Component\PaginatorComponent.php(190): AppModel->paginate(Array, NULL, NULL, 20, 1, 1, Array)
+#8 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(1088): PaginatorComponent->paginate(Object(EventMasterCustom), Array, Array)
+#9 C:\_Perso\Server\procure_chum\app\Controller\AppController.php(676): Controller->paginate(Object(EventMasterCustom), Array, Array)
+#10 C:\_Perso\Server\procure_chum\app\Plugin\ClinicalAnnotation\Controller\EventMastersController.php(66): AppController->paginate(Object(EventMasterCustom), Array)
+#11 [internal function]: EventMastersController->listall('Clinical', '4972', '54')
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(EventMastersController), Array)
+#13 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#14 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(EventMastersController), Object(CakeRequest), Object(CakeResponse))
+#15 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#16 {main}
+2014-08-26 13:50:06 Error: [PDOException] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'EventMaster.event_dates' in 'order clause'
+Request URL: /procure_chum/ClinicalAnnotation/EventMasters/listall/Clinical/4972/55/noActions:/?_=1409061004872
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `EventMa...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `EventMa...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `EventMa...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(EventMasterCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Model\AppModel.php(397): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Component\PaginatorComponent.php(190): AppModel->paginate(Array, NULL, NULL, 20, 1, 1, Array)
+#8 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(1088): PaginatorComponent->paginate(Object(EventMasterCustom), Array, Array)
+#9 C:\_Perso\Server\procure_chum\app\Controller\AppController.php(676): Controller->paginate(Object(EventMasterCustom), Array, Array)
+#10 C:\_Perso\Server\procure_chum\app\Plugin\ClinicalAnnotation\Controller\EventMastersController.php(66): AppController->paginate(Object(EventMasterCustom), Array)
+#11 [internal function]: EventMastersController->listall('Clinical', '4972', '55')
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(EventMastersController), Array)
+#13 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#14 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(EventMastersController), Object(CakeRequest), Object(CakeResponse))
+#15 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#16 {main}
+2014-08-27 14:08:28 Error: [PDOException] SQLSTATE[42S22]: Column not found: 1054 Unknown column 'TreatmentDetail.treatment_type' in 'where clause'
+Request URL: /procure_chum/Datamart/Reports/manageReport/13/0/sort:0.procure_inaccurate_date_use/direction:asc
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `Treatme...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `Treatme...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `Treatme...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(TreatmentMasterCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php(155): Model->find('all', Array)
+#7 [internal function]: ReportsControllerCustom->procureParticipantReport(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\ReportsController.php(346): call_user_func_array(Array, Array)
+#9 [internal function]: ReportsController->manageReport('13', '0')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(ReportsControllerCustom), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(ReportsControllerCustom), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-08-27 15:23:08 Error: Fatal Error (4): syntax error, unexpected '*' in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 201]
+2014-08-27 15:23:08 Error: [FatalErrorException] syntax error, unexpected '*'
+Request URL: /procure_chum/Datamart/Reports/index
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 201)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 201, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 201, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-27 15:23:12 Error: Fatal Error (4): syntax error, unexpected '*' in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 201]
+2014-08-27 15:23:12 Error: [FatalErrorException] syntax error, unexpected '*'
+Request URL: /procure_chum/Datamart/Reports/index
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 201)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 201, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 201, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-27 15:23:27 Error: Fatal Error (4): syntax error, unexpected $end, expecting T_FUNCTION in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 277]
+2014-08-27 15:23:27 Error: [FatalErrorException] syntax error, unexpected $end, expecting T_FUNCTION
+Request URL: /procure_chum/Datamart/Reports/index
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 277)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 277, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 277, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-08-27 15:53:48 Error: Fatal Error (4): syntax error, unexpected '<' in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 225]
+2014-08-27 15:53:48 Error: [FatalErrorException] syntax error, unexpected '<'
+Request URL: /procure_chum/Datamart/Reports/manageReport/13/0/sort:Participant.participant_identifier/direction:asc
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 225)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 225, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 225, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-11-26 20:07:28 Error: [PDOException] SQLSTATE[70100]: <<Unknown error>>: 1317 Query execution was interrupted
+Request URL: /procure_chum/Datamart/Reports/manageReport/14
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('UPDATE `procure...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\Database\Mysql.php(401): DboSource->execute('UPDATE `procure...')
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(1820): Mysql->update(Object(MissingTranslation), Array, Array)
+#4 C:\_Perso\Server\procure_chum\app\Model\AppModel.php(123): Model->save(NULL, true, Array)
+#5 C:\_Perso\Server\procure_chum\app\Controller\AppController.php(149): AppModel->save()
+#6 [internal function]: AppController->afterFilter(Object(CakeEvent))
+#7 C:\_Perso\Server\procure_chum\lib\Cake\Event\CakeEventManager.php(247): call_user_func(Array, Object(CakeEvent))
+#8 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(696): CakeEventManager->dispatch(Object(CakeEvent))
+#9 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(196): Controller->shutdownProcess()
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(ReportsControllerCustom), Object(CakeRequest), Object(CakeResponse))
+#11 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#12 {main}
+2014-11-26 20:07:34 Error: [PDOException] SQLSTATE[HY000]: General error: 2006 MySQL server has gone away
+Request URL: /procure_chum/Datamart/Reports/manageReport/14/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\Database\Mysql.php(331): DboSource->_execute('SHOW FULL COLUM...')
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(1357): Mysql->describe(Object(Config))
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(1446): Model->schema()
+#4 C:\_Perso\Server\procure_chum\app\Model\Behavior\SoftDeletableBehavior.php(290): Model->hasField('deleted')
+#5 [internal function]: SoftDeletableBehavior->beforeFind(Object(Config), Array)
+#6 C:\_Perso\Server\procure_chum\lib\Cake\Utility\ObjectCollection.php(132): call_user_func_array(Array, Array)
+#7 [internal function]: ObjectCollection->trigger(Object(CakeEvent))
+#8 C:\_Perso\Server\procure_chum\lib\Cake\Event\CakeEventManager.php(247): call_user_func(Array, Object(CakeEvent))
+#9 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2954): CakeEventManager->dispatch(Object(CakeEvent))
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2869): Model->buildQuery('first', Array)
+#11 C:\_Perso\Server\procure_chum\app\Model\Config.php(6): Model->find('first', Array)
+#12 C:\_Perso\Server\procure_chum\app\Controller\AppController.php(237): Config->getConfig('1', '2')
+#13 C:\_Perso\Server\procure_chum\app\Controller\AppController.php(1284): AppController::init()
+#14 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(579): include('C:\_Perso\Serve...')
+#15 [internal function]: App::load('AppController')
+#16 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\DatamartAppController.php(3): spl_autoload_call('AppController')
+#17 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(579): include('C:\_Perso\Serve...')
+#18 [internal function]: App::load('DatamartAppCont...')
+#19 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\ReportsController.php(2): spl_autoload_call('DatamartAppCont...')
+#20 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(579): include('C:\_Perso\Serve...')
+#21 [internal function]: App::load('ReportsControll...')
+#22 [internal function]: spl_autoload_call('ReportsControll...')
+#23 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(277): class_exists('ReportsControll...')
+#24 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(227): Dispatcher->_loadController(Object(CakeRequest))
+#25 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(151): Dispatcher->_getController(Object(CakeRequest), Object(CakeResponse))
+#26 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#27 {main}
+2014-11-26 20:19:10 Error: Fatal Error (4): syntax error, unexpected ')' in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 509]
+2014-11-26 20:19:10 Error: [FatalErrorException] syntax error, unexpected ')'
+Request URL: /procure_chum/Datamart/Reports/manageReport/15
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 509)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 509, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 509, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-11-26 20:19:28 Error: Fatal Error (4): syntax error, unexpected T_AS in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 509]
+2014-11-26 20:19:28 Error: [FatalErrorException] syntax error, unexpected T_AS
+Request URL: /procure_chum/Datamart/Reports/manageReport/15
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 509)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 509, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 509, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}
+2014-11-27 16:41:44 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/152/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(47): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('152')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 16:43:43 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/155/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(47): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('155')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 16:46:58 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/156/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(47): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('156')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 16:59:17 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(47): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 17:00:44 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(47): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 17:01:12 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(47): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 17:02:03 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(49): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 17:07:31 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(48): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 17:08:28 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(48): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-11-27 17:09:03 Error: [PDOException] SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')  GROUP BY `ViewAliquot`.`aliquot_control_id`' at line 1
+Request URL: /procure_chum/Datamart/Browser/browse/162/
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(467): PDOStatement->execute(Array)
+#1 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(433): DboSource->_execute('SELECT `ViewAli...', Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(674): DboSource->execute('SELECT `ViewAli...', Array, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Model\Datasource\DboSource.php(1086): DboSource->fetchAll('SELECT `ViewAli...', false)
+#4 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2902): DboSource->read(Object(ViewAliquotCustom), Array)
+#5 C:\_Perso\Server\procure_chum\lib\Cake\Model\Model.php(2874): Model->_readDataSource('all', Array)
+#6 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\BrowsingResult.php(48): Model->find('all', Array)
+#7 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Model\Browser.php(1175): BrowsingResult->getModelAndStructureForNode(Array)
+#8 C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\BrowserController.php(215): Browser->initDataLoad(Array, 0, Array, NULL)
+#9 [internal function]: BrowserController->browse('162')
+#10 C:\_Perso\Server\procure_chum\lib\Cake\Controller\Controller.php(498): ReflectionMethod->invokeArgs(Object(BrowserController), Array)
+#11 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(185): Controller->invokeAction(Object(CakeRequest))
+#12 C:\_Perso\Server\procure_chum\lib\Cake\Routing\Dispatcher.php(160): Dispatcher->_invoke(Object(BrowserController), Object(CakeRequest), Object(CakeResponse))
+#13 C:\_Perso\Server\procure_chum\app\webroot\index.php(107): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#14 {main}
+2014-12-10 16:02:00 Error: Fatal Error (4): syntax error, unexpected '{' in [C:\_Perso\Server\procure_chum\app\Plugin\Datamart\Controller\Custom\ReportsController.php, line 552]
+2014-12-10 16:02:00 Error: [FatalErrorException] syntax error, unexpected '{'
+Request URL: /procure_chum/Datamart/Reports/manageReport/15/0/sort:Participant.participant_identifier/direction:asc
+Stack Trace:
+#0 C:\_Perso\Server\procure_chum\lib\Cake\Error\ErrorHandler.php(203): ErrorHandler::handleFatalError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 552)
+#1 [internal function]: ErrorHandler::handleError(4, 'syntax error, u...', 'C:\_Perso\Serve...', 552, Array)
+#2 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(943): call_user_func('ErrorHandler::h...', 4, 'syntax error, u...', 'C:\_Perso\Serve...', 552, Array)
+#3 C:\_Perso\Server\procure_chum\lib\Cake\Core\App.php(916): App::_checkFatalError()
+#4 [internal function]: App::shutdown()
+#5 {main}

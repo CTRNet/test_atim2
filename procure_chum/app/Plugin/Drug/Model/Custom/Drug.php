@@ -15,7 +15,7 @@ class DrugCustom extends Drug {
 	function getTreatmentDrugPermissibleValues() {
 		$result = array();
 		foreach($this->find('all', array('conditions' => array('Drug.type' => array('chemotherapy','hormonotherapy')), 'order' => array('Drug.type, Drug.generic_name'))) as $drug){
-			$result[$drug["Drug"]["id"]] = $drug["Drug"]["generic_name"] .' -- '.__($drug["Drug"]['type'],true);
+			$result[$drug["Drug"]["id"]] = $drug["Drug"]["generic_name"] .' -- '.__($drug["Drug"]['type'],true).($drug["Drug"]['procure_study']? ' ['.__('study').']': '');	
 		}
 		return $result;
 	}
