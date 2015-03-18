@@ -115,7 +115,7 @@ class MergeController extends AdministrateAppController {
 					}
 				}
 				
-				$this->atimFlash(__('merge complete'), '/Administrate/Merge/index/');
+				$this->atimFlash(__('merge complete').'. '.__('delete unmerged identifiers and profile of the merged participant').'.', '/ClinicalAnnotation/Participants/profile/'.$from);
 			}
 		}
 	}

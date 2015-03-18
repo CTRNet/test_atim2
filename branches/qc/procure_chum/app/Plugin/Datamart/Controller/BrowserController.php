@@ -264,9 +264,9 @@ class BrowserController extends DatamartAppController {
 				);
 			}
 			$this->set('index', $browsing['DatamartStructure']['index_link']);
-			if($this->Browser->count <= self::$display_limit){
+			if($this->Browser->count <= Configure::read('databrowser_and_report_results_display_limit')){
 				$this->set("result_structure", $this->Browser->result_structure);
-				$this->request->data = $this->Browser->getDataChunk(self::$display_limit);
+				$this->request->data = $this->Browser->getDataChunk(Configure::read('databrowser_and_report_results_display_limit'));
 				$this->set("header", array('title' => __('result'), 'description' => $this->Browser->checklist_header));
 			}else{
 				//overflow
