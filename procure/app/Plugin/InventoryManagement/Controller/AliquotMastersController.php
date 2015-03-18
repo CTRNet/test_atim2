@@ -2026,9 +2026,7 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 						}
 						
 						$child_id = $this->AliquotMaster->getLastInsertId();
-						if(empty($aliquot_id)){
-							$new_aliquot_ids[] = $child_id;
-						}
+						$new_aliquot_ids[] = $child_id;	
 													
 						// C- Save realiquoting data	
 						
@@ -2626,7 +2624,7 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			Configure::write('debug', 0);
 		}
 
-		$atim_structure['AliquotMaster'] = $this->Structures->get('form','aliquot_masters_for_collection_tree_view');
+		$atim_structure['AliquotMaster'] = $this->Structures->get('form','aliquot_masters_for_collection_tree_view,realiquoting_data_for_collection_tree_view');
 		$viewaliquotuses_structures = $this->Structures->get('form','viewaliquotuses_for_collection_tree_view');
 		$atim_structure['Shipment'] = $viewaliquotuses_structures;
 		$atim_structure['SampleMaster'] = $viewaliquotuses_structures;
@@ -2643,9 +2641,10 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 		$this->AliquotMaster->unbindModel(array('belongsTo' => array('Collection','SampleMaster'),'hasOne' => array('SpecimenDetail')),false);
 		
 		// Get list of children aliquot realiquoted from studied aliquot
-		$children_aliquot_master_ids = $this->Realiquoting->find('list', array('fields' => array('Realiquoting.child_aliquot_master_id'), 'conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id)));
-		$children_aliquot_master_ids[] = 0;//counters Eventum 1353
-		$this->request->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => $children_aliquot_master_ids, 'AliquotMaster.collection_id' => $collection_id)));
+		$realiquoting_data_from_child_ids = array('-1' => array());//counters Eventum 1353
+		foreach($this->Realiquoting->find('all', array('conditions' => array('Realiquoting.parent_aliquot_master_id' => $aliquot_master_id), 'recursive' => '-1')) as $new_realiquoting_data) $realiquoting_data_from_child_ids[$new_realiquoting_data['Realiquoting']['child_aliquot_master_id']] = $new_realiquoting_data;
+		$this->request->data = $this->AliquotMaster->find('all', array('conditions' => array('AliquotMaster.id' => array_keys($realiquoting_data_from_child_ids), 'AliquotMaster.collection_id' => $collection_id)));
+		foreach($this->request->data as &$new_children_aliquot_data) $new_children_aliquot_data = array_merge($new_children_aliquot_data, $realiquoting_data_from_child_ids[$new_children_aliquot_data['AliquotMaster']['id']]);
 		
 		// Get list of realiquoted children having been realiquoted too: To disable or not the expand icon
 		$aliquot_ids_having_child = array_flip($this->AliquotMaster->hasChild($children_aliquot_master_ids));
@@ -2695,7 +2694,26 @@ $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__L
 			$aliquot_uses[] = $new_aliquot_use;
 		}
 		$this->request->data = array_merge($this->request->data, $aliquot_uses);
-
+		
+		$sorted_data = array();
+		$counter = 0;
+		$pad_length = strlen(sizeof($this->request->data));
+		foreach($this->request->data as $new_record) {
+			$counter++;
+			$date_key = str_pad($counter, $pad_length, "0", STR_PAD_LEFT);
+			if(isset($new_record['ViewAliquotUse']['use_datetime'])) {
+				$date_key = $new_record['ViewAliquotUse']['use_datetime'].$date_key;
+				$new_record['ViewAliquotUse']['use_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h','h','h'), $new_record['ViewAliquotUse']['use_datetime_accuracy']);
+			} else if(isset($new_record['Realiquoting']['realiquoting_datetime'])) {
+				$date_key = $new_record['Realiquoting']['realiquoting_datetime'].$date_key;
+				$new_record['Realiquoting']['realiquoting_datetime_accuracy'] = str_replace(array('', 'c', 'i'), array('h','h','h'), $new_record['Realiquoting']['realiquoting_datetime_accuracy']);
+			} else {
+				$date_key = '0000-00-00 00:00:00'.$date_key;
+			}
+			$sorted_data[$date_key] = $new_record;
+		}
+		ksort($sorted_data);
+		$this->request->data = $sorted_data;
 	}
 	
 	function editInBatch(){

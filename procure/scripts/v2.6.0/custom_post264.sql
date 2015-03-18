@@ -28,7 +28,14 @@ UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id 
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'procure followup medical treatment types');
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id AND value = 'radiotherapy + hormonotherapy';
-SELECT 'Deleted Follow-up Medical Treatment Types = [radiotherapy + hormonotherapy]. Please review existing treatment' AS 'TODO';
+SELECT 'WARNING: Added new treatment field [reatment Combination] and deleted Follow-up Medical Treatment Types = [radiotherapy + hormonotherapy].' AS '### MESSAGE ###'
+UNION ALL
+SELECT 'TODO: Review all treatments flagged as [radiotherapy + hormonotherapy] (see list below - nothing to do if empty) then modify data.' AS '### MESSAGE ###';
+SELECT p.participant_identifier, tm.start_date, treatment_type, CONCAT('ClinicalAnnotation/TreatmentMasters/detail/', p.id, '/', tm.id) AS url
+FROM participants p 
+INNER JOIN treatment_masters tm ON tm.participant_id = p.id
+INNER JOIN procure_txd_followup_worksheet_treatments td ON td.treatment_master_id = tm.id
+WHERE tm.deleted <> 1 AND td.treatment_type = 'radiotherapy + hormonotherapy';
 
 ALTER TABLE procure_txd_followup_worksheet_treatments
   ADD COLUMN treatment_combination varchar(50) default null,
@@ -117,9 +124,8 @@ INSERT INTO i18n (id,en,fr) VALUES ('nanodrop', 'Nanodrop', 'Nanodrop');
 
 -- quality control & RNA quantity
 
+SELECT 'WARNING: Current RNA concentration and quantity values (already recorded) will be considered as BioAnalyzer data displayed into the RNA tube form. The script will add new fields for Nanodrop values (concentration, quantity).' AS '### MESSAGE ###';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('nanodrop','Nanodrop','Nanodrop');
-
-SELECT 'WARNING: Current RNA concentration and quantity values will be considered as BioAnalyzer data and script will add new fields for Nanodrop' AS 'WARNING';
 ALTER TABLE ad_tubes
 	ADD COLUMN procure_concentration_nanodrop decimal(10,2),
 	ADD COLUMN procure_concentration_unit_nanodrop varchar(20),
@@ -158,9 +164,48 @@ UPDATE structure_formats SET `display_column`='0', `display_order`='1180' WHERE 
 
 -- Removed tube lot number
 
-SELECT 'WARNING: removed aliquot tube lot number' AS 'Warning';
+SELECT 'WARNING: Removed aliquot tube lot number' AS '### MESSAGE ###';
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0', `flag_editgrid`='0', `flag_index`='0', `flag_detail`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_der_tubes_incl_ul_vol') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotDetail' AND `tablename`='' AND `field`='lot_number' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Remove cord blood and xenographt
+
+UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(203, 194, 193, 200);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 -- version
 
-UPDATE versions SET branch_build_number = '5981' WHERE version_number = '2.6.4';
+UPDATE versions SET permissions_regenerated = 0;
+UPDATE versions SET branch_build_number = '61xx' WHERE version_number = '2.6.4';

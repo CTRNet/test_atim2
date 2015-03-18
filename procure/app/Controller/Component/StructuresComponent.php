@@ -357,7 +357,9 @@ class StructuresComponent extends Component {
 										$this->controller->redirect('/Pages/err_opening_submitted_file', null, true);
 									}
 								}
-								unset($this->controller->data[$model][$key.'_with_file_upload']);
+								$tmp_controler_data = $this->controller->data;
+								unset($tmp_controler_data[$model][$key.'_with_file_upload']);
+								$this->controller->data = $tmp_controler_data;
 							}
 
 							// use Model->deconstruct method to properly build data array's date/time information from arrays
@@ -398,12 +400,12 @@ class StructuresComponent extends Component {
 								}else if (strpos($form_fields[$form_fields_key]['key'], ' LIKE') !== false){
 									if(is_array($data)){
 										foreach($data as &$unit){
-											$unit = Sanitize::escape($unit);
+											$unit = trim(Sanitize::escape($unit));
 										}
 										$conditions[] = "(".$form_fields[$form_fields_key]['key']." '%".implode("%' OR ".$form_fields[$form_fields_key]['key']." '%", $data)."%')";
 										unset($data);
 									}else{
-										$data = '%'.Sanitize::escape($data).'%';
+										$data = '%'.trim(Sanitize::escape($data)).'%';
 									}
 								}
 								
@@ -438,7 +440,8 @@ class StructuresComponent extends Component {
 											$form_fields[$form_fields_key.'_accuracy']['key'] => array('m', 'y')
 										);
 										$conditions[] = array("OR" => $tmp_cond);
-									}else{
+									}else{										
+										foreach($data as &$unit) if(is_string($unit)) $unit = trim($unit);
 										$conditions[ $form_fields[$form_fields_key]['key'] ] = $data;
 									}
 								}
