@@ -51,12 +51,14 @@ class ReportsControllerCustom extends ReportsController {
 								'last_name' => $new_ident['Participant']['last_name']),
 						'0' => array(
 								'RAMQ' => null,
+//*** PROCURE CHUM *****************************************************
 								'prostate_bank_no_lab' => null,
 								'ramq_nbr' => null,
 								'hotel_dieu_id_nbr' => null,
 								'notre_dame_id_nbr' => null,
 								'saint_luc_id_nbr' => null,
 								'participant_patho_identifier' => null)
+//*** END PROCURE CHUM *****************************************************
 				);
 			}
 			$data[$participant_id]['0'][str_replace(array(' ', '-'), array('_','_'), $new_ident['MiscIdentifierControl']['misc_identifier_name'])] = $new_ident['MiscIdentifier']['identifier_value'];
@@ -123,7 +125,11 @@ class ReportsControllerCustom extends ReportsController {
 		$diagnosis_event_detail_tablename = $event_controls['procure diagnostic information worksheet']['detail_tablename'];
 		$pathology_event_control_id = $event_controls['procure pathology report']['id'];
 		$pathology_event_detail_tablename = $event_controls['procure pathology report']['detail_tablename'];
+		$followup_treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
+		$followup_treatment_detail_tablename = $tx_controls['procure follow-up worksheet - treatment']['detail_tablename'];
+		
 		if(!$diagnosis_event_control_id || !$pathology_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
+		
 //*** PROCURE CHUM *****************************************************
 		$query = "SELECT id FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name = 'prostate bank no lab';";
 		$misc_identifier_control_id = null;
@@ -149,6 +155,7 @@ class ReportsControllerCustom extends ReportsController {
 			EventDetail.aps_pre_surgery_date_accuracy,
 //*** PROCURE CHUM *****************************************************
 			MiscIdentifier.identifier_value
+//*** END PROCURE CHUM *****************************************************
 			FROM participants Participant
 			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $diagnosis_event_control_id AND EventMaster.deleted <> 1
 			LEFT JOIN $diagnosis_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
@@ -156,6 +163,7 @@ class ReportsControllerCustom extends ReportsController {
 			LEFT JOIN $pathology_event_detail_tablename PathologyEventDetail ON PathologyEventDetail.event_master_id = PathologyEventMaster.id
 //*** PROCURE CHUM *****************************************************
 			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
+//*** END PROCURE CHUM *****************************************************
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
 		$display_warning = false;
@@ -163,8 +171,11 @@ class ReportsControllerCustom extends ReportsController {
 			$participant_id = $res['Participant']['id'];
 			if(isset($data[$participant_id])) $display_warning = true;
 			$data[$participant_id]['Participant'] = $res['Participant'];
+			$data[$participant_id]['TreatmentMaster']['start_date'] = null;
+			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = null;
 //*** PROCURE CHUM *****************************************************
 			$data[$participant_id]['MiscIdentifier'] = $res['MiscIdentifier'];
+//*** END PROCURE CHUM *****************************************************
 			$data[$participant_id]['EventMaster'] = $res['PathologyEventMaster'];
 			$data[$participant_id]['EventDetail'] = array_merge($res['PathologyEventDetail'], $res['EventDetail']);	
 			$data[$participant_id]['0'] = array(
@@ -175,17 +186,10 @@ class ReportsControllerCustom extends ReportsController {
 				'procure_pre_op_chemo' => '',
 				'procure_pre_op_radio' => '',
 				'procure_inaccurate_date_use' => '',
-				'procure_pre_op_psa_date' => '',
-//*** PROCURE CHUM *****************************************************
-				'qc_nd_aborted_prostatectomy' => '',
-				'qc_nd_curietherapy' => ''
+				'procure_pre_op_psa_date' => ''
 			);
 			$data[$participant_id]['EventDetail']['total_ngml'] = '';
-			$data[$participant_id]['TreatmentMaster']['start_date'] = '';
-			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = '';
 		}
-pr('SUPPRIMER qc_nd_curietherapy');
-pr('Veut on utiliser prostatectomy dans la version procure');
 		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
@@ -200,66 +204,52 @@ pr('Veut on utiliser prostatectomy dans la version procure');
 		
 		//Analyze participants treatments
 		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
 		$tx_join = array(
-				'table' => 'procure_txd_followup_worksheet_treatments',
+				'table' => $followup_treatment_detail_tablename,
 				'alias' => 'TreatmentDetail',
 				'type' => 'INNER',
 				'conditions' => array('TreatmentDetail.treatment_master_id = TreatmentMaster.id'));
-		//Search Treatment with type = 'prostatectomy' to list pre and post treatment
-		$prostatectomy_conditions = array(
+		//Get prostatectomy date
+		$conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
-				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
-				'TreatmentDetail.treatment_type' => 'prostatectomy');
-		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $prostatectomy_conditions, 'joins' => array($tx_join)));
+				'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
+				'TreatmentMaster.start_date IS NOT NULL',
+				"TreatmentDetail.treatment_type" => 'prostatectomy');
+		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join), 'order' => array('TreatmentMaster.start_date ASC')));
 		foreach($all_participants_prostatectomy as $new_prostatectomy) {
 			$participant_id = $new_prostatectomy['TreatmentMaster']['participant_id'];
-			$data[$participant_id]['TreatmentMaster']['start_date'] = $new_prostatectomy['TreatmentMaster']['start_date'];
-			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = $new_prostatectomy['TreatmentMaster']['start_date_accuracy'];
+			if(!$data[$participant_id]['TreatmentMaster']['start_date']) {
+				$data[$participant_id]['TreatmentMaster']['start_date'] = $new_prostatectomy['TreatmentMaster']['start_date'];
+				$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = $new_prostatectomy['TreatmentMaster']['start_date_accuracy'];
+			}
 		}
 		//Search Pre and Post Operative Treatments
 		$conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
-				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
+				'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
 				'TreatmentMaster.start_date IS NOT NULL',
 				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'"));
 		$all_participants_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
-			//Use prostatectomy date to set pre/post treatment list
-			$pathology_report_date = $data[$participant_id]['TreatmentMaster']['start_date'];
-			$pathology_report_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
-			if($pathology_report_date) {
+			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
+			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
+			if($prostatectomy_date) {
 				$administrated_treatment_types = array();
 				if(preg_match('/chemotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'chemo';
 				if(preg_match('/hormonotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'hormono';
 				if(preg_match('/radiotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'radio';
 				if($administrated_treatment_types) {
-					if($pathology_report_date_accuracy != 'c' || $new_treatment['TreatmentMaster']['start_date_accuracy'] != 'c') {
+					if($prostatectomy_date_accuracy != 'c' || $new_treatment['TreatmentMaster']['start_date_accuracy'] != 'c') {
 						$inaccurate_date = true;
 						$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
 					}
-					if($new_treatment['TreatmentMaster']['start_date'] < $pathology_report_date) {
+					if($new_treatment['TreatmentMaster']['start_date'] < $prostatectomy_date) {
 						foreach($administrated_treatment_types as $tx_type) $data[$participant_id][0]['procure_pre_op_'.$tx_type] = 'y';
-					} else if($new_treatment['TreatmentMaster']['start_date'] > $pathology_report_date) {
+					} else if($new_treatment['TreatmentMaster']['start_date'] > $prostatectomy_date) {
 						foreach($administrated_treatment_types as $tx_type) $data[$participant_id][0]['procure_post_op_'.$tx_type] = 'y';
 					}
 				}
-			}
-		}
-pr('revoir : Defined if patient received curietherapy or prostatectomy');
-		//Defined if patient received curietherapy or prostatectomy
-		$conditions = array(
-				'TreatmentMaster.participant_id' => $participant_ids,
-				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
-				'TreatmentDetail.treatment_type' => array('aborted prostatectomy', 'curietherapy'));
-		$all_participants_other_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
-		foreach($all_participants_other_treatment as $new_other_treatment) {
-			$participant_id = $new_other_treatment['TreatmentMaster']['participant_id'];
-			if($new_other_treatment['TreatmentDetail']['treatment_type'] == 'curietherapy') {
-				$data[$participant_id][0]['qc_nd_curietherapy'] = 'y';
-			} else {
-				$data[$participant_id][0]['qc_nd_aborted_prostatectomy'] = 'y';
 			}
 		}
 		
@@ -269,15 +259,15 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		$all_participants_psa = $event_model->find('all', array('conditions' => array('EventMaster.participant_id' => $participant_ids, 'EventMaster.event_control_id' => $event_control_id, 'EventMaster.event_date IS NOT NULL')));
 		foreach($all_participants_psa as $new_psa) {
 			$participant_id = $new_psa['EventMaster']['participant_id'];
-			//Use prostatectomy date to set pre op psa list
-			$pathology_report_date = $data[$participant_id]['TreatmentMaster']['start_date'];
-			$pathology_report_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
-			if($pathology_report_date) {
-				if($pathology_report_date_accuracy != 'c' || $new_psa['EventMaster']['event_date_accuracy'] != 'c') {
+			//Use pathology report date to set pre op psa list
+			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
+			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
+			if($prostatectomy_date) {
+				if($prostatectomy_date_accuracy != 'c' || $new_psa['EventMaster']['event_date_accuracy'] != 'c') {
 					$inaccurate_date = true;
 					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
 				}
-				if($new_psa['EventMaster']['event_date'] < $pathology_report_date) {
+				if($new_psa['EventMaster']['event_date'] < $prostatectomy_date) {
 					$lengh = strlen($new_psa['EventMaster']['event_date']);
 					switch($new_psa['EventMaster']['event_date_accuracy']) {
 						case 'c':
@@ -337,17 +327,7 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		if(isset($parameters['MiscIdentifier']['identifier_value'])) {
-			$no_labos  = array_filter($parameters['MiscIdentifier']['identifier_value']);
-			if($no_labos) $conditions[] = "MiscIdentifier.identifier_value IN ('".implode("','",$no_labos)."')";
-		} else if(isset($parameters['MiscIdentifier']['identifier_value_start'])) {
-			$identifier_value_start = (!empty($parameters['MiscIdentifier']['identifier_value_start']))? $parameters['MiscIdentifier']['identifier_value_start']: null;
-			$identifier_value_end = (!empty($parameters['MiscIdentifier']['identifier_value_end']))? $parameters['MiscIdentifier']['identifier_value_end']: null;
-			if($identifier_value_start) $conditions[] = "MiscIdentifier.identifier_value >= '$identifier_value_start'";
-			if($identifier_value_end) $conditions[] = "MiscIdentifier.identifier_value <= '$identifier_value_end'";
-		}
-			
-		//exit;
+		
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
 		$query = "SELECT id,event_type, detail_tablename FROM event_controls WHERE flag_active = 1;";
@@ -356,6 +336,11 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		$followup_event_control_id = $event_controls['procure follow-up worksheet']['id'];
 		$followup_event_detail_tablename = $event_controls['procure follow-up worksheet']['detail_tablename'];
 		if(!$followup_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
+		$query = "SELECT id,tx_method, detail_tablename FROM treatment_controls WHERE flag_active = 1;";
+		$tx_controls = array();
+		foreach($participant_model->query($query) as $res) $tx_controls[$res['treatment_controls']['tx_method']] = array('id' => $res['treatment_controls']['id'], 'detail_tablename' => $res['treatment_controls']['detail_tablename']);
+		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
+		$treatment_control_detail_tablename = $tx_controls['procure follow-up worksheet - treatment']['detail_tablename'];
 		$query = "SELECT id, detail_tablename, sample_type FROM sample_controls WHERE sample_type IN ('blood','urine', 'tissue');";
 		$sample_controls = array();
 		$blood_detail_tablename = '';
@@ -363,9 +348,6 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 			$sample_controls[$res['sample_controls']['id']] = $res['sample_controls']['sample_type'];
 			if($res['sample_controls']['sample_type'] == 'blood') $blood_detail_tablename = $res['sample_controls']['detail_tablename'];
 		}
-		$query = "SELECT id FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name = 'prostate bank no lab';";
-		$misc_identifier_control_id = null;
-		foreach($participant_model->query($query) as $res) $misc_identifier_control_id = $res['misc_identifier_controls']['id'];
 		
 		//Get participants data + followup
 		$query = "SELECT
@@ -373,20 +355,27 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 			Participant.participant_identifier,
 			EventMaster.procure_form_identification,
 			EventMaster.event_date,
-			EventMaster.event_date_accuracy,
-			MiscIdentifier.identifier_value
+			EventMaster.event_date_accuracy
 			FROM participants Participant
 			LEFT JOIN event_masters EventMaster ON EventMaster.participant_id = Participant.id AND EventMaster.event_control_id = $followup_event_control_id AND EventMaster.deleted <> 1
 			LEFT JOIN $followup_event_detail_tablename EventDetail ON EventDetail.event_master_id = EventMaster.id
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions);
 		$data = array();
-		$empty_form_array = array();
+		$empty_form_array = array(
+			'procure_prostatectomy_date' => '',
+			'procure_prostatectomy_date_accuracy' => '',
+			'procure_last_collection_date' => '',
+			'procure_last_collection_date_accuracy' => '',
+			'procure_time_from_last_collection_months' => '',
+			'procure_followup_worksheets_nbr' => array(), 
+			'procure_number_of_visit_with_collection' => array());
 		for($tmp_visit_id = 1; $tmp_visit_id < 20; $tmp_visit_id++) {
 			$visit_id = (strlen($tmp_visit_id) == 1)? '0'.$tmp_visit_id : $tmp_visit_id;
 			$empty_form_array["procure_".$visit_id."_procure_form_identification"]= '';
 			$empty_form_array["procure_".$visit_id."_event_date"]= null;
 			$empty_form_array["procure_".$visit_id."_event_date_accuracy"]= '';
+			$empty_form_array["procure_".$visit_id."_first_collection_date"]= null;
+			$empty_form_array["procure_".$visit_id."_first_collection_date_accuracy"]= '';
 			$empty_form_array["procure_".$visit_id."_paxgene_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_serum_collected"]= '';
 			$empty_form_array["procure_".$visit_id."_urine_collected"]= '';
@@ -397,7 +386,9 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		$display_warning_2 = false;
 		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
-			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], 'MiscIdentifier' => $res['MiscIdentifier'], '0' => $empty_form_array);
+			if(!isset($data[$participant_id])) $data[$participant_id] = array(
+				'Participant' => $res['Participant'], 
+				'0' => $empty_form_array);
 			$procure_form_identification = $res['EventMaster']['procure_form_identification'];
 			if($procure_form_identification) {
 				if(preg_match("/^PS[0-9]P0[0-9]+ V(([0])|(0[1-9])|(1[0-9])) -(CSF|FBP|PST|FSP|MED|QUE)[0-9x]+$/", $procure_form_identification, $matches)) {
@@ -407,6 +398,7 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 							$data[$participant_id][0]["procure_".$visit_id."_procure_form_identification"] = $res['EventMaster']['procure_form_identification'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date"]= $res['EventMaster']['event_date'];
 							$data[$participant_id][0]["procure_".$visit_id."_event_date_accuracy"]= $res['EventMaster']['event_date_accuracy'];
+							$data[$participant_id][0]['procure_followup_worksheets_nbr'][$visit_id] = '-';
 						} else {
 							$display_warning_1 = true;
 						}
@@ -416,7 +408,7 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 				}
 			}
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 					'header' => null,
 					'data' => null,
@@ -425,12 +417,35 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		}
 		if($display_warning_1) AppController::addWarningMsg(__('at least one patient is linked to more than one followup worksheet for the same visit'));
 		if($display_warning_2) AppController::addWarningMsg(__('at least one procure form identification format is not supported'));
-
-		//Get blood and urine
+		
+		//Get prostatectomy
+		if($data) {
+			$query = "SELECT
+				TreatmentMaster.participant_id,
+				TreatmentMaster.start_date,
+				TreatmentMaster.start_date_accuracy
+				FROM treatment_masters TreatmentMaster 
+				INNER JOIN $treatment_control_detail_tablename TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+				WHERE TreatmentMaster.deleted <> 1 AND TreatmentMaster.treatment_control_id = $treatment_control_id AND TreatmentMaster.participant_id IN (".implode(',',array_keys($data)).")
+				AND TreatmentDetail.treatment_type = 'prostatectomy'
+				AND TreatmentMaster.start_date IS NOT NULL AND TreatmentMaster.start_date NOT LIKE ''
+				ORDER BY TreatmentMaster.start_date ASC;";
+			foreach($participant_model->query($query) as $res) {
+				$participant_id = $res['TreatmentMaster']['participant_id'];
+				if(!strlen($data[$participant_id][0]["procure_prostatectomy_date"])) {
+					$data[$participant_id][0]["procure_prostatectomy_date"] = $res['TreatmentMaster']['start_date'];
+					$data[$participant_id][0]["procure_prostatectomy_date_accuracy"] = $res['TreatmentMaster']['start_date_accuracy'];
+				}
+			}
+		}
+		
+		//Get blood, urine and tissue
 		if($data) {
 			$query = "SELECT 
 				Collection.participant_id,
 				Collection.procure_visit,
+				Collection.collection_datetime,
+				Collection.collection_datetime_accuracy,
 				SampleMaster.sample_control_id,
 				SampleDetail.blood_type
 				FROM collections Collection 
@@ -441,6 +456,25 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 			foreach($participant_model->query($query) as $res) {
 				$participant_id = $res['Collection']['participant_id'];
 				$visit_id = str_replace('V','',$res['Collection']['procure_visit']);
+				if(strlen($res['Collection']['collection_datetime'])) {
+					$record_collection_date = false;
+					if(!strlen($data[$participant_id][0]["procure_".$visit_id."_first_collection_date"])) {
+						$record_collection_date = true;
+					} else if($res['Collection']['collection_datetime'] < $data[$participant_id][0]["procure_".$visit_id."_first_collection_date"]) {
+						$record_collection_date = true;
+					}
+					if($record_collection_date) {
+						$first_collection_date_accuracy = $res['Collection']['collection_datetime_accuracy'];
+						if(!in_array($first_collection_date_accuracy, array('y', 'm', 'd'))) $first_collection_date_accuracy = 'c';
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date"] = $res['Collection']['collection_datetime'];
+						$data[$participant_id][0]["procure_".$visit_id."_first_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
+						$data[$participant_id][0]['procure_number_of_visit_with_collection'][$visit_id] = '-';
+					}
+					if(empty($data[$participant_id][0]["procure_last_collection_date"]) || $data[$participant_id][0]["procure_last_collection_date"] < $res['Collection']['collection_datetime']) {
+						$data[$participant_id][0]["procure_last_collection_date"] = $res['Collection']['collection_datetime'];
+						$data[$participant_id][0]["procure_last_collection_date_accuracy"] = $res['Collection']['collection_datetime_accuracy'];
+					}
+				}				
 				if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'blood') {
 					$sample_type = str_replace('k2-EDTA','k2_EDTA',$res['SampleDetail']['blood_type']);
 				} else if($sample_controls[$res['SampleMaster']['sample_control_id']] == 'urine') {
@@ -453,6 +487,26 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 				$data[$participant_id][0]["procure_".$visit_id."_".$sample_type."_collected"] = 'y';
 			}
 		}
+		
+		//Calculate last fields
+		
+		$query = "SELECT NOW() FROM users LIMIT 0,1;";
+		$res = $participant_model->query($query);
+		$current_date = $res[0][0]['NOW()'];
+		foreach($data as $participant_id => $participant_data){
+			if(!empty($data[$participant_id][0]["procure_last_collection_date"])) {
+				$current_date = substr($current_date, 0, 10);
+				$procure_last_collection_date = substr($data[$participant_id][0]["procure_last_collection_date"], 0, 10);
+				$datetime1 = new DateTime($procure_last_collection_date);
+				$datetime2 = new DateTime($current_date);
+				$interval = $datetime1->diff($datetime2);
+				$progression_time_in_months = (($interval->format('%y')*12) + $interval->format('%m'));
+				if(!$interval->invert) $data[$participant_id][0]["procure_time_from_last_collection_months"] = $progression_time_in_months;
+			}
+			$data[$participant_id][0]['procure_followup_worksheets_nbr'] = sizeof($data[$participant_id][0]['procure_followup_worksheets_nbr']);
+			$data[$participant_id][0]['procure_number_of_visit_with_collection'] = sizeof($data[$participant_id][0]['procure_number_of_visit_with_collection']);
+		}
+		
 		return array(
 			'header' => $header,
 			'data' => $data,
@@ -461,6 +515,13 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 	}
 	
 	function procureAliquotsReports($parameters) {
+		if(!AppController::checkLinkPermission('/ClinicalAnnotation/Participants/profile')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		if(!AppController::checkLinkPermission('/InventoryManagement/Collections/detail')){
+			$this->flash(__('you need privileges to access this page'), 'javascript:history.back()');
+		}
+		
 		$header = null;
 		$conditions = array('TRUE');
 		if(isset($parameters['Participant']['id']) && !empty($parameters['Participant']['id'])) {
@@ -478,15 +539,6 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		} else {
 			$this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		}
-		if(isset($parameters['MiscIdentifier']['identifier_value'])) {
-			$no_labos  = array_filter($parameters['MiscIdentifier']['identifier_value']);
-			if($no_labos) $conditions[] = "MiscIdentifier.identifier_value IN ('".implode("','",$no_labos)."')";
-		} else if(isset($parameters['MiscIdentifier']['identifier_value_start'])) {
-			$identifier_value_start = (!empty($parameters['MiscIdentifier']['identifier_value_start']))? $parameters['MiscIdentifier']['identifier_value_start']: null;
-			$identifier_value_end = (!empty($parameters['MiscIdentifier']['identifier_value_end']))? $parameters['MiscIdentifier']['identifier_value_end']: null;
-			if($identifier_value_start) $conditions[] = "MiscIdentifier.identifier_value >= '$identifier_value_start'";
-			if($identifier_value_end) $conditions[] = "MiscIdentifier.identifier_value <= '$identifier_value_end'";
-		}
 	
 		//Get Controls Data
 		$participant_model = AppModel::getInstance("ClinicalAnnotation", "Participant", true);
@@ -500,9 +552,6 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		foreach($participant_model->query($query) as $res) {
 			$aliquotcontrols[$res['aliquot_controls']['id']] = $sample_controls[$res['aliquot_controls']['sample_control_id']].' '.$res['aliquot_controls']['aliquot_type'];
 		}
-		$query = "SELECT id FROM misc_identifier_controls WHERE flag_active = 1 AND misc_identifier_name = 'prostate bank no lab';";
-		$misc_identifier_control_id = null;
-		foreach($participant_model->query($query) as $res) $misc_identifier_control_id = $res['misc_identifier_controls']['id'];
 		
 		//Get participants data + aliquots count
 		$query = "SELECT
@@ -513,14 +562,12 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 			AliquotMaster.aliquot_control_id,
 			AliquotMaster.in_stock,
 			AliquotDetail.block_type,
-			BloodDetail.blood_type,
-			MiscIdentifier.identifier_value
+			BloodDetail.blood_type
 			FROM participants Participant
 			INNER JOIN collections Collection ON Collection.participant_id = Participant.id
 			INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.collection_id = Collection.id
 			LEFT JOIN ad_blocks AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id
 			LEFT JOIN sd_spe_bloods BloodDetail ON BloodDetail.sample_master_id = AliquotMaster.sample_master_id
-			LEFT JOIN misc_identifiers MiscIdentifier ON MiscIdentifier.participant_id = Participant.id AND MiscIdentifier.deleted <> 1 AND MiscIdentifier.misc_identifier_control_id = $misc_identifier_control_id
 			WHERE Participant.deleted <> 1 AND ". implode(' AND ', $conditions) ." 
 			AND AliquotMaster.deleted <> 1 AND AliquotMaster.aliquot_control_id IN (".implode(',',array_keys($aliquotcontrols)).")
 			GROUP BY 
@@ -548,7 +595,7 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 		$data = array();
 		foreach($participant_model->query($query) as $res) {
 			$participant_id = $res['Participant']['id'];
-			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], 'MiscIdentifier' => $res['MiscIdentifier'], '0' => $empty_form_array);
+			if(!isset($data[$participant_id])) $data[$participant_id] = array('Participant' => $res['Participant'], '0' => $empty_form_array);
 			$report_aliquot_key = '';
 			if(isset($aliquotcontrols[$res['AliquotMaster']['aliquot_control_id']])) {
 				switch($aliquotcontrols[$res['AliquotMaster']['aliquot_control_id']]) {
@@ -597,7 +644,7 @@ pr('revoir : Defined if patient received curietherapy or prostatectomy');
 				}				
 			}
 		}
-		if(sizeof($data) > self::$display_limit) {
+		if(sizeof($data) > Configure::read('databrowser_and_report_results_display_limit')) {
 			return array(
 				'header' => null,
 				'data' => null,
