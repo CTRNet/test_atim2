@@ -107,6 +107,9 @@ class ReportsControllerCustom extends ReportsController {
 		$diagnosis_event_detail_tablename = $event_controls['procure diagnostic information worksheet']['detail_tablename'];
 		$pathology_event_control_id = $event_controls['procure pathology report']['id'];
 		$pathology_event_detail_tablename = $event_controls['procure pathology report']['detail_tablename'];
+		$followup_treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
+		$followup_treatment_detail_tablename = $tx_controls['procure follow-up worksheet - treatment']['detail_tablename'];
+		
 		if(!$diagnosis_event_control_id || !$pathology_event_control_id) $this->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);
 		
 		//Get participants data
@@ -138,6 +141,8 @@ class ReportsControllerCustom extends ReportsController {
 			$participant_id = $res['Participant']['id'];
 			if(isset($data[$participant_id])) $display_warning = true;
 			$data[$participant_id]['Participant'] = $res['Participant'];
+			$data[$participant_id]['TreatmentMaster']['start_date'] = null;
+			$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = null;
 			$data[$participant_id]['EventMaster'] = $res['PathologyEventMaster'];
 			$data[$participant_id]['EventDetail'] = array_merge($res['PathologyEventDetail'], $res['EventDetail']);	
 			$data[$participant_id]['0'] = array(
@@ -166,38 +171,49 @@ class ReportsControllerCustom extends ReportsController {
 		
 		//Analyze participants treatments
 		$treatment_model = AppModel::getInstance("ClinicalAnnotation", "TreatmentMaster", true);
-		$treatment_control_id = $tx_controls['procure follow-up worksheet - treatment']['id'];
 		$tx_join = array(
-				'table' => 'procure_txd_followup_worksheet_treatments',
+				'table' => $followup_treatment_detail_tablename,
 				'alias' => 'TreatmentDetail',
 				'type' => 'INNER',
 				'conditions' => array('TreatmentDetail.treatment_master_id = TreatmentMaster.id'));
+		//Get prostatectomy date
+		$conditions = array(
+				'TreatmentMaster.participant_id' => $participant_ids,
+				'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
+				'TreatmentMaster.start_date IS NOT NULL',
+				"TreatmentDetail.treatment_type" => 'prostatectomy');
+		$all_participants_prostatectomy = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join), 'order' => array('TreatmentMaster.start_date ASC')));
+		foreach($all_participants_prostatectomy as $new_prostatectomy) {
+			$participant_id = $new_prostatectomy['TreatmentMaster']['participant_id'];
+			if(!$data[$participant_id]['TreatmentMaster']['start_date']) {
+				$data[$participant_id]['TreatmentMaster']['start_date'] = $new_prostatectomy['TreatmentMaster']['start_date'];
+				$data[$participant_id]['TreatmentMaster']['start_date_accuracy'] = $new_prostatectomy['TreatmentMaster']['start_date_accuracy'];
+			}
+		}
 		//Search Pre and Post Operative Treatments
 		$conditions = array(
 				'TreatmentMaster.participant_id' => $participant_ids,
-				'TreatmentMaster.treatment_control_id' => $treatment_control_id,
+				'TreatmentMaster.treatment_control_id' => $followup_treatment_control_id,
 				'TreatmentMaster.start_date IS NOT NULL',
 				'OR' => array("TreatmentDetail.treatment_type LIKE '%radiotherapy%'", "TreatmentDetail.treatment_type LIKE '%hormonotherapy%'", "TreatmentDetail.treatment_type LIKE '%chemotherapy%'"));
 		$all_participants_treatment = $treatment_model->find('all', array('conditions' => $conditions, 'joins' => array($tx_join)));
 		foreach($all_participants_treatment as $new_treatment) {
 			$participant_id = $new_treatment['TreatmentMaster']['participant_id'];
-			//Use pathology report date to set pre/post treatment list
-//TODO use prostatectomy date			
-			$pathology_report_date = $data[$participant_id]['EventMaster']['event_date'];
-			$pathology_report_date_accuracy = $data[$participant_id]['EventMaster']['event_date_accuracy'];
-			if($pathology_report_date) {
+			$prostatectomy_date = $data[$participant_id]['TreatmentMaster']['start_date'];
+			$prostatectomy_date_accuracy = $data[$participant_id]['TreatmentMaster']['start_date_accuracy'];
+			if($prostatectomy_date) {
 				$administrated_treatment_types = array();
 				if(preg_match('/chemotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'chemo';
 				if(preg_match('/hormonotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'hormono';
 				if(preg_match('/radiotherapy/', $new_treatment['TreatmentDetail']['treatment_type'])) $administrated_treatment_types[] = 'radio';
 				if($administrated_treatment_types) {
-					if($pathology_report_date_accuracy != 'c' || $new_treatment['TreatmentMaster']['start_date_accuracy'] != 'c') {
+					if($prostatectomy_date_accuracy != 'c' || $new_treatment['TreatmentMaster']['start_date_accuracy'] != 'c') {
 						$inaccurate_date = true;
 						$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
 					}
-					if($new_treatment['TreatmentMaster']['start_date'] < $pathology_report_date) {
+					if($new_treatment['TreatmentMaster']['start_date'] < $prostatectomy_date) {
 						foreach($administrated_treatment_types as $tx_type) $data[$participant_id][0]['procure_pre_op_'.$tx_type] = 'y';
-					} else if($new_treatment['TreatmentMaster']['start_date'] > $pathology_report_date) {
+					} else if($new_treatment['TreatmentMaster']['start_date'] > $prostatectomy_date) {
 						foreach($administrated_treatment_types as $tx_type) $data[$participant_id][0]['procure_post_op_'.$tx_type] = 'y';
 					}
 				}
@@ -218,7 +234,7 @@ class ReportsControllerCustom extends ReportsController {
 					$inaccurate_date = true;
 					$data[$participant_id][0]['procure_inaccurate_date_use'] = 'y';
 				}
-				if($new_psa['EventMaster']['event_date'] < $pathology_report_date) {
+				if($new_psa['EventMaster']['event_date'] < $prostatectomy_date) {
 					$lengh = strlen($new_psa['EventMaster']['event_date']);
 					switch($new_psa['EventMaster']['event_date_accuracy']) {
 						case 'c':

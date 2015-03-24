@@ -124,7 +124,7 @@ INSERT INTO i18n (id,en,fr) VALUES ('nanodrop', 'Nanodrop', 'Nanodrop');
 
 -- quality control & RNA quantity
 
-SELECT 'WARNING: Current RNA concentration and quantity values (already recorded) will be considered as BioAnalyzer data displayed into the RNA tube form. The script will add new fields for Nanodrop values (concentration, quantity).' AS '### MESSAGE ###';
+SELECT 'WARNING: Current RNA concentration and quantity (RNA tube fields already existing) will be considered as BioAnalyzer data. The script will add new fields for Nanodrop values (concentration, quantity).' AS '### MESSAGE ###';
 INSERT IGNORE INTO i18n (id,en,fr) VALUES ('nanodrop','Nanodrop','Nanodrop');
 ALTER TABLE ad_tubes
 	ADD COLUMN procure_concentration_nanodrop decimal(10,2),
@@ -171,41 +171,213 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(203, 194, 193, 200);
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Data Integrity Controls (based on custom hook and custom model)
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- *** 1 - Clinical Annotation ***
+
+-- Particiants
+
+SELECT participant_identifier AS '### MESSAGE ### Wrong participant_identifier format to correct', id AS participant_id FROM participants WHERE deleted <> 1 AND participant_identifier NOT REGEXP'^PS[1-9]P0[0-9]+$';
+SELECT id AS '### MESSAGE ### participant_id with withdrawn date or withdrawn reason but not flagged as withdrawn: To flag' 
+FROM participants WHERE deleted <> 1 
+AND ((procure_patient_withdrawn_date IS NOT NULL AND procure_patient_withdrawn_date NOT LIKE '') OR (procure_patient_withdrawn_reason IS NOT NULL AND procure_patient_withdrawn_reason NOT LIKE ''))
+AND procure_patient_withdrawn <> 1;
+
+-- Consent 
+
+SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (SELECT count(*) as nbr, procure_form_identification FROM consent_masters WHERE deleted <> 1 GROUP BY procure_form_identification) res WHERE res.nbr > 1;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong consent_masters.procure_form_identification format to correct',participant_id, id AS consent_master_id FROM consent_masters WHERE deleted <> 1 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -CSF[0-9]+$' OR procure_form_identification IS NULL;
+
+-- EventMaster
+
+SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (
+	SELECT count(*) as nbr, EventMaster.procure_form_identification FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id WHERE deleted <> 1 AND EventControl.event_type NOT IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event') GROUP BY EventMaster.procure_form_identification
+) res WHERE res.nbr > 1;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
+FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure pathology report'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -PST[0-9]+$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
+FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure diagnostic information worksheet'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FBP[0-9]+$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
+FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure questionnaire administration worksheet'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -QUE[0-9]+$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
+FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure follow-up worksheet'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FSP[0-9]+$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
+FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event')
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;
+
+SELECT procure_form_identification AS '### MESSAGE ### Follow-up Worksheet with no date to correct', participant_id, EventMaster.id AS event_master_id
+FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '');
+
+-- TreatmentMaster
+
+SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (
+	SELECT count(*) as nbr, TreatmentMaster.procure_form_identification FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id WHERE deleted <> 1 AND TreatmentControl.tx_method NOT IN ('procure follow-up worksheet - treatment','procure medication worksheet - drug','other tumor treatment') GROUP BY TreatmentMaster.procure_form_identification
+) res WHERE res.nbr > 1;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
+FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
+WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet - drug'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -MEDx$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
+FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
+WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure follow-up worksheet - treatment'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
+FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
+WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -MED[0-9]+$' OR procure_form_identification IS NULL;
+SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
+FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
+WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'other tumor treatment'
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ N\/A$' OR procure_form_identification IS NULL;
+
+SELECT procure_form_identification AS '### MESSAGE ### Medication Worksheet with no date to correct', participant_id, TreatmentMaster.id AS treatment_master_id
+FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
+WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '');
+
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type and drug type mismatch. Please confirm and correct', TreatmentDetail.treatment_type, Drug.type, Drug.generic_name
+FROM treatment_masters TreatmentMaster 
+INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+INNER JOIN drugs Drug ON TreatmentDetail.drug_id = Drug.id
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentDetail.treatment_type != Drug.type;
+
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than radiotherapy but site information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.treatment_site
+FROM treatment_masters TreatmentMaster 
+INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentDetail.treatment_type NOT LIKE '%radiotherapy%' AND TreatmentDetail.treatment_site IS NOT NULL AND TreatmentDetail.treatment_site NOT LIKE '';
+
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than radiotherapy but precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.radiotherpay_precision
+FROM treatment_masters TreatmentMaster 
+INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentDetail.treatment_type NOT LIKE '%radiotherapy%' AND TreatmentDetail.radiotherpay_precision IS NOT NULL AND TreatmentDetail.radiotherpay_precision NOT LIKE '';
+
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than chemotherapy but precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.chemotherapy_line
+FROM treatment_masters TreatmentMaster 
+INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
+WHERE TreatmentMaster.deleted <> 1
+AND TreatmentDetail.treatment_type NOT LIKE '%chemotherapy%' AND TreatmentDetail.chemotherapy_line IS NOT NULL AND TreatmentDetail.chemotherapy_line NOT LIKE '';
+
+-- *** 2 - Inventory ***
+
+SELECT '### MESSAGE ### Blood type undefined', collection_id, sample_master_id
+FROM sample_masters SampleMaster
+INNER JOIN sample_controls SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+INNER JOIN sd_spe_bloods SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+WHERE SampleMaster.deleted <> 1 AND SampleControl.sample_type = 'blood'  AND (blood_type = '' OR blood_type IS NULL);
+
+SELECT barcode AS '### MESSAGE ### List of block with wrong [type] and [freezing method] link. To correct.', block_type, procure_freezing_type
+FROM aliquot_masters
+INNER JOIN ad_blocks ON id = aliquot_master_id
+WHERE deleted <> 1 AND ((block_type = 'frozen' AND procure_freezing_type NOT IN ('ISO', 'ISO+OCT', '')) OR (block_type = 'paraffin' AND procure_freezing_type != ''));
+
+SELECT count(*) AS '### MESSAGE ### List of blocks with storage date time. To remove storage date.' 
+FROM aliquot_masters AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl 
+WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
+AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
+AND AliquotMaster.deleted <> 1 AND AliquotMaster.storage_datetime IS NOT NULL;		
+				
+SELECT barcode AS '### MESSAGE ### List of aliquots with missing concentration unit.'
+FROM aliquot_masters
+INNER JOIN ad_tubes ON id = aliquot_master_id
+WHERE deleted <> 1 AND concentration NOT LIKE '' AND concentration IS NOT NULL AND (concentration_unit IS NULL OR concentration_unit LIKE '');
+
+SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate.', concentration_unit
+FROM aliquot_masters, ad_tubes
+WHERE deleted <> 1 AND id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit IN ('ug/ul', 'ng/ul', 'pg/ul') GROUP BY concentration_unit;
+UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (initial_volume*concentration/1000000)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit = 'pg/ul';
+UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (initial_volume*concentration/1000)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit = 'ng/ul';
+UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (initial_volume*concentration)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit = 'ug/ul';
+
+SELECT count(*) AS '### MESSAGE ### Number of blood tubes defined as in stock. To correct if required.', blood_type
+FROM sample_masters SampleMaster
+INNER JOIN sample_controls SampleControl ON SampleMaster.sample_control_id = SampleControl.id
+INNER JOIN sd_spe_bloods SampleDetail ON SampleMaster.id = SampleDetail.sample_master_id
+INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id
+INNER JOIN aliquot_controls AliquotControl ON AliquotMaster.aliquot_control_id = AliquotControl.id
+WHERE AliquotMaster.deleted <> 1 AND SampleControl.sample_type = 'blood' AND AliquotControl.aliquot_type = 'tube'
+AND blood_type != 'paxgene' AND in_stock != 'no'
+GROUP BY blood_type;
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Nouveau champs
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE groups MODIFY deleted tinyint(3) unsigned NOT NULL DEFAULT '0';
+
+-- Follow-up Methods
+
+ALTER TABLE procure_ed_clinical_followup_worksheets ADD COLUMN method varchar(50) DEFAULT NULL;
+ALTER TABLE procure_ed_clinical_followup_worksheets_revs ADD COLUMN method varchar(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) 
+VALUES 
+('procure_followup_clinical_methodss', "StructurePermissibleValuesCustom::getCustomDropdown(\'Follow-up Methods\')");
+INSERT INTO structure_permissible_values_custom_controls (name, category, values_max_length) 
+VALUES 
+('Follow-up Methods', 'clinical - annotation', '50');
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Follow-up Methods');
+INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+VALUES
+('visit','Visit','Visite',  '1', @control_id, NOW(), NOW(), 1, 1),
+('phone','Phone','Téléphone',  '1', @control_id, NOW(), NOW(), 1, 1),
+('email','Email','Courriel',  '1', @control_id, NOW(), NOW(), 1, 1);
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheets', 'method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_clinical_methodss') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_clinical_methodss')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+UPDATE structure_value_domains SET domain_name = 'procure_followup_clinical_methods' WHERE domain_name = 'procure_followup_clinical_methodss';
+
+-- Diagnosis & treatment report
+
+UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_chemo' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_hormono' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_radio' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='25' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_psa_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='26' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_total_ng_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_free_ng_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_psa_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '28', 'prostatectomy', '', '1', 'date', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- version
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Version
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
 UPDATE versions SET branch_build_number = '61xx' WHERE version_number = '2.6.4';
