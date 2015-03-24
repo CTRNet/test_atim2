@@ -1281,8 +1281,8 @@ ALTER TABLE ad_whatman_papers ADD COLUMN procure_card_completed_datetime DATETIM
 ALTER TABLE ad_whatman_papers_revs ADD COLUMN procure_card_completed_datetime DATETIME DEFAULT NULL;
 ALTER TABLE ad_whatman_papers ADD COLUMN procure_card_completed_datetime_accuracy char(1) NOT NULL DEFAULT '';
 ALTER TABLE ad_whatman_papers_revs ADD COLUMN procure_card_completed_datetime_accuracy char(1) NOT NULL DEFAULT '';
-SELECT 'TODO: Changed cart completed date to datetime. Validate before to go live.' AS '### MESSAGE ###'; 
-SELECT 'Unable to set procure_card_completed_datetime' AS 'error', SpecimenDetail.sample_master_id, AliquotMaster.barcode, SpecimenDetail.reception_datetime, SpecimenDetail.reception_datetime_accuracy, AliquotDetail.procure_card_completed_at, AliquotDetail.procure_card_completed_datetime
+SELECT 'TODO: Changed cart completed time to datetime. Whatman paper initial storage datetime should be empty. Validate before to go live.' AS '### MESSAGE ###'; 
+SELECT 'Unable to set procure_card_completed_datetime' AS '### MESSAGE ###', SpecimenDetail.sample_master_id, AliquotMaster.barcode, SpecimenDetail.reception_datetime, SpecimenDetail.reception_datetime_accuracy, AliquotDetail.procure_card_completed_at, AliquotDetail.procure_card_completed_datetime
 FROM sample_masters SampleMaster
 INNEr JOIN specimen_details SpecimenDetail ON SpecimenDetail.sample_master_id = SampleMaster.id
 INNER JOIN aliquot_masters AliquotMaster ON AliquotMaster.sample_master_id = SampleMaster.id
@@ -1306,6 +1306,12 @@ AND AliquotDetail.aliquot_master_id = AliquotMaster.id
 AND AliquotMaster.deleted <> 1
 AND AliquotDetail.procure_card_completed_at IS NOT NULL AND AliquotDetail.procure_card_completed_at NOT LIKE ''
 AND SpecimenDetail.reception_datetime_accuracy IN ('c','i','h') AND SpecimenDetail.reception_datetime IS NOT NULL AND SpecimenDetail.reception_datetime NOT LIKE '';
+SELECT 'Time of whatman paper card not mirgated. To complete manually (Field replaced by date time).' AS '### MESSAGE ###', AliquotMaster.id, AliquotMaster.barcode, procure_card_completed_at
+FROM aliquot_masters AliquotMaster
+INNER JOIN ad_whatman_papers AliquotDetail ON AliquotDetail.aliquot_master_id = AliquotMaster.id
+WHERE procure_card_completed_at IS NOT NULL AND procure_card_completed_at NOT LIKE ''
+AND (procure_card_completed_datetime IS NULL OR procure_card_completed_datetime LIKE '')
+AND AliquotMaster.deleted <> 1;
 ALTER TABLE ad_whatman_papers DROP COLUMN procure_card_completed_at;
 ALTER TABLE ad_whatman_papers_revs DROP COLUMN procure_card_completed_at;
 DELETE FROM structure_formats WHERE structure_id=(SELECT id FROM structures WHERE alias='ad_spec_whatman_papers') AND structure_field_id=(SELECT id FROM structure_fields WHERE `public_identifier`='' AND `plugin`='InventoryManagement' AND `model`='AliquotDetail' AND `tablename`='ad_whatman_papers' AND `field`='procure_card_completed_at' AND `language_label`='card completed at' AND `language_tag`='' AND `type`='time' AND `setting`='' AND `default`='' AND `structure_value_domain` IS NULL  AND `language_help`='' AND `validation_control`='open' AND `value_domain_control`='open' AND `field_control`='open' AND `flag_confidential`='0');
@@ -1399,11 +1405,13 @@ VALUES
 
 UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0', `flag_addgrid`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='type' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 UPDATE structure_fields SET  `language_label`='type (to remove)' WHERE model='TreatmentDetail' AND tablename='procure_txd_followup_worksheet_treatments' AND field='type' AND `type`='input' AND structure_value_domain  IS NULL ;
-SELECT 'WARNING: Treatment type (text field renamed to [type (to remove)]) has been replaced by field [type] (drop down list).' AS '### MESSAGE ###'
+SELECT 'WARNING: Treatment type (text field renamed to [type (to remove)]) should not be used anymore. User has to complete field [type] (drop down list) created in v251.' AS '### MESSAGE ###'
 UNION ALL
-SELECT 'WARNING: Previous field [type (to remove)] should be removed.' AS '### MESSAGE ###'
+SELECT 'WARNING: Field [type (to remove)] should now be removed.' AS '### MESSAGE ###'
 UNION ALL
-SELECT 'TODO 1: Check data have been correclty migrated to [type] field and add clean up if required.' AS '### MESSAGE ###'
+SELECT 'TODO 1: Check data have been correctly migrated to [type] field and add clean up if required (use following query to list data).' AS '### MESSAGE ###'
+UNION ALL
+SELECT "SELECT DISTINCT TreatmentDetail.treatment_type, TreatmentDetail.type, Drug.type, Drug.generic_name FROM treatment_masters TreatmentMaster INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentMaster.id = TreatmentDetail.treatment_master_id LEFT JOIN drugs Drug ON Drug.id = TreatmentDetail.drug_id WHERE TreatmentMaster.deleted <> 1 ORDER by TreatmentDetail.treatment_type, TreatmentDetail.type;" AS '### MESSAGE ###'
 UNION ALL
 SELECT 'TODO 2: Then remove old field renamed to [type (to remove)] running follwing queries (already included into custom_post263.2.sql).' AS '### MESSAGE ###'
 UNION ALL
