@@ -32,34 +32,24 @@ class TreatmentMasterCustom extends TreatmentMaster {
 			}
 			//Check site can be associated to treatment
 			if(array_key_exists('treatment_site', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['treatment_site']) {
-				if(!preg_match("/radiotherapy/", $treatment_type) ){
+				if(!in_array($treatment_type, array("radiotherapy",'antalgic radiotherapy','brachytherapy'))){
 					$result = false;
 					$this->validationErrors['treatment_site'][] = __('no site has to be associated to the selected treatment type');
 				}					
 			}
 			//Check precision can be associated to treatment
-			if(array_key_exists('radiotherpay_precision', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['radiotherpay_precision']) {
-				if(!preg_match("/radiotherapy/", $treatment_type) ){
+			if(array_key_exists('treatment_precision', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['treatment_precision']) {
+				if(preg_match("/prostatectomy/", $treatment_type)){
 					$result = false;
-					$this->validationErrors['radiotherpay_precision'][] = __('no precision has to be associated to the selected treatment type');
+					$this->validationErrors['treatment_precision'][] = __('no precision has to be associated to the selected treatment type');
 				}					
 			}
 			//Check line can be associated to treatment
 			if(array_key_exists('chemotherapy_line', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['chemotherapy_line']) {
-				if(!preg_match("/chemotherapy/", $treatment_type) ){
+				if(!preg_match("/chemotherapy/", $treatment_type)){
 					$result = false;
 					$this->validationErrors['chemotherapy_line'][] = __('no line has to be associated to the selected treatment type');
 				}
-			}
-			//Check treatment_combination can be associated to treatment
-			if(array_key_exists('treatment_combination', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['treatment_combination']) {		
-				$treatment_types_of_combination = explode('+', $this->data['TreatmentDetail']['treatment_combination']);
-				$result = false;
-				foreach($treatment_types_of_combination as $new_comb_tx_type) {
-					$new_comb_tx_type = trim($new_comb_tx_type);
-					if(preg_match("/$new_comb_tx_type/", $treatment_type) ) $result = true;
-				}
-				if(!$result) $this->validationErrors['treatment_combination'][] = __('the selected combination can not be associated to the selected treatment type');
 			}
 		}
 		return $result;

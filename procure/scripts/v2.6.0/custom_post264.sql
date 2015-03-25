@@ -172,6 +172,395 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_search`='0',
 UPDATE parent_to_derivative_sample_controls SET flag_active=false WHERE id IN(203, 194, 193, 200);
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Nouveau champs
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE groups MODIFY deleted tinyint(3) unsigned NOT NULL DEFAULT '0';
+
+-- Follow-up Methods
+
+ALTER TABLE procure_ed_clinical_followup_worksheets ADD COLUMN method varchar(50) DEFAULT NULL;
+ALTER TABLE procure_ed_clinical_followup_worksheets_revs ADD COLUMN method varchar(50) DEFAULT NULL;
+INSERT INTO structure_value_domains (domain_name, source) VALUES ('procure_followup_clinical_methods', null);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES ("visit", "visit"),("phone", "phone");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES 
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_clinical_methods"), 
+(SELECT id FROM structure_permissible_values WHERE value="visit" AND language_alias="visit"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_clinical_methods"), 
+(SELECT id FROM structure_permissible_values WHERE value="phone" AND language_alias="phone"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ('phone','Phone','Téléphone');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheets', 'method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_clinical_methods') , '0', '', '', '', 'method', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_clinical_methods')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
+
+-- Diagnosis & treatment report
+
+UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_chemo' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_hormono' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_radio' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='25' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_psa_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='26' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_total_ng_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_free_ng_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_psa_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '28', 'prostatectomy', '', '1', 'date', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+
+-- Change structure of follow-up
+
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='surgery_for_metastases' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='surgery_site' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_column`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Changed consent version to version nbr + language
+
+ALTER TABLE consent_masters ADD COLUMN procure_language VARCHAR(40);
+ALTER TABLE consent_masters_revs ADD COLUMN procure_language VARCHAR(40);
+INSERT INTO structure_value_domains (domain_name, override, category, source) VALUES ("procure_language", "open", "", NULL);
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("english", "english");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_language"), (SELECT id FROM structure_permissible_values WHERE value="english" AND language_alias="english"), "1", "1");
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("french", "french");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_language"), (SELECT id FROM structure_permissible_values WHERE value="french" AND language_alias="french"), "2", "1");
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'ConsentMaster', 'consent_masters', 'procure_language', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_language') , '0', '', '', '', '', '-');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='consent_masters'), (SELECT id FROM structure_fields WHERE `model`='ConsentMaster' AND `tablename`='consent_masters' AND `field`='procure_language' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_language')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`='-'), '1', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+REPLACE INTO i18n (id,en,fr) VALUES
+('english','English','Anglais'),
+('french','French','Français'); 
+UPDATE consent_masters SET procure_language = form_version;
+UPDATE consent_masters SET form_version = '';
+UPDATE consent_masters_revs SET procure_language = form_version;
+UPDATE consent_masters_revs SET form_version = '';
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent Form Versions');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+SELECT procure_language AS '### MESSAGE ### Consent language not supported' FROM consent_masters WHERE procure_language NOT IN ('english','french');
+
+-- Changed procure_followup_clinical_recurrence_types [Procure followup clinical recurrence types] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup clinical recurrence types');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_clinical_recurrence_types");
+SELECT value AS '### MESSAGE ### [Procure followup clinical recurrence types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('local','distant','regional');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_followup_exam_types [Procure followup exam types] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup exam types');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types");
+SELECT value AS '### MESSAGE ### [Procure followup exam types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('CT-scan','MRI','PET-scan');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_followup_exam_results [Exam Results] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Exam Results');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_results");
+SELECT value AS '### MESSAGE ### [Exam Results] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('negative','positive','suspicious');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_questionnaire_delivery_site_and_method [questionnaire delivery site and method] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire delivery site and method');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_delivery_site_and_method");
+SELECT value AS '### MESSAGE ### [questionnaire delivery site and method] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('during hospitalisation','e-mail','mail','pre-op clinic','urologist office');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_method_to_complete_questionnaire [method to complete questionnaire] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'method to complete questionnaire');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_method_to_complete_questionnaire");
+SELECT value AS '### MESSAGE ### [method to complete questionnaire] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('alone','at home','in the hospital','online','phone','with a family member','with the biobank personnel');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_questionnaire_recovery_method [questionnaire recovery method] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire recovery method');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_recovery_method");
+SELECT value AS '### MESSAGE ### [questionnaire recovery method] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('directly','e-mail','internal mail','mail');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_questionnaire_revision_method [questionnaire revision method] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire revision method');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_revision_method");
+SELECT value AS '### MESSAGE ### [questionnaire revision method] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('phone','with the participant','directly','e-mail');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_questionnaire_version [questionnaire version] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire version');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_version");
+SELECT value AS '### MESSAGE ### [questionnaire version] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('english','french');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_other_tumor_treatment_types [Other Tumor Treatment Types] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Tumor Treatment Types');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_treatment_types");
+SELECT value AS '### MESSAGE ### [Other Tumor Treatment Types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('chemotherapy','radiotherapy');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("experimental treatment", "experimental treatment");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+VALUES
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_treatment_types"), 
+(SELECT id FROM structure_permissible_values WHERE value="surgery" AND language_alias="surgery"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_treatment_types"), 
+(SELECT id FROM structure_permissible_values WHERE value="experimental treatment" AND language_alias="experimental treatment"), "", "1"),
+((SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_treatment_types"), 
+(SELECT id FROM structure_permissible_values WHERE value="other" AND language_alias="other"), "", "1");
+
+-- Changed procure_other_tumor_sites [Other Tumor Sites] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Tumor Sites');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_sites");
+SELECT value AS '### MESSAGE ### [Other Tumor Sites] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT LIKE '% - %';
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_blood_collection_sites [Blood collection sites] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood collection sites');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_blood_collection_sites");
+SELECT value AS '### MESSAGE ### [Blood collection sites] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('after anesthesia','before anestesia','clinic','operating room');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_block_classification [Procure block classifications] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure block classifications');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_block_classification");
+SELECT value AS '### MESSAGE ### [Procure block classifications] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('C','NC','NC+C','ND');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_prostatectomy_types [Procure prostatectomy types] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure prostatectomy types');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_prostatectomy_types");
+SELECT value AS '### MESSAGE ### [Procure prostatectomy types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('laparoscopy','open surgery','robot');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_prostatectomy_types [Procure slice origins] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure slice origins');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_prostatectomy_types");
+SELECT value AS '### MESSAGE ### [Procure slice origins] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('LA','LP','RA','RP');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_chemotherapy_line [Chemotherapy Lines] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Chemotherapy Lines');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_chemotherapy_line");
+SELECT value AS '### MESSAGE ### [Chemotherapy Lines] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('1','2','3','4');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Changed procure_followup_treatment_types [Procure followup medical treatment types] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup medical treatment types');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types");
+SELECT value AS '### MESSAGE ### [Procure followup medical treatment types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('antalgic radiotherapy','chemotherapy','experimental treatment','hormonotherapy','other treatment','prostatectomy','radiotherapy');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types"), (SELECT id FROM structure_permissible_values WHERE value="brachytherapy" AND language_alias="brachytherapy"), "", "1");
+REPLACE INTO i18n (id,en,fr)
+VALUES
+("antalgic radiotherapy",'Antalgic Radiotherapy','Radiothérapie antalgique'),
+("experimental treatment",'Experimental Treatment','Traitement expérimental'),
+("other treatment",'Other Treatment','Autre traitement');
+UPDATE procure_txd_followup_worksheet_treatments SET treatment_type = 'brachytherapy', radiotherpay_precision = '' WHERE radiotherpay_precision = 'brachy';
+UPDATE procure_txd_followup_worksheet_treatments_revs SET treatment_type = 'brachytherapy', radiotherpay_precision = '' WHERE radiotherpay_precision = 'brachy';
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("aborted prostatectomy", "aborted prostatectomy");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types"), (SELECT id FROM structure_permissible_values WHERE value="aborted prostatectomy" AND language_alias="aborted prostatectomy"), "", "1");
+INSERT INTO i18n (id,en,fr) VALUES ("aborted prostatectomy", "Aborted Prostatectomy", 'Prostatectomie abandonnée');
+
+-- Changed procure_radiotherpay_precision [Radiotherapy Precisions] custom list to system list
+
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiotherapy Precisions');
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_radiotherpay_precision");
+SELECT value AS '### MESSAGE ### [Radiotherapy Precisions] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('adjuvant','brachy','curative','palliative','salvage');
+UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
+(SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) 
+(SELECT @domain_id, spv.id, "", "1" FROM structure_permissible_values spv INNER JOIN structure_permissible_values_customs spvc ON spv.value = spvc.value AND spv.language_alias = spvc.value WHERE spvc.control_id = @control_id);
+INSERT IGNORE INTO i18n (id,en,fr)
+(SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+REPLACE INTO i18n (id,en,fr)
+VALUES
+("salvage",'Salvage','Thérapie de sauvetage');
+DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="procure_radiotherpay_precision" AND spv.value="brachy" AND spv.language_alias="brachy";
+DELETE FROM structure_permissible_values WHERE value="brachy" AND language_alias="brachy" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
+
+-- Change radio precision field to treatment precision field
+
+UPDATE structure_fields SET field = 'treatment_precision', language_help = '' WHERE field = 'radiotherpay_precision' AND tablename = 'procure_txd_followup_worksheet_treatments';
+ALTER TABLE procure_txd_followup_worksheet_treatments CHANGE COLUMN radiotherpay_precision treatment_precision varchar(50) default null;
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs CHANGE COLUMN radiotherpay_precision treatment_precision varchar(50) default null;
+DELETE FROM i18n WHERE id = 'procure_help_radiotherpay_precision_help';
+UPDATE structure_value_domains SET domain_name = 'procure_treatment_precision' WHERE domain_name = 'procure_radiotherpay_precision';
+
+-- Move field of treatment form
+
+UPDATE structure_formats SET `display_order`='4' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='chemotherapy_line' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_chemotherapy_line') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='6' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='treatment_combination' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_combination') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='2' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='treatment_precision' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_precision') AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='5' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_txd_followup_worksheet_treatment') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_treatments' AND `field`='treatment_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_site') AND `flag_confidential`='0');
+
+-- Treatment Combination 
+
+UPDATE procure_txd_followup_worksheet_treatments SET treatment_combination = 'y' WHERE treatment_combination IS NOT NULL AND treatment_combination NOt LIKE '';
+UPDATE procure_txd_followup_worksheet_treatments_revs SET treatment_combination = 'y' WHERE treatment_combination IS NOT NULL AND treatment_combination NOt LIKE '';
+ALTER TABLE procure_txd_followup_worksheet_treatments MODIFY treatment_combination char(1) DEFAULT '';
+ALTER TABLE procure_txd_followup_worksheet_treatments_revs MODIFY treatment_combination char(1) DEFAULT '';
+UPDATE structure_fields SET  `type`='yes_no',  `structure_value_domain`= NULL  WHERE model='TreatmentDetail' AND tablename='procure_txd_followup_worksheet_treatments' AND field='treatment_combination' AND `type`='select' AND structure_value_domain =(SELECT id FROM structure_value_domains WHERE domain_name='procure_treatment_combination');
+DELETE FROM structure_value_domains WHERE domain_name="procure_treatment_combination";
+SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Treatment Combinations');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+
+-- Inactivate unused custom list
+
+UPDATE structure_permissible_values_custom_controls SET flag_active = 0 WHERE name IN ('SOP Versions','Xenograft Implantation Sites','Xenograft Species');
+SELECT name '### MESSAGE ### Check following custom lists are used and inactivate if not used' FROM structure_permissible_values_custom_controls WHERE flag_active = 1 AND name NOT IN ('Consent Form Versions','Exam Sites','Aliquot Use and Event Types','Questionnaire version date','Storage Types','Storage Coordinate Titles','Treatment site');
+
+-- Add experimental drug
+
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_drug_type"), (SELECT id FROM structure_permissible_values WHERE value="experimental treatment" AND language_alias="experimental treatment"), "", "1");
+REPLACE INTO i18n (id,en,fr)
+VALUES 
+('procure_help_treatment_drug', 'Experimental Treatment/Chemotherapy/Radiotherapy drug', 'Molécule ou médicament de chimiothérapie/radiothérapie/traitement expérimental');
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Data Integrity Controls (based on custom hook and custom model)
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -195,22 +584,27 @@ SELECT procure_form_identification AS '### MESSAGE ### Wrong consent_masters.pro
 SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (
 	SELECT count(*) as nbr, EventMaster.procure_form_identification FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id WHERE deleted <> 1 AND EventControl.event_type NOT IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event') GROUP BY EventMaster.procure_form_identification
 ) res WHERE res.nbr > 1;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure pathology report'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -PST[0-9]+$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure diagnostic information worksheet'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FBP[0-9]+$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure questionnaire administration worksheet'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -QUE[0-9]+$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type = 'procure follow-up worksheet'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -FSP[0-9]+$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong event_masters.procure_form_identification format to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event')
@@ -225,18 +619,22 @@ WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-u
 SELECT procure_form_identification AS '### MESSAGE ### Duplicated procure_form_identification to correct' FROM (
 	SELECT count(*) as nbr, TreatmentMaster.procure_form_identification FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id WHERE deleted <> 1 AND TreatmentControl.tx_method NOT IN ('procure follow-up worksheet - treatment','procure medication worksheet - drug','other tumor treatment') GROUP BY TreatmentMaster.procure_form_identification
 ) res WHERE res.nbr > 1;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet - drug'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -MEDx$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure follow-up worksheet - treatment'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9])) -MED[0-9]+$' OR procure_form_identification IS NULL;
+
 SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'other tumor treatment'
@@ -257,15 +655,15 @@ SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment
 FROM treatment_masters TreatmentMaster 
 INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 WHERE TreatmentMaster.deleted <> 1
-AND TreatmentDetail.treatment_type NOT LIKE '%radiotherapy%' AND TreatmentDetail.treatment_site IS NOT NULL AND TreatmentDetail.treatment_site NOT LIKE '';
+AND TreatmentDetail.treatment_type NOT IN ('radiotherapy','antalgic radiotherapy','brachytherapy') AND TreatmentDetail.treatment_site IS NOT NULL AND TreatmentDetail.treatment_site NOT LIKE '';
 
-SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than radiotherapy but precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.radiotherpay_precision
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type like prostatectomy and precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.radiotherpay_precision
 FROM treatment_masters TreatmentMaster 
 INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 WHERE TreatmentMaster.deleted <> 1
-AND TreatmentDetail.treatment_type NOT LIKE '%radiotherapy%' AND TreatmentDetail.radiotherpay_precision IS NOT NULL AND TreatmentDetail.radiotherpay_precision NOT LIKE '';
+AND TreatmentDetail.treatment_type LIKE '%prostatectomy%' AND TreatmentDetail.radiotherpay_precision IS NOT NULL AND TreatmentDetail.radiotherpay_precision NOT LIKE '';
 
-SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than chemotherapy but precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.chemotherapy_line
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than chemotherapy but line information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.chemotherapy_line
 FROM treatment_masters TreatmentMaster 
 INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 WHERE TreatmentMaster.deleted <> 1
@@ -295,27 +693,6 @@ FROM aliquot_masters
 INNER JOIN ad_tubes ON id = aliquot_master_id
 WHERE deleted <> 1 AND concentration NOT LIKE '' AND concentration IS NOT NULL AND (concentration_unit IS NULL OR concentration_unit LIKE '');
 
-SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate.', concentration_unit
-FROM aliquot_masters, ad_tubes
-WHERE deleted <> 1 AND id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
-AND concentration_unit IN ('ug/ul', 'ng/ul', 'pg/ul') GROUP BY concentration_unit;
-UPDATE aliquot_masters, ad_tubes
-SET procure_total_quantity_ug = (initial_volume*concentration/1000000)
-WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
-AND concentration_unit = 'pg/ul';
-UPDATE aliquot_masters, ad_tubes
-SET procure_total_quantity_ug = (initial_volume*concentration/1000)
-WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
-AND concentration_unit = 'ng/ul';
-UPDATE aliquot_masters, ad_tubes
-SET procure_total_quantity_ug = (initial_volume*concentration)
-WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
-AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
-AND concentration_unit = 'ug/ul';
-
 SELECT count(*) AS '### MESSAGE ### Number of blood tubes defined as in stock. To correct if required.', blood_type
 FROM sample_masters SampleMaster
 INNER JOIN sample_controls SampleControl ON SampleMaster.sample_control_id = SampleControl.id
@@ -326,52 +703,31 @@ WHERE AliquotMaster.deleted <> 1 AND SampleControl.sample_type = 'blood' AND Ali
 AND blood_type != 'paxgene' AND in_stock != 'no'
 GROUP BY blood_type;
 
--- ------------------------------------------------------------------------------------------------------------------------------------------------
--- Nouveau champs
--- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- *** 3 - Inventory Update ***
 
-ALTER TABLE groups MODIFY deleted tinyint(3) unsigned NOT NULL DEFAULT '0';
+SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate.', concentration_unit
+FROM aliquot_masters, ad_tubes
+WHERE deleted <> 1 AND id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit IN ('ug/ul', 'ng/ul', 'pg/ul') GROUP BY concentration_unit;
 
--- Follow-up Methods
+UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (initial_volume*concentration/1000000)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit = 'pg/ul';
 
-ALTER TABLE procure_ed_clinical_followup_worksheets ADD COLUMN method varchar(50) DEFAULT NULL;
-ALTER TABLE procure_ed_clinical_followup_worksheets_revs ADD COLUMN method varchar(50) DEFAULT NULL;
-INSERT INTO structure_value_domains (domain_name, source) 
-VALUES 
-('procure_followup_clinical_methodss', "StructurePermissibleValuesCustom::getCustomDropdown(\'Follow-up Methods\')");
-INSERT INTO structure_permissible_values_custom_controls (name, category, values_max_length) 
-VALUES 
-('Follow-up Methods', 'clinical - annotation', '50');
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Follow-up Methods');
-INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
-VALUES
-('visit','Visit','Visite',  '1', @control_id, NOW(), NOW(), 1, 1),
-('phone','Phone','Téléphone',  '1', @control_id, NOW(), NOW(), 1, 1),
-('email','Email','Courriel',  '1', @control_id, NOW(), NOW(), 1, 1);
-INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
-('ClinicalAnnotation', 'EventDetail', 'procure_ed_clinical_followup_worksheets', 'method', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_clinical_methodss') , '0', '', '', '', 'method', '');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheets' AND `field`='method' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_followup_clinical_methodss')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='method' AND `language_tag`=''), '1', '6', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '1', '0', '0');
-UPDATE structure_value_domains SET domain_name = 'procure_followup_clinical_methods' WHERE domain_name = 'procure_followup_clinical_methodss';
+UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (initial_volume*concentration/1000)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit = 'ng/ul';
 
--- Diagnosis & treatment report
-
-UPDATE structure_formats SET `display_order`='20' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_chemo' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='21' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_hormono' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='22' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_radio' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='25' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_psa_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='26' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='biopsy_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_total_ng_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='12' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_free_ng_ml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='13' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_lab_diagnostic_information_worksheets' AND `field`='aps_pre_surgery_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='15' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='procure_pre_op_psa_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-UPDATE structure_formats SET `display_order`='16' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_clinical_followup_worksheet_aps' AND `field`='total_ngml' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
-INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
-((SELECT id FROM structures WHERE alias='procure_diagnosis_and_treatments_report_result'), (SELECT id FROM structure_fields WHERE `model`='TreatmentMaster' AND `tablename`='treatment_masters' AND `field`='start_date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '0', '28', 'prostatectomy', '', '1', 'date', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
-
-
-
+UPDATE aliquot_masters, ad_tubes
+SET procure_total_quantity_ug = (initial_volume*concentration)
+WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
+AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
+AND concentration_unit = 'ug/ul';
 
 
 
