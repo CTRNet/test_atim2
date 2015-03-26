@@ -61,8 +61,36 @@ ALTER TABLE ed_cap_report_gallbladders_Revs MODIFY distance_of_invasive_carcinom
  
 UPDATE versions SET branch_build_number = '6055' WHERE version_number = '2.6.2';
 
+-- 20150326 --------------------------------------------------------------------------------------------------------
 
+INSERT INTO `datamart_reports` (`id`, `name`, `description`, `form_alias_for_search`, `form_alias_for_results`, `form_type_for_results`, `function`, `flag_active`, `created`, `created_by`, `modified`, `modified_by`, `associated_datamart_structure_id`) VALUES
+(null, 'qc_hb_report_ctrnet_catalogue_sorted_by_icd_name', 'qc_hb_report_ctrnet_catalog_sorted_by_icd_desc', 'ctrnet_calatogue_submission_file_params', 'qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd', 'index', 'ctrnetCatalogSubmissionFileSorteByIcdCodes', 1, NULL, 0, NULL, 0, NULL);
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('qc_hb_report_ctrnet_catalog_sorted_by_icd_desc','Data creation for CTRNet catalog sorted by ICD-10 Codes.','Génération des données pour le catalogue de CTRNet triées selon codes ICD-10.'),
+('qc_hb_report_ctrnet_catalog_sorted_by_icd_name','CTRNet catalog (sorted by ICD-10 Codes)','Catalogue CTRNet (trié selon codes ICD-10)');
+INSERT INTO structures(`alias`) VALUES ('qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('Datamart', '0', '', 'qc_hb_primary_icd10_codes', 'input',  NULL , '0', '', '', '', 'primary icd 10 codes', ''), 
+('Datamart', '0', '', 'qc_hb_dagnosis_icd10_codes', 'input',  NULL , '0', '', '', '', 'diagnosis icd 10 codes', ''), 
+('Datamart', '0', '', 'qc_hb_ctrnet_classification', 'input',  NULL , '0', '', '', '', 'ctrnet classification', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='sample_type' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='sample type' AND `language_tag`=''), '0', '1', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='cases_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='cases number' AND `language_tag`=''), '0', '2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='aliquots_nbr' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='aliquots number' AND `language_tag`=''), '0', '3', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='notes' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='notes' AND `language_tag`=''), '0', '4', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '1', '0', '1', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_hb_primary_icd10_codes'), '0', '-1', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_hb_dagnosis_icd10_codes'), '0', '-2', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0'), 
+((SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd'), (SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_hb_ctrnet_classification'), '0', '-3', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0');
+INSERT INTO i18n (id,en,fr) 
+VALUES
+('ctrnet classification','CTRNet - Classification','CTRNet - Classification'),
+('diagnosis icd 10 codes','Collection Diagnosis ICD-10','ICD-10 du diagnostic de la collection'),
+('primary icd 10 codes','Primary Diagnosis ICD-10','ICD-10 du diagnostic primaire');
+UPDATE structure_fields SET field = 'qc_hb_collection_icd10_codes' WHERE field = 'qc_hb_dagnosis_icd10_codes';
+UPDATE structure_formats SET `display_order`='11' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_hb_primary_icd10_codes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+UPDATE structure_formats SET `display_order`='10' WHERE structure_id=(SELECT id FROM structures WHERE alias='qc_hb_ctrnet_calatogue_submission_file_sorted_by_icd') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='0' AND `tablename`='' AND `field`='qc_hb_collection_icd10_codes' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+INSERT INTO i18n (id,en,fr) VALUES ('more than %s','More than %s','Plus de %s');
 
-
-
+UPDATE versions SET branch_build_number = '6134' WHERE version_number = '2.6.2';
   
