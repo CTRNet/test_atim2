@@ -42,4 +42,14 @@
 		default:
 			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
 			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];
+			if($annotation['EventControl']['event_type'] == 'procure follow-up worksheet' && $annotation['EventDetail']['surgery_date']){
+				$biopsy_data_annotation = array(
+					'date'			=> $annotation['EventDetail']['surgery_date'],
+					'date_accuracy' => isset($annotation['EventDetail']['surgery_date_accuracy']) ? $annotation['EventDetail']['surgery_date_accuracy'] : 'c',
+					'event'			=> __('surgery for metastases'),
+					'chronology_details' => '',
+					'link'			=> '/ClinicalAnnotation/EventMasters/detail/'.$participant_id.'/'.$annotation['EventMaster']['id']
+				);
+				$add_to_tmp_array($biopsy_data_annotation);				
+			}
 	}
