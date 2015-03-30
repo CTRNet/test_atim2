@@ -25,7 +25,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 				$Drug = AppModel::getInstance("Drug", "Drug", true);
 				$drug_data = $Drug->getOrRedirect($this->data['TreatmentDetail']['drug_id']);
 				$drug_type = strtolower($drug_data['Drug']['type']);
-				if(!preg_match("/$drug_type/", $treatment_type) ){
+				if($drug_type != $treatment_type){
 					$result = false;
 					$this->validationErrors['drug_id'][] = __('the type of the selected drug does not match the selected treatment type');
 				}					

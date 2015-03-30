@@ -239,7 +239,11 @@ UPDATE consent_masters_revs SET procure_language = form_version;
 UPDATE consent_masters_revs SET form_version = '';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent Form Versions');
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
-SELECT procure_language AS '### MESSAGE ### Consent language not supported' FROM consent_masters WHERE procure_language NOT IN ('english','french');
+SELECT procure_language AS '### MESSAGE ### Consent language not supported' FROM consent_masters WHERE procure_language IS NOT NULL AND procure_language NOT LIKE '' AND procure_language NOT IN ('english','french');
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Changed custom drop down list to system drop down list
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Changed procure_followup_clinical_recurrence_types [Procure followup clinical recurrence types] custom list to system list
 
@@ -521,6 +525,10 @@ VALUES
 DELETE svdpv FROM structure_value_domains_permissible_values AS svdpv INNER JOIN structure_permissible_values AS spv ON svdpv.structure_permissible_value_id=spv.id INNER JOIN structure_value_domains AS svd ON svd.id = svdpv .structure_value_domain_id WHERE svd.domain_name="procure_radiotherpay_precision" AND spv.value="brachy" AND spv.language_alias="brachy";
 DELETE FROM structure_permissible_values WHERE value="brachy" AND language_alias="brachy" AND id NOT IN (SELECT DISTINCT structure_permissible_value_id FROM structure_value_domains_permissible_values);
 
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- Field Update
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
 -- Change radio precision field to treatment precision field
 
 UPDATE structure_fields SET field = 'treatment_precision', language_help = '' WHERE field = 'radiotherpay_precision' AND tablename = 'procure_txd_followup_worksheet_treatments';
@@ -638,7 +646,7 @@ AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ V((0[1-9])|(1[0-9]))
 SELECT procure_form_identification AS '### MESSAGE ### Wrong treatment_masters.procure_form_identification format to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'other tumor treatment'
-AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ N\/A$' OR procure_form_identification IS NULL;
+AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;
 
 SELECT procure_form_identification AS '### MESSAGE ### Medication Worksheet with no date to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
@@ -657,11 +665,11 @@ INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON Treatmen
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentDetail.treatment_type NOT IN ('radiotherapy','antalgic radiotherapy','brachytherapy') AND TreatmentDetail.treatment_site IS NOT NULL AND TreatmentDetail.treatment_site NOT LIKE '';
 
-SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type like prostatectomy and precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.radiotherpay_precision
+SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type like prostatectomy and precision information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.treatment_precision
 FROM treatment_masters TreatmentMaster 
 INNER JOIN procure_txd_followup_worksheet_treatments TreatmentDetail ON TreatmentDetail.treatment_master_id = TreatmentMaster.id
 WHERE TreatmentMaster.deleted <> 1
-AND TreatmentDetail.treatment_type LIKE '%prostatectomy%' AND TreatmentDetail.radiotherpay_precision IS NOT NULL AND TreatmentDetail.radiotherpay_precision NOT LIKE '';
+AND TreatmentDetail.treatment_type LIKE '%prostatectomy%' AND TreatmentDetail.treatment_precision IS NOT NULL AND TreatmentDetail.treatment_precision NOT LIKE '';
 
 SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type different than chemotherapy but line information set. Please confirm and correct', TreatmentDetail.treatment_type, TreatmentDetail.chemotherapy_line
 FROM treatment_masters TreatmentMaster 
@@ -705,7 +713,7 @@ GROUP BY blood_type;
 
 -- *** 3 - Inventory Update ***
 
-SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate.', concentration_unit
+SELECT count(*) AS '### MESSAGE ### Number of procure_total_quantity_ug values updated. To validate (revs data not updated).', concentration_unit
 FROM aliquot_masters, ad_tubes
 WHERE deleted <> 1 AND id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
 AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
@@ -728,6 +736,125 @@ SET procure_total_quantity_ug = (initial_volume*concentration)
 WHERE id = aliquot_master_id AND concentration NOT LIKE '' AND concentration IS NOT NULL
 AND initial_volume NOT LIKE '' AND initial_volume IS NOT NULL 
 AND concentration_unit = 'ug/ul';
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+-- New Changes
+-- ------------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE structure_permissible_values_custom_controls SET name = 'Clinical Exam Sites' WHERE  name = 'Exam Sites';
+UPDATE structure_permissible_values_custom_controls SET name = 'Radiotherapy Sites' WHERE  name = 'Treatment site';
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Clinical Exam Sites\')" WHERE  source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Exam Sites\')";
+UPDATE structure_value_domains SET source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Radiotherapy Sites\')" WHERE  source = "StructurePermissibleValuesCustom::getCustomDropdown(\'Treatment site\')";
+
+-- Other Diagnosis & Clinical Notes
+
+INSERT INTO `event_controls` (`id`, `disease_site`, `event_group`, `event_type`, `flag_active`, `detail_form_alias`, `detail_tablename`, `display_order`, `databrowser_label`, `flag_use_for_ccl`, `use_addgrid`, `use_detail_form_for_index`) VALUES
+(null, '', 'clinical', 'procure follow-up worksheet - clinical note', 1, 'procure_ed_followup_worksheet_clinical_notes', 'procure_ed_followup_worksheet_clinical_notes', 0, 'procure follow-up worksheet - clinical note', 1, 1, 1),
+(null, '', 'clinical', 'procure follow-up worksheet - other tumor dx', 1, 'procure_ed_followup_worksheet_other_tumor_diagnosis', 'procure_ed_followup_worksheet_other_tumor_diagnosis', 0, 'procure follow-up worksheet - other tumor dx', 1, 1, 1);
+INSERT INTO structures(`alias`) VALUES ('procure_ed_followup_worksheet_other_tumor_diagnosis');
+INSERT INTO structure_fields(`plugin`, `model`, `tablename`, `field`, `type`, `structure_value_domain`, `flag_confidential`, `setting`, `default`, `language_help`, `language_label`, `language_tag`) VALUES
+('ClinicalAnnotation', 'EventDetail', 'procure_ed_followup_worksheet_other_tumor_diagnosis', 'tumor_site', 'select', (SELECT id FROM structure_value_domains WHERE domain_name='procure_other_tumor_sites') , '0', '', '', '', '', '');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_other_tumor_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '-2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_other_tumor_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', 'comments', '0', '1', 'details', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_other_tumor_diagnosis'), (SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_followup_worksheet_other_tumor_diagnosis' AND `field`='tumor_site' AND `type`='select' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_other_tumor_sites')  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='' AND `language_tag`=''), '1', '40', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+UPDATE structure_formats SET `flag_add`='1', `flag_edit`='1', `flag_search`='1', `flag_addgrid`='1', `flag_index`='1', `flag_detail`='1' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_other_tumor_diagnosis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventDetail' AND `tablename`='procure_ed_followup_worksheet_other_tumor_diagnosis' AND `field`='tumor_site' AND `structure_value_domain` =(SELECT id FROM structure_value_domains WHERE domain_name='procure_other_tumor_sites') AND `flag_confidential`='0');
+UPDATE structure_fields SET language_label = 'tumor site' WHERE field = 'tumor_site' AND tablename = 'procure_ed_followup_worksheet_other_tumor_diagnosis';
+INSERT INTO structure_validations(structure_field_id, rule) VALUES
+((SELECT id FROM structure_fields WHERE `tablename`='procure_ed_followup_worksheet_other_tumor_diagnosis' AND `field`='tumor_site'), 'notEmpty');
+UPDATE structure_formats SET `language_heading`='' WHERE structure_id=(SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_other_tumor_diagnosis') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+CREATE TABLE IF NOT EXISTS `procure_ed_followup_worksheet_other_tumor_diagnosis` (
+  `event_master_id` int(11) NOT NULL,
+  `tumor_site` varchar(100) DEFAULT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `procure_ed_followup_worksheet_other_tumor_diagnosis_revs` (
+  `event_master_id` int(11) NOT NULL,
+  `tumor_site` varchar(100) DEFAULT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+ALTER TABLE `procure_ed_followup_worksheet_other_tumor_diagnosis`
+  ADD CONSTRAINT `procure_ed_followup_worksheet_other_tumor_diagnosis_ibfk_1` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO structures(`alias`) VALUES ('procure_ed_followup_worksheet_clinical_notes');
+INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_column`, `display_order`, `language_heading`, `margin`, `flag_override_label`, `language_label`, `flag_override_tag`, `language_tag`, `flag_override_help`, `language_help`, `flag_override_type`, `type`, `flag_override_setting`, `setting`, `flag_override_default`, `default`, `flag_add`, `flag_add_readonly`, `flag_edit`, `flag_edit_readonly`, `flag_search`, `flag_search_readonly`, `flag_addgrid`, `flag_addgrid_readonly`, `flag_editgrid`, `flag_editgrid_readonly`, `flag_batchedit`, `flag_batchedit_readonly`, `flag_index`, `flag_detail`, `flag_summary`, `flag_float`) VALUES 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_notes'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_date' AND `type`='date' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='' AND `default`='' AND `language_help`='' AND `language_label`='date' AND `language_tag`=''), '1', '-2', '', '0', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '1', '1', '1', '0'), 
+((SELECT id FROM structures WHERE alias='procure_ed_followup_worksheet_clinical_notes'), (SELECT id FROM structure_fields WHERE `model`='EventMaster' AND `tablename`='event_masters' AND `field`='event_summary' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0'), '2', '70', '', '0', '1', 'note', '0', '', '0', '', '0', '', '1', 'rows=3,cols=30', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '1', '0');
+CREATE TABLE IF NOT EXISTS `procure_ed_followup_worksheet_clinical_notes` (
+  `event_master_id` int(11) NOT NULL,
+  KEY `event_master_id` (`event_master_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+CREATE TABLE IF NOT EXISTS `procure_ed_followup_worksheet_clinical_notes_revs` (
+  `event_master_id` int(11) NOT NULL,
+  `version_id` int(11) NOT NULL AUTO_INCREMENT,
+  `version_created` datetime NOT NULL,
+  PRIMARY KEY (`version_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
+ALTER TABLE `procure_ed_followup_worksheet_clinical_notes`
+  ADD CONSTRAINT `procure_ed_followup_worksheet_clinical_notes_ibfk_2` FOREIGN KEY (`event_master_id`) REFERENCES `event_masters` (`id`);
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('procure follow-up worksheet - other tumor dx','F1 - Follow-up Worksheet :: Other Tumor Diagnosis','F1 - Fiche de suivi du patient :: Autre diagnostic de tumeur'),
+('procure follow-up worksheet - clinical note','F1 - Follow-up Worksheet :: Clinical Note','F1 - Fiche de suivi du patient :: Note clinique');
+
+-- Rename other treatment tumor
+
+SELECT 'Changed Other Tumor Treatment tablename, etc' AS '### MESSAGE ###';
+UPDATE treatment_controls 
+SET detail_tablename = 'procure_txd_followup_worksheet_other_tumor_treatments', detail_form_alias = 'procure_txd_followup_worksheet_other_tumor_treatments',
+tx_method = 'procure follow-up worksheet - other tumor tx', databrowser_label = 'procure follow-up worksheet - other tumor tx'
+WHERE detail_tablename = 'procure_txd_other_tumor_treatments';
+INSERT INTO i18n (id,en,fr)
+VALUES 
+('procure follow-up worksheet - other tumor tx','F1 - Follow-up Worksheet :: Other Tumor Treatment','F1 - Fiche de suivi du patient :: Traitement autre tumeur');
+UPDATE structures SET `alias` = 'procure_txd_followup_worksheet_other_tumor_treatments' WHERE `alias` = 'procure_txd_other_tumor_treatment';
+UPDATE structure_fields SET `tablename` = 'procure_txd_followup_worksheet_other_tumor_treatments' WHERE `tablename` = 'procure_txd_other_tumor_treatments';
+RENAME TABLE procure_txd_other_tumor_treatments TO procure_txd_followup_worksheet_other_tumor_treatments;
+RENAME TABLE procure_txd_other_tumor_treatments_revs TO procure_txd_followup_worksheet_other_tumor_treatments_revs;
+
+-- Unset flag_use_for_ccl
+
+UPDATE event_controls SET flag_use_for_ccl = 0 WHERE flag_active = 1;
+UPDATE treatment_controls SET flag_use_for_ccl = 0 WHERE flag_active = 1;
+
+-- Rebuild follow-up detal form
+
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+("clincial data from %start% to %end%", "Clinical data from %start% to %end%", 'Données cliniques du %start% au %end%'),
+("clincial data after %start%", "Clinical data after %start%", 'Données cliniques après le %start%'),
+("clincial data before %end%", "Clinical data before %end%", 'Données cliniques avant le %end%'),
+("unable to limit clincial data to a dates interval", "Unable to limit clinical data to a dates interval", "Impossible de limiter les données cliniques à un intervalle de dates");
+INSERT INTO i18n (id,en,fr) 
+VALUES 
+('prostate diagnosis - clinical data', 'Prostate - Clinical Data', 'Prostate - Données cliniques'),
+('other diagnoses - clinical data', 'Other Diagnoses - Clinical Data', 'Autres diagnostics - Données cliniques'),
+('clinical notes', 'Clinical Notes', 'Notes cliniques');
+
+
+INSERT IGNORE INTO i18n (id,en,fr)
+VALUES
+('other tumor - diagnosis', 'Other Tumor - Diagnosis', 'Autre cancer - Diagnostic'),
+('other tumor - treatment', 'Other Tumor - Treatment', 'Autre cancer - Traitement');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
