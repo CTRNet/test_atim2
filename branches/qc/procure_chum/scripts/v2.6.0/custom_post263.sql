@@ -1397,9 +1397,9 @@ DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id 
 
 SELECT 'WARNING: Added prostatectomy to treatment list' as '### MESSAGE ###';
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup medical treatment types');
-INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
-VALUES
-('prostatectomy','Prostatectomy','Prostatectomie',  '1', @control_id, NOW(), NOW(), 1, 1);
+-- INSERT INTO `structure_permissible_values_customs` (`value`, en, fr, `use_as_input`, `control_id`, `modified`, `created`, `created_by`, `modified_by`)
+-- VALUES
+-- ('prostatectomy','Prostatectomy','Prostatectomie',  '1', @control_id, NOW(), NOW(), 1, 1);
 
 -- Treatment type to remove
 

@@ -6,10 +6,8 @@
 			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' Vx -MEDx';
 			break;
 		case'procure follow-up worksheet - treatment':
+		case 'procure follow-up worksheet - other tumor tx': 
 			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' Vx -FSPx';
-			break;
-		case 'other tumor treatment':
-			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' N/A';
 			break;
 		case 'procure medication worksheet':
 			$default_procure_form_identification =  $participant_data['Participant']['participant_identifier'].' V0 -MED1';

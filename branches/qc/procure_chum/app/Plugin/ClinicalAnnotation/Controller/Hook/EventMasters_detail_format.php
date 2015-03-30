@@ -4,14 +4,16 @@
 	
 	if($this->request->data['EventControl']['event_type'] == 'procure follow-up worksheet') {
 		//Set Event Control Id for psa and clinical event
-		$event_control_data = $this->EventControl->find('first', array('conditions'=>array('EventControl.event_type' => 'procure follow-up worksheet - aps')));
-		$this->set('psa_event_control_id', $event_control_data['EventControl']['id']);
-		$event_control_data = $this->EventControl->find('first', array('conditions'=>array('EventControl.event_type' => 'procure follow-up worksheet - clinical event')));
-		$this->set('clinical_event_control_id', $event_control_data['EventControl']['id']);
+		$events_types = array('procure follow-up worksheet - aps',
+			'procure follow-up worksheet - clinical event',
+			'procure follow-up worksheet - clinical note');
+		$this->set('linked_events_control_data', $this->EventControl->find('all', array('conditions'=>array('EventControl.event_type' => $events_types))));
+		$events_types = array('procure follow-up worksheet - other tumor dx');		
+		$this->set('other_dx_events_control_data', $this->EventControl->find('all', array('conditions'=>array('EventControl.event_type' => $events_types))));
 		//Set Treatment Control Id for treatments list
 		$this->TreatmentControl = AppModel::getInstance("ClinicalAnnotation", "TreatmentControl", true);
-		$tx_control_data = $this->TreatmentControl->find('first', array('conditions'=>array('TreatmentControl.tx_method' => 'procure follow-up worksheet - treatment')));
-		$this->set('treatment_control_id', $tx_control_data['TreatmentControl']['id']);
+		$this->set('linked_tx_control_data', $this->TreatmentControl->find('all', array('conditions'=>array('TreatmentControl.tx_method' => array('procure follow-up worksheet - treatment')))));
+		$this->set('other_dx_tx_control_data', $this->TreatmentControl->find('all', array('conditions'=>array('TreatmentControl.tx_method' => array('procure follow-up worksheet - other tumor tx')))));
 		//Set Inteval Dates (previous Medication Worksheet date to studied Medication Worksheet date)
 		$interval_start_date = '-1';
 		$interval_start_date_accuracy = 'c';
@@ -28,9 +30,26 @@
 				$interval_start_date_accuracy = $previous_followup_woksheet_data['EventMaster']['event_date_accuracy'];
 			}
 		}
+		$interval_finish_date = empty($this->request->data['EventMaster']['event_date'])? '-1': $this->request->data['EventMaster']['event_date'];
+		$interval_finish_date_accuracy = empty($this->request->data['EventMaster']['event_date'])? 'c': $this->request->data['EventMaster']['event_date_accuracy'];
 		$this->set('interval_start_date', $interval_start_date);
 		$this->set('interval_start_date_accuracy', $interval_start_date_accuracy);
-		$this->set('interval_finish_date', empty($this->request->data['EventMaster']['event_date'])? '-1': $this->request->data['EventMaster']['event_date']);
-		$this->set('interval_finish_date_accuracy', empty($this->request->data['EventMaster']['event_date'])? 'c': $this->request->data['EventMaster']['event_date_accuracy']);
+		$this->set('interval_finish_date', $interval_finish_date);
+		$this->set('interval_finish_date_accuracy', $interval_finish_date_accuracy);
+		//Interval message
+		$msg = '';
+		$interval_start_date = preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $interval_start_date)? $interval_start_date : '';
+		$interval_finish_date = preg_match('/^[0-9]{4}\-[0-9]{2}\-[0-9]{2}$/', $interval_finish_date)? $interval_finish_date : '';
+		if($interval_start_date && $interval_finish_date) {
+			$msg = "clincial data from %start% to %end%";
+		} else if($interval_start_date){
+			$msg = "clincial data after %start%";
+		} else if($interval_finish_date){
+			$msg = "clincial data before %end%";
+		} else {
+			$msg = "unable to limit clincial data to a dates interval";
+		}
+		AppController::addWarningMsg(str_replace(array('%start%', '%end%'), array($interval_start_date,$interval_finish_date),__($msg)));
+		
 	}
 	
