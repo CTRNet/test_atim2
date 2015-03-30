@@ -41,9 +41,11 @@ class SampleMasterCustom extends SampleMaster {
 			case 'ccbr leukapheresis':
 				$sample_label = 'LK';
 				break;
+			/*
 			case 'pbmc':
 				$sample_label = 'MC';
 				break;
+			*/
 			case 'plasma':
 				$sample_label = 'PL';
 				break;
@@ -77,8 +79,25 @@ class SampleMasterCustom extends SampleMaster {
 			case 'csf supernatant':
 				$sample_label = 'CS';
 				break;
+			/*
 			case 'blood cell':
 				$sample_label = 'BC';
+				break;
+				*/
+			case 'ccbr mononuclear cells':
+				$sample_label = 'MC';
+				break;
+			case 'ccbr buffy coat':
+				$sample_label = 'BC';
+				break;
+			case 'serum':
+				$sample_label = 'SE';
+				break;
+			case 'tissue lysate':
+				$sample_label = 'TL';
+				break;
+			case 'protein':
+				$sample_label = 'PR';
 				break;
 		}
 

@@ -4,6 +4,12 @@
 -- Eventum ID:
 -- JIRA ID: BB-27
 
+
+-- ==============================================================================================
+-- Eventum ID #3195 - Patch for Broken Links for Samples/Derivatives with Old Sample Label Format
+-- Issue existed in v2.5.1 as well
+-- ==============================================================================================
+
 -- Fixing aliquots with old sample label
 
 UPDATE sample_masters
