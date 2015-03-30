@@ -6,8 +6,8 @@
 			$chronolgy_data_annotation['chronology_details'] = $annotation['EventDetail']['total_ngml'] .( $annotation['EventDetail']['biochemical_relapse']? ' (BCR)' : '');
 			break;
 		case 'procure follow-up worksheet - clinical event':
-			$exam_type = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('procure followup exam types', $annotation['EventDetail']['type']);
-			$exam_result = $this->StructurePermissibleValuesCustom->getTranslatedCustomDropdownValue('Exam Results', $annotation['EventDetail']['results']);
+			$exam_type = $annotation['EventDetail']['type']? $procure_followup_exam_types_values[$annotation['EventDetail']['type']] : '';
+			$exam_result = $annotation['EventDetail']['results']? $procure_followup_exam_results_values[$annotation['EventDetail']['results']] : '';
 			$chronolgy_data_annotation['event'] = $exam_type;
 			$chronolgy_data_annotation['chronology_details'] = strlen($exam_result)? "$exam_result" : '';
 			break;
@@ -24,13 +24,21 @@
 			}
 			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
 			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];
-			break;
+			break;			
 		case 'procure questionnaire administration worksheet':
 			$chronolgy_data_annotation['date'] = $annotation['EventDetail']['recovery_date'];
 			$chronolgy_data_annotation['date_accuracy'] = $annotation['EventDetail']['recovery_date_accuracy'];
 			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
 			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];
 			break;
+		case 'procure follow-up worksheet - other tumor dx':
+			$chronolgy_data_annotation['event'] = __('other tumor - diagnosis');
+			$chronolgy_data_annotation['chronology_details'] = $annotation['EventDetail']['tumor_site']? $procure_other_tumor_sites_values[$annotation['EventDetail']['tumor_site']] : '';
+			break;	
+		case 'procure follow-up worksheet - clinical note':
+			$chronolgy_data_annotation['event'] = __('clinical notes');
+			$chronolgy_data_annotation['chronology_details'] = '';
+			break;	
 		default:
 			$chronolgy_data_annotation['event'] = __($annotation['EventControl']['event_type']);
 			$chronolgy_data_annotation['chronology_details'] = $annotation['EventMaster']['procure_form_identification'];

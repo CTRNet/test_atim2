@@ -102,6 +102,8 @@ class ParticipantCustom extends Participant {
 						break;
 					case 'procure follow-up worksheet - aps':
 					case 'procure follow-up worksheet - clinical event':
+					case 'procure follow-up worksheet - other tumor dx':
+					case 'procure follow-up worksheet - clinical note':
 						$pattern_suffix = "FSP";
 						$main_worksheet = false;
 						break;
@@ -127,19 +129,13 @@ class ParticipantCustom extends Participant {
 						$pattern_suffix = "MED";
 						break;
 					case 'procure follow-up worksheet - treatment':
+					case 'procure follow-up worksheet - other tumor tx': 
 						$pattern_suffix = "FSP";
 						$main_worksheet = false;
 						break;
 					case 'procure medication worksheet - drug':
 						$pattern_suffix = "MED";
 						$main_worksheet = false;
-						break;
-					case 'other tumor treatment': 
-						if(preg_match("/^PS[0-9]P0[0-9]+ N\/A$/", $procure_form_identification)) {
-							return false;
-						} else {
-							return __("the identification format is wrong")." (PS0P0000 N/A)";
-						}
 						break;
 					default:
 						AppController::getInstance()->redirect('/Pages/err_plugin_system_error?method='.__METHOD__.',line='.__LINE__, null, true);		
