@@ -16,6 +16,8 @@
 			break;
 		case 'procure follow-up worksheet - clinical event':
 		case 'procure follow-up worksheet - aps':
+		case 'procure follow-up worksheet - other tumor dx':
+		case 'procure follow-up worksheet - clinical note':
 			$default_procure_form_identification = $participant_data['Participant']['participant_identifier'].' Vx -FSPx';
 			break;
 	}
