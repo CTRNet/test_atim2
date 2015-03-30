@@ -115,7 +115,7 @@ INSERT INTO structure_formats(`structure_id`, `structure_field_id`, `display_col
 ((SELECT id FROM structures WHERE alias='participants'), (SELECT id FROM structure_fields WHERE `model`='Participant' AND `tablename`='participants' AND `field`='procure_patient_withdrawn_reason' AND `type`='input' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0' AND `setting`='rows=2,cols=30' AND `default`='' AND `language_help`='' AND `language_label`='details' AND `language_tag`=''), '3', '42', '', '', '0', '', '0', '', '0', '', '0', '', '0', '', '0', '', '1', '0', '1', '0', '1', '0', '1', '0', '0', '0', '0', '0', '1', '1', '0', '0');
 INSERT INTO i18n (id,en,fr) 
 VALUES 
-('patient withdrawn', 'Patient Withdrawn', 'patient retiré'),
+('patient withdrawn', 'Patient Withdrawn', 'Patient retiré'),
 ('please check the patient withdrawn checkbox if required','Please check the patient withdrawn checkbox if required','Veuillez cocher le champ Patient Retiré si requis');
 
 -- missing i18n
@@ -838,29 +838,11 @@ VALUES
 ('other tumor - diagnosis', 'Other Tumor - Diagnosis', 'Autre cancer - Diagnostic'),
 ('other tumor - treatment', 'Other Tumor - Treatment', 'Autre cancer - Traitement');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chronology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Version
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 
 UPDATE versions SET permissions_regenerated = 0;
-UPDATE versions SET branch_build_number = '61xx' WHERE version_number = '2.6.4';
+UPDATE versions SET branch_build_number = '6137' WHERE version_number = '2.6.4';

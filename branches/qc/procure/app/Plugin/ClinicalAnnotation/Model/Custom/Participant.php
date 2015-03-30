@@ -22,6 +22,8 @@ class ParticipantCustom extends Participant {
 					'structure alias' 	=> 'participants,procure_miscidentifiers_for_participant_summary',
 					'data'				=> $result
 			);
+			
+			if($result['Participant']['procure_patient_withdrawn']) AppController::addWarningMsg(__('patient withdrawn'));
 		}
 	
 		return $return;
