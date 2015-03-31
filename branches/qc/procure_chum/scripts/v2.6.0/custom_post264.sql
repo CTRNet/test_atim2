@@ -493,6 +493,7 @@ INSERT IGNORE INTO i18n (id,en,fr)
 (SELECT value,en,fr FROM structure_permissible_values_customs WHERE control_id = @control_id);
 DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
 DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
+SELECT 'Created treatment type = brachytherapy' AS '### MESSAGE ###';
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types"), (SELECT id FROM structure_permissible_values WHERE value="brachytherapy" AND language_alias="brachytherapy"), "", "1");
 REPLACE INTO i18n (id,en,fr)
 VALUES
@@ -503,7 +504,7 @@ UPDATE procure_txd_followup_worksheet_treatments SET treatment_type = 'brachythe
 UPDATE procure_txd_followup_worksheet_treatments_revs SET treatment_type = 'brachytherapy', radiotherpay_precision = '' WHERE radiotherpay_precision = 'brachy';
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("aborted prostatectomy", "aborted prostatectomy");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types"), (SELECT id FROM structure_permissible_values WHERE value="aborted prostatectomy" AND language_alias="aborted prostatectomy"), "", "1");
-INSERT INTO i18n (id,en,fr) VALUES ("aborted prostatectomy", "Aborted Prostatectomy", 'Prostatectomie abandonnée');
+-- INSERT INTO i18n (id,en,fr) VALUES ("aborted prostatectomy", "Aborted Prostatectomy", 'Prostatectomie abandonnée');
 
 -- Changed procure_radiotherpay_precision [Radiotherapy Precisions] custom list to system list
 
