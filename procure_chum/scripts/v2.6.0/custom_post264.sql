@@ -249,7 +249,7 @@ SELECT procure_language AS '### MESSAGE ### Consent language not supported' FROM
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup clinical recurrence types');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_clinical_recurrence_types");
-SELECT value AS '### MESSAGE ### [Procure followup clinical recurrence types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('local','distant','regional');
+SELECT value AS '### MESSAGE ### [Procure followup clinical recurrence types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('local','distant','regional');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -264,7 +264,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup exam types');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_types");
-SELECT value AS '### MESSAGE ### [Procure followup exam types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('CT-scan','MRI','PET-scan');
+SELECT value AS '### MESSAGE ### [Procure followup exam types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('CT-scan','MRI','PET-scan','bone scintigraphy');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -279,7 +279,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Exam Results');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_exam_results");
-SELECT value AS '### MESSAGE ### [Exam Results] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('negative','positive','suspicious');
+SELECT value AS '### MESSAGE ### [Exam Results] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('negative','positive','suspicious');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -294,7 +294,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire delivery site and method');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_delivery_site_and_method");
-SELECT value AS '### MESSAGE ### [questionnaire delivery site and method] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('during hospitalisation','e-mail','mail','pre-op clinic','urologist office');
+SELECT value AS '### MESSAGE ### [questionnaire delivery site and method] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('during hospitalisation','e-mail','mail','pre-op clinic','urologist office');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -309,7 +309,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'method to complete questionnaire');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_method_to_complete_questionnaire");
-SELECT value AS '### MESSAGE ### [method to complete questionnaire] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('alone','at home','in the hospital','online','phone','with a family member','with the biobank personnel');
+SELECT value AS '### MESSAGE ### [method to complete questionnaire] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('alone','at home','in the hospital','online','phone','with a family member','with the biobank personnel');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -324,7 +324,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire recovery method');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_recovery_method");
-SELECT value AS '### MESSAGE ### [questionnaire recovery method] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('directly','e-mail','internal mail','mail');
+SELECT value AS '### MESSAGE ### [questionnaire recovery method] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('directly','e-mail','internal mail','mail');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -339,7 +339,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire revision method');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_revision_method");
-SELECT value AS '### MESSAGE ### [questionnaire revision method] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('phone','with the participant','directly','e-mail');
+SELECT value AS '### MESSAGE ### [questionnaire revision method] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('phone','with the participant','directly','e-mail');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -354,7 +354,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'questionnaire version');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_questionnaire_version");
-SELECT value AS '### MESSAGE ### [questionnaire version] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('english','french');
+SELECT value AS '### MESSAGE ### [questionnaire version] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('english','french');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -369,7 +369,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Tumor Treatment Types');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_treatment_types");
-SELECT value AS '### MESSAGE ### [Other Tumor Treatment Types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('chemotherapy','radiotherapy');
+SELECT value AS '### MESSAGE ### [Other Tumor Treatment Types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('chemotherapy','radiotherapy');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -393,7 +393,7 @@ VALUES
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Other Tumor Sites');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_other_tumor_sites");
-SELECT value AS '### MESSAGE ### [Other Tumor Sites] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT LIKE '% - %';
+SELECT value AS '### MESSAGE ### [Other Tumor Sites] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT LIKE '% - %';
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -408,7 +408,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Blood collection sites');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_blood_collection_sites");
-SELECT value AS '### MESSAGE ### [Blood collection sites] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('after anesthesia','before anestesia','clinic','operating room');
+SELECT value AS '### MESSAGE ### [Blood collection sites] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('after anesthesia','before anestesia','clinic','operating room');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -423,7 +423,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure block classifications');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_block_classification");
-SELECT value AS '### MESSAGE ### [Procure block classifications] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('C','NC','NC+C','ND');
+SELECT value AS '### MESSAGE ### [Procure block classifications] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('C','NC','NC+C','ND');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -438,7 +438,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure prostatectomy types');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_prostatectomy_types");
-SELECT value AS '### MESSAGE ### [Procure prostatectomy types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('laparoscopy','open surgery','robot');
+SELECT value AS '### MESSAGE ### [Procure prostatectomy types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('laparoscopy','open surgery','robot');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -453,7 +453,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure slice origins');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_prostatectomy_types");
-SELECT value AS '### MESSAGE ### [Procure slice origins] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('LA','LP','RA','RP');
+SELECT value AS '### MESSAGE ### [Procure slice origins] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('LA','LP','RA','RP');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -468,7 +468,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Chemotherapy Lines');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_chemotherapy_line");
-SELECT value AS '### MESSAGE ### [Chemotherapy Lines] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('1','2','3','4');
+SELECT value AS '### MESSAGE ### [Chemotherapy Lines] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('1','2','3','4');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -483,7 +483,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup medical treatment types');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types");
-SELECT value AS '### MESSAGE ### [Procure followup medical treatment types] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('antalgic radiotherapy','chemotherapy','experimental treatment','hormonotherapy','other treatment','prostatectomy','radiotherapy');
+SELECT value AS '### MESSAGE ### [Procure followup medical treatment types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('antalgic radiotherapy','chemotherapy','experimental treatment','hormonotherapy','other treatment','prostatectomy','radiotherapy');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -510,7 +510,7 @@ INSERT INTO structure_value_domains_permissible_values (structure_value_domain_i
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiotherapy Precisions');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_radiotherpay_precision");
-SELECT value AS '### MESSAGE ### [Radiotherapy Precisions] values not in PROCURE list: to manage' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('adjuvant','brachy','curative','palliative','salvage');
+SELECT value AS '### MESSAGE ### [Radiotherapy Precisions] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('adjuvant','brachy','curative','palliative','salvage');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -840,6 +840,14 @@ VALUES
 ('other tumor - treatment', 'Other Tumor - Treatment', 'Autre cancer - Traitement');
 
 UPDATE structure_formats SET `flag_index`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='chronology') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='custom' AND `tablename`='' AND `field`='time' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Barcode can be edited
+
+UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT id FROM structures WHERE alias='aliquot_masters') AND structure_field_id=(SELECT id FROM structure_fields WHERE `model`='AliquotMaster' AND `tablename`='aliquot_masters' AND `field`='barcode' AND `structure_value_domain`  IS NULL  AND `flag_confidential`='0');
+
+-- Removed tumor site not empty
+
+DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_other_tumor_treatments' AND `field`='tumor_site');
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Version
