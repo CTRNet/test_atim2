@@ -452,7 +452,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 -- Changed procure_prostatectomy_types [Procure slice origins] custom list to system list
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure slice origins');
-SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_prostatectomy_types");
+SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_slice_origins");
 SELECT value AS '### MESSAGE ### [Procure slice origins] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('LA','LP','RA','RP');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
@@ -835,7 +835,6 @@ VALUES
 ('other diagnoses - clinical data', 'Other Diagnoses - Clinical Data', 'Autres diagnostics - Données cliniques'),
 ('clinical notes', 'Clinical Notes', 'Notes cliniques');
 
-
 INSERT IGNORE INTO i18n (id,en,fr)
 VALUES
 ('other tumor - diagnosis', 'Other Tumor - Diagnosis', 'Autre cancer - Diagnostic'),
@@ -855,7 +854,10 @@ DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM str
 
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("OCT", "OCT");
 INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_freezing_type"), (SELECT id FROM structure_permissible_values WHERE value="OCT" AND language_alias="OCT"), "", "1");
-INSERT IGNORE INTO i18n (id,en,fr) VALUES ("OCT", "OCT", "OCT");
+INSERT IGNORE INTO i18n (id,en,fr) 
+VALUES 
+("OCT", "OCT", "OCT"),
+('block freezing type OCT has not to be used anymore',"Block freezing type 'OCT' has not to be used anymore","Le type de congélation 'OCT' pour un bloc ne doit plus être utilisé");
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Version
