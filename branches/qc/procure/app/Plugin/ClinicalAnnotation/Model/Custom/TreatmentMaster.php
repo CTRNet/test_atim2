@@ -46,7 +46,7 @@ class TreatmentMasterCustom extends TreatmentMaster {
 			}
 			//Check line can be associated to treatment
 			if(array_key_exists('chemotherapy_line', $this->data['TreatmentDetail']) && $this->data['TreatmentDetail']['chemotherapy_line']) {
-				if(!preg_match("/chemotherapy/", $treatment_type)){
+				if(!preg_match("/chemotherapy/", $treatment_type) && !preg_match("/hormonotherapy/", $treatment_type)){
 					$result = false;
 					$this->validationErrors['chemotherapy_line'][] = __('no line has to be associated to the selected treatment type');
 				}
