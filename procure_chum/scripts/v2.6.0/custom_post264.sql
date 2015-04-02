@@ -483,7 +483,7 @@ DELETE FROM structure_permissible_values_custom_controls WHERE id = @control_id;
 
 SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Procure followup medical treatment types');
 SET @domain_id = (SELECT id FROM structure_value_domains WHERE domain_name="procure_followup_treatment_types");
-SELECT value AS '### MESSAGE ### [Procure followup medical treatment types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('antalgic radiotherapy','chemotherapy','experimental treatment','hormonotherapy','other treatment','prostatectomy','radiotherapy');
+SELECT value AS '### MESSAGE ### [Procure followup medical treatment types] values not in trunk PROCURE list. Will be created but wont be compatibale with PROCURE version. To manage.' FROM structure_permissible_values_customs WHERE control_id = @control_id AND value NOT IN ('antalgic radiotherapy','chemotherapy','experimental treatment','hormonotherapy','other treatment','prostatectomy','radiotherapy','aborted prostatectomy');
 UPDATE structure_value_domains SET `override`="open", `source`="" WHERE id = @domain_id;
 INSERT IGNORE INTO structure_permissible_values (value, language_alias) 
 (SELECT value,value FROM structure_permissible_values_customs WHERE control_id = @control_id);
@@ -619,9 +619,10 @@ FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMa
 WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet - aps', 'procure follow-up worksheet - clinical event')
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;
 
-SELECT procure_form_identification AS '### MESSAGE ### Follow-up Worksheet with no date to correct', participant_id, EventMaster.id AS event_master_id
-FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
-WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '');
+-- Done in chum script after clean up
+-- SELECT procure_form_identification AS '### MESSAGE ### Follow-up Worksheet with no date to correct', participant_id, EventMaster.id AS event_master_id
+-- FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
+-- WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '');
 
 -- TreatmentMaster
 
@@ -649,9 +650,10 @@ FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentCo
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'other tumor treatment'
 AND procure_form_identification NOT REGEXP'^PS[0-9]P0[0-9]+ Vx -FSPx$' OR procure_form_identification IS NULL;
 
-SELECT procure_form_identification AS '### MESSAGE ### Medication Worksheet with no date to correct', participant_id, TreatmentMaster.id AS treatment_master_id
-FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
-WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '');
+-- Done in chum script after clean up
+-- SELECT procure_form_identification AS '### MESSAGE ### Medication Worksheet with no date to correct', participant_id, TreatmentMaster.id AS treatment_master_id
+-- FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
+-- WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '');
 
 SELECT TreatmentMaster.procure_form_identification AS '### MESSAGE ### Treatment Follow-up worksheet with treatment type and drug type mismatch. Please confirm and correct', TreatmentDetail.treatment_type, Drug.type, Drug.generic_name
 FROM treatment_masters TreatmentMaster 
@@ -689,9 +691,9 @@ WHERE SampleMaster.deleted <> 1 AND SampleControl.sample_type = 'blood'  AND (bl
 SELECT barcode AS '### MESSAGE ### List of block with wrong [type] and [freezing method] link. To correct.', block_type, procure_freezing_type
 FROM aliquot_masters
 INNER JOIN ad_blocks ON id = aliquot_master_id
-WHERE deleted <> 1 AND ((block_type = 'frozen' AND procure_freezing_type NOT IN ('ISO', 'ISO+OCT', '')) OR (block_type = 'paraffin' AND procure_freezing_type != ''));
+WHERE deleted <> 1 AND ((block_type = 'frozen' AND procure_freezing_type NOT IN ('ISO', 'ISO+OCT', 'OCT', '')) OR (block_type = 'paraffin' AND procure_freezing_type != ''));
 
-SELECT count(*) AS '### MESSAGE ### List of blocks with storage date time. To remove storage date.' 
+SELECT count(*) AS '### MESSAGE ### List of whatman paper with storage date time. To remove storage date.' 
 FROM aliquot_masters AliquotMaster, aliquot_controls AliquotControl, sample_controls SampleControl 
 WHERE AliquotControl.id = AliquotMaster.aliquot_control_id AND SampleControl.id = AliquotControl.sample_control_id
 AND sample_type = 'blood' AND aliquot_type = 'whatman paper' 
@@ -848,6 +850,12 @@ UPDATE structure_formats SET `flag_edit_readonly`='0' WHERE structure_id=(SELECT
 -- Removed tumor site not empty
 
 DELETE FROM structure_validations WHERE structure_field_id = (SELECT id FROM structure_fields WHERE `model`='TreatmentDetail' AND `tablename`='procure_txd_followup_worksheet_other_tumor_treatments' AND `field`='tumor_site');
+
+-- Added OCT type for tissue block
+
+INSERT IGNORE INTO structure_permissible_values (value, language_alias) VALUES("OCT", "OCT");
+INSERT INTO structure_value_domains_permissible_values (structure_value_domain_id, structure_permissible_value_id, display_order, flag_active) VALUES ((SELECT id FROM structure_value_domains WHERE domain_name="procure_freezing_type"), (SELECT id FROM structure_permissible_values WHERE value="OCT" AND language_alias="OCT"), "", "1");
+INSERT IGNORE INTO i18n (id,en,fr) VALUES ("OCT", "OCT", "OCT");
 
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Version

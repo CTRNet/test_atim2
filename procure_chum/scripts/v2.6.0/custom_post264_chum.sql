@@ -70,12 +70,12 @@ UPDATE structure_formats SET `flag_add`='0', `flag_edit`='0', `flag_detail`='0' 
 UPDATE consent_masters SET form_version = qc_nd_consent_version_date;
 UPDATE consent_masters_revs SET form_version = qc_nd_consent_version_date;
 
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent Form Versions');
+SET @cst_control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent Form Versions');
 INSERT INTO `structure_permissible_values_customs` (`value`, `use_as_input`, `control_id`)
-(SELECT DISTINCT form_version, 1, @control_id  FROM consent_masters WHERE deleted <> 1 AND form_version NOT LIKE '');
+(SELECT DISTINCT form_version, 1, @cst_control_id  FROM consent_masters WHERE deleted <> 1 AND form_version NOT LIKE '');
 
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent version date');
-DELETE FROM structure_permissible_values_customs WHERE control_id = @control_id;
+SET @cst_control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Consent version date');
+DELETE FROM structure_permissible_values_customs WHERE control_id = @cst_control_id;
 DELETE FROM structure_permissible_values_custom_controls WHERE name = 'Consent version date';
 ALTER TABLE consent_masters DROP COLUMN qc_nd_consent_version_date;
 ALTER TABLE consent_masters_revs DROP COLUMN qc_nd_consent_version_date;
@@ -267,16 +267,16 @@ AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND TreatmentDetail.type IN ("33 tx 6600 cGy", '33 Tx en 6600 Gy')
 AND treatment_type IN ('radiotherapy');
 
-SET @control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiotherapy Sites');
+SET @rdx_sites_control_id = (SELECT id FROM structure_permissible_values_custom_controls WHERE name = 'Radiotherapy Sites');
 INSERT INTO `structure_permissible_values_customs` (`value`, en,fr, `use_as_input`, `control_id`)
 VALUES
-('head and neck','Head and Neck', 'Tête et cou', 1, @control_id ),
-('sinus','Sinus', 'Sinus', 1, @control_id ),
-('brain','Brain', 'Cerveau', 1, @control_id ),
-('thorax/lung','Thorax/Lung', 'Thorax/Poumon', 1, @control_id ),
-('true pelvis', 'True Pelvis', 'Petit bassin', 1, @control_id ),
-('bone','Bone', 'Os', 1, @control_id ),
-('mouth','Mouth','Bouche', 1, @control_id );
+('head and neck','Head and Neck', 'Tête et cou', 1, @rdx_sites_control_id ),
+('sinus','Sinus', 'Sinus', 1, @rdx_sites_control_id ),
+('brain','Brain', 'Cerveau', 1, @rdx_sites_control_id ),
+('thorax/lung','Thorax/Lung', 'Thorax/Poumon', 1, @rdx_sites_control_id ),
+('true pelvis', 'True Pelvis', 'Petit bassin', 1, @rdx_sites_control_id ),
+('bone','Bone', 'Os', 1, @rdx_sites_control_id ),
+('mouth','Mouth','Bouche', 1, @rdx_sites_control_id );
 
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentDetail.treatment_site = "prostate bed", TreatmentDetail.type = NULL, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -421,9 +421,9 @@ AND ((treatment_site IS NOT NULL AND treatment_site NOT LIKE '') OR
 (dosage IS NOT NULL AND dosage NOT LIKE '') OR  
 (notes IS NOT NULL AND notes NOT LIKE ''));
 
-SET @control_id = (SELECT id FROM event_controls WHERE event_type = 'procure follow-up worksheet - clinical note');
+SET @ev_note_control_id = (SELECT id FROM event_controls WHERE event_type = 'procure follow-up worksheet - clinical note');
 INSERT INTO event_masters (participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, created, created_by, modified, modified_by)
-(SELECT TreatmentMaster.participant_id, @control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by
+(SELECT TreatmentMaster.participant_id, @ev_note_control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by
 FROM treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND treatment_type IN ('other treatment')
@@ -440,10 +440,10 @@ OR TreatmentDetail.type LIKE '%radiotherapie recommandee, mais non confirmee%'
 OR TreatmentDetail.type LIKE '%refus d%'
 OR TreatmentDetail.type LIKE '%traitement systemique non administre (non prevu)%' 
 OR TreatmentDetail.type LIKE '%transfert du patient a un autre etablissement%'));
-INSERT INTO procure_ed_followup_worksheet_clinical_notes (event_master_id) (SELECT id FROM event_masters WHERE event_control_id = @control_id AND id NOT IN (SELECT event_master_id FROM procure_ed_followup_worksheet_clinical_notes));
+INSERT INTO procure_ed_followup_worksheet_clinical_notes (event_master_id) (SELECT id FROM event_masters WHERE event_control_id = @ev_note_control_id AND id NOT IN (SELECT event_master_id FROM procure_ed_followup_worksheet_clinical_notes));
 INSERT INTO event_masters_revs (id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, version_created, modified_by)
-(SELECT id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, modified, modified_by FROM event_masters WHERE event_control_id = @control_id AND modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_ed_followup_worksheet_clinical_notes_revs (event_master_id, version_created) (SELECT id, modified FROM event_masters WHERE event_control_id = @control_id AND modified = @modified AND modified_by = @modified_by);
+(SELECT id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, modified, modified_by FROM event_masters WHERE event_control_id = @ev_note_control_id AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_ed_followup_worksheet_clinical_notes_revs (event_master_id, version_created) (SELECT id, modified FROM event_masters WHERE event_control_id = @ev_note_control_id AND modified = @modified AND modified_by = @modified_by);
  
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentMaster.notes = TreatmentDetail.type, TreatmentMaster.deleted = 1, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -557,19 +557,19 @@ AND Drug.type = 'prostate'
 AND Drug.deleted <> 1
 AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("acide zoledronique","denosumab","denosumab ou placebo","finasteride");
-SET @control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'procure medication worksheet - drug');
+SET @ev_drug_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'procure medication worksheet - drug');
 INSERT INTO treatment_masters (participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, created, created_by, modified, modified_by,facility,information_source)
-(SELECT TreatmentMaster.participant_id, @control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, TreatmentDetail.drug_id, '#####DRUG PROSTATE TMP####'
+(SELECT TreatmentMaster.participant_id, @ev_drug_control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, TreatmentDetail.drug_id, '#####DRUG PROSTATE TMP####'
 FROM treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("acide zoledronique","denosumab","denosumab ou placebo","finasteride"));
-INSERT INTO procure_txd_medication_drugs (treatment_master_id, drug_id) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @control_id 
+INSERT INTO procure_txd_medication_drugs (treatment_master_id, drug_id) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @ev_drug_control_id 
 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_medication_drugs) AND information_source = '#####DRUG PROSTATE TMP####' AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO treatment_masters_revs (id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, version_created, modified_by)
-(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####DRUG PROSTATE TMP####' AND modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_txd_medication_drugs_revs (treatment_master_id, drug_id, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####DRUG PROSTATE TMP####' AND modified = @modified AND modified_by = @modified_by);
+(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @ev_drug_control_id AND information_source = '#####DRUG PROSTATE TMP####' AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_medication_drugs_revs (treatment_master_id, drug_id, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @ev_drug_control_id AND information_source = '#####DRUG PROSTATE TMP####' AND modified = @modified AND modified_by = @modified_by);
 UPDATE treatment_masters SET facility = '', information_source = '' WHERE information_source = '#####DRUG PROSTATE TMP####';
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentMaster.notes = TreatmentDetail.type, TreatmentMaster.deleted = 1, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -580,20 +580,20 @@ AND TreatmentDetail.type IN ("acide zoledronique","denosumab","denosumab ou plac
 
 -- *** Other Treatment => other tumor treatment *** 
 
-SET @control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'procure follow-up worksheet - other tumor tx');
+SET @other_tumor_tx_control_id = (SELECT id FROM treatment_controls WHERE tx_method = 'procure follow-up worksheet - other tumor tx');
 
 INSERT INTO treatment_masters (participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, created, created_by, modified, modified_by,facility,information_source)
-(SELECT TreatmentMaster.participant_id, @control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'chemotherapy', '#####OTHER TUMOR TX TMP####'
+(SELECT TreatmentMaster.participant_id, @other_tumor_tx_control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'chemotherapy', '#####OTHER TUMOR TX TMP####'
 FROM treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("protocole folfox","protocole mfolfox 6"));
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @control_id 
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id 
 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_other_tumor_treatments) AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO treatment_masters_revs (id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, version_created, modified_by)
-(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 UPDATE treatment_masters SET facility = '', information_source = '' WHERE information_source = '#####OTHER TUMOR TX TMP####';
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentMaster.notes = TreatmentDetail.type, TreatmentMaster.deleted = 1, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -603,17 +603,17 @@ AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("protocole folfox","protocole mfolfox 6");
 
 INSERT INTO treatment_masters (participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, created, created_by, modified, modified_by,facility,information_source)
-(SELECT TreatmentMaster.participant_id, @control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'other', '#####OTHER TUMOR TX TMP####'
+(SELECT TreatmentMaster.participant_id, @other_tumor_tx_control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'other', '#####OTHER TUMOR TX TMP####'
 FROM treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("bcg","everolimus","interferon alfa-2b","protocole 5-fu perfusion + rt pre-operatoire","protocole docetaxel + prednisone","protocole gemcitabine","protocole pemetrexed-cisplatin","protocole r + fc","protocole r-cop","protocole taxol + cisplatin + 5-fu","protocole taxol/carboplatin","rituximab"));
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @control_id 
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id 
 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_other_tumor_treatments) AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO treatment_masters_revs (id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, version_created, modified_by)
-(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 UPDATE treatment_masters SET facility = '', information_source = '' WHERE information_source = '#####OTHER TUMOR TX TMP####';
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentMaster.notes = TreatmentDetail.type, TreatmentMaster.deleted = 1, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -623,17 +623,17 @@ AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("bcg","everolimus","interferon alfa-2b","protocole 5-fu perfusion + rt pre-operatoire","protocole docetaxel + prednisone","protocole gemcitabine","protocole pemetrexed-cisplatin","protocole r + fc","protocole r-cop","protocole taxol + cisplatin + 5-fu","protocole taxol/carboplatin","rituximab");
 
 INSERT INTO treatment_masters (participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, created, created_by, modified, modified_by,facility,information_source)
-(SELECT TreatmentMaster.participant_id, @control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'radiotherapy', '#####OTHER TUMOR TX TMP####'
+(SELECT TreatmentMaster.participant_id, @other_tumor_tx_control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'radiotherapy', '#####OTHER TUMOR TX TMP####'
 FROM treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("protocole cisplatin + radiotherapie"));
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @control_id 
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id 
 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_other_tumor_treatments) AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO treatment_masters_revs (id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, version_created, modified_by)
-(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 UPDATE treatment_masters SET facility = '', information_source = '' WHERE information_source = '#####OTHER TUMOR TX TMP####';
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentMaster.notes = TreatmentDetail.type, TreatmentMaster.deleted = 1, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -643,17 +643,17 @@ AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("protocole cisplatin + radiotherapie");
 
 INSERT INTO treatment_masters (participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, created, created_by, modified, modified_by,facility,information_source)
-(SELECT TreatmentMaster.participant_id, @control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'surgery', '#####OTHER TUMOR TX TMP####'
+(SELECT TreatmentMaster.participant_id, @other_tumor_tx_control_id, procure_form_identification, TreatmentMaster.start_date,  TreatmentMaster.start_date_accuracy, TreatmentDetail.type, created, created_by, @modified, @modified_by, 'surgery', '#####OTHER TUMOR TX TMP####'
 FROM treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 WHERE TreatmentMaster.deleted <> 1
 AND TreatmentMaster.id = TreatmentDetail.treatment_master_id
 AND treatment_type IN ('other treatment')
 AND TreatmentDetail.type IN ("colostomie","cystectomie partielle","destruction de tumeur de la vessie","destruction de tumeur du foie","dissection des ganglions regionaux de la tete et du cou","excision de tumeur de la cornee","gastrectomie partielle/subtotale/hemi","hemicolectomie droite","hepatectomie partielle","ileostomie","installation d'une endoprothese des voies biliaires","laparotomie","mastectomie","nephrectomie","nephrectomie partielle/subtotale","nephrectomie radicale","nephro-ureterectomie","pancreatectomie corporeo-caudale","polypectomie du rectum","splenectomie"));
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @control_id 
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments (treatment_master_id, treatment_type) (SELECT id, facility FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id 
 AND id NOT IN (SELECT treatment_master_id FROM procure_txd_followup_worksheet_other_tumor_treatments) AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO treatment_masters_revs (id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, version_created, modified_by)
-(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+(SELECT id, participant_id, treatment_control_id, procure_form_identification, start_date, start_date_accuracy, notes, modified, modified_by FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_txd_followup_worksheet_other_tumor_treatments_revs (treatment_master_id, treatment_type, version_created) (SELECT id, facility, modified FROM treatment_masters WHERE treatment_control_id = @other_tumor_tx_control_id AND information_source = '#####OTHER TUMOR TX TMP####' AND modified = @modified AND modified_by = @modified_by);
 UPDATE treatment_masters SET facility = '', information_source = '' WHERE information_source = '#####OTHER TUMOR TX TMP####';
 UPDATE treatment_masters TreatmentMaster, procure_txd_followup_worksheet_treatments TreatmentDetail
 SET TreatmentMaster.notes = TreatmentDetail.type, TreatmentMaster.deleted = 1, TreatmentMaster.modified = @modified, TreatmentMaster.modified_by = @modified_by
@@ -707,51 +707,51 @@ SET @modified = (SELECT NOW() FROM users WHERE username = 'Migration');
 
 -- Set results
 
-SET @ev_cl_ev_control_id = (SELECT id FROM event_controls WHERE event_type= 'procure follow-up worksheet - clinical event');
+SET @clinical_ev_control_id = (SELECT id FROM event_controls WHERE event_type= 'procure follow-up worksheet - clinical event');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'negative', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : negatif' OR event_summary LIKE '% : négatif');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : negatif' OR event_summary LIKE '% : négatif');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'positive', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : positif' OR event_summary LIKE '% : positif, en progression');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : positif' OR event_summary LIKE '% : positif, en progression');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'suspicious', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : suspect');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE '% : suspect');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'negative', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'negatif%' OR event_summary LIKE 'négatif%');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'negatif%' OR event_summary LIKE 'négatif%');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'positive', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'positif%');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'positif%');
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET results = 'suspicious', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'suspect%');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'suspect%');
 
---- Move some records to notes
+-- Move some records to notes
 
 SET @ev_note_control_id = (SELECT id FROM event_controls WHERE event_type = 'procure follow-up worksheet - clinical note');
 INSERT INTO event_masters (participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, created, created_by, modified, modified_by)
 (SELECT participant_id, @ev_note_control_id, procure_form_identification,  event_date, event_date_accuracy, event_summary, created, created_by, @modified, @modified_by
 FROM event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%'));
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%'));
 INSERT INTO procure_ed_followup_worksheet_clinical_notes (event_master_id) (SELECT id FROM event_masters WHERE event_control_id = @ev_note_control_id AND id NOT IN (SELECT event_master_id FROM procure_ed_followup_worksheet_clinical_notes));
 INSERT INTO event_masters_revs (id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, version_created, modified_by)
 (SELECT id, participant_id, event_control_id, procure_form_identification, event_date, event_date_accuracy, event_summary, modified, modified_by FROM event_masters WHERE event_control_id = @ev_note_control_id AND modified = @modified AND modified_by = @modified_by);
 INSERT INTO procure_ed_followup_worksheet_clinical_notes_revs (event_master_id, version_created) (SELECT id, modified FROM event_masters WHERE event_control_id = @ev_note_control_id AND modified = @modified AND modified_by = @modified_by);
 UPDATE event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail
 SET deleted = '1', modified = @modified, modified_by = @modified_by
-WHERE id = event_master_id AND event_control_id = @ev_cl_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND (event_summary LIKE 'premiere visite a la%' OR event_summary LIKE 'symptomes post-operatoires%');
 
-SELECT 'TODO finir clean up autre exam clinique?
-SELECT 'TODO veut on compléter le site a partir de la liste?
+SELECT 'TODO finir clean up autre exam clinique?' as msg;
+SELECT 'TODO veut on compléter le site a partir de la liste?' as msg;
 -- type other and other imaging
 SELECT distinct type, event_summary FROM event_masters EventMaster, procure_ed_clinical_followup_worksheet_clinical_events EventDetail 
-WHERE id = event_master_id AND event_control_id = @control_id AND deleted <> 1 AND type IN ('other', 'other imaging');
+WHERE id = event_master_id AND event_control_id = @clinical_ev_control_id AND deleted <> 1 AND type IN ('other', 'other imaging');
 
 -- revs table
 
-INSERT INTO event_masters_revs (id, event_control_id, event_summary, version_created,modified_by) (SELECT id, event_control_id, event_summary, modified,modified_by FROM event_masters WHERE event_control_id = @ev_cl_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
-INSERT INTO procure_ed_clinical_followup_worksheet_clinical_events_revs (type,event_master_id,version_created,results,sites ) (SELECT type,id, modified,results,sites FROM event_masters INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events ON id = event_master_id WHERE event_control_id = @ev_cl_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
+INSERT INTO event_masters_revs (id, event_control_id, event_summary, version_created,modified_by) (SELECT id, event_control_id, event_summary, modified,modified_by FROM event_masters WHERE event_control_id = @clinical_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
+INSERT INTO procure_ed_clinical_followup_worksheet_clinical_events_revs (type,event_master_id,version_created,results,sites ) (SELECT type,id, modified,results,sites FROM event_masters INNER JOIN procure_ed_clinical_followup_worksheet_clinical_events ON id = event_master_id WHERE event_control_id = @clinical_ev_control_id AND  modified = @modified AND modified_by = @modified_by);
 
  -- -----------------------------------------------------------------------------------------------------------------------------------------------
 -- SET Followup - Missing Date  & Fiche des médicaments - missing date
@@ -795,15 +795,13 @@ FROM treatment_masters INNER JOIN procure_txd_medications ON id = treatment_mast
 
 SELECT procure_form_identification AS '### MESSAGE ### Follow-up Worksheet with no date (after clean up) to correct', participant_id, EventMaster.id AS event_master_id
 FROM event_masters EventMaster INNER JOIN event_controls EventControl ON EventMaster.event_control_id = EventControl.id 
-WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '');
+WHERE EventMaster.deleted <> 1 AND EventControl.event_type IN ('procure follow-up worksheet') AND (EventMaster.event_date IS NULL OR EventMaster.event_date LIKE '')
+ORDER BY procure_form_identification;
 
 SELECT procure_form_identification AS '### MESSAGE ### Medication Worksheet with no date (after clean up) to correct', participant_id, TreatmentMaster.id AS treatment_master_id
 FROM treatment_masters TreatmentMaster INNER JOIN treatment_controls TreatmentControl ON TreatmentMaster.treatment_control_id = TreatmentControl.id 
-WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '');
-
-
-
-
+WHERE TreatmentMaster.deleted <> 1 AND TreatmentControl.tx_method = 'procure medication worksheet' AND (TreatmentMaster.start_date IS NULL OR TreatmentMaster.start_date LIKE '')
+ORDER BY procure_form_identification;
 
 
 
