@@ -8,7 +8,7 @@ class AliquotMasterCustom extends AliquotMaster {
 		$val_res = parent::validates($options);
 		
 		if(array_key_exists('block_type', $this->data['AliquotDetail']) 
-		&& !in_array(($this->data['AliquotDetail']['block_type'].$this->data['AliquotDetail']['procure_freezing_type']), array('frozen','frozenISO','frozenISO+OCT','paraffin'))) {
+		&& !in_array(($this->data['AliquotDetail']['block_type'].$this->data['AliquotDetail']['procure_freezing_type']), array('frozen','frozenISO','frozenISO+OCT','frozenOCT','paraffin'))) {
 			$this->validationErrors['procure_freezing_type'][] = 'only frozen blocks can be associated to a freezing type';
 			$val_res = false;
 		}
@@ -26,7 +26,10 @@ class AliquotMasterCustom extends AliquotMaster {
 			$this->validationErrors['procure_concentration_unit_nanodrop'][] = 'concentration unit has to be completed';
 			$val_res = false;
 		}
-			
+		if(array_key_exists('procure_freezing_type', $this->data['AliquotDetail']) && $this->data['AliquotDetail']['procure_freezing_type'] == 'OCT'){
+			AppController::addWarningMsg(__('block freezing type OCT has not to be used anymore'));
+		}	
+		
 		return $val_res;
 	}
 	
